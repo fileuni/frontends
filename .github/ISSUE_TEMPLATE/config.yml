@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "🐛 Report a Bug"
+    url: https://github.com/fileuni/fileuni/issues/new/choose
+    about: "Please report bugs in the main repository to centralize issue tracking and improve response efficiency."
+  - name: "💡 Feature Request / Improvement"
+    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
+    about: "Start in main-repo Discussions first. Proposals are scheduled only after maintainer review confirms clear value and no security/performance regressions."
+  - name: "📚 Documentation Discussion"
+    url: https://github.com/fileuni/fileuni/discussions/new?category=documentation
+    about: "For documentation gaps or unclear guidance, open a documentation discussion in the main repository."
