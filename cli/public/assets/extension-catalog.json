@@ -1,0 +1,38 @@
+{
+  "install_dir": "./data/extensions/bin",
+  "tools": {
+    "openlist": {
+      "homepage": "https://github.com/OpenListTeam/OpenList",
+      "description_zh": "OpenList 是面向多存储后端的文件索引与管理服务，提供统一 Web 界面和 API。",
+      "description_en": "OpenList is a unified file indexing and management service across multiple storage backends.",
+      "default_version": "4.1.1",
+      "executable_name": "openlist",
+      "download_url_template": "https://github.com/OpenListTeam/OpenList/releases/download/v{version}/openlist-{os}-{arch}.tar.gz",
+      "github_base_url": "",
+      "arch_alias_amd64": "amd64",
+      "arch_alias_arm64": "arm64"
+    },
+    "rclone": {
+      "homepage": "https://github.com/rclone/rclone",
+      "description_zh": "Rclone 提供统一命令行访问云存储，支持同步、挂载和复制。",
+      "description_en": "Rclone offers unified CLI access to cloud storage for sync, mount, and copy.",
+      "default_version": "1.72.1",
+      "executable_name": "rclone",
+      "download_url_template": "https://github.com/rclone/rclone/releases/download/v{version}/rclone-v{version}-{os}-{arch}.zip",
+      "github_base_url": "",
+      "os_alias_macos": "osx",
+      "arch_alias_arm64": "arm64"
+    },
+    "kopia": {
+      "homepage": "https://github.com/kopia/kopia",
+      "description_zh": "Kopia 是端到端加密的增量备份工具，支持本地和远端仓库。",
+      "description_en": "Kopia is an end-to-end encrypted incremental backup tool for local and remote repositories.",
+      "default_version": "0.22.3",
+      "executable_name": "kopia",
+      "download_url_template": "https://github.com/kopia/kopia/releases/download/v{version}/kopia-{version}-{os}-{arch}.tar.gz",
+      "github_base_url": "",
+      "arch_alias_amd64": "x64",
+      "arch_alias_arm64": "arm64"
+    }
+  }
+}

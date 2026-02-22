@@ -1,0 +1,15 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" rx="36" fill="url(#logo-grad-comp)" />
+  <rect x="44" y="44" width="40" height="40" rx="6" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="64" cy="64" r="6" fill="white" />
+  <path d="M54 36V24M64 36V24M74 36V24" stroke="white" stroke-width="8" stroke-linecap="round" />
+  <path d="M54 104V92M64 104V92M74 104V92" stroke="white" stroke-width="8" stroke-linecap="round" />
+  <path d="M36 54H24M36 64H24M36 74H24" stroke="white" stroke-width="8" stroke-linecap="round" />
+  <path d="M104 54H92M104 64H92M104 74H92" stroke="white" stroke-width="8" stroke-linecap="round" />
+  <defs>
+    <linearGradient id="logo-grad-comp" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6" />
+      <stop offset="1" stop-color="#8B5CF6" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Astro
+.astro/
+dist/
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Locks (Optional, keeping them ignored for sub-apps by convention)
+bun.lock
+src-tauri/Cargo.lock
+
+# Logs
+*.log
+
+# Misc
+.DS_Store
+*.swp
+*~

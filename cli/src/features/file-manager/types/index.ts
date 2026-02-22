@@ -1,0 +1,37 @@
+export interface FileInfo {
+  id?: string; // 唯一标识符，对于分享来说是分享ID / Unique identifier, share ID for shares
+  name: string;
+  path: string;
+  is_dir: boolean;
+  size: number;
+  modified: string;
+  favorite_color: number;
+  has_active_share?: boolean;
+  has_active_direct?: boolean;
+  trashed_at?: string;
+  original_path?: string;
+  accessed_at?: string; // 浏览器访问时间 / Browser access timestamp
+
+  // Share specific fields (optional)
+  view_count?: number;
+  max_downloads?: number;
+  expire_at?: string;
+  has_password?: boolean;
+  enable_direct?: boolean;
+  created_at?: string; // For shares, this is the start of sharing
+}
+
+export type ViewMode = 'grid' | 'list';
+export type FileManagerMode = 'files' | 'recent' | 'trash' | 'favorites' | 'shares';
+
+export interface StorageStats {
+  used: number;
+  quota: number;
+}
+
+export interface ClipboardItem {
+  path: string;
+  name: string;
+  is_dir: boolean;
+  type: 'copy' | 'cut';
+}
