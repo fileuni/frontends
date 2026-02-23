@@ -77,7 +77,7 @@ export const GlobalAudioPlayer = () => {
         const url = i < initialTracksCount ? await getTrackUrl(t.path) : '';
         return {
           name: t.name,
-          artist: t.artist || 'RS-Core VFS',
+          artist: t.artist || 'FileUni VFS',
           url: url,
           cover: t.cover || '/assets/audio-cover.svg',
           theme: '#3b82f6',

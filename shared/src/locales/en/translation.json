@@ -1,6 +1,6 @@
 {
   "welcome": {
-    "title": "Welcome to RS-Core",
+    "title": "Welcome to FileUni",
     "subtitle": "Start your beautiful day",
     "getStarted": "Login",
     "apiDoc": "API Documentation",
@@ -29,7 +29,7 @@
     "backToWorkspace": "Back to Workspace",
     "acceptableUse": {
       "title": "Acceptable Use",
-      "content": "You agree to use RS-Core only for lawful purposes. You are responsible for all activities occurring under your account."
+      "content": "You agree to use FileUni only for lawful purposes. You are responsible for all activities occurring under your account."
     },
     "termination": {
       "title": "Termination",
@@ -37,7 +37,7 @@
     },
     "disclaimers": {
       "title": "Disclaimers",
-      "content": "RS-Core is provided \"as is\". While we aim for 99.9% uptime, we recommend maintaining external backups for critical data."
+      "content": "FileUni is provided \"as is\". While we aim for 99.9% uptime, we recommend maintaining external backups for critical data."
     }
   },
   "filemanager": {
@@ -125,7 +125,7 @@
       "qrDesc": "Scan to get full share info",
       "done": "Done",
       "copyFormat": {
-        "title": "[RS-Core Share]",
+        "title": "[FileUni Share]",
         "file": "File",
         "link": "Share Link",
         "password": "Password",
@@ -733,7 +733,7 @@
       "title": "File Management"
     },
     "index": {
-      "title": "RS-Core - High-performance modular system"
+      "title": "FileUni - High-performance modular system"
     },
     "user": {
       "welcome": {
@@ -1755,7 +1755,7 @@
   },
   "configSet": {
     "wizard": {
-      "title": "RS-Core Initialization",
+      "title": "FileUni Initialization",
       "subtitle": "Configure your high-performance file management system"
     },
     "steps": {
@@ -2238,7 +2238,7 @@
     "importNow": "Import Now"
   },
   "launcher": {
-    "title": "RS-Core Launcher",
+    "title": "FileUni Launcher",
     "subtitle": "High Performance File Core",
     "service_control": "Service Control",
     "service_control_desc": "Manage the background core process",
@@ -2304,7 +2304,7 @@
     "confirm_password": "Confirm Password",
     "switch_language": "Switch Language",
     "toggle_theme": "Toggle Theme",
-    "footer_product": "RS-CORE",
+    "footer_product": "FILEUNI",
     "footer_build": "Build 2026.02.10",
     "footer_ready": "Ready",
     "install_level": "Install Level",
@@ -2333,7 +2333,7 @@
   },
   "setup": {
     "wizard": {
-      "title": "RS-Core Initialization",
+      "title": "FileUni Initialization",
       "subtitle": "Configure your high-performance file management system"
     },
     "steps": {

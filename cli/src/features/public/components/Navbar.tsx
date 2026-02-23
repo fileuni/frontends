@@ -110,7 +110,7 @@ export const Navbar = () => {
         {/* Brand */}
         <a href={`${base}mod=public&page=index`} className="flex items-center gap-3 group shrink-0">
           <Logo size={36} className="shadow-lg rounded-xl" />
-          <span className={cn("font-black text-lg tracking-tight hidden sm:block", isDark ? "text-white" : "text-gray-900")}>RS-Core</span>
+          <span className={cn("font-black text-lg tracking-tight hidden sm:block", isDark ? "text-white" : "text-gray-900")}>FileUni</span>
         </a>
 
         {/* Right Section */}

@@ -1,10 +1,10 @@
 # frontends/cli - Static Frontend Resource Management Module
 
-This is the static frontend resource management module for the RS-Core system. Built with Bun + Astro + React + shadcn/ui, it generates static files that are fully embedded into the Rust binary, achieving integrated frontend-backend deployment.
+This is the static frontend resource management module for the FileUni system. Built with Bun + Astro + React + shadcn/ui, it generates static files that are fully embedded into the Rust binary, achieving integrated frontend-backend deployment.
 
 ## Overview
 
-As the frontend presentation layer of the RS-Core system, the cli module is designed for static embedding, providing a complete user interface and interactive features. Built on React 19 with Astro SSG (Static Site Generation) mode.
+As the frontend presentation layer of the FileUni system, the cli module is designed for static embedding, providing a complete user interface and interactive features. Built on React 19 with Astro SSG (Static Site Generation) mode.
 
 ## Caching Specification (Simplified)
 

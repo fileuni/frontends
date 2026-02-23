@@ -56,7 +56,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     };
 
     fetchToken();
-    document.title = `${activeFile.name} - RS-Core`;
+    document.title = `${activeFile.name} - FileUni`;
     setTransform({ scale: 1, rotate: 0, flipH: false });
   }, [currentIndex]); // 只依赖 currentIndex，因为 activeFile 是派生状态 / Only depend on currentIndex
 

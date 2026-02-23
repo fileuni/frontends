@@ -1,6 +1,6 @@
 {
   "welcome": {
-    "title": "欢迎使用 RS-Core",
+    "title": "欢迎使用 FileUni",
     "subtitle": "开启美好的一天",
     "getStarted": "登录",
     "apiDoc": "API 文档",
@@ -29,7 +29,7 @@
     "backToWorkspace": "返回工作区",
     "acceptableUse": {
       "title": "可接受使用",
-      "content": "您同意仅将 RS-Core 用于合法目的。您对您账户下发生的所有活动负责。"
+      "content": "您同意仅将 FileUni 用于合法目的。您对您账户下发生的所有活动负责。"
     },
     "termination": {
       "title": "终止条款",
@@ -37,7 +37,7 @@
     },
     "disclaimers": {
       "title": "免责声明",
-      "content": "RS-Core 按\"原样\"提供。虽然我们致力于 99.9% 的正常运行时间，但我们建议为关键数据维护外部备份。"
+      "content": "FileUni 按\"原样\"提供。虽然我们致力于 99.9% 的正常运行时间，但我们建议为关键数据维护外部备份。"
     }
   },
   "filemanager": {
@@ -125,7 +125,7 @@
       "qrDesc": "扫描二维码获取完整分享信息",
       "done": "完成",
       "copyFormat": {
-        "title": "[RS-Core 文件分享]",
+        "title": "[FileUni 文件分享]",
         "file": "文件",
         "link": "分享链接",
         "password": "提取密码",
@@ -782,7 +782,7 @@
       "title": "文件管理"
     },
     "index": {
-      "title": "RS-Core - 高性能模块化系统"
+      "title": "FileUni - 高性能模块化系统"
     },
     "user": {
       "welcome": {
@@ -1779,7 +1779,7 @@
   "configSet": {
     "wizard": {
       "title": "系统初始化向导",
-      "subtitle": "配置并初始化您的 RS-Core 高性能文件管理系统"
+      "subtitle": "配置并初始化您的 FileUni 高性能文件管理系统"
     },
     "steps": {
       "step": "步骤",
@@ -2243,7 +2243,7 @@
     "importNow": "立即导入"
   },
   "launcher": {
-    "title": "RS-Core 启动器",
+    "title": "FileUni 启动器",
     "subtitle": "高性能文件内核",
     "service_control": "服务控制",
     "service_control_desc": "管理后台核心进程",
@@ -2309,7 +2309,7 @@
     "confirm_password": "确认新密码",
     "switch_language": "切换语言",
     "toggle_theme": "切换主题",
-    "footer_product": "RS-CORE",
+    "footer_product": "FILEUNI",
     "footer_build": "构建 2026.02.10",
     "footer_ready": "就绪",
     "install_level": "安装级别",
@@ -2339,7 +2339,7 @@
   "setup": {
     "wizard": {
       "title": "系统初始化向导",
-      "subtitle": "配置并初始化您的 RS-Core 高性能文件管理系统"
+      "subtitle": "配置并初始化您的 FileUni 高性能文件管理系统"
     },
     "steps": {
       "step": "步骤",

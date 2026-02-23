@@ -15,7 +15,7 @@ export default defineConfig({
       },
     },
     optimizeDeps: {
-      exclude: ['@rs-core/shared'],
+      exclude: ['@fileuni/shared'],
       include: ['react-i18next', 'lucide-react', 'zustand', 'zustand/middleware'],
     },
     plugins: [tailwindcss()],

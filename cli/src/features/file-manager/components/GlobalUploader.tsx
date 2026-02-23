@@ -354,7 +354,7 @@ export const GlobalUploader = () => {
             </button>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold opacity-30 italic">
-                NasCore
+                FileUni
               </span>
             </div>
           </div>

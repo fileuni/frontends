@@ -1,8 +1,8 @@
 /**
  * 服务状态管理 / Service State Management
  * 
- * 使用 Zustand 管理 RS-Core 服务的全局状态
- * Uses Zustand to manage global RS-Core service state
+ * 使用 Zustand 管理 FileUni 服务的全局状态
+ * Uses Zustand to manage global FileUni service state
  */
 
 import { create } from 'zustand';

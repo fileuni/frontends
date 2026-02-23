@@ -42,7 +42,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     const tracks: AudioTrack[] = audioFiles.map(f => ({
       name: f.name,
       path: f.path,
-      artist: 'RS-Core VFS',
+      artist: 'FileUni VFS',
       cover: '/assets/audio-cover.svg'
     }));
 
@@ -54,7 +54,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       currentTrack: tracks[index] || {
         name: file.name,
         path: file.path,
-        artist: 'RS-Core VFS',
+        artist: 'FileUni VFS',
         cover: '/assets/audio-cover.svg'
       },
       playlist: tracks,
@@ -87,7 +87,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       .map(f => ({
         name: f.name,
         path: f.path,
-        artist: 'RS-Core VFS',
+        artist: 'FileUni VFS',
         cover: '/assets/audio-cover.svg'
       }));
     set({ playlist: tracks });
