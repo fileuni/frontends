@@ -13,7 +13,7 @@ import {
   Zap,
   FileText,
 } from 'lucide-react';
-import { useThemeStore, type Theme, useLanguageStore, type Language,   Logo,
+import { useThemeStore, type Theme, useLanguageStore, type Language,
   type LogEntry,
   ToastContainer,
   toast,
@@ -447,7 +447,7 @@ export default function Launcher() {
         <div className="flex items-center justify-between p-6 sm:p-8 border-b border-slate-200/50 dark:border-slate-800/40 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
           <div className="flex items-center gap-5">
             <div className="relative group">
-              <Logo size={56} className="shadow-xl shadow-cyan-500/20 shrink-0 transform group-hover:scale-110 transition-all duration-500 ease-out" />
+              <img src="/favicon.svg" alt="FileUni Logo" width={56} height={56} className="shadow-xl shadow-cyan-500/20 shrink-0 transform group-hover:scale-110 transition-all duration-500 ease-out" />
               {/* 状态指示器 / Status indicator */}
               <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-4 border-white dark:border-slate-900 shadow-sm ${status === 'Running' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
             </div>

@@ -1,5 +1,5 @@
-export * from './components/Logo';
 export * from './components/ConfigPathSelector';
+
 export * from './components/AdminPasswordPanel';
 export * from './components/ConfigRawEditor';
 export * from './components/ConfigEditorPanel';

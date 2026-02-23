@@ -16,7 +16,7 @@ import {
 import { cn } from '@/lib/utils.ts';
 import { StatusIndicator } from './StatusIndicator.tsx';
 import { useChat } from '@/hooks/ChatContext.tsx';
-import { Logo } from '@fileuni/shared';
+
 
 export const Navbar = () => {
   const { theme, setTheme } = useThemeStore();
@@ -109,7 +109,7 @@ export const Navbar = () => {
       )}>
         {/* Brand */}
         <a href={`${base}mod=public&page=index`} className="flex items-center gap-3 group shrink-0">
-          <Logo size={36} className="shadow-lg rounded-xl" />
+          <img src="/ui/favicon.svg" alt="FileUni Logo" width={36} height={36} className="shadow-lg rounded-xl" />
           <span className={cn("font-black text-lg tracking-tight hidden sm:block", isDark ? "text-white" : "text-gray-900")}>FileUni</span>
         </a>
 

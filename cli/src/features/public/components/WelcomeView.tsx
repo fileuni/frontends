@@ -16,7 +16,7 @@ import { useAuthStore } from "@/stores/auth.ts";
 import { useThemeStore } from "@fileuni/shared";
 import { cn } from "@/lib/utils.ts";
 import type { SystemCapabilities } from "@/stores/config.ts";
-import { Logo } from "@fileuni/shared";
+
 
 export const WelcomeView = () => {
   const { t } = useTranslation();
@@ -76,7 +76,7 @@ export const WelcomeView = () => {
 
       <div className="relative z-10 max-w-5xl w-full px-6 py-12 text-center">
         <div className="inline-flex mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-          <Logo size={80} className="shadow-2xl shadow-primary/20" />
+          <img src="/ui/favicon.svg" alt="FileUni Logo" width={80} height={80} className="shadow-2xl shadow-primary/20" />
         </div>
 
         <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-tight">

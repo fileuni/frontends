@@ -15,7 +15,7 @@ export const useChatNotifications = (messages: Message[], selfId: string) => {
       if (Notification.permission === 'granted') {
         new Notification(`New message from ${latest.from}`, {
           body: latest.content,
-          icon: '/favicon.svg'
+          icon: 'https://fileuni.com/favicon.svg'
         });
       }
     }

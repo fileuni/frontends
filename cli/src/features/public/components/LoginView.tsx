@@ -30,7 +30,7 @@ import {
 import { client, extractData, isApiError, postCaptchaPolicy } from "@/lib/api.ts";
 import { normalizeEmailInput, normalizePhoneInput } from "@/lib/contactNormalize.ts";
 import type { components } from "@/types/api.ts";
-import { Logo } from "@fileuni/shared";
+
 import { TurnstileWidget } from "@/components/common/TurnstileWidget.tsx";
 
 type UserSession = components["schemas"]["UserSession"];
@@ -282,7 +282,7 @@ export const LoginView = () => {
           <div className="p-10 pt-12">
             <div className="text-center mb-10">
               <div className="inline-flex items-center justify-center mb-4">
-                <Logo size={64} className="shadow-lg" />
+                <img src="/ui/favicon.svg" alt="FileUni Logo" width={64} height={64} className="shadow-lg" />
               </div>
               <h1 className={cn("text-3xl font-black tracking-tight mb-1", isDark ? "text-white" : "text-gray-900")}>
                 {t("common.login")}

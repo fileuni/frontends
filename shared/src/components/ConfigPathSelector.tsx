@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Check, Download } from 'lucide-react';
-import { Logo } from './Logo';
+
 
 export interface ConfigPathValidationResult {
   valid: boolean;
@@ -120,7 +120,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
         <div className="bg-gradient-to-r from-blue-500 to-cyan-600 p-6 text-white">
           <div className="flex items-center gap-4">
-            <Logo size={48} className="shadow-lg" />
+            <img src="/ui/favicon.svg" alt="FileUni Logo" width={48} height={48} className="shadow-lg" />
             <div>
               <h2 className="text-lg font-bold">{t('config_selector.title')}</h2>
               <p className="text-sm text-blue-100">{t('config_selector.subtitle')}</p>

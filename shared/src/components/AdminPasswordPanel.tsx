@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Shield, Eye, EyeOff, RefreshCw, AlertTriangle, Check } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { Logo } from './Logo';
+
 
 export type AdminPasswordMode = 'modal' | 'panel';
 
@@ -116,7 +116,7 @@ export const AdminPasswordPanel: React.FC<AdminPasswordPanelProps> = ({
             {mode === 'modal' ? (
               <Shield size={32} className="text-amber-600 dark:text-amber-400" />
             ) : (
-              <Logo size={48} className="shadow-xl" />
+              <img src="/ui/favicon.svg" alt="FileUni Logo" width={48} height={48} className="shadow-xl" />
             )}
           </div>
           <div className={cn(mode === 'modal' ? "" : "min-w-0")}>
