@@ -1,120 +1,22 @@
 blank_issues_enabled: false
 contact_links:
-  - name: "🐛 Report a Bug"
+  - name: "🐛 Issues & Feature Requests"
     url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Report bugs in the main repository. This repo does not accept issues."
-  - name: "💡 Feature Request"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Start in main-repo Discussions first. Proposals require maintainer review."
-
-  - name: "🐛 提交 Bug"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "请在主仓库提交 Bug。本仓库不接受 Issues。"
-  - name: "💡 功能建议"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "请先在主仓库 Discussions 发起讨论，经维护者审核后方可排期。"
-
-  - name: "🐛 Fehler melden"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Bitte melden Sie Fehler im Haupt-Repository. Dieses Repository akzeptiert keine Issues."
-  - name: "💡 Funktionsanfrage"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Starten Sie zuerst in den Haupt-Discussions. Vorschläge erfordern eine Prüfung durch die Maintainer."
-
-  - name: "🐛 Signaler un bug"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Veuillez signaler les bugs dans le dépôt principal. Ce dépôt n'accepte pas les issues."
-  - name: "💡 Demande de fonctionnalité"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Commencez d'abord dans les Discussions du dépôt principal. Les propositions nécessitent un examen."
-
-  - name: "🐛 Segnala un bug"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Segnala i bug nel repository principale. Questo repository non accetta issue."
-  - name: "💡 Richiesta di funzionalità"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Inizia prima nelle Discussioni del repository principale. Le proposte richiedono la revisione."
-
-  - name: "🐛 バグを報告"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "バグはメインリポジトリで報告してください。このリポジトリはIssueを受け付けません。"
-  - name: "💡 機能リクエスト"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "まずメインリポジトリのDiscussionsで始めてください。提案には管理者のレビューが必要です。"
-
-  - name: "🐛 버그 신고"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "버그는 메인 저장소에 신고해 주세요. 이 저장소는 Issue를 받지 않습니다."
-  - name: "💡 기능 요청"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "먼저 메인 저장소 Discussions에서 시작하세요. 제안은 관리자 검토가 필요합니다."
-
-  - name: "🐛 बग रिपोर्ट करें"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "कृपया बग मुख्य रिपॉजिटरी में रिपोर्ट करें। यह रिपॉजिटरी Issues स्वीकार नहीं करती।"
-  - name: "💡 सुविधा अनुरोध"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "पहले मुख्य रिपॉजिटरी Discussions में शुरू करें। प्रस्तावों को मेंटेनर की समीक्षा चाहिए।"
-
-  - name: "🐛 Laporkan Bug"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Silakan laporkan bug di repositori utama. Repositori ini tidak menerima issue."
-  - name: "💡 Permintaan Fitur"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Mulailah di Discussions repositori utama. Proposal memerlukan tinjauan maintainer."
-
-  - name: "🐛 Báo cáo lỗi"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Vui lòng báo cáo lỗi tại kho chính. Kho này không chấp nhận issue."
-  - name: "💡 Yêu cầu tính năng"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Hãy bắt đầu tại Discussions của kho chính. Đề xuất cần được người duyệt xem xét."
-
-  - name: "🐛 รายงานบั๊ก"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "กรุณารายงานบั๊กที่รีโพสิทอรีหลัก รีโพสิทอรีนี้ไม่รับ issue"
-  - name: "💡 ขอฟีเจอร์"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "กรุณาเริ่มที่ Discussions ของรีโพสิทอรีหลักก่อน ข้อเสนอต้องได้รับการตรวจสอบจากผู้ดูแล"
-
-  - name: "🐛 Informar de un error"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Por favor, informe de los errores en el repositorio principal. Este repositorio no acepta issues."
-  - name: "💡 Solicitud de función"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Comience primero en las Discusiones del repositorio principal. Las propuestas requieren revisión."
-
-  - name: "🐛 Reportar um bug"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Por favor, reporte bugs no repositório principal. Este repositório não aceita issues."
-  - name: "💡 Solicitação de recurso"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Comece primeiro nas Discussões do repositório principal. Propostas requerem revisão."
-
-  - name: "🐛 الإبلاغ عن خطأ"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "يرجى الإبلاغ عن الأخطاء في المستودع الرئيسي. هذا المستودع لا يقبل المشكلات."
-  - name: "💡 طلب ميزة"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "ابدأ أولاً في مناقشات المستودع الرئيسي. تتطلب المقترحات مراجعة المشرف."
-
-  - name: "🐛 Сообщить об ошибке"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Пожалуйста, сообщайте об ошибках в основном репозитории. Этот репозиторий не принимает issues."
-  - name: "💡 Запрос функции"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Начните сначала в Обсуждениях основного репозитория. Предложения требуют проверки."
-
-  - name: "🐛 Hata Bildir"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "Lütfen hataları ana depoda bildirin. Bu depo issue kabul etmez."
-  - name: "💡 Özellik Talebi"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "Önce ana deponun Tartışmalar bölümünde başlayın. Öneriler inceleme gerektirir."
-
-  - name: "🐛 گزارش باگ"
-    url: https://github.com/fileuni/fileuni/issues/new/choose
-    about: "لطفاً باگ‌ها را در مخزن اصلی گزارش دهید. این مخزن issue قبول نمی‌کند."
-  - name: "💡 درخواست ویژگی"
-    url: https://github.com/fileuni/fileuni/discussions/new?category=ideas
-    about: "ابتدا در بحث‌های مخزن اصلی شروع کنید. پیشنهادات نیاز به بررسی دارند."
+    about: |
+      This repo does not accept issues. Please use the main repository:
+      本仓库不接受 Issues，请前往主仓库提交
+      Dieses Repository akzeptiert keine Issues. Bitte verwenden Sie das Haupt-Repository
+      Ce dépôt n'accepte pas les issues. Veuillez utiliser le dépôt principal
+      Questo repository non accetta issue. Si prega di utilizzare il repository principale
+      このリポジトリはIssueを受け付けません。メインリポジトリをご利用ください
+      이 저장소는 Issue를 받지 않습니다. 메인 저장소를 이용해 주세요
+      यह रिपॉजिटरी Issues स्वीकार नहीं करती। कृपया मुख्य रिपॉजिटरी का उपयोग करें
+      Repositori ini tidak menerima issue. Silakan gunakan repositori utama
+      Kho này không chấp nhận issue. Vui lòng sử dụng kho chính
+      รีโพสิทอรีนี้ไม่รับ issue กรุณาใช้รีโพสิทอรีหลัก
+      Este repositorio no acepta issues. Por favor, use el repositorio principal
+      Este repositório não aceita issues. Por favor, use o repositório principal
+      هذا المستودع لا يقبل المشكلات. يرجى استخدام المستودع الرئيسي
+      Этот репозиторий не принимает issues. Пожалуйста, используйте основной репозиторий
+      Bu depo issue kabul etmez. Lütfen ana depoyu kullanın
+      این مخزن issue قبول نمی‌کند. لطفاً از مخزن اصلی استفاده کنید
