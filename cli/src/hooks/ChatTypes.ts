@@ -1,4 +1,4 @@
-//! 聊天系统类型定义 / Chat system type definitions
+//! Chat system type definitions
 
 export type TransportBackend = "ws" | "mqtt-proxy" | "mqtt-external";
 export type TransportType = TransportBackend | "webrtc";
@@ -8,10 +8,10 @@ export interface Message {
   from: string;
   to: string;
   content: string;
-  rawContent?: string; // 原始加密文本，用于重新解密 / Original encrypted text for re-decryption
+  rawContent?: string; // Original encrypted text for re-decryption
   isEncrypted: boolean;
   isGroup: boolean;
-  replyTo?: string; // 引用的消息 ID / Quoted message ID
+  replyTo?: string; // Quoted message ID
   timestamp: number;
   transport: TransportType;
   status: "sending" | "delivered" | "read" | "failed" | "recalled";

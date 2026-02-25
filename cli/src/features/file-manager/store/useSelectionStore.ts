@@ -18,7 +18,7 @@ export const useSelectionStore = create<SelectionState>((set, get) => ({
     const newSelection = new Set(state.selectedIds);
     
     if (isShift && state.lastSelectedId && allIds.length > 0) {
-      // Shift 连选逻辑
+      // Shift range selection logic
       const startIdx = allIds.indexOf(state.lastSelectedId);
       const endIdx = allIds.indexOf(id);
       if (startIdx !== -1 && endIdx !== -1) {
@@ -30,14 +30,14 @@ export const useSelectionStore = create<SelectionState>((set, get) => ({
     }
 
     if (isCtrl) {
-      // Ctrl 反选逻辑
+      // Ctrl toggle selection logic
       if (newSelection.has(id)) {
         newSelection.delete(id);
       } else {
         newSelection.add(id);
       }
     } else {
-      // 普通点击：清空其他并选择当前
+      // Normal click: clear others and select current
       newSelection.clear();
       newSelection.add(id);
     }

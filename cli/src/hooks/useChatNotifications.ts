@@ -11,7 +11,7 @@ export const useChatNotifications = (messages: Message[], selfId: string) => {
     if (unread.length > 0) {
       const latest = unread[unread.length - 1];
       setLastMessage(latest);
-      // 发送浏览器通知 / Browser notification
+      // Browser notification
       if (Notification.permission === 'granted') {
         new Notification(`New message from ${latest.from}`, {
           body: latest.content,

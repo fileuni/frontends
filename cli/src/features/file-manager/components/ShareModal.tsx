@@ -163,7 +163,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
         addToast(t('common.manage') || 'Updated successfully', 'success');
         loadFiles();
         
-        // 构造完整的 ShareData 响应 / Construct full ShareData response
+        // Construct full ShareData response
         const newShareData = { 
           ...res, 
           data: { id: file.id } 
@@ -186,7 +186,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     addToast(t('filemanager.shareModal.copySuccess'), 'success');
   };
 
-  // 统一获取分享 ID 的逻辑 / Unified logic to get share ID
+  // Unified logic to get share ID
   const shareId = shareData?.data.id || (isEditing ? file?.id : null);
 
   const getFullBaseUrl = () => {

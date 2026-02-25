@@ -64,7 +64,7 @@ export function useFileActions() {
 
       let endpoint: FileListEndpoint = "/api/v1/file/list";
       
-      // 这里的查询参数集合了多个接口的可能字段 / Here the query parameters aggregate possible fields from multiple interfaces
+      // Query parameters aggregate possible fields from multiple interfaces
       const query: Record<string, string | number | boolean | null | undefined> = { 
         path, 
         page: page, 
@@ -103,12 +103,12 @@ export function useFileActions() {
 
       let filesArray: FileInfo[] = [];
       
-      // 智能提取数据数组 / Intelligently extract files array
+      // Intelligently extract files array
       if (Array.isArray(result)) {
         filesArray = result;
         store.setPagination(filesArray.length, 1, 1, overridePageSize);
       } else if (result && typeof result === 'object') {
-        // 兼容带 items 或 data 包装的结构 / Compatible with items or data wrapped structures
+        // Compatible with items or data wrapped structures
         filesArray = (result.items || result.data || []) as FileInfo[];
         
         if (result.pagination) {
@@ -145,11 +145,11 @@ export function useFileActions() {
         if (data?.success) {
           updateFile(path, { favorite_color: color });
           
-          // 如果在收藏模式且取消收藏，则在动画后移除条目 / If in favorites mode and unfavoriting, remove item after animation
+          // If in favorites mode and unfavoriting, remove item after animation
           if (fmMode === 'favorites' && color === 0) {
             setTimeout(() => {
               removeFiles([path]);
-            }, 600); // 留出足够的动画时间 / Wait for animation
+            }, 600); // Wait for animation
           }
         }
       }
@@ -187,7 +187,7 @@ export function useFileActions() {
         if (task.status === 'success') {
           await loadFiles();
           if (expectedPaths && expectedPaths.length > 0) {
-            // 给列表加载留出一点时间 / Give some time for list to load
+            // Give some time for list to load
             setTimeout(() => {
               store.setHighlightedPath(expectedPaths[0]);
             }, 100);
@@ -281,7 +281,7 @@ export function useFileActions() {
           waitForTask(taskId, expectedPaths);
         } else {
           removeFiles(paths);
-          // 如果目标是当前目录，则需要刷新 / If target is current directory, refresh
+          // If target is current directory, refresh
           if (targetDir === currentPath) await loadFiles();
           if (expectedPaths.length > 0) store.setHighlightedPath(expectedPaths[0]);
         }
@@ -351,7 +351,7 @@ export function useFileActions() {
       if (error) throw error;
       if (data?.success) {
         updateFile(oldPath, { name: newName, path: newPath });
-        // 确保重命名后也被高亮 / Ensure it's highlighted after rename
+        // Ensure it's highlighted after rename
         store.setHighlightedPath(newPath);
       }
     } catch (e) {
@@ -371,7 +371,7 @@ export function useFileActions() {
       if (data?.data?.token) {
         const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.data.token)}`;
         
-        // 创建隐藏链接并触发下载，这比 window.open 更可靠 / Create hidden link and trigger download, more reliable than window.open
+        // Create hidden link and trigger download, more reliable than window.open
         const link = document.createElement('a');
         link.href = url;
         const fileName = path.split('/').pop() || 'file';

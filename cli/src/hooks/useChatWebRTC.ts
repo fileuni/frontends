@@ -1,5 +1,5 @@
-//! WebRTC 逻辑管理 / WebRTC logic management
-//! 采用完美协商 (Perfect Negotiation) 模式解决冲突 / Use Perfect Negotiation pattern to resolve conflicts
+//! WebRTC logic management
+//! Use Perfect Negotiation pattern to resolve conflicts
 
 import { useCallback, useRef, useMemo } from "react";
 import type {
@@ -47,7 +47,7 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamsRef = useRef<Map<string, MediaStream>>(new Map());
 
-  // 文件接收缓冲区 / File receiving buffers
+  // File receiving buffers
   const fileReceivingRef = useRef<
     Map<
       string,
@@ -92,7 +92,7 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
       dc.onmessage = async (event) => {
         if (typeof event.data === "string") {
           const parsed = JSON.parse(event.data);
-          // 处理文件传输信令 / Handle file transfer signaling
+          // Handle file transfer signaling
           if (parsed.type === "FILE_START") {
             fileReceivingRef.current.set(parsed.fileId, {
               ...parsed.info,
@@ -103,9 +103,9 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
           }
           await onMessage(event.data, "webrtc");
         } else {
-          // 处理二进制数据块 / Handle binary chunks
+          // Handle binary chunks
           const buffer = event.data as ArrayBuffer;
-          // 头部包含 36 字节 fileId / Header contains 36 chars fileId
+          // Header contains 36 chars fileId
           const header = new TextDecoder().decode(buffer.slice(0, 36));
           const fileId = header.trim();
           const chunk = buffer.slice(36);

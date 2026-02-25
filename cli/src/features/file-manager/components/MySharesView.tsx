@@ -14,8 +14,8 @@ import { FilePropertiesModal } from "./FilePropertiesModal";
 import type { FileInfo } from '../types/index.ts';
 
 /**
- * 我的分享视图 / My Shares View
- * 复用标准文件浏览器组件以保持视觉和交互一致性。
+ * My Shares View
+ * Reuses standard file browser component for visual and interaction consistency.
  */
 export const MySharesView = () => {
   const { t } = useTranslation();
@@ -34,7 +34,7 @@ export const MySharesView = () => {
 
   const fetchShares = async (page: number = 1, size: number = pagination.pageSize) => {
     setLoading(true);
-    // 显式指定模式以避免异步状态同步问题 / Explicitly specify mode to avoid async state sync issues
+    // Explicitly specify mode to avoid async state sync issues
     await loadFiles(undefined, page, size, 'shares');
     setLoading(false);
   };
@@ -42,7 +42,7 @@ export const MySharesView = () => {
   useEffect(() => {
     setFmMode('shares');
     fetchShares();
-    // 退出时恢复 filters / Restore filters on unmount
+    // Restore filters on unmount
     return () => {
       setShareFilter({ hasPassword: null, enableDirect: null });
     };
@@ -85,7 +85,7 @@ export const MySharesView = () => {
 
   return (
     <div className="flex flex-col bg-background h-screen relative overflow-hidden" onClick={() => setContextMenu(null)}>
-      {/* 工具栏区域 - 统一风格 / Toolbar Area - Unified Style */}
+      {/* Toolbar Area - Unified Style */}
       <div className="h-16 border-b border-white/5 bg-white/[0.01] flex items-center justify-between px-4 md:px-6 shrink-0">
         <div className="flex items-center gap-4">
           <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
@@ -139,7 +139,7 @@ export const MySharesView = () => {
         </div>
       </div>
 
-      {/* 标准化文件浏览器 / Standardized File Browser */}
+      {/* Standardized File Browser */}
       <FileBrowser 
         onAction={handleAction}
         onContextMenu={(e, file) => { 
@@ -148,7 +148,7 @@ export const MySharesView = () => {
         }} 
       />
 
-      {/* 标准化分页 / Standardized Pagination */}
+      {/* Standardized Pagination */}
       <Pagination
         current={pagination.currentPage}
         total={pagination.total}
@@ -172,7 +172,7 @@ export const MySharesView = () => {
         isOpen={!!activeShareFile} 
         onClose={() => {
           setActiveShareFile(null);
-          fetchShares(pagination.currentPage); // 刷新以显示更改 / Refresh to show changes
+          fetchShares(pagination.currentPage); // Refresh to show changes
         }} 
         file={activeShareFile} 
       />

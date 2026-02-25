@@ -32,7 +32,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     setKeyword('');
     store.setSearchKeyword('');
     store.setIsSearchMode(false);
-    // 重新加载文件列表，退出搜索模式 / Reload file list to exit search mode
+    // Reload file list to exit search mode
     const { loadFiles } = useFileActions();
     loadFiles();
   };

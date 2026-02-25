@@ -7,7 +7,7 @@ import { AlertTriangle } from "lucide-react";
 import { Button } from "./ui/Button";
 
 /**
- * 配置项注释接口 / Configuration note entry interface
+ * Configuration note entry interface
  */
 export interface ConfigNoteEntry {
   desc_en: string;
@@ -16,7 +16,7 @@ export interface ConfigNoteEntry {
 }
 
 /**
- * 配置错误接口 / Configuration error interface
+ * Configuration error interface
  */
 export interface ConfigError {
   line: number;
@@ -37,7 +37,7 @@ interface ConfigRawEditorProps {
 }
 
 /**
- * 增强版行号查找逻辑 / Robust line number lookup
+ * Robust line number lookup
  */
 const findLineByPath = (content: string, path: string): number => {
   if (!path) return 1;
@@ -140,7 +140,7 @@ const registerTomlLanguage = (monacoInstance: any) => {
 };
 
 /**
- * 统一配置文件编辑器 / Unified Configuration Raw Editor
+ * Unified Configuration Raw Editor
  */
 export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
   content,
@@ -166,7 +166,6 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
     let cancelled = false;
 
     // Configure local Monaco runtime in component lifecycle.
-    // 在组件生命周期中配置本地 Monaco 运行时。
     const setupMonaco = async () => {
       if (typeof window === "undefined") return;
       try {

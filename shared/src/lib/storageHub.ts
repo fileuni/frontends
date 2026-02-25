@@ -160,7 +160,7 @@ const listLocalEntries = (): CacheEntry[] => {
 };
 
 /**
- * 分层存储管理器 / Tiered Storage Manager
+ * Tiered Storage Manager
  */
 export const storageHub = {
   getLocalItem(key: string): string | null {

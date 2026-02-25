@@ -41,7 +41,7 @@ interface SortableItemProps {
 }
 
 /**
- * 极致紧凑的上传条目 / Ultra-compact upload item
+ * Ultra-compact upload item
  */
 const CompactUploadItem = ({ task, isDark, onRemove }: SortableItemProps) => {
   const {
@@ -146,7 +146,7 @@ export const GlobalUploader = () => {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-color-scheme: dark)").matches);
 
-  // 分类任务 / Categorize tasks
+  // Categorize tasks
   const uploadingTasks = useMemo(
     () => tasks.filter((t) => t.status !== "completed"),
     [tasks],
@@ -156,7 +156,7 @@ export const GlobalUploader = () => {
     [tasks],
   );
 
-  // 并发控制 / Concurrency control
+  // Concurrency control
   useEffect(() => {
     const uploadingCount = tasks.filter((t) => t.status === "uploading").length;
     if (uploadingCount === 0) {
@@ -167,7 +167,7 @@ export const GlobalUploader = () => {
     }
   }, [tasks, uploadFile]);
 
-  // 如果当前 Tab 没数据了，且另一个有数据，自动切换 / Auto-switch tab if current is empty
+  // Auto-switch tab if current is empty
   useEffect(() => {
     if (
       activeTab === "uploading" &&

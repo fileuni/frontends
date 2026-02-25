@@ -31,7 +31,7 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 };
 
 /**
- * SPA 主应用入口 / SPA Main Application Entry
+ * SPA Main Application Entry
  */
 export const App: React.FC = () => {
   const { currentUserId, isLoggedIn } = useAuthStore();

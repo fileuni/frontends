@@ -18,7 +18,7 @@ import {
   Clock,
 } from 'lucide-react';
 
-// Toast i18n context / Toast 国际化上下文
+// Toast i18n context
 type ToastI18nContextType = {
   doNotShowAgain: string;
   viewDetails: string;
@@ -35,7 +35,7 @@ const defaultI18n: ToastI18nContextType = {
 
 export const ToastI18nContext = React.createContext<ToastI18nContextType>(defaultI18n);
 
-// 获取图标 / Get icon
+// Get icon
 const getIcon = (type: ToastType) => {
   switch (type) {
     case 'success':
@@ -49,7 +49,7 @@ const getIcon = (type: ToastType) => {
   }
 };
 
-// 获取样式 / Get styles
+// Get styles
 const getToastStyles = (
   type: ToastType,
   isDark: boolean
@@ -85,7 +85,7 @@ const getToastStyles = (
   }
 };
 
-// 获取持续时间文本 / Get duration text
+// Get duration text
 const getDurationText = (duration: ToastDuration): string => {
   switch (duration) {
     case 'short':
@@ -99,7 +99,7 @@ const getDurationText = (duration: ToastDuration): string => {
   }
 };
 
-// 单个Toast组件 / Single Toast component
+// Single Toast component
 const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
   const { toasts, removeToast, toggleDetails, setDoNotShowAndClose } =
     useToastStore();
@@ -140,14 +140,14 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
   const styles = getToastStyles(toast.type, isDark);
   const isPersistent = toast.duration === 'persistent';
 
-  // 复制详情到剪贴板 / Copy details to clipboard
+  // Copy details to clipboard
   const copyDetails = async () => {
     if (toast.details) {
       await navigator.clipboard.writeText(toast.details);
     }
   };
 
-  // 关闭并保存"下次不再显示"设置 / Close and save "do not show again" setting
+  // Close and save "do not show again" setting
   const handleClose = async () => {
     removeToast(toast.id);
   };
@@ -163,7 +163,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
         backgroundColor: isDark ? '#18181b' : '#ffffff',
       }}
     >
-      {/* 主要内容区 / Main content */}
+      {/* Main content */}
       <div className="p-4 flex items-start gap-3">
         {getIcon(toast.type)}
 
@@ -172,7 +172,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
             {toast.message}
           </p>
 
-          {/* 详情展开区域 / Details expansion area */}
+          {/* Details expansion area */}
           {toast.details && (
             <div className="mt-2">
               <button
@@ -223,7 +223,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
             </div>
           )}
 
-          {/* "下次不再显示"选项 / "Do not show again" option */}
+          {/* "Do not show again" option */}
           {toast.showDoNotShowAgain && (
             <button
               onClick={() => setDoNotShowAndClose(toast.id)}
@@ -238,9 +238,9 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
           )}
         </div>
 
-        {/* 右侧操作区 / Right action area */}
+        {/* Right action area */}
         <div className="flex flex-col items-end gap-2">
-          {/* 关闭按钮 / Close button */}
+          {/* Close button */}
           <button
             onClick={handleClose}
             className={`
@@ -252,7 +252,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
             <X size={16} />
           </button>
 
-          {/* 持续时间指示器 / Duration indicator */}
+          {/* Duration indicator */}
           <span
             className={`
               flex items-center gap-1 text-sm font-mono px-1.5 py-0.5 rounded
@@ -269,7 +269,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
   );
 };
 
-// Toast容器组件 / Toast container component
+// Toast container component
 export const ToastContainer: React.FC = () => {
   const { toasts } = useToastStore();
   const [mounted, setMounted] = useState(false);

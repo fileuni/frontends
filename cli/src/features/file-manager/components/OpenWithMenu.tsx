@@ -37,7 +37,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
   const isOfficePreviewOnly = OFFICE_PPTX_EXTS.has(ext);
   const enableWopi = capabilities?.enable_wopi !== false;
 
-  // 获取可用应用列表 / Fetch available app list
+  // Fetch available app list
   const fetchApps = async () => {
     setLoading(true);
     try {
@@ -63,7 +63,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
       }
     } catch (e) {
       console.error("Failed to fetch apps", e);
-      // API 失败降级 / Fallback when API fails
+      // Fallback when API fails
       if (isOffice) {
         setApps([{ id: 'office-lite', name: t('filemanager.officeLite.name'), app_type: 'internal' }]);
       } else {
@@ -102,9 +102,9 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
         if (app.id === 'wopi-office' && !enableWopi) {
             return;
         }
-        // WOPI 网页编辑 / WOPI web editor
-        // 必须先通过后端获取 URL，因为该接口受 JWT 保护 / Must fetch URL from backend because endpoint is JWT-protected
-        // 直接 window.open(api_url) 会触发 401 / Direct window.open(api_url) would fail with 401
+        // WOPI web editor
+        // Must fetch URL from backend because endpoint is JWT-protected
+        // Direct window.open(api_url) would fail with 401
         try {
             const { data } = await client.GET('/api/v1/file/integration/wopi/open', {
                 params: { query: { path: file.path, mode: 'edit' } }
@@ -122,13 +122,12 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
     }
 
     if (app.app_type === 'local' && app.protocol) {
-        // 本地协议打开 / Local protocol
+        // Local protocol
         try {
             const { data } = await client.GET('/api/v1/file/get-file-download-token', {
                 params: { query: { path: file.path } }
             });
             if (data?.data?.token) {
-                // 如果 BASE_URL 已经是绝对路径（开发环境），则不需要加 origin
                 // If BASE_URL is already absolute (dev), don't add origin
                 const apiPath = `/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.data.token)}&inline=true`;
                 const downloadUrl = BASE_URL ? `${BASE_URL}${apiPath}` : `${window.location.origin}${apiPath}`;
@@ -149,7 +148,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
       return <ExternalLink size={14} />;
   };
 
-  // 点击外部关闭 / Close on outside click
+  // Close on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {

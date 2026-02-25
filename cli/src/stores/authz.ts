@@ -47,7 +47,6 @@ export const useAuthzStore = create<AuthzState>((set, get) => ({
   hasPermission: (permissionKey: string) => {
     const entitlements = get().entitlements;
     
-    // 如果没有获取到 entitlements，先从 authStore 的 role_id 兜底判断超管
     // If entitlements not fetched yet, fallback to authStore's role_id for superadmin check
     const authUser = useAuthStore.getState().currentUserData?.user;
     if (authUser && authUser.role_id === 0) {

@@ -34,14 +34,14 @@ import { useConfigStore } from '../stores/config';
 import '../lib/i18n';
 import ConfigSelector from './ConfigSelector';
 
-// OS信息接口 / OS info interface
+// OS info interface
 interface OSInfo {
   os_type: string;
   support_service: boolean;
   nixos_hint: boolean;
 }
 
-// 服务状态响应 / Service status response
+// Service status response
 interface ServiceStatusResponse {
   status: string;
   is_running: boolean;
@@ -60,7 +60,7 @@ export default function Launcher() {
   const { language, setLanguage } = useLanguageStore();
   const { configPath, setConfigPath, hasSelectedConfig } = useConfigStore();
 
-  // Toast i18n / Toast 国际化
+  // Toast i18n
   const toastI18n = React.useMemo(() => ({
     doNotShowAgain: t('launcher.do_not_show_again'),
     viewDetails: t('launcher.view_details'),
@@ -74,21 +74,21 @@ export default function Launcher() {
   const [osInfo, setOsInfo] = useState<OSInfo | null>(null);
   const nixosToastShown = useRef(false);
 
-  // 日志相关状态 / Log related state
+  // Log related state
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [showAllLogs, setShowAllLogs] = useState(false);
   const [uptime, setUptime] = useState(0);
   const [stats, setStats] = useState({ cpu: 12, memory: 128, connections: 5 });
   const PREVIEW_LOG_COUNT = 5;
   const MAX_LOG_DISPLAY = 50;
-  
-  // 配置选择器状态 / Config selector state
+
+  // Config selector state
   const [showConfigSelector, setShowConfigSelector] = useState(false);
 
   const [serviceInstallLevel, setServiceInstallLevel] = useState<ServiceInstallLevel>('system');
   const [serviceAutostart, setServiceAutostart] = useState(true);
 
-  // 配置编辑器状态 / Config editor state
+  // Config editor state
   const [isEditingConfig, setIsEditingConfig] = useState(false);
   const [configContent, setConfigContent] = useState('');
   const [savedConfigContent, setSavedConfigContent] = useState('');
@@ -122,12 +122,12 @@ export default function Launcher() {
     }
   }, []);
 
-  // 初始加载时检查配置路径 / Check config path on initial load
+  // Check config path on initial load
   useEffect(() => {
     if (!hasSelectedConfig) {
       setShowConfigSelector(true);
     } else {
-      // 同步配置路径到后端 / Sync config path to backend
+      // Sync config path to backend
       invoke('set_config_path', { path: configPath }).catch(console.error);
     }
   }, [hasSelectedConfig, configPath]);
@@ -190,7 +190,7 @@ export default function Launcher() {
         setConfigSummaryLevel('info');
       } else {
         toast.error(t('launcher.messages.config_test_failed'));
-        // 尝试解析错误 / Try parsing errors
+        // Try parsing errors
         const errors: ConfigError[] = res.map(msg => ({
           message: msg,
           line: 0,
@@ -423,7 +423,7 @@ export default function Launcher() {
     }
   };
 
-  // 格式化运行时间 / Format uptime
+  // Format uptime
   const formatUptime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -434,21 +434,21 @@ export default function Launcher() {
   return (
     <>
     <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col items-stretch justify-start font-sans transition-colors duration-500 overflow-hidden">
-      {/* 背景装饰 / Background decorations */}
+      {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-1/2 -right-1/2 w-[800px] h-[800px] bg-gradient-to-br from-blue-500/10 via-cyan-500/5 to-transparent rounded-full blur-3xl animate-pulse" />
         <div className="absolute -bottom-1/2 -left-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-blue-500/10 via-pink-500/5 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      {/* 主容器 / Main container */}
+      {/* Main container */}
       <div className="w-full h-full bg-white/80 dark:bg-[#0f172a]/90 backdrop-blur-xl border-0 sm:border-0 shadow-none relative flex flex-col overflow-hidden">
-        
-        {/* Glassmorphism header / 玻璃态头部 */}
+
+        {/* Glassmorphism header */}
         <div className="flex items-center justify-between p-6 sm:p-8 border-b border-slate-200/50 dark:border-slate-800/40 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
           <div className="flex items-center gap-5">
             <div className="relative group">
               <img src="/favicon.svg" alt="FileUni Logo" width={56} height={56} className="shadow-xl shadow-cyan-500/20 shrink-0 transform group-hover:scale-110 transition-all duration-500 ease-out" />
-              {/* 状态指示器 / Status indicator */}
+              {/* Status indicator */}
               <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-4 border-white dark:border-slate-900 shadow-sm ${status === 'Running' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
             </div>
             <div className="min-w-0">
@@ -462,7 +462,7 @@ export default function Launcher() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* 统计信息 / Stats */}
+            {/* Stats */}
             {status === 'Running' && (
               <div className="hidden lg:flex items-center gap-4 mr-6 px-5 py-2.5 bg-slate-100/80 dark:bg-slate-800/40 rounded-2xl text-sm font-bold border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
                 <span className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
@@ -496,7 +496,7 @@ export default function Launcher() {
           </div>
         </div>
 
-         {/* Scrollable Content / 可滚动内容 */}
+         {/* Scrollable Content */}
          <div className="flex-1 min-h-0 overflow-y-auto p-6 sm:p-10 space-y-6">
             <div className="flex flex-col gap-6">
                 {/* Top section: Service Control + Quick Actions side by side */}

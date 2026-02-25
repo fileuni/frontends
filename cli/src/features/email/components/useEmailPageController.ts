@@ -411,10 +411,8 @@ export const useEmailPageController = (): UseEmailPageController => {
     const dateDiffMs = Math.abs(remoteDate - localDate);
 
     // Why: sent-folder backfill may rewrite sender display format; local pending should match on subject+time first
-    // Why: 已发送回填时发件人展示格式可能被服务端改写；本地待回填优先按“主题+时间”匹配
     if (localMessage.is_local_pending) {
       const pendingAliveMs = Date.now() - localDate;
-      // Why: ensure optimistic sent placeholder is visible before heuristic dedup starts
       // Why: 先保证乐观占位可见，再启动启发式去重，避免被旧邮件瞬间误消
       if (pendingAliveMs >= 0 && pendingAliveMs < 12_000) {
         return false;
@@ -437,7 +435,6 @@ export const useEmailPageController = (): UseEmailPageController => {
       }
 
       // Why: empty subject/preview fallback must be very strict to avoid matching old sent mails
-      // Why: 主题和预览都为空时必须严格兜底，避免误匹配旧邮件导致占位立即消失
       if (!remoteFrom || !localFrom || remoteFrom !== localFrom) {
         return false;
       }

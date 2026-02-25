@@ -27,8 +27,8 @@ interface FileItemProps {
 }
 
 /**
- * MacOS 风格的状态标识组件 / MacOS Style Status Component
- * 收藏采用精致的小圆点，不破坏列表对齐。
+ * MacOS Style Status Component
+ * Favorites use refined small dots that don't break list alignment.
  */
 const StatusIcons = ({ file, mode, className }: { file: FileInfo, mode: 'grid' | 'list', className?: string }) => {
   const isFavorite = file.favorite_color > 0;
@@ -50,7 +50,7 @@ const StatusIcons = ({ file, mode, className }: { file: FileInfo, mode: 'grid' |
     );
   }
 
-  // 列表模式：紧凑排列，圆点作为首要标识
+  // List mode: compact layout with dot as primary indicator
   return (
     <div className={cn("flex items-center gap-2", className)}>
       {isFavorite && (
@@ -108,7 +108,6 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
   const handleDoubleClick = () => {
     if (longPressTimer.current) clearTimeout(longPressTimer.current);
     if (onAction) {
-      // 这里的逻辑：如果是目录则打开，如果是文件则显示属性
       // Logic: Open if directory, show properties if file
       onAction(file.is_dir ? 'open' : 'properties', file);
     } else {
@@ -116,9 +115,8 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
         store.setFmMode('files');
         store.setCurrentPath(file.path);
       } else {
-        // 后备逻辑 / Fallback logic
+        // Fallback logic
         store.addToRecentFiles(file);
-        // 这里可以根据需求触发预览或属性，通常双击文件在文件管理器中是预览，但在用户要求中是属性
         // Based on user request, double clicking file should show properties
         onAction?.('properties', file);
       }
@@ -136,7 +134,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
   const isShares = store.fmMode === 'shares';
   const isFavorites = store.fmMode === 'favorites';
 
-  // 被取消收藏的正在消失状态 / State of being unfavorited and disappearing
+  // State of being unfavorited and disappearing
   const isDisappearing = isFavorites && file.favorite_color === 0;
 
   const displayName = (isTrash && file.original_path) ? file.original_path.split('/').pop() : file.name;
@@ -145,12 +143,12 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
     console.log(`[TRASH_TRACE] name=${file.name}, orig=${file.original_path}, path=${file.path}`);
   }
 
-  // 核心修复：不同模式下显示不同的次要信息 / Core Fix: Display different secondary info based on mode
+  // Core Fix: Display different secondary info based on mode
   const getSecondaryInfo = () => {
     if (isTrash) return file.original_path || '';
     if (isRecent) return file.path;
     
-    // 分享模式下显示：原位置 | 开始时间 | 过期时间 / Share mode displays: Original Location | Start Time | Expiration
+    // Share mode displays: Original Location | Start Time | Expiration
     if (isShares) {
       const parts = [];
       if (file.path) parts.push(file.path);
@@ -224,7 +222,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
     );
   }
 
-  // 列表模式 / List View
+  // List View
   return (
     <div
       ref={setRefs} style={style} {...attributes} {...listeners}
@@ -237,7 +235,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
         !selected && !isOver && "hover:bg-white/[0.02]"
       )}
     >
-      {/* 固定宽度的前缀区，确保图标对齐 / Fixed width prefix area for alignment */}
+      {/* Fixed width prefix area for alignment */}
       <div className="shrink-0 flex items-center gap-3 min-w-[72px] justify-end">
         <StatusIcons file={file} mode="list" />
         {file.is_dir ? (

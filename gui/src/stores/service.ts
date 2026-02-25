@@ -1,7 +1,6 @@
 /**
- * 服务状态管理 / Service State Management
- * 
- * 使用 Zustand 管理 FileUni 服务的全局状态
+ * Service State Management
+ *
  * Uses Zustand to manage global FileUni service state
  */
 
@@ -9,50 +8,50 @@ import { create } from 'zustand';
 import { invoke } from '@tauri-apps/api/core';
 
 /**
- * 服务状态类型 / Service status types
+ * Service status types
  */
 export type ServiceStatus = 'running' | 'stopped' | 'checking' | 'unknown';
 
 /**
- * 服务状态接口 / Service state interface
+ * Service state interface
  */
 interface ServiceState {
-  /** 当前状态 / Current status */
+  /** Current status */
   status: ServiceStatus;
-  /** 是否运行中 / Whether service is running */
+  /** Whether service is running */
   isRunning: boolean;
-  /** 是否正在加载 / Whether operation is in progress */
+  /** Whether operation is in progress */
   isLoading: boolean;
-  /** 错误信息 / Error message */
+  /** Error message */
   error: string | null;
-  /** 应用版本 / App version */
+  /** App version */
   version: string;
-  /** 操作系统类型 / OS type */
+  /** OS type */
   osType: string;
-  /** 是否支持服务安装 / Whether service installation is supported */
+  /** Whether service installation is supported */
   supportService: boolean;
-  /** 是否为 NixOS / Whether running on NixOS */
+  /** Whether running on NixOS */
   isNixos: boolean;
-  
+
   // Actions
-  /** 获取服务状态 / Get service status */
+  /** Get service status */
   fetchStatus: () => Promise<void>;
-  /** 启动服务 / Start service */
+  /** Start service */
   startService: () => Promise<void>;
-  /** 停止服务 / Stop service */
+  /** Stop service */
   stopService: () => Promise<void>;
-  /** 安装服务 / Install service */
+  /** Install service */
   installService: (level: 'system' | 'user', autostart: boolean) => Promise<void>;
-  /** 卸载服务 / Uninstall service */
+  /** Uninstall service */
   uninstallService: () => Promise<void>;
-  /** 获取应用信息 / Get app info */
+  /** Get app info */
   fetchAppInfo: () => Promise<void>;
-  /** 清除错误 / Clear error */
+  /** Clear error */
   clearError: () => void;
 }
 
 /**
- * 服务状态存储 / Service state store
+ * Service state store
  */
 export const useServiceStore = create<ServiceState>((set, get) => ({
   status: 'checking',
@@ -65,7 +64,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   isNixos: false,
 
   /**
-   * 获取服务状态 / Get service status
+   * Get service status
    */
   fetchStatus: async () => {
     set({ status: 'checking', error: null });
@@ -84,13 +83,13 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   },
 
   /**
-   * 启动服务 / Start service
+   * Start service
    */
   startService: async () => {
     set({ isLoading: true, error: null });
     try {
       await invoke<string>('start_service');
-      // 等待服务启动 / Wait for service to start
+      // Wait for service to start
       await new Promise(resolve => setTimeout(resolve, 1000));
       await get().fetchStatus();
     } catch (err) {
@@ -102,13 +101,13 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   },
 
   /**
-   * 停止服务 / Stop service
+   * Stop service
    */
   stopService: async () => {
     set({ isLoading: true, error: null });
     try {
       await invoke<string>('stop_service');
-      // 等待服务停止 / Wait for service to stop
+      // Wait for service to stop
       await new Promise(resolve => setTimeout(resolve, 500));
       await get().fetchStatus();
     } catch (err) {
@@ -120,7 +119,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   },
 
   /**
-   * 安装服务 / Install service
+   * Install service
    */
   installService: async (level: 'system' | 'user', autostart: boolean) => {
     set({ isLoading: true, error: null });
@@ -136,7 +135,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   },
 
   /**
-   * 卸载服务 / Uninstall service
+   * Uninstall service
    */
   uninstallService: async () => {
     set({ isLoading: true, error: null });
@@ -152,7 +151,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   },
 
   /**
-   * 获取应用信息 / Get app info
+   * Get app info
    */
   fetchAppInfo: async () => {
     try {
@@ -173,7 +172,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   },
 
   /**
-   * 清除错误 / Clear error
+   * Clear error
    */
   clearError: () => set({ error: null }),
 }));

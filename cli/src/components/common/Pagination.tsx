@@ -18,8 +18,8 @@ interface PaginationProps {
 }
 
 /**
- * 全站统一分页 Pro 组件 / Pro Unified Pagination Component
- * 极致适配移动端与 PC，支持动态页码和聚合菜单。
+ * Pro Unified Pagination Component
+ * Optimized for mobile and PC, supports dynamic page numbers and aggregated menus.
  */
 export const Pagination = ({
   current,
@@ -37,7 +37,7 @@ export const Pagination = ({
   const [showAllPages, setShowAllPages] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
 
-  // 点击外部关闭 / Close on outside click
+  // Close on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (optionsRef.current && !optionsRef.current.contains(e.target as Node)) {
@@ -59,9 +59,9 @@ export const Pagination = ({
     }
   };
 
-  // 计算显示的页码范围 (PC) / Calculate visible page numbers
+  // Calculate visible page numbers
   const getPageRange = () => {
-    const delta = 2; // 当前页左右显示的个数
+    const delta = 2; // Number of pages to show on each side of current page
     const range = [];
     for (let i = Math.max(2, current - delta); i <= Math.min(totalPages - 1, current + delta); i++) {
       range.push(i);
@@ -88,7 +88,7 @@ export const Pagination = ({
       "h-16 md:h-20 border-t border-white/5 bg-black/40 backdrop-blur-2xl px-4 md:px-8 flex items-center justify-between relative z-50",
       className
     )}>
-      {/* PC: 统计与每页数量 / PC: Stats & Page Size */}
+      {/* PC: Stats & Page Size */}
       <div className="hidden md:flex items-center gap-6">
         <p className="text-sm font-black uppercase tracking-widest opacity-30">
           {t('common.pagination.showing', { 
@@ -119,10 +119,10 @@ export const Pagination = ({
         )}
       </div>
 
-      {/* 核心控制区 / Core Controls */}
+      {/* Core Controls */}
       <div className="flex items-center gap-2 md:gap-6 w-full md:w-auto justify-between md:justify-end">
         
-        {/* 页码切换器 / Page Switcher */}
+        {/* Page Switcher */}
         <div className="flex items-center gap-1">
           <Button 
             variant="ghost" size="sm" onClick={() => onPageChange(current - 1)} disabled={current === 1}
@@ -131,7 +131,7 @@ export const Pagination = ({
             <ChevronLeft size={18} />
           </Button>
           
-          {/* PC: 动态页码条 / PC: Dynamic Page Numbers */}
+          {/* PC: Dynamic Page Numbers */}
           <div className="hidden lg:flex items-center gap-1 mx-2">
             {getPageRange().map((p, i) => (
               p === '...' ? (
@@ -151,7 +151,7 @@ export const Pagination = ({
             ))}
           </div>
 
-          {/* Mobile: 紧凑页码显示 / Mobile: Compact Indicator */}
+          {/* Mobile: Compact Indicator */}
           <div className="lg:hidden flex items-center px-3 bg-white/5 h-9 rounded-xl border border-white/5 gap-2">
              <span className="text-sm font-black text-primary">{current}</span>
              <span className="text-sm font-black opacity-10">/</span>
@@ -166,7 +166,7 @@ export const Pagination = ({
           </Button>
         </div>
 
-        {/* 聚合选项按钮 / Options Button (Mobile & PC) */}
+        {/* Options Button (Mobile & PC) */}
         <div className="relative" ref={optionsRef}>
           <Button 
             variant="ghost" 
@@ -179,11 +179,11 @@ export const Pagination = ({
             <MoreVertical size={18} />
           </Button>
 
-          {/* 聚合浮层菜单 / Options Popover */}
+          {/* Options Popover */}
           {showOptions && (
             <div className="absolute bottom-full right-0 mb-3 w-64 bg-zinc-900/95 border border-white/10 rounded-[2rem] shadow-2xl backdrop-blur-2xl p-4 animate-in fade-in slide-in-from-bottom-2 duration-200 overflow-hidden">
               <div className="space-y-5">
-                {/* 快速跳转 / Quick Jump */}
+                {/* Quick Jump */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-1">
                     <Hash size={14} className="text-primary" />
@@ -203,7 +203,7 @@ export const Pagination = ({
                   </form>
                 </div>
 
-                {/* 每页数量 / Page Size */}
+                {/* Page Size */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-1">
                     <Settings2 size={14} className="text-primary" />
@@ -225,7 +225,7 @@ export const Pagination = ({
                   </div>
                 </div>
 
-                {/* 选择所有页码 / Select All Pages */}
+                {/* Select All Pages */}
                 <button 
                   onClick={() => setShowAllPages(!showAllPages)}
                   className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center gap-3 transition-all group"
@@ -235,7 +235,7 @@ export const Pagination = ({
                 </button>
               </div>
 
-              {/* 全页码选择面板 (展开式) / Full Page Grid */}
+              {/* Full Page Grid */}
               {showAllPages && (
                 <div className="mt-4 pt-4 border-t border-white/5 max-h-48 overflow-y-auto no-scrollbar grid grid-cols-5 gap-1.5 animate-in fade-in slide-in-from-top-2">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (

@@ -2,7 +2,6 @@ import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { zhTranslation, enTranslation } from '@fileuni/shared';
 
-// 必须在模块顶层完成初始化
 // Must initialize at the top level of the module
 i18next
   .use(initReactI18next)

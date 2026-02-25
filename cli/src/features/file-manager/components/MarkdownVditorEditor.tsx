@@ -23,7 +23,7 @@ const getVditorLang = (lang: string): "zh_CN" | "en_US" | "ja_JP" | "ko_KR" => {
 };
 
 /**
- * Markdown 编辑器与预览器 (Vditor 驱动) / Markdown Editor and Previewer (Vditor powered)
+ * Markdown Editor and Previewer (Vditor powered)
  */
 export const MarkdownVditorEditor = ({
   path,
@@ -42,7 +42,7 @@ export const MarkdownVditorEditor = ({
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  // 1. 获取内容 / Fetch content
+  // 1. Fetch content
   useEffect(() => {
     const fetchContent = async () => {
       setLoading(true);
@@ -56,7 +56,7 @@ export const MarkdownVditorEditor = ({
             const res = await fetch(url);
             const text = await res.text();
             setContent(text || '');
-            // 如果 Vditor 已初始化，则直接设置值
+            // If Vditor is already initialized, set value directly
             if (vd) vd.setValue(text || '');
         }
       } catch (e) {
@@ -68,13 +68,13 @@ export const MarkdownVditorEditor = ({
     };
 
     fetchContent();
-    // 移除 vd 作为依赖项，防止循环 / Remove vd from deps to prevent loop
+    // Remove vd from deps to prevent loop
   }, [path]);
 
   const resolvedCdnBase = (cdnBase || 'https://cdn.jsdelivr.net').replace(/\/+$/, '');
   const currentCdn = `${resolvedCdnBase}/npm/vditor`;
 
-  // 2. 初始化 Vditor / Init Vditor
+  // 2. Init Vditor
   useEffect(() => {
     if (!vditorRef.current || loading) return undefined;
 
@@ -90,7 +90,7 @@ export const MarkdownVditorEditor = ({
     const vditor = new Vditor(vditorRef.current, {
       height: '100%',
       width: '100%',
-      value: content, // 初始化时使用已加载的内容
+      value: content, // Use loaded content at initialization
       mode: 'sv', 
       theme: isDark ? 'dark' : 'classic',
       icon: 'material',
@@ -113,7 +113,7 @@ export const MarkdownVditorEditor = ({
     });
 
     return () => { vditor?.destroy(); };
-    // 只有在编辑状态或主题变化时才重新初始化 Vditor
+    // Only reinitialize Vditor when editing state or theme changes
   }, [loading, isEditing, isDark, currentCdn, i18n.language]);
 
   const handleSave = async () => {

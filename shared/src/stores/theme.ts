@@ -10,7 +10,7 @@ interface ThemeState {
 }
 
 /**
- * 全局主题状态管理 / Global Theme State Management
+ * Global Theme State Management
  */
 export const useThemeStore = create<ThemeState>()(
   persist(
@@ -32,7 +32,7 @@ export const useThemeStore = create<ThemeState>()(
 );
 
 /**
- * 应用主题到 DOM / Apply theme to DOM
+ * Apply theme to DOM
  */
 export function applyTheme(theme: Theme) {
   if (typeof document === 'undefined') return;

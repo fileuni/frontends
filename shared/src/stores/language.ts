@@ -11,7 +11,7 @@ interface LanguageState {
 }
 
 /**
- * 全局语言状态管理 / Global Language State Management
+ * Global Language State Management
  */
 export const useLanguageStore = create<LanguageState>()(
   persist(
@@ -33,7 +33,7 @@ export const useLanguageStore = create<LanguageState>()(
 );
 
 /**
- * 应用语言偏好 / Apply language preference
+ * Apply language preference
  */
 export function applyLanguage(lang: Language) {
   if (typeof window === 'undefined') return;

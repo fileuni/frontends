@@ -1,5 +1,5 @@
 export interface FileInfo {
-  id?: string; // 唯一标识符，对于分享来说是分享ID / Unique identifier, share ID for shares
+  id?: string; // Unique identifier, share ID for shares
   name: string;
   path: string;
   is_dir: boolean;
@@ -10,7 +10,7 @@ export interface FileInfo {
   has_active_direct?: boolean;
   trashed_at?: string;
   original_path?: string;
-  accessed_at?: string; // 浏览器访问时间 / Browser access timestamp
+  accessed_at?: string; // Browser access timestamp
 
   // Share specific fields (optional)
   view_count?: number;

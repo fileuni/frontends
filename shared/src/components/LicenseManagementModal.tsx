@@ -1,6 +1,5 @@
-//  License Management Modal / 授权管理模态框
+//  License Management Modal
 //  Standalone modal for viewing license status and applying license keys.
-//  独立模态框，用于查看授权状态并应用授权码。
 
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,25 +9,25 @@ import { cn } from '../lib/utils';
 export interface LicenseManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
-  /** Whether the current license is valid / 当前授权是否有效 */
+  /** Whether the current license is valid */
   isValid: boolean;
-  /** Current number of users / 当前用户数 */
+  /** Current number of users */
   currentUsers: number;
-  /** Maximum allowed users / 最大用户配额 */
+  /** Maximum allowed users */
   maxUsers: number;
-  /** Device code (hardware fingerprint) / 设备代码（硬件指纹） */
+  /** Device code (hardware fingerprint) */
   deviceCode: string;
-  /** Current license key input value / 当前授权码输入值 */
+  /** Current license key input value */
   licenseKey: string;
-  /** Whether the license is being saved / 是否正在保存授权 */
+  /** Whether the license is being saved */
   saving: boolean;
-  /** Callback when license key changes / 授权码变更回调 */
+  /** Callback when license key changes */
   onLicenseKeyChange: (value: string) => void;
-  /** Callback when applying license / 应用授权回调 */
+  /** Callback when applying license */
   onApplyLicense: () => void;
-  /** Optional: license expiration date / 可选：授权到期时间 */
+  /** Optional: license expiration date */
   expiresAt?: string | null;
-  /** Optional: list of enabled features / 可选：已启用功能列表 */
+  /** Optional: list of enabled features */
   features?: string[];
 }
 
@@ -48,7 +47,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Handle ESC key to close modal / 处理 ESC 键关闭模态框
+  // Handle ESC key to close modal
   useEffect(() => {
     if (!isOpen) return;
 
@@ -73,15 +72,15 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
       aria-modal="true"
       aria-labelledby="license-modal-title"
     >
-      {/* Backdrop / 背景遮罩 */}
+      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal Content / 模态框内容 */}
+      {/* Modal Content */}
       <div className="relative w-full max-w-lg max-h-[90vh] rounded-2xl border border-white/10 bg-slate-950 text-slate-100 shadow-2xl overflow-hidden">
-        {/* Header / 头部 */}
+        {/* Header */}
         <div className="flex items-center justify-between gap-2 border-b border-white/10 px-4 py-3 sm:px-5">
           <div className="flex items-center gap-2 min-w-0">
             <Key size={18} className="text-amber-400 shrink-0" />
@@ -107,11 +106,11 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
           </button>
         </div>
 
-        {/* Body / 主体内容 */}
+        {/* Body */}
         <div className="p-4 sm:p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-          {/* Status Cards / 状态卡片 */}
+          {/* Status Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Authorization Status / 授权状态 */}
+            {/* Authorization Status */}
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <div className="flex items-center gap-2 mb-1">
                 <Shield size={14} className={cn(
@@ -132,7 +131,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               </div>
             </div>
 
-            {/* User Quota / 用户配额 */}
+            {/* User Quota */}
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <div className="flex items-center gap-2 mb-1">
                 <Users size={14} className="text-cyan-400 shrink-0" />
@@ -145,7 +144,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               </div>
             </div>
 
-            {/* Hardware Fingerprint / 硬件指纹 */}
+            {/* Hardware Fingerprint */}
             <div className="rounded-xl border border-white/10 bg-black/20 p-3 sm:col-span-2">
               <div className="flex items-center gap-2 mb-1">
                 <Fingerprint size={14} className="text-purple-400 shrink-0" />
@@ -158,7 +157,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               </div>
             </div>
 
-            {/* Expiration Date (if provided) / 到期时间（如果提供） */}
+            {/* Expiration Date (if provided) */}
             {expiresAt && (
               <div className="rounded-xl border border-white/10 bg-black/20 p-3 sm:col-span-2">
                 <div className="text-[11px] uppercase opacity-60 mb-1">
@@ -170,7 +169,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               </div>
             )}
 
-            {/* Enabled Features (if provided) / 已启用功能（如果提供） */}
+            {/* Enabled Features (if provided) */}
             {features && features.length > 0 && (
               <div className="rounded-xl border border-white/10 bg-black/20 p-3 sm:col-span-2">
                 <div className="text-[11px] uppercase opacity-60 mb-2">
@@ -190,7 +189,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             )}
           </div>
 
-          {/* License Key Input / 授权码输入 */}
+          {/* License Key Input */}
           <div className="space-y-2">
             <label className="text-xs font-semibold flex items-center gap-1.5">
               <Key size={12} />
@@ -206,7 +205,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             />
           </div>
 
-          {/* Apply Button / 应用按钮 */}
+          {/* Apply Button */}
           <div className="flex justify-end">
             <button
               type="button"
@@ -225,7 +224,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
           </div>
         </div>
 
-        {/* Footer Hint / 底部提示 */}
+        {/* Footer Hint */}
         <div className="border-t border-white/10 px-4 py-2.5 sm:px-5 bg-black/20">
           <p className="text-[10px] sm:text-xs text-slate-500">
             {t('admin.config.quickWizard.licenseHint') ||

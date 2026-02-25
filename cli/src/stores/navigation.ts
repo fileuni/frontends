@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 /**
- * 路由参数接口 / Route parameters interface
+ * Route parameters interface
  */
 export interface RouteParams {
   mod?: string;
@@ -12,21 +12,21 @@ export interface RouteParams {
 interface NavigationState {
   params: RouteParams;
   /**
-   * 更新路由参数 / Update route parameters
+   * Update route parameters
    */
   setParams: (params: RouteParams) => void;
   /**
-   * 从当前 Hash 解析参数 / Parse parameters from current hash
+   * Parse parameters from current hash
    */
   syncFromHash: () => void;
   /**
-   * 导航到新页面 / Navigate to a new page
+   * Navigate to a new page
    */
   navigate: (params: Partial<RouteParams>) => void;
 }
 
 /**
- * 解析 URL Hash 参数 / Parse URL Hash parameters
+ * Parse URL Hash parameters
  */
 function parseHash(hash: string): RouteParams {
   const params: RouteParams = {};
@@ -41,7 +41,7 @@ function parseHash(hash: string): RouteParams {
 }
 
 /**
- * 路由状态管理器 / Route state manager
+ * Route state manager
  */
 export const useNavigationStore = create<NavigationState>((set, get) => ({
   params: typeof window !== 'undefined' ? parseHash(window.location.hash) : {},
@@ -70,7 +70,7 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
   }
 }));
 
-// 监听 hashchange 事件 / Listen for hashchange events
+// Listen for hashchange events
 if (typeof window !== 'undefined') {
   window.addEventListener('hashchange', () => {
     useNavigationStore.getState().syncFromHash();

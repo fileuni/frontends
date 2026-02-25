@@ -12,7 +12,7 @@ export function useUploadActions() {
   const { loadStorageStats } = useFileActions();
   const { currentUserData } = useAuthStore();
   
-  // 用于追踪活跃的 XHR 对象，以便取消（虽然此功能暂未在 UI 暴露）
+  // Track active XHR objects for potential cancellation (not yet exposed in UI)
   const activeRequests = useRef<Record<string, XMLHttpRequest>>({});
 
   const uploadFile = useCallback(async (task: UploadTask) => {
@@ -29,12 +29,12 @@ export function useUploadActions() {
 
     xhr.open('POST', url, true);
     
-    // 设置认证头
+    // Set authorization header
     if (currentUserData?.access_token) {
       xhr.setRequestHeader('Authorization', `Bearer ${currentUserData.access_token}`);
     }
 
-    // 监听进度
+    // Listen for progress
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         const percent = Math.round((event.loaded / event.total) * 100);
@@ -50,7 +50,6 @@ export function useUploadActions() {
           if (response.success) {
             updateTask(task.id, { status: 'completed', progress: 100 });
             
-            // 局部刷新：如果上传目标是当前显示的目录，则追加文件并高亮
             // Partial refresh: if target matches latest currentPath, append and highlight
             const latestStore = useFileStore.getState();
             const latestCurrentPath = latestStore.getCurrentPath();
@@ -72,7 +71,7 @@ export function useUploadActions() {
         updateTask(task.id, { status: 'error', errorMsg: `HTTP ${xhr.status}: ${xhr.statusText}` });
       }
       
-      // 检查是否所有任务都已完成
+      // Check if all tasks are completed
       const remaining = useUploadStore.getState().tasks.filter(t => t.status === 'uploading').length;
       if (remaining === 0) setUploading(false);
     };

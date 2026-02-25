@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '@/features/user-center/components/DashboardLayout';
 import { FileSidebar } from '@/features/file-manager/components/FileSidebar';
 
-// 动态导入公共组件 / Dynamic import public components
+// Dynamic import public components
 const WelcomeView = lazy(() => import('@/features/public/components/WelcomeView').then(m => ({ default: m.WelcomeView })));
 const LoginView = lazy(() => import('@/features/public/components/LoginView').then(m => ({ default: m.LoginView })));
 const RegisterView = lazy(() => import('@/features/public/components/RegisterView').then(m => ({ default: m.RegisterView })));
@@ -15,23 +15,23 @@ const AccountsView = lazy(() => import('@/features/public/components/AccountsVie
 const TosContent = lazy(() => import('@/features/public/components/TosContent').then(m => ({ default: m.TosContent })));
 const PrivacyContent = lazy(() => import('@/features/public/components/PrivacyContent').then(m => ({ default: m.PrivacyContent })));
 
-// 动态导入用户中心组件 / Dynamic import user center components
+// Dynamic import user center components
 const UserHomeView = lazy(() => import('@/features/user-center/components/UserHomeView').then(m => ({ default: m.UserHomeView })));
 const ProfileView = lazy(() => import('@/features/user-center/components/ProfileView').then(m => ({ default: m.ProfileView })));
 const SecurityView = lazy(() => import('@/features/user-center/components/SecurityView').then(m => ({ default: m.SecurityView })));
 const SessionsView = lazy(() => import('@/features/user-center/components/SessionsView').then(m => ({ default: m.SessionsView })));
 const CacheManagerView = lazy(() => import('@/features/user-center/components/CacheManagerView').then(m => ({ default: m.CacheManagerView })));
 
-// 动态导入文件管理组件 / Dynamic import file manager components
+// Dynamic import file manager components
 const FileManagerView = lazy(() => import('@/features/file-manager/components/FileManagerView').then(m => ({ default: m.FileManagerView })));
 const PublicShareView = lazy(() => import('@/features/file-manager/components/PublicShareView').then(m => ({ default: m.PublicShareView })));
 const MySharesView = lazy(() => import('@/features/file-manager/components/MySharesView').then(m => ({ default: m.MySharesView })));
 
-// 动态导入聊天组件 / Dynamic import chat components
+// Dynamic import chat components
 const ChatPage = lazy(() => import('@/features/chat/components/ChatPage').then(m => ({ default: m.ChatPage })));
 const ChatGuestView = lazy(() => import('@/features/chat/components/ChatGuestView').then(m => ({ default: m.ChatGuestView })));
 
-// 动态导入管理员组件 / Dynamic import admin components
+// Dynamic import admin components
 const UserManagement = lazy(() => import('@/features/admin/components/UserManagement').then(m => ({ default: m.UserManagement })));
 const AdminUserCreateView = lazy(() => import('@/features/admin/components/AdminUserCreateView').then(m => ({ default: m.AdminUserCreateView })));
 const AdminUserEditView = lazy(() => import('@/features/admin/components/AdminUserEditView').then(m => ({ default: m.AdminUserEditView as ComponentType<{ userId?: string }> })));
@@ -47,7 +47,7 @@ const AuditLogAdmin = lazy(() => import('@/features/admin/components/AuditLogAdm
 const TaskAdmin = lazy(() => import('@/features/admin/components/TaskAdmin').then(m => ({ default: m.TaskAdmin })));
 
 /**
- * 路由分发器 / Route dispatcher
+ * Route dispatcher
  */
 export const AppRouter: React.FC = () => {
   const { params } = useNavigationStore();
@@ -58,14 +58,14 @@ export const AppRouter: React.FC = () => {
   const mod = params.mod || 'public';
   const page = params.page || 'index';
 
-  // 加载占位符 / Loading placeholder
+  // Loading placeholder
   const fallback = (
     <div className="flex items-center justify-center min-h-[50vh]">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
   );
 
-  // 认证检查 / Auth check
+  // Auth check
   const isPublicPage = mod === 'public' || (mod === 'file-manager' && page === 'share') || (mod === 'chat' && page === 'guest');
   if (!isLoggedIn && !isPublicPage) {
     return (
@@ -83,7 +83,7 @@ export const AppRouter: React.FC = () => {
 };
 
 /**
- * 路由渲染内部组件 / Internal Page Renderer component
+ * Internal Page Renderer component
  */
 const PageRenderer: React.FC<{
   mod: string;
@@ -92,7 +92,7 @@ const PageRenderer: React.FC<{
   t: any;
   hasPermission: (permissionKey: string) => boolean;
 }> = ({ mod, page, params, t, hasPermission }) => {
-  // 公共模块 / Public module
+  // Public module
   if (mod === 'public') {
     switch (page) {
       case 'index': return <WelcomeView />;
@@ -106,7 +106,7 @@ const PageRenderer: React.FC<{
     }
   }
 
-  // 用户中心模块 / User Center module
+  // User Center module
   if (mod === 'user') {
     switch (page) {
       case 'welcome': return <DashboardLayout title={t('pages.user.welcome.title')}><UserHomeView /></DashboardLayout>;
@@ -119,7 +119,7 @@ const PageRenderer: React.FC<{
     }
   }
 
-  // 管理员模块 / Admin module
+  // Admin module
   if (mod === 'admin') {
     if (!hasPermission("admin.access")) {
       return (
@@ -149,7 +149,7 @@ const PageRenderer: React.FC<{
     }
   }
 
-  // 文件管理模块 / File Manager module
+  // File Manager module
   if (mod === 'file-manager') {
     if (page === 'share') return <PublicShareView token={params.token || ''} />;
     
@@ -162,7 +162,7 @@ const PageRenderer: React.FC<{
     );
   }
 
-  // 聊天模块 / Chat module
+  // Chat module
   if (mod === 'chat') {
     if (page === 'guest') {
       return <ChatGuestView inviteCode={params.invite} />;
@@ -177,6 +177,6 @@ const PageRenderer: React.FC<{
     return <DashboardLayout title={t('chat.pageTitle')}><ChatPage /></DashboardLayout>;
   }
 
-  // 默认返回首页 / Default to home
+  // Default to home
   return <WelcomeView />;
 };

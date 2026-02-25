@@ -47,7 +47,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 
 /**
- * P2P 帮助说明组件 / P2P Help Modal Content
+ * P2P Help Modal Content
  */
 const P2PHelpContent: React.FC = () => {
   const { t } = useTranslation();
@@ -103,7 +103,7 @@ const P2PHelpContent: React.FC = () => {
 };
 
 /**
- * 视频通话预览组件 / Video Call Preview Component
+ * Video Call Preview Component
  */
 const VideoCallOverlay: React.FC<{
   localStream: MediaStream | null;
@@ -127,7 +127,7 @@ const VideoCallOverlay: React.FC<{
   return (
     <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-4 sm:p-8 animate-in fade-in duration-300">
       <div className="relative w-full max-w-5xl aspect-video bg-muted/10 rounded-3xl overflow-hidden shadow-2xl border border-white/10">
-        {/* 远程画面 / Remote Video */}
+        {/* Remote Video */}
         {remoteStream ? (
           <video
             ref={remoteVideoRef}
@@ -146,7 +146,7 @@ const VideoCallOverlay: React.FC<{
           </div>
         )}
 
-        {/* 本地画面 / Local Video (PIP) */}
+        {/* Local Video (PIP) */}
         <div className="absolute bottom-6 right-6 w-32 sm:w-48 aspect-video bg-black rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl z-10">
           <video
             ref={localVideoRef}
@@ -157,7 +157,7 @@ const VideoCallOverlay: React.FC<{
           />
         </div>
 
-        {/* 控制条 / Controls */}
+        {/* Controls */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-6 px-8 py-4 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl">
           <div className="flex flex-col items-center gap-1">
             <button

@@ -25,7 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-// --- 子组件：标签页右键菜单 ---
+// --- Sub-component: Tab Context Menu ---
 const TabContextMenu = ({ x, y, tabId, onClose }: { x: number; y: number; tabId: string; onClose: () => void; }) => {
   const { t } = useTranslation();
   const { closeOtherTabs, closeLeftTabs, closeRightTabs } = useFileStore();
@@ -59,7 +59,7 @@ interface SortableTabProps {
   onContextMenu: (e: React.MouseEvent, id: string) => void;
 }
 
-// --- 子组件：可排序标签页 ---
+// --- Sub-component: Sortable Tab ---
 const SortableTab = ({ tab, isActive, onRemove, onActivate, onContextMenu }: SortableTabProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: tab.id });
   const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 50 : isActive ? 20 : 1 };
@@ -83,7 +83,7 @@ const SortableTab = ({ tab, isActive, onRemove, onActivate, onContextMenu }: Sor
   );
 };
 
-// --- 主组件：标签栏 ---
+// --- Main Component: Tabs Bar ---
 export const FileManagerTabs = () => {
   const store = useFileStore();
   const { setActiveTabId, addTab, removeTab, setTabs } = store;

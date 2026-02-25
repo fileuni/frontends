@@ -27,7 +27,7 @@ export interface TaskState {
   createdAt: string;
 }
 
-// 每个用户独立的数据桶 / Data bucket for each user
+// Data bucket for each user
 interface UserFileData {
   currentPath: string;
   clipboard: ClipboardItem[];
@@ -35,16 +35,16 @@ interface UserFileData {
   activeTabId: string;
   recentFiles: FileInfo[];
   viewMode: ViewMode;
-  sortConfig: { field: string; order: 'asc' | 'desc' }; // 排序配置 / Sort configuration
-  searchKeyword: string; // 搜索关键词 / Search keyword
-  isSearchMode: boolean; // 是否处于搜索模式 / Whether in search mode
-  shareFilter: { hasPassword: boolean | null; enableDirect: boolean | null }; // 分享过滤 / Share filter
+  sortConfig: { field: string; order: 'asc' | 'desc' }; // Sort configuration
+  searchKeyword: string; // Search keyword
+  isSearchMode: boolean; // Whether in search mode
+  shareFilter: { hasPassword: boolean | null; enableDirect: boolean | null }; // Share filter
   pageSize: number;
-  activeTasks: TaskState[]; // 新增：正在运行的任务队列 / New: active task queue
+  activeTasks: TaskState[]; // Active task queue
 }
 
 interface FileState {
-  // 全局运行时状态 / Global runtime states
+  // Global runtime states
   files: FileInfo[];
   loading: boolean;
   fmMode: FileManagerMode;
@@ -53,7 +53,7 @@ interface FileState {
   favoriteFilterColor: number | null;
   highlightedPath: string | null;
 
-  // 分页信息 / Pagination info
+  // Pagination info
   pagination: {
     total: number;
     totalPages: number;
@@ -61,14 +61,14 @@ interface FileState {
     pageSize: number;
   };
 
-  // 用户特定持久化数据字典 / User specific persisted data
+  // User specific persisted data
   userStates: Record<string, UserFileData>;
 
-  // 内部辅助 / Internal helpers
+  // Internal helpers
   _getUid: () => string;
   _ensureUser: (uid: string) => void;
 
-  // 公共 Getters / Public getters
+  // Public getters
   getCurrentPath: () => string;
   getClipboard: () => ClipboardItem[];
   getTabs: () => Tab[];
@@ -82,7 +82,7 @@ interface FileState {
   getPageSize: () => number;
   getPagination: () => { total: number; totalPages: number; currentPage: number; pageSize: number };
 
-  // Actions / Actions
+  // Actions
   setCurrentPath: (path: string) => void;
   addToRecentFiles: (file: FileInfo) => void;
   clearRecentFiles: () => void;
@@ -97,7 +97,7 @@ interface FileState {
   setHighlightedPath: (path: string | null) => void;
   setPageSize: (size: number) => void;
   
-  // 排序和搜索相关 / Sorting and searching related
+  // Sorting and searching related
   setSortConfig: (config: { field: string; order: 'asc' | 'desc' }) => void;
   setSearchKeyword: (keyword: string) => void;
   setIsSearchMode: (isSearchMode: boolean) => void;
@@ -265,7 +265,7 @@ export const useFileStore = create<FileState>()(
             : tab
         );
 
-        // 记录目录访问到最近记录
+        // Record directory access to recent files
         const currentDirInfo = get().files.find(f => f.path === normalizedPath) || {
           name: normalizedPath.split('/').pop() || 'Root',
           path: normalizedPath,

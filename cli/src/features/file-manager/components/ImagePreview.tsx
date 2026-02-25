@@ -19,28 +19,27 @@ interface Props {
 }
 
 /**
- * 图像预览组件 / Image Preview Component
- * 简化逻辑：获取 token → 拼接 URL → 显示图片
- * Simplified logic: Get token → Build URL → Display image
+ * Image Preview Component
+ * Simplified logic: Get token -> Build URL -> Display image
  */
 export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onClose }: Props) => {
-  // 播放列表状态 / Playlist State
+  // Playlist State
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const activeFile = playlist[currentIndex];
 
-  // 图像状态 / Image State
+  // Image State
   const [imgSrc, setImgSrc] = useState<string>('');
   const imgRef = useRef<HTMLImageElement>(null);
   
-  // UI 状态 / UI State
+  // UI State
   const [showList, setShowList] = useState(true);
   const [transform, setTransform] = useState({ scale: 1, rotate: 0, flipH: false });
 
-  // 1. 当索引变化时，获取 Token 并设置图片 URL / When index changes, fetch Token and set image URL
+  // 1. When index changes, fetch Token and set image URL
   useEffect(() => {
     if (!activeFile) return;
 
-    // 先清空当前图片 / Clear current image first
+    // Clear current image first
     setImgSrc('');
     
     const fetchToken = async () => {
@@ -49,7 +48,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
       });
 
       if (data?.data?.token) {
-        // 构建完整的 URL / Construct full URL
+        // Construct full URL
         const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.data.token)}&inline=true`;
         setImgSrc(url);
       }
@@ -58,13 +57,13 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     fetchToken();
     document.title = `${activeFile.name} - FileUni`;
     setTransform({ scale: 1, rotate: 0, flipH: false });
-  }, [currentIndex]); // 只依赖 currentIndex，因为 activeFile 是派生状态 / Only depend on currentIndex
+  }, [currentIndex]); // Only depend on currentIndex since activeFile is derived
 
-  // 2. 导航处理 / Navigation Handler
+  // 2. Navigation Handler
   const handleNavigate = (idx: number) => {
     if (idx >= 0 && idx < playlist.length && idx !== currentIndex) {
       setCurrentIndex(idx);
-      // 更新 URL hash 以适配 SPA / Update URL hash for SPA
+      // Update URL hash for SPA
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
       params.set('preview_path', playlist[idx].path);
@@ -72,7 +71,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     }
   };
 
-  // 3. 键盘导航 / Keyboard Navigation
+  // 3. Keyboard Navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') handleNavigate(currentIndex - 1);
@@ -117,7 +116,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
       />
 
       <div className="flex-1 flex overflow-hidden relative">
-        {/* 左侧侧边栏 / Sidebar */}
+        {/* Sidebar */}
         {playlist.length > 1 && showList && (
           <div className="w-64 border-r border-border bg-accent/5 flex flex-col shrink-0 z-40 animate-in slide-in-from-left duration-300">
             <div className="p-4 border-b border-border flex items-center justify-between">
@@ -146,9 +145,9 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
           </div>
         )}
 
-        {/* 核心展示区 / Main Display Area */}
+        {/* Main Display Area */}
         <div className="flex-1 relative flex flex-col group min-w-0 bg-checkerboard">
-          {/* 工具栏 / Toolbar */}
+          {/* Toolbar */}
           <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-background/80 backdrop-blur-2xl px-4 py-2 rounded-2xl border border-border shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity">
             <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-xl" onClick={() => setShowList(!showList)}><List size={18} className={showList ? "text-primary" : ""} /></Button>
             <div className="w-px h-4 bg-border mx-1" />
@@ -162,9 +161,9 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
             <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-xl text-primary" onClick={() => imgRef.current?.requestFullscreen()}><Maximize2 size={18} /></Button>
           </div>
 
-          {/* 图片容器 / Image Container */}
+          {/* Image Container */}
           <div className="flex-1 flex items-center justify-center overflow-hidden relative p-4 select-none">
-            {/* 左侧导航区域 / Left Navigation Area */}
+            {/* Left Navigation Area */}
             {playlist.length > 1 && currentIndex > 0 && (
               <div 
                 className="absolute left-0 top-0 bottom-0 w-1/3 flex items-center justify-start pl-4 opacity-0 hover:opacity-100 transition-opacity cursor-pointer z-10"
@@ -176,7 +175,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
               </div>
             )}
 
-            {/* 右侧导航区域 / Right Navigation Area */}
+            {/* Right Navigation Area */}
             {playlist.length > 1 && currentIndex < playlist.length - 1 && (
               <div 
                 className="absolute right-0 top-0 bottom-0 w-1/3 flex items-center justify-end pr-4 opacity-0 hover:opacity-100 transition-opacity cursor-pointer z-10"
@@ -188,7 +187,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
               </div>
             )}
 
-            {/* 图像 / Image */}
+            {/* Image */}
             {imgSrc && (
               <img
                 ref={imgRef}

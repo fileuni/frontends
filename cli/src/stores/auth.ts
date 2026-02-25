@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
         const updatedAuthData = { ...authData, login_time };
         
         const newMap = { ...get().usersMap };
-        // 始终保存到 map 中，如果 remember 为 false，我们可以在退出时处理 / Always save to map, if remember is false, handle it at logout
+        // Always save to map, if remember is false, handle it at logout
         newMap[user.id] = updatedAuthData;
 
         set({
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthState>()(
           currentUserData: updatedAuthData,
           isLoggedIn: true,
           mustChangePassword: mustChange,
-          mustChangePasswordDismissed: false // 重置忽略状态 / Reset dismissal state
+          mustChangePasswordDismissed: false // Reset dismissal state
         });
       },
 

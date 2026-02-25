@@ -17,7 +17,7 @@ export const EmailUnifiedUI: React.FC = () => {
     view: "inbox",
   });
 
-  // Parse hash and update state / 解析 hash 并更新状态
+  // Parse hash and update state
     const parseHash = (): EmailRouterState => {
     const hash = window.location.hash;
     const params = new URLSearchParams(hash.replace(/^#/, ""));
@@ -60,7 +60,7 @@ export const EmailUnifiedUI: React.FC = () => {
     return { isOpen: false, view: "inbox" };
   };
 
-  // Listen for hash changes / 监听 hash 变化
+  // Listen for hash changes
   useEffect(() => {
     const checkHash = () => {
       setRouterState(parseHash());
@@ -71,7 +71,7 @@ export const EmailUnifiedUI: React.FC = () => {
     return () => window.removeEventListener("hashchange", checkHash);
   }, []);
 
-  // Handle escape key / 处理 Esc 键
+  // Handle escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape" && routerState.isOpen) {
@@ -104,15 +104,15 @@ export const EmailUnifiedUI: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300">
-      {/* Backdrop / 遮罩层 */}
+      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-md" 
         onClick={closeEmail}
       />
       
-      {/* Modal Container / 模态框容器 */}
+      {/* Modal Container */}
       <div className="relative w-full max-w-[1400px] h-full bg-background rounded-[2.5rem] shadow-2xl border border-border/50 overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
-        {/* Header / 头部 */}
+        {/* Header */}
         <div className="h-16 border-b border-border/40 px-6 flex items-center justify-between bg-muted/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
@@ -131,7 +131,7 @@ export const EmailUnifiedUI: React.FC = () => {
           </button>
         </div>
 
-        {/* Content / 内容区域 */}
+        {/* Content */}
         <div className="flex-1 overflow-hidden">
           <EmailPage 
             initialView={routerState.view}

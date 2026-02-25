@@ -11,11 +11,11 @@ import {
 import { Button } from "@/components/ui/Button.tsx";
 import { FilePreviewHeader } from "./FilePreviewHeader.tsx";
 
-// 静态导入 PDF 样式文件 / Static import PDF style files
+// Static import PDF style files
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
-// 只有在浏览器环境下才导入 react-pdf
+// Only import react-pdf in browser environment
 let Document: React.ComponentType<any> = () => null;
 let Page: React.ComponentType<any> = () => null;
 let pdfjs: Record<string, any> = {};
@@ -26,7 +26,6 @@ if (typeof window !== "undefined") {
   Page = reactPdf.Page;
   pdfjs = reactPdf.pdfjs;
 
-  // 优先使用与当前构建同版本的本地 Worker，CDN 作为兜底，避免版本不匹配
   // Prefer same-build local worker; fallback to CDN to avoid API/Worker version mismatch
   const runtimePdfVersion =
     typeof pdfjs.version === "string" && pdfjs.version.length > 0
@@ -123,7 +122,7 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
     };
   }, [pdfUrl]);
 
-  // 记忆化文件对象，解决 DataCloneError 和不必要的重载
+  // Memoize file object to solve DataCloneError and unnecessary reloads
   const documentFile = useMemo(() => ({ url: pdfUrl || "" }), [pdfUrl]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {

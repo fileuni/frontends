@@ -32,7 +32,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   currentIndex: -1,
 
   play: (file, folderFiles) => {
-    // 过滤出音频文件 / Filter out audio files
+    // Filter out audio files
     const audioExtensions = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'];
     const audioFiles = folderFiles.filter(f => {
       const ext = f.name.split('.').pop()?.toLowerCase() || '';

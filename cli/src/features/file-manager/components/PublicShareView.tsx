@@ -112,7 +112,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
 
       setContents(data);
       
-      // 使用 navigate 同步子路径，如果是根路径则设为 undefined 避免冗余参数
+      // Sync sub_path via navigate; set to undefined for root to avoid redundant params
       if (path !== currentPath) {
         navigate({ sub_path: path === '/' ? undefined : path });
       }
@@ -132,7 +132,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
     if (token) fetchShare(); 
   }, [token]);
 
-  // 当 sub_path 改变时重新加载目录 / Reload directory when sub_path changes
+  // Reload directory when sub_path changes
   useEffect(() => {
     if (shareInfo?.is_dir && token) {
       fetchContents(currentPath);
@@ -153,7 +153,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
     navigate({ sub_path: parentPath === '/' ? undefined : parentPath });
   };
 
-  // 生成正确的二维码地址 / Generate correct QR code URL with hash routing
+  // Generate correct QR code URL with hash routing
   const getQrUrl = () => {
     const baseUrl = window.location.origin + window.location.pathname;
     let url = `${baseUrl}#mod=file-manager&page=share&token=${token}`;

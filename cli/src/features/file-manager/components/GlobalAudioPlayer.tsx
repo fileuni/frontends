@@ -34,7 +34,7 @@ interface APlayerInstance {
 }
 
 /**
- * 全局悬浮音频播放器 / Global Floating Audio Player
+ * Global Floating Audio Player
  */
 export const GlobalAudioPlayer = () => {
   const { t } = useTranslation();
@@ -48,7 +48,7 @@ export const GlobalAudioPlayer = () => {
   const playerRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<APlayerInstance | null>(null);
 
-  // 初始化 APlayer / Initialize APlayer
+  // Initialize APlayer
   useEffect(() => {
     if (!isOpen || !playerRef.current || !currentTrack) return undefined;
 
@@ -71,7 +71,7 @@ export const GlobalAudioPlayer = () => {
         return '';
       };
 
-      // 初始只获取前 3 个音轨的 Token，其余的在播放时获取 / Fetch first 3 tokens initially
+      // Fetch first 3 tokens initially, remaining tokens are fetched on playback
       const initialTracksCount = 3;
       const tracks: APlayerAudio[] = await Promise.all(playlist.map(async (t, i) => {
         const url = i < initialTracksCount ? await getTrackUrl(t.path) : '';
@@ -181,7 +181,7 @@ export const GlobalAudioPlayer = () => {
           : "w-[360px] md:w-[400px] rounded-3xl"
       )}
     >
-      {/* 最小化时的按钮 / Minimize Toggle Button */}
+      {/* Minimize Toggle Button */}
       <button 
         onClick={() => setMinimized(false)}
         className={cn(
@@ -192,7 +192,7 @@ export const GlobalAudioPlayer = () => {
         <Music size={24} className="animate-pulse" />
       </button>
 
-      {/* 播放器主面板 / Main Player Panel */}
+      {/* Main Player Panel */}
       <div className={cn(
         "flex flex-col transition-opacity duration-300",
         isMinimized ? "opacity-0 pointer-events-none" : "opacity-100"
