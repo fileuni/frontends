@@ -22,11 +22,11 @@ export const AccountsView = () => {
   const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const getRedirectParams = (): Partial<RouteParams> => {
-    // 优先从 Hash 解析 redirect 参数 / Priority parse redirect param from Hash
+    // Priority parse redirect param from Hash
     const redirect = params.redirect;
     if (!redirect) return { mod: 'user', page: 'welcome' };
 
-    // 如果是完整的 hash 字符串，解析它 / If it's a full hash string, parse it
+    // If it's a full hash string, parse it
     if (redirect.includes('mod=')) {
       const p = new URLSearchParams(redirect.startsWith('#') ? redirect.substring(1) : redirect);
       const result: Partial<RouteParams> = {};
@@ -37,7 +37,7 @@ export const AccountsView = () => {
   };
 
   const handleSelect = (_userId: string) => {
-    // 强制等待一个 tick 确保 store 已经切换 / Force wait a tick to ensure store switched
+    // Force wait a tick to ensure store switched
     setTimeout(() => {
       const destParams = getRedirectParams();
       navigate(destParams);

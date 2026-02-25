@@ -65,7 +65,7 @@ export const SecurityView = () => {
 
   useEffect(() => { fetchSecurity(); }, [fetchSecurity]);
 
-  // 重置表单状态 / Reset form states
+  // Reset form states
   const handleModalClose = () => {
     setActiveModal(null);
     setBindForm({ target: '', code: '', token: '', timer: bindForm.timer }); // Keep timer
@@ -204,7 +204,7 @@ export const SecurityView = () => {
           });
 
       if (error) {
-        // 验证码错误，清空输入框但不关闭模态框
+        // Verification failed, clear code but keep modal open
         // Verification failed, clear code but keep modal open
         setBindForm(f => ({ ...f, code: '' }));
         return;

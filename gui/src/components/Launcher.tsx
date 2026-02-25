@@ -597,7 +597,7 @@ export default function Launcher() {
               </div>
          </div>
 
-          {/* Footer / 页脚 */}
+          {/* Footer */}
           <div className="flex justify-center items-center py-6 border-t border-slate-200/50 dark:border-slate-800/40 bg-slate-50/50 dark:bg-slate-900/30">
             <div className="flex items-center gap-8 text-sm text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase opacity-70">
               <span className="flex items-center gap-2.5">
@@ -616,7 +616,7 @@ export default function Launcher() {
         </div>
 
 
-      {/* Config Selector Modal / 配置选择器模态框 */}
+      {/* Config Selector Modal */}
       <ConfigSelector
         isOpen={showConfigSelector}
         onConfigSelected={handleConfigSelected}
@@ -668,7 +668,7 @@ export default function Launcher() {
       )}
     </div>
 
-    {/* Toast Container / 吐司容器 - 放在最外层确保正确显示 */}
+    {/* Toast Container - placed at outermost layer to ensure correct display */}
     <ToastI18nContext.Provider value={toastI18n}>
       <ToastContainer />
     </ToastI18nContext.Provider>

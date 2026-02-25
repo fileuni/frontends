@@ -16,7 +16,7 @@ export const ConfigGuard = ({ children, feature }: ConfigGuardProps) => {
   const { capabilities } = useConfigStore();
   const { t } = useTranslation();
 
-  //  检查功能是否启用 / Check if feature is enabled
+  // Check if feature is enabled
   const isEnabled = capabilities?.[feature] !== false;
 
   if (!isEnabled) {

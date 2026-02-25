@@ -47,7 +47,7 @@ export type {
   GroupInfo,
 };
 
-// 聊天系统配置 (后端动态获取) / Chat system capabilities (fetched dynamically)
+// Chat system capabilities (fetched dynamically)
 interface ChatCapabilities {
   enabled: boolean;
   enable_mqtt_proxy_broker?: boolean;
@@ -130,7 +130,7 @@ const MAX_HISTORY_BYTES = 300 * 1024;
 import i18next from "@/lib/i18n";
 
 /**
- * 聊天错误边界 / Chat Error Boundary
+ * Chat Error Boundary
  */
 class ChatErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -169,7 +169,7 @@ export const ChatProvider: React.FC<{
     null,
   );
 
-  // 访客模式下，inviteCode 即为新的 invite_id / In guest mode, inviteCode is the new invite_id
+  // In guest mode, inviteCode is the new invite_id
   const storageKey =
     auth.type === "system"
       ? `chat_config_${auth.userId}`
@@ -193,7 +193,7 @@ export const ChatProvider: React.FC<{
     {
       enabled: true,
       saveHistory: true,
-      encryptionKey: "", // 保持字段兼容，但逻辑中不再使用 / Keep field for compat but ignore in logic
+      encryptionKey: "", // Keep field for compat but ignore in logic
       transportBackend: "ws",
       enableWebRTC: true,
       groupEncryptionKeys: {},
@@ -275,8 +275,7 @@ export const ChatProvider: React.FC<{
     }
   }, [transport, trimHistory]);
 
-  // selfId 逻辑修正：访客直接使用 auth.inviteCode (即 invite_id)
-  // selfId fix: guest mode uses auth.inviteCode (invite_id) directly
+  // selfId: guest mode uses auth.inviteCode (invite_id) directly
   const selfId = useMemo(() => {
     return auth.type === "system" ? auth.userId : auth.inviteCode;
   }, [auth]);
@@ -469,8 +468,8 @@ export const ChatProvider: React.FC<{
 
   const systemDefaultKey = capabilities?.chat_default_key || "";
 
-  // 区分“已启用”、“禁用”和“初始化中” / Distinguish "enabled", "disabled", and "initializing"
-  // 只有当服务器明确返回 enabled: false 时，才认为被禁用 / Only consider disabled if server explicitly returns enabled: false
+  // Distinguish "enabled", "disabled", and "initializing"
+  // Only consider disabled if server explicitly returns enabled: false
   const isChatActuallyDisabled =
     capabilities !== null && capabilities.enabled === false;
   const isChatEnabled = !isChatActuallyDisabled;
@@ -740,8 +739,8 @@ export const ChatProvider: React.FC<{
   }, [fetchCapabilities]);
 
   /**
-   * 自动重试解密失败的消息 / Auto-retry failed decryptions
-   * 当密钥、能力配置或消息列表变化时触发
+   * Auto-retry failed decryptions
+   * Triggered when keys, capabilities config, or message list changes
    */
   useEffect(() => {
     let active = true;
@@ -751,7 +750,6 @@ export const ChatProvider: React.FC<{
         messages.map(async (msg) => {
           if (!msg.decryptFailed || !msg.rawContent) return msg;
           
-          // 如果内容不再符合加密特征（可能是之前误判），直接清除失败标记
           // If content no longer looks encrypted, clear the failure badge
           if (!ChatCrypto.isEncrypted(msg.rawContent)) {
             changed = true;
@@ -789,7 +787,7 @@ export const ChatProvider: React.FC<{
       }
     };
     
-    // 仅在有失败消息时运行 / Only run if there are failed messages
+    // Only run if there are failed messages
     if (messages.some(m => m.decryptFailed)) {
       retryAll();
     }
@@ -1011,7 +1009,7 @@ export const ChatProvider: React.FC<{
           }
           if (!success) decryptFailed = true;
         } else {
-          // 如果是加密消息但完全没有密钥可用，标记为解密失败 / If encrypted but no keys available
+          // If encrypted but no keys available
           decryptFailed = true;
         }
       }
@@ -1061,9 +1059,9 @@ export const ChatProvider: React.FC<{
         if (content.startsWith("Welcome, ")) {
           const welcomeText = content.replace("Welcome, ", "").trim();
 
-          // 1. 解析自己的昵称和ID / Parse own nickname and ID
-          // 格式 A: Welcome, {nickname} (ID: {id} | Inviter: {iid} | Name: {iname})
-          // 格式 B: Welcome, {nickname}
+          // 1. Parse own nickname and ID
+          // Format A: Welcome, {nickname} (ID: {id} | Inviter: {iid} | Name: {iname})
+          // Format B: Welcome, {nickname}
           const ownMatch = welcomeText.match(/^(.*?) \(ID: (.*?) \|/);
           if (ownMatch) {
             const myNickname = ownMatch[1].trim();
@@ -1071,11 +1069,11 @@ export const ChatProvider: React.FC<{
             if (myNickname && myId)
               setNicknames((prev) => ({ ...prev, [myId]: myNickname }));
           } else if (!welcomeText.includes("(")) {
-            // 简单格式 / Simple format
+            // Simple format
             setNicknames((prev) => ({ ...prev, [selfId]: welcomeText }));
           }
 
-          // 2. 解析邀请人信息 / Parse inviter info
+          // 2. Parse inviter info
           const inviterMatch = welcomeText.match(
             /Inviter: (.*?) \| Name: (.*?)\)/,
           );
@@ -1138,7 +1136,7 @@ export const ChatProvider: React.FC<{
   const setupWebSocket = useCallback(() => {
     if (!isChatEnabled) return;
 
-    // 如果是系统用户但 Token 还没准备好，先不连接 / Don't connect if system user has no token yet
+    // Don't connect if system user has no token yet
     const token = auth.type === "system" ? accessToken : "";
     if (auth.type === "system" && !token) {
       console.log("[Chat] WS: System user has no token yet, skipping...");
@@ -1148,13 +1146,13 @@ export const ChatProvider: React.FC<{
     const inviteId = auth.type === "guest" ? auth.inviteCode : "";
     const url = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/api/v1/chat/ws?${auth.type === "guest" ? `invite_id=${inviteId}` : `token=${token}`}`;
 
-    // 如果已有连接且处于正在连接或已打开状态，则不重复创建 / If already connecting/open, don't recreate
+    // If already connecting/open, don't recreate
     if (
       wsRef.current &&
       (wsRef.current.readyState === WebSocket.CONNECTING ||
         wsRef.current.readyState === WebSocket.OPEN)
     ) {
-      // 检查 URL 是否相同，如果不同则需要重新连接 / Check if URL is different, reconnect if so
+      // Check if URL is different, reconnect if so
       if (wsRef.current.url === new URL(url, window.location.href).href) {
         return;
       }
@@ -1172,7 +1170,7 @@ export const ChatProvider: React.FC<{
         pendingMessagesRef.current.length,
       );
       setIsConnected(true);
-      // 发送缓冲的消息 / Flush pending messages
+      // Flush pending messages
       while (pendingMessagesRef.current.length > 0) {
         const msg = pendingMessagesRef.current.shift();
         if (msg) ws.send(msg);
@@ -1181,7 +1179,7 @@ export const ChatProvider: React.FC<{
     ws.onclose = (e) => {
       console.log("[Chat] WebSocket closed:", e.code, e.reason);
       setIsConnected(false);
-      // 尝试自动重连 / Attempt auto-reconnect
+      // Attempt auto-reconnect
       if (e.code !== 1000 && e.code !== 1001) {
         console.log("[Chat] WS: Unexpected close, scheduling reconnect...");
         setTimeout(() => {
@@ -1222,7 +1220,7 @@ export const ChatProvider: React.FC<{
     }
     if (!url) return;
 
-    // 如果已有连接且后端一致，不再重新连接 / If already connected and backend is same, don't reconnect
+    // If already connected and backend is same, don't reconnect
     if (mqttRef.current?.connected) {
       return;
     }
@@ -1270,7 +1268,7 @@ export const ChatProvider: React.FC<{
       return;
     }
 
-    // 如果正在初始化或已启用，则尝试建立连接 / If initializing or enabled, try to setup connections
+    // If initializing or enabled, try to setup connections
     if (isChatEnabled) {
       if (chatConfig.transportBackend === "ws") {
         setupWebSocket();
@@ -1291,7 +1289,7 @@ export const ChatProvider: React.FC<{
 
   useEffect(() => {
     return () => {
-      // 卸载时清理所有连接 / Cleanup all connections on unmount
+      // Cleanup all connections on unmount
       console.log("[Chat] ChatProvider unmounting, closing connections...");
       if (wsRef.current) {
         wsRef.current.onclose = null;
@@ -1305,7 +1303,7 @@ export const ChatProvider: React.FC<{
     };
   }, []);
 
-  // 当 transportBackend 切换时清理旧连接 / Cleanup old connections when transportBackend switches
+  // Cleanup old connections when transportBackend switches
   useEffect(() => {
     if (chatConfig.transportBackend !== "ws" && wsRef.current) {
       console.log("[Chat] Switching away from WS, closing...");

@@ -49,7 +49,7 @@ export const DashboardLayout: React.FC<{
   const isAdmin = mounted && hasPermission("admin.access");
   const enableFileManager = capabilities?.enable_api !== false;
 
-  // 使用 useMemo 确保配置对象不在模块顶层初始化
+  // Use useMemo to ensure config objects are not initialized at module top level
   const { navItems, adminItems } = useMemo(() => ({
     navItems: [
       { name: t("nav.dashboard"), icon: "LayoutDashboard", m: "user", p: "welcome", path: "#mod=user&page=welcome" },
@@ -72,7 +72,7 @@ export const DashboardLayout: React.FC<{
     ]
   }), [t]);
 
-  // 侧边栏内容提取为内部渲染函数，确保闭包安全
+  // Extract sidebar content as inner render function to ensure closure safety
   const renderSidebar = (isMobile = false) => (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       <div className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">

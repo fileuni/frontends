@@ -265,7 +265,7 @@ export const ForgotPasswordView = () => {
       setResetForm(f => ({ ...f, token }));
       setStep(4);
     } catch (e) { 
-      // 验证码错误后根据业务码决定是否刷新
+      // Decide whether to refresh captcha based on biz_code after verification error
       if (isApiError(e)) {
         if (e.biz_code === 'CAPTCHA_REQUIRED') {
           setNeedCaptcha(true);

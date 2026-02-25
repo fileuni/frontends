@@ -116,7 +116,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
 
     fetchEmailUnread(); // Initial fetch
     
-    // Listen for manual updates from EmailPage / 监听来自邮件页面的手动更新
+    // Listen for manual updates from EmailPage
     const handleRefresh = () => fetchEmailUnread();
     window.addEventListener('fileuni:email-refresh', handleRefresh);
 
@@ -669,7 +669,7 @@ const NotificationList = ({
   );
 };
 
-// Email account type / 邮件账号类型
+// Email account type
 interface EmailAccount {
   id: string;
   email_address: string;
@@ -677,7 +677,7 @@ interface EmailAccount {
   unread_count?: number;
 }
 
-// Email tab content component / 邮件选项卡内容组件
+// Email tab content component
 const EmailTabContent = ({
   isDark,
   onOpenEmail,
@@ -692,7 +692,7 @@ const EmailTabContent = ({
   const [loading, setLoading] = useState(true);
   const [syncingAccountId, setSyncingAccountId] = useState<string | null>(null);
 
-  // Fetch email accounts / 获取邮件账号
+  // Fetch email accounts
   const fetchAccounts = async () => {
     try {
       const data = await extractData<EmailAccount[]>(client.GET("/api/v1/email/accounts"));
@@ -734,7 +734,7 @@ const EmailTabContent = ({
         }
       }, 3000);
     } catch (err: any) { 
-      // Handle frequency limiting / 处理频率限制
+      // Handle frequency limiting
       const msg = err?.msg || t("email.syncFailed");
       toast.error(msg);
     }

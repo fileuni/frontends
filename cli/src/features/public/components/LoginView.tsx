@@ -177,7 +177,7 @@ export const LoginView = () => {
         }
 
         const msg = e.msg || "";
-        // 检测设备上限错误 / Detect device limit error
+        // Detect device limit error
         if (msg.includes("MAX_DEVICES_EXCEEDED")) {
           await fetchPublicSessions();
           setShowDeviceLimit(true);
@@ -190,15 +190,15 @@ export const LoginView = () => {
         addToast(e instanceof Error ? e.message : t("errors.INTERNAL_ERROR"), "error");
       }
 
-      // 如果发生了验证码错误或需要验证码，根据具体业务码决定是否刷新
+      // If captcha error or required, decide whether to refresh based on biz_code
       if (isApiError(e)) {
         if (e.biz_code === 'CAPTCHA_REQUIRED') {
           setNeedCaptcha(true);
-          fetchCaptcha(true); // 强制获取新验证码 / Force new captcha
+          fetchCaptcha(true); // Force new captcha
           setCaptchaCode("");
           setTurnstileToken("");
         } else if (e.biz_code === 'INVALID_CAPTCHA') {
-          // 仅清空输入，不刷新图片，允许根据 max_attempts 重试
+          // Only clear input, don't refresh image, allow retry based on max_attempts
           // Only clear input, don't refresh image, allow retry based on max_attempts
           setCaptchaCode("");
           setTurnstileToken("");
@@ -243,7 +243,7 @@ export const LoginView = () => {
       );
       if (data?.success) {
         addToast(t("sessions.revokeAccess"), "success");
-        // 成功移除后尝试重新登录
+        // After successful removal, attempt to login again
         setShowDeviceLimit(false);
         handleLogin();
       }
@@ -348,7 +348,7 @@ export const LoginView = () => {
                       } else if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed)) {
                         // UUID - keep as is
                       } else {
-                        // 尝试规范化手机号，如果明显不是手机号则保持原样
+                        // Try to normalize phone number, keep as is if clearly not a phone number
                         const normalized = normalizePhoneInput(trimmed);
                         if (normalized.length > 5 && /^\+?\d+$/.test(normalized)) {
                           setIdentifier(normalized);

@@ -75,7 +75,7 @@ export const UserHomeView = () => {
           path: "#mod=user&page=profile",
           desc: t("welcome.userCenter"),
         },
-        //  检查是否启用文件管理 API / Check if file manager API is enabled
+        // Check if file manager API is enabled
         ...(capabilities?.enable_api !== false
           ? [
               {
