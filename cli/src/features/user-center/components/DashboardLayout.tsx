@@ -63,7 +63,7 @@ export const DashboardLayout: React.FC<{
       { name: t("common.manage"), icon: "ShieldAlert", m: "admin", p: "permissions", path: "#mod=admin&page=permissions" },
       { name: t("admin.blacklist.title") || "Access Guard", icon: "ShieldAlert", m: "admin", p: "blacklist", path: "#mod=admin&page=blacklist" },
       { name: t("admin.backup.title") || "System Backup", icon: "Archive", m: "admin", p: "backup", path: "#mod=admin&page=backup" },
-      { name: t("admin.ddns.title"), icon: "Globe", m: "admin", p: "ddns", path: "#mod=admin&page=ddns" },
+      { name: "Domain Automation", icon: "Globe", m: "admin", p: "domain", path: "#mod=admin&page=domain" },
       { name: t("admin.web.title"), icon: "Server", m: "admin", p: "web", path: "#mod=admin&page=web" },
       { name: t("admin.tasks.title") || "Background Tasks", icon: "Activity", m: "admin", p: "tasks", path: "#mod=admin&page=tasks" },
       { name: t("admin.audit.title") || "Audit Logs", icon: "ClipboardList", m: "admin", p: "audit", path: "#mod=admin&page=audit" },

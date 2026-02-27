@@ -41,7 +41,9 @@ const BlacklistAdmin = lazy(() => import('@/features/admin/components/BlacklistA
 const FileSystemAdmin = lazy(() => import('@/features/admin/components/FileSystemAdmin').then(m => ({ default: m.FileSystemAdmin })));
 const SystemBackupAdmin = lazy(() => import('@/features/admin/components/SystemBackupAdmin').then(m => ({ default: m.SystemBackupAdmin })));
 const ExtensionManagerAdmin = lazy(() => import('@/features/admin/components/ExtensionManagerAdmin').then(m => ({ default: m.ExtensionManagerAdmin })));
-const DdnsAdmin = lazy(() => import('@/features/admin/components/DdnsAdmin').then(m => ({ default: m.DdnsAdmin })));
+const DomainAcmeDdnsAdmin = lazy(() =>
+  import('@/features/admin/components/DomainAcmeDdnsAdmin').then(m => ({ default: m.DomainAcmeDdnsAdmin })),
+);
 const WebAdmin = lazy(() => import('@/features/admin/components/WebAdmin').then(m => ({ default: m.WebAdmin })));
 const AuditLogAdmin = lazy(() => import('@/features/admin/components/AuditLogAdmin').then(m => ({ default: m.AuditLogAdmin })));
 const TaskAdmin = lazy(() => import('@/features/admin/components/TaskAdmin').then(m => ({ default: m.TaskAdmin })));
@@ -140,7 +142,9 @@ const PageRenderer: React.FC<{
       case 'files':
       case 'fs': return <DashboardLayout title={t('pages.admin.fs.title')}><FileSystemAdmin /></DashboardLayout>;
       case 'backup': return <DashboardLayout title={t('admin.backup.title')}><SystemBackupAdmin /></DashboardLayout>;
-      case 'ddns': return <DashboardLayout title={t('admin.ddns.title')}><DdnsAdmin /></DashboardLayout>;
+      case 'domain': return <DashboardLayout title="Domain Automation"><DomainAcmeDdnsAdmin /></DashboardLayout>;
+      case 'ddns': return <DashboardLayout title="Domain Automation"><DomainAcmeDdnsAdmin /></DashboardLayout>;
+      case 'acme': return <DashboardLayout title="Domain Automation"><DomainAcmeDdnsAdmin /></DashboardLayout>;
       case 'web': return <DashboardLayout title={t('admin.web.title')}><WebAdmin /></DashboardLayout>;
       case 'audit': return <DashboardLayout title={t('admin.audit.title') || 'Audit Logs'}><AuditLogAdmin /></DashboardLayout>;
       case 'tasks': return <DashboardLayout title={t('admin.tasks.title') || 'Background Tasks'}><TaskAdmin /></DashboardLayout>;

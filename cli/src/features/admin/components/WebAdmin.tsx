@@ -116,14 +116,12 @@ interface ListenerDiagnostic {
   errors: string[];
 }
 
-interface AcmeCertFileView {
+interface DomainCertAssetView {
   id: string;
   name: string;
-  cert_path?: string | null;
-  key_path?: string | null;
-  fullchain_path?: string | null;
+  domains_json?: string | null;
   expires_at?: string | null;
-  last_status?: string | null;
+  status?: string | null;
 }
 
 const toPayload = (draft: SiteDraft): SitePayload => ({
@@ -156,7 +154,7 @@ export const WebAdmin: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [acmeCertFiles, setAcmeCertFiles] = useState<AcmeCertFileView[]>([]);
+  const [domainCertAssets, setDomainCertAssets] = useState<DomainCertAssetView[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState<SiteDraft>(defaultDraft());
   const canToggleProxyTlsInsecure = draft.route_mode === 'proxy' && draft.proxy_upstream.trim().startsWith('https://');
@@ -311,12 +309,12 @@ export const WebAdmin: React.FC = () => {
     }
   };
 
-  const loadAcmeCertFiles = async () => {
+  const loadDomainCertAssets = async () => {
     try {
-      const data = await extractData<AcmeCertFileView[]>(client.GET('/api/v1/admin/acme/cert-files'));
-      setAcmeCertFiles(Array.isArray(data) ? data : []);
+      const data = await extractData<DomainCertAssetView[]>(client.GET('/api/v1/admin/domain-acme-ddns/assets/certs'));
+      setDomainCertAssets(Array.isArray(data) ? data : []);
     } catch {
-      setAcmeCertFiles([]);
+      setDomainCertAssets([]);
     }
   };
 
@@ -324,7 +322,7 @@ export const WebAdmin: React.FC = () => {
     const run = async () => {
       setLoading(true);
       await loadSites();
-      await loadAcmeCertFiles();
+      await loadDomainCertAssets();
       setLoading(false);
     };
     run();
@@ -822,7 +820,7 @@ export const WebAdmin: React.FC = () => {
                   onChange={(e) => setDraft({ ...draft, tls_acme_cert_id: e.target.value })}
                 >
                   <option value="">{t('admin.web.form.tlsAcmeCertNone')}</option>
-                  {acmeCertFiles.map((item) => (
+                  {domainCertAssets.map((item) => (
                     <option key={item.id} value={item.id}>
                       {`${item.name} (${item.id})`}
                     </option>

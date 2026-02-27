@@ -305,8 +305,8 @@ const MAINTENANCE_TASK_KEYS = [
 ] as const;
 const LOW_PRIORITY_TASK_KEYS = [
   'share_cleanup',
-  'ddns_sync_check',
-  'acme_renewal_check',
+  'domain_ddns_sync_check',
+  'domain_acme_renewal_check',
   'notification_cleanup',
   'task_cleanup',
   'system_backup',

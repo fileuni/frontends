@@ -6,6 +6,6 @@ export * from './AdminUserEditView.tsx';
 export * from './AdminUserCreateView.tsx';
 export * from './BlacklistAdmin.tsx';
 export * from './ExtensionManagerAdmin.tsx';
-export * from './DdnsAdmin.tsx';
+export * from './DomainAcmeDdnsAdmin.tsx';
 export * from './WebAdmin.tsx';
 export * from './TaskAdmin.tsx';
