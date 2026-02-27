@@ -96,17 +96,6 @@ const normalizeStatus = (value?: string | null): 'idle' | 'running' | 'success' 
   return 'idle';
 };
 
-const CA_PROVIDER_OPTIONS = [
-  { value: 'letsencrypt', label: 'Let\'s Encrypt (Prod)' },
-  { value: 'letsencrypt-staging', label: 'Let\'s Encrypt (Staging)' },
-  { value: 'zerossl', label: 'ZeroSSL' },
-];
-
-const CHALLENGE_OPTIONS = [
-  { value: 'dns01', label: 'DNS-01' },
-  { value: 'http01', label: 'HTTP-01' },
-];
-
 const PREFERRED_PROVIDER_ORDER = [
   'aliyun',
   'tencentcloud',
@@ -177,16 +166,27 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
 
   const title = useMemo(() => {
     if (panel === 'provider') {
-      return 'Provider Accounts';
+      return t('admin.domain.panelProvider');
     }
     if (panel === 'acme') {
-      return t('admin.acme.title');
+      return t('admin.domain.panelAcme');
     }
     if (panel === 'web') {
-      return 'Web Reuse';
+      return t('admin.domain.panelWeb');
     }
-    return t('admin.ddns.title');
+    return t('admin.domain.panelDdns');
   }, [panel, t]);
+
+  const caProviderOptions = useMemo(() => [
+    { value: 'letsencrypt', label: t('admin.domain.caProviders.letsencrypt') },
+    { value: 'letsencrypt-staging', label: t('admin.domain.caProviders.letsencrypt-staging') },
+    { value: 'zerossl', label: t('admin.domain.caProviders.zerossl') },
+  ], [t]);
+
+  const challengeOptions = useMemo(() => [
+    { value: 'dns01', label: t('admin.domain.challengeTypes.dns01') },
+    { value: 'http01', label: t('admin.domain.challengeTypes.http01') },
+  ], [t]);
 
   const acmeProviderKeySet = useMemo(() => {
     return new Set(
@@ -236,7 +236,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
 
   const createProvider = async () => {
     if (!newProvider.name.trim()) {
-      addToast('Provider account name is required', 'error');
+      addToast(t('admin.domain.providerNameRequired'), 'error');
       return;
     }
     try {
@@ -253,7 +253,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
       );
       setNewProvider((prev) => ({ ...prev, name: '' }));
       await loadAll();
-      addToast('Provider account created', 'success');
+      addToast(t('admin.domain.providerCreated'), 'success');
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     }
@@ -261,7 +261,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
 
   const createDdnsEntry = async () => {
     if (!newDdns.name.trim() || !newDdns.provider_account_id.trim() || !newDdns.fqdn.trim()) {
-      addToast('DDNS name, provider account and fqdn are required', 'error');
+      addToast(t('admin.domain.ddnsRequired'), 'error');
       return;
     }
     try {
@@ -287,7 +287,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
       );
       setNewDdns((prev) => ({ ...prev, name: '', fqdn: '' }));
       await loadAll();
-      addToast('DDNS entry created', 'success');
+      addToast(t('admin.domain.ddnsCreated'), 'success');
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     }
@@ -295,7 +295,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
 
   const createCertificate = async () => {
     if (!newCert.name.trim() || !newCert.account_email.trim()) {
-      addToast('Certificate name and email are required', 'error');
+      addToast(t('admin.domain.certNameEmailRequired'), 'error');
       return;
     }
     if (newCert.challenge_type === 'http01') {
@@ -303,11 +303,11 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
         const parsed = JSON.parse(newCert.dns_config_json || '{}');
         const webroot = typeof parsed.webroot === 'string' ? parsed.webroot.trim() : typeof parsed.http_webroot === 'string' ? parsed.http_webroot.trim() : '';
         if (!webroot) {
-          addToast('HTTP-01 requires dns config json with webroot/http_webroot', 'error');
+          addToast(t('admin.domain.certHttp01WebrootRequired'), 'error');
           return;
         }
       } catch {
-        addToast('dns config json must be valid json object', 'error');
+        addToast(t('admin.domain.certDnsConfigInvalid'), 'error');
         return;
       }
     }
@@ -333,7 +333,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
       );
       setNewCert((prev) => ({ ...prev, name: '' }));
       await loadAll();
-      addToast('Certificate created', 'success');
+      addToast(t('admin.domain.certCreated'), 'success');
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     }
@@ -350,9 +350,9 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
 
       const renewed = data.results.length;
       if (force_update) {
-        addToast(`Force renewal check completed. renewed=${renewed}`, 'success');
+        addToast(t('admin.domain.forceRenewCompleted', { renewed }), 'success');
       } else {
-        addToast(`Renewal check completed. threshold=${data.renew_before_days}d renewed=${renewed}`, 'success');
+        addToast(t('admin.domain.renewalCheckCompleted', { threshold: data.renew_before_days, renewed }), 'success');
       }
       await loadAll();
     } catch (error) {
@@ -369,7 +369,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           params: { path: { id } },
         }),
       );
-      addToast('Provider account deleted', 'success');
+      addToast(t('admin.domain.providerDeleted'), 'success');
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -402,7 +402,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           },
         }),
       );
-      addToast('Provider account updated', 'success');
+      addToast(t('admin.domain.providerUpdated'), 'success');
       setEditingProvider(null);
       await loadAll();
     } catch (error) {
@@ -417,7 +417,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           params: { path: { id } },
         }),
       );
-      addToast('DDNS run completed', 'success');
+      addToast(t('admin.domain.ddnsRunCompleted'), 'success');
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -428,7 +428,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
     setRunningDdnsAll(true);
     try {
       await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/run-all'));
-      addToast('DDNS run-all completed', 'success');
+      addToast(t('admin.domain.ddnsRunAllCompleted'), 'success');
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -444,7 +444,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           params: { path: { id } },
         }),
       );
-      addToast('DDNS entry deleted', 'success');
+      addToast(t('admin.domain.ddnsDeleted'), 'success');
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -475,7 +475,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           },
         }),
       );
-      addToast('DDNS entry updated', 'success');
+      addToast(t('admin.domain.ddnsUpdated'), 'success');
       setEditingDdns(null);
       await loadAll();
     } catch (error) {
@@ -490,7 +490,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           params: { path: { id } },
         }),
       );
-      addToast('Certificate run completed', 'success');
+      addToast(t('admin.domain.certRunCompleted'), 'success');
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -504,7 +504,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           params: { path: { id } },
         }),
       );
-      addToast('Certificate deleted', 'success');
+      addToast(t('admin.domain.certDeleted'), 'success');
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -534,7 +534,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           },
         }),
       );
-      addToast('Certificate updated', 'success');
+      addToast(t('admin.domain.certUpdated'), 'success');
       setEditingCert(null);
       await loadAll();
     } catch (error) {
@@ -551,7 +551,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
       );
       const content = [data.fullchain_pem || '', data.cert_pem || ''].filter(Boolean).join('\n');
       if (!content.trim()) {
-        addToast('No certificate content available', 'error');
+        addToast(t('admin.domain.certNoContent'), 'error');
         return;
       }
       const blob = new Blob([content], { type: 'application/x-pem-file;charset=utf-8' });
@@ -563,7 +563,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      addToast(`Certificate downloaded${data.has_private_key ? ' (private key stored on server)' : ''}`, 'success');
+      addToast(data.has_private_key ? t('admin.domain.certDownloadedWithKey') : t('admin.domain.certDownloaded'), 'success');
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     }
@@ -576,7 +576,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           params: { path: { id } },
         }),
       );
-      addToast('Certificate exported to server path', 'success');
+      addToast(t('admin.domain.certExported'), 'success');
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -590,7 +590,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/40 p-3">
-        <div className="text-sm font-semibold opacity-80">Domain Automation</div>
+        <div className="text-sm font-semibold opacity-80">{t('admin.domain.title')}</div>
         <div className="flex gap-2">
           <Button
             type="button"
@@ -598,7 +598,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
             variant={panel === 'provider' ? 'default' : 'outline'}
             onClick={() => setPanel('provider')}
           >
-            Provider Accounts
+            {t('admin.domain.panelProvider')}
           </Button>
           <Button
             type="button"
@@ -606,7 +606,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
             variant={panel === 'ddns' ? 'default' : 'outline'}
             onClick={() => setPanel('ddns')}
           >
-            {t('admin.ddns.title')}
+            {t('admin.domain.panelDdns')}
           </Button>
           <Button
             type="button"
@@ -614,7 +614,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
             variant={panel === 'acme' ? 'default' : 'outline'}
             onClick={() => setPanel('acme')}
           >
-            {t('admin.acme.title')}
+            {t('admin.domain.panelAcme')}
           </Button>
           <Button
             type="button"
@@ -622,7 +622,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
             variant={panel === 'web' ? 'default' : 'outline'}
             onClick={() => setPanel('web')}
           >
-            Web Reuse
+            {t('admin.domain.panelWeb')}
           </Button>
         </div>
       </div>
@@ -630,30 +630,30 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="text-xs font-semibold uppercase tracking-wider opacity-60">{title}</div>
         <Button size="sm" variant="outline" onClick={loadAll} disabled={loading}>
-          {loading ? 'Loading...' : 'Refresh'}
+          {loading ? t('admin.domain.loading') : t('admin.domain.refresh')}
         </Button>
       </div>
 
       <div className="rounded-xl border border-border/50 bg-card/30 p-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-5 text-sm">
           <div>
-            <div className="opacity-60">Provider Profiles</div>
+            <div className="opacity-60">{t('admin.domain.statsProviderProfiles')}</div>
             <div className="text-2xl font-black">{providerProfiles.length}</div>
           </div>
           <div>
-            <div className="opacity-60">Provider Accounts</div>
+            <div className="opacity-60">{t('admin.domain.statsProviderAccounts')}</div>
             <div className="text-2xl font-black">{providers.length}</div>
           </div>
           <div>
-            <div className="opacity-60">DDNS Entries</div>
+            <div className="opacity-60">{t('admin.domain.statsDdnsEntries')}</div>
             <div className="text-2xl font-black">{ddnsEntries.length}</div>
           </div>
           <div>
-            <div className="opacity-60">Certificates</div>
+            <div className="opacity-60">{t('admin.domain.statsCertificates')}</div>
             <div className="text-2xl font-black">{certificates.length}</div>
           </div>
           <div>
-            <div className="opacity-60">Web Domain Assets</div>
+            <div className="opacity-60">{t('admin.domain.statsWebDomains')}</div>
             <div className="text-2xl font-black">{domainAssets.length}</div>
           </div>
         </div>
@@ -661,21 +661,21 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
 
       {panel === 'provider' ? (
         <div className="rounded-xl border border-border/50 bg-card/30 p-4">
-          <div className="mb-3 text-sm font-bold uppercase tracking-wider opacity-70">Provider Accounts</div>
+          <div className="mb-3 text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.domain.providerTitle')}</div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-5 gap-2">
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="account name" value={newProvider.name} onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })} />
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.providerNamePlaceholder')} value={newProvider.name} onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })} />
             <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={newProvider.provider_key} onChange={(e) => setNewProvider({ ...newProvider, provider_key: e.target.value })}>
               {sortedProviderProfiles.map((item) => (
                 <option key={item.key} value={item.key}>{item.name}</option>
               ))}
             </select>
-            <textarea className="min-h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder='credential json (will be encrypted at rest)' value={newProvider.credential_json_enc} onChange={(e) => setNewProvider({ ...newProvider, credential_json_enc: e.target.value })} />
-            <textarea className="min-h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder='config json' value={newProvider.config_json} onChange={(e) => setNewProvider({ ...newProvider, config_json: e.target.value })} />
-            <Button size="sm" onClick={createProvider}>Create</Button>
+            <textarea className="min-h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder={t('admin.domain.providerCredentialPlaceholder')} value={newProvider.credential_json_enc} onChange={(e) => setNewProvider({ ...newProvider, credential_json_enc: e.target.value })} />
+            <textarea className="min-h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder={t('admin.domain.providerConfigPlaceholder')} value={newProvider.config_json} onChange={(e) => setNewProvider({ ...newProvider, config_json: e.target.value })} />
+            <Button size="sm" onClick={createProvider}>{t('admin.domain.create')}</Button>
           </div>
           {editingProvider && (
             <div className="mb-4 rounded-lg border border-border/60 p-3 space-y-2">
-              <div className="text-xs uppercase opacity-70">Edit provider account</div>
+              <div className="text-xs uppercase opacity-70">{t('admin.domain.providerEditTitle')}</div>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingProvider.name} onChange={(e) => setEditingProvider({ ...editingProvider, name: e.target.value })} />
                 <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingProvider.provider_key} onChange={(e) => setEditingProvider({ ...editingProvider, provider_key: e.target.value })}>
@@ -683,18 +683,18 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
                     <option key={item.key} value={item.key}>{item.name}</option>
                   ))}
                 </select>
-                <textarea className="min-h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder='credential json (blank = keep existing encrypted value)' value={editingProvider.credential_json_enc} onChange={(e) => setEditingProvider({ ...editingProvider, credential_json_enc: e.target.value })} />
+                <textarea className="min-h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder={t('admin.domain.providerCredentialEditPlaceholder')} value={editingProvider.credential_json_enc} onChange={(e) => setEditingProvider({ ...editingProvider, credential_json_enc: e.target.value })} />
                 <textarea className="min-h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm" value={editingProvider.config_json} onChange={(e) => setEditingProvider({ ...editingProvider, config_json: e.target.value })} />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={saveProviderEdit}>Save</Button>
-                  <Button size="sm" variant="outline" onClick={() => setEditingProvider(null)}>Cancel</Button>
+                  <Button size="sm" onClick={saveProviderEdit}>{t('admin.domain.save')}</Button>
+                  <Button size="sm" variant="outline" onClick={() => setEditingProvider(null)}>{t('admin.domain.cancel')}</Button>
                 </div>
               </div>
             </div>
           )}
           <div className="space-y-2 text-sm">
             {providers.length === 0 ? (
-              <div className="opacity-60">No provider accounts</div>
+              <div className="opacity-60">{t('admin.domain.noProviders')}</div>
             ) : (
               providers.map((item) => (
                 <div key={item.id} className="flex items-center justify-between rounded-lg border border-border/50 px-3 py-2">
@@ -703,9 +703,9 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
                     <div className="opacity-60">{item.provider_key}</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="text-xs uppercase opacity-70">{item.enabled ? 'enabled' : 'disabled'}</div>
-                    <Button size="sm" variant="outline" onClick={() => beginEditProvider(item)}>Edit</Button>
-                    <Button size="sm" variant="outline" onClick={() => deleteProviderAccount(item.id)}>Delete</Button>
+                    <div className="text-xs uppercase opacity-70">{item.enabled ? t('admin.domain.statusEnabled') : t('admin.domain.statusDisabled')}</div>
+                    <Button size="sm" variant="outline" onClick={() => beginEditProvider(item)}>{t('admin.domain.edit')}</Button>
+                    <Button size="sm" variant="outline" onClick={() => deleteProviderAccount(item.id)}>{t('admin.domain.delete')}</Button>
                   </div>
                 </div>
               ))
@@ -714,28 +714,28 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
         </div>
       ) : panel === 'ddns' ? (
         <div className="rounded-xl border border-border/50 bg-card/30 p-4">
-          <div className="mb-3 text-sm font-bold uppercase tracking-wider opacity-70">DDNS</div>
+          <div className="mb-3 text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.domain.panelDdns')}</div>
           <div className="mb-3">
             <Button size="sm" variant="outline" disabled={runningDdnsAll} onClick={runAllDdnsNow}>
-              {runningDdnsAll ? 'Running...' : 'Run All Now'}
+              {runningDdnsAll ? t('admin.domain.running') : t('admin.domain.runAllNow')}
             </Button>
           </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-6 gap-2">
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="entry name" value={newDdns.name} onChange={(e) => setNewDdns({ ...newDdns, name: e.target.value })} />
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.ddnsNamePlaceholder')} value={newDdns.name} onChange={(e) => setNewDdns({ ...newDdns, name: e.target.value })} />
             <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={newDdns.provider_account_id} onChange={(e) => setNewDdns({ ...newDdns, provider_account_id: e.target.value })}>
-              <option value="">provider account</option>
+              <option value="">{t('admin.domain.ddnsProviderPlaceholder')}</option>
               {providers.map((item) => (
                 <option key={item.id} value={item.id}>{item.name}</option>
               ))}
             </select>
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="fqdn" value={newDdns.fqdn} onChange={(e) => setNewDdns({ ...newDdns, fqdn: e.target.value })} />
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="zone" value={newDdns.zone} onChange={(e) => setNewDdns({ ...newDdns, zone: e.target.value })} />
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="host" value={newDdns.host} onChange={(e) => setNewDdns({ ...newDdns, host: e.target.value })} />
-            <Button size="sm" onClick={createDdnsEntry}>Create</Button>
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.ddnsFqdnPlaceholder')} value={newDdns.fqdn} onChange={(e) => setNewDdns({ ...newDdns, fqdn: e.target.value })} />
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.ddnsZonePlaceholder')} value={newDdns.zone} onChange={(e) => setNewDdns({ ...newDdns, zone: e.target.value })} />
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.ddnsHostPlaceholder')} value={newDdns.host} onChange={(e) => setNewDdns({ ...newDdns, host: e.target.value })} />
+            <Button size="sm" onClick={createDdnsEntry}>{t('admin.domain.create')}</Button>
           </div>
           {editingDdns && (
             <div className="mb-4 rounded-lg border border-border/60 p-3 space-y-2">
-              <div className="text-xs uppercase opacity-70">Edit DDNS entry</div>
+              <div className="text-xs uppercase opacity-70">{t('admin.domain.ddnsEditTitle')}</div>
               <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingDdns.name} onChange={(e) => setEditingDdns({ ...editingDdns, name: e.target.value })} />
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingDdns.fqdn} onChange={(e) => setEditingDdns({ ...editingDdns, fqdn: e.target.value })} />
@@ -743,15 +743,15 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingDdns.host} onChange={(e) => setEditingDdns({ ...editingDdns, host: e.target.value })} />
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" type="number" value={editingDdns.ttl} onChange={(e) => setEditingDdns({ ...editingDdns, ttl: Number(e.target.value) || 120 })} />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={saveDdnsEdit}>Save</Button>
-                  <Button size="sm" variant="outline" onClick={() => setEditingDdns(null)}>Cancel</Button>
+                  <Button size="sm" onClick={saveDdnsEdit}>{t('admin.domain.save')}</Button>
+                  <Button size="sm" variant="outline" onClick={() => setEditingDdns(null)}>{t('admin.domain.cancel')}</Button>
                 </div>
               </div>
             </div>
           )}
           <div className="space-y-2 text-sm">
             {ddnsEntries.length === 0 ? (
-              <div className="opacity-60">No DDNS entries</div>
+              <div className="opacity-60">{t('admin.domain.noDdnsEntries')}</div>
             ) : (
               ddnsEntries.map((item) => (
                 <div key={item.id} className="flex items-center justify-between rounded-lg border border-border/50 px-3 py-2">
@@ -761,9 +761,9 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="text-xs uppercase opacity-70">{normalizeStatus(item.last_status)}</div>
-                    <Button size="sm" variant="outline" onClick={() => runDdnsEntryNow(item.id)}>Run</Button>
-                    <Button size="sm" variant="outline" onClick={() => setEditingDdns(item)}>Edit</Button>
-                    <Button size="sm" variant="outline" onClick={() => deleteDdnsEntry(item.id)}>Delete</Button>
+                    <Button size="sm" variant="outline" onClick={() => runDdnsEntryNow(item.id)}>{t('admin.domain.run')}</Button>
+                    <Button size="sm" variant="outline" onClick={() => setEditingDdns(item)}>{t('admin.domain.edit')}</Button>
+                    <Button size="sm" variant="outline" onClick={() => deleteDdnsEntry(item.id)}>{t('admin.domain.delete')}</Button>
                   </div>
                 </div>
               ))
@@ -772,10 +772,9 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
         </div>
       ) : panel === 'acme' ? (
         <div className="rounded-xl border border-border/50 bg-card/30 p-4">
-          <div className="mb-3 text-sm font-bold uppercase tracking-wider opacity-70">Certificates</div>
+          <div className="mb-3 text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.domain.acmeTitle')}</div>
           <div className="mb-3 rounded-lg border border-border/50 bg-background/40 p-3 text-xs opacity-80">
-            Auto renewal rule: scheduler check (default daily) and manual check both renew certificates whose
-            remaining days are less than configured threshold. Force update ignores remaining days.
+            {t('admin.domain.acmeAutoRenewHint')}
           </div>
           <div className="mb-4 flex flex-wrap gap-2">
             <Button
@@ -784,25 +783,25 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
               disabled={runningCertCheck}
               onClick={() => runCertCheck(false)}
             >
-              {runningCertCheck ? 'Running...' : 'Run Renewal Check'}
+              {runningCertCheck ? t('admin.domain.running') : t('admin.domain.runRenewalCheck')}
             </Button>
             <Button
               size="sm"
               disabled={runningCertCheck}
               onClick={() => runCertCheck(true)}
             >
-              {runningCertCheck ? 'Running...' : 'Force Renew All'}
+              {runningCertCheck ? t('admin.domain.running') : t('admin.domain.forceRenewAll')}
             </Button>
           </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-8 gap-2">
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="certificate name" value={newCert.name} onChange={(e) => setNewCert({ ...newCert, name: e.target.value })} />
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.certNamePlaceholder')} value={newCert.name} onChange={(e) => setNewCert({ ...newCert, name: e.target.value })} />
             <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={newCert.ca_provider} onChange={(e) => setNewCert({ ...newCert, ca_provider: e.target.value })}>
-              {CA_PROVIDER_OPTIONS.map((item) => (
+              {caProviderOptions.map((item) => (
                 <option key={item.value} value={item.value}>{item.label}</option>
               ))}
             </select>
             <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={newCert.challenge_type} onChange={(e) => setNewCert({ ...newCert, challenge_type: e.target.value })}>
-              {CHALLENGE_OPTIONS.map((item) => (
+              {challengeOptions.map((item) => (
                 <option key={item.value} value={item.value}>{item.label}</option>
               ))}
             </select>
@@ -812,29 +811,29 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
               disabled={newCert.challenge_type !== 'dns01'}
               onChange={(e) => setNewCert({ ...newCert, provider_account_id: e.target.value })}
             >
-              <option value="">provider account (dns01)</option>
+              <option value="">{t('admin.domain.certProviderPlaceholder')}</option>
               {acmeProviders.map((item) => (
                 <option key={item.id} value={item.id}>{item.name}</option>
               ))}
             </select>
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder='domains json, e.g. ["example.com"]' value={newCert.domains_json} onChange={(e) => setNewCert({ ...newCert, domains_json: e.target.value })} />
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder='dns config json; http01 needs {"webroot":"/var/www/acme"}' value={newCert.dns_config_json} onChange={(e) => setNewCert({ ...newCert, dns_config_json: e.target.value })} />
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="account email" value={newCert.account_email} onChange={(e) => setNewCert({ ...newCert, account_email: e.target.value })} />
-            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="optional export path" value={newCert.export_path} onChange={(e) => setNewCert({ ...newCert, export_path: e.target.value })} />
-            <Button size="sm" onClick={createCertificate}>Create</Button>
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.certDomainsPlaceholder')} value={newCert.domains_json} onChange={(e) => setNewCert({ ...newCert, domains_json: e.target.value })} />
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.certDnsConfigPlaceholder')} value={newCert.dns_config_json} onChange={(e) => setNewCert({ ...newCert, dns_config_json: e.target.value })} />
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.certEmailPlaceholder')} value={newCert.account_email} onChange={(e) => setNewCert({ ...newCert, account_email: e.target.value })} />
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder={t('admin.domain.certExportPlaceholder')} value={newCert.export_path} onChange={(e) => setNewCert({ ...newCert, export_path: e.target.value })} />
+            <Button size="sm" onClick={createCertificate}>{t('admin.domain.create')}</Button>
           </div>
           {editingCert && (
             <div className="mb-4 rounded-lg border border-border/60 p-3 space-y-2">
-              <div className="text-xs uppercase opacity-70">Edit certificate</div>
+              <div className="text-xs uppercase opacity-70">{t('admin.domain.certEditTitle')}</div>
               <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.name} onChange={(e) => setEditingCert({ ...editingCert, name: e.target.value })} />
                 <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.ca_provider} onChange={(e) => setEditingCert({ ...editingCert, ca_provider: e.target.value })}>
-                  {CA_PROVIDER_OPTIONS.map((item) => (
+                  {caProviderOptions.map((item) => (
                     <option key={item.value} value={item.value}>{item.label}</option>
                   ))}
                 </select>
                 <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.challenge_type} onChange={(e) => setEditingCert({ ...editingCert, challenge_type: e.target.value })}>
-                  {CHALLENGE_OPTIONS.map((item) => (
+                  {challengeOptions.map((item) => (
                     <option key={item.value} value={item.value}>{item.label}</option>
                   ))}
                 </select>
@@ -844,7 +843,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
                   disabled={editingCert.challenge_type !== 'dns01'}
                   onChange={(e) => setEditingCert({ ...editingCert, provider_account_id: e.target.value || null })}
                 >
-                  <option value="">provider account (dns01)</option>
+                  <option value="">{t('admin.domain.certProviderPlaceholder')}</option>
                   {acmeProviders.map((item) => (
                     <option key={item.id} value={item.id}>{item.name}</option>
                   ))}
@@ -854,29 +853,29 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.account_email} onChange={(e) => setEditingCert({ ...editingCert, account_email: e.target.value })} />
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.export_path || ''} onChange={(e) => setEditingCert({ ...editingCert, export_path: e.target.value })} />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={saveCertEdit}>Save</Button>
-                  <Button size="sm" variant="outline" onClick={() => setEditingCert(null)}>Cancel</Button>
+                  <Button size="sm" onClick={saveCertEdit}>{t('admin.domain.save')}</Button>
+                  <Button size="sm" variant="outline" onClick={() => setEditingCert(null)}>{t('admin.domain.cancel')}</Button>
                 </div>
               </div>
             </div>
           )}
           <div className="space-y-2 text-sm">
             {certificates.length === 0 ? (
-              <div className="opacity-60">No certificates</div>
+              <div className="opacity-60">{t('admin.domain.noCertificates')}</div>
             ) : (
               certificates.map((item) => (
                 <div key={item.id} className="flex items-center justify-between rounded-lg border border-border/50 px-3 py-2">
                   <div>
                     <div className="font-semibold">{item.name}</div>
-                    <div className="opacity-60">{item.expires_at || 'no expiry'}</div>
+                    <div className="opacity-60">{item.expires_at || t('admin.domain.noExpiry')}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="text-xs uppercase opacity-70">{normalizeStatus(item.last_status)}</div>
-                    <Button size="sm" variant="outline" onClick={() => runCertNow(item.id)}>Run</Button>
-                    <Button size="sm" variant="outline" onClick={() => setEditingCert(item)}>Edit</Button>
-                    <Button size="sm" variant="outline" onClick={() => downloadCert(item.id)}>Download</Button>
-                    <Button size="sm" variant="outline" onClick={() => exportCert(item.id)}>Export</Button>
-                    <Button size="sm" variant="outline" onClick={() => deleteCert(item.id)}>Delete</Button>
+                    <Button size="sm" variant="outline" onClick={() => runCertNow(item.id)}>{t('admin.domain.run')}</Button>
+                    <Button size="sm" variant="outline" onClick={() => setEditingCert(item)}>{t('admin.domain.edit')}</Button>
+                    <Button size="sm" variant="outline" onClick={() => downloadCert(item.id)}>{t('common.download')}</Button>
+                    <Button size="sm" variant="outline" onClick={() => exportCert(item.id)}>{t('admin.domain.certExported').split(' ')[0]}</Button>
+                    <Button size="sm" variant="outline" onClick={() => deleteCert(item.id)}>{t('admin.domain.delete')}</Button>
                   </div>
                 </div>
               ))
@@ -885,13 +884,13 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
         </div>
       ) : (
         <div className="rounded-xl border border-border/50 bg-card/30 p-4">
-          <div className="mb-3 text-sm font-bold uppercase tracking-wider opacity-70">Web Reuse</div>
+          <div className="mb-3 text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.domain.webTitle')}</div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 text-sm">
             <div>
-              <div className="mb-2 font-semibold opacity-80">Domain Assets</div>
+              <div className="mb-2 font-semibold opacity-80">{t('admin.domain.webDomainAssets')}</div>
               <div className="space-y-2">
                 {domainAssets.length === 0 ? (
-                  <div className="opacity-60">No domain assets</div>
+                  <div className="opacity-60">{t('admin.domain.noDomainAssets')}</div>
                 ) : (
                   domainAssets.map((item) => (
                     <div key={item.fqdn} className="flex items-center justify-between rounded-lg border border-border/50 px-3 py-2">
@@ -903,10 +902,10 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
               </div>
             </div>
             <div>
-              <div className="mb-2 font-semibold opacity-80">Certificate Assets</div>
+              <div className="mb-2 font-semibold opacity-80">{t('admin.domain.webCertAssets')}</div>
               <div className="space-y-2">
                 {certAssets.length === 0 ? (
-                  <div className="opacity-60">No certificate assets</div>
+                  <div className="opacity-60">{t('admin.domain.noCertAssets')}</div>
                 ) : (
                   certAssets.map((item) => (
                     <div key={item.id} className="flex items-center justify-between rounded-lg border border-border/50 px-3 py-2">
