@@ -96,6 +96,17 @@ const normalizeStatus = (value?: string | null): 'idle' | 'running' | 'success' 
   return 'idle';
 };
 
+const CA_PROVIDER_OPTIONS = [
+  { value: 'letsencrypt', label: 'Let\'s Encrypt (Prod)' },
+  { value: 'letsencrypt-staging', label: 'Let\'s Encrypt (Staging)' },
+  { value: 'zerossl', label: 'ZeroSSL' },
+];
+
+const CHALLENGE_OPTIONS = [
+  { value: 'dns01', label: 'DNS-01' },
+  { value: 'http01', label: 'HTTP-01' },
+];
+
 export const DomainAcmeDdnsAdmin: React.FC = () => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -126,8 +137,11 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
   });
   const [newCert, setNewCert] = useState({
     name: '',
+    ca_provider: 'letsencrypt',
+    challenge_type: 'dns01',
     provider_account_id: '',
     domains_json: '["example.com"]',
+    dns_config_json: '{}',
     account_email: 'admin@example.com',
     export_path: '',
     enabled: true,
@@ -158,6 +172,18 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
     }
     return t('admin.ddns.title');
   }, [panel, t]);
+
+  const acmeProviderKeySet = useMemo(() => {
+    return new Set(
+      providerProfiles
+        .filter((item) => item.supports_acme_dns01)
+        .map((item) => item.key),
+    );
+  }, [providerProfiles]);
+
+  const acmeProviders = useMemo(() => {
+    return providers.filter((item) => acmeProviderKeySet.has(item.provider_key));
+  }, [providers, acmeProviderKeySet]);
 
   const loadAll = async () => {
     setLoading(true);
@@ -247,6 +273,19 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
       addToast('Certificate name and email are required', 'error');
       return;
     }
+    if (newCert.challenge_type === 'http01') {
+      try {
+        const parsed = JSON.parse(newCert.dns_config_json || '{}');
+        const webroot = typeof parsed.webroot === 'string' ? parsed.webroot.trim() : typeof parsed.http_webroot === 'string' ? parsed.http_webroot.trim() : '';
+        if (!webroot) {
+          addToast('HTTP-01 requires dns config json with webroot/http_webroot', 'error');
+          return;
+        }
+      } catch {
+        addToast('dns config json must be valid json object', 'error');
+        return;
+      }
+    }
     try {
       await extractData(
         client.POST('/api/v1/admin/domain-acme-ddns/certs', {
@@ -254,11 +293,14 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
             name: newCert.name.trim(),
             enabled: newCert.enabled,
             auto_renew: newCert.auto_renew,
-            ca_provider: 'letsencrypt',
-            challenge_type: 'dns01',
+            ca_provider: newCert.ca_provider,
+            challenge_type: newCert.challenge_type,
             domains_json: newCert.domains_json,
-            provider_account_id: newCert.provider_account_id.trim() || null,
-            dns_config_json: '{}',
+            provider_account_id:
+              newCert.challenge_type === 'dns01'
+                ? (newCert.provider_account_id.trim() || null)
+                : null,
+            dns_config_json: newCert.dns_config_json,
             account_email: newCert.account_email.trim(),
             export_path: newCert.export_path.trim() || null,
           },
@@ -457,7 +499,10 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
             ca_provider: editingCert.ca_provider,
             challenge_type: editingCert.challenge_type,
             domains_json: editingCert.domains_json,
-            provider_account_id: editingCert.provider_account_id || null,
+            provider_account_id:
+              editingCert.challenge_type === 'dns01'
+                ? (editingCert.provider_account_id || null)
+                : null,
             dns_config_json: editingCert.dns_config_json,
             account_email: editingCert.account_email,
             export_path: editingCert.export_path || null,
@@ -724,15 +769,31 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
               {runningCertCheck ? 'Running...' : 'Force Renew All'}
             </Button>
           </div>
-          <div className="mb-4 grid grid-cols-1 md:grid-cols-6 gap-2">
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-8 gap-2">
             <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="certificate name" value={newCert.name} onChange={(e) => setNewCert({ ...newCert, name: e.target.value })} />
-            <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={newCert.provider_account_id} onChange={(e) => setNewCert({ ...newCert, provider_account_id: e.target.value })}>
-              <option value="">provider account</option>
-              {providers.map((item) => (
+            <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={newCert.ca_provider} onChange={(e) => setNewCert({ ...newCert, ca_provider: e.target.value })}>
+              {CA_PROVIDER_OPTIONS.map((item) => (
+                <option key={item.value} value={item.value}>{item.label}</option>
+              ))}
+            </select>
+            <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={newCert.challenge_type} onChange={(e) => setNewCert({ ...newCert, challenge_type: e.target.value })}>
+              {CHALLENGE_OPTIONS.map((item) => (
+                <option key={item.value} value={item.value}>{item.label}</option>
+              ))}
+            </select>
+            <select
+              className="h-10 rounded-lg border border-border bg-background px-3 text-sm"
+              value={newCert.provider_account_id}
+              disabled={newCert.challenge_type !== 'dns01'}
+              onChange={(e) => setNewCert({ ...newCert, provider_account_id: e.target.value })}
+            >
+              <option value="">provider account (dns01)</option>
+              {acmeProviders.map((item) => (
                 <option key={item.id} value={item.id}>{item.name}</option>
               ))}
             </select>
             <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder='domains json, e.g. ["example.com"]' value={newCert.domains_json} onChange={(e) => setNewCert({ ...newCert, domains_json: e.target.value })} />
+            <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder='dns config json; http01 needs {"webroot":"/var/www/acme"}' value={newCert.dns_config_json} onChange={(e) => setNewCert({ ...newCert, dns_config_json: e.target.value })} />
             <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="account email" value={newCert.account_email} onChange={(e) => setNewCert({ ...newCert, account_email: e.target.value })} />
             <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="optional export path" value={newCert.export_path} onChange={(e) => setNewCert({ ...newCert, export_path: e.target.value })} />
             <Button size="sm" onClick={createCertificate}>Create</Button>
@@ -740,11 +801,32 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           {editingCert && (
             <div className="mb-4 rounded-lg border border-border/60 p-3 space-y-2">
               <div className="text-xs uppercase opacity-70">Edit certificate</div>
-              <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-8 gap-2">
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.name} onChange={(e) => setEditingCert({ ...editingCert, name: e.target.value })} />
+                <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.ca_provider} onChange={(e) => setEditingCert({ ...editingCert, ca_provider: e.target.value })}>
+                  {CA_PROVIDER_OPTIONS.map((item) => (
+                    <option key={item.value} value={item.value}>{item.label}</option>
+                  ))}
+                </select>
+                <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.challenge_type} onChange={(e) => setEditingCert({ ...editingCert, challenge_type: e.target.value })}>
+                  {CHALLENGE_OPTIONS.map((item) => (
+                    <option key={item.value} value={item.value}>{item.label}</option>
+                  ))}
+                </select>
+                <select
+                  className="h-10 rounded-lg border border-border bg-background px-3 text-sm"
+                  value={editingCert.provider_account_id || ''}
+                  disabled={editingCert.challenge_type !== 'dns01'}
+                  onChange={(e) => setEditingCert({ ...editingCert, provider_account_id: e.target.value || null })}
+                >
+                  <option value="">provider account (dns01)</option>
+                  {acmeProviders.map((item) => (
+                    <option key={item.id} value={item.id}>{item.name}</option>
+                  ))}
+                </select>
                 <textarea className="min-h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm" value={editingCert.domains_json} onChange={(e) => setEditingCert({ ...editingCert, domains_json: e.target.value })} />
-                <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.account_email} onChange={(e) => setEditingCert({ ...editingCert, account_email: e.target.value })} />
                 <textarea className="min-h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm" value={editingCert.dns_config_json} onChange={(e) => setEditingCert({ ...editingCert, dns_config_json: e.target.value })} />
+                <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.account_email} onChange={(e) => setEditingCert({ ...editingCert, account_email: e.target.value })} />
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingCert.export_path || ''} onChange={(e) => setEditingCert({ ...editingCert, export_path: e.target.value })} />
                 <div className="flex gap-2">
                   <Button size="sm" onClick={saveCertEdit}>Save</Button>
