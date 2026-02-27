@@ -52,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/domain-acme-ddns/certs/run-all-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["run_certs_check_now"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/domain-acme-ddns/certs/{id}": {
         parameters: {
             query?: never;
@@ -3128,6 +3144,9 @@ export interface components {
             require_captcha: boolean;
             risk_level: components["schemas"]["RiskLevel"];
         };
+        CertRunAllCheckPayload: {
+            force_update?: boolean;
+        };
         CertificateAssetItem: {
             domains_json: string;
             /** Format: date-time */
@@ -4293,6 +4312,20 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["CertificatePayload"];
+            };
+        };
+        responses: never;
+    };
+    run_certs_check_now: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CertRunAllCheckPayload"];
             };
         };
         responses: never;

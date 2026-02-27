@@ -107,6 +107,21 @@ const CHALLENGE_OPTIONS = [
   { value: 'http01', label: 'HTTP-01' },
 ];
 
+const PREFERRED_PROVIDER_ORDER = [
+  'aliyun',
+  'tencentcloud',
+  'dnspod',
+  'huaweicloud',
+  'volcengine',
+  'cloudflare',
+  'aws',
+  'google',
+  'azure',
+  'godaddy',
+  'gandi',
+  'callback',
+];
+
 export const DomainAcmeDdnsAdmin: React.FC = () => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -184,6 +199,16 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
   const acmeProviders = useMemo(() => {
     return providers.filter((item) => acmeProviderKeySet.has(item.provider_key));
   }, [providers, acmeProviderKeySet]);
+
+  const sortedProviderProfiles = useMemo(() => {
+    const rank = new Map(PREFERRED_PROVIDER_ORDER.map((key, idx) => [key, idx]));
+    return [...providerProfiles].sort((a, b) => {
+      const ar = rank.get(a.key) ?? Number.MAX_SAFE_INTEGER;
+      const br = rank.get(b.key) ?? Number.MAX_SAFE_INTEGER;
+      if (ar !== br) return ar - br;
+      return a.name.localeCompare(b.name);
+    });
+  }, [providerProfiles]);
 
   const loadAll = async () => {
     setLoading(true);
@@ -640,7 +665,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
           <div className="mb-4 grid grid-cols-1 md:grid-cols-5 gap-2">
             <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" placeholder="account name" value={newProvider.name} onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })} />
             <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={newProvider.provider_key} onChange={(e) => setNewProvider({ ...newProvider, provider_key: e.target.value })}>
-              {providerProfiles.map((item) => (
+              {sortedProviderProfiles.map((item) => (
                 <option key={item.key} value={item.key}>{item.name}</option>
               ))}
             </select>
@@ -654,7 +679,7 @@ export const DomainAcmeDdnsAdmin: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
                 <input className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingProvider.name} onChange={(e) => setEditingProvider({ ...editingProvider, name: e.target.value })} />
                 <select className="h-10 rounded-lg border border-border bg-background px-3 text-sm" value={editingProvider.provider_key} onChange={(e) => setEditingProvider({ ...editingProvider, provider_key: e.target.value })}>
-                  {providerProfiles.map((item) => (
+                  {sortedProviderProfiles.map((item) => (
                     <option key={item.key} value={item.key}>{item.name}</option>
                   ))}
                 </select>
