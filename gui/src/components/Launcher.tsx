@@ -165,10 +165,10 @@ export default function Launcher() {
   const handleSaveConfig = async () => {
     setConfigBusy(true);
     try {
-      await invoke('save_config', { content: configContent });
-      toast.success(t('launcher.messages.config_saved'));
+      await invoke('save_and_reload_config', { content: configContent });
+      toast.success(t('admin.config.reloadSuccess'));
       setSavedConfigContent(configContent);
-      setConfigSummary(t('launcher.messages.config_saved'));
+      setConfigSummary(t('admin.config.reloadSuccess'));
       setConfigSummaryLevel('success');
       setConfigErrors([]);
     } catch (e: unknown) {
