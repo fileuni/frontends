@@ -4,14 +4,14 @@
  */
 
 export interface paths {
-    "/api/v1/admin/acme/cert-files": {
+    "/api/v1/admin/domain-acme-ddns/assets/certs": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["list_cert_files"];
+        get: operations["list_cert_assets"];
         put?: never;
         post?: never;
         delete?: never;
@@ -20,7 +20,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/acme/certs": {
+    "/api/v1/admin/domain-acme-ddns/assets/domains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_domain_assets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/certs": {
         parameters: {
             query?: never;
             header?: never;
@@ -36,7 +52,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/acme/certs/{id}": {
+    "/api/v1/admin/domain-acme-ddns/certs/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -52,14 +68,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/acme/certs/{id}/download": {
+    "/api/v1/admin/domain-acme-ddns/certs/{id}/download": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["download_cert_files"];
+        get: operations["download_cert"];
         put?: never;
         post?: never;
         delete?: never;
@@ -68,7 +84,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/acme/certs/{id}/run": {
+    "/api/v1/admin/domain-acme-ddns/certs/{id}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["export_cert"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/certs/{id}/run": {
         parameters: {
             query?: never;
             header?: never;
@@ -84,154 +116,112 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/ddns/detect-ip": {
+    "/api/v1/admin/domain-acme-ddns/ddns/entries": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Detect IP address by source / 根据来源探测 IP 地址 */
-        get: operations["detect_ip"];
+        get: operations["list_ddns_entries"];
         put?: never;
-        post?: never;
+        post: operations["create_ddns_entry"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/ddns/ip-probes": {
+    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List all IP probe profiles / 列出所有 IP 探测配置文件 */
-        get: operations["list_ip_probe_profiles"];
-        put?: never;
+        get?: never;
+        put: operations["update_ddns_entry"];
         post?: never;
+        delete: operations["delete_ddns_entry"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["run_ddns_entry_now"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/ddns/net-interfaces": {
+    "/api/v1/admin/domain-acme-ddns/ddns/run-all": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["list_net_interfaces"];
+        get?: never;
         put?: never;
-        post?: never;
+        post: operations["run_ddns_all_now"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/ddns/providers": {
+    "/api/v1/admin/domain-acme-ddns/providers/accounts": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List all DNS provider profiles / 列出所有 DNS 厂商配置文件 */
+        get: operations["list_provider_accounts"];
+        put?: never;
+        post: operations["create_provider_account"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/providers/accounts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["update_provider_account"];
+        post?: never;
+        delete: operations["delete_provider_account"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/providers/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: operations["list_provider_profiles"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/ddns/records": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all DDNS records / 列出所有 DDNS 记录 */
-        get: operations["list_records"];
-        put?: never;
-        /** Create a new DDNS record / 创建新 DDNS 记录 */
-        post: operations["create_record"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/ddns/records/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update an existing DDNS record / 更新现有 DDNS 记录 */
-        put: operations["update_record"];
-        post?: never;
-        /** Delete a DDNS record / 删除 DDNS 记录 */
-        delete: operations["delete_record"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/ddns/records/{id}/run": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Run a DDNS record sync now / 立即执行 DDNS 记录同步 */
-        post: operations["run_record_now"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/ddns/run-all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Run all DDNS records sync now / 立即执行所有 DDNS 记录同步 */
-        post: operations["run_all_now"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/ddns/webhook-test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Test webhook configuration / 测试 Webhook 配置 */
-        post: operations["webhook_test"];
         delete?: never;
         options?: never;
         head?: never;
@@ -373,7 +363,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取审计日志列表 / Get audit log list */
+        /** Get audit log list */
         get: operations["admin_list_logs"];
         put?: never;
         post?: never;
@@ -392,7 +382,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 管理员发送通知 / Admin send notification */
+        /** Admin send notification */
         post: operations["admin_send_notification"];
         delete?: never;
         options?: never;
@@ -503,7 +493,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 缓存状态信息 / Cache status information */
+        /** Cache status information */
         get: operations["cache_status"];
         put?: never;
         post?: never;
@@ -520,10 +510,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 列出群组 / List groups */
+        /** List groups */
         get: operations["list_groups"];
         put?: never;
-        /** 创建群组 / Create group */
+        /** Create group */
         post: operations["create_group"];
         delete?: never;
         options?: never;
@@ -541,7 +531,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** 解散群组 / Disband group */
+        /** Disband group */
         delete: operations["disband_group"];
         options?: never;
         head?: never;
@@ -555,10 +545,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取群成员列表 / Get group members */
+        /** Get group members */
         get: operations["list_group_members"];
         put?: never;
-        /** 添加群成员 / Add group members */
+        /** Add group members */
         post: operations["add_group_members"];
         delete?: never;
         options?: never;
@@ -576,7 +566,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** 移除群成员或退出群 / Remove member or leave group */
+        /** Remove member or leave group */
         delete: operations["remove_group_member"];
         options?: never;
         head?: never;
@@ -591,7 +581,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** 临时用户修改自己的昵称 / Temporary user updates their own nickname */
+        /** Temporary user updates their own nickname */
         put: operations["update_temp_user_nickname"];
         post?: never;
         delete?: never;
@@ -607,10 +597,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 列出聊天邀请 / List chat invites */
+        /** List chat invites */
         get: operations["list_invites"];
         put?: never;
-        /** 创建聊天邀请 / Create chat invite */
+        /** Create chat invite */
         post: operations["create_invite"];
         delete?: never;
         options?: never;
@@ -626,10 +616,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** 更新聊天邀请 / Update chat invite */
+        /** Update chat invite */
         put: operations["update_invite"];
         post?: never;
-        /** 删除聊天邀请（软删除） / Delete chat invite (soft delete) */
+        /** Delete chat invite (soft delete) */
         delete: operations["delete_invite"];
         options?: never;
         head?: never;
@@ -643,7 +633,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取聊天功能配置 / Get chat capabilities */
+        /** Get chat capabilities */
         get: operations["get_chat_capabilities"];
         put?: never;
         post?: never;
@@ -660,9 +650,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取聊天设置 / Get chat settings */
+        /** Get chat settings */
         get: operations["get_settings"];
-        /** 更新聊天设置 / Update chat settings */
+        /** Update chat settings */
         put: operations["update_settings"];
         post?: never;
         delete?: never;
@@ -678,7 +668,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取在线用户列表 / Get online users */
+        /** Get online users */
         get: operations["list_online_users"];
         put?: never;
         post?: never;
@@ -695,7 +685,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 搜索用户 / Search users */
+        /** Search users */
         get: operations["search_users"];
         put?: never;
         post?: never;
@@ -712,7 +702,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取客户端ID信息 / Get client ID information */
+        /** Get client ID information */
         get: operations["get_client_id"];
         put?: never;
         post?: never;
@@ -729,10 +719,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取邮箱账号列表 / Get email account list */
+        /** Get email account list */
         get: operations["list_accounts"];
         put?: never;
-        /** 添加邮箱账号 / Add email account */
+        /** Add email account */
         post: operations["add_account"];
         delete?: never;
         options?: never;
@@ -749,7 +739,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 导出邮箱配置 / Export email accounts configuration */
+        /** Export email accounts configuration */
         post: operations["export_accounts"];
         delete?: never;
         options?: never;
@@ -766,7 +756,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 导入邮箱配置 / Import email accounts configuration */
+        /** Import email accounts configuration */
         post: operations["import_accounts"];
         delete?: never;
         options?: never;
@@ -783,7 +773,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 测试邮箱连接 / Test email connection */
+        /** Test email connection */
         post: operations["test_connection"];
         delete?: never;
         options?: never;
@@ -798,7 +788,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取账号的文件夹列表 / Get folder list for account */
+        /** Get folder list for account */
         get: operations["list_folders"];
         put?: never;
         post?: never;
@@ -816,10 +806,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** 更新邮箱账号 / Update email account */
+        /** Update email account */
         put: operations["update_account"];
         post?: never;
-        /** 删除邮箱账号 / Delete email account */
+        /** Delete email account */
         delete: operations["delete_email_account"];
         options?: never;
         head?: never;
@@ -835,7 +825,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 手动触发同步 / Manually trigger sync */
+        /** Manually trigger sync */
         post: operations["sync_account"];
         delete?: never;
         options?: never;
@@ -850,7 +840,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取同步状态 / Get sync status */
+        /** Get sync status */
         get: operations["get_sync_status"];
         put?: never;
         post?: never;
@@ -867,10 +857,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取草稿列表 / List drafts */
+        /** List drafts */
         get: operations["list_drafts"];
         put?: never;
-        /** 保存或更新草稿 / Save or update draft */
+        /** Save or update draft */
         post: operations["save_draft"];
         delete?: never;
         options?: never;
@@ -888,7 +878,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** 删除草稿 / Delete draft */
+        /** Delete draft */
         delete: operations["delete_draft"];
         options?: never;
         head?: never;
@@ -902,7 +892,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取邮件列表 / Get email list */
+        /** Get email list */
         get: operations["list_messages"];
         put?: never;
         post?: never;
@@ -921,7 +911,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 发送邮件 / Send email */
+        /** Send email */
         post: operations["send_email"];
         delete?: never;
         options?: never;
@@ -936,7 +926,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取邮件详情 / Get email detail */
+        /** Get email detail */
         get: operations["get_message"];
         put?: never;
         post?: never;
@@ -953,7 +943,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 下载邮件附件 / Download email attachment */
+        /** Download email attachment */
         get: operations["download_attachment"];
         put?: never;
         post?: never;
@@ -972,7 +962,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 保存附件到 VFS / Save attachment to VFS */
+        /** Save attachment to VFS */
         post: operations["save_attachment_to_vfs"];
         delete?: never;
         options?: never;
@@ -988,7 +978,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** 标记邮件已读/未读 / Mark message as read/unread */
+        /** Mark message as read/unread */
         put: operations["mark_read"];
         post?: never;
         delete?: never;
@@ -1023,9 +1013,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 继续执行批量操作（跳过已成功项） / Continue batch operation (skip successful items)
-         * @description 当批量操作中断或部分失败时，此 API 允许用户继续执行任务，
-         *     只重试失败的项目，跳过已经成功的项目。这可以节省时间并避免重复操作。
+         * Continue batch operation (skip successful items)
+         * @description API
          *
          *     When a batch operation is interrupted or partially failed, this API allows users to continue
          *     the task, only retrying failed items and skipping already successful items. This saves time
@@ -1047,7 +1036,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 强制终止所有后台任务与 WAL 恢复并恢复系统操作 / Force terminate all tasks & WAL recovery and resume operations */
+        /** Force terminate all tasks & WAL recovery and resume operations */
         post: operations["terminate_wal"];
         delete?: never;
         options?: never;
@@ -1160,7 +1149,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 管理员清理所有用户缩略图缓存 / Admin clear all thumbnail cache */
+        /** Admin clear all thumbnail cache */
         post: operations["clear_thumbnail_cache_all_users"];
         delete?: never;
         options?: never;
@@ -1207,7 +1196,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取压缩包内文件清单 / List archive contents */
+        /** List archive contents */
         get: operations["list_archive"];
         put?: never;
         post?: never;
@@ -1448,7 +1437,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 从压缩包中提取并流式下载单个文件 / Extract and stream a single file from archive */
+        /** Extract and stream a single file from archive */
         get: operations["download_archive_item"];
         put?: never;
         post?: never;
@@ -1562,7 +1551,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 获取可用应用列表 / Get available apps for a file extension
+         * Get available apps for a file extension
          *     GET /api/v1/integration/apps?ext=mp4
          */
         get: operations["get_available_apps"];
@@ -1973,7 +1962,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取后台任务状态 / Get background task status */
+        /** Get background task status */
         get: operations["get_task_status"];
         put?: never;
         post?: never;
@@ -1990,7 +1979,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 导出批量操作报告（JSON 格式） / Export batch operation report (JSON format) */
+        /** Export batch operation report (JSON format) */
         get: operations["export_batch_report"];
         put?: never;
         post?: never;
@@ -2007,7 +1996,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取批量操作的详细统计信息 / Get batch operation detailed statistics */
+        /** Get batch operation detailed statistics */
         get: operations["get_batch_statistics"];
         put?: never;
         post?: never;
@@ -2024,7 +2013,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取缩略图（基于下载 Token）/ Get thumbnail (based on download token) */
+        /** Token/ Get thumbnail (based on download token) */
         get: operations["get_thumbnail"];
         put?: never;
         post?: never;
@@ -2043,7 +2032,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 清理缩略图缓存 / Clear thumbnail cache */
+        /** Clear thumbnail cache */
         post: operations["clear_thumbnail_cache"];
         delete?: never;
         options?: never;
@@ -2060,7 +2049,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 设置目录缩略图开关 / Set directory thumbnail toggle */
+        /** Set directory thumbnail toggle */
         post: operations["set_thumbnail_disabled"];
         delete?: never;
         options?: never;
@@ -2075,7 +2064,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取目录缩略图状态 / Get thumbnail status for directory */
+        /** Get thumbnail status for directory */
         get: operations["get_thumbnail_status"];
         put?: never;
         post?: never;
@@ -2124,11 +2113,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取当前用户的通知列表 / Get current user's notification list */
+        /** Get current user's notification list */
         get: operations["list_notifications"];
         put?: never;
         post?: never;
-        /** 删除通知 / Delete notifications */
+        /** Delete notifications */
         delete: operations["delete_notifications"];
         options?: never;
         head?: never;
@@ -2144,7 +2133,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 标记通知为已读 / Mark notifications as read */
+        /** Mark notifications as read */
         post: operations["mark_as_read"];
         delete?: never;
         options?: never;
@@ -2161,7 +2150,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 标记所有通知为已读 / Mark all notifications as read */
+        /** Mark all notifications as read */
         post: operations["mark_all_as_read"];
         delete?: never;
         options?: never;
@@ -2176,7 +2165,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取未读通知数量 / Get unread notifications count */
+        /** Get unread notifications count */
         get: operations["get_unread_count"];
         put?: never;
         post?: never;
@@ -2193,7 +2182,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 健康检查 / Health check */
+        /** Health check */
         get: operations["ping"];
         put?: never;
         post?: never;
@@ -2210,7 +2199,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取客户端 IP 地址 / Get client IP address */
+        /** Get client IP address */
         get: operations["showip"];
         put?: never;
         post?: never;
@@ -2880,7 +2869,7 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description 邮箱账号响应 / Email account response */
+        /** @description Email account response */
         AccountResponse: {
             created_at: string;
             display_name?: string | null;
@@ -2901,64 +2890,11 @@ export interface components {
             /** Format: int64 */
             unread_count: number;
         };
-        AcmeCertFileView: {
-            cert_path?: string | null;
-            /** Format: date-time */
-            expires_at?: string | null;
-            fullchain_path?: string | null;
-            id: string;
-            key_path?: string | null;
-            last_status?: string | null;
-            name: string;
-        };
-        AcmeCertificatePayload: {
-            account_email: string;
-            acme_home_dir: string;
-            auto_renew: boolean;
-            ca_provider: string;
-            challenge_type: string;
-            dns_provider: string;
-            dns_provider_config_json: unknown;
-            domains: string[];
-            enabled: boolean;
-            export_dir?: string | null;
-            http_webroot: string;
-            name: string;
-        };
-        AcmeCertificateView: {
-            account_email: string;
-            acme_home_dir: string;
-            auto_renew: boolean;
-            ca_provider: string;
-            cert_path?: string | null;
-            challenge_type: string;
-            dns_provider: string;
-            dns_provider_config_json: unknown;
-            domains_json: string;
-            enabled: boolean;
-            /** Format: date-time */
-            expires_at?: string | null;
-            export_dir?: string | null;
-            fullchain_path?: string | null;
-            http_webroot: string;
-            id: string;
-            key_path?: string | null;
-            last_error?: string | null;
-            last_status?: string | null;
-            name: string;
-        };
         AcmeRunResult: {
-            cert_path?: string | null;
-            cleanup_status?: string | null;
-            /** Format: date-time */
-            expires_at?: string | null;
-            fullchain_path?: string | null;
             id: string;
-            key_path?: string | null;
-            message: string;
             status: string;
         };
-        /** @description 添加邮箱账号请求 / Add email account request */
+        /** @description Add email account request */
         AddAccountRequest: {
             display_name?: string | null;
             email_address: string;
@@ -3064,7 +3000,7 @@ export interface components {
             password?: string | null;
             path: string;
         };
-        /** @description 附件信息 / Attachment information */
+        /** @description Attachment information */
         AttachmentInfo: {
             content_type: string;
             filename: string;
@@ -3077,7 +3013,7 @@ export interface components {
         BackupUpload: {
             _file: number[];
         };
-        /** @description 统一列表查询基础结构 / Unified list query base structure */
+        /** @description Unified list query base structure */
         BaseListQuery: {
             keyword?: string | null;
             order?: string | null;
@@ -3111,11 +3047,11 @@ export interface components {
         BatchDeleteSessionsRequest: {
             session_ids: string[];
         };
-        /** @description 批量操作失败项 / Batch operation failed item */
+        /** @description Batch operation failed item */
         BatchFailedItem: {
-            /** @description 错误消息 / Error message */
+            /** @description Error message */
             error_message?: string | null;
-            /** @description 文件路径 / File path */
+            /** @description File path */
             file_path: string;
         };
         BatchLogoutSessionsRequest: {
@@ -3125,28 +3061,28 @@ export interface components {
             paths: string[];
             target_path: string;
         };
-        /** @description 批量操作统计信息 / Batch operation statistics */
+        /** @description Batch operation statistics */
         BatchOperationStatistics: {
-            /** @description 失败项数 / Failed items */
+            /** @description Failed items */
             failed: number;
-            /** @description 失败项列表 / List of failed items */
+            /** @description List of failed items */
             failed_items: components["schemas"]["BatchFailedItem"][];
-            /** @description 待处理项数 / Pending items */
+            /** @description Pending items */
             pending: number;
-            /** @description 跳过项数 / Skipped items */
+            /** @description Skipped items */
             skipped: number;
-            /** @description 成功项数 / Successful items */
+            /** @description Successful items */
             success: number;
-            /** @description 总项数 / Total items */
+            /** @description Total items */
             total: number;
             /**
              * Format: int64
-             * @description 总文件大小（字节） / Total file size in bytes
+             * @description Total file size in bytes
              */
             total_size: number;
             /**
              * Format: int64
-             * @description 总耗时（毫秒） / Total execution time in milliseconds
+             * @description Total execution time in milliseconds
              */
             total_time_ms: number;
         };
@@ -3192,11 +3128,25 @@ export interface components {
             require_captcha: boolean;
             risk_level: components["schemas"]["RiskLevel"];
         };
-        CertDownloadPackage: {
-            cert_pem: string;
-            fullchain_pem: string;
-            key_pem: string;
+        CertificateAssetItem: {
+            domains_json: string;
+            /** Format: date-time */
+            expires_at?: string | null;
+            id: string;
             name: string;
+            status?: string | null;
+        };
+        CertificatePayload: {
+            account_email: string;
+            auto_renew: boolean;
+            ca_provider: string;
+            challenge_type: string;
+            dns_config_json: string;
+            domains_json: string;
+            enabled: boolean;
+            export_path?: string | null;
+            name: string;
+            provider_account_id?: string | null;
         };
         ChangePasswordRequest: {
             new_password: string;
@@ -3224,9 +3174,9 @@ export interface components {
             updated_at: string;
             user_id: string;
         };
-        /** @description 客户端ID信息响应 / Client ID information response */
+        /** @description Client ID information response */
         ClientIdInfo: {
-            /** @description 客户端ID / Client ID */
+            /** @description Client ID */
             client_id: string;
         };
         CompressRequest: {
@@ -3240,29 +3190,29 @@ export interface components {
             target_name?: string | null;
         };
         ConfigNoteEntry: {
-            /** @description 英文描述 / English description */
+            /** @description English description */
             desc_en: string;
-            /** @description 中文描述 / Chinese description */
+            /** @description Chinese description */
             desc_zh: string;
-            /** @description 示例值 / Example value */
+            /** @description Example value */
             example: string;
         };
         ConfigNotesResponse: {
-            /** @description 以点路径为键的注释 / Notes keyed by dotted path */
+            /** @description Notes keyed by dotted path */
             notes: {
                 [key: string]: components["schemas"]["ConfigNoteEntry"];
             };
         };
         ConfigRawResponse: {
-            /** @description 当前配置路径 / Current config path */
+            /** @description Current config path */
             config_path: string;
-            /** @description 嵌入式模板 / Embedded template */
+            /** @description Embedded template */
             embedded_template: string;
-            /** @description 原始 TOML 内容 / Raw TOML content */
+            /** @description Raw TOML content */
             toml_content: string;
         };
         /**
-         * @description 连接加密类型 / Connection security type
+         * @description Connection security type
          * @enum {string}
          */
         ConnectionSecurity: "None" | "SslTls" | "StartTls";
@@ -3285,58 +3235,25 @@ export interface components {
             device_name?: string | null;
             user_agent?: string | null;
         };
-        DdnsRecordPayload: {
+        DdnsEntryPayload: {
             enabled: boolean;
             force_update: boolean;
+            fqdn: string;
+            host: string;
             ipv4_enabled: boolean;
-            ipv4_source_json: unknown;
+            ipv4_source_json: string;
             ipv6_enabled: boolean;
-            ipv6_source_json: unknown;
+            ipv6_source_json: string;
             name: string;
-            provider: string;
-            provider_config_json: unknown;
+            provider_account_id: string;
             proxied: boolean;
-            record: string;
-            record_type: string;
             /** Format: int32 */
             ttl: number;
-            webhook_json: unknown;
-            zone: string;
-        };
-        DdnsRecordView: {
-            enabled: boolean;
-            force_update: boolean;
-            id: string;
-            ipv4_enabled: boolean;
-            ipv4_source_json: unknown;
-            ipv6_enabled: boolean;
-            ipv6_source_json: unknown;
-            last_error?: string | null;
-            last_ipv4?: string | null;
-            last_ipv6?: string | null;
-            /** Format: date-time */
-            last_run_at?: string | null;
-            last_status?: string | null;
-            name: string;
-            provider: string;
-            provider_config_json: unknown;
-            proxied: boolean;
-            record: string;
-            record_type: string;
-            /** Format: int32 */
-            ttl: number;
-            /** Format: date-time */
-            updated_at: string;
-            webhook_json: unknown;
+            webhook_json: string;
             zone: string;
         };
         DdnsRunResult: {
-            changed_ipv4: boolean;
-            changed_ipv6: boolean;
             id: string;
-            ipv4?: string | null;
-            ipv6?: string | null;
-            message: string;
             status: string;
         };
         DecompressRequest: {
@@ -3349,16 +3266,20 @@ export interface components {
         DeleteAccountRequest: {
             password: string;
         };
-        /** @description 导出邮箱配置请求 / Export email accounts request */
+        DomainAssetItem: {
+            fqdn: string;
+            status?: string | null;
+        };
+        /** @description Export email accounts request */
         ExportAccountsRequest: {
             export_password: string;
         };
-        /** @description 导出邮箱配置响应 / Export email accounts response */
+        /** @description Export email accounts response */
         ExportAccountsResponse: {
             encrypted_data: string;
             export_filename: string;
         };
-        /** @description 导出的邮箱配置 / Exported email account configuration */
+        /** @description Exported email account configuration */
         ExportableAccount: {
             display_name?: string | null;
             email_address: string;
@@ -3420,7 +3341,7 @@ export interface components {
             page?: string | null;
             page_size?: string | null;
         };
-        /** @description 文件夹响应 / Folder response */
+        /** @description Folder response */
         FolderResponse: {
             account_id: string;
             display_name?: string | null;
@@ -3452,6 +3373,7 @@ export interface components {
             captcha_type: string;
             image_base64: string;
             token: string;
+            turnstile_site_key?: string | null;
         };
         GroupInfo: {
             /** Format: date-time */
@@ -3464,13 +3386,13 @@ export interface components {
         };
         /** @enum {string} */
         GuardListType: "Blacklist" | "HighRisk";
-        /** @description 导入邮箱配置请求 / Import email accounts request */
+        /** @description Import email accounts request */
         ImportAccountsRequest: {
             encrypted_data: string;
             import_password: string;
             skip_duplicates?: boolean | null;
         };
-        /** @description 导入结果 / Import result */
+        /** @description Import result */
         ImportResult: {
             failed: number;
             imported: number;
@@ -3485,59 +3407,45 @@ export interface components {
             os?: string | null;
             version?: string | null;
         };
-        /** @description 邀请信息（即临时用户信息） / Invite info (i.e., temp user info) */
+        /** @description Invite info (i.e., temp user info) */
         InviteInfo: {
             /**
              * Format: date-time
-             * @description 创建时间 / Creation time
+             * @description Creation time
              */
             created_at: string;
-            /** @description 创建者 UID / Creator UID */
+            /** @description Creator UID */
             creator_uid: string;
             /**
              * Format: date-time
-             * @description 过期时间 / Expiration time
+             * @description Expiration time
              */
             expires_at: string;
             /**
-             * @description 临时用户 ID (格式: creator_uid:uuid) / Temp user ID (format: creator_uid:uuid)
+             * @description Temp user ID (format: creator_uid:uuid)
              * @example user-uuid:temp-uuid
              */
             id: string;
-            /** @description 昵称 / Nickname */
+            /** @description Nickname */
             nickname: string;
         };
-        /** @description 邀请请求（即创建临时用户请求） / Invite request (i.e., create temp user request) */
+        /** @description Invite request (i.e., create temp user request) */
         InviteRequest: {
             /**
              * Format: date-time
-             * @description 过期时间 / Expiration time
+             * @description Expiration time
              */
             expires_at: string;
             /**
-             * @description 昵称（可选，默认为 Guest+随机数） / Nickname (optional, defaults to Guest+random)
+             * @description Nickname (optional, defaults to Guest+random)
              * @example My Guest
              */
             nickname?: string | null;
         };
-        IpDetectQuery: {
-            source_json: string;
-            version: string;
-        };
-        IpDetectResult: {
-            ip?: string | null;
-        };
-        /** @description IP地址信息响应 / IP address information response */
+        /** @description IP address information response */
         IpInfo: {
-            /** @description 客户端IP地址 / Client IP address */
+            /** @description Client IP address */
             ip: string;
-        };
-        IpProbeProfileView: {
-            key: string;
-            name: string;
-            source: string;
-            url: string;
-            version: string;
         };
         JournalListResponse: {
             items: components["schemas"]["Model"][];
@@ -3566,7 +3474,7 @@ export interface components {
             content_type: string;
             log?: string | null;
         };
-        /** @description 授权状态信息 / License status information */
+        /** @description License status information */
         LicenseStatus: {
             aux_id: string;
             /** Format: int32 */
@@ -3581,23 +3489,23 @@ export interface components {
             max_users: number;
             msg: string;
         };
-        /** @description 邮件列表查询参数 / Email list query parameters */
+        /** @description Email list query parameters */
         ListMessagesQuery: {
             /**
              * Format: int64
-             * @description 页码(从1开始) / Page number (starts from 1)
+             * @description Page number (starts from 1)
              */
             page?: number | null;
             /**
              * Format: int64
-             * @description 每页数量 / Items per page
+             * @description Items per page
              */
             per_page?: number | null;
-            /** @description 是否执行远程 IMAP 搜索 / Whether to perform remote IMAP search */
+            /** @description Whether to perform remote IMAP search */
             remote?: boolean | null;
-            /** @description 搜索关键词 / Search keyword */
+            /** @description Search keyword */
             search?: string | null;
-            /** @description 只显示未读 / Show unread only */
+            /** @description Show unread only */
             unread_only?: boolean | null;
         };
         ListParams: {
@@ -3620,11 +3528,11 @@ export interface components {
         LogoutSessionRequest: {
             session_id: string;
         };
-        /** @description 标记邮件已读请求 / Mark message read request */
+        /** @description Mark message read request */
         MarkReadRequest: {
             is_read: boolean;
         };
-        /** @description 邮件详情响应 / Message detail response */
+        /** @description Message detail response */
         MessageDetailResponse: components["schemas"]["MessageResponse"] & {
             attachments: components["schemas"]["AttachmentInfo"][];
             bcc_addr?: string | null;
@@ -3633,7 +3541,7 @@ export interface components {
             cc_addr?: string | null;
             to_addr: string;
         };
-        /** @description 邮件响应 / Message response */
+        /** @description Message response */
         MessageResponse: {
             account_id: string;
             date: string;
@@ -3658,9 +3566,9 @@ export interface components {
             bcc_addr?: string | null;
             body_html?: string | null;
             cc_addr?: string | null;
-            /** @description 关联的原始邮件ID (用于智能覆盖同一回复的草稿) */
+            /** @description ID () */
             context_ref_id?: string | null;
-            /** @description 创作语境: new, reply, reply_all, forward */
+            /** @description : new, reply, reply_all, forward */
             context_type: string;
             created_at: string;
             id: string;
@@ -3668,14 +3576,6 @@ export interface components {
             to_addr?: string | null;
             updated_at: string;
             user_id: string;
-        };
-        NetInterfaceItem: {
-            addresses: string[];
-            name: string;
-        };
-        NetInterfacesView: {
-            ipv4: components["schemas"]["NetInterfaceItem"][];
-            ipv6: components["schemas"]["NetInterfaceItem"][];
         };
         NotificationDto: {
             content: string;
@@ -3745,20 +3645,18 @@ export interface components {
             /** Format: int64 */
             text_mb: number;
         };
-        ProviderProfileView: {
-            api_endpoint: string;
-            config_snippet_json: string;
-            description: string;
-            ext_param_label: string;
-            help_url: string;
-            id_label: string;
-            key: string;
-            mode: string;
+        ProviderAccountPayload: {
+            config_json: string;
+            credential_json_enc: string;
+            enabled: boolean;
             name: string;
-            secret_label: string;
-            signer: string;
-            supports_ipv4: boolean;
-            supports_ipv6: boolean;
+            provider_key: string;
+        };
+        ProviderProfile: {
+            key: string;
+            name: string;
+            supports_acme_dns01: boolean;
+            supports_ddns: boolean;
         };
         PublicSessionDeleteRequest: {
             password: string;
@@ -3858,12 +3756,12 @@ export interface components {
             role_id: number;
             role_key: string;
         };
-        /** @description 保存附件到 VFS 请求 / Save attachment to VFS request */
+        /** @description Save attachment to VFS request */
         SaveAttachmentRequest: {
-            /** @description 目标路径 / Target path in VFS */
+            /** @description Target path in VFS */
             target_path: string;
         };
-        /** @description 保存草稿请求 / Save draft request */
+        /** @description Save draft request */
         SaveDraftRequest: {
             account_id?: string | null;
             attachments_json?: string | null;
@@ -3888,9 +3786,9 @@ export interface components {
             target_type: components["schemas"]["TargetType"];
             token: string;
         };
-        /** @description 发送邮件请求 / Send email request */
+        /** @description Send email request */
         SendEmailRequest: {
-            /** @description 附件在 VFS 中的路径列表 / List of attachment paths in VFS */
+            /** @description List of attachment paths in VFS */
             attachment_vfs_paths?: string[] | null;
             bcc?: string[] | null;
             body_html?: string | null;
@@ -4052,7 +3950,7 @@ export interface components {
         };
         /** @enum {string} */
         TargetType: "Phone" | "Email" | "Graphic";
-        /** @description 测试连接请求 / Test connection request */
+        /** @description Test connection request */
         TestConnectionRequest: {
             email_address: string;
             imap_host: string;
@@ -4066,7 +3964,7 @@ export interface components {
             smtp_port: number;
             smtp_security: components["schemas"]["ConnectionSecurity"];
         };
-        /** @description 测试连接响应 / Test connection response */
+        /** @description Test connection response */
         TestConnectionResponse: {
             imap_error?: string | null;
             imap_ok: boolean;
@@ -4117,7 +4015,7 @@ export interface components {
             url: string;
             username: string;
         };
-        /** @description 更新邮箱账号请求 / Update email account request */
+        /** @description Update email account request */
         UpdateAccountRequest: {
             display_name?: string | null;
             imap_security?: null | components["schemas"]["ConnectionSecurity"];
@@ -4139,14 +4037,14 @@ export interface components {
             keys: string[];
             value: unknown;
         };
-        /** @description 邀请更新请求 / Invite update request */
+        /** @description Invite update request */
         UpdateInviteRequest: {
             /**
              * Format: date-time
-             * @description 过期时间 / Expiration time
+             * @description Expiration time
              */
             expires_at?: string | null;
-            /** @description 昵称 / Nickname */
+            /** @description Nickname */
             nickname?: string | null;
         };
         UpdateLicenseRequest: {
@@ -4178,10 +4076,10 @@ export interface components {
             password?: string | null;
         };
         UpdateTempUserNicknameRequest: {
-            /** @description 临时用户 ID / Temp user ID */
+            /** @description Temp user ID */
             id: string;
             /**
-             * @description 新昵称 / New nickname
+             * @description New nickname
              * @example New Nickname
              */
             nickname: string;
@@ -4323,12 +4221,6 @@ export interface components {
             success: boolean;
             user_id?: string | null;
         };
-        WebhookTestPayload: {
-            allow_private_target: boolean;
-            headers_text: string;
-            request_body: string;
-            url: string;
-        };
         WopiHostResponse: {
             /**
              * @example [
@@ -4361,7 +4253,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    list_cert_files: {
+    list_cert_assets: {
         parameters: {
             query?: never;
             header?: never;
@@ -4369,17 +4261,17 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description List available local cert files */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcmeCertFileView"][];
-                };
-            };
+        responses: never;
+    };
+    list_domain_assets: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
+        requestBody?: never;
+        responses: never;
     };
     list_certs: {
         parameters: {
@@ -4389,17 +4281,7 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description List acme certificates */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcmeCertificateView"][];
-                };
-            };
-        };
+        responses: never;
     };
     create_cert: {
         parameters: {
@@ -4410,20 +4292,10 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AcmeCertificatePayload"];
+                "application/json": components["schemas"]["CertificatePayload"];
             };
         };
-        responses: {
-            /** @description Create acme certificate config */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcmeCertificateView"];
-                };
-            };
-        };
+        responses: never;
     };
     update_cert: {
         parameters: {
@@ -4436,20 +4308,10 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AcmeCertificatePayload"];
+                "application/json": components["schemas"]["CertificatePayload"];
             };
         };
-        responses: {
-            /** @description Update acme certificate config */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcmeCertificateView"];
-                };
-            };
-        };
+        responses: never;
     };
     delete_cert: {
         parameters: {
@@ -4461,40 +4323,31 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description Delete acme certificate config */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": boolean;
-                };
-            };
-        };
+        responses: never;
     };
-    download_cert_files: {
+    download_cert: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description Certificate ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description Download certificate package */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CertDownloadPackage"];
-                };
+        responses: never;
+    };
+    export_cert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
             };
+            cookie?: never;
         };
+        requestBody?: never;
+        responses: never;
     };
     run_cert_now: {
         parameters: {
@@ -4506,42 +4359,9 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description Run issue or renew now */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcmeRunResult"];
-                };
-            };
-        };
+        responses: never;
     };
-    detect_ip: {
-        parameters: {
-            query: {
-                version: string;
-                source_json: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Detect IP by source */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IpDetectResult"];
-                };
-            };
-        };
-    };
-    list_ip_probe_profiles: {
+    list_ddns_entries: {
         parameters: {
             query?: never;
             header?: never;
@@ -4549,19 +4369,63 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description List ip probe profiles */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IpProbeProfileView"][];
-                };
+        responses: never;
+    };
+    create_ddns_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DdnsEntryPayload"];
             };
         };
+        responses: never;
     };
-    list_net_interfaces: {
+    update_ddns_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DdnsEntryPayload"];
+            };
+        };
+        responses: never;
+    };
+    delete_ddns_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    run_ddns_entry_now: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    run_ddns_all_now: {
         parameters: {
             query?: never;
             header?: never;
@@ -4569,17 +4433,59 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description List available network interfaces */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NetInterfacesView"];
-                };
+        responses: never;
+    };
+    list_provider_accounts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    create_provider_account: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderAccountPayload"];
             };
         };
+        responses: never;
+    };
+    update_provider_account: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderAccountPayload"];
+            };
+        };
+        responses: never;
+    };
+    delete_provider_account: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
     };
     list_provider_profiles: {
         parameters: {
@@ -4589,178 +4495,7 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            /** @description List provider profiles */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProviderProfileView"][];
-                };
-            };
-        };
-    };
-    list_records: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List DDNS records */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DdnsRecordView"][];
-                };
-            };
-        };
-    };
-    create_record: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DdnsRecordPayload"];
-            };
-        };
-        responses: {
-            /** @description Create DDNS record */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DdnsRecordView"];
-                };
-            };
-        };
-    };
-    update_record: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Record ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DdnsRecordPayload"];
-            };
-        };
-        responses: {
-            /** @description Update DDNS record */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DdnsRecordView"];
-                };
-            };
-        };
-    };
-    delete_record: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Record ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Delete DDNS record */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": boolean;
-                };
-            };
-        };
-    };
-    run_record_now: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Record ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Run DDNS record immediately */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DdnsRunResult"];
-                };
-            };
-        };
-    };
-    run_all_now: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Run all DDNS records immediately */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DdnsRunResult"][];
-                };
-            };
-        };
-    };
-    webhook_test: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["WebhookTestPayload"];
-            };
-        };
-        responses: {
-            /** @description Webhook simulation result */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": boolean;
-                };
-            };
-        };
+        responses: never;
     };
     list_services: {
         parameters: {
@@ -4952,17 +4687,17 @@ export interface operations {
     admin_list_logs: {
         parameters: {
             query?: {
-                /** @description 页码 / Page number */
+                /** @description Page number */
                 page?: number | null;
-                /** @description 每页大小 / Page size */
+                /** @description Page size */
                 page_size?: number | null;
-                /** @description 用户 ID 过滤 / User ID filter */
+                /** @description User ID filter */
                 user_id?: string | null;
-                /** @description 日志类型过滤 / Journal type filter */
+                /** @description Journal type filter */
                 journal_type?: string | null;
-                /** @description 操作动作过滤 / Action filter */
+                /** @description Action filter */
                 action?: string | null;
-                /** @description 状态过滤 / Status filter */
+                /** @description Status filter */
                 status?: string | null;
             };
             header?: never;
@@ -5628,14 +5363,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 获取成功 / Retrieved successfully */
+            /** @description Retrieved successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -5657,28 +5392,28 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 添加成功 / Added successfully */
+            /** @description Added successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 请求参数错误 / Bad request */
+            /** @description Bad request */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 超出账号数量限制 / Account limit exceeded */
+            /** @description Account limit exceeded */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5700,21 +5435,21 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 导出成功 / Export successful */
+            /** @description Export successful */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 密码太短 / Password too short */
+            /** @description Password too short */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -5736,28 +5471,28 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 导入成功 / Import successful */
+            /** @description Import successful */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 请求参数错误 / Bad request */
+            /** @description Bad request */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 导入功能已禁用 / Import disabled */
+            /** @description Import disabled */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5779,14 +5514,14 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 测试成功 / Test successful */
+            /** @description Test successful */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -5800,28 +5535,28 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 账号ID / Account ID */
+                /** @description Account ID */
                 account_id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 获取成功 / Retrieved successfully */
+            /** @description Retrieved successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 账号不存在 / Account not found */
+            /** @description Account not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5835,7 +5570,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 账号ID / Account ID */
+                /** @description Account ID */
                 id: string;
             };
             cookie?: never;
@@ -5846,21 +5581,21 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 更新成功 / Updated successfully */
+            /** @description Updated successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 账号不存在 / Account not found */
+            /** @description Account not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5874,28 +5609,28 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 账号ID / Account ID */
+                /** @description Account ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 删除成功 / Deleted successfully */
+            /** @description Deleted successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 账号不存在 / Account not found */
+            /** @description Account not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5909,21 +5644,21 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 账号ID / Account ID */
+                /** @description Account ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 同步任务已启动 / Sync task started */
+            /** @description Sync task started */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 账号不存在 / Account not found */
+            /** @description Account not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5937,14 +5672,14 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 账号ID / Account ID */
+                /** @description Account ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 获取成功 / Success */
+            /** @description Success */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5962,7 +5697,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 获取成功 / Success */
+            /** @description Success */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5986,7 +5721,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 保存成功 / Saved successfully */
+            /** @description Saved successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6002,14 +5737,14 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 草稿ID / Draft ID */
+                /** @description Draft ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 删除成功 / Deleted */
+            /** @description Deleted */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6023,32 +5758,32 @@ export interface operations {
     list_messages: {
         parameters: {
             query?: {
-                /** @description 页码 / Page number */
+                /** @description Page number */
                 page?: number;
-                /** @description 每页数量 / Items per page */
+                /** @description Items per page */
                 per_page?: number;
-                /** @description 只显示未读 / Unread only */
+                /** @description Unread only */
                 unread_only?: boolean;
-                /** @description 搜索关键词 / Search keyword */
+                /** @description Search keyword */
                 search?: string;
             };
             header?: never;
             path: {
-                /** @description 文件夹ID / Folder ID */
+                /** @description Folder ID */
                 folder_id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 获取成功 / Retrieved successfully */
+            /** @description Retrieved successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -6070,21 +5805,21 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 发送成功 / Sent successfully */
+            /** @description Sent successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 请求参数错误 / Bad request */
+            /** @description Bad request */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -6098,28 +5833,28 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 邮件ID / Message ID */
+                /** @description Message ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 获取成功 / Retrieved successfully */
+            /** @description Retrieved successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 邮件不存在 / Message not found */
+            /** @description Message not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6133,23 +5868,23 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 邮件ID / Message ID */
+                /** @description Message ID */
                 id: string;
-                /** @description 附件索引 / Attachment index */
+                /** @description Attachment index */
                 index: number;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 下载成功 / Download successful */
+            /** @description Download successful */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 邮件或附件不存在 / Message or attachment not found */
+            /** @description Message or attachment not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6163,9 +5898,9 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 邮件ID / Message ID */
+                /** @description Message ID */
                 id: string;
-                /** @description 附件索引 / Attachment index */
+                /** @description Attachment index */
                 index: number;
             };
             cookie?: never;
@@ -6176,14 +5911,14 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 保存成功 / Saved successfully */
+            /** @description Saved successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 邮件或附件不存在 / Message or attachment not found */
+            /** @description Message or attachment not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6197,7 +5932,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 邮件ID / Message ID */
+                /** @description Message ID */
                 id: string;
             };
             cookie?: never;
@@ -6208,21 +5943,21 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 更新成功 / Updated successfully */
+            /** @description Updated successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 未授权 / Unauthorized */
+            /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 邮件不存在 / Message not found */
+            /** @description Message not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6278,14 +6013,14 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Task ID / 任务 ID */
+                /** @description Task ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Continue operation started / 继续执行已启动 */
+            /** @description Continue operation started */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6306,7 +6041,7 @@ export interface operations {
                     "application/json": components["schemas"]["Resp"];
                 };
             };
-            /** @description Task cannot be continued / 任务无法继续执行 */
+            /** @description Task cannot be continued */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -6324,7 +6059,7 @@ export interface operations {
                     "application/json": components["schemas"]["Resp"];
                 };
             };
-            /** @description Task not found / 任务不存在 */
+            /** @description Task not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6342,7 +6077,7 @@ export interface operations {
                     "application/json": components["schemas"]["Resp"];
                 };
             };
-            /** @description Internal server error / 服务器内部错误 */
+            /** @description Internal server error */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -7042,7 +6777,7 @@ export interface operations {
         parameters: {
             query: {
                 base: components["schemas"]["BaseListQuery"];
-                /** @description 筛选条件：收藏颜色 / Filter: favorite color (0 means all favorites) */
+                /** @description Filter: favorite color (0 means all favorites) */
                 color?: number | null;
             };
             header?: never;
@@ -7615,9 +7350,9 @@ export interface operations {
         parameters: {
             query: {
                 base: components["schemas"]["BaseListQuery"];
-                /** @description 筛选条件：是否只显示加密分享 / Filter: show only password-protected shares */
+                /** @description Filter: show only password-protected shares */
                 has_password?: boolean | null;
-                /** @description 筛选条件：是否只显示直链分享 / Filter: show only direct link shares */
+                /** @description Filter: show only direct link shares */
                 enable_direct?: boolean | null;
             };
             header?: never;
@@ -9525,27 +9260,24 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description 可选的旧验证码 ID，用于刷新时主动作废
+                 * @description ID
                  *     Optional old captcha ID to invalidate during refresh
                  */
                 old_captcha_id?: string | null;
                 /**
-                 * @description 可选的风险场景标识（如 LOGIN / FORGOT_PASSWORD / SEND_CODE）
+                 * @description FORGOT_PASSWORD
                  *     Optional risk scene key (for example LOGIN / FORGOT_PASSWORD / SEND_CODE)
                  */
                 scene?: string | null;
-                /**
-                 * @description 可选的风险目标（用户名/邮箱/手机号）
-                 *     Optional risk target (username/email/phone)
-                 */
+                /** @description Optional risk target (username/email/phone) */
                 risk_target?: string | null;
                 /**
-                 * @description 风险目标类型：identifier/email/phone
-                 *     Risk target type: identifier/email/phone
+                 * @description identifier/email/phone
+                 *      Risk target type: identifier/email/phone
                  */
                 risk_target_type?: string | null;
                 /**
-                 * @description 可选用户ID（用于已登录场景提权风控）
+                 * @description ID
                  *     Optional user ID for logged-in risk enrichment
                  */
                 risk_user_id?: string | null;

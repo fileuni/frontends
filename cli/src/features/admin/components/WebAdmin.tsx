@@ -124,6 +124,11 @@ interface DomainCertAssetView {
   status?: string | null;
 }
 
+interface DomainAssetView {
+  fqdn: string;
+  status?: string | null;
+}
+
 const toPayload = (draft: SiteDraft): SitePayload => ({
   name: draft.name.trim(),
   enabled: draft.enabled,
@@ -155,6 +160,7 @@ export const WebAdmin: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [domainCertAssets, setDomainCertAssets] = useState<DomainCertAssetView[]>([]);
+  const [domainAssets, setDomainAssets] = useState<DomainAssetView[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState<SiteDraft>(defaultDraft());
   const canToggleProxyTlsInsecure = draft.route_mode === 'proxy' && draft.proxy_upstream.trim().startsWith('https://');
@@ -318,11 +324,21 @@ export const WebAdmin: React.FC = () => {
     }
   };
 
+  const loadDomainAssets = async () => {
+    try {
+      const data = await extractData<DomainAssetView[]>(client.GET('/api/v1/admin/domain-acme-ddns/assets/domains'));
+      setDomainAssets(Array.isArray(data) ? data : []);
+    } catch {
+      setDomainAssets([]);
+    }
+  };
+
   useEffect(() => {
     const run = async () => {
       setLoading(true);
       await loadSites();
       await loadDomainCertAssets();
+      await loadDomainAssets();
       setLoading(false);
     };
     run();
@@ -732,7 +748,9 @@ export const WebAdmin: React.FC = () => {
                       value={binding.hostnames.join(', ')}
                       onChange={(e) => updateBinding(index, { hostnames: normalizeHostnames(e.target.value) })}
                       placeholder="example.com, *.example.com"
+                      list="web-domain-asset-suggestions"
                     />
+                    <p className="text-xs opacity-60">Use DDNS managed domains as hostname suggestions.</p>
                   </div>
                   <div className="col-span-8 md:col-span-1 space-y-1">
                     <label className="text-sm font-bold uppercase tracking-wider opacity-60">Default</label>
@@ -748,6 +766,14 @@ export const WebAdmin: React.FC = () => {
                 </div>
               ))}
             </div>
+
+            {domainAssets.length > 0 && (
+              <datalist id="web-domain-asset-suggestions">
+                {domainAssets.map((item) => (
+                  <option key={item.fqdn} value={item.fqdn} />
+                ))}
+              </datalist>
+            )}
           </div>
 
           <div className="rounded-2xl border border-border p-4 space-y-3">

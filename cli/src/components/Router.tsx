@@ -143,8 +143,6 @@ const PageRenderer: React.FC<{
       case 'fs': return <DashboardLayout title={t('pages.admin.fs.title')}><FileSystemAdmin /></DashboardLayout>;
       case 'backup': return <DashboardLayout title={t('admin.backup.title')}><SystemBackupAdmin /></DashboardLayout>;
       case 'domain': return <DashboardLayout title="Domain Automation"><DomainAcmeDdnsAdmin /></DashboardLayout>;
-      case 'ddns': return <DashboardLayout title="Domain Automation"><DomainAcmeDdnsAdmin /></DashboardLayout>;
-      case 'acme': return <DashboardLayout title="Domain Automation"><DomainAcmeDdnsAdmin /></DashboardLayout>;
       case 'web': return <DashboardLayout title={t('admin.web.title')}><WebAdmin /></DashboardLayout>;
       case 'audit': return <DashboardLayout title={t('admin.audit.title') || 'Audit Logs'}><AuditLogAdmin /></DashboardLayout>;
       case 'tasks': return <DashboardLayout title={t('admin.tasks.title') || 'Background Tasks'}><TaskAdmin /></DashboardLayout>;
