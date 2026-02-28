@@ -724,7 +724,7 @@ export const WebAdmin: React.FC = () => {
               {draft.bindings.map((binding, index) => (
                 <div key={`binding-${index}`} className="grid grid-cols-12 gap-2 rounded-xl border border-border p-3">
                   <div className="col-span-12 md:col-span-3 space-y-1">
-                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">IP</label>
+                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.ip')}</label>
                     <Input
                       value={binding.listen_ip}
                       onChange={(e) => updateBinding(index, { listen_ip: e.target.value })}
@@ -732,7 +732,7 @@ export const WebAdmin: React.FC = () => {
                     />
                   </div>
                   <div className="col-span-12 md:col-span-2 space-y-1">
-                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">Port</label>
+                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.port')}</label>
                     <Input
                       value={String(binding.listen_port)}
                       onChange={(e) => {
@@ -750,10 +750,10 @@ export const WebAdmin: React.FC = () => {
                       placeholder="example.com, *.example.com"
                       list="web-domain-asset-suggestions"
                     />
-                    <p className="text-xs opacity-60">Use DDNS managed domains as hostname suggestions.</p>
+                    <p className="text-xs opacity-60">{t('admin.web.form.hostnameSuggestionHint')}</p>
                   </div>
                   <div className="col-span-8 md:col-span-1 space-y-1">
-                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">Default</label>
+                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.default')}</label>
                     <div className="h-12 flex items-center">
                       <Switch checked={binding.is_default} onChange={(v) => updateBinding(index, { is_default: v })} />
                     </div>

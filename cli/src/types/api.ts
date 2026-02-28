@@ -244,6 +244,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/domain-acme-ddns/zerossl/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_zerossl_accounts"];
+        put?: never;
+        post: operations["create_zerossl_account"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/zerossl/accounts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["update_zerossl_account"];
+        post?: never;
+        delete: operations["delete_zerossl_account"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/extensions/services": {
         parameters: {
             query?: never;
@@ -4263,6 +4295,23 @@ export interface components {
             /** @example wopi_token */
             access_token: string;
         };
+        ZeroSslAccountPayload: {
+            eab_hmac_key: string;
+            eab_kid: string;
+            enabled: boolean;
+            name: string;
+        };
+        ZeroSslAccountView: {
+            /** Format: date-time */
+            created_at: string;
+            eab_kid: string;
+            enabled: boolean;
+            has_eab_hmac_key: boolean;
+            id: string;
+            name: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -4525,6 +4574,58 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    list_zerossl_accounts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    create_zerossl_account: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ZeroSslAccountPayload"];
+            };
+        };
+        responses: never;
+    };
+    update_zerossl_account: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ZeroSslAccountPayload"];
+            };
+        };
+        responses: never;
+    };
+    delete_zerossl_account: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
