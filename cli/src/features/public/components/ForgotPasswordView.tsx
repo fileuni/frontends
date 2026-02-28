@@ -415,11 +415,30 @@ export const ForgotPasswordView = () => {
           )}
 
           {step === 1 && (
-            <div className={cn("mt-8 pt-8 border-t text-center", isDark ? "border-white/5" : "border-gray-100")}>
+            <div className={cn("mt-8 pt-8 border-t text-center space-y-4", isDark ? "border-white/5" : "border-gray-100")}>
               <a href="#mod=public&page=login" className="text-sm font-bold opacity-50 hover:text-primary transition-colors flex items-center justify-center gap-2">
                 <ArrowLeft size={16} />
                 {t('common.backToLogin')}
               </a>
+              <div className="pt-4">
+                <a 
+                  href="https://docs.fileuni.com/get-admin-passwd/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "inline-flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl transition-all",
+                    isDark 
+                      ? "text-orange-400 hover:text-orange-300 bg-orange-500/10 hover:bg-orange-500/20" 
+                      : "text-orange-600 hover:text-orange-500 bg-orange-50 hover:bg-orange-100"
+                  )}
+                >
+                  <Key size={16} />
+                  {t('forgotPassword.adminRecovery')}
+                </a>
+                <p className={cn("text-xs mt-2 opacity-40", isDark ? "text-gray-400" : "text-gray-500")}>
+                  {t('forgotPassword.adminRecoveryHint')}
+                </p>
+              </div>
             </div>
           )}
 

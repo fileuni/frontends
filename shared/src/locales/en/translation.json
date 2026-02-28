@@ -659,7 +659,9 @@
     "repeatPassword": "Repeat password",
     "updatePassword": "Update Password",
     "codeSent": "Verification code sent",
-    "resetSuccess": "Password reset successfully"
+    "resetSuccess": "Password reset successfully",
+    "adminRecovery": "Admin Password Recovery",
+    "adminRecoveryHint": "If you are an admin, please visit the documentation for help"
   },
   "themes": {
     "light": "Light",
