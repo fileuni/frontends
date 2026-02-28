@@ -12,7 +12,8 @@ export const Button = React.forwardRef<
   }
 >(({ className, variant = 'primary', size = 'md', ...props }, ref) => {
   const variants: Record<ButtonVariant, string> = {
-    primary: 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95',
+    primary: 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95',
+
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
     destructive: 'bg-red-500 text-white shadow-lg shadow-red-500/20 hover:bg-red-600 hover:scale-[1.02] active:scale-95'

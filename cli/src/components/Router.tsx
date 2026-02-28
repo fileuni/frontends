@@ -147,7 +147,8 @@ const PageRenderer: React.FC<{
       case 'web': return <DashboardLayout title={t('admin.web.title')}><WebAdmin /></DashboardLayout>;
       case 'audit': return <DashboardLayout title={t('admin.audit.title') || 'Audit Logs'}><AuditLogAdmin /></DashboardLayout>;
       case 'tasks': return <DashboardLayout title={t('admin.tasks.title') || 'Background Tasks'}><TaskAdmin /></DashboardLayout>;
-      case 'extensions': return <DashboardLayout title={t('admin.extensions.title')} fullWidth={true}><ExtensionManagerAdmin /></DashboardLayout>;
+      case 'extensions': return <DashboardLayout title={t('admin.extensions.title')}><ExtensionManagerAdmin /></DashboardLayout>;
+
       default: return <DashboardLayout title={t('pages.admin.users.title')}><UserManagement /></DashboardLayout>;
     }
   }

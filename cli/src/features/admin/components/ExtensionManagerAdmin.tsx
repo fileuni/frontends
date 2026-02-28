@@ -198,39 +198,39 @@ export const ExtensionManagerAdmin = () => {
   const description = currentTool ? (lang === 'en' ? currentTool.description_en : currentTool.description_zh) : '';
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner shrink-0">
-            <Puzzle size={24} />
+    <div className="space-y-6 pb-20">
+      <div className="rounded-[2rem] border border-border bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4 group">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/20 text-primary group-hover:scale-110 transition-transform duration-500 shadow-inner">
+              <Puzzle size={24} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black tracking-tight">{t("admin.extensions.title")}</h2>
+              <p className="text-sm font-bold opacity-60 uppercase tracking-wider">{t("admin.extensions.subtitle") || 'Extension & Plugin Infrastructure'}</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-black tracking-tight">{t("admin.extensions.title")}</h2>
-            <p className="text-sm font-bold opacity-40 uppercase tracking-widest">
-              Ext & Plugin Infrastructure
-            </p>
-          </div>
+          <Badge variant="outline" className="h-10 px-4 rounded-2xl border-white/10 bg-white/5 opacity-60 flex gap-3 items-center backdrop-blur-md">
+            <Cpu size={16} className="opacity-40" />
+            <span className="font-mono text-xs uppercase font-black tracking-widest">{capabilities?.runtime_os || 'linux'} / {capabilities?.runtime_arch || 'x86_64'}</span>
+          </Badge>
         </div>
-        <Badge variant="outline" className="h-8 px-3 rounded-xl border-white/10 bg-white/5 opacity-70 flex gap-2 items-center">
-          <Cpu size={14} className="opacity-50" />
-          <span className="font-mono text-xs uppercase">{capabilities?.runtime_os || 'linux'} / {capabilities?.runtime_arch || 'x86_64'}</span>
-        </Badge>
       </div>
 
-      <div className="p-2 bg-white/[0.03] rounded-3xl border border-white/5 flex gap-2 flex-wrap">
+      <div className="p-2 bg-white/[0.03] rounded-[2rem] border border-white/5 flex gap-2 flex-wrap shadow-2xl backdrop-blur-sm mx-1">
         {extItems.map((item) => (
           <Button 
             key={item.key} 
             size="sm" 
             variant={extPage === item.key ? 'primary' : 'ghost'} 
             onClick={() => navigate({ mod: 'admin', page: 'extensions', ext: item.key })}
-            className={`relative rounded-2xl px-6 h-11 font-bold transition-all ${extPage === item.key ? 'shadow-lg shadow-primary/20' : 'opacity-60 hover:opacity-100'}`}
+            className={`relative rounded-2xl px-8 h-12 font-black uppercase tracking-widest text-[10px] transition-all duration-300 ${extPage === item.key ? 'shadow-xl shadow-primary/30' : 'opacity-40 hover:opacity-100 hover:bg-white/5'}`}
           >
             {item.label}
             {item.installed && (
-              <span className="absolute top-2 right-2 flex h-2 w-2">
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 shadow-sm shadow-green-500/50"></span>
               </span>
             )}
           </Button>
@@ -248,6 +248,7 @@ export const ExtensionManagerAdmin = () => {
         pid={serviceStatus[extPage]?.pid}
         loading={isFetchingInfo}
         version={currentState.version}
+        setVersion={(v) => updateToolState(extPage, { version: v })}
         binPath={currentState.binPath}
         setBinPath={(v) => updateToolState(extPage, { binPath: v })}
         proxy={currentState.proxy}

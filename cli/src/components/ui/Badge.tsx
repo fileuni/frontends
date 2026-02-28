@@ -5,7 +5,8 @@ type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'succe
 
 export const Badge = ({ children, className, variant = 'default' }: { children: React.ReactNode, className?: string, variant?: BadgeVariant }) => {
   const variants: Record<BadgeVariant, string> = {
-    default: 'bg-primary text-primary-foreground border-transparent',
+    default: 'bg-primary text-white border-transparent',
+
     secondary: 'bg-muted text-muted-foreground border-transparent',
     destructive: 'bg-destructive text-destructive-foreground border-transparent',
     outline: 'bg-background text-foreground border-border',
