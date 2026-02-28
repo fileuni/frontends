@@ -227,8 +227,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
         {/* Footer Hint */}
         <div className="border-t border-white/10 px-4 py-2.5 sm:px-5 bg-black/20">
           <p className="text-[10px] sm:text-xs text-slate-500">
-            {t('admin.config.quickWizard.licenseHint') ||
-              'Get your license key from the official website. The device code is used for hardware binding.'}
+            {t('admin.config.quickWizard.fields.licenseHint')}
           </p>
         </div>
       </div>

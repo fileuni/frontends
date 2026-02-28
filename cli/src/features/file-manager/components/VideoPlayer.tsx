@@ -147,7 +147,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
       <FilePreviewHeader 
         path={activeFile?.path || ''}
         fileName={activeFile?.name}
-        subtitle="Professional Video Engine"
+        subtitle={t('filemanager.player.videoEngine')}
         icon={<Video size={20} />}
         onClose={onClose}
         extra={

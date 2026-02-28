@@ -18,6 +18,7 @@ interface ConfigEditorPanelProps {
   cancelLabel: string;
   showCancel?: boolean;
   actionsPrefix?: React.ReactNode;
+  isDark?: boolean;
 }
 
 export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
@@ -37,14 +38,25 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
   cancelLabel,
   showCancel = true,
   actionsPrefix,
+  isDark = true,
 }) => {
   return (
     <div className="flex flex-col gap-3 sm:gap-4 min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
-          <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wide shrink-0">{title}</h3>
+          <h3 className={cn(
+            "text-xs sm:text-sm font-black uppercase tracking-wide shrink-0",
+            isDark ? "text-white" : "text-slate-900"
+          )}>
+            {title}
+          </h3>
           {configPath && (
-            <span className="text-[10px] sm:text-xs font-mono text-slate-400 bg-slate-100 dark:bg-slate-800/50 px-2 py-0.5 rounded truncate max-w-full sm:max-w-[260px]">
+            <span className={cn(
+              "text-[10px] sm:text-xs font-mono px-2 py-0.5 rounded truncate max-w-full sm:max-w-[260px] border shadow-sm",
+              isDark 
+                ? "text-slate-400 bg-slate-800/50 border-transparent" 
+                : "text-slate-800 bg-slate-200 border-slate-300"
+            )}>
               {configPath}
             </span>
           )}
@@ -54,14 +66,19 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
           <button
             onClick={onTest}
             disabled={loading}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-xs sm:text-sm font-bold uppercase tracking-wide transition-all disabled:opacity-50"
+            className={cn(
+              "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-black uppercase tracking-wide transition-all disabled:opacity-50 shadow-sm border",
+              isDark 
+                ? "bg-cyan-500/10 text-cyan-400 border-transparent hover:bg-cyan-500/20" 
+                : "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100"
+            )}
           >
             {testLabel}
           </button>
           <button
             onClick={onSave}
             disabled={loading || saveDisabled}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-primary hover:opacity-90 text-white text-xs sm:text-sm font-bold uppercase tracking-wide shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-primary hover:opacity-90 text-white text-xs sm:text-sm font-black uppercase tracking-wide shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
           >
             {saveLabel}
           </button>
@@ -69,7 +86,12 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
             <button
               onClick={onCancel}
               disabled={loading}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs sm:text-sm font-bold uppercase tracking-wide transition-all"
+              className={cn(
+                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-black uppercase tracking-wide transition-all shadow-sm border",
+                isDark 
+                  ? "bg-slate-800/50 text-slate-400 border-transparent hover:bg-slate-700" 
+                  : "bg-slate-200 text-slate-800 border-slate-300 hover:bg-slate-300"
+              )}
             >
               {cancelLabel}
             </button>
@@ -77,13 +99,19 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 bg-black/5 rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] overflow-hidden border border-slate-200/50 dark:border-slate-800/50">
+      <div className={cn(
+        "flex-1 min-h-0 rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] overflow-hidden border transition-colors",
+        isDark 
+          ? "bg-black/5 border-slate-800/50" 
+          : "bg-slate-100 border-slate-300 shadow-inner"
+      )}>
         <ConfigRawEditor
           content={content}
           onChange={onChange}
           notes={notes}
           errors={errors}
           height="100%"
+          isDark={isDark}
         />
       </div>
     </div>

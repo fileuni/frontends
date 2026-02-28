@@ -120,30 +120,30 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
       {/* Identity Group */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl bg-gray-100/30 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 shadow-inner">
         <div className="space-y-4">
-          <SectionHeader icon={Shield} title={t('admin.domain.certIdentity')} desc="Certificate Identity" />
+          <SectionHeader icon={Shield} title={t('admin.domain.certIdentity')} desc={t('admin.domain.certIdentityDesc')} />
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.name')}</label>
-            <Input value={name} onChange={(e) => onChangeName(e.target.value)} placeholder="e.g. main-api-cert" className={controlBase} />
+            <Input value={name} onChange={(e) => onChangeName(e.target.value)} placeholder={t('admin.domain.certNamePlaceholder')} className={controlBase} />
           </div>
         </div>
         <div className="space-y-4">
-          <SectionHeader icon={Mail} title={t('admin.domain.contactInfo')} desc="Contact Info" />
+          <SectionHeader icon={Mail} title={t('admin.domain.contactInfo')} desc={t('admin.domain.contactInfoDesc')} />
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.accountEmail')}</label>
-            <Input value={accountEmail} onChange={(e) => onChangeAccountEmail(e.target.value)} placeholder="admin@example.com" className={controlBase} />
+            <Input value={accountEmail} onChange={(e) => onChangeAccountEmail(e.target.value)} placeholder={t('admin.domain.certAccountEmailPlaceholder')} className={controlBase} />
           </div>
         </div>
       </div>
 
       {/* Domain Management */}
       <div className="p-6 rounded-2xl bg-gray-100/30 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 shadow-inner space-y-4">
-        <SectionHeader icon={Globe} title={t('admin.domain.domainMgmt')} desc="Domain Management" />
+        <SectionHeader icon={Globe} title={t('admin.domain.domainMgmt')} desc={t('admin.domain.domainMgmtDesc')} />
         <div className="space-y-4">
           <div className="flex gap-2">
             <Input
               value={newDomain}
               onChange={(e) => setNewDomain(e.target.value)}
-              placeholder="e.g. *.fileuni.com"
+              placeholder={t('admin.domain.certDomainsInputPlaceholder')}
               className={controlBase}
               onKeyDown={(e) => e.key === 'Enter' && addDomain()}
             />
@@ -168,7 +168,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
       {/* Configuration Group */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl bg-gray-100/30 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 shadow-inner">
         <div className="space-y-6">
-          <SectionHeader icon={Settings} title={t('admin.domain.issuanceChallenge')} desc="Issuance & Challenge" />
+          <SectionHeader icon={Settings} title={t('admin.domain.issuanceChallenge')} desc={t('admin.domain.issuanceChallengeDesc')} />
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.caProvider')}</label>
@@ -205,13 +205,13 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
           {challengeType === 'http01' && (
             <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.httpWebroot')}</label>
-              <Input value={dnsConfig.webroot || dnsConfig.http_webroot || ''} onChange={(e) => updateDnsConfig('webroot', e.target.value)} placeholder="/var/www/html" className={controlBase} />
+              <Input value={dnsConfig.webroot || dnsConfig.http_webroot || ''} onChange={(e) => updateDnsConfig('webroot', e.target.value)} placeholder={t('admin.domain.certHttpWebrootInputPlaceholder')} className={controlBase} />
             </div>
           )}
         </div>
 
         <div className="space-y-6">
-          <SectionHeader icon={Cpu} title={t('admin.domain.advAutomation')} desc="Advanced & Automation" />
+          <SectionHeader icon={Cpu} title={t('admin.domain.advAutomation')} desc={t('admin.domain.advAutomationDesc')} />
           
           {caProvider === 'zerossl' && (
             <div className="space-y-2 p-4 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/5 border border-cyan-500/20 dark:border-cyan-500/10 animate-in fade-in zoom-in-95 shadow-sm">
@@ -233,7 +233,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.exportPath')}</label>
             <div className="relative">
-              <Input value={exportPath || ''} onChange={(e) => onChangeExportPath(e.target.value)} placeholder="/etc/nginx/certs/mysite" className={controlBase} />
+              <Input value={exportPath || ''} onChange={(e) => onChangeExportPath(e.target.value)} placeholder={t('admin.domain.certExportPlaceholder')} className={controlBase} />
               <ExternalLink size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/20 dark:text-white/20" />
             </div>
           </div>

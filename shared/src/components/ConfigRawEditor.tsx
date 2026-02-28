@@ -289,7 +289,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
     <div className="flex flex-col w-full gap-3 sm:gap-4" style={{ height: resolvedHeight, minHeight: "360px" }}>
       <div className="flex flex-col shrink-0 gap-3 sm:gap-4">
         {!hideNotes && (
-          <div className="rounded-xl sm:rounded-2xl border border-white/5 bg-white/[0.02] p-3 sm:p-4 flex flex-col gap-3 transition-all animate-in fade-in slide-in-from-top-2">
+          <div className="rounded-xl sm:rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] p-3 sm:p-4 flex flex-col gap-3 transition-all animate-in fade-in slide-in-from-top-2">
             {activeNote ? (
               (() => {
                 const localized = getLocalizedNote(activeNote, i18n.language);
@@ -299,25 +299,25 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
                       <div className="text-xs sm:text-sm font-bold uppercase text-primary leading-none mb-1">
                         {localized.title}
                       </div>
-                      <div className="text-xs sm:text-sm opacity-70 leading-relaxed break-words whitespace-normal text-white/90">
+                      <div className="text-xs sm:text-sm leading-relaxed break-words whitespace-normal text-slate-700 dark:text-white/90">
                         {localized.description}
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center">
                       {activeNote.example !== "{SECTION}" && activeNote.example !== "" && (
-                        <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/5 shrink-0">
-                          <span className="text-[10px] uppercase font-bold opacity-40 whitespace-nowrap">
+                        <div className="flex items-center gap-2 bg-slate-200 dark:bg-black/40 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/5 shrink-0">
+                          <span className="text-[10px] uppercase font-bold text-slate-500 dark:opacity-40 whitespace-nowrap">
                             {t("admin.config.example")}
                           </span>
-                          <code className="text-xs font-mono text-emerald-400 break-all">
+                          <code className="text-xs font-mono text-emerald-600 dark:text-emerald-400 break-all">
                             {activeNote.example}
                           </code>
                         </div>
                       )}
                       {activePath && (
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-[10px] uppercase font-bold opacity-30">Path</span>
-                          <code className="text-[10px] sm:text-xs font-mono opacity-60 break-all">
+                          <span className="text-[10px] uppercase font-bold text-slate-400 dark:opacity-30">Path</span>
+                          <code className="text-[10px] sm:text-xs font-mono text-slate-500 dark:opacity-60 break-all">
                             {activePath}
                           </code>
                         </div>
@@ -328,13 +328,13 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
               })()
             ) : (
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center">
-                <div className="text-xs sm:text-sm opacity-30 italic">
+                <div className="text-xs sm:text-sm text-slate-400 dark:opacity-30 italic">
                   {t("admin.config.noteEmpty")}
                 </div>
                 {activePath && (
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[10px] uppercase font-bold opacity-30">Path</span>
-                    <code className="text-[10px] sm:text-xs font-mono opacity-60 break-all">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 dark:opacity-30">Path</span>
+                    <code className="text-[10px] sm:text-xs font-mono text-slate-500 dark:opacity-60 break-all">
                       {activePath}
                     </code>
                   </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Switch } from '@/components/ui/Switch';
-import { Network, Globe, Terminal, ShieldCheck, Database, Settings2 } from 'lucide-react';
+import { Network, Globe, Terminal, ShieldCheck, Database, Settings2, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
@@ -11,6 +11,7 @@ interface DdnsSourceFormProps {
   onChange: (json: string) => void;
   enabled: boolean;
   onToggle: (enabled: boolean) => void;
+  isIpv6?: boolean;
 }
 
 type SourceType = 'static' | 'url' | 'interface' | 'command' | 'inherit_last';
@@ -19,9 +20,24 @@ interface SourceConfig {
   type: SourceType;
   value?: string;
   url?: string;
+  urls?: string[]; // Back-end now supports this
   name?: string; // interface name
   cmd?: string;
 }
+
+const DEFAULT_V4_URLS = [
+  "https://api.ipify.org",
+  "https://myip.ipip.net",
+  "https://ddns.oray.com/checkip",
+  "https://ipv4.icanhazip.com"
+];
+
+const DEFAULT_V6_URLS = [
+  "https://api64.ipify.org",
+  "https://speed.neu.edu.cn/getIP.php",
+  "https://v6.ident.me",
+  "https://ipv6.icanhazip.com"
+];
 
 // High-visibility control base
 const controlBase = "h-11 rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-3 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm font-bold text-foreground placeholder:opacity-30";
@@ -34,9 +50,10 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
   onChange,
   enabled,
   onToggle,
+  isIpv6 = false,
 }) => {
   const { t } = useTranslation();
-  const [config, setConfig] = useState<SourceConfig>({ type: 'url', url: 'https://api64.ipify.org' });
+  const [config, setConfig] = useState<SourceConfig>({ type: 'url', url: isIpv6 ? DEFAULT_V6_URLS[0] : DEFAULT_V4_URLS[0] });
   const [mode, setMode] = useState<'form' | 'raw'>('form');
 
   useEffect(() => {
@@ -55,8 +72,8 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
 
   const handleTypeChange = (type: SourceType) => {
     const newConfig: SourceConfig = { type };
-    if (type === 'url') newConfig.url = 'https://api.ipify.org';
-    if (type === 'static') newConfig.value = '127.0.0.1';
+    if (type === 'url') newConfig.url = isIpv6 ? DEFAULT_V6_URLS[0] : DEFAULT_V4_URLS[0];
+    if (type === 'static') newConfig.value = isIpv6 ? '::1' : '127.0.0.1';
     if (type === 'interface') newConfig.name = 'eth0';
     if (type === 'command') newConfig.cmd = 'ip addr show';
     updateConfig(newConfig);
@@ -69,6 +86,15 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
       case 'static': return <ShieldCheck size={14} />;
       case 'command': return <Terminal size={14} />;
       case 'inherit_last': return <Database size={14} />;
+    }
+  };
+
+  const applyDefaultUrl = (u: string) => {
+    const current = config.url || '';
+    const urls = current.split(/[;,]/).map(s => s.trim()).filter(s => s);
+    if (!urls.includes(u)) {
+      urls.push(u);
+      updateConfig({ ...config, url: urls.join(', ') });
     }
   };
 
@@ -87,7 +113,7 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
           </div>
           <div>
             <h4 className="text-sm font-black uppercase tracking-widest text-foreground/80 leading-none mb-1">{label}</h4>
-            <p className="text-[10px] opacity-60 dark:opacity-40 font-bold uppercase tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">Detection Source Configuration</p>
+            <p className="text-[10px] opacity-60 dark:opacity-40 font-bold uppercase tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">{t('admin.domain.detectionSourceDesc')}</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -98,7 +124,7 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
               onClick={() => setMode(mode === 'form' ? 'raw' : 'form')}
             >
               <Settings2 size={12} />
-              {mode === 'form' ? 'Raw JSON' : 'Visual'}
+              {mode === 'form' ? t('common.rawJson') : t('common.visualMode')}
             </button>
            )}
            <Switch checked={enabled} onChange={onToggle} />
@@ -146,17 +172,32 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
                 </label>
                 
                 {config.type === 'url' && (
-                  <Input
-                    placeholder="https://api.ipify.org"
-                    value={config.url || ''}
-                    onChange={(e) => updateConfig({ ...config, url: e.target.value })}
-                    className={controlBase}
-                  />
+                  <div className="space-y-2">
+                    <Input
+                      placeholder={t('admin.domain.ddnsUrlPlaceholder')}
+                      value={config.url || ''}
+                      onChange={(e) => updateConfig({ ...config, url: e.target.value })}
+                      className={controlBase}
+                    />
+                    <div className="flex flex-wrap gap-1.5">
+                       {(isIpv6 ? DEFAULT_V6_URLS : DEFAULT_V4_URLS).map(u => (
+                         <button 
+                           key={u}
+                           type="button"
+                           onClick={() => applyDefaultUrl(u)}
+                           className="px-2 py-1 rounded-md bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-[9px] font-bold text-foreground/60 hover:text-primary hover:border-primary/30 transition-all flex items-center gap-1"
+                         >
+                           <Zap size={10}/> {u.replace('https://', '')}
+                         </button>
+                       ))}
+                    </div>
+                    <p className="text-[10px] opacity-50 dark:opacity-30 font-bold uppercase tracking-tighter text-foreground/60">{t('admin.domain.multiUrlHint')}</p>
+                  </div>
                 )}
 
                 {config.type === 'interface' && (
                   <Input
-                    placeholder="eth0 or wlan0"
+                    placeholder={t('admin.domain.ddnsInterfacePlaceholder')}
                     value={config.name || ''}
                     onChange={(e) => updateConfig({ ...config, name: e.target.value })}
                     className={cn(controlBase, "font-mono")}
@@ -165,7 +206,7 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
 
                 {config.type === 'static' && (
                   <Input
-                    placeholder="1.2.3.4"
+                    placeholder={isIpv6 ? "::1" : "1.2.3.4"}
                     value={config.value || ''}
                     onChange={(e) => updateConfig({ ...config, value: e.target.value })}
                     className={cn(controlBase, "font-mono")}
@@ -175,18 +216,18 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
                 {config.type === 'command' && (
                   <div className="space-y-2">
                     <Input
-                      placeholder="curl -s https://api.ipify.org"
+                      placeholder={t('admin.domain.ddnsCommandPlaceholder')}
                       value={config.cmd || ''}
                       onChange={(e) => updateConfig({ ...config, cmd: e.target.value })}
                       className={cn(controlBase, "font-mono")}
                     />
-                    <p className="text-[10px] opacity-50 dark:opacity-30 font-bold uppercase tracking-tighter text-foreground/60">Requires system-level execution permission.</p>
+                    <p className="text-[10px] opacity-50 dark:opacity-30 font-bold uppercase tracking-tighter text-foreground/60">{t('admin.domain.requiresSystemPermission')}</p>
                   </div>
                 )}
 
                 {config.type === 'inherit_last' && (
                   <div className="h-11 flex items-center px-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-[10px] font-black uppercase tracking-widest opacity-40 dark:opacity-30 italic text-foreground">
-                    Uses the last successfully detected IP address
+                    {t('admin.domain.inheritLastDesc')}
                   </div>
                 )}
               </div>

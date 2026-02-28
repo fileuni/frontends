@@ -637,7 +637,7 @@ export const WebAdmin: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.siteName')}</label>
-              <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="site-name" />
+              <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder={t('admin.web.form.siteNamePlaceholder')} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.routeMode')}</label>
@@ -678,7 +678,7 @@ export const WebAdmin: React.FC = () => {
               {draft.route_mode === 'static' ? (
                 <>
                   <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.staticRoot')}</label>
-                  <Input value={draft.static_root} onChange={(e) => setDraft({ ...draft, static_root: e.target.value })} placeholder="/var/www/site" />
+                  <Input value={draft.static_root} onChange={(e) => setDraft({ ...draft, static_root: e.target.value })} placeholder={t('admin.web.form.staticRootPlaceholder')} />
                 </>
               ) : (
                 <>
@@ -687,7 +687,7 @@ export const WebAdmin: React.FC = () => {
                     <Input
                       value={draft.proxy_upstream}
                       onChange={(e) => setDraft({ ...draft, proxy_upstream: e.target.value })}
-                      placeholder="http://127.0.0.1:8080"
+                      placeholder={t('admin.web.form.proxyUpstreamPlaceholder')}
                       className="flex-1"
                     />
                     <Button type="button" variant="outline" onClick={testConnection} disabled={testing}>
@@ -728,7 +728,7 @@ export const WebAdmin: React.FC = () => {
                     <Input
                       value={binding.listen_ip}
                       onChange={(e) => updateBinding(index, { listen_ip: e.target.value })}
-                      placeholder="0.0.0.0"
+                      placeholder={t('admin.web.form.ipPlaceholder')}
                     />
                   </div>
                   <div className="col-span-12 md:col-span-2 space-y-1">
@@ -739,7 +739,7 @@ export const WebAdmin: React.FC = () => {
                         const v = Number(e.target.value);
                         updateBinding(index, { listen_port: Number.isFinite(v) ? v : 0 });
                       }}
-                      placeholder="80"
+                      placeholder={t('admin.web.form.portPlaceholder')}
                     />
                   </div>
                   <div className="col-span-12 md:col-span-5 space-y-1">
@@ -747,7 +747,7 @@ export const WebAdmin: React.FC = () => {
                     <Input
                       value={binding.hostnames.join(', ')}
                       onChange={(e) => updateBinding(index, { hostnames: normalizeHostnames(e.target.value) })}
-                      placeholder="example.com, *.example.com"
+                      placeholder={t('admin.web.form.hostnamesPlaceholder')}
                       list="web-domain-asset-suggestions"
                     />
                     <p className="text-xs opacity-60">{t('admin.web.form.hostnameSuggestionHint')}</p>
@@ -859,7 +859,7 @@ export const WebAdmin: React.FC = () => {
                   <Input
                     value={draft.tls_cert_path}
                     onChange={(e) => setDraft({ ...draft, tls_cert_path: e.target.value })}
-                    placeholder="/etc/ssl/site.crt"
+                    placeholder={t('admin.web.form.tlsCertPathPlaceholder')}
                     disabled={Boolean(draft.tls_acme_cert_id.trim())}
                   />
                 </div>
@@ -868,7 +868,7 @@ export const WebAdmin: React.FC = () => {
                   <Input
                     value={draft.tls_key_path}
                     onChange={(e) => setDraft({ ...draft, tls_key_path: e.target.value })}
-                    placeholder="/etc/ssl/site.key"
+                    placeholder={t('admin.web.form.tlsKeyPathPlaceholder')}
                     disabled={Boolean(draft.tls_acme_cert_id.trim())}
                   />
                 </div>

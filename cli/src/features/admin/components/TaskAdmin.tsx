@@ -160,10 +160,10 @@ export const TaskAdmin = () => {
               className="bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-sm font-bold outline-none"
             >
               <option value="">{t('admin.tasks.all_status') || 'All Status'}</option>
-              <option value="pending">Pending</option>
-              <option value="running">Running</option>
-              <option value="success">Success</option>
-              <option value="failed">Failed</option>
+              <option value="pending">{t('admin.tasks.status.pending')}</option>
+              <option value="running">{t('admin.tasks.status.running')}</option>
+              <option value="success">{t('admin.tasks.status.success')}</option>
+              <option value="failed">{t('admin.tasks.status.failed')}</option>
             </select>
             <Button variant="ghost" size="sm" onClick={fetchTasks} className="opacity-50 hover:opacity-100">
               <RefreshCw size={14} />

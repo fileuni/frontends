@@ -27,19 +27,19 @@ export const CommandPanel = (props: Props) => (
           <option key={name} value={name}>{name}</option>
         ))}
       </select>
-      <Input value={props.commandArgs} onChange={(e) => props.setCommandArgs(e.target.value)} placeholder="command args" />
+      <Input value={props.commandArgs} onChange={(e) => props.setCommandArgs(e.target.value)} placeholder={t('admin.extensions.commandArgsPlaceholder')} />
       <Button onClick={props.onRun}>{props.runLabel}</Button>
     </div>
 
     {props.cmdResult && (
       <div className="rounded-xl border border-white/10 p-3 space-y-2 text-sm font-mono">
-        <div>exit code: {props.cmdResult.code}</div>
+        <div>{t('admin.extensions.exitCode')}: {props.cmdResult.code}</div>
         <div>
-          <div className="font-bold mb-1">stdout</div>
+          <div className="font-bold mb-1">{t('admin.extensions.stdout')}</div>
           <pre className="whitespace-pre-wrap break-words opacity-80">{props.cmdResult.stdout}</pre>
         </div>
         <div>
-          <div className="font-bold mb-1">stderr</div>
+          <div className="font-bold mb-1">{t('admin.extensions.stderr')}</div>
           <pre className="whitespace-pre-wrap break-words opacity-80">{props.cmdResult.stderr}</pre>
         </div>
       </div>

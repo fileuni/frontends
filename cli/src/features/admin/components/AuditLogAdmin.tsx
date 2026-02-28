@@ -118,7 +118,7 @@ export const AuditLogAdmin = () => {
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] shrink-0" />
               <p className="text-sm font-bold opacity-40 uppercase tracking-widest truncate">
-                {total} Events Total
+                {t('admin.audit.eventsTotal', { count: total })}
               </p>
             </div>
           </div>
@@ -131,7 +131,7 @@ export const AuditLogAdmin = () => {
                <Input 
                 value={userIdFilter} 
                 onChange={e => setUserIdFilter(e.target.value)} 
-                placeholder="User ID" 
+                placeholder={t('admin.audit.userIdPlaceholder')} 
                 className="pl-9 h-10 text-sm"
               />
             </div>
@@ -140,7 +140,7 @@ export const AuditLogAdmin = () => {
                <Input 
                 value={actionFilter} 
                 onChange={e => setActionFilter(e.target.value)} 
-                placeholder="Action" 
+                placeholder={t('admin.audit.actionPlaceholder')} 
                 className="pl-9 h-10 text-sm"
               />
             </div>
@@ -149,7 +149,7 @@ export const AuditLogAdmin = () => {
               onChange={e => setTypeFilter(e.target.value)}
               className="h-10 px-3 rounded-xl bg-white/5 border border-white/5 text-sm outline-none focus:border-primary/50 transition-all"
             >
-              <option value="">All Types</option>
+              <option value="">{t('admin.audit.allTypes')}</option>
               <option value="FILE">FILE</option>
               <option value="USER">USER</option>
               <option value="SYSTEM">SYSTEM</option>
@@ -161,7 +161,7 @@ export const AuditLogAdmin = () => {
               onChange={e => setStatusFilter(e.target.value)}
               className="h-10 px-3 rounded-xl bg-white/5 border border-white/5 text-sm outline-none focus:border-primary/50 transition-all"
             >
-              <option value="">All Status</option>
+              <option value="">{t('admin.audit.allStatus')}</option>
               <option value="SUCCESS">SUCCESS</option>
               <option value="FAIL">FAIL</option>
               <option value="START">START</option>
@@ -187,12 +187,12 @@ export const AuditLogAdmin = () => {
           <table className="w-full text-left border-collapse table-fixed">
             <thead>
               <tr className="border-b border-white/5 bg-white/[0.02]">
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-48">Time</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-40">User</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-32">Type</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-48">Action</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-64">Details</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-32">Status</th>
+                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-48">{t('admin.audit.table.time')}</th>
+                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-40">{t('admin.audit.table.user')}</th>
+                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-32">{t('admin.audit.table.type')}</th>
+                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-48">{t('admin.audit.table.action')}</th>
+                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-64">{t('admin.audit.table.details')}</th>
+                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-32">{t('admin.audit.table.status')}</th>
               </tr>
             </thead>
             <tbody>
@@ -210,7 +210,7 @@ export const AuditLogAdmin = () => {
                   <td colSpan={6} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center gap-4 opacity-30">
                       <ClipboardList size={32} />
-                      <p className="text-sm font-black uppercase tracking-widest">No Logs Found</p>
+                      <p className="text-sm font-black uppercase tracking-widest">{t('admin.audit.noLogsFound')}</p>
                     </div>
                   </td>
                 </tr>

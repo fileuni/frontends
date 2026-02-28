@@ -139,7 +139,7 @@ export const MarkdownVditorEditor = ({
       <FilePreviewHeader 
         path={path}
         isDark={isDark}
-        subtitle="Markdown"
+        subtitle={t('filemanager.editor.markdownEngine')}
         onClose={onClose}
         extra={
           <div className="flex items-center gap-3">

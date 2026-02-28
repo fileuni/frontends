@@ -316,11 +316,11 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-2">
                 <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.fullName')}</label>
-                <Input value={form.full_name || ''} onChange={e => setForm({ ...form, full_name: e.target.value })} placeholder="Full Name" />
+                <Input value={form.full_name || ''} onChange={e => setForm({ ...form, full_name: e.target.value })} placeholder={t('admin.edit.fullNamePlaceholder')} />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.nickname')}</label>
-                <Input value={form.nickname || ''} onChange={e => setForm({ ...form, nickname: e.target.value })} placeholder="Nickname" />
+                <Input value={form.nickname || ''} onChange={e => setForm({ ...form, nickname: e.target.value })} placeholder={t('admin.edit.nicknamePlaceholder')} />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.email')}</label>
@@ -329,7 +329,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                   value={form.email || ''}
                   onChange={e => setForm({ ...form, email: e.target.value })}
                   onBlur={() => setForm({ ...form, email: normalizeEmailInput(form.email || '') })}
-                  placeholder="email@example.com"
+                  placeholder={t('admin.edit.emailPlaceholder')}
                 />
               </div>
               <div className="space-y-2">
@@ -338,7 +338,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                   value={form.phone || ''}
                   onChange={e => setForm({ ...form, phone: e.target.value })}
                   onBlur={() => setForm({ ...form, phone: normalizePhoneInput(form.phone || '') })}
-                  placeholder="+86..."
+                  placeholder={t('admin.edit.phonePlaceholder')}
                 />
               </div>
               <div className="space-y-2">
@@ -390,7 +390,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                         next[idx] = normalizePhoneInput(phone);
                         setForm({ ...form, other_phones: next });
                       }}
-                      placeholder="+86 138..."
+                      placeholder={t('admin.edit.phoneExtraPlaceholder')}
                       className={cn("font-mono text-sm", phone && !isPhoneInputValid(phone) && "border-red-500")}
                     />
                     <button
@@ -410,12 +410,12 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 <div className="w-10 h-10 rounded-xl bg-yellow-500/10 text-yellow-500 flex items-center justify-center shadow-inner">
                   <HardDrive size={20} />
                 </div>
-                <h3 className="text-xl font-black tracking-tight uppercase">Storage & VFS</h3>
+                <h3 className="text-xl font-black tracking-tight uppercase">{t('admin.edit.storageVfs')}</h3>
               </div>
               
               <div className="space-y-2">
                 <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.homeDir')}</label>
-                <Input value={fileSettings.base_dir || ''} onChange={e => setFileSettings({ ...fileSettings, base_dir: e.target.value })} placeholder="/physical/path/to/data" className="font-mono text-sm" />
+                <Input value={fileSettings.base_dir || ''} onChange={e => setFileSettings({ ...fileSettings, base_dir: e.target.value })} placeholder={t('admin.edit.homeDirPlaceholder')} className="font-mono text-sm" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -424,11 +424,11 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                     <span>{t('admin.edit.quota')}</span>
                     <span className="text-primary font-black">{Number(fileSettings.storage_quota) > 0 ? formatSize(Number(fileSettings.storage_quota)) : t('admin.edit.unlimited')}</span>
                   </label>
-                  <Input type="number" value={fileSettings.storage_quota ?? 0} onChange={e => setFileSettings({ ...fileSettings, storage_quota: Number(e.target.value) })} placeholder="0 for unlimited" />
+                  <Input type="number" value={fileSettings.storage_quota ?? 0} onChange={e => setFileSettings({ ...fileSettings, storage_quota: Number(e.target.value) })} placeholder={t('admin.edit.quotaPlaceholder')} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.pool')}</label>
-                  <Input value={fileSettings.pool_name || ''} onChange={e => setFileSettings({ ...fileSettings, pool_name: e.target.value })} placeholder="default" />
+                  <Input value={fileSettings.pool_name || ''} onChange={e => setFileSettings({ ...fileSettings, pool_name: e.target.value })} placeholder={t('admin.edit.poolPlaceholder')} />
                 </div>
               </div>
 
@@ -451,31 +451,31 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-inner">
                     <Cloud className="w-5 h-5" />
                   </div>
-                  <h3 className="text-xl font-black tracking-tight uppercase">S3 Credentials</h3>
+                  <h3 className="text-xl font-black tracking-tight uppercase">{t('admin.edit.s3Credentials')}</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
-                    <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">S3 Access Key</label>
+                    <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.s3AccessKey') || 'S3 Access Key'}</label>
                     <Input 
                       value={fileSettings.s3_access_key || ''} 
                       onChange={e => setFileSettings({ ...fileSettings, s3_access_key: e.target.value })} 
-                      placeholder="Enter Access Key" 
+                      placeholder={t('admin.edit.s3AccessKeyPlaceholder')} 
                       className="font-mono text-sm" 
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">S3 Secret Key</label>
+                    <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.s3SecretKey') || 'S3 Secret Key'}</label>
                     <Input 
                       value={fileSettings.s3_secret_key || ''} 
                       onChange={e => setFileSettings({ ...fileSettings, s3_secret_key: e.target.value })} 
-                      placeholder="Enter Secret Key" 
+                      placeholder={t('admin.edit.s3SecretKeyPlaceholder')} 
                       className="font-mono text-sm" 
                     />
                   </div>
                 </div>
                 <p className="text-[9px] opacity-30 font-bold uppercase tracking-widest ml-1 italic">
-                  * Admin can manually set or reset S3 keys. Leaving them empty disables S3 access for this user.
+                  {t('admin.edit.s3KeysHint')}
                 </p>
               </div>
             </div>
@@ -628,7 +628,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 type="password" 
                 value={newPassword} 
                 onChange={e => setNewPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder={t('admin.edit.passwordPlaceholder')}
               />
             </div>
             <div className="space-y-2">
@@ -637,7 +637,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 type="password" 
                 value={confirmPassword} 
                 onChange={e => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder={t('admin.edit.passwordPlaceholder')}
               />
             </div>
           </div>

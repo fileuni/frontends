@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, WandSparkles } from 'lucide-react';
 import { ConfigEditorPanel, type ConfigError } from './ConfigEditorPanel';
 import { ConfigQuickWizardModal, type ConfigQuickWizardModalProps } from './ConfigQuickWizardModal';
 import type { ConfigNoteEntry } from './ConfigRawEditor';
+import { useThemeStore } from '../stores/theme';
 import { cn } from '../lib/utils';
 
 type LineDiffStats = {
@@ -82,33 +83,55 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isQuickWizardOpen, setIsQuickWizardOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { theme } = useThemeStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const isDirty = content !== savedContent;
   const pendingDiffStats = useMemo(() => calculateLineDiffStats(savedContent, content), [savedContent, content]);
 
   if (loading) {
     return (
-      <div className="h-64 flex items-center justify-center font-black animate-pulse opacity-50 uppercase tracking-widest">
+      <div className={cn(
+        "h-64 flex items-center justify-center font-black animate-pulse uppercase tracking-widest",
+        isDark ? "text-white opacity-50" : "text-slate-900 opacity-40"
+      )}>
         {t('admin.config.loading')}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col rounded-2xl sm:rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-3 sm:p-6 shadow-2xl overflow-hidden transition-all hover:border-white/10">
+    <div className={cn(
+      "flex flex-col rounded-2xl sm:rounded-[2.5rem] border p-3 sm:p-6 shadow-xl transition-all overflow-hidden",
+      isDark 
+        ? "bg-white/[0.02] border-white/5 shadow-black/40 hover:border-white/10" 
+        : "bg-white border-slate-200 shadow-slate-200/50 hover:border-slate-300"
+    )}>
       {validationErrors.length > 0 && (
-        <div className="mb-4 sm:mb-6 rounded-xl sm:rounded-2xl bg-red-500/10 border border-red-500/20 p-3 sm:p-5 animate-in fade-in slide-in-from-top-2 shadow-inner">
+        <div className={cn(
+          "mb-4 sm:mb-6 rounded-xl sm:rounded-2xl border p-3 sm:p-5 animate-in fade-in slide-in-from-top-2 shadow-inner",
+          isDark ? "bg-red-500/10 border-red-500/20" : "bg-red-50 border-red-200"
+        )}>
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="flex items-center gap-2 text-red-400">
+            <div className={cn("flex items-center gap-2", isDark ? "text-red-400" : "text-red-700")}>
               <AlertTriangle size={16} className="animate-pulse sm:w-[18px]" />
-              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wide">
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wide">
                 {t('admin.config.testFailed')} ({validationErrors.length})
               </h3>
             </div>
             {onClearValidationErrors && (
               <button
                 type="button"
-                className="h-7 px-2 text-xs uppercase font-bold opacity-50 hover:opacity-100 rounded"
+                className={cn(
+                  "h-7 px-2 text-xs uppercase font-black transition-opacity",
+                  isDark ? "text-slate-400 opacity-50 hover:opacity-100" : "text-red-800 opacity-70 hover:opacity-100"
+                )}
                 onClick={onClearValidationErrors}
               >
                 {t('common.clear')}
@@ -117,24 +140,41 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </div>
           <div className="max-h-48 sm:max-h-64 overflow-y-auto custom-scrollbar pr-2 flex flex-col gap-2 sm:gap-2.5">
             {validationErrors.map((err, index) => (
-              <div key={`${index}-${err.message}`} className="flex items-start gap-2 sm:gap-3 group p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-black/20 hover:bg-black/40 transition-all border border-white/5 hover:border-red-500/20">
+              <div key={`${index}-${err.message}`} className={cn(
+                "flex items-start gap-2 sm:gap-3 group p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all border",
+                isDark 
+                  ? "bg-black/20 hover:bg-black/40 border-white/5 hover:border-red-500/20" 
+                  : "bg-white hover:bg-red-50/30 border-slate-100 hover:border-red-200"
+              )}>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm leading-relaxed text-red-200/90 group-hover:text-red-100 transition-colors font-mono font-medium">
+                  <p className={cn(
+                    "text-xs sm:text-sm leading-relaxed font-mono font-bold transition-colors",
+                    isDark ? "text-red-200/90 group-hover:text-red-100" : "text-red-900"
+                  )}>
                     {err.message}
                   </p>
                   <div className="mt-1.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
                     {typeof err.key === 'string' && err.key.trim().length > 0 && (
-                      <span className="text-[10px] sm:text-xs px-1.5 py-0.5 rounded border border-red-500/30 bg-red-500/10 text-red-200 font-mono">
+                      <span className={cn(
+                        "text-[10px] sm:text-xs px-1.5 py-0.5 rounded border font-mono font-black",
+                        isDark ? "border-red-500/30 bg-red-500/10 text-red-200" : "border-red-200 bg-red-100 text-red-800"
+                      )}>
                         key: {err.key}
                       </span>
                     )}
                     {typeof err.line === 'number' && err.line > 0 && (
-                      <span className="text-[10px] sm:text-xs px-1.5 py-0.5 rounded border border-white/10 bg-black/20 text-red-100/80 font-mono">
+                      <span className={cn(
+                        "text-[10px] sm:text-xs px-1.5 py-0.5 rounded border font-mono font-bold",
+                        isDark ? "border-white/10 bg-black/20 text-red-100/80" : "border-slate-200 bg-slate-100 text-slate-700"
+                      )}>
                         line: {err.line}
                       </span>
                     )}
                     {typeof err.column === 'number' && err.column > 0 && (
-                      <span className="text-[10px] sm:text-xs px-1.5 py-0.5 rounded border border-white/10 bg-black/20 text-red-100/80 font-mono">
+                      <span className={cn(
+                        "text-[10px] sm:text-xs px-1.5 py-0.5 rounded border font-mono font-bold",
+                        isDark ? "border-white/10 bg-black/20 text-red-100/80" : "border-slate-200 bg-slate-100 text-slate-700"
+                      )}>
                         column: {err.column}
                       </span>
                     )}
@@ -146,22 +186,38 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </div>
       )}
 
-      <div className="mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border border-white/10 bg-black/20 px-3 py-2.5 sm:px-4 sm:py-3">
+      <div className={cn(
+        "mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3 transition-colors",
+        isDark ? "border-white/10 bg-black/20 shadow-none" : "border-slate-200 bg-slate-50 shadow-inner"
+      )}>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[10px] sm:text-xs">
           <span className={cn(
-            'rounded-lg border px-2 py-0.5 font-bold uppercase tracking-wide',
-            isDirty ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200',
+            'rounded-lg border px-2 py-0.5 font-black uppercase tracking-wide',
+            isDirty 
+              ? (isDark ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-amber-500/40 bg-amber-100 text-amber-900') 
+              : (isDark ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' : 'border-emerald-500/40 bg-emerald-100 text-emerald-900'),
           )}>
             {isDirty ? t('admin.config.pendingChanges') : t('admin.config.noPendingChanges')}
           </span>
-          <span className="font-bold uppercase opacity-50">{t('admin.config.diffSummary')}</span>
-          <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono">
+          <span className={cn("font-black uppercase tracking-widest", isDark ? "text-white opacity-30" : "text-slate-900 opacity-40")}>
+            {t('admin.config.diffSummary')}
+          </span>
+          <span className={cn(
+            "rounded border px-2 py-0.5 font-mono font-bold",
+            isDark ? "border-white/10 bg-white/5 text-slate-300" : "border-slate-200 bg-white text-slate-800"
+          )}>
             {t('admin.config.changedLines')}: {pendingDiffStats.changed}
           </span>
-          <span className="rounded border border-emerald-400/20 bg-emerald-500/10 px-2 py-0.5 font-mono text-emerald-200">
+          <span className={cn(
+            "rounded border px-2 py-0.5 font-mono font-bold",
+            isDark ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200" : "border-emerald-500/20 bg-emerald-50 text-emerald-800"
+          )}>
             {t('admin.config.addedLines')}: {pendingDiffStats.added}
           </span>
-          <span className="rounded border border-red-400/20 bg-red-500/10 px-2 py-0.5 font-mono text-red-200">
+          <span className={cn(
+            "rounded border px-2 py-0.5 font-mono font-bold",
+            isDark ? "border-red-400/20 bg-red-500/10 text-red-200" : "border-red-500/20 bg-red-50 text-red-800"
+          )}>
             {t('admin.config.removedLines')}: {pendingDiffStats.removed}
           </span>
         </div>
@@ -183,13 +239,19 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         saveLabel={t('admin.config.saveAndReload')}
         cancelLabel={t('common.cancel')}
         showCancel={showCancel}
+        isDark={isDark}
         actionsPrefix={quickWizardEnabled ? (
           <button
             type="button"
-            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-white/15 hover:bg-white/10 text-xs sm:text-sm font-bold uppercase tracking-wide transition-all inline-flex items-center gap-1.5"
+            className={cn(
+              "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border font-black uppercase tracking-wide transition-all inline-flex items-center gap-1.5 shadow-sm",
+              isDark 
+                ? "border-white/15 hover:bg-white/10 text-slate-300" 
+                : "border-slate-300 bg-white hover:bg-slate-50 text-slate-900"
+            )}
             onClick={() => setIsQuickWizardOpen(true)}
           >
-            <WandSparkles size={14} />
+            <WandSparkles size={14} className="text-primary" />
             {t('admin.config.quickWizard.title')}
           </button>
         ) : undefined}
@@ -197,11 +259,11 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
 
       {reloadSummary && (
         <div className={cn(
-          'mt-3 rounded-xl px-3 py-2 text-xs sm:text-sm font-mono border',
-          reloadSummaryLevel === 'success' && 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
-          reloadSummaryLevel === 'warning' && 'bg-amber-500/10 text-amber-200 border-amber-500/30',
-          reloadSummaryLevel === 'error' && 'bg-red-500/10 text-red-200 border-red-500/30',
-          reloadSummaryLevel === 'info' && 'bg-white/5 text-white/70 border-white/10',
+          'mt-3 rounded-xl px-3 py-2 text-xs sm:text-sm font-mono border font-bold shadow-sm transition-colors',
+          reloadSummaryLevel === 'success' && (isDark ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-emerald-50 text-emerald-900 border-emerald-200'),
+          reloadSummaryLevel === 'warning' && (isDark ? 'bg-amber-500/10 text-amber-200 border-amber-500/30' : 'bg-amber-50 text-amber-900 border-amber-200'),
+          reloadSummaryLevel === 'error' && (isDark ? 'bg-red-500/10 text-red-200 border-red-500/30' : 'bg-red-50 text-red-900 border-red-200'),
+          reloadSummaryLevel === 'info' && (isDark ? 'bg-white/5 text-white/70 border-white/10' : 'bg-slate-100 text-slate-800 border-slate-200'),
         )}>
           {reloadSummary}
         </div>

@@ -149,7 +149,7 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
       <FilePreviewHeader
         path={path}
         isDark={isDark}
-        subtitle="Native PDF Engine"
+        subtitle={t('filemanager.player.pdfEngine')}
         onClose={onClose}
         extra={
           <div className="flex items-center gap-2">

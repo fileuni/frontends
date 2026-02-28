@@ -339,7 +339,7 @@ export const SystemConfigAdmin = () => {
         <button
           type="button"
           onClick={() => setIsLicenseModalOpen(true)}
-          className="px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-200 text-xs sm:text-sm font-semibold hover:bg-amber-500/20 transition-colors inline-flex items-center gap-1.5"
+          className="px-3 py-1.5 rounded-lg border border-amber-500/50 bg-amber-500/20 text-amber-800 dark:text-amber-200 text-xs sm:text-sm font-black hover:bg-amber-500/30 transition-colors inline-flex items-center gap-1.5 shadow-sm dark:shadow-none"
         >
           <Key size={14} />
           {t('admin.config.quickWizard.steps.license')}

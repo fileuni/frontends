@@ -113,7 +113,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
             "p-1.5 rounded-lg transition-all",
             isDark ? "hover:bg-blue-500/20 text-white/30 hover:text-blue-400" : "hover:bg-blue-100 text-zinc-400 hover:text-blue-600"
           )}
-          title="Copy Here"
+          title={t('filemanager.clipboard.copyHere')}
         >
           <Copy size={13} />
         </button>
@@ -123,7 +123,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
             "p-1.5 rounded-lg transition-all",
             isDark ? "hover:bg-orange-500/20 text-white/30 hover:text-orange-400" : "hover:bg-orange-100 text-zinc-400 hover:text-orange-600"
           )}
-          title="Move Here"
+          title={t('filemanager.clipboard.moveHere')}
         >
           <Scissors size={13} />
         </button>
@@ -134,7 +134,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
             "p-1.5 rounded-lg transition-all",
             isDark ? "hover:bg-red-500/20 text-white/20 hover:text-red-500" : "hover:bg-red-100 text-zinc-300 hover:text-red-600"
           )}
-          title="Remove"
+          title={t('filemanager.clipboard.remove')}
         >
           <X size={13} />
         </button>

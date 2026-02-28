@@ -182,7 +182,7 @@ export function ArchiveOperationModal({
               <Input
                 value={targetPath}
                 onChange={(e) => setTargetPath(e.target.value)}
-                placeholder="/"
+                placeholder={t('filemanager.archive.targetPathPlaceholder')}
                 className="font-mono"
                 autoFocus
               />
@@ -239,7 +239,7 @@ export function ArchiveOperationModal({
               <Input
                 value={targetName}
                 onChange={(e) => setTargetName(e.target.value)}
-                placeholder="archive"
+                placeholder={t('filemanager.archive.archiveNamePlaceholder')}
                 className="font-mono"
                 autoFocus
               />

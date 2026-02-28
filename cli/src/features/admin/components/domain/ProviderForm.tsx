@@ -38,10 +38,7 @@ const PROVIDER_FIELDS: Record<string, FieldDef[]> = {
     { key: 'token_key', label: 'Token Key', type: 'password', required: true },
   ],
   cloudflare: [
-    { key: 'api_token', label: 'API Token', type: 'password', placeholder: 'Recommended' },
-    { key: 'email', label: 'Email', placeholder: 'Legacy mode only' },
-    { key: 'api_key', label: 'Global API Key', type: 'password', placeholder: 'Legacy mode only' },
-    { key: 'zone_id', label: 'Zone ID', placeholder: 'Optional', isConfig: true },
+    { key: 'api_token', label: 'API Token', type: 'password', placeholder: 'Cloudflare API Token', required: true },
   ],
   aws: [
     { key: 'access_key_id', label: 'AccessKey ID', required: true },
@@ -148,7 +145,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
 
   if (!currentDefs || mode === 'raw') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 text-foreground">
         <div className="flex justify-end">
           {currentDefs && (
             <button
@@ -161,17 +158,17 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
           )}
         </div>
         <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1 text-foreground">Credential JSON</label>
+          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">Credential JSON</label>
           <textarea
-            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-gray-50 dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
+            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
             value={credentialJson}
             onChange={(e) => onChangeCredential(e.target.value)}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1 text-foreground">Config JSON</label>
+          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">Config JSON</label>
           <textarea
-            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-gray-50 dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
+            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
             value={configJson}
             onChange={(e) => onChangeConfig(e.target.value)}
           />
@@ -188,7 +185,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
           className="text-[10px] font-black uppercase tracking-widest text-primary underline underline-offset-4 opacity-60 hover:opacity-100 transition-opacity"
           onClick={() => setMode('raw')}
         >
-          Switch to Raw JSON Mode
+          {t('common.switchToRawJson')}
         </button>
       </div>
       <div className="grid grid-cols-1 gap-4">
