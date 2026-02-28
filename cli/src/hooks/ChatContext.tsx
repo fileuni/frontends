@@ -131,12 +131,13 @@ import i18next from "@/lib/i18n";
 
 /**
  * Chat Error Boundary
+ * When chat tree crashes, it handles the failure gracefully.
  */
-class ChatErrorBoundary extends React.Component<
-  { children: React.ReactNode },
+export class ChatErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback?: React.ReactNode },
   { hasError: boolean }
 > {
-  constructor(props: { children: React.ReactNode }) {
+  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -146,16 +147,12 @@ class ChatErrorBoundary extends React.Component<
   }
 
   override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("[Chat] Uncaught error:", error, errorInfo);
+    console.error("[Chat] UNCAUGHT ERROR:", error, errorInfo);
   }
 
   override render() {
     if (this.state.hasError) {
-      return (
-        <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-          {i18next.t("chat.system_crashed")}
-        </div>
-      );
+      return this.props.fallback !== undefined ? this.props.fallback : null;
     }
     return this.props.children;
   }
@@ -1566,7 +1563,7 @@ export const ChatProvider: React.FC<{
         removePendingGuest,
       }}
     >
-      <ChatErrorBoundary>{children}</ChatErrorBoundary>
+      {children}
     </ChatContext.Provider>
   );
 };

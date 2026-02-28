@@ -5,7 +5,7 @@ import { Navbar } from "@/features/public/components/Navbar.tsx";
 import { ToastContainer } from "@/components/ui/Toast.tsx";
 import { ToastI18nContext } from "@fileuni/shared";
 import { GlobalAudioPlayer } from "@/features/file-manager/components";
-import { ChatProvider } from "@/hooks/ChatContext";
+import { ChatProvider, ChatErrorBoundary } from "@/hooks/ChatContext";
 import { ChatUnifiedUI } from "@/components/chat/ChatUnifiedUI";
 import { EmailUnifiedUI } from "@/components/email/EmailUnifiedUI";
 import { useAuthStore } from "@/stores/auth";
@@ -91,12 +91,16 @@ export const App: React.FC = () => {
 
   return (
     <ToastProvider>
-      <ChatProvider auth={chatAuth}>
-        {content}
-        <ChatUnifiedUI />
-        {canUseEmail && <EmailUnifiedUI />}
-        <ToastContainer />
-      </ChatProvider>
+      <ChatErrorBoundary fallback={content}>
+        <ChatProvider auth={chatAuth}>
+          {content}
+          <ChatErrorBoundary>
+            <ChatUnifiedUI />
+          </ChatErrorBoundary>
+          {canUseEmail && <EmailUnifiedUI />}
+          <ToastContainer />
+        </ChatProvider>
+      </ChatErrorBoundary>
     </ToastProvider>
   );
 };
