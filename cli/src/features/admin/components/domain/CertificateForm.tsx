@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Shield, Mail, Globe, Settings, Plus, Trash2, Cpu, Link as LinkIcon, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface CertificateFormProps {
   name: string;
@@ -34,11 +35,16 @@ const SectionHeader = ({ icon: Icon, title, desc }: { icon: any, title: string, 
       <Icon size={16} />
     </div>
     <div>
-      <h4 className="text-sm font-black uppercase tracking-widest opacity-80 leading-none mb-1">{title}</h4>
-      {desc && <p className="text-[10px] opacity-40 font-bold uppercase tracking-tighter leading-none">{desc}</p>}
+      <h4 className="text-sm font-black uppercase tracking-widest text-foreground/80 leading-none mb-1">{title}</h4>
+      {desc && <p className="text-[10px] opacity-60 dark:opacity-40 font-bold uppercase tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">{desc}</p>}
     </div>
   </div>
 );
+
+// High-visibility classes for form controls
+const controlBase = "h-11 rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-3 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm font-bold text-foreground placeholder:opacity-30";
+const selectBase = cn(controlBase, "appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1rem]");
+const selectStyle = { backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\' /%3E%3C/svg%3E")' };
 
 export const CertificateForm: React.FC<CertificateFormProps> = ({
   name,
@@ -62,6 +68,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
   onOpenProviderModal,
   onOpenZeroSslModal,
 }) => {
+  const { t } = useTranslation();
   const [domains, setDomains] = useState<string[]>([]);
   const [dnsConfig, setDnsConfig] = useState<Record<string, any>>({});
   const [newDomain, setNewDomain] = useState('');
@@ -111,69 +118,69 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
   return (
     <div className="space-y-8">
       {/* Identity Group */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl bg-white/[0.02] border border-white/5 shadow-inner">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl bg-gray-100/30 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 shadow-inner">
         <div className="space-y-4">
-          <SectionHeader icon={Shield} title="证书身份" desc="Certificate Identity" />
+          <SectionHeader icon={Shield} title={t('admin.domain.certIdentity')} desc="Certificate Identity" />
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">证书名称 / Name</label>
-            <Input value={name} onChange={(e) => onChangeName(e.target.value)} placeholder="e.g. main-api-cert" className="h-11 bg-white/5 border-white/5" />
+            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.name')}</label>
+            <Input value={name} onChange={(e) => onChangeName(e.target.value)} placeholder="e.g. main-api-cert" className={controlBase} />
           </div>
         </div>
         <div className="space-y-4">
-          <SectionHeader icon={Mail} title="联系信息" desc="Contact Info" />
+          <SectionHeader icon={Mail} title={t('admin.domain.contactInfo')} desc="Contact Info" />
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">ACME 邮箱 / Email</label>
-            <Input value={accountEmail} onChange={(e) => onChangeAccountEmail(e.target.value)} placeholder="admin@example.com" className="h-11 bg-white/5 border-white/5" />
+            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.accountEmail')}</label>
+            <Input value={accountEmail} onChange={(e) => onChangeAccountEmail(e.target.value)} placeholder="admin@example.com" className={controlBase} />
           </div>
         </div>
       </div>
 
       {/* Domain Management */}
-      <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 shadow-inner space-y-4">
-        <SectionHeader icon={Globe} title="域名管理" desc="Domain Management" />
+      <div className="p-6 rounded-2xl bg-gray-100/30 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 shadow-inner space-y-4">
+        <SectionHeader icon={Globe} title={t('admin.domain.domainMgmt')} desc="Domain Management" />
         <div className="space-y-4">
           <div className="flex gap-2">
             <Input
               value={newDomain}
               onChange={(e) => setNewDomain(e.target.value)}
               placeholder="e.g. *.fileuni.com"
-              className="h-11 bg-white/5 border-white/5"
+              className={controlBase}
               onKeyDown={(e) => e.key === 'Enter' && addDomain()}
             />
-            <Button onClick={addDomain} variant="outline" className="h-11 px-6 border-white/5 bg-white/5 hover:bg-white/10 shrink-0">
+            <Button onClick={addDomain} variant="outline" className="h-11 px-6 border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 shrink-0 shadow-sm font-bold">
               <Plus size={16} className="mr-2" /> Add
             </Button>
           </div>
-          <div className="flex flex-wrap gap-2 min-h-[44px] p-2 rounded-xl bg-black/20 border border-white/5">
+          <div className="flex flex-wrap gap-2 min-h-[44px] p-3 rounded-xl bg-gray-200/50 dark:bg-black/20 border border-gray-200 dark:border-white/5 shadow-inner text-foreground">
             {domains.map((d, i) => (
-              <Badge key={i} variant="outline" className="h-8 pl-3 pr-1 rounded-lg bg-primary/10 text-primary border-primary/20 flex items-center gap-2 group">
-                <span className="text-xs font-mono">{d}</span>
+              <Badge key={i} variant="outline" className="h-8 pl-3 pr-1 rounded-lg bg-primary/10 text-primary border-primary/20 flex items-center gap-2 group shadow-sm">
+                <span className="text-xs font-mono font-bold">{d}</span>
                 <button onClick={() => removeDomain(i)} className="p-1 rounded-md hover:bg-red-500 hover:text-white transition-all opacity-40 group-hover:opacity-100">
                   <Trash2 size={12} />
                 </button>
               </Badge>
             ))}
-            {domains.length === 0 && <div className="w-full flex items-center justify-center text-[10px] font-black uppercase tracking-widest opacity-20 py-2">No domains added</div>}
+            {domains.length === 0 && <div className="w-full flex items-center justify-center text-[10px] font-black uppercase tracking-widest opacity-40 dark:opacity-20 py-2 italic">{t('admin.domain.noDomainAssets')}</div>}
           </div>
         </div>
       </div>
 
       {/* Configuration Group */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl bg-white/[0.02] border border-white/5 shadow-inner">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl bg-gray-100/30 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 shadow-inner">
         <div className="space-y-6">
-          <SectionHeader icon={Settings} title="颁发与验证" desc="Issuance & Challenge" />
+          <SectionHeader icon={Settings} title={t('admin.domain.issuanceChallenge')} desc="Issuance & Challenge" />
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">CA 厂商 / Provider</label>
-              <select className="h-11 w-full rounded-xl border border-white/5 bg-white/5 px-3 text-sm outline-none focus:border-primary/50" value={caProvider} onChange={(e) => onChangeCaProvider(e.target.value)}>
+              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.caProvider')}</label>
+              <select className={selectBase} style={selectStyle} value={caProvider} onChange={(e) => onChangeCaProvider(e.target.value)}>
                 <option value="letsencrypt">Let's Encrypt</option>
                 <option value="letsencrypt-staging">Staging (Test)</option>
                 <option value="zerossl">ZeroSSL</option>
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">验证方式 / Challenge</label>
-              <select className="h-11 w-full rounded-xl border border-white/5 bg-white/5 px-3 text-sm outline-none focus:border-primary/50" value={challengeType} onChange={(e) => onChangeChallengeType(e.target.value as any)}>
+              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.challengeType')}</label>
+              <select className={selectBase} style={selectStyle} value={challengeType} onChange={(e) => onChangeChallengeType(e.target.value as any)}>
                 <option value="dns01">DNS-01</option>
                 <option value="http01">HTTP-01</option>
               </select>
@@ -182,13 +189,13 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
 
           {challengeType === 'dns01' && (
             <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-              <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">DNS 账户 / DNS Account</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.dnsProvider')}</label>
               <div className="flex gap-2">
-                <select className="flex-1 h-11 rounded-xl border border-white/5 bg-white/5 px-3 text-sm outline-none focus:border-primary/50" value={providerAccountId || ''} onChange={(e) => onChangeProviderAccountId(e.target.value)}>
-                  <option value="">Select account...</option>
+                <select className={selectBase} style={selectStyle} value={providerAccountId || ''} onChange={(e) => onChangeProviderAccountId(e.target.value)}>
+                  <option value="">{t('admin.acme.form.providerSelectPlaceholder')}</option>
                   {providers.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.provider_key})</option>)}
                 </select>
-                <Button type="button" variant="outline" onClick={onOpenProviderModal} className="h-11 w-11 p-0 border-white/5 bg-white/5 hover:bg-white/10 shrink-0">
+                <Button type="button" variant="outline" onClick={onOpenProviderModal} className="h-11 w-11 p-0 border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 shrink-0 shadow-sm">
                   <Plus size={16} />
                 </Button>
               </div>
@@ -197,26 +204,26 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
 
           {challengeType === 'http01' && (
             <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-              <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Webroot 路径 / Path</label>
-              <Input value={dnsConfig.webroot || dnsConfig.http_webroot || ''} onChange={(e) => updateDnsConfig('webroot', e.target.value)} placeholder="/var/www/html" className="h-11 bg-white/5 border-white/5" />
+              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.httpWebroot')}</label>
+              <Input value={dnsConfig.webroot || dnsConfig.http_webroot || ''} onChange={(e) => updateDnsConfig('webroot', e.target.value)} placeholder="/var/www/html" className={controlBase} />
             </div>
           )}
         </div>
 
         <div className="space-y-6">
-          <SectionHeader icon={Cpu} title="高级与自动化" desc="Advanced & Automation" />
+          <SectionHeader icon={Cpu} title={t('admin.domain.advAutomation')} desc="Advanced & Automation" />
           
           {caProvider === 'zerossl' && (
-            <div className="space-y-2 p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/10 animate-in fade-in zoom-in-95">
-              <label className="text-[10px] font-black uppercase tracking-widest opacity-60 flex items-center gap-2">
-                <LinkIcon size={12}/> ZeroSSL EAB 账户
+            <div className="space-y-2 p-4 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/5 border border-cyan-500/20 dark:border-cyan-500/10 animate-in fade-in zoom-in-95 shadow-sm">
+              <label className="text-[10px] font-black uppercase tracking-widest text-cyan-700 dark:text-cyan-400 opacity-80 flex items-center gap-2">
+                <LinkIcon size={12}/> {t('admin.domain.zerosslEab')}
               </label>
               <div className="flex gap-2">
-                <select className="flex-1 h-11 rounded-xl border border-white/5 bg-white/5 px-3 text-sm outline-none focus:border-cyan-500/50" value={dnsConfig.zerossl_account_id || ''} onChange={(e) => updateDnsConfig('zerossl_account_id', e.target.value)}>
-                  <option value="">Select EAB account...</option>
+                <select className={cn(selectBase, "border-cyan-500/30 dark:border-cyan-500/20")} style={selectStyle} value={dnsConfig.zerossl_account_id || ''} onChange={(e) => updateDnsConfig('zerossl_account_id', e.target.value)}>
+                  <option value="">{t('admin.acme.form.providerSelectPlaceholder')}</option>
                   {zeroSslAccounts.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
                 </select>
-                <Button type="button" variant="outline" onClick={onOpenZeroSslModal} className="h-11 w-11 p-0 border-cyan-500/10 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-500 shrink-0">
+                <Button type="button" variant="outline" onClick={onOpenZeroSslModal} className="h-11 w-11 p-0 border-cyan-500/30 dark:border-cyan-500/20 bg-white dark:bg-cyan-500/5 hover:bg-cyan-100 dark:hover:bg-cyan-500/10 text-cyan-700 dark:text-cyan-500 shrink-0 shadow-sm">
                   <Plus size={16} />
                 </Button>
               </div>
@@ -224,10 +231,10 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
           )}
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">导出路径 / Export Path</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.exportPath')}</label>
             <div className="relative">
-              <Input value={exportPath || ''} onChange={(e) => onChangeExportPath(e.target.value)} placeholder="/etc/nginx/certs/mysite" className="h-11 bg-white/5 border-white/5 pr-10" />
-              <ExternalLink size={14} className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20" />
+              <Input value={exportPath || ''} onChange={(e) => onChangeExportPath(e.target.value)} placeholder="/etc/nginx/certs/mysite" className={controlBase} />
+              <ExternalLink size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/20 dark:text-white/20" />
             </div>
           </div>
         </div>

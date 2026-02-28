@@ -1116,7 +1116,30 @@
       "challengeTypes": {
         "dns01": "DNS-01",
         "http01": "HTTP-01"
-      }
+      },
+      "basicInfo": "Basic Info",
+      "networkConfig": "Network Config",
+      "certIdentity": "Certificate Identity",
+      "contactInfo": "Contact Info",
+      "domainMgmt": "Domain Management",
+      "issuanceChallenge": "Issuance & Challenge",
+      "advAutomation": "Advanced & Automation",
+      "authConfig": "Auth Configuration",
+      "accountIdentity": "Account Identity",
+      "enableService": "Enable Service",
+      "enableCert": "Enable Certificate",
+      "cdnProxy": "CDN Proxy",
+      "autoRenew": "Auto Renew",
+      "detectionSource": "Detection Type",
+      "endpointUrl": "Endpoint URL",
+      "interfaceName": "Interface Name",
+      "fixedAddress": "Fixed Address",
+      "bashCommand": "Shell Command",
+      "zerosslEab": "ZeroSSL EAB Account",
+      "remark": "Remark/Name",
+      "eabKid": "EAB Kid",
+      "eabHmac": "EAB HMAC Key",
+      "exportPath": "Export Path"
     },
     "ddns": {
       "title": "DDNS",

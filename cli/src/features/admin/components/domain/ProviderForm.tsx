@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/Input';
+import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface ProviderFormProps {
   providerKey: string;
@@ -18,6 +20,9 @@ interface FieldDef {
   isConfig?: boolean; // if true, maps to config_json
   helper?: string;
 }
+
+// Reuse standard high-visibility control base
+const controlBase = "h-11 rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-3 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm font-bold text-foreground placeholder:opacity-30";
 
 const PROVIDER_FIELDS: Record<string, FieldDef[]> = {
   aliyun: [
@@ -103,32 +108,28 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
   onChangeCredential,
   onChangeConfig,
 }) => {
+  const { t } = useTranslation();
   const [fields, setFields] = useState<Record<string, string>>({});
   const [mode, setMode] = useState<'form' | 'raw'>('form');
 
-  // Load initial values when providerKey changes or JSONs are reset externally
   useEffect(() => {
     try {
       const cred = JSON.parse(credentialJson || '{}');
       const conf = JSON.parse(configJson || '{}');
       setFields({ ...cred, ...conf });
     } catch {
-      // If JSON is invalid, switch to raw mode
       setMode('raw');
     }
-  }, [providerKey]); // Intentionally not depending on Jsons to avoid loop, assumes parent resets on provider change
+  }, [providerKey, credentialJson, configJson]);
 
   const handleFieldChange = (key: string, value: string, isConfig: boolean) => {
     const newFields = { ...fields, [key]: value };
     setFields(newFields);
 
     const fieldDefs = PROVIDER_FIELDS[providerKey] || [];
-    
-    // Split fields back into credential/config based on definitions
     const credObj: Record<string, string> = {};
     const confObj: Record<string, string> = {};
 
-    // First put all known fields into their respective objects
     fieldDefs.forEach(def => {
       if (newFields[def.key]) {
         if (def.isConfig) {
@@ -139,9 +140,6 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
       }
     });
 
-    // Handle unknown fields? For now, we only support form fields. 
-    // If user switches to raw, they can add extras.
-
     onChangeCredential(JSON.stringify(credObj));
     onChangeConfig(JSON.stringify(confObj));
   };
@@ -150,30 +148,30 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
 
   if (!currentDefs || mode === 'raw') {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex justify-end">
           {currentDefs && (
             <button
               type="button"
-              className="text-xs text-primary underline"
+              className="text-[10px] font-black uppercase tracking-widest text-primary underline underline-offset-4"
               onClick={() => setMode('form')}
             >
               Switch to Form Mode
             </button>
           )}
         </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium opacity-70">Credential JSON</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1 text-foreground">Credential JSON</label>
           <textarea
-            className="w-full min-h-[100px] rounded-xl border border-border bg-background px-4 py-3 font-mono text-sm"
+            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-gray-50 dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
             value={credentialJson}
             onChange={(e) => onChangeCredential(e.target.value)}
           />
         </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium opacity-70">Config JSON</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1 text-foreground">Config JSON</label>
           <textarea
-            className="w-full min-h-[100px] rounded-xl border border-border bg-background px-4 py-3 font-mono text-sm"
+            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-gray-50 dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
             value={configJson}
             onChange={(e) => onChangeConfig(e.target.value)}
           />
@@ -183,20 +181,20 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex justify-end">
         <button
           type="button"
-          className="text-xs text-primary underline"
+          className="text-[10px] font-black uppercase tracking-widest text-primary underline underline-offset-4 opacity-60 hover:opacity-100 transition-opacity"
           onClick={() => setMode('raw')}
         >
           Switch to Raw JSON Mode
         </button>
       </div>
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-4">
         {currentDefs.map((def) => (
-          <div key={def.key} className="space-y-1">
-            <label className="text-xs font-medium opacity-70">
+          <div key={def.key} className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
               {def.label}
               {def.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -205,8 +203,9 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
               placeholder={def.placeholder}
               value={fields[def.key] || ''}
               onChange={(e) => handleFieldChange(def.key, e.target.value, !!def.isConfig)}
+              className={controlBase}
             />
-            {def.helper && <div className="text-[10px] opacity-50">{def.helper}</div>}
+            {def.helper && <div className="text-[10px] opacity-50 dark:opacity-30 italic text-foreground/60">{def.helper}</div>}
           </div>
         ))}
       </div>

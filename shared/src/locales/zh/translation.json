@@ -1135,7 +1135,30 @@
       "challengeTypes": {
         "dns01": "DNS-01",
         "http01": "HTTP-01"
-      }
+      },
+      "basicInfo": "基本信息",
+      "networkConfig": "网络配置",
+      "certIdentity": "证书身份",
+      "contactInfo": "联系信息",
+      "domainMgmt": "域名管理",
+      "issuanceChallenge": "颁发与验证",
+      "advAutomation": "高级与自动化",
+      "authConfig": "认证配置",
+      "accountIdentity": "账户身份",
+      "enableService": "启用服务",
+      "enableCert": "启用证书",
+      "cdnProxy": "CDN 代理",
+      "autoRenew": "自动续签",
+      "detectionSource": "探测方式",
+      "endpointUrl": "接口地址",
+      "interfaceName": "网卡名称",
+      "fixedAddress": "固定地址",
+      "bashCommand": "Shell 命令",
+      "zerosslEab": "ZeroSSL EAB 账户",
+      "remark": "备注名称",
+      "eabKid": "EAB Kid",
+      "eabHmac": "EAB HMAC Key",
+      "exportPath": "导出路径"
     },
     "ddns": {
       "title": "DDNS",
