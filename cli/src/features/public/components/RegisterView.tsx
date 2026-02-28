@@ -112,7 +112,7 @@ export const RegisterView = () => {
                 <UserPlus size={32} />
               </div>
               <h1 className={cn("text-3xl font-black tracking-tight mb-1", isDark ? "text-white" : "text-gray-900")}>{t('common.register')}</h1>
-              <p className="text-sm opacity-50 font-bold">Join the FileUni ecosystem</p>
+              <p className="text-sm opacity-50 font-bold">{t('auth.joinEcosystem')}</p>
             </div>
 
             <form onSubmit={handleRegister} className="space-y-5">

@@ -8,20 +8,22 @@ import { useTranslation } from 'react-i18next';
 import { useNavigationStore } from '@/stores/navigation.ts';
 import { storageHub } from '@fileuni/shared';
 import { ToolPanel } from './extensions/ToolPanel.tsx';
+import { Badge } from '@/components/ui/Badge.tsx';
+import { Puzzle, Cpu } from 'lucide-react';
 import {
+  fetchLatestToolInfoApi,
   fetchServicesApi,
   fetchToolsApi,
   installToolApi,
   resetOpenlistAdminApi,
   serviceActionApi,
 } from './extensions/api.ts';
-import type { InstallBody } from './extensions/types.ts';
+import type { InstallBody, ToolInfo, ToolKind } from './extensions/types.ts';
 
 type ToolState = {
   version: string;
   downloadUrl: string;
   binPath: string;
-  template: string;
   proxy: string;
   // Extra fields
   dataPath?: string;
@@ -31,25 +33,33 @@ type ToolState = {
 };
 
 export const ExtensionManagerAdmin = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { addToast } = useToastStore();
   const { params, navigate } = useNavigationStore();
   const { currentUserData } = useAuthStore();
   const { capabilities, fetchCapabilities } = useConfigStore();
 
-  const [tools, setTools] = useState<{ name: string; installed: boolean }[]>([]);
-  const [serviceStatus, setServiceStatus] = useState<Record<string, { follow_start: boolean; running: boolean }>>({});
+  const [tools, setTools] = useState<ToolInfo[]>([]);
+  const [serviceStatus, setServiceStatus] = useState<Record<string, { follow_start: boolean; running: boolean; pid?: number | null; kind: ToolKind }>>({});
   const [loading, setLoading] = useState(true);
-  const [catalogLoaded, setCatalogLoaded] = useState(false);
   const [toolStates, setToolStates] = useState<Record<string, ToolState>>({});
-
-  const [homepages, setHomepages] = useState<Record<string, string>>({});
-  const [descriptions, setDescriptions] = useState<Record<string, string>>({});
-  const [toolAliases, setToolAliases] = useState<Record<string, any>>({});
-  const [toolExecutableNames, setToolExecutableNames] = useState<Record<string, string>>({});
+  const [isFetchingInfo, setIsFetchingInfo] = useState(false);
 
   const extPage = params.ext || 'openlist';
-  const extItems = useMemo(() => tools.map(t => ({ key: t.name, label: t.name.charAt(0).toUpperCase() + t.name.slice(1) })), [tools]);
+  
+  const currentTool = useMemo(() => tools.find(t => t.name === extPage), [tools, extPage]);
+  const extItems = useMemo(() => {
+    const order = ['openlist', 'rclone', 'kopia'];
+    return [...tools].sort((a, b) => {
+      const idxA = order.indexOf(a.name);
+      const idxB = order.indexOf(b.name);
+      return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+    }).map(t => ({
+      key: t.name,
+      label: t.name === 'openlist' ? 'OpenList' : t.name === 'rclone' ? 'Rclone' : t.name.charAt(0).toUpperCase() + t.name.slice(1),
+      installed: t.installed
+    }));
+  }, [tools]);
 
   const updateToolState = (tool: string, patch: Partial<ToolState>) => {
     setToolStates(prev => ({
@@ -60,26 +70,42 @@ export const ExtensionManagerAdmin = () => {
 
   const fetchTools = async () => {
     const data = await fetchToolsApi();
-    if (data) {
-      setTools(data.map(t => ({ name: t.name, installed: t.installed })));
-    }
+    if (data) setTools(data);
   };
 
   const fetchServices = async () => {
     const data = await fetchServicesApi();
     if (data) {
-      const next: Record<string, { follow_start: boolean; running: boolean }> = {};
+      const next: Record<string, { follow_start: boolean; running: boolean; pid?: number | null; kind: ToolKind }> = {};
       for (const item of data) {
-        next[item.tool] = { follow_start: item.follow_start, running: item.running };
+        next[item.tool] = { follow_start: item.follow_start, running: item.running, pid: item.pid, kind: item.kind };
       }
       setServiceStatus(next);
+    }
+  };
+
+  const fetchLatestInfo = async () => {
+    setIsFetchingInfo(true);
+    try {
+      const info = await fetchLatestToolInfoApi(extPage);
+      if (info) {
+        updateToolState(extPage, {
+          version: info.version,
+          downloadUrl: info.download_url,
+        });
+        addToast(t('admin.extensions.fetchLatestSuccess'), 'success');
+      }
+    } catch (e) {
+      addToast(handleApiError(e, t), 'error');
+    } finally {
+      setIsFetchingInfo(false);
     }
   };
 
   useEffect(() => {
     const run = async () => {
       try {
-        await Promise.all([fetchTools(), fetchServices()]);
+        await Promise.all([fetchTools(), fetchServices(), fetchCapabilities()]);
       } catch (error) {
         addToast(handleApiError(error, t), 'error');
       } finally {
@@ -87,77 +113,19 @@ export const ExtensionManagerAdmin = () => {
       }
     };
     run();
-  }, [addToast, t]);
+  }, [addToast, t, fetchCapabilities]);
 
   useEffect(() => {
-    if (!params.ext && tools.length > 0) {
-      navigate({ mod: 'admin', page: 'extensions', ext: tools[0].name });
+    if (!params.ext && extItems.length > 0) {
+      navigate({ mod: 'admin', page: 'extensions', ext: extItems[0].key });
     }
-  }, [params.ext, navigate, tools]);
+  }, [params.ext, navigate, extItems]);
 
-  useEffect(() => {
-    fetchCapabilities();
-  }, [fetchCapabilities]);
-
-  useEffect(() => {
-    const loadCatalog = async () => {
-      try {
-        const baseUrl = import.meta.env.BASE_URL || '/';
-        const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-        const response = await fetch(`${normalizedBaseUrl}assets/extension-catalog.json`, { cache: 'no-store' });
-        if (!response.ok) throw new Error(`catalog http status ${response.status}`);
-        
-        const raw = await response.json();
-        const installDir = raw.install_dir || './data/extensions/bin';
-        const lang = (typeof document !== 'undefined' ? document.documentElement.lang : 'zh').startsWith('en') ? 'en' : 'zh';
-
-        const newHomepages: Record<string, string> = {};
-        const newDescriptions: Record<string, string> = {};
-        const newExecNames: Record<string, string> = {};
-        const initialStates: Record<string, ToolState> = {};
-
-        Object.entries(raw.tools || {}).forEach(([name, tool]: [string, any]) => {
-          newHomepages[name] = tool.homepage || '';
-          newDescriptions[name] = lang === 'en' ? (tool.description_en || '') : (tool.description_zh || '');
-          newExecNames[name] = tool.executable_name || name;
-          
-          initialStates[name] = {
-            version: tool.default_version || '',
-            template: tool.download_url_template || '',
-            proxy: tool.github_base_url || '',
-            binPath: installDir,
-            downloadUrl: '',
-          };
-
-          if (name === 'openlist') initialStates[name].dataPath = './data/extensions/state/openlist/data';
-          if (name === 'rclone') {
-            initialStates[name].rcloneConfigPath = './data/extensions/state/rclone/rclone.conf';
-            initialStates[name].rcloneMountCommand = '${BinPath} mount remote: /mnt/remote ${ConfigFilePath}';
-            initialStates[name].rcloneUnmountCommand = 'fusermount -u /mnt/remote';
-          }
-        });
-
-        setHomepages(newHomepages);
-        setDescriptions(newDescriptions);
-        setToolExecutableNames(newExecNames);
-        setToolAliases(raw.tools || {});
-        setToolStates(prev => {
-          const merged = { ...initialStates };
-          Object.keys(prev).forEach(k => { if(prev[k]) merged[k] = { ...merged[k], ...prev[k] }; });
-          return merged;
-        });
-        setCatalogLoaded(true);
-      } catch (_error) {
-        addToast(t('admin.extensions.catalogLoadFailed'), 'error');
-      }
-    };
-    loadCatalog();
-  }, [addToast, t]);
-
+  // Persistence for user-defined settings (EXCLUDE version and downloadUrl)
   useEffect(() => {
     const userId = currentUserData?.user.id;
     if (!userId) return;
-    const key = `ext-ui-overrides:${userId}`;
+    const key = `ext-ui-overrides-v2:${userId}`;
     try {
       const raw = storageHub.getLocalItem(key);
       if (!raw) return;
@@ -165,7 +133,13 @@ export const ExtensionManagerAdmin = () => {
       setToolStates(prev => {
         const next = { ...prev };
         Object.keys(v).forEach(tool => {
-          next[tool] = { ...next[tool], ...v[tool] };
+          // Only restore persistent settings, not transient suggestions
+          next[tool] = { 
+            ...next[tool], 
+            ...v[tool],
+            version: '', // Always reset suggestion on load
+            downloadUrl: '' 
+          };
         });
         return next;
       });
@@ -175,8 +149,14 @@ export const ExtensionManagerAdmin = () => {
   useEffect(() => {
     const userId = currentUserData?.user.id;
     if (!userId) return;
-    const key = `ext-ui-overrides:${userId}`;
-    storageHub.setLocalItem(key, JSON.stringify(toolStates));
+    const key = `ext-ui-overrides-v2:${userId}`;
+    // Filter out version and downloadUrl before saving
+    const toSave: any = {};
+    Object.keys(toolStates).forEach(tool => {
+      const { version, downloadUrl, ...persistent } = toolStates[tool];
+      toSave[tool] = persistent;
+    });
+    storageHub.setLocalItem(key, JSON.stringify(toSave));
   }, [currentUserData?.user.id, toolStates]);
 
   const controlService = async (tool: string, action: 'start' | 'stop' | 'restart') => {
@@ -189,51 +169,22 @@ export const ExtensionManagerAdmin = () => {
     }
   };
 
-  const detectClientPlatform = () => {
-    if (capabilities?.runtime_os && capabilities?.runtime_arch) {
-      return { os: capabilities.runtime_os, arch: capabilities.runtime_arch };
-    }
-    const ua = navigator.userAgent.toLowerCase();
-    const os = ua.includes('windows') ? 'windows' : ua.includes('mac os') ? 'darwin' : 'linux';
-    const arch = ua.includes('aarch64') || ua.includes('arm64') || ua.includes('arm') ? 'aarch64' : 'x86_64';
-    return { os, arch };
-  };
-
-  const buildDownloadUrl = (tool: string, template: string, version: string, proxy?: string) => {
-    const { os, arch } = detectClientPlatform();
-    const alias = toolAliases[tool] || {};
-    const osAlias = os === 'windows' ? (alias.os_alias_windows || os) : os === 'darwin' ? (alias.os_alias_macos || os) : (alias.os_alias_linux || os);
-    const archAlias = arch === 'aarch64' ? (alias.arch_alias_arm64 || arch) : (alias.arch_alias_amd64 || arch);
-    let url = template
-      .replaceAll('{version}', version).replaceAll('{ver}', version)
-      .replaceAll('{raw_os}', os).replaceAll('{raw_arch}', arch)
-      .replaceAll('{os_alias}', osAlias).replaceAll('{arch_alias}', archAlias)
-      .replaceAll('{os}', osAlias).replaceAll('{arch}', archAlias);
-    if ((url.startsWith('http://') || url.startsWith('https://')) && proxy?.trim()) {
-      url = `${proxy.trim().replace(/\/+$/, '')}/${url}`;
-    }
-    return url;
-  };
-
   const installToolQuick = async (tool: string) => {
     const state = toolStates[tool];
     if (!state) return;
     try {
-      const execName = toolExecutableNames[tool] || tool;
-      const safeBinPath = state.binPath.trim().replace(/\/+$/, '');
-      const finalBinPath = (safeBinPath.endsWith(`/${execName}`) || safeBinPath.endsWith(`\\${execName}`)) 
-        ? safeBinPath.slice(0, safeBinPath.length - execName.length - 1) 
-        : safeBinPath;
-
-      const body: InstallBody = { version: state.version, bin_path: finalBinPath };
-      body.download_link = state.downloadUrl.trim() || buildDownloadUrl(tool, state.template, state.version, state.proxy);
-      
+      const body: InstallBody = { 
+        version: state.version, 
+        download_link: state.downloadUrl,
+        github_proxy: state.proxy,
+        bin_path: state.binPath
+      };
       if (!body.download_link) {
         addToast(t('admin.extensions.downloadUrlMissing'), 'error');
         return;
       }
       await installToolApi(tool, body);
-      addToast(`${tool} downloaded successfully`, 'success');
+      addToast(t('admin.extensions.downloadSuccess', { tool }), 'success');
       await fetchTools();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -242,66 +193,90 @@ export const ExtensionManagerAdmin = () => {
 
   if (loading) return <div className="py-10 text-sm font-semibold opacity-70">{t('admin.extensions.loading')}</div>;
 
-  const currentState = toolStates[extPage] || { version: '', downloadUrl: '', binPath: '', template: '', proxy: '' };
-
-  const getExtraFields = (tool: string) => {
-    if (tool === 'openlist') return [{ label: t('admin.extensions.openlist.dataPathLabel', 'Data Path'), value: currentState.dataPath || '', onChange: (v: string) => updateToolState(tool, { dataPath: v }), placeholder: './data/extensions/state/openlist/data' }];
-    if (tool === 'rclone') return [
-      { label: t('admin.extensions.rclone.configPathLabel', 'Config Path'), value: currentState.rcloneConfigPath || '', onChange: (v: string) => updateToolState(tool, { rcloneConfigPath: v }), placeholder: './data/extensions/state/rclone/rclone.conf' },
-      { label: t('admin.extensions.rclone.mountCommandLabel', 'Mount Command'), value: currentState.rcloneMountCommand || '', onChange: (v: string) => updateToolState(tool, { rcloneMountCommand: v }), isTextArea: true },
-      { label: t('admin.extensions.rclone.unmountCommandLabel', 'Unmount Command'), value: currentState.rcloneUnmountCommand || '', onChange: (v: string) => updateToolState(tool, { rcloneUnmountCommand: v }), isTextArea: true },
-    ];
-    return [];
-  };
-
-  const getExtraActions = (tool: string) => {
-    if (tool === 'openlist') return [{ label: t('admin.extensions.openlist.resetAdmin'), onClick: async () => { const res = await resetOpenlistAdminApi(currentState.dataPath || ''); return res?.stdout || res?.stderr || ''; }, showOutputInModal: true }];
-    if (tool === 'rclone') return [{
-      label: t('admin.extensions.rclone.copyMount'),
-      onClick: () => {
-        const text = (currentState.rcloneMountCommand || '').replaceAll('${BinPath}', currentState.binPath).replaceAll('${ConfigFilePath}', `--config=${currentState.rcloneConfigPath}`);
-        navigator.clipboard.writeText(text);
-        addToast('rclone mount command copied', 'success');
-      }
-    }];
-    return [];
-  };
+  const currentState = toolStates[extPage] || { version: '', downloadUrl: '', binPath: '', proxy: '' };
+  const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
+  const description = currentTool ? (lang === 'en' ? currentTool.description_en : currentTool.description_zh) : '';
 
   return (
-    <div className="space-y-6 min-h-[calc(100vh-10rem)] px-4 md:px-6 lg:px-8 py-4 md:py-6">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
-        <h3 className="text-lg font-black">{t('admin.extensions.title')}</h3>
-        <div className="flex flex-wrap gap-2">
-          {extItems.map((item) => (
-            <Button key={item.key} size="sm" variant={extPage === item.key ? 'primary' : 'outline'} onClick={() => navigate({ mod: 'admin', page: 'extensions', ext: item.key })}>
-              {item.label}
-            </Button>
-          ))}
+    <div className="space-y-8 pb-20">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner shrink-0">
+            <Puzzle size={24} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-black tracking-tight">{t("admin.extensions.title")}</h2>
+            <p className="text-sm font-bold opacity-40 uppercase tracking-widest">
+              Ext & Plugin Infrastructure
+            </p>
+          </div>
         </div>
-        <div className="text-sm opacity-70">
-          {t('admin.extensions.runtimeHint', { os: capabilities?.runtime_os || 'linux', arch: capabilities?.runtime_arch || 'x86_64', bits: capabilities?.runtime_bits || 64 })}
-        </div>
-        {!catalogLoaded && <div className="text-sm opacity-70">{t('admin.extensions.catalogLoading')}</div>}
+        <Badge variant="outline" className="h-8 px-3 rounded-xl border-white/10 bg-white/5 opacity-70 flex gap-2 items-center">
+          <Cpu size={14} className="opacity-50" />
+          <span className="font-mono text-xs uppercase">{capabilities?.runtime_os || 'linux'} / {capabilities?.runtime_arch || 'x86_64'}</span>
+        </Badge>
+      </div>
+
+      <div className="p-2 bg-white/[0.03] rounded-3xl border border-white/5 flex gap-2 flex-wrap">
+        {extItems.map((item) => (
+          <Button 
+            key={item.key} 
+            size="sm" 
+            variant={extPage === item.key ? 'primary' : 'ghost'} 
+            onClick={() => navigate({ mod: 'admin', page: 'extensions', ext: item.key })}
+            className={`relative rounded-2xl px-6 h-11 font-bold transition-all ${extPage === item.key ? 'shadow-lg shadow-primary/20' : 'opacity-60 hover:opacity-100'}`}
+          >
+            {item.label}
+            {item.installed && (
+              <span className="absolute top-2 right-2 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+            )}
+          </Button>
+        ))}
       </div>
 
       <ToolPanel
         tool={extPage}
-        homepage={homepages[extPage] || ''}
-        description={descriptions[extPage] || ''}
+        kind={currentTool?.kind || 'service'}
+        installed={currentTool?.installed || false}
+        homepage={currentTool?.homepage || ''}
+        description={description}
         followStart={serviceStatus[extPage]?.follow_start}
+        running={serviceStatus[extPage]?.running}
+        pid={serviceStatus[extPage]?.pid}
+        loading={isFetchingInfo}
         version={currentState.version}
-        setVersion={(v) => updateToolState(extPage, { version: v })}
         binPath={currentState.binPath}
         setBinPath={(v) => updateToolState(extPage, { binPath: v })}
-        template={currentState.template}
-        setTemplate={(v) => updateToolState(extPage, { template: v })}
         proxy={currentState.proxy}
         setProxy={(v) => updateToolState(extPage, { proxy: v })}
         downloadUrl={currentState.downloadUrl}
         setDownloadUrl={(v) => updateToolState(extPage, { downloadUrl: v })}
-        extraFields={getExtraFields(extPage)}
-        extraActions={getExtraActions(extPage)}
+        extraFields={[
+          ...(extPage === 'openlist' ? [{ label: t('admin.extensions.openlist.dataPathLabel'), value: currentState.dataPath || './data/extensions/state/openlist/data', onChange: (v: string) => updateToolState(extPage, { dataPath: v }), placeholder: './data/extensions/state/openlist/data' }] : []),
+          ...(extPage === 'rclone' ? [
+            { label: t('admin.extensions.rclone.configPathLabel'), value: currentState.rcloneConfigPath || './data/extensions/state/rclone/rclone.conf', onChange: (v: string) => updateToolState(extPage, { rcloneConfigPath: v }), placeholder: './data/extensions/state/rclone/rclone.conf' },
+            { label: t('admin.extensions.rclone.mountCommandLabel'), value: currentState.rcloneMountCommand || '${BinPath} mount remote: /mnt/remote --config=${ConfigFilePath}', onChange: (v: string) => updateToolState(extPage, { rcloneMountCommand: v }), isTextArea: true },
+            { label: t('admin.extensions.rclone.unmountCommandLabel'), value: currentState.rcloneUnmountCommand || 'fusermount -u /mnt/remote', onChange: (v: string) => updateToolState(extPage, { rcloneUnmountCommand: v }), isTextArea: true },
+          ] : [])
+        ]}
+        extraActions={[
+          ...(extPage === 'openlist' ? [{ label: t('admin.extensions.openlist.resetAdmin'), onClick: async () => { const res = await resetOpenlistAdminApi(currentState.dataPath || './data/extensions/state/openlist/data'); return res?.stdout || res?.stderr || ''; }, showOutputInModal: true }] : []),
+          ...(extPage === 'rclone' ? [{
+            label: t('admin.extensions.rclone.copyMount'),
+            onClick: () => {
+              const binPath = currentTool?.executable_path || 'rclone';
+              const configPath = currentState.rcloneConfigPath || './data/extensions/state/rclone/rclone.conf';
+              const text = (currentState.rcloneMountCommand || '').replaceAll('${BinPath}', binPath).replaceAll('${ConfigFilePath}', configPath);
+              navigator.clipboard.writeText(text);
+              addToast(t('admin.extensions.rclone.copyMountSuccess'), 'success');
+            }
+          }] : [])
+        ]}
         onDownload={() => installToolQuick(extPage)}
+        onFetchLatest={fetchLatestInfo}
         onStartService={() => controlService(extPage, 'start')}
         onStopService={() => controlService(extPage, 'stop')}
         onRestart={() => controlService(extPage, 'restart')}

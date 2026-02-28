@@ -3347,16 +3347,23 @@ export interface components {
         };
         ExtensionServiceStatus: {
             follow_start: boolean;
+            kind: components["schemas"]["ExtensionToolKind"];
             /** Format: int32 */
             pid?: number | null;
             running: boolean;
             tool: string;
         };
         ExtensionToolInfo: {
+            description_en: string;
+            description_zh: string;
             executable_path: string;
+            homepage: string;
             installed: boolean;
+            kind: components["schemas"]["ExtensionToolKind"];
             name: string;
         };
+        /** @enum {string} */
+        ExtensionToolKind: "service" | "task" | "both";
         FavoriteActionRequest: {
             /** Format: int32 */
             color?: number | null;
@@ -3455,6 +3462,7 @@ export interface components {
             bin_path?: string | null;
             download_link?: string | null;
             download_url?: string | null;
+            github_proxy?: string | null;
             os?: string | null;
             version?: string | null;
         };

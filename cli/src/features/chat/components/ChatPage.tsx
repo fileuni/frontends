@@ -569,7 +569,7 @@ export const ChatPage: React.FC = () => {
               </label>
               <Input
                 value={inviteNickname}
-                placeholder="Optional"
+                placeholder={t('chat.nicknameOptional')}
                 className="rounded-2xl h-11 border-none shadow-sm"
                 onChange={(e) => setInviteNickname(e.target.value)}
               />

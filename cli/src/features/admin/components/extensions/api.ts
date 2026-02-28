@@ -5,6 +5,9 @@ export const fetchToolsApi = async () => extractData<ToolInfo[]>(client.GET('/ap
 
 export const fetchServicesApi = async () => extractData<ServiceStatus[]>(client.GET('/api/v1/admin/extensions/services'));
 
+export const fetchLatestToolInfoApi = async (tool: string) =>
+  extractData<{ version: string; download_url: string }>(client.GET('/api/v1/admin/extensions/tools/{tool}/latest-info', { params: { path: { tool } } }));
+
 export const installToolApi = async (tool: string, body: InstallBody) =>
   extractData<Record<string, unknown>>(
     client.POST('/api/v1/admin/extensions/tools/{tool}/install', {

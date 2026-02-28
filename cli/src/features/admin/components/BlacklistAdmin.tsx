@@ -282,7 +282,7 @@ export const BlacklistAdmin = () => {
                     </td>
                     <td className="px-8 py-6">
                       <p className="text-sm opacity-60 max-w-[200px] truncate" title={item.reason || ''}>
-                        {item.reason || <span className="opacity-20 italic">No reason provided</span>}
+                        {item.reason || <span className="opacity-20 italic">{t('blacklist.noReason')}</span>}
                       </p>
                     </td>
                     <td className="px-8 py-6">

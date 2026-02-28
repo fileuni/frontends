@@ -197,7 +197,7 @@ export const ProfileView = () => {
                         value={phone} 
                         onChange={e => updatePhone(idx, e.target.value)} 
                         onBlur={() => normalizePhoneAt(idx)}
-                        placeholder="+86 138..."
+                        placeholder={t('profile.phonePlaceholder')}
                         className={`font-mono text-sm ${invalidOtherPhoneIndexes.includes(idx) ? 'border-red-500' : ''}`}
                       />
                       <button type="button" onClick={() => removePhone(idx)} className="w-12 h-12 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 transition-all hover:text-white shrink-0 border border-red-500/20">

@@ -188,8 +188,8 @@ export const DashboardLayout: React.FC<{
         >
           <div className="flex items-center justify-between mb-8 px-2">
             <div className="flex items-center gap-3">
-              <img src="/ui/favicon.svg" alt="FileUni Logo" width={32} height={32} className="shadow-lg rounded-lg" />
-              <span className={cn("font-black text-sm tracking-tight", isDark ? "text-white" : "text-gray-900")}>FileUni</span>
+              <img src="/ui/favicon.svg" alt={t('common.logoAlt')} width={32} height={32} className="shadow-lg rounded-lg" />
+              <span className={cn("font-black text-sm tracking-tight", isDark ? "text-white" : "text-gray-900")}>{t('common.brandName')}</span>
             </div>
             <button onClick={() => setIsMobileMenuOpen(false)} className={cn("p-2 rounded-lg", isDark ? "bg-white/5" : "bg-gray-100")}>
               <IconRenderer name="X" size={18} />

@@ -94,11 +94,11 @@ export const SessionsView = () => {
               <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shadow-inner">
                 <ShieldCheck size={20} />
               </div>
-              <h3 className="text-xl font-black tracking-tight uppercase">Active Device Status</h3>
+              <h3 className="text-xl font-black tracking-tight uppercase">{t('sessions.activeDeviceStatus')}</h3>
             </div>
             <div className="space-y-2 max-w-md">
               <div className="flex justify-between text-sm font-black uppercase tracking-widest opacity-40">
-                <span>Slots Occupied</span>
+                <span>{t('sessions.slotsOccupied')}</span>
                 <span className={cn(usagePercent > 80 ? "text-red-500" : "text-primary")}>{limitInfo.total} / {limitInfo.max}</span>
               </div>
               <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">

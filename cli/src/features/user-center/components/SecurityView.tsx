@@ -429,7 +429,7 @@ export const SecurityView = () => {
                   {captchaData?.turnstile_site_key ? (
                     <TurnstileWidget siteKey={captchaData.turnstile_site_key} onTokenChange={setTurnstileToken} />
                   ) : (
-                    <p className="text-sm font-bold uppercase tracking-widest text-red-500">Turnstile site key missing</p>
+                    <p className="text-sm font-bold uppercase tracking-widest text-red-500">{t('auth.turnstileSiteKeyMissing')}</p>
                   )}
                 </div>
               ) : (
@@ -445,7 +445,7 @@ export const SecurityView = () => {
                     onClick={() => fetchCaptcha(true)}
                   >
                     {captchaData ? (
-                      <img src={captchaData.image_base64} alt="captcha" className="w-full h-full object-cover" />
+                      <img src={captchaData.image_base64} alt={t('auth.captcha')} className="w-full h-full object-cover" />
                     ) : (
                       <RefreshCw size={14} className="animate-spin opacity-40" />
                     )}
@@ -463,7 +463,7 @@ export const SecurityView = () => {
           <div className="space-y-2">
             <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('common.verificationCode')}</label>
             <div className="flex gap-2">
-              <Input value={bindForm.code} onChange={e => setBindForm({ ...bindForm, code: e.target.value })} placeholder="6-digit" className="flex-1 font-mono tracking-widest" />
+              <Input value={bindForm.code} onChange={e => setBindForm({ ...bindForm, code: e.target.value })} placeholder={t('common.codePlaceholder')} className="flex-1 font-mono tracking-widest" />
               <Button variant="outline" className="px-4 h-12 whitespace-nowrap" disabled={bindForm.timer > 0 || !bindForm.target || (needCaptcha && !captchaTokenForSubmit)} onClick={() => activeModal && handleSendCode(activeModal as 'email' | 'phone')}>
                 {bindForm.timer > 0 ? `${bindForm.timer}s` : <><Send size={16} className="mr-2" /> {t('security.send')}</>}
               </Button>
