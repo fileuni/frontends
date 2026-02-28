@@ -97,7 +97,7 @@ export const FileSystemAdmin = () => {
         <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
           <Cpu className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 group-hover:scale-110 transition-transform" />
           <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.storage_types')}</p>
-          <h3 className="text-3xl font-black">Hybrid</h3>
+          <h3 className="text-3xl font-black">{t('admin.fs.hybridStorage')}</h3>
           <p className="text-sm font-bold mt-4 opacity-40 uppercase tracking-widest">{t('admin.fs.engine_distribution')}</p>
         </div>
       </div>
@@ -159,7 +159,7 @@ export const FileSystemAdmin = () => {
                       <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
                       <span className="font-mono text-sm font-black">{user}</span>
                     </div>
-                    <Badge variant="warning">RECOVERING</Badge>
+                    <Badge variant="warning">{t('admin.fs.statusRecovering')}</Badge>
                   </div>
                 ))}
               </div>

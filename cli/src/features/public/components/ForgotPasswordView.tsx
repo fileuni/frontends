@@ -369,7 +369,7 @@ export const ForgotPasswordView = () => {
                       {captchaData?.turnstile_site_key ? (
                         <TurnstileWidget siteKey={captchaData.turnstile_site_key} onTokenChange={setTurnstileToken} />
                       ) : (
-                        <p className="text-sm font-bold uppercase tracking-widest text-red-500">Turnstile site key missing</p>
+                        <p className="text-sm font-bold uppercase tracking-widest text-red-500">{t('auth.turnstileSiteKeyMissing')}</p>
                       )}
                     </div>
                   ) : (
@@ -393,7 +393,7 @@ export const ForgotPasswordView = () => {
                         title={t("auth.refreshCaptcha")}
                       >
                         {captchaData ? (
-                          <img src={captchaData.image_base64} alt="captcha" className="w-full h-full object-contain" />
+                          <img src={captchaData.image_base64} alt={t('auth.captcha')} className="w-full h-full object-contain" />
                         ) : (
                           <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                         )}

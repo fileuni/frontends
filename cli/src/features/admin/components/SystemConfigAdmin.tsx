@@ -10,10 +10,12 @@ import {
   SystemConfigWorkbench,
   LicenseManagementModal,
   useToastStore,
+  useThemeStore,
 } from '@fileuni/shared';
 import { useAuthzStore } from '@/stores/authz.ts';
 import { useAuthStore } from '@/stores/auth.ts';
 import { Key } from 'lucide-react';
+import { cn } from '@/lib/utils.ts';
 
 type ConfigRawResponse = components['schemas']['ConfigRawResponse'];
 type ConfigNotesResponse = components['schemas']['ConfigNotesResponse'];
@@ -106,6 +108,14 @@ const formatLineDiffSummary = (stats: LineDiffStats): string => {
 export const SystemConfigAdmin = () => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
+  const { theme } = useThemeStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -339,9 +349,14 @@ export const SystemConfigAdmin = () => {
         <button
           type="button"
           onClick={() => setIsLicenseModalOpen(true)}
-          className="px-3 py-1.5 rounded-lg border border-amber-500/50 bg-amber-500/20 text-amber-800 dark:text-amber-200 text-xs sm:text-sm font-black hover:bg-amber-500/30 transition-colors inline-flex items-center gap-1.5 shadow-sm dark:shadow-none"
+          className={cn(
+            "px-3 py-1.5 rounded-lg border font-black transition-all inline-flex items-center gap-1.5 shadow-sm",
+            isDark 
+              ? "border-amber-500/40 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20 shadow-none" 
+              : "border-amber-500/50 bg-amber-50 text-amber-900 hover:bg-amber-100"
+          )}
         >
-          <Key size={14} />
+          <Key size={14} className={isDark ? "text-amber-400" : "text-amber-600"} />
           {t('admin.config.quickWizard.steps.license')}
         </button>
       </div>

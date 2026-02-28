@@ -120,7 +120,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
         {playlist.length > 1 && showList && (
           <div className="w-64 border-r border-border bg-accent/5 flex flex-col shrink-0 z-40 animate-in slide-in-from-left duration-300">
             <div className="p-4 border-b border-border flex items-center justify-between">
-              <span className="text-sm font-black uppercase tracking-widest text-muted-foreground/40">Playlist</span>
+              <span className="text-sm font-black uppercase tracking-widest text-muted-foreground/40">{t('filemanager.previewModal.playlist')}</span>
               <Layers size={14} className="text-primary opacity-40" />
             </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">

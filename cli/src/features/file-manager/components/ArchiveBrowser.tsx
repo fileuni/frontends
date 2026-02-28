@@ -253,7 +253,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
             <span>{currentSubPath || '/'}</span>
         </div>
         <div className="flex gap-4">
-            <span>Archive Browser Mode</span>
+            <span>{t('filemanager.archive.browserMode')}</span>
         </div>
       </div>
     </div>

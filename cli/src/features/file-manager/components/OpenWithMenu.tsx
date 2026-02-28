@@ -167,7 +167,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
         onClick={() => setIsOpen(!isOpen)}
       >
         <ExternalLink size={14} />
-        <span className="hidden sm:inline">Open With</span>
+        <span className="hidden sm:inline">{t('filemanager.previewModal.openWith')}</span>
         <ChevronDown size={12} className={cn("transition-transform", isOpen && "rotate-180")} />
       </Button>
 
@@ -191,7 +191,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
                 </button>
               ))}
               {apps.length === 0 && (
-                  <div className="px-4 py-3 text-sm opacity-40 italic">No apps found</div>
+                  <div className="px-4 py-3 text-sm opacity-40 italic">{t('filemanager.previewModal.noAppsFound')}</div>
               )}
             </>
           )}
@@ -215,7 +215,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
              }}
            >
              <Download size={14} />
-             <span>Download File</span>
+             <span>{t('filemanager.previewModal.downloadFile')}</span>
            </button>
         </div>
       )}

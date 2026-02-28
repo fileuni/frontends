@@ -351,11 +351,11 @@ export const UserManagement = () => {
             <div className="space-y-2">
               <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.newPassword')}</label>
               <div className="relative">
-                <Input 
-                  type={showPassword ? "text" : "password"} 
-                  value={newPassword} 
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('common.passwordPlaceholder')}
                   className={cn(isPasswordMismatch && "border-red-500/50 focus:border-red-500")}
                 />
                 <button 
@@ -369,11 +369,11 @@ export const UserManagement = () => {
             <div className="space-y-2">
               <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.confirmPassword')}</label>
               <div className="relative">
-                <Input 
-                  type={showPassword ? "text" : "password"} 
-                  value={confirmPassword} 
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('common.passwordPlaceholder')}
                   className={cn(isPasswordMismatch && "border-red-500/50 focus:border-red-500")}
                 />
               </div>

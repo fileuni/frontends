@@ -135,7 +135,15 @@
         "user": "Auth User",
         "pass": "Auth Pass"
       },
-      "copyAllInfo": "Copy All Info"
+      "copyAllInfo": "Copy All Info",
+      "sharePackage": "Share Package",
+      "shareUrlLabel": "Share URL",
+      "accessPasswordLabel": "Access Password",
+      "protected": "Protected",
+      "preset24h": "24h",
+      "preset7d": "7D",
+      "preset30d": "30D",
+      "presetForever": "∞"
     },
     "previewModal": {
       "viewer": "Viewer",
@@ -144,7 +152,11 @@
       "download": "Download File",
       "notSupported": "Preview not supported",
       "fetching": "FETCHING CONTENT...",
-      "saveSuccess": "Saved successfully"
+      "saveSuccess": "Saved successfully",
+      "playlist": "Playlist",
+      "openWith": "Open With",
+      "downloadFile": "Download File",
+      "noAppsFound": "No apps found"
     },
     "officeLite": {
       "name": "Office Lite",
@@ -210,7 +222,8 @@
       "encryptFilenames": "Encrypt Filenames",
       "encryptFilenamesHint": "Only effective for 7z format.",
       "taskIdMissing": "Task id is missing in response",
-      "browsingDisabled": "Archive browsing is disabled"
+      "browsingDisabled": "Archive browsing is disabled",
+      "browserMode": "Archive Browser Mode"
     },
     "actions": {
       "open": "Open",
@@ -297,7 +310,10 @@
       "markdownPlaceholder": "Start writing Markdown...",
       "latexSource": "LaTeX Source",
       "livePreview": "Live Preview",
-      "renderError": "Render Error"
+      "renderError": "Render Error",
+      "largeFileDetected": "Large File Detected",
+      "largeFileWarningDesc": "The file is large. Opening large files directly may cause browser performance issues.",
+      "previewAnyway": "Preview Anyway"
     },
     "editor": {
       "readingMode": "Reading Mode",
@@ -524,7 +540,15 @@
     "name": "Name",
     "rawJson": "Raw JSON",
     "visualMode": "Visual Mode",
-    "switchToRawJson": "Switch to Raw JSON Mode"
+    "switchToRawJson": "Switch to Raw JSON Mode",
+    "on": "ON",
+    "off": "OFF",
+    "menu": "Menu",
+    "brandName": "FileUni",
+    "logoAlt": "FileUni Logo",
+    "passwordPlaceholder": "••••••••",
+    "codePlaceholder": "6-digit",
+    "cancel": "Cancel"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -544,7 +568,8 @@
     "backToPublic": "Back to Home",
     "cacheManager": "Cache Manager",
     "domainDdns": "DDNS Dynamic DNS",
-    "domainSsl": "SSL/TLS Certificates"
+    "domainSsl": "SSL/TLS Certificates",
+    "activeWorkspace": "Active Workspace"
   },
   "blacklist": {
     "statsTotal": "Total Bans",
@@ -558,7 +583,8 @@
     "never": "Never",
     "addTitle": "Add Blacklist Item",
     "placeholder": "IP, UUID or ClientID",
-    "formatHint": "Format: YYYY-MM-DD HH:MM"
+    "formatHint": "Format: YYYY-MM-DD HH:MM",
+    "noReason": "No reason provided"
   },
   "auth": {
     "loginTitle": "Login",
@@ -609,7 +635,9 @@
     "revokeAndLogin": "Revoke Selected & Login",
     "revokeAll": "Revoke All Other Devices",
     "defaultPasswordWarning": "Default Password Detected",
-    "defaultPasswordDesc": "For your security, it is highly recommended to change the default 'admin888' password."
+    "defaultPasswordDesc": "For your security, it is highly recommended to change the default 'admin888' password.",
+    "joinEcosystem": "Join the FileUni ecosystem",
+    "turnstileSiteKeyMissing": "Turnstile site key missing"
   },
   "forgotPassword": {
     "accountRecovery": "Account Recovery",
@@ -695,15 +723,21 @@
       },
       "permissions": {
         "title": "Permission Management",
-        "layoutTitle": "Access Control List"
+        "layoutTitle": "Access Control List",
+        "inherit": "Inherit",
+        "allow": "Allow",
+        "deny": "Deny"
       },
       "fs": {
         "title": "File System Management",
-        "layoutTitle": "File System Infrastructure"
+        "layoutTitle": "File System Infrastructure",
+        "hybridStorage": "Hybrid",
+        "statusRecovering": "RECOVERING"
       },
       "web": {
         "title": "Website Management",
-        "layoutTitle": "Multi Site Management"
+        "layoutTitle": "Multi Site Management",
+        "tls": "TLS"
       },
       "tasks": {
         "title": "Task Monitor",
@@ -801,7 +835,9 @@
       "folder": "Folder",
       "qrMobileAccess": "Mobile Access",
       "qrScanDesc": "Scan to open this share on your phone",
-      "qrBackToInfo": "Back to Info"
+      "qrBackToInfo": "Back to Info",
+      "emptyFolder": "This folder is empty",
+      "previewNotAvailable": "Preview Not Available"
     }
   },
   "cacheManager": {
@@ -866,7 +902,8 @@
     "success": "Profile updated successfully",
     "phoneListSynced": "Extra phone numbers were synced to server format",
     "invalidPhoneFormat": "Invalid phone number format. Examples: China Mainland +8613812345678, US +12025550123, Japan +819012345678",
-    "invalidPhoneList": "There are invalid phone numbers. Please fix them before saving"
+    "invalidPhoneList": "There are invalid phone numbers. Please fix them before saving",
+    "phonePlaceholder": "+86 138..."
   },
   "security": {
     "loading": "LOADING SECURITY...",
@@ -922,7 +959,9 @@
     "revokeAccess": "Revoke Access",
     "revokeConfirm": "Are you sure you want to terminate this session?",
     "adviceTitle": "Security Advice",
-    "adviceDesc": "If you see a device you don't recognize, we recommend revoking its access immediately and changing your password."
+    "adviceDesc": "If you see a device you don't recognize, we recommend revoking its access immediately and changing your password.",
+    "activeDeviceStatus": "Active Device Status",
+    "slotsOccupied": "Slots Occupied"
   },
   "admin": {
     "loading": "Accessing administrative data...",
@@ -946,7 +985,8 @@
       "localDesc": "Save a full backup directly to the server's local disk. Recommended for large databases or routine maintenance.",
       "localBtn": "Run Local Backup",
       "localSuccess": "Local backup completed: {{path}}",
-      "largeDbWarning": "Important: If any database table exceeds 100,000 records or the backup size is huge, please use professional tools (like pg_dump or sqlite3 backup) to ensure stability."
+      "largeDbWarning": "Important: If any database table exceeds 100,000 records or the backup size is huge, please use professional tools (like pg_dump or sqlite3 backup) to ensure stability.",
+      "criticalAction": "Critical Action"
     },
     "tasks": {
       "title": "Task Monitor",
@@ -1029,12 +1069,16 @@
         "download": "Download OpenList",
         "restart": "Restart OpenList",
         "resetAdmin": "Reset Admin Password",
-        "resetOutput": "OpenList Reset Output"
+        "resetOutput": "OpenList Reset Output",
+        "dataPathLabel": "Data Path"
       },
       "rclone": {
         "title": "Rclone Management",
         "download": "Download Rclone",
-        "copyMount": "Copy Mount Command"
+        "copyMount": "Copy Mount Command",
+        "configPathLabel": "Config Path",
+        "mountCommandLabel": "Mount Command",
+        "unmountCommandLabel": "Unmount Command"
       },
       "kopia": {
         "title": "Kopia Management",
@@ -1206,7 +1250,16 @@
       "cloudflareProxy": "Cloudflare-style proxy",
       "ipv4Config": "IPv4 Config",
       "ipv6Config": "IPv6 Config",
-      "multiUrlHint": "Supports multiple URLs separated by comma or semicolon, will try sequentially"
+      "multiUrlHint": "Supports multiple URLs separated by comma or semicolon, will try sequentially",
+      "proxyBadge": "Proxy",
+      "sourceInterface": "Interface",
+      "sourceStaticIp": "Static IP",
+      "sourceShellCommand": "Shell Command",
+      "sourceInheritLast": "Inherit Last",
+      "credentialJson": "Credential JSON",
+      "configJson": "Config JSON",
+      "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
+      "providerZerossl": "ZeroSSL"
     },
     "ddns": {
       "title": "DDNS",
@@ -1498,7 +1551,15 @@
         "action": "Action",
         "details": "Details",
         "status": "Status"
-      }
+      },
+      "statusSuccess": "SUCCESS",
+      "statusFail": "FAIL",
+      "statusStart": "START",
+      "typeFile": "FILE",
+      "typeUser": "USER",
+      "typeSystem": "SYSTEM",
+      "typeSecurity": "SECURITY",
+      "typeFinancial": "FINANCIAL"
     },
     "users": {
       "title": "User Management",
@@ -2160,6 +2221,7 @@
     "disabled": "Chat disabled",
     "conversations": "Conversations",
     "send": "Send",
+    "nicknameOptional": "Optional",
     "invites": "Invites",
     "inviteDays": "Days",
     "createInvite": "Create invite",

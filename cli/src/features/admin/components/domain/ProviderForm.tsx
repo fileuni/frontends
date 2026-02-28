@@ -158,7 +158,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
           )}
         </div>
         <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">Credential JSON</label>
+          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.credentialJson')}</label>
           <textarea
             className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
             value={credentialJson}
@@ -166,7 +166,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">Config JSON</label>
+          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.configJson')}</label>
           <textarea
             className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
             value={configJson}

@@ -135,7 +135,15 @@
         "user": "认证账号",
         "pass": "认证密码"
       },
-      "copyAllInfo": "复制完整分享信息"
+      "copyAllInfo": "复制完整分享信息",
+      "sharePackage": "分享包",
+      "shareUrlLabel": "分享链接",
+      "accessPasswordLabel": "访问密码",
+      "protected": "受保护",
+      "preset24h": "24小时",
+      "preset7d": "7天",
+      "preset30d": "30天",
+      "presetForever": "永久"
     },
     "previewModal": {
       "viewer": "查看器",
@@ -144,7 +152,11 @@
       "download": "下载文件",
       "notSupported": "暂不支持预览",
       "fetching": "正在调取内容...",
-      "saveSuccess": "保存成功"
+      "saveSuccess": "保存成功",
+      "playlist": "播放列表",
+      "openWith": "打开方式",
+      "downloadFile": "下载文件",
+      "noAppsFound": "未找到应用"
     },
     "officeLite": {
       "name": "Office Lite",
@@ -209,7 +221,8 @@
       "encryptFilenames": "加密文件名",
       "encryptFilenamesHint": "仅对 7z 格式生效。",
       "taskIdMissing": "响应中缺少任务 ID",
-      "browsingDisabled": "归档浏览功能未启用"
+      "browsingDisabled": "归档浏览功能未启用",
+      "browserMode": "归档浏览模式"
     },
     "task": {
       "center": "任务中心",
@@ -310,7 +323,10 @@
       "markdownPlaceholder": "开始编写 Markdown...",
       "latexSource": "LaTeX 源码",
       "livePreview": "实时预览",
-      "renderError": "渲染错误"
+      "renderError": "渲染错误",
+      "largeFileDetected": "检测到大文件",
+      "largeFileWarningDesc": "文件较大，直接打开大文件可能导致浏览器性能问题。",
+      "previewAnyway": "仍然预览"
     },
     "editor": {
       "readingMode": "阅读模式",
@@ -473,7 +489,9 @@
       "folder": "文件夹",
       "qrMobileAccess": "手机访问",
       "qrScanDesc": "扫描二维码在手机上打开此分享",
-      "qrBackToInfo": "返回信息"
+      "qrBackToInfo": "返回信息",
+      "emptyFolder": "此文件夹为空",
+      "previewNotAvailable": "无法预览"
     },
     "tabs": {
       "closeOthers": "关闭其他标签页",
@@ -570,7 +588,15 @@
     "name": "名称",
     "rawJson": "原始 JSON",
     "visualMode": "可视化模式",
-    "switchToRawJson": "切换到原始 JSON 模式"
+    "switchToRawJson": "切换到原始 JSON 模式",
+    "on": "开",
+    "off": "关",
+    "menu": "菜单",
+    "brandName": "FileUni",
+    "logoAlt": "FileUni 标志",
+    "passwordPlaceholder": "••••••••",
+    "codePlaceholder": "6位数字",
+    "cancel": "取消"
   },
   "nav": {
     "dashboard": "控制台",
@@ -588,7 +614,8 @@
     "backToPublic": "返回首页",
     "cacheManager": "缓存管理",
     "domainDdns": "DDNS 动态域名",
-    "domainSsl": "SSL/TLS 证书"
+    "domainSsl": "SSL/TLS 证书",
+    "activeWorkspace": "当前工作区"
   },
   "blacklist": {
     "statsTotal": "总封禁数",
@@ -602,7 +629,8 @@
     "never": "永久有效",
     "addTitle": "添加黑名单项",
     "placeholder": "请输入 IP、UUID 或 ClientID",
-    "formatHint": "时间格式：年-月-日 时:分"
+    "formatHint": "时间格式：年-月-日 时:分",
+    "noReason": "未提供原因"
   },
   "auth": {
     "loginTitle": "用户登录",
@@ -653,7 +681,9 @@
     "revokeAndLogin": "移除选定设备并重新登录",
     "revokeAll": "移除所有其他设备",
     "defaultPasswordWarning": "检测到默认密码",
-    "defaultPasswordDesc": "为了您的账号安全，强烈建议您修改默认的 'admin888' 密码。"
+    "defaultPasswordDesc": "为了您的账号安全，强烈建议您修改默认的 'admin888' 密码。",
+    "joinEcosystem": "加入 FileUni 生态系统",
+    "turnstileSiteKeyMissing": "Turnstile 站点密钥缺失"
   },
   "forgotPassword": {
     "accountRecovery": "账号找回",
@@ -739,15 +769,21 @@
       },
       "permissions": {
         "title": "权限管理",
-        "layoutTitle": "访问控制列表"
+        "layoutTitle": "访问控制列表",
+        "inherit": "继承",
+        "allow": "允许",
+        "deny": "拒绝"
       },
       "fs": {
         "title": "文件系统管理",
-        "layoutTitle": "文件系统基础设施"
+        "layoutTitle": "文件系统基础设施",
+        "hybridStorage": "混合存储",
+        "statusRecovering": "恢复中"
       },
       "web": {
         "title": "网站管理",
-        "layoutTitle": "多站点管理"
+        "layoutTitle": "多站点管理",
+        "tls": "TLS"
       },
       "audit": {
         "title": "审计日志",
@@ -884,7 +920,8 @@
     "success": "资料更新成功",
     "phoneListSynced": "备用联系电话已按后端规范同步更新",
     "invalidPhoneFormat": "手机号格式无效。示例：中国大陆 +8613812345678，美国 +12025550123，日本 +819012345678",
-    "invalidPhoneList": "存在无效手机号，请修正后再保存"
+    "invalidPhoneList": "存在无效手机号，请修正后再保存",
+    "phonePlaceholder": "+86 138..."
   },
   "security": {
     "loading": "安全环境检测中...",
@@ -940,7 +977,9 @@
     "revokeAccess": "取消授权",
     "revokeConfirm": "确定要强制断开此会话吗？",
     "adviceTitle": "安全建议",
-    "adviceDesc": "如果您发现不认识的设备，建议立即取消其授权并修改密码。"
+    "adviceDesc": "如果您发现不认识的设备，建议立即取消其授权并修改密码。",
+    "activeDeviceStatus": "活跃设备状态",
+    "slotsOccupied": "已占用槽位"
   },
   "admin": {
     "loading": "正在调取管理数据...",
@@ -964,7 +1003,8 @@
       "localDesc": "将完整备份直接保存到服务器本地磁盘。适用于大型数据库或定期维护任务。",
       "localBtn": "执行本地备份",
       "localSuccess": "本地备份已完成：{{path}}",
-      "largeDbWarning": "重要提示：若单表记录超过 10 万条或备份体积巨大，请优先使用专业备份工具（如 pg_dump 或 sqlite3 backup）以确保稳定性和一致性。"
+      "largeDbWarning": "重要提示：若单表记录超过 10 万条或备份体积巨大，请优先使用专业备份工具（如 pg_dump 或 sqlite3 backup）以确保稳定性和一致性。",
+      "criticalAction": "危险操作"
     },
     "tasks": {
       "title": "任务监控",
@@ -1047,12 +1087,16 @@
         "download": "下载 OpenList",
         "restart": "重启 OpenList",
         "resetAdmin": "重置管理员密码",
-        "resetOutput": "OpenList 重置输出"
+        "resetOutput": "OpenList 重置输出",
+        "dataPathLabel": "数据目录路径"
       },
       "rclone": {
         "title": "Rclone 管理",
         "download": "下载 Rclone",
-        "copyMount": "复制挂载命令"
+        "copyMount": "复制挂载命令",
+        "configPathLabel": "配置文件路径",
+        "mountCommandLabel": "挂载命令模板",
+        "unmountCommandLabel": "卸载命令模板"
       },
       "kopia": {
         "title": "Kopia 管理",
@@ -1224,7 +1268,16 @@
       "cloudflareProxy": "启用 Cloudflare 模式 CDN 代理",
       "ipv4Config": "IPv4 探测配置",
       "ipv6Config": "IPv6 探测配置",
-      "multiUrlHint": "支持多个 URL，用逗号或分号分隔，将依次尝试直到获取成功"
+      "multiUrlHint": "支持多个 URL，用逗号或分号分隔，将依次尝试直到获取成功",
+      "proxyBadge": "代理",
+      "sourceInterface": "网卡接口",
+      "sourceStaticIp": "静态 IP",
+      "sourceShellCommand": "Shell 命令",
+      "sourceInheritLast": "沿用上次",
+      "credentialJson": "凭据 JSON",
+      "configJson": "配置 JSON",
+      "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
+      "providerZerossl": "ZeroSSL"
     },
     "ddns": {
       "title": "DDNS",
@@ -1516,7 +1569,15 @@
         "action": "操作",
         "details": "详情",
         "status": "状态"
-      }
+      },
+      "statusSuccess": "成功",
+      "statusFail": "失败",
+      "statusStart": "开始",
+      "typeFile": "文件",
+      "typeUser": "用户",
+      "typeSystem": "系统",
+      "typeSecurity": "安全",
+      "typeFinancial": "财务"
     },
     "users": {
       "title": "用户管理",
@@ -2179,6 +2240,7 @@
     "disabled": "聊天已关闭",
     "conversations": "会话列表",
     "send": "发送",
+    "nicknameOptional": "可选",
     "invites": "邀请",
     "inviteDays": "有效天数",
     "createInvite": "创建邀请",

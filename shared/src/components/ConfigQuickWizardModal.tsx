@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Cpu, Key, Settings2, X } from 'lucide-react';
+import { AlertTriangle, Cpu, Key, Settings2, Wand2, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { AdminPasswordPanel } from './AdminPasswordPanel';
 import { LicenseManagementModal } from './LicenseManagementModal';
+import { useThemeStore } from '../stores/theme';
 
 type DatabaseType = 'postgres' | 'sqlite';
 type FriendlyStep = 'performance' | 'database' | 'cache' | 'advanced' | 'license';
@@ -885,10 +886,20 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   const [showDetailedPreview, setShowDetailedPreview] = useState(false);
   const [showAdminPasswordPanel, setShowAdminPasswordPanel] = useState(false);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { theme } = useThemeStore();
+
   const draftRef = useRef<FriendlyDraft>(defaultDraft);
   const hasInitializedRef = useRef(false);
   const isInternalSyncRef = useRef(false);
   const lastObservedContentRef = useRef(content);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
   const friendlySteps = useMemo<FriendlyStep[]>(() => {
     return licenseWizard
       ? ['performance', 'database', 'cache', 'advanced', 'license']
@@ -907,11 +918,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       features: effectivePreset.features,
     };
   }, [draft.performanceTier, draft.loadProfile]);
+
   const previewTuningPlan = useMemo(() => {
     const base = PERFORMANCE_PRESETS.find(p => p.tier === draft.performanceTier) || PERFORMANCE_PRESETS[3];
     const effectivePreset = resolveEffectivePreset(draft, base);
     return buildPerformanceTuningPlan(draft, effectivePreset);
-  }, [draft.databaseType, draft.loadProfile, draft.performanceTier]);
+  }, [draft.databaseType, draft.loadProfile, draft.performanceTier, draft.captchaPreheatMode]);
+
   const previewConfigItems = useMemo<ConfigPreviewItem[]>(() => {
     const items: ConfigPreviewItem[] = [];
     const pushItem = (path: string, value: string | number | boolean) => {
@@ -989,6 +1002,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
 
     return items;
   }, [currentPreset.features, draft.cacheType, draft.databaseType, draft.performanceTier, previewTuningPlan]);
+
   const previewGroupStats = useMemo<ConfigPreviewGroupStat[]>(() => {
     const groupLabelKeyMap: Record<string, string> = {
       database: 'admin.config.quickWizard.performance.preview.groups.database',
@@ -1016,6 +1030,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
         count,
       }));
   }, [previewConfigItems]);
+
   const previewSimpleCards = useMemo(() => {
     const sftpConnectionValue = currentPreset.features.sftp ? (draft.performanceTier === 'good' ? 100 : 20) : 1;
     const ftpConnectionValue = currentPreset.features.ftp ? (draft.performanceTier === 'good' ? 100 : 20) : 1;
@@ -1088,6 +1103,9 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       {
         label: t('admin.config.quickWizard.performance.preview.captchaPreheatMode'),
         value: t(`admin.config.quickWizard.performance.preheatMode.options.${draft.captchaPreheatMode}`),
+        interactive: draft.performanceTier === 'medium' || draft.performanceTier === 'good',
+        options: ['memory', 'balanced', 'throughput'] as CaptchaPreheatMode[],
+        current: draft.captchaPreheatMode,
       },
       {
         label: t('admin.config.quickWizard.performance.preview.captchaPreheatPool'),
@@ -1134,7 +1152,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
         value: String(s3ConnectionValue),
       }] : []),
     ];
-  }, [currentPreset.features, draft.captchaPreheatMode, previewTuningPlan, t]);
+  }, [currentPreset.features, draft.captchaPreheatMode, draft.performanceTier, previewTuningPlan, t]);
 
   const parsed = useMemo(() => parseConfig(content, tomlAdapter.parse), [content, tomlAdapter]);
 
@@ -1229,28 +1247,44 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   const modalContent = (
     <div className="fixed inset-0 z-[130] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-6xl max-h-[92dvh] rounded-2xl border border-white/10 bg-slate-950 text-slate-100 shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-3 sm:px-5">
+      <div className={cn(
+        "relative w-full max-w-6xl max-h-[92dvh] rounded-2xl border shadow-2xl overflow-hidden flex flex-col",
+        isDark ? "border-white/10 bg-slate-950 text-slate-100" : "border-slate-200 bg-white text-slate-900"
+      )}>
+        <div className={cn(
+          "flex items-center justify-between gap-2 border-b px-3 py-3 sm:px-5 shrink-0",
+          isDark ? "border-white/10" : "border-slate-200"
+        )}>
           <div className="min-w-0">
             <h3 className="text-sm sm:text-base font-black uppercase tracking-wide truncate">{t('admin.config.quickWizard.title')}</h3>
-            <p className="text-[11px] sm:text-xs text-slate-400">{t('admin.config.quickWizard.subtitle')}</p>
+            <p className={cn("text-[11px] sm:text-xs", isDark ? "text-slate-400" : "text-slate-500 font-bold")}>{t('admin.config.quickWizard.subtitle')}</p>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={onClose} className="h-8 w-8 rounded-lg border border-white/15 text-slate-300 hover:bg-white/10 inline-flex items-center justify-center">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className={cn(
+                "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
+                isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-slate-200 text-slate-600 hover:bg-slate-100"
+              )}
+            >
               <X size={16} />
             </button>
           </div>
         </div>
 
-        <div className="max-h-[calc(92dvh-64px)] overflow-y-auto overscroll-contain p-3 sm:p-5 space-y-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-3 sm:p-5 space-y-4 custom-scrollbar">
           {parseError && (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 sm:p-4">
+            <div className={cn(
+              "rounded-xl border p-3 sm:p-4",
+              isDark ? "border-amber-500/30 bg-amber-500/10" : "border-amber-200 bg-amber-50"
+            )}>
               <div className="flex items-start gap-2 sm:gap-3">
-                <AlertTriangle size={18} className="text-amber-300 shrink-0 mt-0.5" />
+                <AlertTriangle size={18} className={isDark ? "text-amber-300" : "text-amber-600"} />
                 <div className="space-y-2">
-                  <p className="text-sm font-bold text-amber-100">{t('admin.config.quickWizard.parseErrorTitle')}</p>
-                  <p className="text-xs sm:text-sm text-amber-200/90 break-words">{parseError}</p>
-                  <p className="text-xs text-amber-200/80">{t('admin.config.quickWizard.parseErrorHint')}</p>
+                  <p className={cn("text-sm font-black", isDark ? "text-amber-100" : "text-amber-900")}>{t('admin.config.quickWizard.parseErrorTitle')}</p>
+                  <p className={cn("text-xs sm:text-sm break-words font-mono", isDark ? "text-amber-200/90" : "text-amber-800")}>{parseError}</p>
+                  <p className={cn("text-xs", isDark ? "text-amber-200/80" : "text-amber-700")}>{t('admin.config.quickWizard.parseErrorHint')}</p>
                 </div>
               </div>
             </div>
@@ -1258,7 +1292,10 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
 
           {!parseError && (
             <div className="space-y-4">
-              <div className="rounded-xl border border-white/10 bg-white/[0.02] p-2 sm:p-3">
+              <div className={cn(
+                "rounded-xl border p-2 sm:p-3",
+                isDark ? "border-white/10 bg-white/[0.02]" : "border-slate-200 bg-slate-50 shadow-inner"
+              )}>
                 <div className={cn(
                   'grid grid-cols-1 gap-2',
                   friendlySteps.length >= 4 ? 'sm:grid-cols-4' : 'sm:grid-cols-3',
@@ -1269,12 +1306,12 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                       type="button"
                       onClick={() => setFriendlyStep(step)}
                       className={cn(
-                        'h-10 rounded-lg text-xs sm:text-sm font-bold border transition-colors',
+                        'h-10 rounded-lg text-xs sm:text-sm font-black border transition-all shadow-sm',
                         friendlyStep === step
-                          ? 'bg-primary text-primary-foreground border-primary'
+                          ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
                           : index < currentStepIndex
-                            ? 'bg-emerald-500/10 text-emerald-200 border-emerald-500/30'
-                            : 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10',
+                            ? (isDark ? 'bg-emerald-500/10 text-emerald-200 border-emerald-500/30' : 'bg-emerald-50 text-emerald-800 border-emerald-200')
+                            : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'),
                       )}
                     >
                       {index + 1}. {t(`admin.config.quickWizard.steps.${step}`)}
@@ -1284,12 +1321,15 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
               </div>
 
               {friendlyStep === 'performance' && (
-                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+                <section className={cn(
+                  "rounded-2xl border p-3 sm:p-4 shadow-sm",
+                  isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white"
+                )}>
                   <div className="flex items-center gap-2 mb-3">
-                    <Cpu size={16} className="text-purple-300" />
+                    <Cpu size={16} className={isDark ? "text-purple-300" : "text-purple-600"} />
                     <h4 className="text-xs sm:text-sm font-black uppercase tracking-wide">{t('admin.config.quickWizard.steps.performance')}</h4>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-400 mb-4">{t('admin.config.quickWizard.performance.intro')}</p>
+                  <p className={cn("text-xs sm:text-sm mb-4", isDark ? "text-slate-400" : "text-slate-600 font-bold")}>{t('admin.config.quickWizard.performance.intro')}</p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {PERFORMANCE_PRESETS.map((preset) => (
@@ -1298,12 +1338,14 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         type="button"
                         onClick={() => {
                           syncDraft((prev) => {
+                            const isLowMem = preset.tier === 'extreme-low' || preset.tier === 'low';
                             const next = {
                               ...prev,
                               performanceTier: preset.tier,
                               databaseType: preset.recommendations.databaseType,
                               cacheType: preset.recommendations.cacheType,
                               loadProfile: (preset.tier === 'medium' || preset.tier === 'good') ? 'heavy' : prev.loadProfile,
+                              captchaPreheatMode: isLowMem ? 'memory' : 'balanced' as CaptchaPreheatMode,
                             };
                             if (preset.recommendations.databaseType === 'sqlite') {
                               next.sqlitePath = './fileuni.db';
@@ -1315,8 +1357,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         className={cn(
                           'relative p-3 rounded-xl border text-left transition-all',
                           draft.performanceTier === preset.tier
-                            ? 'border-purple-400/50 bg-purple-500/10 ring-1 ring-purple-400/30'
-                            : 'border-white/10 bg-black/20 hover:bg-white/5'
+                            ? (isDark ? 'border-purple-400/50 bg-purple-500/10 ring-1 ring-purple-400/30 shadow-black/40 shadow-lg' : 'border-purple-500 bg-purple-50 ring-1 ring-purple-200 shadow-purple-100 shadow-lg')
+                            : (isDark ? 'border-white/10 bg-black/20 hover:bg-white/5' : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100')
                         )}
                       >
                         <div className="flex items-center gap-2 mb-1">
@@ -1327,16 +1369,22 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                             preset.tier === 'medium' ? 'bg-blue-400' :
                             'bg-emerald-400'
                           )} />
-                          <span className="text-xs sm:text-sm font-bold">{t(preset.labelKey)}</span>
+                          <span className="text-xs sm:text-sm font-black">{t(preset.labelKey)}</span>
                         </div>
-                        <p className="text-[11px] sm:text-xs text-slate-400 line-clamp-2">{t(preset.descKey)}</p>
+                        <p className={cn("text-[11px] sm:text-xs line-clamp-2", isDark ? "text-slate-400" : "text-slate-600 font-bold")}>{t(preset.descKey)}</p>
                         <div className="mt-2 flex flex-wrap gap-1">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-slate-300">
+                          <span className={cn(
+                            "text-[10px] px-1.5 py-0.5 rounded border font-black",
+                            isDark ? "bg-white/10 text-slate-300 border-transparent" : "bg-white text-slate-700 border-slate-200"
+                          )}>
                             {preset.recommendations.databaseType === 'sqlite'
                               ? t('admin.config.quickWizard.options.sqlite')
                               : t('admin.config.quickWizard.options.postgres')}
                           </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-slate-300">
+                          <span className={cn(
+                            "text-[10px] px-1.5 py-0.5 rounded border font-black",
+                            isDark ? "bg-white/10 text-slate-300 border-transparent" : "bg-white text-slate-700 border-slate-200"
+                          )}>
                             {t(`admin.config.quickWizard.options.cache${preset.recommendations.cacheType.charAt(0).toUpperCase()}${preset.recommendations.cacheType.slice(1)}`)}
                           </span>
                         </div>
@@ -1345,69 +1393,53 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                   </div>
 
                   {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
-                    <div className="mt-4 rounded-xl border border-purple-500/30 bg-purple-500/5 p-3">
-                      <div className="text-xs font-semibold mb-2">{t('admin.config.quickWizard.performance.loadProfile.title')}</div>
-                      <p className="text-[11px] text-slate-400 mb-3">{t('admin.config.quickWizard.performance.loadProfile.desc')}</p>
+                    <div className={cn(
+                      "mt-4 rounded-xl border p-3 shadow-inner transition-colors",
+                      isDark ? "border-purple-500/30 bg-purple-500/5" : "border-purple-200 bg-purple-50/50"
+                    )}>
+                      <div className={cn("text-xs font-black mb-2", isDark ? "text-purple-200" : "text-purple-900")}>{t('admin.config.quickWizard.performance.loadProfile.title')}</div>
+                      <p className={cn("text-[11px] mb-3", isDark ? "text-slate-400" : "text-slate-600 font-bold")}>{t('admin.config.quickWizard.performance.loadProfile.desc')}</p>
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => syncDraft((prev) => ({ ...prev, loadProfile: 'light' }))}
                           className={cn(
-                            'flex-1 p-2 rounded-lg border text-left transition-colors',
+                            'flex-1 p-2 rounded-lg border text-left transition-all font-black',
                             draft.loadProfile === 'light'
-                              ? 'border-emerald-400/50 bg-emerald-500/10'
-                              : 'border-white/10 bg-black/20 hover:bg-white/5'
+                              ? (isDark ? 'border-emerald-400/50 bg-emerald-500/10' : 'border-emerald-500 bg-emerald-100 shadow-sm')
+                              : (isDark ? 'border-white/10 bg-black/20 hover:bg-white/5' : 'border-slate-200 bg-white hover:bg-slate-100')
                           )}
                         >
-                          <div className="text-xs font-bold">{t('admin.config.quickWizard.performance.loadProfile.light')}</div>
-                          <div className="text-[10px] text-slate-400">{t('admin.config.quickWizard.performance.loadProfile.lightDesc')}</div>
+                          <div className="text-xs">{t('admin.config.quickWizard.performance.loadProfile.light')}</div>
+                          <div className={cn("text-[10px]", isDark ? "text-slate-400" : "text-slate-500")}>{t('admin.config.quickWizard.performance.loadProfile.lightDesc')}</div>
                         </button>
                         <button
                           type="button"
                           onClick={() => syncDraft((prev) => ({ ...prev, loadProfile: 'heavy' }))}
                           className={cn(
-                            'flex-1 p-2 rounded-lg border text-left transition-colors',
+                            'flex-1 p-2 rounded-lg border text-left transition-all font-black',
                             draft.loadProfile === 'heavy'
-                              ? 'border-orange-400/50 bg-orange-500/10'
-                              : 'border-white/10 bg-black/20 hover:bg-white/5'
+                              ? (isDark ? 'border-orange-400/50 bg-orange-500/10' : 'border-orange-500 bg-orange-100 shadow-sm')
+                              : (isDark ? 'border-white/10 bg-black/20 hover:bg-white/5' : 'border-slate-200 bg-white hover:bg-slate-100')
                           )}
                         >
-                          <div className="text-xs font-bold">{t('admin.config.quickWizard.performance.loadProfile.heavy')}</div>
-                          <div className="text-[10px] text-slate-400">{t('admin.config.quickWizard.performance.loadProfile.heavyDesc')}</div>
+                          <div className="text-xs">{t('admin.config.quickWizard.performance.loadProfile.heavy')}</div>
+                          <div className={cn("text-[10px]", isDark ? "text-slate-400" : "text-slate-500")}>{t('admin.config.quickWizard.performance.loadProfile.heavyDesc')}</div>
                         </button>
                       </div>
                     </div>
                   )}
-                  <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3">
-                    <div className="text-xs font-semibold mb-2">{t('admin.config.quickWizard.performance.preheatMode.title')}</div>
-                    <p className="text-[11px] text-slate-400 mb-3">{t('admin.config.quickWizard.performance.preheatMode.desc')}</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      {(['memory', 'balanced', 'throughput'] as CaptchaPreheatMode[]).map((mode) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => syncDraft((prev) => ({ ...prev, captchaPreheatMode: mode }))}
-                          className={cn(
-                            'rounded-lg border px-2.5 py-2 text-left transition-colors',
-                            draft.captchaPreheatMode === mode
-                              ? 'border-cyan-400/50 bg-cyan-500/10'
-                              : 'border-white/10 bg-black/20 hover:bg-white/5'
-                          )}
-                        >
-                          <div className="text-xs font-semibold">{t(`admin.config.quickWizard.performance.preheatMode.options.${mode}`)}</div>
-                          <div className="text-[10px] text-slate-400 mt-1">{t(`admin.config.quickWizard.performance.preheatMode.descs.${mode}`)}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
 
                   {draft.performanceTier === 'good' && (
-                    <div className="mt-4 rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-3">
+                    <div className={cn(
+                      "mt-4 rounded-xl border p-3",
+                      isDark ? "border-cyan-500/30 bg-cyan-500/5" : "border-cyan-200 bg-cyan-50"
+                    )}>
                       <div className="flex items-start gap-2">
-                        <AlertTriangle size={16} className="text-cyan-300 shrink-0 mt-0.5" />
+                        <AlertTriangle size={16} className={isDark ? "text-cyan-300" : "text-cyan-600"} />
                         <div>
-                          <div className="text-xs font-semibold text-cyan-200 mb-1">{t('admin.config.quickWizard.performance.performanceTips.title')}</div>
-                          <ul className="text-[11px] text-cyan-200/80 space-y-1">
+                          <div className={cn("text-xs font-black mb-1", isDark ? "text-cyan-200" : "text-cyan-900")}>{t('admin.config.quickWizard.performance.performanceTips.title')}</div>
+                          <ul className={cn("text-[11px] space-y-1", isDark ? "text-cyan-200/80" : "text-cyan-800 font-bold")}>
                             <li>• {t('admin.config.quickWizard.performance.performanceTips.raid')}</li>
                             <li>• {t('admin.config.quickWizard.performance.performanceTips.pgsql')}</li>
                             <li>• {t('admin.config.quickWizard.performance.performanceTips.memory')}</li>
@@ -1417,26 +1449,69 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                     </div>
                   )}
 
-                  <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3">
-                    <div className="text-[11px] uppercase opacity-60 mb-2">{t('admin.config.quickWizard.performance.recommendedSettings')}</div>
-                    <div className="mb-2 flex items-center justify-between text-[11px] uppercase opacity-60">
-                      <span>{t('admin.config.quickWizard.performance.preview.totalChanges', { count: previewConfigItems.length })}</span>
+                  <div className={cn(
+                    "mt-4 rounded-xl border p-3 shadow-sm",
+                    isDark ? "border-white/10 bg-black/20" : "border-slate-200 bg-slate-50"
+                  )}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Wand2 size={14} className="text-primary" />
+                      <div className={cn("text-[11px] uppercase font-black tracking-widest", isDark ? "opacity-60" : "text-slate-500")}>{t('admin.config.quickWizard.performance.recommendedSettings')}</div>
                     </div>
-                    <div className="text-xs text-slate-400 mb-2">{t('admin.config.quickWizard.performance.preview.simpleHint')}</div>
+                    
+                    <div className={cn("text-xs mb-3 font-bold", isDark ? "text-slate-400" : "text-slate-600")}>{t('admin.config.quickWizard.performance.preview.simpleHint')}</div>
+                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
                       {previewSimpleCards.map((card) => (
-                        <div key={`${card.label}:${card.value}`} className="rounded-lg border border-white/10 bg-black/30 px-2.5 py-2 text-xs">
-                          <div className="text-slate-400 mb-1">{card.label}</div>
-                          <div className={cn('font-semibold', card.enabled === undefined ? 'text-slate-100' : card.enabled ? 'text-emerald-300' : 'text-red-300')}>
-                            {card.value}
-                          </div>
+                        <div key={`${card.label}:${card.value}`} className={cn(
+                          "rounded-lg border px-2.5 py-2 transition-all flex flex-col",
+                          isDark ? "border-white/5 bg-black/30" : "border-slate-200 bg-white"
+                        )}>
+                          <div className={cn("text-[10px] uppercase font-black mb-1.5 truncate", isDark ? "text-slate-500" : "text-slate-400")}>{card.label}</div>
+                          
+                          {'interactive' in card && card.interactive ? (
+                            <div className="flex flex-wrap gap-1 mt-auto">
+                              {(card.options as CaptchaPreheatMode[]).map(opt => (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  onClick={() => syncDraft(prev => ({ ...prev, captchaPreheatMode: opt }))}
+                                  className={cn(
+                                    "px-1.5 py-0.5 rounded text-[10px] font-black border transition-all",
+                                    card.current === opt
+                                      ? (isDark ? "bg-primary/20 border-primary/40 text-primary" : "bg-primary text-white border-primary")
+                                      : (isDark ? "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200")
+                                  )}
+                                >
+                                  {t(`admin.config.quickWizard.performance.preheatMode.options.${opt}`)}
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className={cn(
+                              'text-xs font-black mt-auto truncate', 
+                              card.enabled === undefined 
+                                ? (isDark ? 'text-slate-100' : 'text-slate-900') 
+                                : card.enabled 
+                                  ? (isDark ? 'text-emerald-300' : 'text-emerald-700') 
+                                  : (isDark ? 'text-red-300' : 'text-red-700')
+                            )}>
+                              {card.value}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3">
+                    
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className={cn("text-[10px] font-black uppercase opacity-40 shrink-0", isDark ? "text-white" : "text-slate-900")}>
+                        {t('admin.config.quickWizard.performance.preview.totalChanges', { count: previewConfigItems.length })}
+                      </div>
                       <button
                         type="button"
-                        className="h-8 px-3 rounded-lg border border-white/15 bg-black/20 text-xs font-semibold hover:bg-white/10"
+                        className={cn(
+                          "h-8 px-3 rounded-lg border text-xs font-black transition-all shadow-sm shrink-0",
+                          isDark ? "border-white/15 bg-white/5 hover:bg-white/10 text-slate-300" : "border-slate-200 bg-white hover:bg-slate-50 text-slate-700"
+                        )}
                         onClick={() => setShowDetailedPreview((prev) => !prev)}
                       >
                         {showDetailedPreview
@@ -1444,35 +1519,54 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           : t('admin.config.quickWizard.performance.preview.viewDetails')}
                       </button>
                     </div>
+
                     {showDetailedPreview && (
-                      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3 mt-3 pt-3 border-t border-white/10">
-                        <div className="rounded-lg border border-white/10 bg-black/30 overflow-hidden">
-                          <div className="grid grid-cols-[1fr_auto] gap-2 border-b border-white/10 px-2.5 py-2 text-[11px] font-semibold text-slate-300">
+                      <div className={cn(
+                        "grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3 mt-3 pt-3 border-t",
+                        isDark ? "border-white/10" : "border-slate-200"
+                      )}>
+                        <div className={cn(
+                          "rounded-lg border overflow-hidden",
+                          isDark ? "border-white/10 bg-black/30" : "border-slate-200 bg-white"
+                        )}>
+                          <div className={cn(
+                            "grid grid-cols-[1fr_auto] gap-2 border-b px-2.5 py-2 text-[11px] font-black uppercase tracking-wider",
+                            isDark ? "border-white/10 text-slate-400 bg-white/5" : "border-slate-200 text-slate-500 bg-slate-50"
+                          )}>
                             <div>{t('admin.config.quickWizard.performance.preview.path')}</div>
                             <div>{t('admin.config.quickWizard.performance.preview.value')}</div>
                           </div>
-                          <div className="max-h-80 overflow-auto">
+                          <div className="max-h-80 overflow-auto custom-scrollbar">
                             {previewConfigItems.map((item) => (
                               <div
                                 key={`${item.path}:${item.value}`}
-                                className="grid grid-cols-[1fr_auto] gap-2 border-b border-white/10 px-2.5 py-1.5 text-[11px] last:border-b-0"
+                                className={cn(
+                                  "grid grid-cols-[1fr_auto] gap-2 border-b px-2.5 py-1.5 text-[11px] last:border-b-0",
+                                  isDark ? "border-white/10 hover:bg-white/5" : "border-slate-100 hover:bg-slate-50"
+                                )}
                               >
-                                <div className="font-mono text-slate-300 break-all">{item.path}</div>
-                                <div className="font-mono text-cyan-200">{item.value}</div>
+                                <div className={cn("font-mono break-all font-bold", isDark ? "text-slate-300" : "text-slate-700")}>{item.path}</div>
+                                <div className={cn("font-mono font-black", isDark ? "text-cyan-300" : "text-cyan-700")}>{item.value}</div>
                               </div>
                             ))}
                           </div>
                         </div>
-                        <div className="rounded-lg border border-white/10 bg-black/30 p-2.5">
-                          <div className="text-[11px] uppercase opacity-60 mb-2">{t('admin.config.quickWizard.performance.preview.groupStats')}</div>
+                        <div className={cn(
+                          "rounded-lg border p-2.5 flex flex-col",
+                          isDark ? "border-white/10 bg-black/30" : "border-slate-200 bg-white"
+                        )}>
+                          <div className={cn("text-[11px] uppercase font-black opacity-60 mb-2", isDark ? "text-white" : "text-slate-500")}>{t('admin.config.quickWizard.performance.preview.groupStats')}</div>
                           <div className="space-y-1.5">
                             {previewGroupStats.map((group) => (
                               <div
                                 key={`${group.key}:${group.count}`}
-                                className="flex items-center justify-between rounded border border-white/10 bg-black/20 px-2 py-1.5 text-xs"
+                                className={cn(
+                                  "flex items-center justify-between rounded border px-2 py-1.5 text-xs font-bold",
+                                  isDark ? "border-white/10 bg-black/20 text-slate-300" : "border-slate-100 bg-slate-50 text-slate-700"
+                                )}
                               >
-                                <span className="text-slate-300">{t(group.labelKey)}</span>
-                                <span className="font-mono text-cyan-200">{group.count}</span>
+                                <span>{t(group.labelKey)}</span>
+                                <span className={cn("font-mono font-black", isDark ? "text-cyan-300" : "text-cyan-700")}>{group.count}</span>
                               </div>
                             ))}
                           </div>
@@ -1484,23 +1578,26 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
               )}
 
               {friendlyStep === 'database' && (
-                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+                <section className={cn(
+                  "rounded-2xl border p-3 sm:p-4 shadow-sm",
+                  isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white"
+                )}>
                   <div className="flex items-center gap-2 mb-3">
-                    <Settings2 size={16} className="text-cyan-300" />
+                    <Settings2 size={16} className={isDark ? "text-cyan-300" : "text-cyan-600"} />
                     <h4 className="text-xs sm:text-sm font-black uppercase tracking-wide">{t('admin.config.quickWizard.steps.database')}</h4>
                   </div>
 
                   <div className="mb-3">
-                    <div className="text-xs font-semibold mb-2">{t('admin.config.quickWizard.fields.dbType')}</div>
+                    <div className={cn("text-xs font-black mb-2", isDark ? "text-slate-300" : "text-slate-700")}>{t('admin.config.quickWizard.fields.dbType')}</div>
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => syncDraft((prev) => ({ ...prev, databaseType: 'postgres' }))}
                         className={cn(
-                          'flex-1 h-10 rounded-lg border text-sm font-semibold transition-colors',
+                          'flex-1 h-10 rounded-lg border text-sm font-black transition-all',
                           draft.databaseType === 'postgres'
-                            ? 'bg-cyan-500/20 border-cyan-400/40 text-cyan-200'
-                            : 'bg-black/30 border-white/15 text-slate-300 hover:bg-white/10'
+                            ? (isDark ? 'bg-cyan-500/20 border-cyan-400/40 text-cyan-200' : 'bg-cyan-500 text-white border-cyan-600 shadow-md')
+                            : (isDark ? 'bg-black/30 border-white/15 text-slate-300 hover:bg-white/10' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100')
                         )}
                       >
                         {t('admin.config.quickWizard.options.postgres')}
@@ -1509,10 +1606,10 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         type="button"
                         onClick={() => syncDraft((prev) => ({ ...prev, databaseType: 'sqlite' }))}
                         className={cn(
-                          'flex-1 h-10 rounded-lg border text-sm font-semibold transition-colors',
+                          'flex-1 h-10 rounded-lg border text-sm font-black transition-all',
                           draft.databaseType === 'sqlite'
-                            ? 'bg-cyan-500/20 border-cyan-400/40 text-cyan-200'
-                            : 'bg-black/30 border-white/15 text-slate-300 hover:bg-white/10'
+                            ? (isDark ? 'bg-cyan-500/20 border-cyan-400/40 text-cyan-200' : 'bg-cyan-500 text-white border-cyan-600 shadow-md')
+                            : (isDark ? 'bg-black/30 border-white/15 text-slate-300 hover:bg-white/10' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100')
                         )}
                       >
                         {t('admin.config.quickWizard.options.sqlite')}
@@ -1521,10 +1618,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <label className="text-xs font-semibold">
+                    <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                       {t('admin.config.quickWizard.fields.healthTimeoutSeconds')}
                       <input
-                        className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                        className={cn(
+                          "mt-1 w-full h-10 rounded-lg border px-3 text-sm transition-all focus:outline-none focus:ring-2",
+                          isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                        )}
                         value={draft.dbHealthTimeoutSeconds}
                         onChange={(event) => {
                           const value = event.target.value;
@@ -1536,10 +1636,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
 
                   {draft.databaseType === 'postgres' ? (
                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <label className="text-xs font-semibold">
+                      <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                         {t('admin.config.quickWizard.fields.host')}
                         <input
-                          className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                            isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                          )}
                           value={draft.dbHost}
                           onChange={(event) => {
                             const dbHost = event.target.value;
@@ -1551,10 +1654,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           }}
                         />
                       </label>
-                      <label className="text-xs font-semibold">
+                      <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                         {t('admin.config.quickWizard.fields.port')}
                         <input
-                          className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                            isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                          )}
                           value={draft.dbPort}
                           onChange={(event) => {
                             const dbPort = event.target.value;
@@ -1566,10 +1672,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           }}
                         />
                       </label>
-                      <label className="text-xs font-semibold">
+                      <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                         {t('admin.config.quickWizard.fields.user')}
                         <input
-                          className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                            isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                          )}
                           value={draft.dbUser}
                           onChange={(event) => {
                             const dbUser = event.target.value;
@@ -1581,11 +1690,14 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           }}
                         />
                       </label>
-                      <label className="text-xs font-semibold">
+                      <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                         {t('admin.config.quickWizard.fields.password')}
                         <input
                           type="password"
-                          className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                            isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                          )}
                           value={draft.dbPass}
                           onChange={(event) => {
                             const dbPass = event.target.value;
@@ -1597,10 +1709,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           }}
                         />
                       </label>
-                      <label className="text-xs font-semibold sm:col-span-2">
+                      <label className={cn("text-xs font-black sm:col-span-2", isDark ? "text-slate-300" : "text-slate-700")}>
                         {t('admin.config.quickWizard.fields.databaseName')}
                         <input
-                          className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                            isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                          )}
                           value={draft.dbName}
                           onChange={(event) => {
                             const dbName = event.target.value;
@@ -1612,10 +1727,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           }}
                         />
                       </label>
-                      <label className="text-xs font-semibold sm:col-span-2">
+                      <label className={cn("text-xs font-black sm:col-span-2", isDark ? "text-slate-300" : "text-slate-700")}>
                         {t('admin.config.quickWizard.fields.postgresDsn')}
                         <input
-                          className="mt-1 w-full h-10 rounded-lg border border-cyan-400/30 bg-black/40 px-3 text-sm font-mono"
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono focus:outline-none focus:ring-2",
+                            isDark ? "border-cyan-400/30 bg-black/40 text-cyan-200 focus:ring-cyan-500/30" : "border-cyan-300 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20"
+                          )}
                           value={draft.postgresDsn}
                           onChange={(event) => {
                             const postgresDsn = event.target.value;
@@ -1635,10 +1753,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                     </div>
                   ) : (
                     <div className="mt-3 grid grid-cols-1 gap-3">
-                      <label className="text-xs font-semibold">
+                      <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                         {t('admin.config.quickWizard.fields.sqlitePath')}
                         <input
-                          className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm font-mono"
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono focus:outline-none focus:ring-2",
+                            isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                          )}
                           value={draft.sqlitePath}
                           onChange={(event) => {
                             const sqlitePath = event.target.value;
@@ -1650,10 +1771,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           }}
                         />
                       </label>
-                      <label className="text-xs font-semibold">
+                      <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                         {t('admin.config.quickWizard.fields.sqliteDsn')}
                         <input
-                          className="mt-1 w-full h-10 rounded-lg border border-cyan-400/30 bg-black/40 px-3 text-sm font-mono"
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono focus:outline-none focus:ring-2",
+                            isDark ? "border-cyan-400/30 bg-black/40 text-cyan-200 focus:ring-cyan-500/30" : "border-cyan-300 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20"
+                          )}
                           value={draft.sqliteDsn}
                           onChange={(event) => {
                             const sqliteDsn = event.target.value;
@@ -1671,11 +1795,14 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
               )}
 
               {friendlyStep === 'cache' && (
-                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+                <section className={cn(
+                  "rounded-2xl border p-3 sm:p-4 shadow-sm",
+                  isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white"
+                )}>
                   <h4 className="text-xs sm:text-sm font-black uppercase tracking-wide mb-3">{t('admin.config.quickWizard.steps.cache')}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="md:col-span-2">
-                      <div className="text-xs font-semibold mb-2">{t('admin.config.quickWizard.fields.cacheType')}</div>
+                      <div className={cn("text-xs font-black mb-2", isDark ? "text-slate-300" : "text-slate-700")}>{t('admin.config.quickWizard.fields.cacheType')}</div>
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                         {[
                           { value: 'valkey', label: t('admin.config.quickWizard.options.cacheValkey') },
@@ -1689,10 +1816,10 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                             type="button"
                             onClick={() => syncDraft((prev) => ({ ...prev, cacheType: option.value }))}
                             className={cn(
-                              'h-10 rounded-lg border text-xs sm:text-sm font-semibold transition-colors',
+                              'h-10 rounded-lg border text-xs font-black transition-all',
                               draft.cacheType === option.value
-                                ? 'bg-cyan-500/20 border-cyan-400/40 text-cyan-200'
-                                : 'bg-black/30 border-white/15 text-slate-300 hover:bg-white/10'
+                                ? (isDark ? 'bg-cyan-500/20 border-cyan-400/40 text-cyan-200' : 'bg-cyan-500 text-white border-cyan-600 shadow-md')
+                                : (isDark ? 'bg-black/30 border-white/15 text-slate-300 hover:bg-white/10' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50')
                             )}
                           >
                             {option.label}
@@ -1700,15 +1827,15 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         ))}
                       </div>
                     </div>
-                    <label className="text-xs font-semibold">
+                    <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                       {t('admin.config.quickWizard.fields.useTls')}
                       <button
                         type="button"
                         className={cn(
-                          'mt-1 h-10 w-full rounded-lg border text-sm font-semibold',
+                          'mt-1 h-10 w-full rounded-lg border font-black transition-all shadow-sm',
                           draft.cacheUseTls
-                            ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-200'
-                            : 'bg-black/30 border-white/15 text-slate-200',
+                            ? (isDark ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-200' : 'bg-emerald-500 text-white border-emerald-600')
+                            : (isDark ? 'bg-black/30 border-white/15 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-600'),
                         )}
                         onClick={() => {
                           syncDraft((prev) => {
@@ -1723,10 +1850,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                     </label>
                   </div>
                   <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <label className="text-xs font-semibold">
+                    <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                       {t('admin.config.quickWizard.fields.host')}
                       <input
-                        className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                        className={cn(
+                          "mt-1 w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                          isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                        )}
                         value={draft.cacheHost}
                         onChange={(event) => {
                           const cacheHost = event.target.value;
@@ -1738,10 +1868,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         }}
                       />
                     </label>
-                    <label className="text-xs font-semibold">
+                    <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                       {t('admin.config.quickWizard.fields.port')}
                       <input
-                        className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                        className={cn(
+                          "mt-1 w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                          isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                        )}
                         value={draft.cachePort}
                         onChange={(event) => {
                           const cachePort = event.target.value;
@@ -1753,10 +1886,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         }}
                       />
                     </label>
-                    <label className="text-xs font-semibold">
+                    <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                       {t('admin.config.quickWizard.fields.user')}
                       <input
-                        className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                        className={cn(
+                          "mt-1 w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                          isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                        )}
                         value={draft.cacheUser}
                         onChange={(event) => {
                           const cacheUser = event.target.value;
@@ -1768,11 +1904,14 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         }}
                       />
                     </label>
-                    <label className="text-xs font-semibold">
+                    <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                       {t('admin.config.quickWizard.fields.password')}
                       <input
                         type="password"
-                        className="mt-1 w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                        className={cn(
+                          "mt-1 w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                          isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                        )}
                         value={draft.cachePass}
                         onChange={(event) => {
                           const cachePass = event.target.value;
@@ -1784,10 +1923,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         }}
                       />
                     </label>
-                    <label className="text-xs font-semibold sm:col-span-2">
+                    <label className={cn("text-xs font-black sm:col-span-2", isDark ? "text-slate-300" : "text-slate-700")}>
                       {t('admin.config.quickWizard.fields.redisUrl')}
                       <input
-                        className="mt-1 w-full h-10 rounded-lg border border-cyan-400/30 bg-black/40 px-3 text-sm font-mono"
+                        className={cn(
+                          "mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono focus:outline-none focus:ring-2",
+                          isDark ? "border-cyan-400/30 bg-black/40 text-cyan-200 focus:ring-cyan-500/30" : "border-cyan-300 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20"
+                        )}
                         value={draft.cacheRedisUrl}
                         onChange={(event) => {
                           const cacheRedisUrl = event.target.value;
@@ -1809,23 +1951,36 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
               )}
 
               {friendlyStep === 'advanced' && (
-                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+                <section className={cn(
+                  "rounded-2xl border p-3 sm:p-4 shadow-sm",
+                  isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white"
+                )}>
                   <h4 className="text-xs sm:text-sm font-black uppercase tracking-wide mb-3">{t('admin.config.quickWizard.steps.advanced')}</h4>
-                  <p className="text-xs sm:text-sm text-slate-400 mb-3">{t('admin.config.quickWizard.advancedActions.intro')}</p>
+                  <p className={cn("text-xs sm:text-sm mb-3", isDark ? "text-slate-400" : "text-slate-600 font-bold")}>{t('admin.config.quickWizard.advancedActions.intro')}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {licenseWizard && (
                       <button
                         type="button"
-                        className="h-12 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-200 text-xs sm:text-sm font-semibold hover:bg-amber-500/20 transition-colors inline-flex items-center justify-center gap-2"
+                        className={cn(
+                          "h-12 rounded-lg border text-xs sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+                          isDark 
+                            ? "border-amber-500/40 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20" 
+                            : "border-amber-500/50 bg-amber-50 text-amber-900 hover:bg-amber-100"
+                        )}
                         onClick={() => setIsLicenseModalOpen(true)}
                       >
-                        <Key size={14} />
+                        <Key size={14} className={isDark ? "text-amber-400" : "text-amber-600"} />
                         {t('admin.config.quickWizard.steps.license')}
                       </button>
                     )}
                     <button
                       type="button"
-                      className="h-12 rounded-lg border border-cyan-400/40 bg-cyan-500/10 text-cyan-200 text-xs sm:text-sm font-semibold hover:bg-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={cn(
+                        "h-12 rounded-lg border text-xs sm:text-sm font-black transition-all disabled:opacity-50 shadow-sm",
+                        isDark 
+                          ? "border-cyan-400/40 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20" 
+                          : "border-cyan-500/50 bg-cyan-50 text-cyan-900 hover:bg-cyan-100"
+                      )}
                       onClick={() => {
                         if (onResetAdminPassword) {
                           setShowAdminPasswordPanel(true);
@@ -1840,34 +1995,49 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
               )}
 
               {friendlyStep === 'license' && licenseWizard && (
-                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4 space-y-3">
+                <section className={cn(
+                  "rounded-2xl border p-3 sm:p-4 space-y-3 shadow-sm",
+                  isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white"
+                )}>
                   <h4 className="text-xs sm:text-sm font-black uppercase tracking-wide mb-1">{t('admin.config.quickWizard.steps.license')}</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="rounded-lg border border-white/10 bg-black/20 p-3">
-                      <div className="text-[11px] uppercase opacity-60 mb-1">{t('admin.config.quickWizard.fields.licenseStatus')}</div>
+                    <div className={cn(
+                      "rounded-lg border p-3",
+                      isDark ? "border-white/10 bg-black/20" : "border-slate-100 bg-slate-50"
+                    )}>
+                      <div className={cn("text-[11px] uppercase font-black opacity-60 mb-1", isDark ? "text-white" : "text-slate-500")}>{t('admin.config.quickWizard.fields.licenseStatus')}</div>
                       <div className={cn(
-                        'text-sm font-bold',
-                        licenseWizard.isValid ? 'text-emerald-300' : 'text-red-300',
+                        'text-sm font-black',
+                        licenseWizard.isValid ? (isDark ? 'text-emerald-300' : 'text-emerald-700') : (isDark ? 'text-red-300' : 'text-red-700'),
                       )}>
                         {licenseWizard.isValid
                           ? t('admin.config.quickWizard.options.licenseAuthorized')
                           : t('admin.config.quickWizard.options.licenseUnauthorized')}
                       </div>
                     </div>
-                    <div className="rounded-lg border border-white/10 bg-black/20 p-3">
-                      <div className="text-[11px] uppercase opacity-60 mb-1">{t('admin.config.quickWizard.fields.maxUsers')}</div>
-                      <div className="text-sm font-bold">{licenseWizard.currentUsers} / {licenseWizard.maxUsers}</div>
+                    <div className={cn(
+                      "rounded-lg border p-3",
+                      isDark ? "border-white/10 bg-black/20" : "border-slate-100 bg-slate-50"
+                    )}>
+                      <div className={cn("text-[11px] uppercase font-black opacity-60 mb-1", isDark ? "text-white" : "text-slate-500")}>{t('admin.config.quickWizard.fields.maxUsers')}</div>
+                      <div className="text-sm font-black">{licenseWizard.currentUsers} / {licenseWizard.maxUsers}</div>
                     </div>
-                    <div className="rounded-lg border border-white/10 bg-black/20 p-3 sm:col-span-2">
-                      <div className="text-[11px] uppercase opacity-60 mb-1">{t('admin.config.quickWizard.fields.hwFingerprint')}</div>
-                      <div className="text-xs sm:text-sm font-mono break-all">{licenseWizard.deviceCode || '-'}</div>
+                    <div className={cn(
+                      "rounded-lg border p-3 sm:col-span-2",
+                      isDark ? "border-white/10 bg-black/20" : "border-slate-100 bg-slate-50"
+                    )}>
+                      <div className={cn("text-[11px] uppercase font-black opacity-60 mb-1", isDark ? "text-white" : "text-slate-500")}>{t('admin.config.quickWizard.fields.hwFingerprint')}</div>
+                      <div className={cn("text-xs sm:text-sm font-mono break-all font-bold", isDark ? "text-white" : "text-slate-800")}>{licenseWizard.deviceCode || '-'}</div>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold">{t('admin.config.quickWizard.fields.licenseKey')}</label>
+                    <label className={cn("text-xs font-black", isDark ? "text-slate-300" : "text-slate-700")}>{t('admin.config.quickWizard.fields.licenseKey')}</label>
                     <input
-                      className="w-full h-10 rounded-lg border border-white/15 bg-black/30 px-3 text-sm"
+                      className={cn(
+                        "w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2",
+                        isDark ? "border-white/15 bg-black/30 text-white focus:ring-primary/30" : "border-slate-300 bg-white text-slate-900 focus:ring-primary/20 shadow-sm"
+                      )}
                       value={licenseWizard.licenseKey}
                       placeholder={t('admin.config.quickWizard.fields.licenseInputPlaceholder')}
                       onChange={(event) => licenseWizard.onLicenseKeyChange(event.target.value)}
@@ -1877,7 +2047,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                   <div className="flex justify-end">
                     <button
                       type="button"
-                      className="h-9 px-4 rounded-lg border border-primary bg-primary text-primary-foreground text-xs sm:text-sm font-bold disabled:opacity-40"
+                      className="h-9 px-4 rounded-lg border border-primary bg-primary text-white text-xs sm:text-sm font-black disabled:opacity-40 shadow-lg shadow-primary/20 transition-all hover:opacity-90"
                       onClick={licenseWizard.onApplyLicense}
                       disabled={licenseWizard.saving || licenseWizard.licenseKey.trim().length === 0}
                     >
@@ -1887,10 +2057,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                 </section>
               )}
 
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center justify-between gap-2 shrink-0">
                 <button
                   type="button"
-                  className="h-9 px-4 rounded-lg border border-white/15 bg-black/20 text-xs sm:text-sm font-bold disabled:opacity-40"
+                  className={cn(
+                    "h-10 px-6 rounded-lg border text-xs sm:text-sm font-black transition-all disabled:opacity-40 shadow-sm",
+                    isDark ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  )}
                   onClick={() => {
                     if (currentStepIndex > 0) {
                       setFriendlyStep(friendlySteps[currentStepIndex - 1]);
@@ -1902,7 +2075,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                 </button>
                 <button
                   type="button"
-                  className="h-9 px-4 rounded-lg border border-primary bg-primary text-primary-foreground text-xs sm:text-sm font-bold disabled:opacity-40"
+                  className="h-10 px-8 rounded-lg border border-primary bg-primary text-white text-xs sm:text-sm font-black disabled:opacity-40 shadow-lg shadow-primary/20 transition-all hover:opacity-90"
                   onClick={() => {
                     if (currentStepIndex < friendlySteps.length - 1) {
                       setFriendlyStep(friendlySteps[currentStepIndex + 1]);

@@ -292,7 +292,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                 <div className="p-3 flex items-center justify-between border-b border-white/5">
                   <div className="flex items-center gap-2">
                     <LinkIcon size={12} className="text-primary" />
-                    <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">Share Package</span>
+                    <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">{t('filemanager.shareModal.sharePackage')}</span>
                   </div>
                   <button
                     onClick={() => setShowQr(!showQr)}
@@ -319,10 +319,10 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                   <>
                     <div className="p-3 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">Share URL</span>
+                        <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">{t('filemanager.shareModal.shareUrlLabel')}</span>
                         {currentHasPassword() && (
                           <div className="px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 text-[8px] font-black uppercase border border-yellow-500/20">
-                            <Lock size={10} className="inline mr-1" /> Protected
+                            <Lock size={10} className="inline mr-1" /> {t('filemanager.shareModal.protected')}
                           </div>
                         )}
                       </div>
@@ -336,7 +336,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                         <div className="flex items-center gap-3">
                           <Lock size={14} className="text-yellow-500" />
                           <div className="flex flex-col">
-                            <span className="text-[8px] font-black uppercase opacity-40 leading-none mb-1">Access Password</span>
+                            <span className="text-[8px] font-black uppercase opacity-40 leading-none mb-1">{t('filemanager.shareModal.accessPasswordLabel')}</span>
                             <span className="text-sm font-mono font-black text-yellow-500 tracking-wider">{form.password}</span>
                           </div>
                         </div>

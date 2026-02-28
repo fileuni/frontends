@@ -599,9 +599,9 @@ export const WebAdmin: React.FC = () => {
                 </div>
                 <div className="col-span-1">
                   {site.tls_enabled ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-600 text-sm font-bold"><ShieldCheck size={14} />ON</span>
+                    <span className="inline-flex items-center gap-1 text-emerald-600 text-sm font-bold"><ShieldCheck size={14} />{t('common.on')}</span>
                   ) : (
-                    <span className="text-sm opacity-50">OFF</span>
+                    <span className="text-sm opacity-50">{t('common.off')}</span>
                   )}
                 </div>
                 <div className="col-span-1">
@@ -669,7 +669,7 @@ export const WebAdmin: React.FC = () => {
                 <Switch checked={draft.enabled} onChange={(v) => setDraft({ ...draft, enabled: v })} />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold uppercase tracking-wider opacity-70">TLS</span>
+                <span className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.tls')}</span>
                 <Switch checked={draft.tls_enabled} onChange={(v) => setDraft({ ...draft, tls_enabled: v })} />
               </div>
             </div>

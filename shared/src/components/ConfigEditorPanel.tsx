@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../lib/utils';
 import { ConfigRawEditor, type ConfigError, type ConfigNoteEntry } from './ConfigRawEditor';
 
 interface ConfigEditorPanelProps {

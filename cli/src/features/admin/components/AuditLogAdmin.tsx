@@ -81,11 +81,11 @@ export const AuditLogAdmin = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'SUCCESS':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20 whitespace-nowrap">SUCCESS</Badge>;
+        return <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20 whitespace-nowrap">{t('admin.audit.statusSuccess')}</Badge>;
       case 'FAIL':
-        return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 whitespace-nowrap">FAIL</Badge>;
+        return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 whitespace-nowrap">{t('admin.audit.statusFail')}</Badge>;
       case 'START':
-        return <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20 whitespace-nowrap">START</Badge>;
+        return <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20 whitespace-nowrap">{t('admin.audit.statusStart')}</Badge>;
       default:
         return <Badge variant="outline" className="whitespace-nowrap">{status}</Badge>;
     }
@@ -94,13 +94,15 @@ export const AuditLogAdmin = () => {
   const getTypeBadge = (type: string) => {
     switch (type) {
       case 'FILE':
-        return <Badge className="bg-sky-500/10 text-sky-500 border-sky-500/20">FILE</Badge>;
+        return <Badge className="bg-sky-500/10 text-sky-500 border-sky-500/20">{t('admin.audit.typeFile')}</Badge>;
       case 'USER':
-        return <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/20">USER</Badge>;
+        return <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/20">{t('admin.audit.typeUser')}</Badge>;
       case 'SYSTEM':
-        return <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20">SYSTEM</Badge>;
+        return <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20">{t('admin.audit.typeSystem')}</Badge>;
       case 'SECURITY':
-        return <Badge className="bg-red-500/10 text-red-500 border-red-500/20">SECURITY</Badge>;
+        return <Badge className="bg-red-500/10 text-red-500 border-red-500/20">{t('admin.audit.typeSecurity')}</Badge>;
+      case 'FINANCIAL':
+        return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">{t('admin.audit.typeFinancial')}</Badge>;
       default:
         return <Badge variant="secondary">{type}</Badge>;
     }
@@ -150,21 +152,21 @@ export const AuditLogAdmin = () => {
               className="h-10 px-3 rounded-xl bg-white/5 border border-white/5 text-sm outline-none focus:border-primary/50 transition-all"
             >
               <option value="">{t('admin.audit.allTypes')}</option>
-              <option value="FILE">FILE</option>
-              <option value="USER">USER</option>
-              <option value="SYSTEM">SYSTEM</option>
-              <option value="SECURITY">SECURITY</option>
-              <option value="FINANCIAL">FINANCIAL</option>
+              <option value="FILE">{t('admin.audit.typeFile')}</option>
+              <option value="USER">{t('admin.audit.typeUser')}</option>
+              <option value="SYSTEM">{t('admin.audit.typeSystem')}</option>
+              <option value="SECURITY">{t('admin.audit.typeSecurity')}</option>
+              <option value="FINANCIAL">{t('admin.audit.typeFinancial')}</option>
             </select>
-            <select 
-              value={statusFilter} 
+            <select
+              value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
               className="h-10 px-3 rounded-xl bg-white/5 border border-white/5 text-sm outline-none focus:border-primary/50 transition-all"
             >
               <option value="">{t('admin.audit.allStatus')}</option>
-              <option value="SUCCESS">SUCCESS</option>
-              <option value="FAIL">FAIL</option>
-              <option value="START">START</option>
+              <option value="SUCCESS">{t('admin.audit.statusSuccess')}</option>
+              <option value="FAIL">{t('admin.audit.statusFail')}</option>
+              <option value="START">{t('admin.audit.statusStart')}</option>
             </select>
             <button type="submit" className="h-10 px-4 rounded-xl bg-primary text-white font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-primary/20">
               <Search size={14} />

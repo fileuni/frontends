@@ -109,8 +109,8 @@ export const Navbar = () => {
       )}>
         {/* Brand */}
         <a href={`${base}mod=public&page=index`} className="flex items-center gap-3 group shrink-0">
-          <img src="/ui/favicon.svg" alt="FileUni Logo" width={36} height={36} className="shadow-lg rounded-xl" />
-          <span className={cn("font-black text-lg tracking-tight hidden sm:block", isDark ? "text-white" : "text-gray-900")}>FileUni</span>
+          <img src="/ui/favicon.svg" alt={t('common.logoAlt')} width={36} height={36} className="shadow-lg rounded-xl" />
+          <span className={cn("font-black text-lg tracking-tight hidden sm:block", isDark ? "text-white" : "text-gray-900")}>{t('common.brandName')}</span>
         </a>
 
         {/* Right Section */}
@@ -158,7 +158,7 @@ export const Navbar = () => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-black text-lg truncate leading-tight">{currentUserData?.user.username}</p>
-                    <p className="text-sm font-black uppercase opacity-40 tracking-widest">Active Workspace</p>
+                    <p className="text-sm font-black uppercase opacity-40 tracking-widest">{t('nav.activeWorkspace')}</p>
                   </div>
                   
                   <div className="divider divider-horizontal mx-0 h-8 border-primary/20" />
@@ -175,7 +175,7 @@ export const Navbar = () => {
 
               {/* Navigation Items */}
               <div>
-                <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>Menu</p>
+                <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.menu')}</p>
                 <div className="space-y-1">
                   {navItems.map(item => {
                     const content = (

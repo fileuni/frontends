@@ -155,10 +155,10 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
                     onChange={(e) => handleTypeChange(e.target.value as SourceType)}
                   >
                     <option value="url">URL (HTTP API)</option>
-                    <option value="interface">Interface</option>
-                    <option value="static">Static IP</option>
-                    <option value="command">Shell Command</option>
-                    <option value="inherit_last">Inherit Last</option>
+                    <option value="interface">{t('admin.domain.sourceInterface')}</option>
+                    <option value="static">{t('admin.domain.sourceStaticIp')}</option>
+                    <option value="command">{t('admin.domain.sourceShellCommand')}</option>
+                    <option value="inherit_last">{t('admin.domain.sourceInheritLast')}</option>
                   </select>
                 </div>
               </div>

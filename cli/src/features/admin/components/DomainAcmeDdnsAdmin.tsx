@@ -635,7 +635,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                       {isDdns ? (
                          <div className="flex items-center gap-2">
                             <Badge variant="outline" className="text-[10px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 uppercase font-black">TTL {item.ttl}</Badge>
-                            {item.proxied && <Badge variant="outline" className="text-[10px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 uppercase font-black">Proxy</Badge>}
+                            {item.proxied && <Badge variant="outline" className="text-[10px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 uppercase font-black">{t('admin.domain.proxyBadge')}</Badge>}
                          </div>
                       ) : (
                         <div className="flex items-center gap-2 text-[11px] font-bold opacity-60 dark:opacity-40 uppercase tracking-widest text-foreground">
@@ -698,7 +698,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     {t('admin.domain.certDomainsPlaceholder')} (domain.com,ttl,zone)
                   </label>
                   <textarea
-                    placeholder="example.com&#10;www.example.com,600&#10;sub.example.com,120,example.com"
+                    placeholder={t('admin.domain.fqdnsPlaceholderExample')}
                     value={ddnsDraft.fqdns}
                     onChange={(e) => setDdnsDraft({ ...ddnsDraft, fqdns: e.target.value })}
                     className="w-full min-h-[120px] rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm text-foreground placeholder:opacity-30"

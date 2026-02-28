@@ -5,6 +5,7 @@ import type { editor as MonacoEditor } from "monaco-editor";
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "./ui/Button";
+import { cn } from "../lib/utils";
 
 /**
  * Configuration note entry interface
@@ -34,6 +35,7 @@ interface ConfigRawEditorProps {
   height?: string;
   activePath?: string;
   hideNotes?: boolean;
+  isDark?: boolean;
 }
 
 /**
@@ -150,6 +152,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
   height = "600px",
   activePath: externalActivePath,
   hideNotes = false,
+  isDark = true,
 }) => {
   const { t, i18n } = useTranslation();
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
@@ -289,35 +292,60 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
     <div className="flex flex-col w-full gap-3 sm:gap-4" style={{ height: resolvedHeight, minHeight: "360px" }}>
       <div className="flex flex-col shrink-0 gap-3 sm:gap-4">
         {!hideNotes && (
-          <div className="rounded-xl sm:rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] p-3 sm:p-4 flex flex-col gap-3 transition-all animate-in fade-in slide-in-from-top-2">
+          <div className={cn(
+            "rounded-xl sm:rounded-2xl border p-3 sm:p-4 flex flex-col gap-3 transition-all animate-in fade-in slide-in-from-top-2 shadow-sm",
+            isDark 
+              ? "border-white/5 bg-white/[0.02]" 
+              : "border-slate-200 bg-slate-50"
+          )}>
             {activeNote ? (
               (() => {
                 const localized = getLocalizedNote(activeNote, i18n.language);
                 return (
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col min-w-0">
-                      <div className="text-xs sm:text-sm font-bold uppercase text-primary leading-none mb-1">
+                      <div className="text-xs sm:text-sm font-black uppercase text-primary leading-none mb-1">
                         {localized.title}
                       </div>
-                      <div className="text-xs sm:text-sm leading-relaxed break-words whitespace-normal text-slate-700 dark:text-white/90">
+                      <div className={cn(
+                        "text-xs sm:text-sm leading-relaxed break-words whitespace-normal font-bold",
+                        isDark ? "text-white/90" : "text-slate-800"
+                      )}>
                         {localized.description}
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center">
                       {activeNote.example !== "{SECTION}" && activeNote.example !== "" && (
-                        <div className="flex items-center gap-2 bg-slate-200 dark:bg-black/40 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/5 shrink-0">
-                          <span className="text-[10px] uppercase font-bold text-slate-500 dark:opacity-40 whitespace-nowrap">
+                        <div className={cn(
+                          "flex items-center gap-2 px-3 py-1.5 rounded-lg border shrink-0",
+                          isDark 
+                            ? "bg-black/40 border-white/5" 
+                            : "bg-white border-slate-200"
+                        )}>
+                          <span className={cn(
+                            "text-[10px] uppercase font-black whitespace-nowrap",
+                            isDark ? "opacity-40" : "text-slate-500"
+                          )}>
                             {t("admin.config.example")}
                           </span>
-                          <code className="text-xs font-mono text-emerald-600 dark:text-emerald-400 break-all">
+                          <code className={cn(
+                            "text-xs font-mono break-all font-bold",
+                            isDark ? "text-emerald-400" : "text-emerald-700"
+                          )}>
                             {activeNote.example}
                           </code>
                         </div>
                       )}
                       {activePath && (
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-[10px] uppercase font-bold text-slate-400 dark:opacity-30">Path</span>
-                          <code className="text-[10px] sm:text-xs font-mono text-slate-500 dark:opacity-60 break-all">
+                          <span className={cn(
+                            "text-[10px] uppercase font-black",
+                            isDark ? "opacity-30" : "text-slate-400"
+                          )}>Path</span>
+                          <code className={cn(
+                            "text-[10px] sm:text-xs font-mono break-all font-bold",
+                            isDark ? "opacity-60" : "text-slate-500"
+                          )}>
                             {activePath}
                           </code>
                         </div>
@@ -328,13 +356,22 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
               })()
             ) : (
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center">
-                <div className="text-xs sm:text-sm text-slate-400 dark:opacity-30 italic">
+                <div className={cn(
+                  "text-xs sm:text-sm font-bold italic",
+                  isDark ? "opacity-30" : "text-slate-400"
+                )}>
                   {t("admin.config.noteEmpty")}
                 </div>
                 {activePath && (
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 dark:opacity-30">Path</span>
-                    <code className="text-[10px] sm:text-xs font-mono text-slate-500 dark:opacity-60 break-all">
+                    <span className={cn(
+                      "text-[10px] uppercase font-black",
+                      isDark ? "opacity-30" : "text-slate-400"
+                    )}>Path</span>
+                    <code className={cn(
+                      "text-[10px] sm:text-xs font-mono break-all font-bold",
+                      isDark ? "opacity-60" : "text-slate-500"
+                    )}>
                       {activePath}
                     </code>
                   </div>
@@ -349,7 +386,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
             <Button
               variant="outline"
               size="sm"
-              className="h-7 sm:h-8 border-dashed text-xs uppercase font-bold px-3"
+              className="h-7 sm:h-8 border-dashed text-xs font-black uppercase px-3"
               onClick={() => onChange(embeddedTemplate)}
             >
               <AlertTriangle size={12} className="mr-2" />
@@ -359,16 +396,27 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
         )}
       </div>
 
-      <div className="flex-1 h-full rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] border border-white/10 overflow-hidden bg-[#1e1e1e] shadow-2xl relative min-h-[320px]">
+      <div className={cn(
+        "flex-1 h-full rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] border overflow-hidden shadow-2xl relative min-h-[320px] transition-colors",
+        isDark 
+          ? "bg-[#1e1e1e] border-white/10" 
+          : "bg-white border-slate-300"
+      )}>
         {useFallbackEditor ? (
           <textarea
-            className="h-full w-full resize-none bg-[#1e1e1e] text-[#d4d4d4] p-4 font-mono text-sm leading-6 outline-none"
+            className={cn(
+              "h-full w-full resize-none p-4 font-mono text-sm leading-6 outline-none",
+              isDark ? "bg-[#1e1e1e] text-[#d4d4d4]" : "bg-white text-slate-900"
+            )}
             spellCheck={false}
             value={content}
             onChange={(e) => onChange(e.target.value)}
           />
         ) : monacoStatus !== "ready" ? (
-          <div className="h-full w-full flex items-center justify-center text-slate-300 text-lg font-semibold">
+          <div className={cn(
+            "h-full w-full flex items-center justify-center text-lg font-black",
+            isDark ? "text-slate-300" : "text-slate-600"
+          )}>
             {t("admin.config.loading")}
           </div>
         ) : (
@@ -376,7 +424,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
             height="100%"
             width="100%"
             language="toml-config"
-            theme="vs-dark"
+            theme={isDark ? "vs-dark" : "vs"}
             value={content}
             onChange={(v) => {
               if (typeof v === "string") {

@@ -360,7 +360,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                   {!listLoading && contents.length === 0 && (
                     <div className="h-64 flex flex-col items-center justify-center opacity-20">
                       <FileIconLucide size={48} className="mb-4" />
-                      <p className="font-black uppercase text-sm tracking-widest">This folder is empty</p>
+                      <p className="font-black uppercase text-sm tracking-widest">{t('filemanager.publicShare.emptyFolder')}</p>
                     </div>
                   )}
                 </div>
@@ -370,7 +370,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
             <div className="flex-1 flex flex-col items-center justify-center p-10 text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
                <div className="max-w-md space-y-6">
                   <div className={cn("p-6 rounded-[2rem] border space-y-4", isDark ? "bg-white/[0.02] border-white/5" : "bg-white border-gray-100 shadow-sm")}>
-                    <p className="text-sm font-black uppercase tracking-[0.2em] opacity-30">Preview Not Available</p>
+                    <p className="text-sm font-black uppercase tracking-[0.2em] opacity-30">{t('filemanager.publicShare.previewNotAvailable')}</p>
                     <p className={cn("text-sm font-medium opacity-50 leading-relaxed", !isDark && "text-gray-900")}>
                       You are viewing a direct share of a file. Click the button on the left to download the content directly to your device.
                     </p>

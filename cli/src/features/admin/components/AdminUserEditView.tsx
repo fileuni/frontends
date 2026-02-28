@@ -504,9 +504,9 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                         }}
                         className="w-full h-10 px-3 rounded-xl bg-white/5 border border-white/10 font-bold text-sm"
                       >
-                        <option value={0}>Inherit</option>
-                        <option value={1}>Allow</option>
-                        <option value={-1}>Deny</option>
+                        <option value={0}>{t('admin.permissions.inherit')}</option>
+                        <option value={1}>{t('admin.permissions.allow')}</option>
+                        <option value={-1}>{t('admin.permissions.deny')}</option>
                       </select>
                     </div>
                   </div>
