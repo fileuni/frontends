@@ -91,7 +91,7 @@ export const CacheManagerView: React.FC = () => {
             <p className="text-base opacity-75 mt-1 leading-relaxed">{t("cacheManager.subtitle")}</p>
           </div>
           <Button variant="outline" className="gap-2 w-full sm:w-auto h-11 text-base" onClick={handleRefresh}>
-            <RefreshCw size={14} />
+            <RefreshCw size={18} />
             {t("common.refresh")}
           </Button>
         </div>
@@ -145,7 +145,7 @@ export const CacheManagerView: React.FC = () => {
                       onClick={() => void handleClear(categoryId, "own")}
                       disabled={isClearingOwn || isClearingAll}
                     >
-                      <Eraser size={14} />
+                      <Eraser size={18} />
                       {isClearingOwn ? t("common.loading") : t("cacheManager.clearCurrentUser")}
                     </Button>
                   )}
@@ -157,7 +157,7 @@ export const CacheManagerView: React.FC = () => {
                       onClick={() => void handleClear(categoryId, "all")}
                       disabled={isClearingOwn || isClearingAll}
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={18} />
                       {isClearingAll ? t("common.loading") : t("cacheManager.clearAllUsers")}
                     </Button>
                   )}

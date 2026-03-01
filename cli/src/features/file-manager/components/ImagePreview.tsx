@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { client, BASE_URL } from '@/lib/api.ts';
 import { 
   ChevronLeft, ChevronRight, 
@@ -23,6 +24,7 @@ interface Props {
  * Simplified logic: Get token -> Build URL -> Display image
  */
 export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onClose }: Props) => {
+  const { t } = useTranslation();
   // Playlist State
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const activeFile = playlist[currentIndex];
@@ -121,7 +123,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
           <div className="w-64 border-r border-border bg-accent/5 flex flex-col shrink-0 z-40 animate-in slide-in-from-left duration-300">
             <div className="p-4 border-b border-border flex items-center justify-between">
               <span className="text-sm font-black uppercase tracking-widest text-muted-foreground/40">{t('filemanager.previewModal.playlist')}</span>
-              <Layers size={14} className="text-primary opacity-40" />
+              <Layers size={18} className="text-primary opacity-40" />
             </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
               {playlist.map((f, i) => (
@@ -133,7 +135,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
                         i === currentIndex ? "bg-primary/10 border-primary/20 shadow-inner" : "border-transparent hover:bg-accent"
                     )}
                 >
-                  <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center shrink-0 text-[8px] font-black uppercase bg-accent", i === currentIndex ? "bg-primary text-primary-foreground" : "text-muted-foreground/40")}>
+                  <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center shrink-0 text-[14px] font-black uppercase bg-accent", i === currentIndex ? "bg-primary text-primary-foreground" : "text-muted-foreground/40")}>
                       {f.name.split('.').pop()}
                   </div>
                   <p className={cn("text-sm font-bold truncate flex-1", i === currentIndex ? "text-primary" : "text-muted-foreground")}>

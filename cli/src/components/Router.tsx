@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, type ComponentType } from 'react';
+import type { TFunction } from 'i18next';
 import { useNavigationStore, type RouteParams } from '@/stores/navigation';
 import { useAuthStore } from '@/stores/auth';
 import { useAuthzStore } from '@/stores/authz';
@@ -91,7 +92,7 @@ const PageRenderer: React.FC<{
   mod: string;
   page: string;
   params: RouteParams;
-  t: any;
+  t: TFunction;
   hasPermission: (permissionKey: string) => boolean;
 }> = ({ mod, page, params, t, hasPermission }) => {
   // Public module

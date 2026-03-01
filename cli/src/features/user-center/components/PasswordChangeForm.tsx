@@ -44,7 +44,7 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
   const isMatch = newPassword === confirmPassword && confirmPassword !== '';
   const canSubmit = newPassword.length >= 6 && isMatch && (hideOldPassword || oldPassword.length > 0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!canSubmit) return;
 

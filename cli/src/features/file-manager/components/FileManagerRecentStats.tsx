@@ -16,7 +16,7 @@ export const FileManagerRecentStats = ({ onClear }: { onClear: () => void }) => 
           {t("filemanager.recentRules") || "History covers: directory browsing, property checks, previews, and downloads."}
         </p>
       </div>
-      <Button variant="ghost" size="sm" className="h-7 text-sm font-black uppercase text-red-400 hover:text-red-500 hover:bg-red-500/10" onClick={onClear}>
+      <Button variant="ghost" size="sm" className="h-9 text-sm font-black uppercase text-red-400 hover:text-red-500 hover:bg-red-500/10" onClick={onClear}>
         {t("filemanager.actions.clearHistory") || "Clear All"}
       </Button>
     </div>

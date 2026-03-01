@@ -7,6 +7,14 @@ import { Badge } from '@/components/ui/Badge.tsx';
 import { Download, Play, Square, RefreshCw, ExternalLink, Settings, Terminal, Activity, Trash2 } from 'lucide-react';
 import type { ToolKind } from './types.ts';
 
+const getErrorMessage = (error: unknown): string => {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string' && message.length > 0) return message;
+  }
+  return error instanceof Error ? error.message : String(error);
+};
+
 export type ToolProps = {
   tool: string;
   kind: ToolKind;
@@ -73,10 +81,10 @@ export const ToolPanel = (props: ToolProps) => {
         setModalContent(result);
         setModalOpen(true);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (action.showOutputInModal) {
         setModalTitle(`${action.label} - Error`);
-        setModalContent(error?.message || String(error));
+        setModalContent(getErrorMessage(error));
         setModalOpen(true);
       }
     }
@@ -101,11 +109,11 @@ export const ToolPanel = (props: ToolProps) => {
             <div className="space-y-2">
               <div className="flex items-center gap-4">
                 <h4 className="text-4xl font-black tracking-tight uppercase leading-none">{t('admin.extensions.operationSection')}</h4>
-                <Badge variant={props.installed ? 'success' : 'outline'} className="rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
+                <Badge variant={props.installed ? 'success' : 'outline'} className="rounded-full px-4 py-1.5 text-sm font-bold uppercase tracking-widest">
                   {props.installed ? t('admin.extensions.status.installed') : t('admin.extensions.status.notInstalled')}
                 </Badge>
                 {props.installed && showServiceActions && (
-                  <Badge variant={props.running ? 'success' : 'secondary'} className="rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
+                  <Badge variant={props.running ? 'success' : 'secondary'} className="rounded-full px-4 py-1.5 text-sm font-bold uppercase tracking-widest">
                     {props.running ? t('admin.extensions.running') : t('admin.extensions.stopped')}
                   </Badge>
                 )}
@@ -257,21 +265,21 @@ export const ToolPanel = (props: ToolProps) => {
           <div className="space-y-8">
             <div className="grid grid-cols-4 gap-6">
               <div className="p-6 rounded-[2rem] bg-white/5 border border-white/10 space-y-3 overflow-hidden">
-                <label className="text-xs font-black uppercase opacity-50 tracking-widest">{t('admin.extensions.installDir')}</label>
+                <label className="text-sm font-black uppercase opacity-50 tracking-widest">{t('admin.extensions.installDir')}</label>
                 <div className="text-xl font-mono font-bold opacity-80 truncate" title={props.installDir}>{props.installDir || '--'}</div>
               </div>
               <div className="p-6 rounded-[2rem] bg-white/5 border border-white/10 space-y-3 overflow-hidden">
-                <label className="text-xs font-black uppercase opacity-50 tracking-widest">{t('admin.extensions.binPath')}</label>
+                <label className="text-sm font-black uppercase opacity-50 tracking-widest">{t('admin.extensions.binPath')}</label>
                 <div className="text-xl font-mono font-bold text-primary truncate" title={props.binPath}>{props.binPath || '--'}</div>
               </div>
               <div className="p-6 rounded-[2rem] bg-white/5 border border-white/10 space-y-3 overflow-hidden">
-                <label className="text-xs font-black uppercase opacity-50 tracking-widest">{t('admin.extensions.version')}</label>
+                <label className="text-sm font-black uppercase opacity-50 tracking-widest">{t('admin.extensions.version')}</label>
                 <div className="text-xl font-mono font-bold text-primary truncate" title={props.version}>{props.version || '--'}</div>
               </div>
               <div className="p-6 rounded-[2rem] bg-white/5 border border-white/10 space-y-3 overflow-hidden flex flex-col justify-center">
-                <label className="text-xs font-black uppercase opacity-50 tracking-widest">{t('admin.extensions.followStart')}</label>
+                <label className="text-sm font-black uppercase opacity-50 tracking-widest">{t('admin.extensions.followStart')}</label>
                 <div className="flex items-center gap-3 mt-2">
-                  <Badge variant={props.followStart ? 'success' : 'secondary'} className="rounded-xl px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
+                  <Badge variant={props.followStart ? 'success' : 'secondary'} className="rounded-xl px-4 py-1.5 text-sm font-bold uppercase tracking-widest">
                     {props.followStart ? t('common.enabled') : t('common.disabled')}
                   </Badge>
                 </div>

@@ -76,11 +76,8 @@ export default function Launcher() {
 
   // Log related state
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [showAllLogs, setShowAllLogs] = useState(false);
   const [uptime, setUptime] = useState(0);
-  const [stats, setStats] = useState({ cpu: 12, memory: 128, connections: 5 });
-  const PREVIEW_LOG_COUNT = 5;
-  const MAX_LOG_DISPLAY = 50;
+  const stats = { cpu: 12, memory: 128, connections: 5 };
 
   // Config selector state
   const [showConfigSelector, setShowConfigSelector] = useState(false);
@@ -404,13 +401,16 @@ export default function Launcher() {
 
   const toggleTheme = () => {
     const themes: Theme[] = ['light', 'dark', 'system'];
-    const next = themes[(themes.indexOf(theme) + 1) % themes.length];
+    const currentIndex = themes.indexOf(theme);
+    const next = themes[(currentIndex + 1) % themes.length] ?? 'light';
     setTheme(next);
   };
 
   const toggleLanguage = () => {
     const langs: Language[] = ['zh', 'en'];
-    const next = langs[(langs.indexOf(language === 'auto' ? 'zh' : language) + 1) % langs.length];
+    const currentLanguage: Language = language === 'auto' ? 'zh' : language;
+    const currentIndex = langs.indexOf(currentLanguage);
+    const next = langs[(currentIndex + 1) % langs.length] ?? 'zh';
     setLanguage(next);
   };
 

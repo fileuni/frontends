@@ -44,7 +44,7 @@ export const RegisterView = () => {
   const isMatch = password === confirmPassword && confirmPassword !== '';
   const canSubmit = username.length >= 3 && password.length >= 6 && isMatch && agreement;
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!agreement) {
       addToast(t("auth.agreement"), "warning");

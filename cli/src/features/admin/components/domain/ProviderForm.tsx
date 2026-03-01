@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/Input';
-import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
 interface ProviderFormProps {
@@ -119,7 +118,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
     }
   }, [providerKey, credentialJson, configJson]);
 
-  const handleFieldChange = (key: string, value: string, isConfig: boolean) => {
+  const handleFieldChange = (key: string, value: string) => {
     const newFields = { ...fields, [key]: value };
     setFields(newFields);
 
@@ -150,7 +149,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
           {currentDefs && (
             <button
               type="button"
-              className="text-[10px] font-black uppercase tracking-widest text-primary underline underline-offset-4"
+              className="text-[14px] font-black uppercase tracking-widest text-primary underline underline-offset-4"
               onClick={() => setMode('form')}
             >
               Switch to Form Mode
@@ -158,17 +157,17 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
           )}
         </div>
         <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.credentialJson')}</label>
+          <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.credentialJson')}</label>
           <textarea
-            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
+            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-sm text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
             value={credentialJson}
             onChange={(e) => onChangeCredential(e.target.value)}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.configJson')}</label>
+          <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.configJson')}</label>
           <textarea
-            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-xs text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
+            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-sm text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
             value={configJson}
             onChange={(e) => onChangeConfig(e.target.value)}
           />
@@ -182,7 +181,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
       <div className="flex justify-end">
         <button
           type="button"
-          className="text-[10px] font-black uppercase tracking-widest text-primary underline underline-offset-4 opacity-60 hover:opacity-100 transition-opacity"
+          className="text-[14px] font-black uppercase tracking-widest text-primary underline underline-offset-4 opacity-60 hover:opacity-100 transition-opacity"
           onClick={() => setMode('raw')}
         >
           {t('common.switchToRawJson')}
@@ -191,7 +190,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
       <div className="grid grid-cols-1 gap-4">
         {currentDefs.map((def) => (
           <div key={def.key} className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+            <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
               {def.label}
               {def.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -199,10 +198,10 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
               type={def.type || 'text'}
               placeholder={def.placeholder}
               value={fields[def.key] || ''}
-              onChange={(e) => handleFieldChange(def.key, e.target.value, !!def.isConfig)}
+                  onChange={(e) => handleFieldChange(def.key, e.target.value)}
               className={controlBase}
             />
-            {def.helper && <div className="text-[10px] opacity-50 dark:opacity-30 italic text-foreground/60">{def.helper}</div>}
+            {def.helper && <div className="text-[14px] opacity-50 dark:opacity-30 italic text-foreground/60">{def.helper}</div>}
           </div>
         ))}
       </div>

@@ -169,7 +169,7 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
 
         {loading ? (
           <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] opacity-50">
-            <Loader2 size={14} className="animate-spin" />
+            <Loader2 size={18} className="animate-spin" />
             {t('filemanager.officeLite.loadingApps')}
           </div>
         ) : (

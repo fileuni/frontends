@@ -117,19 +117,19 @@ export const useToastStore = create<ToastState>((set, get) => ({
     } = options || {};
 
     const id = Math.random().toString(36).substring(2, 15);
-    
+
     const toast: Toast = {
       id,
       message,
       type,
       duration,
-      details,
       showDoNotShowAgain,
-      doNotShowAgainKey,
-      userId,
       showDetails: false,
       doNotShowAgainChecked: false,
       createdAt: Date.now(),
+      ...(details ? { details } : {}),
+      ...(doNotShowAgainKey ? { doNotShowAgainKey } : {}),
+      ...(userId !== undefined ? { userId } : {}),
     };
 
     set((state) => ({ toasts: [...state.toasts, toast] }));
@@ -194,7 +194,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
         ...options,
         showDoNotShowAgain: true,
         doNotShowAgainKey: key,
-        userId,
+        ...(userId !== undefined ? { userId } : {}),
       });
     }
   },

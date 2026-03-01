@@ -140,12 +140,12 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
   };
 
   const getIcon = (app: AppInfo) => {
-      if (app.id === 'office-lite') return <FileText size={14} />;
-      if (app.app_type === 'internal') return <Monitor size={14} />;
-      if (app.app_type === 'web') return <ExternalLink size={14} />;
-      if (app.id === 'potplayer' || app.id === 'vlc' || app.id === 'iina') return <Play size={14} />;
-      if (app.id === 'vscode') return <FileCode size={14} />;
-      return <ExternalLink size={14} />;
+      if (app.id === 'office-lite') return <FileText size={18} />;
+      if (app.app_type === 'internal') return <Monitor size={18} />;
+      if (app.app_type === 'web') return <ExternalLink size={18} />;
+      if (app.id === 'potplayer' || app.id === 'vlc' || app.id === 'iina') return <Play size={18} />;
+      if (app.id === 'vscode') return <FileCode size={18} />;
+      return <ExternalLink size={18} />;
   };
 
   // Close on outside click
@@ -166,16 +166,16 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
         className="h-10 px-3 rounded-xl gap-2 text-sm font-bold uppercase"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <ExternalLink size={14} />
+        <ExternalLink size={18} />
         <span className="hidden sm:inline">{t('filemanager.previewModal.openWith')}</span>
-        <ChevronDown size={12} className={cn("transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown size={18} className={cn("transition-transform", isOpen && "rotate-180")} />
       </Button>
 
       {isOpen && (
         <div className="absolute right-0 top-12 w-56 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-1 z-[60] animate-in fade-in slide-in-from-top-2 duration-200">
           {loading ? (
               <div className="px-4 py-3 flex items-center gap-3 text-sm font-bold opacity-50">
-                  <Loader2 size={14} className="animate-spin" />
+                  <Loader2 size={18} className="animate-spin" />
                   <span>Loading Apps...</span>
               </div>
           ) : (
@@ -214,7 +214,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
                  } catch (e) { console.error(e); }
              }}
            >
-             <Download size={14} />
+             <Download size={18} />
              <span>{t('filemanager.previewModal.downloadFile')}</span>
            </button>
         </div>

@@ -37,7 +37,7 @@ import { ChatInput } from "@/features/chat/components/ChatInput";
 import { SessionKeyModal } from "./SessionKeyModal";
 import { toast } from "@fileuni/shared";
 import { client } from "@/lib/api";
-import type { InviteInfo, GroupInfo } from "@/hooks/ChatTypes";
+import type { InviteInfo, GroupInfo, TransportBackend } from "@/hooks/ChatTypes";
 import { Modal } from "@/components/ui/Modal.tsx";
 import { Input } from "@/components/ui/Input.tsx";
 import { Button } from "@/components/ui/Button.tsx";
@@ -45,6 +45,25 @@ import { Badge } from "@/components/ui/Badge.tsx";
 import { Switch } from "@/components/ui/Switch.tsx";
 import { useTranslation } from "react-i18next";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+
+type UserSearchResult = {
+  user_id: string;
+  nickname?: string;
+  username: string;
+};
+
+const parseTransportBackend = (value: string): TransportBackend => {
+  if (value === "mqtt-proxy" || value === "mqtt-external") return value;
+  return "ws";
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string' && message.length > 0) return message;
+  }
+  return error instanceof Error ? error.message : fallback;
+};
 
 /**
  * P2P Help Modal Content
@@ -228,7 +247,7 @@ export const ChatUnifiedUI: React.FC = () => {
 
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [userSearchKeyword, setUserSearchKeyword] = useState("");
-  const [userSearchResults, setUserSearchResults] = useState<any[]>([]);
+  const [userSearchResults, setUserSearchResults] = useState<UserSearchResult[]>([]);
 
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [groupName, setGroupName] = useState("");
@@ -368,7 +387,7 @@ export const ChatUnifiedUI: React.FC = () => {
         setNicknameInput("");
         toast.success(t("chat.nicknameUpdated"));
       } else if (error) {
-        toast.error((error as any).message || t("common.error"));
+        toast.error(getErrorMessage(error, t("common.error")));
       }
     } finally {
       setIsUpdatingNickname(false);
@@ -381,7 +400,7 @@ export const ChatUnifiedUI: React.FC = () => {
       params: { query: { keyword: userSearchKeyword } },
     });
     if (data?.success) {
-      setUserSearchResults(data.data as any);
+      setUserSearchResults(data.data as UserSearchResult[]);
     }
   }, [userSearchKeyword]);
 
@@ -404,7 +423,7 @@ export const ChatUnifiedUI: React.FC = () => {
       setShowGroupModal(false);
       toast.success(t("chat.groupCreated"));
     } else if (error) {
-      toast.error((error as any).message || t("common.error"));
+      toast.error(getErrorMessage(error, t("common.error")));
     }
   }, [groupName, groupMembers, fetchGroups, t]);
 
@@ -722,11 +741,11 @@ export const ChatUnifiedUI: React.FC = () => {
                               setInviteDefaultNickname(inv.nickname);
                               setInviteModalOpen(true);
                             }}
-                            icon={<Settings size={14} />}
+                            icon={<Settings size={18} />}
                           />
                           <ActionBtn
                             onClick={() => handleSoftDelete(inv.id)}
-                            icon={<Trash2 size={14} />}
+                            icon={<Trash2 size={18} />}
                             variant="danger"
                           />
                         </div>
@@ -739,7 +758,7 @@ export const ChatUnifiedUI: React.FC = () => {
                         }}
                         className="w-full py-2.5 bg-primary/5 text-primary rounded-lg text-sm hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center gap-2 font-medium"
                       >
-                        <Copy size={14} />
+                        <Copy size={18} />
                         {t("chat.copyLink")}
                       </button>
                     </div>
@@ -788,12 +807,12 @@ export const ChatUnifiedUI: React.FC = () => {
                             setActiveTarget(group.group_id);
                             markConversationRead(group.group_id);
                           }}
-                          icon={<MessageSquare size={14} />}
+                          icon={<MessageSquare size={18} />}
                         />
                         {group.owner_uid === selfId && (
                           <ActionBtn
                             onClick={() => handleDisbandGroup(group.group_id)}
-                            icon={<Trash2 size={14} />}
+                            icon={<Trash2 size={18} />}
                             variant="danger"
                           />
                         )}
@@ -845,7 +864,7 @@ export const ChatUnifiedUI: React.FC = () => {
                       value={chatConfig.transportBackend}
                       onChange={(e) =>
                         updateChatConfig({
-                          transportBackend: e.target.value as any,
+                          transportBackend: parseTransportBackend(e.target.value),
                         })
                       }
                     >

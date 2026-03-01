@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import {
   useToastStore,
   type ToastType,
-  type ToastDuration,
   DURATION_MAP,
 } from '../../stores/toast';
 import { useThemeStore } from '../../stores/theme';
@@ -54,9 +53,6 @@ const getToastStyles = (
   type: ToastType,
   isDark: boolean
 ): { container: string; border: string; bg: string } => {
-  const baseBorder = isDark ? 'border-white/10' : 'border-gray-200';
-  const baseBg = isDark ? 'bg-zinc-900' : 'bg-white';
-
   switch (type) {
     case 'success':
       return {
@@ -82,20 +78,6 @@ const getToastStyles = (
         border: isDark ? 'border-blue-500/20' : 'border-blue-200',
         bg: isDark ? 'bg-blue-500/5' : 'bg-blue-50',
       };
-  }
-};
-
-// Get duration text
-const getDurationText = (duration: ToastDuration): string => {
-  switch (duration) {
-    case 'short':
-      return '2s';
-    case 'long':
-      return '5s';
-    case 'persistent':
-      return '∞';
-    default:
-      return '3s';
   }
 };
 
@@ -127,6 +109,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [toast?.id, toast?.duration]);
 
   if (!toast) return null;
@@ -185,12 +168,12 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
               >
                 {toast.showDetails ? (
                   <>
-                    <ChevronUp size={14} />
+                    <ChevronUp size={18} />
                     <span>{i18n.hideDetails}</span>
                   </>
                 ) : (
                   <>
-                    <ChevronDown size={14} />
+                    <ChevronDown size={18} />
                     <span>{i18n.viewDetails}</span>
                   </>
                 )}
@@ -215,7 +198,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
                       ${isDark ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}
                     `}
                   >
-                    <Copy size={12} />
+                    <Copy size={18} />
                     <span>{i18n.copy}</span>
                   </button>
                 </div>

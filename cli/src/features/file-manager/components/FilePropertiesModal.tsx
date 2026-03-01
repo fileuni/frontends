@@ -40,10 +40,10 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
   const PropertyItem = ({ icon: Icon, label, value }: PropertyItemProps) => (
     <div className="flex items-center gap-3 p-2 px-3 rounded-xl bg-white/[0.02] border border-white/5">
       <div className="p-1.5 rounded-lg bg-primary/10 text-primary shrink-0">
-        <Icon size={14} />
+        <Icon size={18} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[9px] font-black uppercase opacity-30 leading-none mb-1">{label}</p>
+        <p className="text-[14px] font-black uppercase opacity-30 leading-none mb-1">{label}</p>
         <p className="text-sm font-bold truncate break-all leading-tight">{value}</p>
       </div>
     </div>
@@ -62,7 +62,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
           <FileIcon name={file.name} isDir={file.is_dir} size={40} />
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-black truncate break-all leading-tight">{file.name}</h3>
-            <p className="text-[9px] font-black uppercase opacity-30 mt-0.5">
+            <p className="text-[14px] font-black uppercase opacity-30 mt-0.5">
               {file.is_dir ? t('filemanager.folder') : t('filemanager.file')}
             </p>
           </div>
@@ -91,7 +91,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
               onClick={handlePreview} 
               className="px-4 font-black uppercase text-sm flex items-center gap-2"
             >
-              <Eye size={12} />
+              <Eye size={18} />
               {t('filemanager.actions.preview')}
             </Button>
           )}

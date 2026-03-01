@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils.ts";
 import { useChat } from "@/hooks/ChatContext.tsx";
 import { client } from "@/lib/api.ts";
 import { useConfigStore } from "@/stores/config.ts";
+import type { TransportBackend } from "@/hooks/ChatTypes";
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
 import { Modal } from "@/components/ui/Modal.tsx";
@@ -51,6 +52,19 @@ type UserSearchResult = {
   user_id: string;
   nickname?: string;
   username: string;
+};
+
+const parseTransportBackend = (value: string): TransportBackend => {
+  if (value === "mqtt-proxy" || value === "mqtt-external") return value;
+  return "ws";
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string' && message.length > 0) return message;
+  }
+  return error instanceof Error ? error.message : fallback;
 };
 
 export const ChatPage: React.FC = () => {
@@ -95,6 +109,23 @@ export const ChatPage: React.FC = () => {
   const [groupMembers, setGroupMembers] = useState("");
   const [isCalling, setIsCalling] = useState(false);
   const [inputDraft, setInputDraft] = useState("");
+
+  const generalSettingItems: Array<{
+    label: string;
+    desc: string;
+    key: "saveHistory" | "enableWebRTC";
+  }> = [
+    {
+      label: t("chat.saveHistory"),
+      desc: t("chat.saveHistoryDesc"),
+      key: "saveHistory",
+    },
+    {
+      label: t("chat.enableWebRTC"),
+      desc: t("chat.enableWebRTCDesc"),
+      key: "enableWebRTC",
+    },
+  ];
 
   const filteredRooms = useMemo(() => {
     return rooms.filter(
@@ -211,7 +242,7 @@ export const ChatPage: React.FC = () => {
       setShowGroupModal(false);
       toast.success(t("chat.groupCreated"));
     } else if (error) {
-      toast.error((error as any).message || t("common.error"));
+      toast.error(getErrorMessage(error, t("common.error")));
     }
   };
 
@@ -286,7 +317,7 @@ export const ChatPage: React.FC = () => {
                     {activeRoom?.isGroup && (
                       <Badge
                         variant="outline"
-                        className="text-[9px] font-black uppercase tracking-widest h-4 bg-muted/50 border-none"
+                        className="text-[14px] font-black uppercase tracking-widest h-4 bg-muted/50 border-none"
                       >
                         {t("chat.group")}
                       </Badge>
@@ -489,18 +520,7 @@ export const ChatPage: React.FC = () => {
               {t("chat.generalSettings")}
             </h4>
             <div className="grid gap-3">
-              {[
-                {
-                  label: t("chat.saveHistory"),
-                  desc: t("chat.saveHistoryDesc"),
-                  key: "saveHistory",
-                },
-                {
-                  label: t("chat.enableWebRTC"),
-                  desc: t("chat.enableWebRTCDesc"),
-                  key: "enableWebRTC",
-                },
-              ].map((item) => (
+              {generalSettingItems.map((item) => (
                 <div
                   key={item.key}
                   className="flex items-center justify-between p-5 rounded-3xl bg-muted/20 border border-border/50 hover:bg-muted/30 transition-colors"
@@ -514,7 +534,7 @@ export const ChatPage: React.FC = () => {
                     </p>
                   </div>
                   <Switch
-                    checked={(chatConfig as any)[item.key]}
+                    checked={chatConfig[item.key]}
                     onChange={(val) => updateChatConfig({ [item.key]: val })}
                   />
                 </div>
@@ -534,7 +554,7 @@ export const ChatPage: React.FC = () => {
                 className="w-full h-12 px-4 rounded-2xl bg-background border-none shadow-inner outline-none transition-all font-bold text-sm"
                 value={chatConfig.transportBackend}
                 onChange={(e) =>
-                  updateChatConfig({ transportBackend: e.target.value as any })
+                  updateChatConfig({ transportBackend: parseTransportBackend(e.target.value) })
                 }
               >
                 {capabilities?.enable_chat !== false && (

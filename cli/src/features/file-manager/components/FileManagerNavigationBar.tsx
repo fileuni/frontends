@@ -32,7 +32,7 @@ export const FileManagerNavigationBar = () => {
     setCurrentPath(newPath);
   };
 
-  const handleAddressSubmit = (e: React.FormEvent) => {
+  const handleAddressSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     let targetPath = pathInput.trim();
     if (!targetPath && !targetPath.startsWith("/")) targetPath = "/" + targetPath;
@@ -49,8 +49,8 @@ export const FileManagerNavigationBar = () => {
       )} onClick={() => !isEditMode && setIsEditMode(true)}>
         {!isEditMode ? (
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar font-bold text-sm w-full h-full">
-            <Button variant="ghost" className="p-1.5 h-7 rounded-lg text-primary/60 hover:text-primary shrink-0" onClick={(e) => { e.stopPropagation(); setCurrentPath("/"); }}>
-              <HardDrive size={14} />
+            <Button variant="ghost" className="p-1.5 h-9 rounded-lg text-primary/60 hover:text-primary shrink-0" onClick={(e) => { e.stopPropagation(); setCurrentPath("/"); }}>
+              <HardDrive size={18} />
             </Button>
             {pathSegments.length > 4 && (
               <><span className="opacity-10 shrink-0">/</span><span className="px-1 opacity-40 font-black">...</span></>
@@ -60,7 +60,7 @@ export const FileManagerNavigationBar = () => {
               return (
                 <React.Fragment key={i}>
                   <span className="opacity-10 shrink-0">/</span>
-                  <Button variant="ghost" className="px-2 h-7 rounded-lg whitespace-nowrap shrink-0 opacity-60 hover:opacity-100 max-w-[120px]" onClick={(e) => { e.stopPropagation(); navigateTo(i); }}>
+                  <Button variant="ghost" className="px-2 h-9 rounded-lg whitespace-nowrap shrink-0 opacity-60 hover:opacity-100 max-w-[120px]" onClick={(e) => { e.stopPropagation(); navigateTo(i); }}>
                     <span className="truncate">{segment}</span>
                   </Button>
                 </React.Fragment>
@@ -72,7 +72,7 @@ export const FileManagerNavigationBar = () => {
           <form onSubmit={handleAddressSubmit} className="flex items-center w-full gap-2">
             <Input ref={addressInputRef} className="bg-transparent border-none p-0 h-full text-sm font-mono focus-visible:ring-0 focus-visible:ring-offset-0" value={pathInput} onChange={(e) => setPathInput(e.target.value)} onBlur={() => setTimeout(() => setIsEditMode(false), 200)} />
             <button type="submit" className="p-1 rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors">
-              <ArrowRight size={14} />
+              <ArrowRight size={18} />
             </button>
           </form>
         )}

@@ -49,7 +49,7 @@ export const Pagination = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleJump = (e: React.FormEvent) => {
+  const handleJump = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const page = parseInt(jumpPage);
     if (!isNaN(page) && page >= 1 && page <= totalPages) {
@@ -107,7 +107,7 @@ export const Pagination = ({
                   key={size}
                   onClick={() => onPageSizeChange(size)}
                   className={cn(
-                    "px-2 py-1 rounded-lg text-[9px] font-black transition-all",
+                    "px-2 py-1 rounded-lg text-sm font-black transition-all",
                     pageSize === size ? "bg-primary text-white shadow-lg shadow-primary/20" : "opacity-40 hover:opacity-100"
                   )}
                 >
@@ -186,7 +186,7 @@ export const Pagination = ({
                 {/* Quick Jump */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-1">
-                    <Hash size={14} className="text-primary" />
+                    <Hash size={18} className="text-primary" />
                     <span className="text-sm font-black uppercase tracking-widest opacity-40">{t('common.pagination.jumpTo')}</span>
                   </div>
                   <form onSubmit={handleJump} className="flex gap-2">
@@ -206,7 +206,7 @@ export const Pagination = ({
                 {/* Page Size */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-1">
-                    <Settings2 size={14} className="text-primary" />
+                    <Settings2 size={18} className="text-primary" />
                     <span className="text-sm font-black uppercase tracking-widest opacity-40">{t('common.pagination.itemsPerPage')}</span>
                   </div>
                   <div className="grid grid-cols-4 gap-2">

@@ -74,6 +74,8 @@
       "devDependencies": {
         "@astrojs/check": "^0.9.6",
         "@types/crypto-js": "^4.2.2",
+        "@types/react": "^19.2.4",
+        "@types/react-dom": "^19.2.3",
         "typescript": "^5.9.3",
       },
     },
@@ -122,6 +124,7 @@
       },
       "devDependencies": {
         "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.2.3",
       },
       "peerDependencies": {
         "react": "^19.0.0",

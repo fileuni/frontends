@@ -342,7 +342,7 @@ export const SecurityView = () => {
                 onClick={handleRegenerateS3}
                 disabled={regenerating}
               >
-                {regenerating ? <RefreshCw className="animate-spin mr-2" size={12} /> : <RefreshCw className="mr-2" size={12} />}
+                {regenerating ? <RefreshCw className="animate-spin mr-2" size={18} /> : <RefreshCw className="mr-2" size={18} />}
                 {regenerating ? t('security.rotating') : t('security.rotateKeys')}
               </Button>
             </div>
@@ -364,7 +364,7 @@ export const SecurityView = () => {
             
             <div className="mt-6 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 text-sm font-bold text-blue-400/60 flex flex-col gap-2 italic">
               <div className="flex items-center gap-3">
-                <ShieldCheck size={14} />
+                <ShieldCheck size={18} />
                 Endpoint: {mounted ? (
                   capabilities?.s3_port 
                     ? `${capabilities.s3_use_https ? 'https' : 'http'}://${window.location.hostname}:${capabilities.s3_port}` 
@@ -447,7 +447,7 @@ export const SecurityView = () => {
                     {captchaData ? (
                       <img src={captchaData.image_base64} alt={t('auth.captcha')} className="w-full h-full object-cover" />
                     ) : (
-                      <RefreshCw size={14} className="animate-spin opacity-40" />
+                      <RefreshCw size={18} className="animate-spin opacity-40" />
                     )}
                   </div>
                 </div>

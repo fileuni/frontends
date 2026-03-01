@@ -9,7 +9,7 @@ interface DecryptFailedBadgeProps {
 export const DecryptFailedBadge: React.FC<DecryptFailedBadgeProps> = ({ className }) => {
   const { t } = useTranslation();
   return (
-    <div className={cn('text-[9px] font-black text-orange-500 uppercase tracking-wider', className)}>
+    <div className={cn('text-[14px] font-black text-orange-500 uppercase tracking-wider', className)}>
       {t('chat.decryptFailed')}
     </div>
   );

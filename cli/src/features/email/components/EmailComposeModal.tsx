@@ -114,15 +114,15 @@ export const EmailComposeModal: React.FC<EmailComposeModalProps> = ({
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 py-2">
               {composeAttachments.map((att) => (
                 <div key={att.id} className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/10 group">
-                  <div className="flex items-center gap-2 min-w-0"><Paperclip size={12} className="text-primary" /><div className="truncate text-sm font-bold">{att.name}</div></div>
-                  <button onClick={() => setComposeAttachments(prev => prev.filter((item) => item.id !== att.id))} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/10 text-destructive rounded-md"><X size={12} /></button>
+                  <div className="flex items-center gap-2 min-w-0"><Paperclip size={18} className="text-primary" /><div className="truncate text-sm font-bold">{att.name}</div></div>
+                  <button onClick={() => setComposeAttachments(prev => prev.filter((item) => item.id !== att.id))} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/10 text-destructive rounded-md"><X size={18} /></button>
                 </div>
               ))}
             </div>
           )}
         </div>
         <div className="flex items-center justify-between pt-4 mt-2 border-t border-border/40">
-          <div className="flex items-center gap-2"><span className="text-[9px] font-black uppercase opacity-30 flex items-center gap-1"><Clock size={10} /> {currentDraftId ? t("email.autoSaved") : t("email.notSaved")}</span></div>
+          <div className="flex items-center gap-2"><span className="text-sm font-black uppercase opacity-30 flex items-center gap-1"><Clock size={18} /> {currentDraftId ? t("email.autoSaved") : t("email.notSaved")}</span></div>
           <div className="flex gap-2">
             <input type="file" ref={fileInputRef} className="hidden" multiple onChange={e => {
               const files = Array.from(e.target.files || []);

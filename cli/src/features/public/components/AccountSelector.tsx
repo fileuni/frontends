@@ -83,7 +83,7 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
                 <div className="flex items-center gap-2">
                   <p className={cn("font-black truncate", isDark ? "text-white" : "text-gray-900")}>{auth.user.username}</p>
                   {auth.user.id === currentUserId && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary text-white font-black uppercase tracking-tighter">
+                    <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-primary text-white font-black uppercase tracking-tighter">
                       {t('auth.activeAccount')}
                     </span>
                   )}

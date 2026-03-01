@@ -297,7 +297,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                   onClick={() => markAllAsRead()}
                   className="text-sm font-black uppercase opacity-40 hover:opacity-100 transition-all flex items-center gap-1"
                 >
-                  <Check size={12} />
+                  <Check size={18} />
                   {t("common.markAllRead", {
                     defaultValue: "Mark all as read",
                   })}
@@ -361,7 +361,7 @@ const ChatList = ({
                 <div className="flex justify-between items-start gap-2">
                   <p className="text-sm font-black truncate">{room.name}</p>
                   {room.lastMessage && (
-                    <span className="text-[8px] font-black uppercase opacity-30 whitespace-nowrap">
+                    <span className="text-[14px] font-black uppercase opacity-30 whitespace-nowrap">
                       {formatDistanceToNow(new Date(room.lastMessage.timestamp), {
                         addSuffix: true,
                       })}
@@ -373,7 +373,7 @@ const ChatList = ({
                 </p>
               </div>
               {room.unreadCount > 0 && (
-                <div className="bg-primary text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center shrink-0 self-center">
+                <div className="bg-primary text-white text-[14px] font-black w-4 h-4 rounded-full flex items-center justify-center shrink-0 self-center">
                   {room.unreadCount}
                 </div>
               )}
@@ -468,12 +468,12 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
             onClick={() => removeTask(task.id)}
             className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-destructive transition-all"
           >
-            <Trash2 size={14} />
+            <Trash2 size={18} />
           </button>
         )}
       </div>
       <div className="mt-3 space-y-1.5">
-        <div className="flex justify-between text-[9px] font-black uppercase tracking-tight">
+        <div className="flex justify-between text-[14px] font-black uppercase tracking-tight">
           <span
             className={cn(
               task.status === "success"
@@ -591,13 +591,13 @@ const NotificationList = ({
   const getLevelIcon = (level: string) => {
     switch (level) {
       case "success":
-        return <CheckCircle2 size={14} />;
+        return <CheckCircle2 size={18} />;
       case "warning":
-        return <AlertCircle size={14} />;
+        return <AlertCircle size={18} />;
       case "error":
-        return <AlertCircle size={14} />;
+        return <AlertCircle size={18} />;
       default:
-        return <Info size={14} />;
+        return <Info size={18} />;
     }
   };
 
@@ -634,7 +634,7 @@ const NotificationList = ({
             <div className="min-w-0 flex-1">
               <div className="flex justify-between items-start gap-2">
                 <p className="text-sm font-black truncate">{n.title}</p>
-                <span className="text-[8px] font-black uppercase opacity-30 whitespace-nowrap">
+                <span className="text-[14px] font-black uppercase opacity-30 whitespace-nowrap">
                   {formatDistanceToNow(new Date(n.created_at), {
                     addSuffix: true,
                     locale: dateLocale,
@@ -653,11 +653,11 @@ const NotificationList = ({
                   }}
                   className="p-1 rounded hover:bg-destructive/10 text-destructive"
                 >
-                  <Trash2 size={12} />
+                  <Trash2 size={18} />
                 </button>
                 {n.extra_data?.task_id && (
                   <button className="p-1 rounded hover:bg-primary/10 text-primary">
-                    <ExternalLink size={12} />
+                    <ExternalLink size={18} />
                   </button>
                 )}
               </div>
@@ -676,6 +676,18 @@ interface EmailAccount {
   display_name?: string;
   unread_count?: number;
 }
+
+interface EmailSyncStatus {
+  is_syncing: boolean;
+}
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (typeof error === 'object' && error !== null && 'msg' in error) {
+    const message = (error as { msg?: unknown }).msg;
+    if (typeof message === 'string' && message.length > 0) return message;
+  }
+  return error instanceof Error ? error.message : fallback;
+};
 
 // Email tab content component
 const EmailTabContent = ({
@@ -719,7 +731,7 @@ const EmailTabContent = ({
       
       const poll = setInterval(async () => {
         try {
-          const res = await extractData<any>(client.GET("/api/v1/email/accounts/{id}/sync-status", {
+          const res = await extractData<EmailSyncStatus>(client.GET("/api/v1/email/accounts/{id}/sync-status", {
             params: { path: { id } }
           }));
           if (!res.is_syncing) {
@@ -733,9 +745,9 @@ const EmailTabContent = ({
           setSyncingAccountId(null); 
         }
       }, 3000);
-    } catch (err: any) { 
+    } catch (err: unknown) { 
       // Handle frequency limiting
-      const msg = err?.msg || t("email.syncFailed");
+      const msg = getErrorMessage(err, t("email.syncFailed"));
       toast.error(msg);
     }
   };
@@ -785,7 +797,7 @@ const EmailTabContent = ({
                     syncingAccountId === account.id && "opacity-100 animate-spin"
                   )}
                 >
-                  <RefreshCw size={14} />
+                  <RefreshCw size={18} />
                 </button>
                 {account.unread_count && account.unread_count > 0 && (
                   <span className="bg-primary text-white text-sm font-black px-2 py-0.5 rounded-full">

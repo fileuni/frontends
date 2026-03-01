@@ -143,7 +143,7 @@ export const SessionsView = () => {
                 </div>
                 {!session.is_current && (
                   <div className="absolute -top-2 -left-2 bg-zinc-900 rounded-lg p-1 border border-white/10">
-                    {selectedIds.has(session.id) ? <CheckSquare size={14} className="text-primary" /> : <Square size={14} className="opacity-20" />}
+                    {selectedIds.has(session.id) ? <CheckSquare size={18} className="text-primary" /> : <Square size={18} className="opacity-20" />}
                   </div>
                 )}
               </div>
@@ -153,8 +153,8 @@ export const SessionsView = () => {
                   {session.is_current && <Badge variant="success">{t('sessions.current')}</Badge>}
                 </div>
                 <div className="flex items-center gap-4 mt-1 text-sm font-mono font-black opacity-40 uppercase tracking-tighter">
-                  <span className="flex items-center gap-1"><Globe size={12} /> {session.ip_address}</span>
-                  <span className="flex items-center gap-1"><Clock size={12} /> {t('sessions.lastActive')}: {mounted ? new Date(session.last_accessed_at).toLocaleString() : '...'}</span>
+                  <span className="flex items-center gap-1"><Globe size={18} /> {session.ip_address}</span>
+                  <span className="flex items-center gap-1"><Clock size={18} /> {t('sessions.lastActive')}: {mounted ? new Date(session.last_accessed_at).toLocaleString() : '...'}</span>
                 </div>
               </div>
             </div>

@@ -176,7 +176,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
       
       {disableToggle && disabledHint && (
         <p className="mt-6 text-sm text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10 p-4 rounded-2xl border border-amber-500/20 animate-in fade-in slide-in-from-top-1">
-          <Info size={14} className="inline-block mr-2 -mt-0.5" />
+          <Info size={18} className="inline-block mr-2 -mt-0.5" />
           {disabledHint}
         </p>
       )}

@@ -159,7 +159,7 @@ export const MarkdownVditorEditor = ({
                       : "opacity-40 hover:opacity-100 text-foreground"
                   )}
                  >
-                   <Eye size={12} /> {t('filemanager.actions.preview')}
+                   <Eye size={18} /> {t('filemanager.actions.preview')}
                  </button>
                  <button 
                   onClick={() => setIsEditing(true)}
@@ -170,7 +170,7 @@ export const MarkdownVditorEditor = ({
                       : "opacity-40 hover:opacity-100 text-foreground"
                   )}
                  >
-                   <Edit3 size={12} /> {t('filemanager.preview.edit')}
+                   <Edit3 size={18} /> {t('filemanager.preview.edit')}
                  </button>
               </div>
             )}
@@ -182,7 +182,7 @@ export const MarkdownVditorEditor = ({
                 onClick={handleSave} 
                 disabled={saving}
               >
-                {saving ? <Loader2 size={14} className="animate-spin mr-2" /> : <Save size={14} className="mr-2" />}
+                {saving ? <Loader2 size={18} className="animate-spin mr-2" /> : <Save size={18} className="mr-2" />}
                 {t('common.save')}
               </Button>
             )}

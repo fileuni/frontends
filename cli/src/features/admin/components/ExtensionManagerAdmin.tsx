@@ -34,6 +34,8 @@ type ToolState = {
   rcloneUnmountCommand?: string;
 };
 
+type PersistedToolState = Omit<ToolState, 'version' | 'downloadUrl'>;
+
 export const ExtensionManagerAdmin = () => {
   const { t, i18n } = useTranslation();
   const { addToast } = useToastStore();
@@ -153,9 +155,11 @@ export const ExtensionManagerAdmin = () => {
     if (!userId) return;
     const key = `ext-ui-overrides-v2:${userId}`;
     // Filter out version and downloadUrl before saving
-    const toSave: any = {};
+    const toSave: Record<string, PersistedToolState> = {};
     Object.keys(toolStates).forEach(tool => {
-      const { version, downloadUrl, ...persistent } = toolStates[tool];
+      const currentState = toolStates[tool];
+      if (!currentState) return;
+      const { version, downloadUrl, ...persistent } = currentState;
       toSave[tool] = persistent;
     });
     storageHub.setLocalItem(key, JSON.stringify(toSave));
@@ -226,7 +230,7 @@ export const ExtensionManagerAdmin = () => {
           </div>
           <Badge variant="outline" className="h-10 px-4 rounded-2xl border-white/10 bg-white/5 opacity-60 flex gap-3 items-center backdrop-blur-md">
             <Cpu size={16} className="opacity-40" />
-            <span className="font-mono text-xs uppercase font-black tracking-widest">{capabilities?.runtime_os || 'linux'} / {capabilities?.runtime_arch || 'x86_64'}</span>
+            <span className="font-mono text-sm uppercase font-black tracking-widest">{capabilities?.runtime_os || 'linux'} / {capabilities?.runtime_arch || 'x86_64'}</span>
           </Badge>
         </div>
       </div>
@@ -238,7 +242,7 @@ export const ExtensionManagerAdmin = () => {
             size="sm" 
             variant={extPage === item.key ? 'primary' : 'ghost'} 
             onClick={() => navigate({ mod: 'admin', page: 'extensions', ext: item.key })}
-            className={`relative rounded-2xl px-8 h-12 font-black uppercase tracking-widest text-[10px] transition-all duration-300 ${extPage === item.key ? 'shadow-xl shadow-primary/30' : 'opacity-40 hover:opacity-100 hover:bg-white/5'}`}
+            className={`relative rounded-2xl px-8 h-12 font-black uppercase tracking-widest text-[14px] transition-all duration-300 ${extPage === item.key ? 'shadow-xl shadow-primary/30' : 'opacity-40 hover:opacity-100 hover:bg-white/5'}`}
           >
             {item.label}
             {item.installed && (

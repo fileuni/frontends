@@ -38,6 +38,14 @@ interface ConfigRawEditorProps {
   isDark?: boolean;
 }
 
+interface MonacoWindow extends Window {
+  MonacoEnvironment?: {
+    getWorker: (_moduleId: string, _label: string) => Worker;
+  };
+}
+
+type MonacoModule = typeof import("monaco-editor");
+
 /**
  * Robust line number lookup
  */
@@ -55,11 +63,11 @@ const findLineByPath = (content: string, path: string): number => {
     const sectionTarget = `[${sectionName}]`;
     const sectionTargetArray = `[[${sectionName}]]`;
     for (let i = 0; i < lines.length; i++) {
-      const trimmed = lines[i].trim();
+      const trimmed = (lines[i] ?? '').trim();
       if (trimmed === sectionTarget || trimmed === sectionTargetArray) {
         startLine = i;
         for (let j = i + 1; j < lines.length; j++) {
-          if (lines[j].trim().startsWith("[")) {
+          if ((lines[j] ?? '').trim().startsWith("[")) {
             endLine = j;
             break;
           }
@@ -71,7 +79,7 @@ const findLineByPath = (content: string, path: string): number => {
 
   const keyRegex = new RegExp(`^\\s*${key}\\s*=`);
   for (let i = startLine; i < endLine; i++) {
-    if (keyRegex.test(lines[i])) {
+    if (keyRegex.test(lines[i] ?? '')) {
       return i + 1;
     }
   }
@@ -109,7 +117,7 @@ const getLocalizedNote = (note: ConfigNoteEntry, lang: string) => {
   };
 };
 
-const registerTomlLanguage = (monacoInstance: any) => {
+const registerTomlLanguage = (monacoInstance: MonacoModule) => {
   const languageId = "toml-config";
   const existing = monacoInstance.languages
     .getLanguages()
@@ -156,9 +164,9 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
-  const monacoRef = useRef<any>(null);
+  const monacoRef = useRef<MonacoModule | null>(null);
   const [internalActivePath, setInternalActivePath] = useState("");
-  const decorationCollectionRef = useRef<any>(null);
+  const decorationCollectionRef = useRef<MonacoEditor.IEditorDecorationsCollection | null>(null);
   const [monacoStatus, setMonacoStatus] = useState<"pending" | "ready" | "failed">("pending");
   const [useFallbackEditor, setUseFallbackEditor] = useState(false);
   const resolvedHeight = height === "100%" ? "clamp(360px, 62vh, 900px)" : height;
@@ -172,18 +180,13 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
     const setupMonaco = async () => {
       if (typeof window === "undefined") return;
       try {
-        (window as any).MonacoEnvironment = {
+        const monacoWindow = window as MonacoWindow;
+        monacoWindow.MonacoEnvironment = {
           getWorker: function (_moduleId: string, _label: string) {
             return new editorWorker();
           },
         };
-        const monacoModule = await import("monaco-editor");
-        const monacoInstance = (monacoModule as any)?.editor
-          ? monacoModule
-          : (monacoModule as any)?.default;
-        if (!monacoInstance?.editor) {
-          throw new Error("Invalid monaco module shape");
-        }
+        const monacoInstance: MonacoModule = await import("monaco-editor");
         if (!cancelled) {
           loader.config({ monaco: monacoInstance });
           await loader.init();
@@ -304,11 +307,11 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
                 return (
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col min-w-0">
-                      <div className="text-xs sm:text-sm font-black uppercase text-primary leading-none mb-1">
+                      <div className="text-sm sm:text-sm font-black uppercase text-primary leading-none mb-1">
                         {localized.title}
                       </div>
                       <div className={cn(
-                        "text-xs sm:text-sm leading-relaxed break-words whitespace-normal font-bold",
+                        "text-sm sm:text-sm leading-relaxed break-words whitespace-normal font-bold",
                         isDark ? "text-white/90" : "text-slate-800"
                       )}>
                         {localized.description}
@@ -323,13 +326,13 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
                             : "bg-white border-slate-200"
                         )}>
                           <span className={cn(
-                            "text-[10px] uppercase font-black whitespace-nowrap",
+                            "text-sm uppercase font-black whitespace-nowrap",
                             isDark ? "opacity-40" : "text-slate-500"
                           )}>
                             {t("admin.config.example")}
                           </span>
                           <code className={cn(
-                            "text-xs font-mono break-all font-bold",
+                            "text-sm font-mono break-all font-bold",
                             isDark ? "text-emerald-400" : "text-emerald-700"
                           )}>
                             {activeNote.example}
@@ -339,11 +342,11 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
                       {activePath && (
                         <div className="flex items-center gap-2 shrink-0">
                           <span className={cn(
-                            "text-[10px] uppercase font-black",
+                            "text-sm uppercase font-black",
                             isDark ? "opacity-30" : "text-slate-400"
                           )}>Path</span>
                           <code className={cn(
-                            "text-[10px] sm:text-xs font-mono break-all font-bold",
+                            "text-sm sm:text-sm font-mono break-all font-bold",
                             isDark ? "opacity-60" : "text-slate-500"
                           )}>
                             {activePath}
@@ -357,7 +360,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
             ) : (
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center">
                 <div className={cn(
-                  "text-xs sm:text-sm font-bold italic",
+                  "text-sm sm:text-sm font-bold italic",
                   isDark ? "opacity-30" : "text-slate-400"
                 )}>
                   {t("admin.config.noteEmpty")}
@@ -365,11 +368,11 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
                 {activePath && (
                   <div className="flex items-center gap-2 shrink-0">
                     <span className={cn(
-                      "text-[10px] uppercase font-black",
+                      "text-sm uppercase font-black",
                       isDark ? "opacity-30" : "text-slate-400"
                     )}>Path</span>
                     <code className={cn(
-                      "text-[10px] sm:text-xs font-mono break-all font-bold",
+                      "text-sm sm:text-sm font-mono break-all font-bold",
                       isDark ? "opacity-60" : "text-slate-500"
                     )}>
                       {activePath}
@@ -386,10 +389,10 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
             <Button
               variant="outline"
               size="sm"
-              className="h-7 sm:h-8 border-dashed text-xs font-black uppercase px-3"
+              className="h-7 sm:h-8 border-dashed text-sm font-black uppercase px-3"
               onClick={() => onChange(embeddedTemplate)}
             >
-              <AlertTriangle size={12} className="mr-2" />
+              <AlertTriangle size={18} className="mr-2" />
               {t("admin.config.reset")}
             </Button>
           </div>

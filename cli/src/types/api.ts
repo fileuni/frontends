@@ -1723,9 +1723,25 @@ export interface paths {
             cookie?: never;
         };
         get: operations["get_share_content"];
-        put?: never;
+        put: operations["update_share_raw_stream"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/public/share/{id}/entry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_share_entry"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1741,6 +1757,22 @@ export interface paths {
         get: operations["list_share_contents"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/public/share/{id}/upload-raw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["upload_share_raw_stream"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3728,6 +3760,9 @@ export interface components {
             username_or_email_or_phone_or_uid: string;
         };
         PublicShareInfo: {
+            can_delete: boolean;
+            can_update_no_create: boolean;
+            can_upload: boolean;
             created_at: string;
             enable_direct: boolean;
             expire_at?: string | null;
@@ -3737,6 +3772,10 @@ export interface components {
             is_public: boolean;
             seo_noindex: boolean;
             user_id: string;
+        };
+        PublicShareWriteQuery: {
+            password?: string | null;
+            path: string;
         };
         RecalibrateQuotaRequest: {
             user_ids?: string[] | null;
@@ -3892,6 +3931,9 @@ export interface components {
             public_key: string;
         };
         ShareRequest: {
+            can_delete?: boolean | null;
+            can_update_no_create?: boolean | null;
+            can_upload?: boolean | null;
             enable_direct?: boolean | null;
             /** Format: int64 */
             expire_days?: number | null;
@@ -3959,6 +4001,10 @@ export interface components {
         /** @enum {string} */
         SubjectType: "Ip" | "Uid" | "Cid" | "Target";
         SystemCapabilities: {
+            allocator_compiled: string;
+            allocator_effective: string;
+            allocator_profile: string;
+            allocator_requested: string;
             /** Format: int32 */
             captcha_max_attempts: number;
             chat_max_groups_joined_per_user: number;
@@ -4128,6 +4174,9 @@ export interface components {
             security_question: string;
         };
         UpdateShareRequest: {
+            can_delete?: boolean | null;
+            can_update_no_create?: boolean | null;
+            can_upload?: boolean | null;
             enable_direct?: boolean | null;
             /** Format: int64 */
             expire_days?: number | null;
@@ -7241,6 +7290,62 @@ export interface operations {
             };
         };
     };
+    update_share_raw_stream: {
+        parameters: {
+            query: {
+                password?: string | null;
+                path: string;
+            };
+            header?: never;
+            path: {
+                /** @description Share ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description File updated in shared directory */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    delete_share_entry: {
+        parameters: {
+            query: {
+                password?: string | null;
+                path: string;
+            };
+            header?: never;
+            path: {
+                /** @description Share ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description File deleted from shared directory */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
     list_share_contents: {
         parameters: {
             query?: {
@@ -7257,6 +7362,36 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Share content list retrieved successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    upload_share_raw_stream: {
+        parameters: {
+            query: {
+                password?: string | null;
+                path: string;
+            };
+            header?: never;
+            path: {
+                /** @description Share ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description File uploaded to shared directory */
             200: {
                 headers: {
                     [name: string]: unknown;

@@ -242,7 +242,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     if (rendering) {
       return (
         <div className="h-full w-full flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-[0.2em] opacity-60">
-          <Loader2 size={14} className="animate-spin" />
+          <Loader2 size={18} className="animate-spin" />
           {t('filemanager.texPreview.rendering') || 'Rendering'}
         </div>
       );
@@ -301,7 +301,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
                 onClick={() => setModeOpen(!modeOpen)}
               >
                 {t(`filemanager.texPreview.mode.${previewMode}`) || previewMode}
-                <ChevronDown size={12} />
+                <ChevronDown size={18} />
               </Button>
               {modeOpen && (
                 <div className="absolute right-0 top-12 z-50 w-40 rounded-2xl border border-border bg-background shadow-xl overflow-hidden">
@@ -332,7 +332,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
                 onClick={handleRender}
                 disabled={rendering || loading}
               >
-                {rendering ? <Loader2 size={14} className="animate-spin mr-2" /> : <Eye size={14} className="mr-2" />}
+                {rendering ? <Loader2 size={18} className="animate-spin mr-2" /> : <Eye size={18} className="mr-2" />}
                 {t('filemanager.texPreview.render') || 'Render'}
               </Button>
             )}
@@ -342,7 +342,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
               onClick={handleSave}
               disabled={saving || loading}
             >
-              {saving ? <Loader2 size={14} className="animate-spin mr-2" /> : <Save size={14} className="mr-2" />}
+              {saving ? <Loader2 size={18} className="animate-spin mr-2" /> : <Save size={18} className="mr-2" />}
               {t('common.save')}
             </Button>
           </div>
@@ -353,7 +353,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
         <section className="flex-1 min-h-0 rounded-2xl border border-border overflow-hidden">
           {loading ? (
             <div className="h-full w-full flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-[0.2em] opacity-60">
-              <Loader2 size={14} className="animate-spin" />
+              <Loader2 size={18} className="animate-spin" />
               {t('filemanager.editor.opening') || 'Opening'}
             </div>
           ) : (

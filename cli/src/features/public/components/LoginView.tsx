@@ -102,7 +102,7 @@ export const LoginView = () => {
     }
   };
 
-  const handleLogin = async (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.SyntheticEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
     if (!agreement) {
       addToast(t("auth.agreement"), "warning");
@@ -569,7 +569,7 @@ export const LoginView = () => {
                     <p className={cn("text-sm font-bold", isDark ? "text-white" : "text-gray-900")}>
                       {session.device_name || t("sessions.unknownDevice")}
                     </p>
-                    <div className="flex items-center gap-3 mt-0.5 text-[9px] font-mono opacity-40 uppercase tracking-tighter">
+                    <div className="flex items-center gap-3 mt-0.5 text-[14px] font-mono opacity-40 uppercase tracking-tighter">
                       <span className="flex items-center gap-1">
                         <Globe size={10} /> {session.ip_address}
                       </span>

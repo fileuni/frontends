@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useTranslation } from 'react-i18next';
 import { client } from "@/lib/api.ts";
 import {
   Loader2,
@@ -15,29 +16,41 @@ import { FilePreviewHeader } from "./FilePreviewHeader.tsx";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
+type PdfViewComponentProps = Record<string, unknown>;
+type PdfjsLike = {
+  version?: string;
+  GlobalWorkerOptions: {
+    workerSrc: string;
+  };
+};
+
 // Only import react-pdf in browser environment
-let Document: React.ComponentType<any> = () => null;
-let Page: React.ComponentType<any> = () => null;
-let pdfjs: Record<string, any> = {};
+let Document: React.ComponentType<PdfViewComponentProps> = () => null;
+let Page: React.ComponentType<PdfViewComponentProps> = () => null;
+let pdfjs: PdfjsLike | null = null;
 
 if (typeof window !== "undefined") {
   const reactPdf = await import("react-pdf");
-  Document = reactPdf.Document;
-  Page = reactPdf.Page;
-  pdfjs = reactPdf.pdfjs;
+  Document = reactPdf.Document as React.ComponentType<PdfViewComponentProps>;
+  Page = reactPdf.Page as React.ComponentType<PdfViewComponentProps>;
+  pdfjs = reactPdf.pdfjs as PdfjsLike;
 
   // Prefer same-build local worker; fallback to CDN to avoid API/Worker version mismatch
   const runtimePdfVersion =
-    typeof pdfjs.version === "string" && pdfjs.version.length > 0
+    typeof pdfjs?.version === "string" && pdfjs.version.length > 0
       ? pdfjs.version
       : "5.4.296";
   try {
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    if (pdfjs) {
+      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
       "pdfjs-dist/build/pdf.worker.min.mjs",
       import.meta.url,
-    ).toString();
+      ).toString();
+    }
   } catch {
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${runtimePdfVersion}/pdf.worker.min.mjs`;
+    if (pdfjs) {
+      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${runtimePdfVersion}/pdf.worker.min.mjs`;
+    }
   }
 }
 
@@ -49,6 +62,7 @@ interface Props {
 }
 
 export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
+  const { t } = useTranslation();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);

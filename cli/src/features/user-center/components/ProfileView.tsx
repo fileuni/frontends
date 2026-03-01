@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect } from 'react';
-import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useAuthStore } from '@/stores/auth.ts';
@@ -72,7 +71,7 @@ export const ProfileView = () => {
   /**
    * 提交个人资料修改 / Submit profile updates
    */
-  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (invalidOtherPhoneIndexes.length > 0) {
       addToast(t('profile.invalidPhoneList'), 'error');
@@ -186,7 +185,7 @@ export const ProfileView = () => {
               <div className="flex items-center justify-between ml-1">
                 <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('profile.extraPhones')}</label>
                 <button type="button" onClick={addPhone} className="text-sm font-black text-primary flex items-center gap-1 hover:underline">
-                  <Plus size={12} /> {t('profile.addNew')}
+                  <Plus size={18} /> {t('profile.addNew')}
                 </button>
               </div>
               <div className="space-y-3">
@@ -236,14 +235,14 @@ export const ProfileView = () => {
               <span className="text-sm font-bold opacity-40 uppercase">{t('profile.primaryEmail')}</span>
               <div className="flex items-center gap-2 font-mono text-sm font-black">
                 {form.email || t('profile.none')}
-                {form.email && <CheckCircle2 size={14} className="text-green-500" />}
+                {form.email && <CheckCircle2 size={18} className="text-green-500" />}
               </div>
             </div>
             <div className="space-y-1">
               <span className="text-sm font-bold opacity-40 uppercase">{t('profile.verifiedPhone')}</span>
               <div className="flex items-center gap-2 font-mono text-sm font-black">
                 {form.phone || t('profile.none')}
-                {form.phone && <CheckCircle2 size={14} className="text-green-500" />}
+                {form.phone && <CheckCircle2 size={18} className="text-green-500" />}
               </div>
             </div>
           </div>

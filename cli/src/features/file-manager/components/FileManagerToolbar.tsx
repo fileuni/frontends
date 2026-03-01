@@ -166,7 +166,7 @@ export const FileManagerToolbar = () => {
                 >
                   <Plus size={16} className="text-primary" />
                   <span className="text-sm font-bold uppercase opacity-60 hidden lg:inline">{t('common.new')}</span>
-                  <ChevronDown size={14} className={cn("opacity-30 transition-transform", showNewMenu && "rotate-180")} />
+                  <ChevronDown size={18} className={cn("opacity-30 transition-transform", showNewMenu && "rotate-180")} />
                 </Button>
 
                 {showNewMenu && (
@@ -213,7 +213,7 @@ export const FileManagerToolbar = () => {
               onClick={handleBulkClear}
               className="h-9 px-3 rounded-xl text-sm font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-all shrink-0 border border-red-500/20"
             >
-              <RefreshCcw size={14} className="mr-2 opacity-50" />
+              <RefreshCcw size={18} className="mr-2 opacity-50" />
               {getBulkClearLabel()}
             </Button>
           )}
@@ -261,7 +261,7 @@ export const FileManagerToolbar = () => {
                   shareFilter.hasPassword === false ? "bg-red-500/20 text-red-500" : "opacity-40 hover:opacity-100"
                 )}
               >
-                {shareFilter.hasPassword === false ? <Globe size={14} /> : <Lock size={14} />}
+                {shareFilter.hasPassword === false ? <Globe size={18} /> : <Lock size={18} />}
               </Button>
               <Button 
                 variant="ghost" 
@@ -273,7 +273,7 @@ export const FileManagerToolbar = () => {
                   shareFilter.enableDirect === false ? "bg-blue-500/20 text-blue-500" : "opacity-40 hover:opacity-100"
                 )}
               >
-                <Zap size={14} fill={shareFilter.enableDirect === true ? "currentColor" : "none"} />
+                <Zap size={18} fill={shareFilter.enableDirect === true ? "currentColor" : "none"} />
               </Button>
             </div>
           )}
@@ -299,7 +299,7 @@ export const FileManagerToolbar = () => {
               className={cn("p-1.5 md:p-2 h-7 w-7 md:h-8 md:w-8 rounded-lg", viewMode === 'grid' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
               title={t('filemanager.gridView')}
             >
-              <Grid size={14} />
+              <Grid size={18} />
             </Button>
             <Button 
               variant="ghost" 
@@ -307,7 +307,7 @@ export const FileManagerToolbar = () => {
               className={cn("p-1.5 md:p-2 h-7 w-7 md:h-8 md:w-8 rounded-lg", viewMode === 'list' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
               title={t('filemanager.listView')}
             >
-              <List size={14} />
+              <List size={18} />
             </Button>
           </div>
 
@@ -327,7 +327,7 @@ export const FileManagerToolbar = () => {
                   className="p-1 h-9 w-5 md:h-10 md:w-6 rounded-none opacity-30 hover:opacity-100"
                   onClick={() => setShowRefreshMenu(!showRefreshMenu)}
                 >
-                  <ChevronDown size={14} />
+                  <ChevronDown size={18} />
                 </Button>
               </div>
 

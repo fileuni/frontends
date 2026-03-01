@@ -356,7 +356,7 @@ export const SystemConfigAdmin = () => {
               : "border-amber-500/50 bg-amber-50 text-amber-900 hover:bg-amber-100"
           )}
         >
-          <Key size={14} className={isDark ? "text-amber-400" : "text-amber-600"} />
+          <Key size={18} className={isDark ? "text-amber-400" : "text-amber-600"} />
           {t('admin.config.quickWizard.steps.license')}
         </button>
       </div>

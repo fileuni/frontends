@@ -56,8 +56,8 @@ const StatusIcons = ({ file, mode, className }: { file: FileInfo, mode: 'grid' |
       {isFavorite && (
         <div className={cn("w-2 h-2 rounded-full shrink-0 shadow-sm", favoriteColorClass)} />
       )}
-      {isShared && <Share2 size={12} className="text-primary shrink-0" />}
-      {isDirect && <Zap size={12} className="text-yellow-500 shrink-0" fill="currentColor" />}
+      {isShared && <Share2 size={18} className="text-primary shrink-0" />}
+      {isDirect && <Zap size={18} className="text-yellow-500 shrink-0" fill="currentColor" />}
     </div>
   );
 };
@@ -210,11 +210,11 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
             {displayName}
           </span>
           {secondaryInfo && (
-            <span className="text-[8px] opacity-30 truncate w-full mt-0.5 uppercase font-black px-1">
+            <span className="text-[14px] opacity-30 truncate w-full mt-0.5 uppercase font-black px-1">
               {secondaryInfo}
             </span>
           )}
-          <div className="mt-auto pt-2 opacity-30 text-[9px] font-mono">
+          <div className="mt-auto pt-2 opacity-30 text-sm font-mono">
             {file.is_dir ? '-' : (file.size / 1024 / 1024).toFixed(1) + ' MB'}
           </div>
         </div>

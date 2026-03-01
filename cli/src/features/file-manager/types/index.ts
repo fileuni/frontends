@@ -18,6 +18,9 @@ export interface FileInfo {
   expire_at?: string;
   has_password?: boolean;
   enable_direct?: boolean;
+  can_upload?: boolean;
+  can_update_no_create?: boolean;
+  can_delete?: boolean;
   created_at?: string; // For shares, this is the start of sharing
 }
 

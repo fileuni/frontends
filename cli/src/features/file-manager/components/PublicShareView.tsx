@@ -251,7 +251,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-black uppercase tracking-[0.2em] text-primary">{t('filemanager.publicShare.qrMobileAccess')}</p>
-                <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest px-4">{t('filemanager.publicShare.qrScanDesc')}</p>
+                <p className="text-[14px] font-bold opacity-40 uppercase tracking-widest px-4">{t('filemanager.publicShare.qrScanDesc')}</p>
               </div>
               <Button variant="ghost" className="text-sm font-black uppercase opacity-40" onClick={() => setShowQr(false)}>{t('filemanager.publicShare.qrBackToInfo')}</Button>
             </div>
@@ -263,7 +263,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
               
               <div className="space-y-3 mb-10 w-full">
                 <h1 className={cn("text-2xl font-black break-all leading-tight", isDark ? "text-white" : "text-gray-900")}>{shareInfo.file_name}</h1>
-                <div className="flex flex-wrap items-center justify-center gap-3 text-[9px] font-black uppercase tracking-widest opacity-40">
+                <div className="flex flex-wrap items-center justify-center gap-3 text-[14px] font-black uppercase tracking-widest opacity-40">
                   <span className={cn("flex items-center gap-1.5 px-2 py-1 rounded-full border", isDark ? "bg-white/5 border-white/5" : "bg-gray-100 border-gray-200")}><Calendar size={10} /> {new Date(shareInfo.created_at).toLocaleDateString()}</span>
                   {shareInfo.expire_at && <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20"><Clock size={10} /> Expiring</span>}
                 </div>
@@ -274,15 +274,15 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                   "p-4 rounded-2xl border flex items-center justify-between group transition-all",
                   isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/5" : "bg-white border-gray-100 hover:bg-gray-50"
                 )}>
-                  <span className="text-[9px] font-black uppercase opacity-30 tracking-widest">{t('filemanager.publicShare.views')}</span>
+                  <span className="text-[14px] font-black uppercase opacity-30 tracking-widest">{t('filemanager.publicShare.views')}</span>
                   <span className="text-lg font-black text-primary group-hover:scale-110 transition-transform">{shareInfo.view_count ?? 0}</span>
                 </div>
                 <div className={cn(
                   "p-4 rounded-2xl border flex items-center justify-between",
                   isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-gray-100"
                 )}>
-                  <span className="text-[9px] font-black uppercase opacity-30 tracking-widest">{t('filemanager.publicShare.status')}</span>
-                  <span className="text-sm font-black text-green-500 uppercase flex items-center gap-1.5"><ShieldCheck size={14} /> {t('filemanager.publicShare.active')}</span>
+                  <span className="text-[14px] font-black uppercase opacity-30 tracking-widest">{t('filemanager.publicShare.status')}</span>
+                  <span className="text-sm font-black text-green-500 uppercase flex items-center gap-1.5"><ShieldCheck size={18} /> {t('filemanager.publicShare.active')}</span>
                 </div>
               </div>
 
@@ -309,7 +309,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                     </button>
                   )}
                   <div className="flex items-center gap-2 text-sm font-black uppercase tracking-widest opacity-40 truncate">
-                    <Share2 size={12} className="text-primary shrink-0" />
+                    <Share2 size={18} className="text-primary shrink-0" />
                     <span className={cn("truncate", isDark ? "text-white" : "text-gray-900")}>Root{currentPath !== '/' && currentPath}</span>
                   </div>
                 </div>
@@ -338,7 +338,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                         </div>
                         <div className="min-w-0">
                           <p className={cn("text-sm font-bold truncate", isDark ? "text-white/90" : "text-gray-900")}>{item.name}</p>
-                          <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest opacity-30">
+                          <div className="flex items-center gap-3 text-[14px] font-black uppercase tracking-widest opacity-30">
                             {!item.is_dir && <span>{formatSize(item.size)}</span>}
                             <span>{new Date(item.modified).toLocaleDateString()}</span>
                           </div>

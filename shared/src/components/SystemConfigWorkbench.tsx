@@ -1,9 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, WandSparkles } from 'lucide-react';
-import { ConfigEditorPanel, type ConfigError } from './ConfigEditorPanel';
+import { ConfigEditorPanel } from './ConfigEditorPanel';
 import { ConfigQuickWizardModal, type ConfigQuickWizardModalProps } from './ConfigQuickWizardModal';
-import type { ConfigNoteEntry } from './ConfigRawEditor';
+import type { ConfigError, ConfigNoteEntry } from './ConfigRawEditor';
 import { useThemeStore } from '../stores/theme';
 import { cn } from '../lib/utils';
 
@@ -54,6 +54,7 @@ export interface SystemConfigWorkbenchProps {
   reloadSummaryLevel?: 'success' | 'warning' | 'error' | 'info';
   quickWizardLicense?: ConfigQuickWizardModalProps['licenseWizard'];
   quickWizardEnabled?: boolean;
+  runtimeOs?: string;
   onClearValidationErrors?: () => void;
   onResetAdminPassword?: (password: string) => Promise<void | string | { username?: string }>;
   isResettingAdminPassword?: boolean;
@@ -77,6 +78,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   reloadSummaryLevel = 'info',
   quickWizardLicense,
   quickWizardEnabled = true,
+  runtimeOs,
   onClearValidationErrors,
   onResetAdminPassword,
   isResettingAdminPassword,
@@ -121,7 +123,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <div className={cn("flex items-center gap-2", isDark ? "text-red-400" : "text-red-700")}>
               <AlertTriangle size={16} className="animate-pulse sm:w-[18px]" />
-              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wide">
+              <h3 className="text-sm sm:text-sm font-black uppercase tracking-wide">
                 {t('admin.config.testFailed')} ({validationErrors.length})
               </h3>
             </div>
@@ -129,7 +131,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
               <button
                 type="button"
                 className={cn(
-                  "h-7 px-2 text-xs uppercase font-black transition-opacity",
+                  "h-7 px-2 text-sm uppercase font-black transition-opacity",
                   isDark ? "text-slate-400 opacity-50 hover:opacity-100" : "text-red-800 opacity-70 hover:opacity-100"
                 )}
                 onClick={onClearValidationErrors}
@@ -148,7 +150,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
               )}>
                 <div className="flex-1 min-w-0">
                   <p className={cn(
-                    "text-xs sm:text-sm leading-relaxed font-mono font-bold transition-colors",
+                    "text-sm sm:text-sm leading-relaxed font-mono font-bold transition-colors",
                     isDark ? "text-red-200/90 group-hover:text-red-100" : "text-red-900"
                   )}>
                     {err.message}
@@ -156,7 +158,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                   <div className="mt-1.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
                     {typeof err.key === 'string' && err.key.trim().length > 0 && (
                       <span className={cn(
-                        "text-[10px] sm:text-xs px-1.5 py-0.5 rounded border font-mono font-black",
+                        "text-sm sm:text-sm px-1.5 py-0.5 rounded border font-mono font-black",
                         isDark ? "border-red-500/30 bg-red-500/10 text-red-200" : "border-red-200 bg-red-100 text-red-800"
                       )}>
                         key: {err.key}
@@ -164,7 +166,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                     )}
                     {typeof err.line === 'number' && err.line > 0 && (
                       <span className={cn(
-                        "text-[10px] sm:text-xs px-1.5 py-0.5 rounded border font-mono font-bold",
+                        "text-sm sm:text-sm px-1.5 py-0.5 rounded border font-mono font-bold",
                         isDark ? "border-white/10 bg-black/20 text-red-100/80" : "border-slate-200 bg-slate-100 text-slate-700"
                       )}>
                         line: {err.line}
@@ -172,7 +174,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                     )}
                     {typeof err.column === 'number' && err.column > 0 && (
                       <span className={cn(
-                        "text-[10px] sm:text-xs px-1.5 py-0.5 rounded border font-mono font-bold",
+                        "text-sm sm:text-sm px-1.5 py-0.5 rounded border font-mono font-bold",
                         isDark ? "border-white/10 bg-black/20 text-red-100/80" : "border-slate-200 bg-slate-100 text-slate-700"
                       )}>
                         column: {err.column}
@@ -190,7 +192,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         "mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3 transition-colors",
         isDark ? "border-white/10 bg-black/20 shadow-none" : "border-slate-200 bg-slate-50 shadow-inner"
       )}>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[10px] sm:text-xs">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm sm:text-sm">
           <span className={cn(
             'rounded-lg border px-2 py-0.5 font-black uppercase tracking-wide',
             isDirty 
@@ -251,7 +253,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
             )}
             onClick={() => setIsQuickWizardOpen(true)}
           >
-            <WandSparkles size={14} className="text-primary" />
+            <WandSparkles size={18} className="text-primary" />
             {t('admin.config.quickWizard.title')}
           </button>
         ) : undefined}
@@ -259,7 +261,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
 
       {reloadSummary && (
         <div className={cn(
-          'mt-3 rounded-xl px-3 py-2 text-xs sm:text-sm font-mono border font-bold shadow-sm transition-colors',
+          'mt-3 rounded-xl px-3 py-2 text-sm sm:text-sm font-mono border font-bold shadow-sm transition-colors',
           reloadSummaryLevel === 'success' && (isDark ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-emerald-50 text-emerald-900 border-emerald-200'),
           reloadSummaryLevel === 'warning' && (isDark ? 'bg-amber-500/10 text-amber-200 border-amber-500/30' : 'bg-amber-50 text-amber-900 border-amber-200'),
           reloadSummaryLevel === 'error' && (isDark ? 'bg-red-500/10 text-red-200 border-red-500/30' : 'bg-red-50 text-red-900 border-red-200'),
@@ -276,9 +278,10 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           onClose={() => setIsQuickWizardOpen(false)}
           content={content}
           onContentChange={onChange}
-          licenseWizard={quickWizardLicense}
-          onResetAdminPassword={onResetAdminPassword}
-          isResettingAdminPassword={isResettingAdminPassword}
+          {...(runtimeOs ? { runtimeOs } : {})}
+          {...(quickWizardLicense ? { licenseWizard: quickWizardLicense } : {})}
+          {...(onResetAdminPassword ? { onResetAdminPassword } : {})}
+          {...(typeof isResettingAdminPassword === 'boolean' ? { isResettingAdminPassword } : {})}
         />
       )}
     </div>

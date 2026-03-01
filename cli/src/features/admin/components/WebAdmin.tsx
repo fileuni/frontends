@@ -585,10 +585,10 @@ export const WebAdmin: React.FC = () => {
                 </div>
                 <div className="col-span-2">
                   <div className="flex items-center gap-1 text-sm opacity-70">
-                    <Network size={14} /> {site.bindings.length} {t('admin.web.table.bindings')}
+                    <Network size={18} /> {site.bindings.length} {t('admin.web.table.bindings')}
                   </div>
                   <div className="flex items-center gap-1 text-sm opacity-70">
-                    <Server size={14} /> {site.bindings.map((item) => item.listen_port).join(', ')}
+                    <Server size={18} /> {site.bindings.map((item) => item.listen_port).join(', ')}
                   </div>
                 </div>
                 <div className="col-span-2">
@@ -599,7 +599,7 @@ export const WebAdmin: React.FC = () => {
                 </div>
                 <div className="col-span-1">
                   {site.tls_enabled ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-600 text-sm font-bold"><ShieldCheck size={14} />{t('common.on')}</span>
+                    <span className="inline-flex items-center gap-1 text-emerald-600 text-sm font-bold"><ShieldCheck size={18} />{t('common.on')}</span>
                   ) : (
                     <span className="text-sm opacity-50">{t('common.off')}</span>
                   )}
@@ -613,11 +613,11 @@ export const WebAdmin: React.FC = () => {
                 </div>
                 <div className="col-span-2 flex justify-end gap-2">
                   <Button type="button" variant="outline" size="sm" onClick={() => openEditModal(site)}>
-                    <Pencil size={14} className="mr-1" />
+                    <Pencil size={18} className="mr-1" />
                     {t('common.edit')}
                   </Button>
                   <Button type="button" variant="destructive" size="sm" onClick={() => deleteSite(site)}>
-                    <Trash2 size={14} className="mr-1" />
+                    <Trash2 size={18} className="mr-1" />
                     {t('common.delete')}
                   </Button>
                 </div>
@@ -691,7 +691,7 @@ export const WebAdmin: React.FC = () => {
                       className="flex-1"
                     />
                     <Button type="button" variant="outline" onClick={testConnection} disabled={testing}>
-                      {testing ? <RefreshCw size={14} className="animate-spin" /> : <Network size={14} />}
+                      {testing ? <RefreshCw size={18} className="animate-spin" /> : <Network size={18} />}
                     </Button>
                   </div>
                   <div className="rounded-xl border border-border p-3 mt-2">
@@ -716,7 +716,7 @@ export const WebAdmin: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black uppercase tracking-wider">{t('admin.web.form.bindings')}</h3>
               <Button type="button" variant="outline" size="sm" onClick={addBinding}>
-                <Plus size={14} className="mr-1" /> {t('admin.web.form.addBinding')}
+                <Plus size={18} className="mr-1" /> {t('admin.web.form.addBinding')}
               </Button>
             </div>
 
@@ -750,7 +750,7 @@ export const WebAdmin: React.FC = () => {
                       placeholder={t('admin.web.form.hostnamesPlaceholder')}
                       list="web-domain-asset-suggestions"
                     />
-                    <p className="text-xs opacity-60">{t('admin.web.form.hostnameSuggestionHint')}</p>
+                    <p className="text-sm opacity-60">{t('admin.web.form.hostnameSuggestionHint')}</p>
                   </div>
                   <div className="col-span-8 md:col-span-1 space-y-1">
                     <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.default')}</label>
@@ -760,7 +760,7 @@ export const WebAdmin: React.FC = () => {
                   </div>
                   <div className="col-span-4 md:col-span-1 flex items-end justify-end">
                     <Button type="button" variant="destructive" size="sm" onClick={() => removeBinding(index)}>
-                      <Trash2 size={14} />
+                      <Trash2 size={18} />
                     </Button>
                   </div>
                 </div>

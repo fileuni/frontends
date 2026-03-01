@@ -188,7 +188,7 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
             payload: {
               from: selfId,
               to: targetId,
-              data: e.candidate.toJSON() as any,
+              data: e.candidate.toJSON(),
             },
           });
         }
@@ -235,12 +235,16 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
           if (pc!.signalingState !== "stable") return;
           makingOfferRef.current.set(targetId, true);
           await pc!.setLocalDescription();
+          const localDescription = pc!.localDescription;
+          if (!localDescription) {
+            return;
+          }
           sendWireMessage({
             type: "Signal",
             payload: {
               from: selfId,
               to: targetId,
-              data: pc!.localDescription as any,
+              data: localDescription,
             },
           });
         } catch (err) {
@@ -298,7 +302,7 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
 
           if (offerCollision) {
             await Promise.all([
-              pc.setLocalDescription({ type: "rollback" } as any),
+              pc.setLocalDescription({ type: "rollback" }),
               pc.setRemoteDescription(description),
             ]);
           } else {
@@ -307,12 +311,16 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
 
           if (description.type === "offer") {
             await pc.setLocalDescription();
+            const localDescription = pc.localDescription;
+            if (!localDescription) {
+              return;
+            }
             sendWireMessage({
               type: "Signal",
               payload: {
                 from: selfId,
                 to: targetId,
-                data: pc.localDescription as any,
+                data: localDescription,
               },
             });
           }

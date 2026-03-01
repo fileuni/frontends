@@ -10,11 +10,14 @@ import { cn } from "@/lib/utils.ts";
 
 import { MustChangePasswordModal } from "@/features/public/components/MustChangePasswordModal.tsx";
 
+type LucideIconComponent = React.ComponentType<{ size?: number; className?: string }>;
+
 /**
  * 辅助组件：安全渲染图标，防止混淆后的初始化顺序错误 (ReferenceError: L is not defined)
  */
 const IconRenderer = ({ name, size = 18, className }: { name: string, size?: number, className?: string }) => {
-  const Icon = (LucideIcons as any)[name];
+  const iconRegistry = LucideIcons as unknown as Record<string, LucideIconComponent>;
+  const Icon = iconRegistry[name];
   if (!Icon) return null;
   return <Icon size={size} className={className} />;
 };

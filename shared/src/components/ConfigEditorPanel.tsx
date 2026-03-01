@@ -46,14 +46,14 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <h3 className={cn(
-            "text-xs sm:text-sm font-black uppercase tracking-wide shrink-0",
+            "text-sm sm:text-sm font-black uppercase tracking-wide shrink-0",
             isDark ? "text-white" : "text-slate-900"
           )}>
             {title}
           </h3>
           {configPath && (
             <span className={cn(
-              "text-[10px] sm:text-xs font-mono px-2 py-0.5 rounded truncate max-w-full sm:max-w-[260px] border shadow-sm",
+              "text-sm sm:text-sm font-mono px-2 py-0.5 rounded truncate max-w-full sm:max-w-[260px] border shadow-sm",
               isDark 
                 ? "text-slate-400 bg-slate-800/50 border-transparent" 
                 : "text-slate-800 bg-slate-200 border-slate-300"
@@ -68,7 +68,7 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
             onClick={onTest}
             disabled={loading}
             className={cn(
-              "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-black uppercase tracking-wide transition-all disabled:opacity-50 shadow-sm border",
+              "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-sm sm:text-sm font-black uppercase tracking-wide transition-all disabled:opacity-50 shadow-sm border",
               isDark 
                 ? "bg-cyan-500/10 text-cyan-400 border-transparent hover:bg-cyan-500/20" 
                 : "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100"
@@ -79,7 +79,7 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
           <button
             onClick={onSave}
             disabled={loading || saveDisabled}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-primary hover:opacity-90 text-white text-xs sm:text-sm font-black uppercase tracking-wide shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-primary hover:opacity-90 text-white text-sm sm:text-sm font-black uppercase tracking-wide shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
           >
             {saveLabel}
           </button>
@@ -88,7 +88,7 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
               onClick={onCancel}
               disabled={loading}
               className={cn(
-                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-black uppercase tracking-wide transition-all shadow-sm border",
+                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-sm sm:text-sm font-black uppercase tracking-wide transition-all shadow-sm border",
                 isDark 
                   ? "bg-slate-800/50 text-slate-400 border-transparent hover:bg-slate-700" 
                   : "bg-slate-200 text-slate-800 border-slate-300 hover:bg-slate-300"

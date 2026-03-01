@@ -26,7 +26,7 @@ export const ToolCardsPanel = (props: Props) => {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <div className="text-xl font-black uppercase tracking-tight">{tool.name}</div>
-              <div className="text-xs font-mono opacity-50 break-all">{tool.executable_path}</div>
+              <div className="text-sm font-mono opacity-50 break-all">{tool.executable_path}</div>
               <div className="text-sm font-bold mt-2 flex items-center gap-2">
                 <span className={props.serviceMap[tool.name]?.running ? 'text-emerald-400' : 'text-zinc-500'}>
                   {props.serviceMap[tool.name]?.running
@@ -34,22 +34,22 @@ export const ToolCardsPanel = (props: Props) => {
                     : t('admin.extensions.serviceStopped')}
                 </span>
               </div>
-              <div className="text-xs opacity-40 uppercase font-black tracking-widest">
+              <div className="text-sm opacity-40 uppercase font-black tracking-widest">
                 {t('admin.extensions.followStart')}: {props.serviceMap[tool.name]?.follow_start ? t('common.on') : t('common.off')}
               </div>
             </div>
-            <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full ${tool.installed ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-500/20 text-zinc-400 border border-zinc-500/20'}`}>
+            <span className={`text-sm font-black uppercase tracking-widest px-3 py-1 rounded-full ${tool.installed ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-500/20 text-zinc-400 border border-zinc-500/20'}`}>
               {tool.installed ? props.installedLabel : props.notInstalledLabel}
             </span>
           </div>
           <div className="space-y-3">
-            <Button size="lg" onClick={() => props.onInstall(tool.name)} disabled={props.installingTool.length > 0} className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-xs">
+            <Button size="lg" onClick={() => props.onInstall(tool.name)} disabled={props.installingTool.length > 0} className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-sm">
               {props.installingTool === tool.name ? props.installingLabel : props.installLabel}
             </Button>
             <div className="grid grid-cols-3 gap-3">
-              <Button size="sm" variant="outline" className="h-10 rounded-xl font-bold text-[10px] uppercase" onClick={() => props.onControlService(tool.name, 'start')}>{props.startLabel}</Button>
-              <Button size="sm" variant="outline" className="h-10 rounded-xl font-bold text-[10px] uppercase" onClick={() => props.onControlService(tool.name, 'stop')}>{props.stopLabel}</Button>
-              <Button size="sm" variant="outline" className="h-10 rounded-xl font-bold text-[10px] uppercase" onClick={() => props.onControlService(tool.name, 'restart')}>{props.restartLabel}</Button>
+              <Button size="sm" variant="outline" className="h-10 rounded-xl font-bold text-[14px] uppercase" onClick={() => props.onControlService(tool.name, 'start')}>{props.startLabel}</Button>
+              <Button size="sm" variant="outline" className="h-10 rounded-xl font-bold text-[14px] uppercase" onClick={() => props.onControlService(tool.name, 'stop')}>{props.stopLabel}</Button>
+              <Button size="sm" variant="outline" className="h-10 rounded-xl font-bold text-[14px] uppercase" onClick={() => props.onControlService(tool.name, 'restart')}>{props.restartLabel}</Button>
             </div>
           </div>
         </div>

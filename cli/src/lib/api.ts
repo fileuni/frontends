@@ -12,7 +12,8 @@ const rawClient = createClient<paths>({
   baseUrl: BASE_URL
 });
 
-type ClientMethod = (path: string, init?: Record<string, unknown>) => Promise<{ data?: any; error?: any; response?: Response }>;
+type ClientResult = { data?: any; error?: any; response?: Response };
+type ClientMethod = (path: string, init?: Record<string, unknown>) => Promise<ClientResult>;
 
 interface LooseClient {
   use: (middleware: Record<string, unknown>) => void;
@@ -88,6 +89,10 @@ export interface ApiError {
   msg: string;
 }
 
+const hasMessageField = (value: unknown): value is { msg?: string } => {
+  return typeof value === 'object' && value !== null && 'msg' in value;
+};
+
 /**
  * Type Guard: Check if object is an ApiError
  */
@@ -132,14 +137,16 @@ export interface CaptchaPolicyResponse {
  * Helper: Safely extract API data and handle errors
  */
 export async function extractData<T>(
-  promise: Promise<{ data?: any; error?: any; response?: Response }>
+  promise: Promise<ClientResult>
 ): Promise<T> {
   const { data, error, response } = await promise;
   
   if (error) {
     if (isApiError(error)) throw error;
     // Special handling for raw error objects captured by openapi-fetch
-    const errorMsg = typeof error === 'object' && error !== null && 'msg' in error ? (error as any).msg : (error instanceof Error ? error.message : "API Error");
+    const errorMsg = hasMessageField(error)
+      ? (error.msg ?? "API Error")
+      : (error instanceof Error ? error.message : "API Error");
     throw new Error(errorMsg);
   }
 

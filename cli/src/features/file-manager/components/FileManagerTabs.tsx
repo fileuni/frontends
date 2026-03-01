@@ -73,7 +73,7 @@ const SortableTab = ({ tab, isActive, onRemove, onActivate, onContextMenu }: Sor
       )}>
       {isActive && <div className="absolute left-1 top-2 bottom-2 w-0.5 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.6)]" />}
       <div className={cn("transition-colors", isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary")}>
-        {tab.path === "/" || !tab.path.includes(".") ? <Folder size={12} /> : <FileIconLucide size={12} />}
+        {tab.path === "/" || !tab.path.includes(".") ? <Folder size={18} /> : <FileIconLucide size={18} />}
       </div>
       <span className={cn("text-sm font-black uppercase tracking-widest truncate flex-1 pointer-events-none", isActive ? "text-foreground" : "text-inherit")}>{tab.title}</span>
       <button onClick={(e) => { e.stopPropagation(); onRemove(tab.id); }} className={cn("p-1 rounded-md transition-all shrink-0 hover:bg-destructive/10 hover:text-destructive", isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100")}>
@@ -142,8 +142,8 @@ export const FileManagerTabs = () => {
     <div className="relative h-11 flex items-center shrink-0 overflow-hidden bg-muted/10 px-2 transition-colors border-b border-border/30">
       {showScrollLeft && (
         <div className="absolute left-0 inset-y-0 w-12 bg-gradient-to-r from-background to-transparent z-30 flex items-center justify-start pl-1 pointer-events-none">
-          <button onClick={() => handleScroll("left")} className="pointer-events-auto w-6 h-6 rounded-full bg-background shadow-md border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
-            <ScrollLeft size={12} strokeWidth={3} />
+          <button onClick={() => handleScroll("left")} className="pointer-events-auto w-8 h-8 rounded-full bg-background shadow-md border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
+            <ScrollLeft size={16} strokeWidth={3} />
           </button>
         </div>
       )}
@@ -158,15 +158,15 @@ export const FileManagerTabs = () => {
             </div>
           </SortableContext>
         </DndContext>
-        <button className="p-1 h-6 w-6 rounded-md opacity-30 hover:opacity-100 hover:bg-muted hover:text-primary shrink-0 transition-all ml-1" onClick={() => addTab(currentPath)}>
-          <Plus size={14} />
+        <button className="p-1 h-8 w-8 rounded-md opacity-30 hover:opacity-100 hover:bg-muted hover:text-primary shrink-0 transition-all ml-1" onClick={() => addTab(currentPath)}>
+          <Plus size={18} />
         </button>
       </div>
 
       {showScrollRight && (
         <div className="absolute right-0 inset-y-0 w-12 bg-gradient-to-l from-background to-transparent z-30 flex items-center justify-end pr-1 pointer-events-none">
-          <button onClick={() => handleScroll("right")} className="pointer-events-auto w-6 h-6 rounded-full bg-background shadow-md border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
-            <ScrollRight size={12} strokeWidth={3} />
+          <button onClick={() => handleScroll("right")} className="pointer-events-auto w-8 h-8 rounded-full bg-background shadow-md border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
+            <ScrollRight size={16} strokeWidth={3} />
           </button>
         </div>
       )}

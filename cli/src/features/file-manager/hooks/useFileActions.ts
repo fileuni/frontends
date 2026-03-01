@@ -13,6 +13,16 @@ interface TaskData {
   task_id?: string;
 }
 
+interface FileListResponse {
+  items?: FileInfo[];
+  data?: FileInfo[];
+  pagination?: {
+    total?: number;
+    total_pages?: number;
+  };
+  total?: number;
+}
+
 export function useFileActions() {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -95,7 +105,7 @@ export function useFileActions() {
         if (shareFilter.enableDirect !== null) query.enable_direct = shareFilter.enableDirect ?? null;
       }
 
-      const result = await extractData<any>(
+      const result = await extractData<FileInfo[] | FileListResponse>(
         client.GET(endpoint, {
           params: { query: query as unknown as never }
         })

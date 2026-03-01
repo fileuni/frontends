@@ -25,7 +25,7 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
     }
   }, [actionModal.isOpen, actionModal.defaultValue]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (value.trim()) {
       onSubmit(value.trim());

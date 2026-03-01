@@ -145,13 +145,13 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
           {/* Status Tips */}
           <div className="mt-8 space-y-3 bg-white/[0.02] p-4 rounded-2xl border border-white/5">
             <div className="flex items-start gap-3">
-              <Info size={14} className="text-primary mt-0.5 shrink-0" />
+              <Info size={18} className="text-primary mt-0.5 shrink-0" />
               <p className="text-sm text-white/40 leading-relaxed italic">
                 {t('filemanager.messages.uploadTip1') || "Directories will be uploaded recursively maintaining their original structure."}
               </p>
             </div>
             <div className="flex items-start gap-3">
-              <AlertCircle size={14} className="text-orange-500/50 mt-0.5 shrink-0" />
+              <AlertCircle size={18} className="text-orange-500/50 mt-0.5 shrink-0" />
               <p className="text-sm text-white/40 leading-relaxed italic">
                 {t('filemanager.messages.uploadTip2') || "Existing files with same names will be automatically renamed to avoid data loss."}
               </p>

@@ -6,6 +6,16 @@ import { Button } from '@/components/ui/Button.tsx';
 import { client } from '@/lib/api.ts';
 import { Archive, Download, Upload, AlertTriangle, RefreshCw, Database, Server } from 'lucide-react';
 
+const getErrorMessage = (error: unknown): string => {
+  if (typeof error === 'object' && error !== null && 'msg' in error) {
+    const message = (error as { msg?: unknown }).msg;
+    if (typeof message === 'string' && message.length > 0) {
+      return message;
+    }
+  }
+  return error instanceof Error ? error.message : 'Unknown error';
+};
+
 export const SystemBackupAdmin: React.FC = () => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -31,7 +41,7 @@ export const SystemBackupAdmin: React.FC = () => {
         }
 
         const blob = response.data;
-        if (!blob) return;
+        if (!(blob instanceof Blob)) return;
 
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -44,8 +54,8 @@ export const SystemBackupAdmin: React.FC = () => {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
         addToast(t("admin.backup.exportSuccess"), "success");
-    } catch (e: any) {
-        addToast(t("admin.saveError") + ": " + e.message, "error");
+    } catch (e: unknown) {
+        addToast(t("admin.saveError") + ": " + getErrorMessage(e), "error");
     } finally {
         setLoading(false);
     }
@@ -61,8 +71,8 @@ export const SystemBackupAdmin: React.FC = () => {
         } else {
             addToast(t("admin.backup.localSuccess", { path: data?.data }), "success");
         }
-    } catch (e: any) {
-        addToast(t("admin.saveError") + ": " + e.message, "error");
+    } catch (e: unknown) {
+        addToast(t("admin.saveError") + ": " + getErrorMessage(e), "error");
     } finally {
         setLocalLoading(false);
     }
@@ -85,7 +95,7 @@ export const SystemBackupAdmin: React.FC = () => {
     try {
         const { error } = await client.POST("/api/v1/admin/system/backup/import", {
             body: {
-                file: pendingFile as any
+                file: pendingFile
             },
             bodySerializer: (body: { file: File }) => {
                 const fd = new FormData();
@@ -99,8 +109,8 @@ export const SystemBackupAdmin: React.FC = () => {
         } else {
             addToast(t("admin.backup.importSuccess"), "success");
         }
-    } catch (err: any) {
-        addToast(t("admin.saveError") + ": " + err.message, "error");
+    } catch (err: unknown) {
+        addToast(t("admin.saveError") + ": " + getErrorMessage(err), "error");
     } finally {
         setLoading(false);
         setPendingFile(null);

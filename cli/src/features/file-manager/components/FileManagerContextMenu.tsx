@@ -141,7 +141,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
         }
       }}
       className={cn(
-        "w-full flex items-center justify-between px-3 py-2 text-[13px] font-medium transition-all text-left outline-none group/btn",
+        "w-full flex items-center justify-between px-3 py-2 text-[14px] font-medium transition-all text-left outline-none group/btn",
         active ? "bg-primary/10 text-primary" : "hover:bg-primary/10 hover:text-primary",
         danger && "hover:bg-red-500/10 hover:text-red-500",
         isDark ? "text-white/70" : "text-gray-600",
@@ -152,7 +152,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
         {Icon && <Icon size={16} className={cn("shrink-0 opacity-70 group-hover/btn:opacity-100", active && "opacity-100")} />}
         <span className="truncate">{label}</span>
       </div>
-      {hasSub && <ChevronRight size={12} className={cn("transition-transform duration-200 opacity-40", showFavoriteSub && "rotate-90 opacity-100")} />}
+      {hasSub && <ChevronRight size={18} className={cn("transition-transform duration-200 opacity-40", showFavoriteSub && "rotate-90 opacity-100")} />}
     </button>
   );
 
@@ -234,7 +234,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                                 target.favorite_color === 0 ? "text-primary" : "opacity-60"
                               )}
                             >
-                              <StarOff size={12} className="shrink-0" />
+                              <StarOff size={18} className="shrink-0" />
                               <span>{t('filemanager.actions.unfavorite') || 'None'}</span>
                             </button>
                             <div className={cn("h-px my-1 mx-4 opacity-10", isDark ? "bg-white" : "bg-black")} />

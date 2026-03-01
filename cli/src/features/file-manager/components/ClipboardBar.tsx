@@ -43,6 +43,7 @@ interface SortableItemProps {
  * 可拖拽排序的剪切板条目 / Sortable Clipboard Item
  */
 const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteSingleItem }: SortableItemProps) => {
+  const { t } = useTranslation();
   const {
     attributes,
     listeners,
@@ -75,7 +76,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
           {...listeners}
           className="p-1 hover:bg-white/10 rounded cursor-grab active:cursor-grabbing opacity-20 group-hover:opacity-100 transition-opacity"
         >
-          <GripVertical size={12} />
+          <GripVertical size={18} />
         </div>
         <div className={cn(
           "w-0.5 h-4 rounded-full mx-1",
@@ -86,7 +87,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
       {/* Info Section */}
       <div className="flex items-start gap-2 min-w-0 flex-1 ml-1">
         <div className="mt-1 shrink-0">
-          {item.is_dir ? <Folder size={14} className="text-yellow-500/70" /> : <FileText size={14} className="text-blue-400/70" />}
+          {item.is_dir ? <Folder size={18} className="text-yellow-500/70" /> : <FileText size={18} className="text-blue-400/70" />}
         </div>
         <div className="flex flex-col min-w-0">
           <span className={cn(
@@ -100,7 +101,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
             title={item.path}
           >
             <ArrowRight size={8} className="shrink-0" />
-            <span className="text-[9px] font-mono truncate">{item.path}</span>
+            <span className="text-[14px] font-mono truncate">{item.path}</span>
           </div>
         </div>
       </div>
@@ -211,7 +212,7 @@ export const ClipboardBar = () => {
             )}>
               {t('filemanager.clipboard.title')}
             </h4>
-            <p className="text-[9px] font-bold opacity-30 mt-1 uppercase">
+            <p className="text-[14px] font-bold opacity-30 mt-1 uppercase">
               {clipboard.length} / 100 {t('common.items')}
             </p>
           </div>
@@ -221,7 +222,7 @@ export const ClipboardBar = () => {
           {!isExpanded && canPaste && (
             <Button 
               size="sm" 
-              className="h-7 px-3 rounded-full bg-primary text-white font-bold text-[9px] uppercase shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+              className="h-7 px-3 rounded-full bg-primary text-white font-bold text-[14px] uppercase shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
               onClick={(e) => { e.stopPropagation(); pasteItems(clipboard, currentPath); }}
               title="Ctrl+V"
             >
@@ -229,7 +230,7 @@ export const ClipboardBar = () => {
             </Button>
           )}
           <div className="p-1.5 opacity-20 hover:opacity-100 transition-opacity">
-            {isExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+            {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
           </div>
         </div>
       </div>
@@ -264,7 +265,7 @@ export const ClipboardBar = () => {
               onClick={clearClipboard}
               className="text-sm font-black text-red-400/60 hover:text-red-500 hover:underline uppercase tracking-tighter flex items-center gap-1.5 transition-all"
             >
-              <Trash2 size={12} />
+              <Trash2 size={18} />
               {t('filemanager.clipboard.clear')}
             </button>
             
@@ -285,9 +286,9 @@ export const ClipboardBar = () => {
                 )}
                 onClick={() => { pasteItems(clipboard, currentPath); setIsExpanded(false); }}
               >
-                <Check size={14} />
+                <Check size={18} />
                 {t('filemanager.actions.pasteHere')}
-                {canPaste && <span className="opacity-40 text-[8px] ml-1">(Ctrl+V)</span>}
+                {canPaste && <span className="opacity-40 text-sm ml-1">(Ctrl+V)</span>}
               </Button>
             </div>
           </div>

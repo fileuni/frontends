@@ -46,8 +46,8 @@ export const EmailDetailPanel: React.FC<EmailDetailPanelProps> = ({
           <div className="h-14 border-b border-border/40 px-4 flex items-center justify-between bg-muted/10">
             <div className="flex items-center gap-2"><button className="lg:hidden p-1 hover:bg-muted rounded-lg" onClick={onBack}><ArrowLeft size={18} /></button><span className="text-sm font-black uppercase tracking-widest opacity-40">{t("email.messageThread")}</span></div>
             <div className="flex gap-1">
-              <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black uppercase" onClick={onReply}><Edit3 size={14} />{t("email.reply")}</Button>
-              <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black uppercase" onClick={onReplyAll}><RefreshCw size={14} />{t("email.replyAll")}</Button>
+              <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black uppercase" onClick={onReply}><Edit3 size={18} />{t("email.reply")}</Button>
+              <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black uppercase" onClick={onReplyAll}><RefreshCw size={18} />{t("email.replyAll")}</Button>
               <div className="w-px h-4 bg-border/40 mx-1" />
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={onOpenFull}><Maximize2 size={16} /></Button>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={onCloseDetail}><X size={16} /></Button>
@@ -67,7 +67,7 @@ export const EmailDetailPanel: React.FC<EmailDetailPanelProps> = ({
                 {messageDetail.body_html && (
                   <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-between gap-4">
                     <div className="text-sm text-orange-500 font-bold leading-snug">{safeMode ? t("email.securityShieldBlocked") : t("email.securityShieldActive")}</div>
-                    <Button size="sm" variant="outline" className="h-7 text-[9px] border-orange-500/30 text-orange-500 hover:bg-orange-500 rounded-lg px-2" onClick={() => setSafeMode(!safeMode)}>{safeMode ? t("email.showContent") : t("email.backToSafe")}</Button>
+                    <Button size="sm" variant="outline" className="h-9 text-sm border-orange-500/30 text-orange-500 hover:bg-orange-500 rounded-lg px-3" onClick={() => setSafeMode(!safeMode)}>{safeMode ? t("email.showContent") : t("email.backToSafe")}</Button>
                   </div>
                 )}
                 <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -79,15 +79,15 @@ export const EmailDetailPanel: React.FC<EmailDetailPanelProps> = ({
                     <div className="space-y-2">
                       {messageDetail.attachments.map((attachment) => (
                         <div key={attachment.id} className="flex items-center gap-2 rounded-xl border border-border/40 p-2 bg-background/80">
-                          <Paperclip size={14} className="text-primary shrink-0" />
+                          <Paperclip size={18} className="text-primary shrink-0" />
                           <div className="flex-1 min-w-0">
                             <div className="truncate text-sm font-bold">{attachment.filename}</div>
                             <div className="text-sm opacity-50">{formatSize(attachment.size)}</div>
                           </div>
-                          <Button variant="outline" size="sm" className="h-7 text-sm rounded-lg" onClick={() => onSaveAttachment(attachment.id, attachment.filename)}>
+                          <Button variant="outline" size="sm" className="h-9 text-sm rounded-lg" onClick={() => onSaveAttachment(attachment.id, attachment.filename)}>
                             {t("email.saveToVfs")}
                           </Button>
-                          <Button variant="ghost" size="sm" className="h-7 text-sm rounded-lg" onClick={() => onDownloadAttachment(attachment.id, attachment.filename)}>
+                          <Button variant="ghost" size="sm" className="h-9 text-sm rounded-lg" onClick={() => onDownloadAttachment(attachment.id, attachment.filename)}>
                             {t("common.download")}
                           </Button>
                         </div>

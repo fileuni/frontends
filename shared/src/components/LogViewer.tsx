@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { 
   Trash2, 
   Copy, 
@@ -177,22 +177,22 @@ export const LogViewer = ({
 
         <div className="flex items-center gap-1.5">
           <button onClick={() => setShowSearch(!showSearch)} className={`p-2 rounded-lg transition-all ${showSearch ? 'bg-cyan-500/20 text-cyan-400' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'}`}>
-            <Search size={14} />
+            <Search size={18} />
           </button>
           <button onClick={() => setAutoScroll(!autoScroll)} className={`p-2 rounded-lg transition-all ${autoScroll ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'}`}>
-            <Scroll size={14} />
+            <Scroll size={18} />
           </button>
           <button onClick={() => setIsPaused(!isPaused)} className={`p-2 rounded-lg transition-all ${isPaused ? 'bg-amber-500/20 text-amber-400' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'}`}>
-            {isPaused ? <Play size={14} /> : <Pause size={14} />}
+            {isPaused ? <Play size={18} /> : <Pause size={18} />}
           </button>
           <button onClick={handleCopy} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-all relative">
-            <Copy size={14} />
-            {copied && <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-emerald-500 text-white text-[9px] font-bold rounded shadow-lg whitespace-nowrap">Copied!</span>}
+            <Copy size={18} />
+            {copied && <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-emerald-500 text-white text-sm font-bold rounded shadow-lg whitespace-nowrap">Copied!</span>}
           </button>
-          <button onClick={handleDownload} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-all"><Download size={14} /></button>
-          {onClear && <button onClick={onClear} className="p-2 rounded-lg hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-all"><Trash2 size={14} /></button>}
+          <button onClick={handleDownload} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-all"><Download size={18} /></button>
+          {onClear && <button onClick={onClear} className="p-2 rounded-lg hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-all"><Trash2 size={18} /></button>}
           <button onClick={() => setIsExpanded(!isExpanded)} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-all">
-            {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+            {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
         </div>
       </div>
@@ -200,15 +200,15 @@ export const LogViewer = ({
       {showSearch && (
         <div className="px-5 py-2.5 bg-slate-900/50 border-b border-slate-800/60">
           <div className="relative">
-            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
             <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search logs..." className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-10 pr-9 py-2 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 transition-colors" />
-            {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"><X size={12} /></button>}
+            {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"><X size={18} /></button>}
           </div>
         </div>
       )}
 
       <div className="flex items-center gap-1 px-4 py-2 bg-slate-900/30 border-b border-slate-800/60 overflow-x-auto">
-        <Filter size={12} className="text-slate-600 mr-1.5 shrink-0" />
+        <Filter size={18} className="text-slate-600 mr-1.5 shrink-0" />
         {(['ALL', 'INFO', 'WARN', 'ERROR', 'DEBUG', 'TRACE'] as const).map((level) => (
           <button key={level} onClick={() => setFilterLevel(level)} className={`px-2.5 py-1 rounded-md text-sm font-bold transition-all tracking-wide ${filterLevel === level ? level === 'ALL' ? 'bg-slate-700 text-slate-200' : `${LEVEL_CONFIG[level].bgColor} ${LEVEL_CONFIG[level].color}` : 'text-slate-500 hover:text-slate-300'}`}>{level}</button>
         ))}
@@ -231,7 +231,7 @@ export const LogViewer = ({
               return (
                 <div key={log.id} className="group flex items-start gap-2.5 py-1 px-2.5 rounded hover:bg-white/5 transition-colors">
                   <span className="text-slate-600 shrink-0 select-none font-medium">{formatTime(log.timestamp)}</span>
-                  <span className={`shrink-0 px-1.5 py-0 rounded text-[9px] font-black tracking-tighter ${config.bgColor} ${config.color} min-w-[44px] text-center border ${config.borderColor}`}>{log.level}</span>
+                  <span className={`shrink-0 px-1.5 py-0 rounded text-sm font-black tracking-tighter ${config.bgColor} ${config.color} min-w-[44px] text-center border ${config.borderColor}`}>{log.level}</span>
                   {log.source && <span className="text-cyan-400/80 shrink-0 max-w-[100px] truncate font-bold">[{log.source}]</span>}
                   <span className={`break-all ${log.level === 'ERROR' ? 'text-rose-300' : log.level === 'WARN' ? 'text-amber-300' : 'text-slate-300'} font-medium`}>{log.message}</span>
                 </div>

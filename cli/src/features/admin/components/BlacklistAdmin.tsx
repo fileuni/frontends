@@ -125,18 +125,18 @@ export const BlacklistAdmin = () => {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'ip': return <RefreshCw size={14} />;
-      case 'user_id': return <UserX size={14} />;
-      case 'client_id': return <MonitorOff size={14} />;
-      default: return <Info size={14} />;
+      case 'ip': return <RefreshCw size={18} />;
+      case 'user_id': return <UserX size={18} />;
+      case 'client_id': return <MonitorOff size={18} />;
+      default: return <Info size={18} />;
     }
   };
 
   const getGuardBadge = (type: string) => {
     if (type === 'high_risk') {
-      return <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20 uppercase font-black text-[8px] tracking-widest">{t('admin.blacklist.highRisk') || 'High Risk'}</Badge>;
+      return <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20 uppercase font-black text-[14px] tracking-widest">{t('admin.blacklist.highRisk') || 'High Risk'}</Badge>;
     }
-    return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 uppercase font-black text-[8px] tracking-widest">{t('admin.blacklist.blacklisted') || 'Blacklisted'}</Badge>;
+    return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 uppercase font-black text-[14px] tracking-widest">{t('admin.blacklist.blacklisted') || 'Blacklisted'}</Badge>;
   };
 
   return (
@@ -287,7 +287,7 @@ export const BlacklistAdmin = () => {
                     </td>
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-2 text-sm font-bold opacity-40 uppercase">
-                        <Calendar size={12} />
+                        <Calendar size={18} />
                         {item.expires_at ? new Date(item.expires_at).toLocaleString() : 'Permanent'}
                       </div>
                     </td>
@@ -378,7 +378,7 @@ export const BlacklistAdmin = () => {
               onChange={e => setNewExpiresAt(e.target.value)}
               className="h-12"
             />
-            <p className="text-[8px] opacity-30 italic">{t('admin.blacklist.form.permanentHint') || 'Leave empty for permanent constraint'}</p>
+            <p className="text-[14px] opacity-30 italic">{t('admin.blacklist.form.permanentHint') || 'Leave empty for permanent constraint'}</p>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">

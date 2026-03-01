@@ -9,6 +9,19 @@ import { client, extractData } from "@/lib/api.ts";
 import { toast } from "@fileuni/shared";
 import type { EmailAccount } from "./emailTypes.ts";
 
+type EmailExportPayload = { encrypted_data: string };
+type EmailImportPayload = { imported: number };
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (typeof error === 'object' && error !== null && 'msg' in error) {
+    const message = (error as { msg?: unknown }).msg;
+    if (typeof message === 'string' && message.length > 0) {
+      return message;
+    }
+  }
+  return error instanceof Error ? error.message : fallback;
+};
+
 interface ExportImportModalProps {
   showExportModal: boolean;
   setShowExportModal: (open: boolean) => void;
@@ -55,7 +68,7 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
     if (!exportPassword) return toast.error(t("email.exportPasswordRequired"));
     setIsExporting(true);
     try {
-      const res = await extractData<any>(client.POST("/api/v1/email/accounts/export", { body: { export_password: exportPassword } }));
+      const res = await extractData<EmailExportPayload>(client.POST("/api/v1/email/accounts/export", { body: { export_password: exportPassword } }));
       const blob = new Blob([res.encrypted_data], { type: "text/plain" });
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
@@ -64,8 +77,8 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
       anchor.click();
       toast.success(t("email.exportSuccess"));
       setShowExportModal(false);
-    } catch (error: any) {
-      toast.error(error.msg || t("email.exportFailed"));
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, t("email.exportFailed")));
     } finally {
       setIsExporting(false);
     }
@@ -76,12 +89,12 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
     if (!importPassword || !encryptedData) return toast.error(t("email.importRequired"));
     setIsImporting(true);
     try {
-      const res = await extractData<any>(client.POST("/api/v1/email/accounts/import", { body: { encrypted_data: encryptedData, import_password: importPassword } }));
+      const res = await extractData<EmailImportPayload>(client.POST("/api/v1/email/accounts/import", { body: { encrypted_data: encryptedData, import_password: importPassword } }));
       toast.success(`${t("email.importSuccess")}: ${res.imported}`);
       setShowImportModal(false);
       onAccountsChanged();
-    } catch (error: any) {
-      toast.error(error.msg || t("email.importFailed"));
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, t("email.importFailed")));
     } finally {
       setIsImporting(false);
     }
@@ -225,8 +238,8 @@ export const EmailAccountModal: React.FC<EmailAccountModalProps> = ({
               setShowAccountModal(false);
               setEditingAccount(null);
               onSaved();
-            } catch (error: any) {
-              toast.error(error.msg || t("email.saveFailed"));
+            } catch (error: unknown) {
+              toast.error(getErrorMessage(error, t("email.saveFailed")));
             }
           }}>{editingAccount ? t("common.save") : t("common.add")}</Button>
         </div>

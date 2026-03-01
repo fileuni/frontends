@@ -14,7 +14,6 @@ interface Props {
 
 export const LargeFileWarning = ({ file, onForcePreview, onCancel, isDark }: Props) => {
   const { t } = useTranslation();
-  const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
 
   return (
     <div className={cn("h-screen w-screen flex flex-col items-center justify-center p-10", isDark ? "bg-[#09090b] text-white" : "bg-white text-zinc-900")}>
@@ -36,10 +35,10 @@ export const LargeFileWarning = ({ file, onForcePreview, onCancel, isDark }: Pro
 
             <div className="flex gap-4 justify-center">
                 <Button variant="ghost" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={onCancel}>
-                    <X size={14} className="mr-2" /> {t('common.cancel')}
+                    <X size={18} className="mr-2" /> {t('common.cancel')}
                 </Button>
                 <Button variant="outline" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={onForcePreview}>
-                    <ChevronRight size={14} className="mr-2" /> {t('filemanager.preview.previewAnyway')}
+                    <ChevronRight size={18} className="mr-2" /> {t('filemanager.preview.previewAnyway')}
                 </Button>
             </div>
         </div>

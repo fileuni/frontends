@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@fileuni/shared';
@@ -197,7 +196,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
     void loadRoles();
   }, []);
 
-  const handleUpdate = async (e: FormEvent<HTMLFormElement>) => {
+  const handleUpdate = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!userId) return;
     setSaving(true);
@@ -218,7 +217,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
         params: { path: { user_id: userId } },
         body: fileSettings
       });
-      const overrideList = Object.entries(permissionOverrides)
+      const overrideList = (Object.entries(permissionOverrides) as Array<[string, number]>)
         .filter(([, effect]) => effect === 1 || effect === -1)
         .map(([perm_key, effect]) => ({ perm_key, effect }));
       await updateUserPermissions(userId, overrideList);
@@ -372,7 +371,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                   }}
                   className="text-sm font-black text-primary flex items-center gap-1 hover:underline"
                 >
-                  <Plus size={12} /> {t('profile.addNew')}
+                  <Plus size={18} /> {t('profile.addNew')}
                 </button>
               </div>
               <div className="space-y-3">
@@ -474,7 +473,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                     />
                   </div>
                 </div>
-                <p className="text-[9px] opacity-30 font-bold uppercase tracking-widest ml-1 italic">
+                <p className="text-[14px] opacity-30 font-bold uppercase tracking-widest ml-1 italic">
                   {t('admin.edit.s3KeysHint')}
                 </p>
               </div>
@@ -525,7 +524,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl">
             <h3 className="text-sm font-black uppercase tracking-widest opacity-30 mb-6 flex items-center gap-2">
-              <Database size={14} /> {t('admin.edit.usageStats')}
+              <Database size={18} /> {t('admin.edit.usageStats')}
             </h3>
             <div className="space-y-6">
               <div className="bg-white/5 p-6 rounded-2xl border border-white/5 relative group">
@@ -534,7 +533,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                   onClick={handleRecalibrate} 
                   className="absolute top-4 right-4 p-2 hover:bg-primary/20 rounded-lg text-primary opacity-0 group-hover:opacity-100 transition-all"
                 >
-                  <RefreshCw size={14} className={recalibrating ? "animate-spin" : ""} />
+                  <RefreshCw size={18} className={recalibrating ? "animate-spin" : ""} />
                 </button>
                 <p className="text-sm font-black opacity-40 uppercase mb-1">{t('admin.edit.occupied')}</p>
                 <p className="text-2xl font-black">{formatSize(Number(fileSettings.storage_used))}</p>
@@ -570,7 +569,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
 
           <div className="bg-red-500/5 border border-red-500/10 rounded-[2.5rem] p-8 shadow-xl">
             <h3 className="text-sm font-black uppercase tracking-widest text-red-500/50 mb-6 flex items-center gap-2">
-              <ShieldAlert size={14} /> {t('admin.edit.criticalActions')}
+              <ShieldAlert size={18} /> {t('admin.edit.criticalActions')}
             </h3>
             <div className="space-y-3">
               <Button 

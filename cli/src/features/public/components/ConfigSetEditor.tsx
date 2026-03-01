@@ -30,6 +30,10 @@ interface ConfigNotesResponse {
   notes: Record<string, ConfigNoteEntry>;
 }
 
+interface BackendCapabilitiesResponse {
+  runtime_os?: string;
+}
+
 type ConfigValidationError = {
   message: string;
   line?: number;
@@ -70,6 +74,7 @@ export const ConfigSetEditor: React.FC = () => {
   const [configPath, setConfigPath] = useState('');
   const [content, setContent] = useState('');
   const [savedContent, setSavedContent] = useState('');
+  const [runtimeOs, setRuntimeOs] = useState<string>('');
   const [notes, setNotes] = useState<Record<string, ConfigNoteEntry>>({});
   const [validationErrors, setValidationErrors] = useState<ConfigValidationError[]>([]);
 
@@ -117,12 +122,24 @@ export const ConfigSetEditor: React.FC = () => {
     }
   }, []);
 
+  const fetchCapabilities = useCallback(async () => {
+    try {
+      const data = await extractData<BackendCapabilitiesResponse>(
+        client.GET('/api/v1/system/backend-capabilities-handshake')
+      );
+      setRuntimeOs(typeof data.runtime_os === 'string' ? data.runtime_os : '');
+    } catch (e) {
+      console.error('Failed to fetch backend capabilities', e);
+      setRuntimeOs('');
+    }
+  }, []);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
         await fetchStatus();
-        await Promise.all([fetchTemplate(), fetchNotes()]);
+        await Promise.all([fetchTemplate(), fetchNotes(), fetchCapabilities()]);
       } catch (e) {
         console.error('Config-set init failed', e);
       } finally {
@@ -130,7 +147,7 @@ export const ConfigSetEditor: React.FC = () => {
       }
     };
     load();
-  }, [fetchStatus, fetchTemplate, fetchNotes]);
+  }, [fetchStatus, fetchTemplate, fetchNotes, fetchCapabilities]);
 
   const handleTest = async () => {
     if (testing) return;
@@ -332,6 +349,7 @@ export const ConfigSetEditor: React.FC = () => {
         showCancel={false}
         onClearValidationErrors={() => setValidationErrors([])}
         quickWizardEnabled={true}
+        runtimeOs={runtimeOs}
         onResetAdminPassword={handleQuickWizardResetAdminPassword}
         isResettingAdminPassword={resettingAdminPassword}
       />

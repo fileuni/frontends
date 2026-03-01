@@ -103,7 +103,7 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
         {/* Footer */}
         <div className="p-8 bg-white/[0.02] border-t border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2 opacity-30 italic max-w-[70%]">
-            <Info size={14} className="shrink-0" />
+            <Info size={18} className="shrink-0" />
             <span className="text-sm font-medium leading-tight">{t('filemanager.help.tip')}</span>
           </div>
           <Button onClick={onClose} className="rounded-2xl px-8 h-12 font-black uppercase text-sm shadow-xl shadow-primary/20">

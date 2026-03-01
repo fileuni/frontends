@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@fileuni/shared';
@@ -72,7 +71,7 @@ export const AuditLogAdmin = () => {
     finally { setLoading(false); }
   };
 
-  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPage(1);
     fetchLogs();
@@ -129,7 +128,7 @@ export const AuditLogAdmin = () => {
         <div className="w-full xl:w-auto">
           <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-3">
             <div className="relative group min-w-[150px]">
-               <User className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={14} />
+               <User className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
                <Input 
                 value={userIdFilter} 
                 onChange={e => setUserIdFilter(e.target.value)} 
@@ -138,7 +137,7 @@ export const AuditLogAdmin = () => {
               />
             </div>
             <div className="relative group min-w-[120px]">
-               <Activity className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={14} />
+               <Activity className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
                <Input 
                 value={actionFilter} 
                 onChange={e => setActionFilter(e.target.value)} 
@@ -169,7 +168,7 @@ export const AuditLogAdmin = () => {
               <option value="START">{t('admin.audit.statusStart')}</option>
             </select>
             <button type="submit" className="h-10 px-4 rounded-xl bg-primary text-white font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-primary/20">
-              <Search size={14} />
+              <Search size={18} />
               {t('common.search') || 'Search'}
             </button>
             <button type="button" onClick={() => {
@@ -178,7 +177,7 @@ export const AuditLogAdmin = () => {
                setTypeFilter('');
                setStatusFilter('');
             }} className="h-10 px-4 rounded-xl bg-white/5 border border-white/5 font-bold text-sm flex items-center gap-2 hover:bg-white/10 transition-all">
-              <RefreshCw size={14} />
+              <RefreshCw size={18} />
             </button>
           </form>
         </div>
@@ -221,7 +220,7 @@ export const AuditLogAdmin = () => {
                   <tr key={log.id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-sm font-mono opacity-50">
-                        <Calendar size={12} className="shrink-0" />
+                        <Calendar size={18} className="shrink-0" />
                         {new Date(log.created_at).toLocaleString()}
                       </div>
                     </td>

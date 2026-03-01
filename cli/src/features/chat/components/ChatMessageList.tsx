@@ -145,9 +145,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
             <div key={msg.id} className="flex justify-center py-3">
               <div className="px-4 py-1.5 rounded-full bg-muted/50 text-sm text-muted-foreground flex items-center gap-2 border border-border/50 shadow-sm">
                 {isTransportSwitch ? (
-                  <Zap size={12} className="text-yellow-500" />
+                  <Zap size={18} className="text-yellow-500" />
                 ) : (
-                  <ShieldCheck size={12} className="text-primary" />
+                  <ShieldCheck size={18} className="text-primary" />
                 )}
                 {msg.content}
               </div>
@@ -196,7 +196,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                   <span className="text-sm text-muted-foreground px-1">
                     {nicknames[msg.from] || msg.from}
                     {msg.from.includes(":guest:") && (
-                      <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                      <span className="ml-1.5 text-[14px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
                         {t("chat.guest")}
                       </span>
                     )}
@@ -295,7 +295,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                                 }}
                                 className="w-8 h-8 rounded-full bg-background/20 flex items-center justify-center hover:bg-background/30 transition-colors"
                               >
-                                <Play size={14} className="ml-0.5" />
+                                <Play size={18} className="ml-0.5" />
                               </button>
                               <audio
                                 ref={(el) => {
@@ -312,7 +312,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                               download={msg.fileInfo.name}
                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background/20 hover:bg-background/30 transition-colors text-sm font-bold"
                             >
-                              <ArrowDownToLine size={14} />
+                              <ArrowDownToLine size={18} />
                               {t("common.download")}
                             </a>
                           )}
@@ -348,21 +348,21 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                       className="p-1.5 bg-muted hover:bg-muted/80 rounded-lg shadow-sm"
                       title={t("chat.copy")}
                     >
-                      <Copy size={12} />
+                      <Copy size={18} />
                     </button>
                     <button
                       onClick={() => setQuotingMessage(msg)}
                       className="p-1.5 bg-muted hover:bg-muted/80 rounded-lg shadow-sm"
                       title={t("chat.reply")}
                     >
-                      <Reply size={12} />
+                      <Reply size={18} />
                     </button>
                     <button
                       onClick={() => deleteMessage(msg.id)}
                       className="p-1.5 bg-muted hover:bg-destructive/10 text-destructive rounded-lg shadow-sm"
                       title={t("chat.delete")}
                     >
-                      <Trash2 size={12} />
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
@@ -405,7 +405,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                         <Clock size={10} className="animate-spin" />
                       )}
                       {msg.status === "delivered" && <Check size={10} />}
-                      {msg.status === "read" && <CheckCheck size={12} />}
+                      {msg.status === "read" && <CheckCheck size={18} />}
                       {msg.status === "failed" && (
                         <button
                           onClick={() => onRetry?.(msg)}

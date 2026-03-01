@@ -44,6 +44,11 @@ interface SubtitleInfo {
   isActive: boolean;
 }
 
+type SubtitleCapablePlayer = Player & {
+  attachSubtitle?: (options: { url: string; type: 'vtt' | 'srt' | 'ass' }) => void;
+  removeSubtitle?: () => void;
+};
+
 /**
  * 优化后的专业视频播放器 / Optimized Professional Video Player
  */
@@ -129,9 +134,10 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
   }, [currentIndex, isFlv, playNext, playMode]);
 
   const handleSubtitleChange = (sub: SubtitleInfo) => {
-    if (!playerRef.current) return;
+    const player = playerRef.current as SubtitleCapablePlayer | null;
+    if (!player) return;
     const ext = sub.file.name.split('.').pop()?.toLowerCase() || '';
-    (playerRef.current as any).attachSubtitle({ 
+    player.attachSubtitle?.({ 
       url: sub.url, 
       type: ext as 'vtt' | 'srt' | 'ass' 
     });
@@ -178,13 +184,13 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                 <button onClick={playNext} className="hover:text-primary"><SkipForward size={20} /></button>
                 <span className="text-sm font-mono opacity-60">{formatTime(currentTime)} / {formatTime(duration)}</span>
               </div>
-              <button onClick={() => setPlayMode(PLAY_MODE_CONFIG[playMode].next)} className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full text-sm font-black uppercase"><PlayModeIcon size={14} /> {t(PLAY_MODE_CONFIG[playMode].labelKey)}</button>
+              <button onClick={() => setPlayMode(PLAY_MODE_CONFIG[playMode].next)} className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full text-sm font-black uppercase"><PlayModeIcon size={18} /> {t(PLAY_MODE_CONFIG[playMode].labelKey)}</button>
             </div>
           </div>
 
           {showSubtitlePanel && (
             <div className="absolute top-20 right-6 w-64 bg-zinc-900/95 border border-white/10 rounded-2xl shadow-2xl p-2 z-30">
-              <button onClick={() => { (playerRef.current as any)?.removeSubtitle?.(); setCurrentSubtitle(null); }} className={cn("w-full text-left px-4 py-2 rounded-xl text-sm font-bold", !currentSubtitle ? "bg-primary text-white" : "text-white/60 hover:bg-white/5")}>{t('player.subtitlesOff')}</button>
+              <button onClick={() => { (playerRef.current as SubtitleCapablePlayer | null)?.removeSubtitle?.(); setCurrentSubtitle(null); }} className={cn("w-full text-left px-4 py-2 rounded-xl text-sm font-bold", !currentSubtitle ? "bg-primary text-white" : "text-white/60 hover:bg-white/5")}>{t('player.subtitlesOff')}</button>
               {availableSubtitles.map(s => <button key={s.file.path} onClick={() => handleSubtitleChange(s)} className={cn("w-full text-left px-4 py-2 rounded-xl text-sm font-bold mt-1", s.isActive ? "bg-primary text-white" : "text-white/60 hover:bg-white/5")}>{s.file.name}</button>)}
             </div>
           )}

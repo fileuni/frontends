@@ -42,7 +42,7 @@ export const EmailMessagesPanel: React.FC<EmailMessagesPanelProps> = ({
           <div className="h-14 border-b border-border/40 px-3 flex items-center gap-2 bg-muted/5">
             <button className="lg:hidden p-1 hover:bg-muted rounded-lg" onClick={onBack}><ArrowLeft size={16} /></button>
             <div className="flex-1 relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={14} /><Input placeholder={t("email.searchMessages")} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 rounded-xl bg-background/50 border-none text-sm" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={18} /><Input placeholder={t("email.searchMessages")} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 rounded-xl bg-background/50 border-none text-sm" />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -53,7 +53,7 @@ export const EmailMessagesPanel: React.FC<EmailMessagesPanelProps> = ({
                     <div className="flex items-center gap-2"><span className="text-sm font-black uppercase text-orange-600 bg-orange-500/10 px-1.5 rounded">{t("email.draft")}</span><span className="font-bold text-sm truncate">{draft.to_addr || t("email.noRecipient")}</span></div>
                     <p className="font-black text-sm truncate mt-1">{draft.subject || t("email.noSubject")}</p>
                   </div>
-                  <span className="text-[9px] opacity-40 whitespace-nowrap">{formatDate(draft.updated_at)}</span>
+                  <span className="text-[14px] opacity-40 whitespace-nowrap">{formatDate(draft.updated_at)}</span>
                 </div>
               </div>
             )) : filteredMessages.map((message) => (
@@ -64,19 +64,19 @@ export const EmailMessagesPanel: React.FC<EmailMessagesPanelProps> = ({
                     <span className={cn("font-black truncate block", !message.is_read ? "text-foreground" : "text-muted-foreground opacity-60")}>{message.from_name || message.from_addr}</span>
                     <p className="font-bold truncate mt-0.5">{message.subject}</p>
                     {message.is_local_pending && (
-                      <div className={cn("mt-1 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold", message.sync_state === "smtp_accepted" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600")}>
+                      <div className={cn("mt-1 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[14px] font-bold", message.sync_state === "smtp_accepted" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600")}>
                         <RefreshCw size={10} className={cn(message.sync_state === "smtp_accepted" ? "" : "animate-spin")} />
                         {message.sync_state === "smtp_accepted" ? t("email.smtpAccepted") : t("email.pendingSync")}
                       </div>
                     )}
                     {message.has_attachments && (
-                      <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold text-primary">
+                      <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[14px] font-bold text-primary">
                         <Paperclip size={10} />
                         {t("email.attachments")}
                       </div>
                     )}
                   </div>
-                  <span className="text-[9px] opacity-40 whitespace-nowrap pt-0.5">{formatDate(message.date)}</span>
+                  <span className="text-[14px] opacity-40 whitespace-nowrap pt-0.5">{formatDate(message.date)}</span>
                 </div>
               </div>
             ))}

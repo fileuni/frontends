@@ -57,7 +57,7 @@ export const SessionKeyModal: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-            <Info size={14} className="text-primary shrink-0" />
+            <Info size={18} className="text-primary shrink-0" />
             <p className="text-sm font-bold leading-tight">
               {t('chat.encryptionHint')}
             </p>

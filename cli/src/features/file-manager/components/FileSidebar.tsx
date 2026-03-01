@@ -116,7 +116,7 @@ export const FileSidebar = () => {
         <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-5 shadow-inner">
           <div className="flex justify-between items-center mb-3">
             <span className="text-sm font-black uppercase tracking-widest opacity-40 flex items-center gap-2">
-              <Database size={12} /> {t("filemanager.storage")}
+              <Database size={18} /> {t("filemanager.storage")}
             </span>
             <span className="text-sm font-black text-primary">
               {percentage}%
@@ -128,7 +128,7 @@ export const FileSidebar = () => {
               style={{ width: `${percentage}%` }}
             />
           </div>
-          <p className="text-[9px] font-bold opacity-30 text-center tracking-tighter">
+          <p className="text-[14px] font-bold opacity-30 text-center tracking-tighter">
             {formatSize(used)} of{" "}
             {isUnlimited ? t("admin.edit.unlimited") : formatSize(quota)} Used
           </p>

@@ -115,7 +115,7 @@ export const TaskAdmin = () => {
             <h2 className="text-sm font-black uppercase tracking-widest">{t('admin.tasks.scheduled_jobs') || 'Scheduled Maintenance Tasks'}</h2>
           </div>
           <Button variant="ghost" size="sm" onClick={fetchScheduledJobs} className="opacity-50 hover:opacity-100">
-            <RefreshCw size={14} className="mr-2" /> {t('common.refresh')}
+            <RefreshCw size={18} className="mr-2" /> {t('common.refresh')}
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -166,7 +166,7 @@ export const TaskAdmin = () => {
               <option value="failed">{t('admin.tasks.status.failed')}</option>
             </select>
             <Button variant="ghost" size="sm" onClick={fetchTasks} className="opacity-50 hover:opacity-100">
-              <RefreshCw size={14} />
+              <RefreshCw size={18} />
             </Button>
           </div>
         </div>

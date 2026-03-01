@@ -32,9 +32,9 @@ export const ConfigWorkbenchShell: React.FC<ConfigWorkbenchShellProps> = ({
         <div className="min-w-0">
           <div className="text-sm sm:text-base font-black uppercase tracking-wide truncate">{title}</div>
           {subtitle ? (
-            <div className="text-[10px] sm:text-xs text-slate-400 truncate">{subtitle}</div>
+            <div className="text-sm sm:text-sm text-slate-400 truncate">{subtitle}</div>
           ) : configPath ? (
-            <div className="text-[10px] sm:text-xs font-mono text-slate-400 truncate">{configPath}</div>
+            <div className="text-sm sm:text-sm font-mono text-slate-400 truncate">{configPath}</div>
           ) : null}
         </div>
         {onClose && (

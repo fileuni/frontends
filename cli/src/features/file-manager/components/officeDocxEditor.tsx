@@ -244,7 +244,7 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
         extra={
           <Button variant="primary" className="h-9 px-4 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={handleSave} disabled={saving || loading}>
             {saving ? t('filemanager.officeLite.saving') : t('filemanager.officeLite.save')}
-            <Save size={14} className="ml-2" />
+            <Save size={18} className="ml-2" />
           </Button>
         }
       />

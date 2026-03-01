@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@fileuni/shared';
@@ -93,7 +92,7 @@ export const UserManagement = () => {
     finally { setLoading(false); }
   };
 
-  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPage(1);
     fetchUsers();
@@ -271,7 +270,7 @@ export const UserManagement = () => {
                     </td>
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-2 text-sm font-bold opacity-40 uppercase">
-                        <Calendar size={12} />
+                        <Calendar size={18} />
                         {new Date(user.created_at).toLocaleDateString()}
                       </div>
                     </td>
@@ -379,7 +378,7 @@ export const UserManagement = () => {
               </div>
               {isPasswordMismatch && (
                 <div className="flex items-center gap-2 text-red-500 mt-2 animate-in fade-in slide-in-from-top-1">
-                  <AlertCircle size={14} />
+                  <AlertCircle size={18} />
                   <span className="text-sm font-black uppercase tracking-widest">{t('common.passwordMismatch')}</span>
                 </div>
               )}

@@ -35,7 +35,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     try {
       const data = await extractData<Notification[]>(client.GET('/api/v1/notifications', {
         params: { query: { page, page_size: pageSize } }
-      } as any));
+      }));
       if (data) {
         set({ notifications: data });
       }
@@ -48,7 +48,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   fetchUnreadCount: async () => {
     try {
-      const data = await extractData<number>(client.GET('/api/v1/notifications/unread-count' as any));
+      const data = await extractData<number>(client.GET('/api/v1/notifications/unread-count'));
       if (data !== undefined) {
         set({ unreadCount: Number(data) || 0 });
       }
@@ -59,9 +59,9 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   markAsRead: async (ids: string[]) => {
     try {
-      const data = await extractData<number>(client.POST('/api/v1/notifications/read' as any, {
+      const data = await extractData<number>(client.POST('/api/v1/notifications/read', {
         body: { ids }
-      } as any));
+      }));
       set(state => ({
         notifications: state.notifications.map(n => ids.includes(n.id) ? { ...n, is_read: true } : n),
         unreadCount: Math.max(0, state.unreadCount - (Number(data) || 0))
@@ -73,7 +73,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   markAllAsRead: async () => {
     try {
-      await extractData(client.POST('/api/v1/notifications/read-all' as any));
+      await extractData(client.POST('/api/v1/notifications/read-all'));
       set(state => ({
         notifications: state.notifications.map(n => ({ ...n, is_read: true })),
         unreadCount: 0
@@ -85,9 +85,9 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   deleteNotifications: async (ids: string[]) => {
     try {
-      await extractData(client.DELETE('/api/v1/notifications' as any, {
+      await extractData(client.DELETE('/api/v1/notifications', {
         body: { ids }
-      } as any));
+      }));
       set(state => ({
         notifications: state.notifications.filter(n => !ids.includes(n.id))
       }));

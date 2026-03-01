@@ -74,20 +74,20 @@ const CompactUploadItem = ({ task, isDark, onRemove }: SortableItemProps) => {
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <div className="shrink-0">
             {task.status === "completed" ? (
-              <CheckCircle2 size={14} className="text-green-500" />
+              <CheckCircle2 size={18} className="text-green-500" />
             ) : task.status === "error" ? (
-              <AlertCircle size={14} className="text-red-500" />
+              <AlertCircle size={18} className="text-red-500" />
             ) : task.status === "uploading" ? (
-              <Loader2 size={14} className="animate-spin text-primary" />
+              <Loader2 size={18} className="animate-spin text-primary" />
             ) : (
-              <Clock size={14} className="text-zinc-500" />
+              <Clock size={18} className="text-zinc-500" />
             )}
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-bold truncate text-white/90 leading-tight">
               {task.file.name}
             </span>
-            <span className="text-[9px] opacity-30 font-mono truncate">
+            <span className="text-sm opacity-30 font-mono truncate">
               {task.targetPath || "/"}
             </span>
           </div>
@@ -101,7 +101,7 @@ const CompactUploadItem = ({ task, isDark, onRemove }: SortableItemProps) => {
             onClick={() => onRemove(task.id)}
             className="p-1 rounded-md hover:bg-red-500/10 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
           >
-            <X size={12} />
+            <X size={18} />
           </button>
         </div>
       </div>
@@ -116,7 +116,7 @@ const CompactUploadItem = ({ task, isDark, onRemove }: SortableItemProps) => {
       />
 
       {task.status === "error" && (
-        <p className="text-[8px] text-red-400 font-bold truncate italic mt-0.5">
+        <p className="text-[14px] text-red-400 font-bold truncate italic mt-0.5">
           {task.errorMsg}
         </p>
       )}
@@ -248,7 +248,7 @@ export const GlobalUploader = () => {
                   }}
                 />
               </div>
-              <span className="text-[9px] font-black opacity-40 uppercase">
+              <span className="text-sm font-black opacity-40 uppercase">
                 {completedTasks.length}/{tasks.length}
               </span>
             </div>
@@ -281,7 +281,7 @@ export const GlobalUploader = () => {
               )}
             >
               <RefreshCw
-                size={12}
+                size={18}
                 className={
                   activeTab === "uploading" && uploadingTasks.length > 0
                     ? "animate-spin"
@@ -301,7 +301,7 @@ export const GlobalUploader = () => {
                   : "opacity-40 hover:opacity-60",
               )}
             >
-              <CheckCircle2 size={12} />
+              <CheckCircle2 size={18} />
               {t("filemanager.uploader.completed", {
                 count: completedTasks.length,
               })}

@@ -122,14 +122,14 @@ export const MySharesView = () => {
               onClick={() => setViewMode('grid')}
               className={cn("p-2 h-8 w-8 rounded-lg", viewMode === 'grid' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
             >
-              <LayoutGrid size={14} />
+              <LayoutGrid size={18} />
             </Button>
             <Button 
               variant="ghost" 
               onClick={() => setViewMode('list')}
               className={cn("p-2 h-8 w-8 rounded-lg", viewMode === 'list' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
             >
-              <List size={14} />
+              <List size={18} />
             </Button>
           </div>
 

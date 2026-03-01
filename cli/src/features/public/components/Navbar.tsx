@@ -229,7 +229,7 @@ export const Navbar = () => {
                             : cn("opacity-40 hover:opacity-100", isDark ? "hover:bg-white/5" : "hover:bg-gray-100")
                         )}
                       >
-                        {lang === 'auto' && <Laptop size={14} />}
+                        {lang === 'auto' && <Laptop size={18} />}
                         <span>{t(`languages.${lang}`)}</span>
                       </button>
                     ))}
@@ -254,7 +254,7 @@ export const Navbar = () => {
                             : cn("opacity-40 hover:opacity-100", isDark ? "hover:bg-white/5" : "hover:bg-gray-100")
                         )}
                       >
-                        <mode.icon size={14} />
+                        <mode.icon size={18} />
                         <span>{t(`themes.${mode.id}`)}</span>
                       </button>
                     ))}

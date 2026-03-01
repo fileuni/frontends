@@ -157,7 +157,7 @@ export const AdminPasswordPanel: React.FC<AdminPasswordPanelProps> = ({
 
         <div className="grid gap-4 grid-cols-1">
           <div className="space-y-2 sm:space-y-3">
-            <label className="text-xs sm:text-sm font-semibold uppercase tracking-wide opacity-70">
+            <label className="text-sm sm:text-sm font-semibold uppercase tracking-wide opacity-70">
               {t('setup.admin.password')}
             </label>
             <div className="flex gap-2">

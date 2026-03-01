@@ -83,7 +83,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             className="flex-1 h-8 text-sm gap-1"
             onClick={onOpenUserSearch}
           >
-            <UserPlus size={14} /> {t("chat.newChat")}
+            <UserPlus size={18} /> {t("chat.newChat")}
           </Button>
           {auth.type === "system" && (
             <Button
@@ -92,7 +92,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               className="flex-1 h-8 text-sm gap-1"
               onClick={onOpenGroupModal}
             >
-              <Users size={14} /> {t("chat.groups")}
+              <Users size={18} /> {t("chat.groups")}
             </Button>
           )}
         </div>
@@ -188,7 +188,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
           className="flex-1 h-9 text-sm gap-2 text-muted-foreground hover:text-foreground hover:bg-muted"
           onClick={onOpenSettings}
         >
-          <Settings size={14} /> {t("chat.settings")}
+          <Settings size={18} /> {t("chat.settings")}
         </Button>
         <Button
           variant="ghost"

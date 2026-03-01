@@ -62,6 +62,18 @@ interface ChatCapabilities {
   chat_default_key?: string;
 }
 
+const isChatCapabilities = (value: unknown): value is ChatCapabilities => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const candidate = value as Partial<ChatCapabilities>;
+  return (
+    typeof candidate.enabled === 'boolean' &&
+    Array.isArray(candidate.stun_servers) &&
+    Array.isArray(candidate.turn_servers)
+  );
+};
+
 export interface ChatContextProps {
   messages: Message[];
   rooms: Room[];
@@ -475,7 +487,7 @@ export const ChatProvider: React.FC<{
   const fetchOnlineUsers = useCallback(async () => {
     if (isChatEnabled && !isInitializing) {
       try {
-        const queryParams: any = {};
+        const queryParams: Record<string, string> = {};
         if (auth.type === "guest") {
           queryParams.invite_id = auth.inviteCode;
         } else {
@@ -716,9 +728,16 @@ export const ChatProvider: React.FC<{
 
   const fetchCapabilities = useCallback(async (retryCount = 0) => {
     try {
-      const { data, error } = await client.GET("/api/v1/chat/public/capabilities" as any);
-      if (data?.success) {
-        setCapabilities(data.data as any);
+      const { data, error } = await (client.GET as (path: string) => Promise<{ data?: unknown; error?: unknown }>)("/api/v1/chat/public/capabilities");
+      if (
+        typeof data === 'object' &&
+        data !== null &&
+        'success' in data &&
+        (data as { success?: boolean }).success === true &&
+        'data' in data &&
+        isChatCapabilities((data as { data?: unknown }).data)
+      ) {
+        setCapabilities((data as { data: ChatCapabilities }).data);
         console.log("[Chat] Capabilities loaded successfully");
       } else {
         throw new Error(error ? JSON.stringify(error) : "Success false");
@@ -884,14 +903,15 @@ export const ChatProvider: React.FC<{
         return;
       if (auth.type === "system") {
         try {
-          const { data } = await client.GET("/api/v1/chat/users/search", {
-            params: { query: { keyword: id } },
-          });
-          if (data?.success && Array.isArray(data.data)) {
-            const user = (data.data as any[]).find((u) => u.user_id === id);
-            if (user) {
-              setNicknames((prev) => ({
-                ...prev,
+        const { data } = await client.GET("/api/v1/chat/users/search", {
+          params: { query: { keyword: id } },
+        });
+        if (data?.success && Array.isArray(data.data)) {
+          const users = data.data as UserSearchInfo[];
+          const user = users.find((u) => u.user_id === id);
+          if (user) {
+            setNicknames((prev) => ({
+              ...prev,
                 [id]: user.nickname || user.username,
               }));
               return;
@@ -1398,7 +1418,7 @@ export const ChatProvider: React.FC<{
             ),
           );
         }, 10000);
-      } catch (err: any) {
+      } catch (err: unknown) {
         updateMessageStatus(msgId, "failed");
         const wsReadyState = wsRef.current?.readyState;
         const isConnecting =

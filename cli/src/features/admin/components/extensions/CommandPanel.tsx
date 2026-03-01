@@ -50,17 +50,17 @@ export const CommandPanel = (props: Props) => {
       {props.cmdResult && (
         <div className="rounded-[2rem] border border-white/10 p-6 space-y-6 text-base font-mono bg-black/40 shadow-inner">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-black uppercase opacity-40 tracking-widest">{t('admin.extensions.exitCode')}:</span>
+            <span className="text-sm font-black uppercase opacity-40 tracking-widest">{t('admin.extensions.exitCode')}:</span>
             <span className={`px-3 py-1 rounded-lg font-bold ${props.cmdResult.code === 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>{props.cmdResult.code}</span>
           </div>
           <div className="space-y-2">
-            <div className="text-xs font-black uppercase opacity-40 tracking-widest">{t('admin.extensions.stdout')}</div>
+            <div className="text-sm font-black uppercase opacity-40 tracking-widest">{t('admin.extensions.stdout')}</div>
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
               <pre className="whitespace-pre-wrap break-words opacity-80 text-sm leading-relaxed">{props.cmdResult.stdout || <span className="opacity-20 italic">No output</span>}</pre>
             </div>
           </div>
           <div className="space-y-2">
-            <div className="text-xs font-black uppercase opacity-40 tracking-widest">{t('admin.extensions.stderr')}</div>
+            <div className="text-sm font-black uppercase opacity-40 tracking-widest">{t('admin.extensions.stderr')}</div>
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
               <pre className="whitespace-pre-wrap break-words text-red-400/80 text-sm leading-relaxed">{props.cmdResult.stderr || <span className="opacity-20 italic">No error output</span>}</pre>
             </div>

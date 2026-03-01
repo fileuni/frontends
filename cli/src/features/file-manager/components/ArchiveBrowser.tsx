@@ -174,7 +174,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
 
         <div className="flex items-center gap-3">
             <div className="relative hidden md:block">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" />
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" />
                 <input 
                     type="text"
                     value={searchKeyword}
@@ -222,7 +222,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
                   {entry.path.split('/').filter(Boolean).pop()}
                 </span>
                 {!entry.is_dir && (
-                  <span className="text-[9px] opacity-30 mt-1 font-mono">
+                  <span className="text-[14px] opacity-30 mt-1 font-mono">
                     {(entry.size / 1024).toFixed(1)} KB
                   </span>
                 )}

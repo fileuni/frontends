@@ -11,14 +11,6 @@ export type ToolInfo = {
   description_zh: string;
   description_en: string;
 };
-  name: string;
-  kind: ToolKind;
-  executable_path: string;
-  installed: boolean;
-  homepage: string;
-  description_zh: string;
-  description_en: string;
-};
 
 export type ServiceStatus = {
   tool: string;

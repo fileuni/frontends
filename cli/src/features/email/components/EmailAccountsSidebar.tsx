@@ -63,7 +63,7 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
             <FileText size={16} className={cn(isDraftsView ? "text-orange-500" : "text-muted-foreground/60")} />
             <span className="font-bold text-sm">{t("email.globalDrafts")}</span>
           </div>
-          {drafts.length > 0 && <span className={cn("text-[9px] font-black px-1.5 py-0.5 rounded-full", isDraftsView ? "bg-orange-500 text-white" : "bg-muted text-muted-foreground")}>{drafts.length}</span>}
+          {drafts.length > 0 && <span className={cn("text-[14px] font-black px-1.5 py-0.5 rounded-full", isDraftsView ? "bg-orange-500 text-white" : "bg-muted text-muted-foreground")}>{drafts.length}</span>}
         </button>
         <div className="h-px bg-border/40 my-2 mx-2" />
         {accounts.map((acc) => (
@@ -71,12 +71,12 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <span className="font-bold text-sm truncate">{acc.display_name || acc.email_address}</span>
-                {(acc.unread_count ?? 0) > 0 && <span className="px-1.5 py-0.5 rounded-full bg-primary text-[9px] font-black text-white shrink-0 shadow-sm">{acc.unread_count}</span>}
+                {(acc.unread_count ?? 0) > 0 && <span className="px-1.5 py-0.5 rounded-full bg-primary text-[14px] font-black text-white shrink-0 shadow-sm">{acc.unread_count}</span>}
               </div>
               <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
-                <button onClick={(e) => { e.stopPropagation(); onSyncAccount(acc.id); }} className={cn("p-1 rounded-lg hover:bg-primary/20 text-primary", syncingAccountId === acc.id && "animate-spin")}><RefreshCw size={12} /></button>
-                <button onClick={(e) => { e.stopPropagation(); onEditAccount(acc); }} className="p-1 rounded-lg hover:bg-muted text-muted-foreground"><Edit3 size={12} /></button>
-                <button onClick={(e) => { e.stopPropagation(); onDeleteAccount(acc.id); }} className="p-1 rounded-lg hover:bg-destructive/10 text-destructive opacity-60 hover:opacity-100"><Trash2 size={12} /></button>
+                <button onClick={(e) => { e.stopPropagation(); onSyncAccount(acc.id); }} className={cn("p-1 rounded-lg hover:bg-primary/20 text-primary", syncingAccountId === acc.id && "animate-spin")}><RefreshCw size={18} /></button>
+                <button onClick={(e) => { e.stopPropagation(); onEditAccount(acc); }} className="p-1 rounded-lg hover:bg-muted text-muted-foreground"><Edit3 size={18} /></button>
+                <button onClick={(e) => { e.stopPropagation(); onDeleteAccount(acc.id); }} className="p-1 rounded-lg hover:bg-destructive/10 text-destructive opacity-60 hover:opacity-100"><Trash2 size={18} /></button>
               </div>
             </div>
             <p className="text-sm text-muted-foreground truncate mt-0.5 opacity-70">{acc.email_address}</p>
@@ -86,7 +86,7 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
           onClick={onOpenAddAccount}
           className="w-full py-2 px-3 flex items-center justify-center gap-2 rounded-xl text-sm font-black uppercase text-muted-foreground/60 hover:text-primary hover:bg-primary/5 transition-all mt-4 border border-transparent hover:border-primary/10"
         >
-          <Plus size={14} />
+          <Plus size={18} />
           {t("email.addAccount")}
         </button>
       </div>

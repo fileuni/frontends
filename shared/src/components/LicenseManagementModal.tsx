@@ -91,7 +91,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               >
                 {t('admin.config.quickWizard.steps.license')}
               </h3>
-              <p className="text-[11px] sm:text-xs text-slate-400">
+              <p className="text-sm sm:text-sm text-slate-400">
                 {t('admin.config.quickWizard.fields.licenseStatus')}
               </p>
             </div>
@@ -113,11 +113,11 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             {/* Authorization Status */}
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <div className="flex items-center gap-2 mb-1">
-                <Shield size={14} className={cn(
+                <Shield size={18} className={cn(
                   'shrink-0',
                   isValid ? 'text-emerald-400' : 'text-red-400'
                 )} />
-                <div className="text-[11px] uppercase opacity-60">
+                <div className="text-sm uppercase opacity-60">
                   {t('admin.config.quickWizard.fields.licenseStatus')}
                 </div>
               </div>
@@ -134,8 +134,8 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             {/* User Quota */}
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <div className="flex items-center gap-2 mb-1">
-                <Users size={14} className="text-cyan-400 shrink-0" />
-                <div className="text-[11px] uppercase opacity-60">
+                <Users size={18} className="text-cyan-400 shrink-0" />
+                <div className="text-sm uppercase opacity-60">
                   {t('admin.config.quickWizard.fields.maxUsers')}
                 </div>
               </div>
@@ -147,12 +147,12 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             {/* Hardware Fingerprint */}
             <div className="rounded-xl border border-white/10 bg-black/20 p-3 sm:col-span-2">
               <div className="flex items-center gap-2 mb-1">
-                <Fingerprint size={14} className="text-purple-400 shrink-0" />
-                <div className="text-[11px] uppercase opacity-60">
+                <Fingerprint size={18} className="text-purple-400 shrink-0" />
+                <div className="text-sm uppercase opacity-60">
                   {t('admin.config.quickWizard.fields.hwFingerprint')}
                 </div>
               </div>
-              <div className="text-xs sm:text-sm font-mono break-all select-all">
+              <div className="text-sm sm:text-sm font-mono break-all select-all">
                 {deviceCode || '-'}
               </div>
             </div>
@@ -160,7 +160,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             {/* Expiration Date (if provided) */}
             {expiresAt && (
               <div className="rounded-xl border border-white/10 bg-black/20 p-3 sm:col-span-2">
-                <div className="text-[11px] uppercase opacity-60 mb-1">
+                <div className="text-sm uppercase opacity-60 mb-1">
                   {t('admin.config.quickWizard.fields.expiresAt') || 'Expires At'}
                 </div>
                 <div className="text-sm font-bold">
@@ -172,14 +172,14 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             {/* Enabled Features (if provided) */}
             {features && features.length > 0 && (
               <div className="rounded-xl border border-white/10 bg-black/20 p-3 sm:col-span-2">
-                <div className="text-[11px] uppercase opacity-60 mb-2">
+                <div className="text-sm uppercase opacity-60 mb-2">
                   {t('admin.config.quickWizard.fields.features') || 'Enabled Features'}
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {features.map((feature) => (
                     <span
                       key={feature}
-                      className="text-[10px] px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-mono"
+                      className="text-sm px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-mono"
                     >
                       {feature}
                     </span>
@@ -191,8 +191,8 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
 
           {/* License Key Input */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold flex items-center gap-1.5">
-              <Key size={12} />
+            <label className="text-sm font-semibold flex items-center gap-1.5">
+              <Key size={18} />
               {t('admin.config.quickWizard.fields.licenseKey')}
             </label>
             <input
@@ -210,7 +210,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             <button
               type="button"
               className={cn(
-                'h-9 px-4 rounded-lg border text-xs sm:text-sm font-bold transition-colors inline-flex items-center gap-2',
+                'h-9 px-4 rounded-lg border text-sm sm:text-sm font-bold transition-colors inline-flex items-center gap-2',
                 saving || licenseKey.trim().length === 0
                   ? 'border-white/10 bg-white/5 text-slate-500 cursor-not-allowed'
                   : 'border-primary bg-primary text-primary-foreground hover:opacity-90'
@@ -218,7 +218,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               onClick={onApplyLicense}
               disabled={saving || licenseKey.trim().length === 0}
             >
-              {saving && <Loader2 size={14} className="animate-spin" />}
+              {saving && <Loader2 size={18} className="animate-spin" />}
               {t('admin.config.quickWizard.actions.applyLicense')}
             </button>
           </div>
@@ -226,7 +226,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
 
         {/* Footer Hint */}
         <div className="border-t border-white/10 px-4 py-2.5 sm:px-5 bg-black/20">
-          <p className="text-[10px] sm:text-xs text-slate-500">
+          <p className="text-sm sm:text-sm text-slate-500">
             {t('admin.config.quickWizard.fields.licenseHint')}
           </p>
         </div>

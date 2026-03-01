@@ -114,7 +114,7 @@ export function ArchiveOperationModal({
     setError(null);
   }, [isOpen, defaultTargetPath, defaultArchiveName, defaultFormat, capabilities?.has_7z, maxLevel]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (paths.length === 0) return;
 

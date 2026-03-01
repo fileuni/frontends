@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
+import type { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { Link } from '@tiptap/extension-link';
 import { Table } from '@tiptap/extension-table';
@@ -20,7 +21,7 @@ interface Props {
   isDark: boolean;
 }
 
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) return null;
 
   const addImage = () => {
@@ -67,7 +68,7 @@ export const EmailRichEditor: React.FC<Props> = ({ content, onChange, isDark }) 
       TableHeader,
       TableCell,
       Image,
-    ] as any,
+    ],
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());

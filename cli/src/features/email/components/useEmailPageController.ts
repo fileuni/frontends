@@ -7,6 +7,19 @@ import { useAuthStore } from "@/stores/auth.ts";
 import { createClientUniqueId, resolveAttachmentFileName, stripHtml } from "./emailUtils.tsx";
 import type { ComposeAttachment, EmailAccount, EmailDraft, EmailFolder, EmailMessage, EmailMessageDetail, SendEmailResponse, UploadFileInfo } from "./emailTypes.ts";
 
+type DraftSavePayload = { id?: string };
+type SyncStatusPayload = { is_syncing: boolean };
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (typeof error === 'object' && error !== null && 'msg' in error) {
+    const message = (error as { msg?: unknown }).msg;
+    if (typeof message === 'string' && message.length > 0) {
+      return message;
+    }
+  }
+  return error instanceof Error ? error.message : fallback;
+};
+
 interface UseEmailPageController {
   t: (key: string, options?: Record<string, unknown>) => string;
   accounts: EmailAccount[];
@@ -598,7 +611,7 @@ export const useEmailPageController = (): UseEmailPageController => {
     if (!composeBody || composeBody === lastSavedBody || !showComposeModal) return;
     if (!currentUserData?.access_token) return;
     try {
-      const saved = await extractData<any>(client.POST("/api/v1/email/drafts", {
+      const saved = await extractData<DraftSavePayload>(client.POST("/api/v1/email/drafts", {
         body: {
           id: currentDraftId || undefined,
           account_id: composeFromAccount || undefined,
@@ -616,8 +629,8 @@ export const useEmailPageController = (): UseEmailPageController => {
         setLastSavedBody(composeBody);
         fetchDrafts();
       }
-    } catch (error: any) {
-      if (error?.code === 401) return;
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error !== null && 'code' in error && (error as { code?: unknown }).code === 401) return;
     }
   };
 
@@ -917,7 +930,7 @@ export const useEmailPageController = (): UseEmailPageController => {
       setSyncingAccountId(id); toast.info(t("email.syncStarted"));
       const poll = setInterval(async () => {
         try {
-          const res = await extractData<any>(client.GET("/api/v1/email/accounts/{id}/sync-status", { params: { path: { id } } }));
+          const res = await extractData<SyncStatusPayload>(client.GET("/api/v1/email/accounts/{id}/sync-status", { params: { path: { id } } }));
           if (!res.is_syncing) {
             clearInterval(poll);
             setSyncingAccountId(null);
@@ -928,7 +941,7 @@ export const useEmailPageController = (): UseEmailPageController => {
           }
         } catch { clearInterval(poll); setSyncingAccountId(null); }
       }, 3000);
-    } catch (err: any) { toast.error(err?.msg || t("email.syncFailed")); }
+    } catch (err: unknown) { toast.error(getErrorMessage(err, t("email.syncFailed"))); }
   };
 
   const handleEditAccount = (account: EmailAccount) => {

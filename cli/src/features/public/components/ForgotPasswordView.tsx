@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { client, extractData, handleApiError, isApiError, postCaptchaPolicy } from '@/lib/api.ts';
@@ -89,7 +88,7 @@ export const ForgotPasswordView = () => {
     }
   };
 
-  const handleGetOptions = async (e: FormEvent<HTMLFormElement>) => {
+  const handleGetOptions = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -285,7 +284,7 @@ export const ForgotPasswordView = () => {
     finally { setLoading(false); }
   };
 
-  const handleReset = async (e: FormEvent<HTMLFormElement>) => {
+  const handleReset = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (resetForm.newPassword !== resetForm.confirmPassword) return addToast(t('auth.passwordMismatch'), 'error');
     if (!options) return;
@@ -435,7 +434,7 @@ export const ForgotPasswordView = () => {
                   <Key size={16} />
                   {t('forgotPassword.adminRecovery')}
                 </a>
-                <p className={cn("text-xs mt-2 opacity-40", isDark ? "text-gray-400" : "text-gray-500")}>
+                <p className={cn("text-sm mt-2 opacity-40", isDark ? "text-gray-400" : "text-gray-500")}>
                   {t('forgotPassword.adminRecoveryHint')}
                 </p>
               </div>

@@ -19,19 +19,16 @@ interface APlayerAudio {
   _path: string;
 }
 
-interface APlayerInstance {
-  destroy: () => void;
-  on: (event: string, callback: (data: { index: number }) => void) => void;
-  list: {
+type APlayerInstance = InstanceType<typeof import('aplayer').default>;
+type APlayerRuntimeInstance = APlayerInstance & {
+  list?: {
     audios: APlayerAudio[];
     index: number;
     switch: (index: number) => void;
   };
-  audio: HTMLAudioElement;
-  pause: () => void;
-  play: () => void;
-  seek: (time: number) => void;
-}
+  audio?: HTMLAudioElement;
+  seek?: (time: number) => void;
+};
 
 /**
  * Global Floating Audio Player
@@ -46,13 +43,13 @@ export const GlobalAudioPlayer = () => {
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const playerRef = useRef<HTMLDivElement>(null);
-  const instanceRef = useRef<APlayerInstance | null>(null);
+  const instanceRef = useRef<APlayerRuntimeInstance | null>(null);
 
   // Initialize APlayer
   useEffect(() => {
     if (!isOpen || !playerRef.current || !currentTrack) return undefined;
 
-    let aplayerInstance: APlayerInstance | null = null;
+    let aplayerInstance: APlayerRuntimeInstance | null = null;
 
     const init = async () => {
       const APlayerClass = (await import('aplayer')).default;
@@ -89,7 +86,7 @@ export const GlobalAudioPlayer = () => {
         instanceRef.current.destroy();
       }
 
-      aplayerInstance = new APlayerClass({
+      const rawInstance = new APlayerClass({
         container: playerRef.current,
         audio: tracks,
         listMaxHeight: '200px',
@@ -98,26 +95,30 @@ export const GlobalAudioPlayer = () => {
         order: 'list',
         theme: '#3b82f6'
       });
+      aplayerInstance = rawInstance as APlayerRuntimeInstance;
 
       if (!aplayerInstance) return;
 
-      aplayerInstance.on('listswitch', async ({ index }: { index: number }) => {
+      aplayerInstance.on?.('listswitch', async ({ index }: { index: number }) => {
         if (!aplayerInstance) return;
-        const audio = aplayerInstance.list.audios[index];
+        const playerList = aplayerInstance.list;
+        if (!playerList) return;
+        const audio = playerList.audios[index] as (APlayerAudio | undefined);
+        if (!audio) return;
         if (!audio.url) {
             const realUrl = await getTrackUrl(audio._path);
             audio.url = realUrl;
-            if (aplayerInstance.list.index === index) {
+            if (playerList.index === index && aplayerInstance.audio) {
                 const currentTime = aplayerInstance.audio.currentTime;
                 aplayerInstance.pause();
                 aplayerInstance.play();
-                if (currentTime > 0) aplayerInstance.seek(currentTime);
+                if (currentTime > 0) aplayerInstance.seek?.(currentTime);
             }
         }
         useAudioStore.setState({ currentIndex: index, currentTrack: playlist[index] });
       });
 
-      aplayerInstance.list.switch(currentIndex);
+      aplayerInstance.list?.switch(currentIndex);
       instanceRef.current = aplayerInstance;
     };
 
@@ -133,8 +134,9 @@ export const GlobalAudioPlayer = () => {
 
   useEffect(() => {
     if (instanceRef.current && currentIndex !== -1) {
-      if (instanceRef.current.list.index !== currentIndex) {
-        instanceRef.current.list.switch(currentIndex);
+      const playerList = instanceRef.current.list;
+      if (playerList && playerList.index !== currentIndex) {
+        playerList.switch(currentIndex);
       }
     }
   }, [currentIndex]);
@@ -209,7 +211,7 @@ export const GlobalAudioPlayer = () => {
               <h4 className={cn("text-sm font-bold truncate pr-2", isDark ? "text-white" : "text-zinc-900")}>
                 {currentTrack?.name}
               </h4>
-              <p className="text-[9px] font-black opacity-30 uppercase tracking-widest text-primary">
+              <p className="text-sm font-black opacity-30 uppercase tracking-widest text-primary">
                 {t('player.nowPlaying')}
               </p>
             </div>
@@ -221,7 +223,7 @@ export const GlobalAudioPlayer = () => {
               onClick={handleDownload}
               title={t('common.download')}
             >
-              <Download size={14} />
+              <Download size={18} />
             </Button>
             <Button 
               variant="ghost" size="sm" 
@@ -229,7 +231,7 @@ export const GlobalAudioPlayer = () => {
               onClick={handleOpenStandalone}
               title={t('filemanager.actions.preview') || "Open in New Window"}
             >
-              <ExternalLink size={14} />
+              <ExternalLink size={18} />
             </Button>
             <Button 
               variant="ghost" size="sm" 
