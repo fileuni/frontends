@@ -41,8 +41,8 @@ interface FriendlyDraft {
   plusCaptureLogs: boolean;
   captchaCodeLength: string;
   captchaExpiresIn: string;
-  allocatorPolicy: 'auto' | 'system' | 'mimalloc' | 'jemalloc';
-  allocatorProfile: 'auto' | 'low_memory' | 'balanced' | 'throughput';
+  allocatorPolicy: 'system' | 'mimalloc' | 'jemalloc';
+  allocatorProfile: 'low_memory' | 'balanced' | 'throughput';
 }
 
 const defaultDraft: FriendlyDraft = {
@@ -71,7 +71,7 @@ const defaultDraft: FriendlyDraft = {
   plusCaptureLogs: true,
   captchaCodeLength: '6',
   captchaExpiresIn: '300',
-  allocatorPolicy: 'auto',
+  allocatorPolicy: 'mimalloc',
   allocatorProfile: 'balanced',
 };
 
@@ -109,6 +109,12 @@ interface PerformanceTuningPlan {
   sqliteCacheSize: number;
   sqliteMmapSize: number;
   cacheMemoryMB: number;
+  kvDefaultTtlSecs: number;
+  kvConditionTtlSecs: number;
+  kvDashmapUpperLimitRatio: number;
+  notifyUnreadCountCacheTtlSecs: number;
+  notifyRetentionDays: number;
+  systemBackupMaxSizeMb: number;
   middleware: {
     ipWindowSecs: number;
     ipMaxRequests: number;
@@ -154,7 +160,24 @@ interface PerformanceTuningPlan {
     emergencyFillMultiplier: number;
   };
   vfsBatchMaxConcurrentTasks: number;
+  vfsBatchMaxConcurrentTasksLowMemory: number;
+  vfsBatchMaxConcurrentTasksThroughput: number;
+  fileIndexMaxConcurrentRefresh: number;
+  fileIndexMaxConcurrentRefreshLowMemory: number;
+  fileIndexMaxConcurrentRefreshThroughput: number;
   compressionConcurrency: number;
+  compressionConcurrencyLowMemory: number;
+  compressionConcurrencyThroughput: number;
+  compressionMaxCpuThreads: number;
+  compressionMaxCpuThreadsLowMemory: number;
+  compressionMaxCpuThreadsThroughput: number;
+  taskRetentionDays: number;
+  journalLogRetentionDays: number;
+  journalLogBatchSize: number;
+  journalLogFlushIntervalMs: number;
+  journalLogQueueCapacityMultiplier: number;
+  webApiUploadMaxFileSize: number;
+  logEnableAsync: boolean;
 }
 
 interface ConfigPreviewItem {
@@ -375,6 +398,24 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
         ? 2048
         : 4096;
   const sqliteMmapSize = preset.tier === 'good' ? 268435456 : 33554432;
+  const kvTtlByTier: Record<PerformanceTier, { defaultTtl: number; conditionTtl: number; dashmapUpperLimitRatio: number }> = {
+    'extreme-low': { defaultTtl: 900, conditionTtl: 60, dashmapUpperLimitRatio: 0.6 },
+    low: { defaultTtl: 1200, conditionTtl: 90, dashmapUpperLimitRatio: 0.7 },
+    medium: { defaultTtl: isHeavyProfile ? 2400 : 1800, conditionTtl: isHeavyProfile ? 180 : 120, dashmapUpperLimitRatio: isHeavyProfile ? 0.95 : 0.85 },
+    good: { defaultTtl: isHeavyProfile ? 7200 : 3600, conditionTtl: isHeavyProfile ? 600 : 300, dashmapUpperLimitRatio: isHeavyProfile ? 1.3 : 1.1 },
+  };
+  const notifyByTier: Record<PerformanceTier, { unreadCountCacheTtl: number; retentionDays: number }> = {
+    'extreme-low': { unreadCountCacheTtl: 300, retentionDays: 30 },
+    low: { unreadCountCacheTtl: 600, retentionDays: 45 },
+    medium: { unreadCountCacheTtl: isHeavyProfile ? 1800 : 1200, retentionDays: isHeavyProfile ? 60 : 90 },
+    good: { unreadCountCacheTtl: isHeavyProfile ? 3600 : 2400, retentionDays: isHeavyProfile ? 120 : 90 },
+  };
+  const systemBackupByTier: Record<PerformanceTier, { maxBackupSizeMb: number }> = {
+    'extreme-low': { maxBackupSizeMb: 256 },
+    low: { maxBackupSizeMb: 512 },
+    medium: { maxBackupSizeMb: isHeavyProfile ? 2048 : 1024 },
+    good: { maxBackupSizeMb: isHeavyProfile ? 8192 : 4096 },
+  };
 
   const middlewareByTier: Record<PerformanceTier, PerformanceTuningPlan['middleware']> = {
     'extreme-low': {
@@ -591,9 +632,37 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
   const compressionConcurrency = effectivePreset.features.compression
     ? (preset.tier === 'good' ? (isHeavyProfile ? 2 : 4) : preset.tier === 'medium' ? 2 : 1)
     : 1;
+  const compressionConcurrencyLowMemory = 1;
+  const compressionConcurrencyThroughput = effectivePreset.features.compression
+    ? (preset.tier === 'good' ? (isHeavyProfile ? 4 : 6) : preset.tier === 'medium' ? 3 : 2)
+    : 1;
+  const compressionMaxCpuThreads = effectivePreset.features.compression
+    ? (preset.tier === 'good' ? (isHeavyProfile ? 4 : 3) : preset.tier === 'medium' ? 2 : 1)
+    : 1;
+  const compressionMaxCpuThreadsLowMemory = 1;
+  const compressionMaxCpuThreadsThroughput = effectivePreset.features.compression
+    ? (preset.tier === 'good' ? (isHeavyProfile ? 8 : 6) : preset.tier === 'medium' ? 4 : 2)
+    : 1;
   const vfsBatchMaxConcurrentTasks = effectivePreset.features.compression
     ? (preset.tier === 'good' ? (isHeavyProfile ? 4 : 6) : preset.tier === 'medium' ? 3 : 2)
     : 1;
+  const vfsBatchMaxConcurrentTasksLowMemory = 1;
+  const vfsBatchMaxConcurrentTasksThroughput = preset.tier === 'good'
+    ? (isHeavyProfile ? 6 : 8)
+    : preset.tier === 'medium'
+      ? 4
+      : 2;
+  const fileIndexMaxConcurrentRefresh = preset.tier === 'good'
+    ? (isHeavyProfile ? 6 : 5)
+    : preset.tier === 'medium'
+      ? 3
+      : 2;
+  const fileIndexMaxConcurrentRefreshLowMemory = 1;
+  const fileIndexMaxConcurrentRefreshThroughput = preset.tier === 'good'
+    ? (isHeavyProfile ? 10 : 8)
+    : preset.tier === 'medium'
+      ? 5
+      : 3;
 
   return {
     dbMaxConnections: maxConnections,
@@ -601,6 +670,12 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
     sqliteCacheSize,
     sqliteMmapSize,
     cacheMemoryMB,
+    kvDefaultTtlSecs: kvTtlByTier[preset.tier].defaultTtl,
+    kvConditionTtlSecs: kvTtlByTier[preset.tier].conditionTtl,
+    kvDashmapUpperLimitRatio: kvTtlByTier[preset.tier].dashmapUpperLimitRatio,
+    notifyUnreadCountCacheTtlSecs: notifyByTier[preset.tier].unreadCountCacheTtl,
+    notifyRetentionDays: notifyByTier[preset.tier].retentionDays,
+    systemBackupMaxSizeMb: systemBackupByTier[preset.tier].maxBackupSizeMb,
     middleware: middlewareByTier[preset.tier],
     scheduler: schedulerByTier[preset.tier],
     bloomWarmupTuning: bloomWarmupTuningByTier[preset.tier],
@@ -608,7 +683,40 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
     fileIndexSyncTuning: fileIndexSyncTuningByTier[preset.tier],
     captchaPreheat,
     vfsBatchMaxConcurrentTasks,
+    vfsBatchMaxConcurrentTasksLowMemory,
+    vfsBatchMaxConcurrentTasksThroughput,
+    fileIndexMaxConcurrentRefresh,
+    fileIndexMaxConcurrentRefreshLowMemory,
+    fileIndexMaxConcurrentRefreshThroughput,
     compressionConcurrency,
+    compressionConcurrencyLowMemory,
+    compressionConcurrencyThroughput,
+    compressionMaxCpuThreads,
+    compressionMaxCpuThreadsLowMemory,
+    compressionMaxCpuThreadsThroughput,
+    taskRetentionDays: preset.tier === 'good' ? 90 : preset.tier === 'medium' ? 45 : 30,
+    journalLogRetentionDays: preset.tier === 'good' ? 180 : preset.tier === 'medium' ? 90 : 30,
+    journalLogBatchSize: preset.tier === 'good'
+      ? (isHeavyProfile ? 400 : 200)
+      : preset.tier === 'medium'
+        ? (isHeavyProfile ? 120 : 80)
+        : preset.tier === 'low'
+          ? 40
+          : 20,
+    journalLogFlushIntervalMs: preset.tier === 'good'
+      ? (isHeavyProfile ? 300 : 500)
+      : preset.tier === 'medium'
+        ? (isHeavyProfile ? 700 : 900)
+        : preset.tier === 'low'
+          ? 1200
+          : 1800,
+    journalLogQueueCapacityMultiplier: preset.tier === 'good' ? 4 : preset.tier === 'medium' ? 3 : 2,
+    webApiUploadMaxFileSize: preset.tier === 'good'
+      ? 1024 * 1024 * 1024
+      : preset.tier === 'medium'
+        ? 512 * 1024 * 1024
+        : 256 * 1024 * 1024,
+    logEnableAsync: preset.tier === 'good',
   };
 };
 
@@ -790,13 +898,14 @@ const parseConfig = (
   }
 };
 
-const buildDraftFromConfig = (config: ConfigObject): FriendlyDraft => {
+const buildDraftFromConfig = (config: ConfigObject, fallbackPolicy: FriendlyDraft['allocatorPolicy']): FriendlyDraft => {
   const database = isRecord(config.database) ? config.database : {};
   const postgresConfig = isRecord(database.postgres_config) ? database.postgres_config : {};
   const sqliteConfig = isRecord(database.sqlite_config) ? database.sqlite_config : {};
   const kvHub = isRecord(config.fast_kv_storage_hub) ? config.fast_kv_storage_hub : {};
   const userCenter = isRecord(config.user_center) ? config.user_center : {};
-  const plus = isRecord(config.plus) ? config.plus : {};
+  const extensionManager = isRecord(config.extension_manager) ? config.extension_manager : {};
+  const plus = isRecord(extensionManager.plus) ? extensionManager.plus : {};
   const captchaCode = isRecord(config.captcha_code) ? config.captcha_code : {};
   const memoryAllocator = isRecord(config.memory_allocator) ? config.memory_allocator : {};
   const graphicCacheSize = typeof captchaCode.graphic_cache_size === 'number' ? captchaCode.graphic_cache_size : 100;
@@ -817,23 +926,21 @@ const buildDraftFromConfig = (config: ConfigObject): FriendlyDraft => {
   const cacheRedisUrl = toStringValue(kvHub.redis_url, defaultDraft.cacheRedisUrl);
   const cacheFields = parseRedisUrl(cacheRedisUrl);
 
-  const allocatorPolicyValue = toStringValue(memoryAllocator.policy, defaultDraft.allocatorPolicy).toLowerCase();
+  const allocatorPolicyValue = toStringValue(memoryAllocator.policy, fallbackPolicy).toLowerCase();
   const allocatorPolicy: FriendlyDraft['allocatorPolicy'] = allocatorPolicyValue === 'system'
     ? 'system'
     : allocatorPolicyValue === 'mimalloc'
       ? 'mimalloc'
       : allocatorPolicyValue === 'jemalloc'
         ? 'jemalloc'
-        : 'auto';
+        : fallbackPolicy;
 
   const allocatorProfileValue = toStringValue(memoryAllocator.profile, defaultDraft.allocatorProfile).toLowerCase();
   const allocatorProfile: FriendlyDraft['allocatorProfile'] = allocatorProfileValue === 'low_memory'
     ? 'low_memory'
     : allocatorProfileValue === 'throughput'
       ? 'throughput'
-      : allocatorProfileValue === 'auto'
-        ? 'auto'
-        : 'balanced';
+      : 'balanced';
 
   return {
     performanceTier: defaultDraft.performanceTier,
@@ -873,7 +980,8 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
   const sqliteConfig = ensureRecord(database, 'sqlite_config');
   const kvHub = ensureRecord(next, 'fast_kv_storage_hub');
   const userCenter = ensureRecord(next, 'user_center');
-  const plus = ensureRecord(next, 'plus');
+  const extensionManager = ensureRecord(next, 'extension_manager');
+  const plus = ensureRecord(extensionManager, 'plus');
   const captchaCode = ensureRecord(next, 'captcha_code');
   const memoryAllocator = ensureRecord(next, 'memory_allocator');
 
@@ -922,6 +1030,8 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     captchaCode.max_gen_concurrency = tuningPlan.captchaPreheat.maxGenConcurrency;
     captchaCode.pool_check_interval_secs = tuningPlan.captchaPreheat.poolCheckIntervalSecs;
     captchaCode.emergency_fill_multiplier = tuningPlan.captchaPreheat.emergencyFillMultiplier;
+    plus.startup_parallelism_low_memory = preset.tier === 'extreme-low' || preset.tier === 'low' ? 1 : 2;
+    plus.startup_parallelism_throughput = preset.tier === 'good' ? (draft.loadProfile === 'heavy' ? 6 : 4) : 2;
 
     if (draft.databaseType === 'sqlite') {
       sqliteConfig.max_connections = tuningPlan.dbMaxConnections;
@@ -937,6 +1047,23 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     if (draft.cacheType === 'dashmap') {
       kvHub.dashmap_mem_max_bytes = tuningPlan.cacheMemoryMB * 1024 * 1024;
     }
+    kvHub.dashmap_mem_max_bytes = tuningPlan.cacheMemoryMB * 1024 * 1024;
+    kvHub.dashmap_mem_upper_limit_ratio = tuningPlan.kvDashmapUpperLimitRatio;
+    kvHub.default_ttl = tuningPlan.kvDefaultTtlSecs;
+    kvHub.condition_ttl = tuningPlan.kvConditionTtlSecs;
+    if (!Array.isArray(kvHub.dashmap_indexed_prefixes)) {
+      kvHub.dashmap_indexed_prefixes = [];
+    }
+    if (typeof kvHub.key_prefix !== 'string' || kvHub.key_prefix.trim().length === 0) {
+      kvHub.key_prefix = 'fileuni:';
+    }
+
+    const internalNotify = ensureRecord(next, 'internal_notify');
+    internalNotify.unread_count_cache_ttl = tuningPlan.notifyUnreadCountCacheTtlSecs;
+    internalNotify.retention_days = tuningPlan.notifyRetentionDays;
+
+    const systemBackup = ensureRecord(next, 'system_backup');
+    systemBackup.max_backup_size_mb = tuningPlan.systemBackupMaxSizeMb;
 
     const middleware = ensureRecord(next, 'middleware');
     const ipRateLimit = ensureRecord(middleware, 'ip_rate_limit');
@@ -947,11 +1074,13 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     clientRateLimit.window_secs = tuningPlan.middleware.clientWindowSecs;
     clientRateLimit.max_requests = tuningPlan.middleware.clientMaxRequests;
     clientRateLimit.max_cid = tuningPlan.middleware.clientMaxCid;
+    clientRateLimit.client_id_blacklist_enabled = false;
 
     const userRateLimit = ensureRecord(middleware, 'user_id_rate_limit');
     userRateLimit.window_secs = tuningPlan.middleware.userWindowSecs;
     userRateLimit.max_requests = tuningPlan.middleware.userMaxRequests;
     userRateLimit.max_userid = tuningPlan.middleware.userMaxId;
+    userRateLimit.user_id_blacklist_enabled = false;
 
     const bruteForce = ensureRecord(middleware, 'brute_force');
     bruteForce.enabled = tuningPlan.middleware.bruteForceEnabled;
@@ -969,9 +1098,20 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     const fileCompress = ensureRecord(vfsHub, 'file_compress');
     fileCompress.enable = effectiveFeatures.compression;
     fileCompress.process_manager_max_concurrency = tuningPlan.compressionConcurrency;
+    fileCompress.process_manager_max_concurrency_low_memory = tuningPlan.compressionConcurrencyLowMemory;
+    fileCompress.process_manager_max_concurrency_throughput = tuningPlan.compressionConcurrencyThroughput;
+    fileCompress.max_cpu_threads = tuningPlan.compressionMaxCpuThreads;
+    fileCompress.max_cpu_threads_low_memory = tuningPlan.compressionMaxCpuThreadsLowMemory;
+    fileCompress.max_cpu_threads_throughput = tuningPlan.compressionMaxCpuThreadsThroughput;
     vfsHub.max_concurrent_tasks = tuningPlan.vfsBatchMaxConcurrentTasks;
     const batchOperation = ensureRecord(vfsHub, 'batch_operation');
     batchOperation.max_concurrent_tasks = tuningPlan.vfsBatchMaxConcurrentTasks;
+    batchOperation.max_concurrent_tasks_low_memory = tuningPlan.vfsBatchMaxConcurrentTasksLowMemory;
+    batchOperation.max_concurrent_tasks_throughput = tuningPlan.vfsBatchMaxConcurrentTasksThroughput;
+    const fileIndex = ensureRecord(vfsHub, 'file_index');
+    fileIndex.max_concurrent_refresh = tuningPlan.fileIndexMaxConcurrentRefresh;
+    fileIndex.max_concurrent_refresh_low_memory = tuningPlan.fileIndexMaxConcurrentRefreshLowMemory;
+    fileIndex.max_concurrent_refresh_throughput = tuningPlan.fileIndexMaxConcurrentRefreshThroughput;
 
     const taskRegistry = ensureRecord(next, 'task_registry');
     const bloomWarmup = ensureRecord(taskRegistry, 'bloom_filter_warmup');
@@ -990,6 +1130,7 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     fileIndexSyncTuning.max_users_per_run = tuningPlan.fileIndexSyncTuning.maxUsersPerRun;
     fileIndexSyncTuning.yield_every_users = tuningPlan.fileIndexSyncTuning.yieldEveryUsers;
     fileIndexSyncTuning.sleep_ms_per_user = tuningPlan.fileIndexSyncTuning.sleepMsPerUser;
+    taskRegistry.task_retention_days = tuningPlan.taskRetentionDays;
 
     CRITICAL_TASK_KEYS.forEach((taskName) => {
       const task = ensureRecord(taskRegistry, taskName);
@@ -1028,6 +1169,18 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
 
     const emailManager = ensureRecord(next, 'email_manager');
     emailManager.enabled = effectiveFeatures.email;
+
+    const journalLog = ensureRecord(next, 'journal_log');
+    journalLog.log_retention_days = tuningPlan.journalLogRetentionDays;
+    journalLog.batch_size = tuningPlan.journalLogBatchSize;
+    journalLog.flush_interval_ms = tuningPlan.journalLogFlushIntervalMs;
+    journalLog.queue_capacity_multiplier = tuningPlan.journalLogQueueCapacityMultiplier;
+
+    const fileManagerApi = ensureRecord(next, 'file_manager_api');
+    fileManagerApi.webapi_upload_max_file_size = tuningPlan.webApiUploadMaxFileSize;
+
+    const logConfig = ensureRecord(next, 'log');
+    logConfig.enable_async = tuningPlan.logEnableAsync;
   }
 
   return next;
@@ -1142,18 +1295,26 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     }
 
     pushItem('fast_kv_storage_hub.kv_type', nonEmptyString(draft.cacheType, defaultDraft.cacheType));
+    pushItem('fast_kv_storage_hub.default_ttl', previewTuningPlan.kvDefaultTtlSecs);
+    pushItem('fast_kv_storage_hub.condition_ttl', previewTuningPlan.kvConditionTtlSecs);
+    pushItem('fast_kv_storage_hub.dashmap_mem_upper_limit_ratio', previewTuningPlan.kvDashmapUpperLimitRatio);
     if (draft.cacheType === 'dashmap') {
       pushItem('fast_kv_storage_hub.dashmap_mem_max_bytes', previewTuningPlan.cacheMemoryMB * 1024 * 1024);
     }
+    pushItem('internal_notify.unread_count_cache_ttl', previewTuningPlan.notifyUnreadCountCacheTtlSecs);
+    pushItem('internal_notify.retention_days', previewTuningPlan.notifyRetentionDays);
+    pushItem('system_backup.max_backup_size_mb', previewTuningPlan.systemBackupMaxSizeMb);
 
     pushItem('middleware.ip_rate_limit.window_secs', previewTuningPlan.middleware.ipWindowSecs);
     pushItem('middleware.ip_rate_limit.max_requests', previewTuningPlan.middleware.ipMaxRequests);
     pushItem('middleware.client_id_rate_limit.window_secs', previewTuningPlan.middleware.clientWindowSecs);
     pushItem('middleware.client_id_rate_limit.max_requests', previewTuningPlan.middleware.clientMaxRequests);
     pushItem('middleware.client_id_rate_limit.max_cid', previewTuningPlan.middleware.clientMaxCid);
+    pushItem('middleware.client_id_rate_limit.client_id_blacklist_enabled', false);
     pushItem('middleware.user_id_rate_limit.window_secs', previewTuningPlan.middleware.userWindowSecs);
     pushItem('middleware.user_id_rate_limit.max_requests', previewTuningPlan.middleware.userMaxRequests);
     pushItem('middleware.user_id_rate_limit.max_userid', previewTuningPlan.middleware.userMaxId);
+    pushItem('middleware.user_id_rate_limit.user_id_blacklist_enabled', false);
     pushItem('middleware.brute_force.enabled', previewTuningPlan.middleware.bruteForceEnabled);
     pushItem('middleware.brute_force.max_failures_per_user_ip', previewTuningPlan.middleware.bruteForceMaxFailuresPerUserIp);
     pushItem('middleware.brute_force.max_failures_per_ip_global', previewTuningPlan.middleware.bruteForceMaxFailuresPerIpGlobal);
@@ -1166,6 +1327,11 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('captcha_code.emergency_fill_multiplier', previewTuningPlan.captchaPreheat.emergencyFillMultiplier);
     pushItem('memory_allocator.policy', draft.allocatorPolicy);
     pushItem('memory_allocator.profile', draft.allocatorProfile);
+    pushItem('extension_manager.plus.startup_parallelism_low_memory', currentPreset.preset.tier === 'extreme-low' || currentPreset.preset.tier === 'low' ? 1 : 2);
+    pushItem(
+      'extension_manager.plus.startup_parallelism_throughput',
+      currentPreset.preset.tier === 'good' ? (draft.loadProfile === 'heavy' ? 6 : 4) : 2
+    );
 
     pushItem('vfs_storage_hub.enable_webdav', currentPreset.features.webdav);
     pushItem('vfs_storage_hub.enable_sftp', currentPreset.features.sftp);
@@ -1173,11 +1339,32 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('vfs_storage_hub.enable_s3', currentPreset.features.s3);
     pushItem('vfs_storage_hub.max_concurrent_tasks', previewTuningPlan.vfsBatchMaxConcurrentTasks);
     pushItem('vfs_storage_hub.batch_operation.max_concurrent_tasks', previewTuningPlan.vfsBatchMaxConcurrentTasks);
+    pushItem('vfs_storage_hub.batch_operation.max_concurrent_tasks_low_memory', previewTuningPlan.vfsBatchMaxConcurrentTasksLowMemory);
+    pushItem('vfs_storage_hub.batch_operation.max_concurrent_tasks_throughput', previewTuningPlan.vfsBatchMaxConcurrentTasksThroughput);
     pushItem('vfs_storage_hub.file_compress.enable', currentPreset.features.compression);
     pushItem('vfs_storage_hub.file_compress.process_manager_max_concurrency', previewTuningPlan.compressionConcurrency);
+    pushItem('vfs_storage_hub.file_compress.process_manager_max_concurrency_low_memory', previewTuningPlan.compressionConcurrencyLowMemory);
+    pushItem('vfs_storage_hub.file_compress.process_manager_max_concurrency_throughput', previewTuningPlan.compressionConcurrencyThroughput);
+    pushItem('vfs_storage_hub.file_compress.max_cpu_threads', previewTuningPlan.compressionMaxCpuThreads);
+    pushItem('vfs_storage_hub.file_compress.max_cpu_threads_low_memory', previewTuningPlan.compressionMaxCpuThreadsLowMemory);
+    pushItem('vfs_storage_hub.file_compress.max_cpu_threads_throughput', previewTuningPlan.compressionMaxCpuThreadsThroughput);
+    pushItem('vfs_storage_hub.file_index.max_concurrent_refresh', previewTuningPlan.fileIndexMaxConcurrentRefresh);
+    pushItem('vfs_storage_hub.file_index.max_concurrent_refresh_low_memory', previewTuningPlan.fileIndexMaxConcurrentRefreshLowMemory);
+    pushItem('vfs_storage_hub.file_index.max_concurrent_refresh_throughput', previewTuningPlan.fileIndexMaxConcurrentRefreshThroughput);
 
     pushItem('task_registry.bloom_filter_warmup.enabled', currentPreset.features.bloomWarmup);
     pushItem('task_registry.bloom_filter_warmup.cron_expression', previewTuningPlan.scheduler.maintenanceCron);
+    pushItem('task_registry.bloom_filter_warmup_tuning.reserve_capacity', previewTuningPlan.bloomWarmupTuning.reserveCapacity);
+    pushItem('task_registry.bloom_filter_warmup_tuning.max_users_per_run', previewTuningPlan.bloomWarmupTuning.maxUsersPerRun);
+    pushItem('task_registry.bloom_filter_warmup_tuning.yield_every_users', previewTuningPlan.bloomWarmupTuning.yieldEveryUsers);
+    pushItem('task_registry.bloom_filter_warmup_tuning.sleep_ms_per_yield', previewTuningPlan.bloomWarmupTuning.sleepMsPerYield);
+    pushItem('task_registry.quota_calibration_tuning.max_users_per_run', previewTuningPlan.quotaCalibrationTuning.maxUsersPerRun);
+    pushItem('task_registry.quota_calibration_tuning.yield_every_users', previewTuningPlan.quotaCalibrationTuning.yieldEveryUsers);
+    pushItem('task_registry.quota_calibration_tuning.sleep_ms_per_user', previewTuningPlan.quotaCalibrationTuning.sleepMsPerUser);
+    pushItem('task_registry.file_index_sync_tuning.max_users_per_run', previewTuningPlan.fileIndexSyncTuning.maxUsersPerRun);
+    pushItem('task_registry.file_index_sync_tuning.yield_every_users', previewTuningPlan.fileIndexSyncTuning.yieldEveryUsers);
+    pushItem('task_registry.file_index_sync_tuning.sleep_ms_per_user', previewTuningPlan.fileIndexSyncTuning.sleepMsPerUser);
+    pushItem('task_registry.task_retention_days', previewTuningPlan.taskRetentionDays);
     CRITICAL_TASK_KEYS.forEach((taskName) => {
       pushItem(`task_registry.${taskName}.enabled`, true);
       pushItem(`task_registry.${taskName}.cron_expression`, previewTuningPlan.scheduler.criticalCron);
@@ -1199,6 +1386,12 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('file_manager_serv_s3.max_connections', currentPreset.features.s3 ? (draft.performanceTier === 'good' ? 100 : 20) : 1);
     pushItem('chat_manager.enabled', currentPreset.features.chat);
     pushItem('email_manager.enabled', currentPreset.features.email);
+    pushItem('journal_log.log_retention_days', previewTuningPlan.journalLogRetentionDays);
+    pushItem('journal_log.batch_size', previewTuningPlan.journalLogBatchSize);
+    pushItem('journal_log.flush_interval_ms', previewTuningPlan.journalLogFlushIntervalMs);
+    pushItem('journal_log.queue_capacity_multiplier', previewTuningPlan.journalLogQueueCapacityMultiplier);
+    pushItem('file_manager_api.webapi_upload_max_file_size', previewTuningPlan.webApiUploadMaxFileSize);
+    pushItem('log.enable_async', previewTuningPlan.logEnableAsync);
 
     return items;
   }, [currentPreset.features, draft.cacheType, draft.databaseType, draft.performanceTier, previewTuningPlan]);
@@ -1207,6 +1400,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     const groupLabelKeyMap: Record<string, string> = {
       database: 'admin.config.quickWizard.performance.preview.groups.database',
       fast_kv_storage_hub: 'admin.config.quickWizard.performance.preview.groups.cache',
+      internal_notify: 'admin.config.quickWizard.performance.preview.groups.scheduler',
+      system_backup: 'admin.config.quickWizard.performance.preview.groups.scheduler',
       middleware: 'admin.config.quickWizard.performance.preview.groups.middleware',
       captcha_code: 'admin.config.quickWizard.performance.preview.groups.captcha',
       memory_allocator: 'admin.config.quickWizard.performance.preview.groups.allocator',
@@ -1359,14 +1554,17 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
 
   const initializeFromParsed = useCallback(() => {
     if (parsed.value) {
-      const nextDraft = buildDraftFromConfig(parsed.value);
+      const nextDraft = {
+        ...buildDraftFromConfig(parsed.value, allocatorRecommendation.policy),
+        allocatorPolicy: allocatorRecommendation.policy,
+      };
       draftRef.current = nextDraft;
       setDraft(nextDraft);
       setParseError(null);
     } else {
       setParseError(parsed.error);
     }
-  }, [parsed.error, parsed.value]);
+  }, [allocatorRecommendation.policy, parsed.error, parsed.value]);
 
   useEffect(() => {
     if (!isOpen) {
