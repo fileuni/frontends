@@ -3458,12 +3458,11 @@ export interface components {
         };
         InstallToolRequest: {
             arch?: string | null;
-            archive_kind?: string | null;
-            bin_path?: string | null;
             download_link?: string | null;
             download_url?: string | null;
             github_proxy?: string | null;
             os?: string | null;
+            target_bin_dir?: string | null;
             version?: string | null;
         };
         /** @description Invite info (i.e., temp user info) */
