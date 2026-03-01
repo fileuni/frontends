@@ -16,6 +16,8 @@ export const installToolApi = async (tool: string, body: InstallBody) =>
     }),
   );
 
+export const deleteToolApi = async (tool: string) =>
+  extractData<Record<string, unknown>>(client.DELETE('/api/v1/admin/extensions/tools/{tool}', { params: { path: { tool } } }));
 export const serviceActionApi = async (tool: string, action: 'start' | 'stop' | 'restart') => {
   if (action === 'start') {
     return client.POST('/api/v1/admin/extensions/services/{tool}/start', { params: { path: { tool } } });

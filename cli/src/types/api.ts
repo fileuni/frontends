@@ -3354,10 +3354,12 @@ export interface components {
             tool: string;
         };
         ExtensionToolInfo: {
+            bin_path: string;
             description_en: string;
             description_zh: string;
             executable_path: string;
             homepage: string;
+            install_dir: string;
             installed: boolean;
             kind: components["schemas"]["ExtensionToolKind"];
             name: string;

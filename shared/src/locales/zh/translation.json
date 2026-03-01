@@ -986,6 +986,7 @@
   "admin": {
     "extensions": {
       "title": "扩展程序管理",
+      "subtitle": "扩展与插件基础设施",
       "loading": "正在加载扩展信息...",
       "catalogLoading": "正在从云端同步扩展目录...",
       "catalogLoadFailed": "无法加载扩展目录信息",
@@ -1001,7 +1002,8 @@
       "toolActions": "工具特定操作",
       "taskKindHint": "此工具为任务类型，通常由系统自动调度或通过命令执行，不作为常驻服务运行。",
       "version": "版本号",
-      "binPath": "二进制安装目录",
+      "binPath": "二进制路径",
+      "installDir": "程序安装目录",
       "downloadTemplate": "下载链接模板",
       "githubProxy": "GitHub 代理前缀",
       "customDownloadUrl": "自定义下载链接 (覆盖模板)",
@@ -1011,6 +1013,9 @@
       "serviceStart": "启动服务",
       "serviceStop": "停止服务",
       "serviceRestart": "重启服务",
+      "serviceRunning": "服务运行中",
+      "serviceStopped": "服务已停止",
+      "followStart": "跟随系统启动",
       "serviceActionSuccess": "服务操作已下发",
       "status": {
         "installed": "已安装",
@@ -1038,7 +1043,29 @@
       "kopia": {
         "title": "Kopia 管理",
         "download": "下载 Kopia"
-      }
+      },
+      "fetchLatestTitle": "自动配置",
+      "fetchLatestHint": "从 GitHub 获取最新版本信息",
+      "clickSettingsToInstall": "点击设置按钮进行安装",
+      "installBtn": "安装工具",
+      "updateBtn": "更新工具",
+      "running": "运行中",
+      "stopped": "已停止",
+      "homepage": "项目主页",
+      "pidLabel": "进程 ID",
+      "management": "管理",
+      "versionPlaceholder": "例如: v1.2.3",
+      "downloadUrlPlaceholder": "直接输入下载地址",
+      "archiveKindPlaceholder": "例如: tar.gz",
+      "downloadTemplatePlaceholder": "可使用 {version} {os} {arch} 占位符",
+      "githubMirrorPlaceholder": "例如: https://ghproxy.com/",
+      "binPathPlaceholder": "二进制文件存放路径",
+      "targetOsPlaceholder": "目标系统，如 linux",
+      "targetArchPlaceholder": "目标架构，如 amd64",
+      "commandArgsPlaceholder": "命令行参数",
+      "exitCode": "退出码",
+      "stdout": "标准输出",
+      "stderr": "标准错误"
     },
     "saveSuccess": "配置保存成功",
     "saveError": "保存失败",

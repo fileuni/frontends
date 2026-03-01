@@ -968,6 +968,7 @@
   "admin": {
     "extensions": {
       "title": "Extension Manager",
+      "subtitle": "Extension & Plugin Infrastructure",
       "loading": "Loading extensions...",
       "catalogLoading": "Syncing catalog from cloud...",
       "catalogLoadFailed": "Failed to load extension catalog",
@@ -983,7 +984,8 @@
       "toolActions": "Tool Actions",
       "taskKindHint": "This tool is a task-kind, usually scheduled by system or executed manually, not running as a persistent service.",
       "version": "Version",
-      "binPath": "Binary Install Path",
+      "binPath": "Binary Path",
+      "installDir": "Install Directory",
       "downloadTemplate": "Download URL Template",
       "githubProxy": "GitHub Proxy",
       "customDownloadUrl": "Custom Download URL (Override)",
@@ -993,6 +995,9 @@
       "serviceStart": "Start Service",
       "serviceStop": "Stop Service",
       "serviceRestart": "Restart",
+      "serviceRunning": "Service running",
+      "serviceStopped": "Service stopped",
+      "followStart": "Follow System Start",
       "serviceActionSuccess": "Service action dispatched",
       "status": {
         "installed": "Installed",
@@ -1020,7 +1025,29 @@
       "kopia": {
         "title": "Kopia Management",
         "download": "Download Kopia"
-      }
+      },
+      "fetchLatestTitle": "Automatic Configuration",
+      "fetchLatestHint": "Fetch latest version from GitHub",
+      "clickSettingsToInstall": "Click settings to install",
+      "installBtn": "Install Tool",
+      "updateBtn": "Update Tool",
+      "running": "Running",
+      "stopped": "Stopped",
+      "homepage": "Homepage",
+      "pidLabel": "PID",
+      "management": "Management",
+      "versionPlaceholder": "e.g., v1.2.3",
+      "downloadUrlPlaceholder": "Enter direct download URL",
+      "archiveKindPlaceholder": "e.g., tar.gz",
+      "downloadTemplatePlaceholder": "Placeholders: {version} {os} {arch}",
+      "githubMirrorPlaceholder": "e.g., https://ghproxy.com/",
+      "binPathPlaceholder": "Binary file path",
+      "targetOsPlaceholder": "Target OS, e.g., linux",
+      "targetArchPlaceholder": "Target arch, e.g., amd64",
+      "commandArgsPlaceholder": "Command arguments",
+      "exitCode": "Exit Code",
+      "stdout": "Stdout",
+      "stderr": "Stderr"
     },
     "saveSuccess": "Configuration saved successfully",
     "saveError": "Failed to save configuration",

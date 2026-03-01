@@ -15,9 +15,11 @@ import {
   fetchServicesApi,
   fetchToolsApi,
   installToolApi,
+  deleteToolApi,
   resetOpenlistAdminApi,
   serviceActionApi,
 } from './extensions/api.ts';
+
 import type { InstallBody, ToolInfo, ToolKind } from './extensions/types.ts';
 
 type ToolState = {
@@ -177,7 +179,7 @@ export const ExtensionManagerAdmin = () => {
         version: state.version, 
         download_link: state.downloadUrl,
         github_proxy: state.proxy,
-        bin_path: state.binPath
+        target_bin_dir: state.binPath
       };
       if (!body.download_link) {
         addToast(t('admin.extensions.downloadUrlMissing'), 'error');
@@ -190,6 +192,18 @@ export const ExtensionManagerAdmin = () => {
       addToast(handleApiError(error, t), 'error');
     }
   };
+
+  const deleteToolQuick = async (tool: string) => {
+    if (!window.confirm(t('common.confirmDelete'))) return;
+    try {
+      await deleteToolApi(tool);
+      addToast(t('common.success'), 'success');
+      await fetchTools();
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    }
+  };
+
 
   if (loading) return <div className="py-10 text-sm font-semibold opacity-70">{t('admin.extensions.loading')}</div>;
 
@@ -241,6 +255,8 @@ export const ExtensionManagerAdmin = () => {
         tool={extPage}
         kind={currentTool?.kind || 'service'}
         installed={currentTool?.installed || false}
+        installDir={currentTool?.install_dir}
+        binPathConfig={currentTool?.bin_path}
         homepage={currentTool?.homepage || ''}
         description={description}
         followStart={serviceStatus[extPage]?.follow_start}
@@ -249,7 +265,7 @@ export const ExtensionManagerAdmin = () => {
         loading={isFetchingInfo}
         version={currentState.version}
         setVersion={(v) => updateToolState(extPage, { version: v })}
-        binPath={currentState.binPath}
+        binPath={currentState.binPath || currentTool?.bin_path || ''}
         setBinPath={(v) => updateToolState(extPage, { binPath: v })}
         proxy={currentState.proxy}
         setProxy={(v) => updateToolState(extPage, { proxy: v })}
@@ -277,11 +293,13 @@ export const ExtensionManagerAdmin = () => {
           }] : [])
         ]}
         onDownload={() => installToolQuick(extPage)}
+        onDelete={() => deleteToolQuick(extPage)}
         onFetchLatest={fetchLatestInfo}
         onStartService={() => controlService(extPage, 'start')}
         onStopService={() => controlService(extPage, 'stop')}
         onRestart={() => controlService(extPage, 'restart')}
       />
+
     </div>
   );
 };

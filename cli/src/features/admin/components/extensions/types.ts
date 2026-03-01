@@ -4,6 +4,16 @@ export type ToolInfo = {
   name: string;
   kind: ToolKind;
   executable_path: string;
+  install_dir: string;
+  bin_path: string;
+  installed: boolean;
+  homepage: string;
+  description_zh: string;
+  description_en: string;
+};
+  name: string;
+  kind: ToolKind;
+  executable_path: string;
   installed: boolean;
   homepage: string;
   description_zh: string;
@@ -25,6 +35,7 @@ export type InstallBody = {
   github_proxy?: string;
   archive_kind?: string;
   bin_path?: string;
+  target_bin_dir?: string;
   os?: string;
   arch?: string;
 };
