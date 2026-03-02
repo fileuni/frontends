@@ -104,6 +104,19 @@ interface EffectivePreset {
 }
 
 interface PerformanceTuningPlan {
+  domainRequestTimeoutSec: number;
+  domainWebhookTimeoutSec: number;
+  domainDnsPropagationWaitSec: number;
+  domainChallengePollIntervalSec: number;
+  domainChallengeMaxPollCount: number;
+  chatRateLimitWindowSecs: number;
+  chatRateLimitMessagesPerWindow: number;
+  chatWsSessionTimeoutSecs: number;
+  chatMaxMessageSizeBytes: number;
+  chatMaxGroupsPerUser: number;
+  chatMaxMembersPerGroup: number;
+  chatMaxGroupsJoinedPerUser: number;
+  chatMaxGuestInvitesPerUser: number;
   dbMaxConnections: number;
   dbMinConnections: number;
   sqliteCacheSize: number;
@@ -177,6 +190,7 @@ interface PerformanceTuningPlan {
   journalLogFlushIntervalMs: number;
   journalLogQueueCapacityMultiplier: number;
   webApiUploadMaxFileSize: number;
+  webRefreshIntervalSec: number;
   logEnableAsync: boolean;
 }
 
@@ -664,7 +678,34 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
       ? 5
       : 3;
 
+  const domainRequestTimeoutSec = preset.tier === 'good' ? (isHeavyProfile ? 8 : 12) : preset.tier === 'medium' ? 15 : 20;
+  const domainWebhookTimeoutSec = preset.tier === 'good' ? (isHeavyProfile ? 8 : 10) : preset.tier === 'medium' ? 12 : 15;
+  const domainDnsPropagationWaitSec = preset.tier === 'good' ? (isHeavyProfile ? 15 : 20) : preset.tier === 'medium' ? 25 : 30;
+  const domainChallengePollIntervalSec = preset.tier === 'good' ? 2 : 3;
+  const domainChallengeMaxPollCount = preset.tier === 'good' ? (isHeavyProfile ? 120 : 90) : preset.tier === 'medium' ? 75 : 60;
+  const chatRateLimitWindowSecs = preset.tier === 'good' ? 10 : 15;
+  const chatRateLimitMessagesPerWindow = preset.tier === 'good' ? (isHeavyProfile ? 80 : 50) : preset.tier === 'medium' ? 40 : 20;
+  const chatWsSessionTimeoutSecs = preset.tier === 'good' ? 86400 : 43200;
+  const chatMaxMessageSizeBytes = preset.tier === 'good' ? (isHeavyProfile ? 131072 : 65536) : preset.tier === 'medium' ? 32768 : 16384;
+  const chatMaxGroupsPerUser = preset.tier === 'good' ? 30 : preset.tier === 'medium' ? 20 : 10;
+  const chatMaxMembersPerGroup = preset.tier === 'good' ? (isHeavyProfile ? 20000 : 10000) : preset.tier === 'medium' ? 5000 : 1000;
+  const chatMaxGroupsJoinedPerUser = preset.tier === 'good' ? (isHeavyProfile ? 400 : 200) : preset.tier === 'medium' ? 150 : 80;
+  const chatMaxGuestInvitesPerUser = preset.tier === 'good' ? (isHeavyProfile ? 100 : 50) : preset.tier === 'medium' ? 30 : 10;
+
   return {
+    domainRequestTimeoutSec,
+    domainWebhookTimeoutSec,
+    domainDnsPropagationWaitSec,
+    domainChallengePollIntervalSec,
+    domainChallengeMaxPollCount,
+    chatRateLimitWindowSecs,
+    chatRateLimitMessagesPerWindow,
+    chatWsSessionTimeoutSecs,
+    chatMaxMessageSizeBytes,
+    chatMaxGroupsPerUser,
+    chatMaxMembersPerGroup,
+    chatMaxGroupsJoinedPerUser,
+    chatMaxGuestInvitesPerUser,
     dbMaxConnections: maxConnections,
     dbMinConnections,
     sqliteCacheSize,
@@ -716,6 +757,7 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
       : preset.tier === 'medium'
         ? 512 * 1024 * 1024
         : 256 * 1024 * 1024,
+    webRefreshIntervalSec: preset.tier === 'extreme-low' ? 300 : preset.tier === 'low' ? 120 : preset.tier === 'medium' ? 60 : 30,
     logEnableAsync: preset.tier === 'good',
   };
 };
@@ -1166,6 +1208,28 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
 
     const chatManager = ensureRecord(next, 'chat_manager');
     chatManager.enabled = effectiveFeatures.chat;
+    chatManager.rate_limit_window_secs = tuningPlan.chatRateLimitWindowSecs;
+    chatManager.rate_limit_messages_per_window = tuningPlan.chatRateLimitMessagesPerWindow;
+    chatManager.ws_session_timeout_secs = tuningPlan.chatWsSessionTimeoutSecs;
+    chatManager.max_message_size_bytes = tuningPlan.chatMaxMessageSizeBytes;
+    chatManager.max_groups_per_user = tuningPlan.chatMaxGroupsPerUser;
+    chatManager.max_members_per_group = tuningPlan.chatMaxMembersPerGroup;
+    chatManager.max_groups_joined_per_user = tuningPlan.chatMaxGroupsJoinedPerUser;
+    chatManager.max_guest_invites_per_user = tuningPlan.chatMaxGuestInvitesPerUser;
+
+    const domainAcmeDdns = ensureRecord(next, 'domain_acme_ddns');
+    domainAcmeDdns.request_timeout_sec = tuningPlan.domainRequestTimeoutSec;
+    domainAcmeDdns.webhook_timeout_sec = tuningPlan.domainWebhookTimeoutSec;
+    domainAcmeDdns.dns_propagation_wait_sec = tuningPlan.domainDnsPropagationWaitSec;
+    domainAcmeDdns.challenge_poll_interval_sec = tuningPlan.domainChallengePollIntervalSec;
+    domainAcmeDdns.challenge_max_poll_count = tuningPlan.domainChallengeMaxPollCount;
+    const fileManagerApi = ensureRecord(next, 'file_manager_api');
+    fileManagerApi.webapi_upload_max_file_size = tuningPlan.webApiUploadMaxFileSize;
+
+    const web = ensureRecord(next, 'web');
+    web.refresh_interval_sec = tuningPlan.webRefreshIntervalSec;
+
+    const logConfig = ensureRecord(next, 'log');
 
     const emailManager = ensureRecord(next, 'email_manager');
     emailManager.enabled = effectiveFeatures.email;
@@ -1385,6 +1449,19 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('file_manager_serv_ftp.max_connections', currentPreset.features.ftp ? (draft.performanceTier === 'good' ? 100 : 20) : 1);
     pushItem('file_manager_serv_s3.max_connections', currentPreset.features.s3 ? (draft.performanceTier === 'good' ? 100 : 20) : 1);
     pushItem('chat_manager.enabled', currentPreset.features.chat);
+    pushItem('chat_manager.rate_limit_window_secs', previewTuningPlan.chatRateLimitWindowSecs);
+    pushItem('chat_manager.rate_limit_messages_per_window', previewTuningPlan.chatRateLimitMessagesPerWindow);
+    pushItem('chat_manager.ws_session_timeout_secs', previewTuningPlan.chatWsSessionTimeoutSecs);
+    pushItem('chat_manager.max_message_size_bytes', previewTuningPlan.chatMaxMessageSizeBytes);
+    pushItem('chat_manager.max_groups_per_user', previewTuningPlan.chatMaxGroupsPerUser);
+    pushItem('chat_manager.max_members_per_group', previewTuningPlan.chatMaxMembersPerGroup);
+    pushItem('chat_manager.max_groups_joined_per_user', previewTuningPlan.chatMaxGroupsJoinedPerUser);
+    pushItem('chat_manager.max_guest_invites_per_user', previewTuningPlan.chatMaxGuestInvitesPerUser);
+    pushItem('domain_acme_ddns.request_timeout_sec', previewTuningPlan.domainRequestTimeoutSec);
+    pushItem('domain_acme_ddns.webhook_timeout_sec', previewTuningPlan.domainWebhookTimeoutSec);
+    pushItem('domain_acme_ddns.dns_propagation_wait_sec', previewTuningPlan.domainDnsPropagationWaitSec);
+    pushItem('domain_acme_ddns.challenge_poll_interval_sec', previewTuningPlan.domainChallengePollIntervalSec);
+    pushItem('domain_acme_ddns.challenge_max_poll_count', previewTuningPlan.domainChallengeMaxPollCount);
     pushItem('email_manager.enabled', currentPreset.features.email);
     pushItem('journal_log.log_retention_days', previewTuningPlan.journalLogRetentionDays);
     pushItem('journal_log.batch_size', previewTuningPlan.journalLogBatchSize);
@@ -1411,6 +1488,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       file_manager_serv_ftp: 'admin.config.quickWizard.performance.preview.groups.ftp',
       file_manager_serv_s3: 'admin.config.quickWizard.performance.preview.groups.s3',
       chat_manager: 'admin.config.quickWizard.performance.preview.groups.chat',
+      domain_acme_ddns: 'admin.config.quickWizard.performance.preview.groups.scheduler',
       email_manager: 'admin.config.quickWizard.performance.preview.groups.email',
     };
     const counts = new Map<string, number>();
