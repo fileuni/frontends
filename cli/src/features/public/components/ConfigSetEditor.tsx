@@ -24,7 +24,7 @@ type ConfigTemplateResponse = ConfigSetComponents['schemas']['ConfigTemplateResp
 type ConfigNotesResponse = ConfigSetComponents['schemas']['ConfigNotesResponse'];
 type BackendCapabilitiesResponse = ApiComponents['schemas']['SystemCapabilities'];
 type ConfigSetApplyResponse = ConfigSetComponents['schemas']['ConfigSetApplyResponse'];
-type ConfigValidationError = ConfigSetComponents['schemas']['ConfigSetValidationError'];
+type ConfigValidationError = ConfigError;
 
 const isConfigValidationError = (value: unknown): value is ConfigValidationError => {
   if (typeof value !== 'object' || value === null) return false;
@@ -65,7 +65,7 @@ export const ConfigSetEditor: React.FC = () => {
   const [savedContent, setSavedContent] = useState('');
   const [runtimeOs, setRuntimeOs] = useState<string>('');
   const [notes, setNotes] = useState<Record<string, ConfigNoteEntry>>({});
-  const [validationErrors, setValidationErrors] = useState<ConfigValidationError[]>([]);
+  const [validationErrors, setValidationErrors] = useState<ConfigError[]>([]);
 
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminUsername, setAdminUsername] = useState('admin');
@@ -290,12 +290,6 @@ export const ConfigSetEditor: React.FC = () => {
     </div>
   );
 
-  const editorErrors: ConfigError[] = validationErrors.map((err) => ({
-    message: err.message,
-    line: typeof err.line === 'number' ? err.line : 0,
-    column: typeof err.column === 'number' ? err.column : 0,
-    key: err.key,
-  }));
   const finalMessage =
     (adminAction === 'created_default'
       ? t('configSet.final.adminCreatedDefault', { user: adminUsername, password: passwordHint || 'admin888' })
@@ -400,14 +394,14 @@ export const ConfigSetEditor: React.FC = () => {
       configPath={configPath}
       headerActions={headerActions}
     >
-      <SystemConfigWorkbench
+        <SystemConfigWorkbench
         tomlAdapter={toml}
         loading={loading}
         configPath={configPath}
         content={content}
         savedContent={savedContent}
         notes={notes}
-        validationErrors={editorErrors}
+          validationErrors={validationErrors}
         busy={testing}
         onChange={setContent}
         onTest={handleTest}

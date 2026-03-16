@@ -352,6 +352,33 @@
   },
   "components": {
     "schemas": {
+      "ConfigError": {
+        "type": "object",
+        "required": [
+          "line",
+          "column",
+          "message"
+        ],
+        "properties": {
+          "column": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
       "ConfigNoteEntry": {
         "type": "object",
         "required": [
@@ -454,33 +481,6 @@
         ],
         "properties": {
           "toml_content": {
-            "type": "string"
-          }
-        }
-      },
-      "ConfigSetValidationError": {
-        "type": "object",
-        "required": [
-          "line",
-          "column",
-          "message"
-        ],
-        "properties": {
-          "column": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "key": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "line": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "message": {
             "type": "string"
           }
         }

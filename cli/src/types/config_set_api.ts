@@ -152,6 +152,12 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ConfigError: {
+            column: number;
+            key?: string | null;
+            line: number;
+            message: string;
+        };
         ConfigNoteEntry: {
             desc_en: string;
             desc_zh: string;
@@ -179,12 +185,6 @@ export interface components {
         };
         ConfigSetTestReq: {
             toml_content: string;
-        };
-        ConfigSetValidationError: {
-            column: number;
-            key?: string | null;
-            line: number;
-            message: string;
         };
         ConfigTemplateResponse: {
             config_exists: boolean;
