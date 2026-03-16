@@ -10,8 +10,14 @@ import { useThemeStore } from '@fileuni/shared';
 import { useToastStore } from '@fileuni/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { blobToBase64, fetchFileArrayBuffer, fetchFileStatSize, getFileExtension, isComplexOfficeFile, resolveLimitBytes, uploadBase64File } from '../utils/officeLite.ts';
+import { useAutoSave } from '../hooks/useAutoSave.ts';
 
 const WORD_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+
+const AUTO_SAVE_TICK_MS = 10_000;
+const AUTO_SAVE_IDLE_MS = 3_000;
+const AUTO_SAVE_MAX_INTERVAL_MS = 60_000;
+const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 
 interface Props {
   path: string;
@@ -117,6 +123,13 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
   const { addToast } = useToastStore();
   const previewRef = useRef<HTMLDivElement>(null);
   const zipRef = useRef<JSZip | null>(null);
+  const loadIdRef = useRef(0);
+  const loadedPathRef = useRef('');
+  const lastSavedTextRef = useRef('');
+  const lastSavedAtRef = useRef<number>(0);
+  const lastEditAtRef = useRef<number>(0);
+  const savingRef = useRef(false);
+  const lastAutoSaveErrorAtRef = useRef<number>(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [forceOpen, setForceOpen] = useState(false);
@@ -147,17 +160,22 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
   };
 
   const loadDocx = useCallback(async () => {
+    const loadId = loadIdRef.current + 1;
+    loadIdRef.current = loadId;
+
     setLoading(true);
     setError(null);
     try {
       const size = await fetchFileStatSize(path);
+      if (loadId !== loadIdRef.current) return;
       setFileSize(size);
       if (size > officeLimitBytes && !forceOpen) {
-        setLoading(false);
         return;
       }
       const buffer = await fetchFileArrayBuffer(path);
+      if (loadId !== loadIdRef.current) return;
       const zip = await JSZip.loadAsync(buffer);
+      if (loadId !== loadIdRef.current) return;
       const fileNames = Object.keys(zip.files);
       const ext = getFileExtension(path);
       const hasMedia = fileNames.some((name) => name.startsWith('word/media/'));
@@ -169,13 +187,22 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
         throw new Error('Document body not found');
       }
       const xml = await xmlFile.async('string');
-      setEditorText(extractDocxText(xml));
+      if (loadId !== loadIdRef.current) return;
+      const nextText = extractDocxText(xml);
+      setEditorText(nextText);
+      lastSavedTextRef.current = nextText;
+      lastSavedAtRef.current = Date.now();
+      loadedPathRef.current = path;
       zipRef.current = zip;
+      if (loadId !== loadIdRef.current) return;
       await renderPreview(buffer);
     } catch (e) {
+      if (loadId !== loadIdRef.current) return;
       setError(e instanceof Error ? e.message : 'Failed to load document');
     } finally {
-      setLoading(false);
+      if (loadId === loadIdRef.current) {
+        setLoading(false);
+      }
     }
   }, [path, forceOpen]);
 
@@ -183,14 +210,33 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
     setForceOpen(false);
     setEditorText('');
     setIsComplex(false);
+    zipRef.current = null;
+    loadedPathRef.current = '';
+    lastSavedTextRef.current = '';
+    lastSavedAtRef.current = Date.now();
+    lastEditAtRef.current = 0;
   }, [path]);
 
   useEffect(() => {
     loadDocx();
   }, [loadDocx]);
 
-  const handleSave = async () => {
+  const saveDocx = async (reason: 'manual' | 'auto') => {
+    if (savingRef.current) return;
     if (!zipRef.current) return;
+    if (loadedPathRef.current !== path) return;
+
+    const snapshot = editorText;
+    if (reason === 'auto') {
+      if (snapshot === lastSavedTextRef.current) return;
+
+      const now = Date.now();
+      const idleOk = now - lastEditAtRef.current >= AUTO_SAVE_IDLE_MS;
+      const forceOk = now - lastSavedAtRef.current >= AUTO_SAVE_MAX_INTERVAL_MS;
+      if (!idleOk && !forceOk) return;
+    }
+
+    savingRef.current = true;
     setSaving(true);
     try {
       const xmlFile = zipRef.current.file('word/document.xml');
@@ -198,7 +244,7 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
         throw new Error('Document body not found');
       }
       const xml = await xmlFile.async('string');
-      const updatedXml = applyTextToDocx(xml, editorText);
+      const updatedXml = applyTextToDocx(xml, snapshot);
       zipRef.current.file('word/document.xml', updatedXml);
       const updatedBytes = await zipRef.current.generateAsync({ type: 'uint8array' });
       const normalizedBytes = Uint8Array.from(updatedBytes);
@@ -207,15 +253,44 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
       });
       const base64 = await blobToBase64(blob);
       await uploadBase64File(path, base64);
-      await renderPreview(normalizedBytes.buffer as ArrayBuffer);
-      addToast(t('filemanager.officeLite.saveSuccess'), 'success');
+
+      lastSavedTextRef.current = snapshot;
+      lastSavedAtRef.current = Date.now();
+
+      if (reason === 'manual') {
+        await renderPreview(normalizedBytes.buffer as ArrayBuffer);
+        addToast(t('filemanager.officeLite.saveSuccess'), 'success');
+      }
     } catch (e) {
       const message = e instanceof Error ? e.message : t('filemanager.officeLite.saveFailed');
-      addToast(message, 'error');
+
+      if (reason === 'manual') {
+        addToast(message, 'error');
+      } else {
+        const now = Date.now();
+        if (now - lastAutoSaveErrorAtRef.current >= AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS) {
+          lastAutoSaveErrorAtRef.current = now;
+          addToast(message, 'error');
+        }
+      }
     } finally {
       setSaving(false);
+      savingRef.current = false;
     }
   };
+
+  useAutoSave({
+    enabled: true,
+    intervalMs: AUTO_SAVE_TICK_MS,
+    task: async () => {
+      if (loading || error) return;
+      if (savingRef.current) return;
+      if (!zipRef.current) return;
+      if (loadedPathRef.current !== path) return;
+      if (editorText === lastSavedTextRef.current) return;
+      await saveDocx('auto');
+    },
+  });
 
   if (isLargeFile && !forceOpen) {
     return (
@@ -237,17 +312,17 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
 
   return (
     <div className={cn("fixed inset-0 z-[210] flex flex-col", isDark ? "bg-background text-white" : "bg-white text-zinc-900")}>
-      <FilePreviewHeader
-        path={path}
-        subtitle={t('filemanager.officeLite.docxEditorTitle')}
-        onClose={onClose}
-        extra={
-          <Button variant="primary" className="h-9 px-4 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={handleSave} disabled={saving || loading}>
-            {saving ? t('filemanager.officeLite.saving') : t('filemanager.officeLite.save')}
-            <Save size={18} className="ml-2" />
-          </Button>
-        }
-      />
+        <FilePreviewHeader
+          path={path}
+          subtitle={t('filemanager.officeLite.docxEditorTitle')}
+          onClose={onClose}
+          extra={
+          <Button variant="primary" className="h-9 px-4 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={() => { void saveDocx('manual'); }} disabled={saving || loading}>
+              {saving ? t('filemanager.officeLite.saving') : t('filemanager.officeLite.save')}
+              <Save size={18} className="ml-2" />
+            </Button>
+          }
+        />
 
       {isComplex && !loading && !error && (
         <div className={cn(
@@ -282,7 +357,10 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
               isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"
             )}
             value={editorText}
-            onChange={(e) => setEditorText(e.target.value)}
+            onChange={(e) => {
+              setEditorText(e.target.value);
+              lastEditAtRef.current = Date.now();
+            }}
             placeholder={t('filemanager.officeLite.docxPlaceholder')}
             disabled={loading || !!error}
           />

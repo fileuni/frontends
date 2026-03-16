@@ -382,7 +382,9 @@
       "cdnUrlLabel": "Vditor CDN 地址",
       "saveAndReload": "保存并重载",
       "reset": "重置",
-      "cdnSaved": "CDN 配置已保存，请刷新页面应用。"
+      "cdnSaved": "CDN 配置已保存，请刷新页面应用。",
+      "markdownEngine": "Markdown",
+      "autoSaveFailed": "自动保存失败"
     },
     "messages": {
       "folderCreated": "文件夹已创建",

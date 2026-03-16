@@ -12,6 +12,12 @@ import { useThemeStore } from '@fileuni/shared';
 import { useToastStore } from '@fileuni/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { blobToBase64, fetchFileArrayBuffer, fetchFileStatSize, getFileExtension, isComplexOfficeFile, resolveLimitBytes, uploadBase64File } from '../utils/officeLite.ts';
+import { useAutoSave } from '../hooks/useAutoSave.ts';
+
+const AUTO_SAVE_TICK_MS = 10_000;
+const AUTO_SAVE_IDLE_MS = 3_000;
+const AUTO_SAVE_MAX_INTERVAL_MS = 60_000;
+const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 
 interface Props {
   path: string;
@@ -27,11 +33,19 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
   const { capabilities } = useConfigStore();
   const { addToast } = useToastStore();
   const sheetRef = useRef<WorkbookRef | null>(null);
+  const loadIdRef = useRef(0);
+  const readyRef = useRef(false);
+  const loadedPathRef = useRef('');
+  const lastSavedAtRef = useRef<number>(0);
+  const lastEditAtRef = useRef<number>(0);
+  const savingRef = useRef(false);
+  const lastAutoSaveErrorAtRef = useRef<number>(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [forceOpen, setForceOpen] = useState(false);
   const [fileSize, setFileSize] = useState(0);
   const [sheets, setSheets] = useState<FortuneWorkbook>([]);
+  const [isDirty, setIsDirty] = useState(false);
   const [isComplex, setIsComplex] = useState(false);
   const [workbookKey, setWorkbookKey] = useState<number>(Date.now());
   const [error, setError] = useState<string | null>(null);
@@ -41,17 +55,24 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
   const isLargeFile = fileSize > officeLimitBytes;
 
   const loadWorkbook = useCallback(async () => {
+    const loadId = loadIdRef.current + 1;
+    loadIdRef.current = loadId;
+
     setLoading(true);
     setError(null);
+    readyRef.current = false;
+    loadedPathRef.current = '';
     try {
       const size = await fetchFileStatSize(path);
+      if (loadId !== loadIdRef.current) return;
       setFileSize(size);
       if (size > officeLimitBytes && !forceOpen) {
-        setLoading(false);
         return;
       }
       const buffer = await fetchFileArrayBuffer(path);
+      if (loadId !== loadIdRef.current) return;
       const result = await transformExcelToFortune(buffer);
+      if (loadId !== loadIdRef.current) return;
       const resultObject = (typeof result === 'object' && result !== null) ? result as Record<string, unknown> : null;
       const nextSheets = Array.isArray(resultObject?.sheets) ? resultObject?.sheets : result;
       const sheetList = Array.isArray(nextSheets) ? nextSheets as FortuneWorkbook : [];
@@ -59,10 +80,17 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
       setSheets(sheetList);
       setIsComplex(isComplexOfficeFile(ext, size) || sheetList.length > 3);
       setWorkbookKey(Date.now());
+      setIsDirty(false);
+      lastSavedAtRef.current = Date.now();
+      lastEditAtRef.current = 0;
+      loadedPathRef.current = path;
     } catch (e) {
+      if (loadId !== loadIdRef.current) return;
       setError(e instanceof Error ? e.message : 'Failed to load workbook');
     } finally {
-      setLoading(false);
+      if (loadId === loadIdRef.current) {
+        setLoading(false);
+      }
     }
   }, [path, forceOpen]);
 
@@ -70,14 +98,39 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
     setForceOpen(false);
     setSheets([]);
     setIsComplex(false);
+    setIsDirty(false);
+    readyRef.current = false;
+    loadedPathRef.current = '';
+    sheetRef.current = null;
+    lastSavedAtRef.current = Date.now();
+    lastEditAtRef.current = 0;
   }, [path]);
+
+  useEffect(() => {
+    if (!loading && !error) {
+      readyRef.current = true;
+    }
+  }, [loading, error]);
 
   useEffect(() => {
     loadWorkbook();
   }, [loadWorkbook]);
 
-  const handleSave = async () => {
+  const saveWorkbook = async (reason: 'manual' | 'auto') => {
+    if (savingRef.current) return;
     if (!sheetRef.current) return;
+    if (loadedPathRef.current !== path) return;
+
+    if (reason === 'auto') {
+      if (!isDirty) return;
+
+      const now = Date.now();
+      const idleOk = now - lastEditAtRef.current >= AUTO_SAVE_IDLE_MS;
+      const forceOk = now - lastSavedAtRef.current >= AUTO_SAVE_MAX_INTERVAL_MS;
+      if (!idleOk && !forceOk) return;
+    }
+
+    savingRef.current = true;
     setSaving(true);
     try {
       const exported = await transformFortuneToExcel(sheetRef.current as Record<string, unknown>, 'xlsx', false);
@@ -100,14 +153,42 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
       }
       const base64 = await blobToBase64(blob);
       await uploadBase64File(path, base64);
-      addToast(t('filemanager.officeLite.saveSuccess'), 'success');
+
+      setIsDirty(false);
+      lastSavedAtRef.current = Date.now();
+
+      if (reason === 'manual') {
+        addToast(t('filemanager.officeLite.saveSuccess'), 'success');
+      }
     } catch (e) {
       const message = e instanceof Error ? e.message : t('filemanager.officeLite.saveFailed');
-      addToast(message, 'error');
+
+      if (reason === 'manual') {
+        addToast(message, 'error');
+      } else {
+        const now = Date.now();
+        if (now - lastAutoSaveErrorAtRef.current >= AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS) {
+          lastAutoSaveErrorAtRef.current = now;
+          addToast(message, 'error');
+        }
+      }
     } finally {
       setSaving(false);
+      savingRef.current = false;
     }
   };
+
+  useAutoSave({
+    enabled: true,
+    intervalMs: AUTO_SAVE_TICK_MS,
+    task: async () => {
+      if (loading || error) return;
+      if (savingRef.current) return;
+      if (!isDirty) return;
+      if (loadedPathRef.current !== path) return;
+      await saveWorkbook('auto');
+    },
+  });
 
   if (isLargeFile && !forceOpen) {
     return (
@@ -134,7 +215,7 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
         subtitle={t('filemanager.officeLite.xlsxEditorTitle')}
         onClose={onClose}
         extra={
-          <Button variant="primary" className="h-9 px-4 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={handleSave} disabled={saving || loading}>
+          <Button variant="primary" className="h-9 px-4 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={() => { void saveWorkbook('manual'); }} disabled={saving || loading}>
             {saving ? t('filemanager.officeLite.saving') : t('filemanager.officeLite.save')}
             <Save size={18} className="ml-2" />
           </Button>
@@ -162,7 +243,17 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
         )}
         {!loading && !error && (
           <div className="h-full">
-            <Workbook key={workbookKey} ref={sheetRef} data={sheets} onChange={(next: unknown) => setSheets(Array.isArray(next) ? next as FortuneWorkbook : [])} />
+            <Workbook
+              key={workbookKey}
+              ref={sheetRef}
+              data={sheets}
+              onChange={(next: unknown) => {
+                setSheets(Array.isArray(next) ? next as FortuneWorkbook : []);
+                if (!readyRef.current) return;
+                setIsDirty(true);
+                lastEditAtRef.current = Date.now();
+              }}
+            />
           </div>
         )}
       </div>

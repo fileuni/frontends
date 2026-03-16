@@ -370,7 +370,8 @@
       "saveAndReload": "Save & Reload",
       "reset": "Reset",
       "cdnSaved": "CDN Configuration saved. Please refresh to apply.",
-      "markdownEngine": "Markdown"
+      "markdownEngine": "Markdown",
+      "autoSaveFailed": "Auto-save failed"
     },
     "messages": {
       "folderCreated": "Folder created",

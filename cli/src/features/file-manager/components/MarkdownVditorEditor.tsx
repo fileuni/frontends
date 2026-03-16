@@ -7,6 +7,7 @@ import { client, BASE_URL } from '@/lib/api.ts';
 import { useToastStore } from '@fileuni/shared';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { Button } from '@/components/ui/Button.tsx';
+import { useAutoSave } from '../hooks/useAutoSave.ts';
 
 interface Props {
   path: string;
@@ -21,6 +22,11 @@ const getVditorLang = (lang: string): "zh_CN" | "en_US" | "ja_JP" | "ko_KR" => {
   if (lang.startsWith('en')) return 'en_US';
   return 'en_US';
 };
+
+const AUTO_SAVE_TICK_MS = 5_000;
+const AUTO_SAVE_IDLE_MS = 1_500;
+const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
+const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 
 /**
  * Markdown Editor and Previewer (Vditor powered)
@@ -42,33 +48,58 @@ export const MarkdownVditorEditor = ({
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+  const lastSavedContentRef = useRef('');
+  const lastSavedAtRef = useRef<number>(0);
+  const lastEditAtRef = useRef<number>(0);
+  const loadedPathRef = useRef('');
+  const savingRef = useRef(false);
+  const lastAutoSaveErrorAtRef = useRef<number>(0);
+
+  useEffect(() => {
+    setIsEditing(false);
+  }, [path]);
+
   // 1. Fetch content
   useEffect(() => {
+    let canceled = false;
     const fetchContent = async () => {
       setLoading(true);
+      setIsInitializing(true);
       try {
         const { data: tokenRes } = await client.GET('/api/v1/file/get-file-download-token', {
             params: { query: { path } }
         });
 
+        if (canceled) return;
+
         if (tokenRes?.data?.token) {
             const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(tokenRes.data.token)}&inline=true&mode=text`;
             const res = await fetch(url);
             const text = await res.text();
-            setContent(text || '');
+            if (canceled) return;
+            const next = text || '';
+            setContent(next);
+            lastSavedContentRef.current = next;
+            lastSavedAtRef.current = Date.now();
+            loadedPathRef.current = path;
             // If Vditor is already initialized, set value directly
-            if (vd) vd.setValue(text || '');
+            if (vd) vd.setValue(next);
         }
       } catch (e) {
-        console.error("Load failed:", e);
-        addToast(t('filemanager.errors.loadFailed'), "error");
+        if (!canceled) {
+          console.error("Load failed:", e);
+          addToast(t('filemanager.errors.loadFailed'), "error");
+        }
       } finally {
-        setLoading(false);
+        if (!canceled) setLoading(false);
       }
     };
 
     fetchContent();
     // Remove vd from deps to prevent loop
+    return () => {
+      canceled = true;
+    };
   }, [path]);
 
   const resolvedCdnBase = (cdnBase || 'https://cdn.jsdelivr.net').replace(/\/+$/, '');
@@ -105,7 +136,10 @@ export const MarkdownVditorEditor = ({
         markdown: { toc: true, mark: true, footnotes: true },
       },
       toolbarConfig: { pin: true, hide: !isEditing },
-      input: (val) => setContent(val),
+      input: (val) => {
+        setContent(val);
+        lastEditAtRef.current = Date.now();
+      },
       after: () => {
         setVd(vditor);
         setIsInitializing(false);
@@ -116,23 +150,69 @@ export const MarkdownVditorEditor = ({
     // Only reinitialize Vditor when editing state or theme changes
   }, [loading, isEditing, isDark, currentCdn, i18n.language]);
 
-  const handleSave = async () => {
+  const saveContent = async (reason: 'manual' | 'auto') => {
+    if (savingRef.current) return;
+    if (loadedPathRef.current !== path) return;
+    const snapshot = vd ? vd.getValue() : content;
+
+    if (reason === 'auto') {
+      if (snapshot === lastSavedContentRef.current) return;
+
+      const now = Date.now();
+      const idleOk = now - lastEditAtRef.current >= AUTO_SAVE_IDLE_MS;
+      const forceOk = now - lastSavedAtRef.current >= AUTO_SAVE_MAX_INTERVAL_MS;
+      if (!idleOk && !forceOk) return;
+    }
+
+    savingRef.current = true;
     setSaving(true);
     try {
-      const val = vd ? vd.getValue() : content;
-      const { data } = await client.PUT('/api/v1/file/content', {
-        body: { path, content: val, is_base64: false }
+      const { data, error } = await client.PUT('/api/v1/file/content', {
+        body: { path, content: snapshot, is_base64: false }
       });
-      if (data?.success) {
+
+      if (error) {
+        const errObj = error as Record<string, unknown>;
+        throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
+      }
+      if (!data?.success) {
+        throw new Error(data?.msg || t('filemanager.editor.autoSaveFailed'));
+      }
+
+      lastSavedContentRef.current = snapshot;
+      lastSavedAtRef.current = Date.now();
+
+      if (reason === 'manual') {
         addToast(t('filemanager.previewModal.saveSuccess'), 'success');
       }
     } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : 'Error saving file';
+      const msg = e instanceof Error ? e.message : t('filemanager.editor.autoSaveFailed');
+
+      if (reason === 'manual') {
         addToast(msg, 'error');
+      } else {
+        const now = Date.now();
+        if (now - lastAutoSaveErrorAtRef.current >= AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS) {
+          lastAutoSaveErrorAtRef.current = now;
+          addToast(msg, 'error');
+        }
+      }
     } finally {
       setSaving(false);
+      savingRef.current = false;
     }
   };
+
+  useAutoSave({
+    enabled: true,
+    intervalMs: AUTO_SAVE_TICK_MS,
+    task: async () => {
+      if (loading) return;
+      if (savingRef.current) return;
+      if (loadedPathRef.current !== path) return;
+      await saveContent('auto');
+    },
+  });
 
   return (
     <div className={cn("h-screen w-screen flex flex-col overflow-hidden", isDark ? "dark bg-[#09090b] text-white" : "bg-white text-zinc-900")}>
@@ -179,8 +259,8 @@ export const MarkdownVditorEditor = ({
               <Button 
                 variant="primary" 
                 className="h-10 px-6 rounded-xl text-sm font-black uppercase bg-primary text-white hover:brightness-110 shadow-xl shadow-primary/20 transition-all border-none" 
-                onClick={handleSave} 
-                disabled={saving}
+                onClick={() => { void saveContent('manual'); }} 
+                disabled={saving || loading}
               >
                 {saving ? <Loader2 size={18} className="animate-spin mr-2" /> : <Save size={18} className="mr-2" />}
                 {t('common.save')}

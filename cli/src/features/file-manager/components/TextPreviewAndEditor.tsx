@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MonacoEditor } from '@fileuni/shared';
 import { client, BASE_URL } from '@/lib/api.ts';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button.tsx';
 import { useToastStore } from '@fileuni/shared';
 import { cn } from '@/lib/utils.ts';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
+import { useAutoSave } from '../hooks/useAutoSave.ts';
 
 interface Props {
   path: string;
@@ -31,6 +32,11 @@ const LANGUAGE_MAP: Record<string, string> = {
   'dockerfile': 'dockerfile', 'makefile': 'makefile', 'md': 'markdown'
 };
 
+const AUTO_SAVE_TICK_MS = 5_000;
+const AUTO_SAVE_IDLE_MS = 1_500;
+const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
+const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
+
 /**
  * 通用文本预览与编辑器 (Monaco 驱动) / Common Text Preview and Editor (Monaco powered)
  */
@@ -42,6 +48,17 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const lastSavedContentRef = useRef('');
+  const lastSavedAtRef = useRef<number>(0);
+  const lastEditAtRef = useRef<number>(0);
+  const loadedPathRef = useRef('');
+  const savingRef = useRef(false);
+  const lastAutoSaveErrorAtRef = useRef<number>(0);
+
+  useEffect(() => {
+    setIsEditing(false);
+  }, [path]);
   
   const fileName = path.split('/').pop() || 'File';
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
@@ -49,6 +66,7 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
 
   // 1. 获取内容 / Fetch content
   useEffect(() => {
+    let canceled = false;
     const fetchContent = async () => {
       setLoading(true);
       try {
@@ -56,42 +74,102 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
             params: { query: { path } }
         });
 
+        if (canceled) return;
+
         if (tokenRes?.data?.token) {
             const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(tokenRes.data.token)}&inline=true&mode=text`;
             const res = await fetch(url);
             const text = await res.text();
-            setContent(text || '');
+            if (canceled) return;
+            const next = text || '';
+            setContent(next);
+            lastSavedContentRef.current = next;
+            lastSavedAtRef.current = Date.now();
+            loadedPathRef.current = path;
         }
       } catch (e) {
-        console.error("Load failed:", e);
-        addToast(t('filemanager.errors.loadFailed') || "Failed to load file content", "error");
+        if (!canceled) {
+          console.error("Load failed:", e);
+          addToast(t('filemanager.errors.loadFailed') || "Failed to load file content", "error");
+        }
       } finally {
-        setLoading(false);
+        if (!canceled) setLoading(false);
       }
     };
 
     fetchContent();
     document.title = `${fileName} - Editor`;
+    return () => {
+      canceled = true;
+    };
   }, [path]);
 
   // 2. 保存内容 / Save content
-  const handleSave = async () => {
+  const saveContent = async (reason: 'manual' | 'auto') => {
+    if (savingRef.current) return;
+    if (loadedPathRef.current !== path) return;
+    const snapshot = content;
+
+    if (reason === 'auto') {
+      if (snapshot === lastSavedContentRef.current) return;
+
+      const now = Date.now();
+      const idleOk = now - lastEditAtRef.current >= AUTO_SAVE_IDLE_MS;
+      const forceOk = now - lastSavedAtRef.current >= AUTO_SAVE_MAX_INTERVAL_MS;
+      if (!idleOk && !forceOk) return;
+    }
+
+    savingRef.current = true;
     setSaving(true);
     try {
-      const { data } = await client.PUT('/api/v1/file/content', {
-        body: { path, content, is_base64: false }
+      const { data, error } = await client.PUT('/api/v1/file/content', {
+        body: { path, content: snapshot, is_base64: false }
       });
-      if (data?.success) {
-        addToast(t('filemanager.previewModal.saveSuccess') || 'Saved successfully', 'success');
+
+      if (error) {
+        const errObj = error as Record<string, unknown>;
+        throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.msg || t('filemanager.editor.autoSaveFailed'));
+      }
+
+      lastSavedContentRef.current = snapshot;
+      lastSavedAtRef.current = Date.now();
+
+      if (reason === 'manual') {
+        addToast(t('filemanager.previewModal.saveSuccess'), 'success');
       }
     } catch (e: unknown) {
-      console.error("Load failed:", e);
-      const msg = e instanceof Error ? e.message : "Load failed";
-      addToast(msg, "error");
+      const msg = e instanceof Error ? e.message : t('filemanager.editor.autoSaveFailed');
+
+      if (reason === 'manual') {
+        addToast(msg, 'error');
+      } else {
+        const now = Date.now();
+        if (now - lastAutoSaveErrorAtRef.current >= AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS) {
+          lastAutoSaveErrorAtRef.current = now;
+          addToast(msg, 'error');
+        }
+      }
     } finally {
       setSaving(false);
+      savingRef.current = false;
     }
   };
+
+  useAutoSave({
+    enabled: true,
+    intervalMs: AUTO_SAVE_TICK_MS,
+    task: async () => {
+      if (loading) return;
+      if (savingRef.current) return;
+      if (loadedPathRef.current !== path) return;
+      if (content === lastSavedContentRef.current) return;
+      await saveContent('auto');
+    },
+  });
 
   return (
     <div className={cn("h-screen w-screen flex flex-col overflow-hidden", isDark ? "dark bg-[#09090b] text-white" : "bg-white text-zinc-900")}>
@@ -138,8 +216,8 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
               <Button 
                 variant="primary" 
                 className="h-10 px-6 rounded-xl text-sm font-black uppercase bg-primary text-white hover:brightness-110 shadow-xl shadow-primary/20 transition-all border-none" 
-                onClick={handleSave} 
-                disabled={saving}
+                onClick={() => { void saveContent('manual'); }} 
+                disabled={saving || loading}
               >
                 {saving ? <Loader2 size={18} className="animate-spin mr-2" /> : <Save size={18} className="mr-2" />}
                 {t('common.save')}
@@ -177,7 +255,10 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
                   horizontalScrollbarSize: 8
               }
             }}
-            onChange={(val) => setContent(val || '')}
+            onChange={(val) => {
+              setContent(val || '');
+              lastEditAtRef.current = Date.now();
+            }}
           />
         )}
       </main>

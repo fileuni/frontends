@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MonacoEditor } from '@fileuni/shared';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
@@ -9,6 +9,7 @@ import { useConfigStore } from '@/stores/config.ts';
 import { cn } from '@/lib/utils.ts';
 import { Loader2, Save, Eye, ChevronDown } from 'lucide-react';
 import { buildJsdelivrNpmUrl } from '../utils/officeLite.ts';
+import { useAutoSave } from '../hooks/useAutoSave.ts';
 
 type LatexPreviewMode = 'latexmk' | 'latexjs' | 'monaco';
 
@@ -27,6 +28,11 @@ type LatexJsGlobal = {
 };
 
 const LATEXJS_VERSION = '0.12.6';
+
+const AUTO_SAVE_TICK_MS = 5_000;
+const AUTO_SAVE_IDLE_MS = 1_500;
+const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
+const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 
 const loadLatexScript = (src: string): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -84,6 +90,13 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
 
+  const lastSavedContentRef = useRef('');
+  const lastSavedAtRef = useRef<number>(0);
+  const lastEditAtRef = useRef<number>(0);
+  const loadedPathRef = useRef('');
+  const savingRef = useRef(false);
+  const lastAutoSaveErrorAtRef = useRef<number>(0);
+
   const defaultMode = (capabilities?.latex_preview_mode || 'monaco') as LatexPreviewMode;
   const enableLatexmk = capabilities?.enable_latexmk === true;
   const enableLatexjs = capabilities?.enable_latexjs === true;
@@ -107,6 +120,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const latexAssetsBase = `${latexCdnBase}/dist/`;
 
   useEffect(() => {
+    let canceled = false;
     const fetchContent = async () => {
       setLoading(true);
       try {
@@ -114,21 +128,33 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
           params: { query: { path } }
         });
 
+        if (canceled) return;
+
         if (tokenRes?.data?.token) {
           const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(tokenRes.data.token)}&inline=true&mode=text`;
           const res = await fetch(url);
           const text = await res.text();
-          setContent(text || '');
+          if (canceled) return;
+          const next = text || '';
+          setContent(next);
+          lastSavedContentRef.current = next;
+          lastSavedAtRef.current = Date.now();
+          loadedPathRef.current = path;
         }
       } catch (e) {
-        addToast(t('filemanager.errors.loadFailed') || 'Failed to load file content', 'error');
+        if (!canceled) {
+          addToast(t('filemanager.errors.loadFailed') || 'Failed to load file content', 'error');
+        }
       } finally {
-        setLoading(false);
+        if (!canceled) setLoading(false);
       }
     };
 
     fetchContent();
     document.title = `${fileName} - Editor`;
+    return () => {
+      canceled = true;
+    };
   }, [path]);
 
   useEffect(() => {
@@ -145,22 +171,70 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     }
   }, [availableModes, previewMode]);
 
-  const handleSave = async () => {
+  const saveContent = async (reason: 'manual' | 'auto') => {
+    if (savingRef.current) return;
+    if (loadedPathRef.current !== path) return;
+    const snapshot = content;
+
+    if (reason === 'auto') {
+      if (snapshot === lastSavedContentRef.current) return;
+
+      const now = Date.now();
+      const idleOk = now - lastEditAtRef.current >= AUTO_SAVE_IDLE_MS;
+      const forceOk = now - lastSavedAtRef.current >= AUTO_SAVE_MAX_INTERVAL_MS;
+      if (!idleOk && !forceOk) return;
+    }
+
+    savingRef.current = true;
     setSaving(true);
     try {
-      const { data } = await client.PUT('/api/v1/file/content', {
-        body: { path, content, is_base64: false }
+      const { data, error } = await client.PUT('/api/v1/file/content', {
+        body: { path, content: snapshot, is_base64: false }
       });
-      if (data?.success) {
-        addToast(t('filemanager.previewModal.saveSuccess') || 'Saved successfully', 'success');
+
+      if (error) {
+        const errObj = error as Record<string, unknown>;
+        throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
+      }
+      if (!data?.success) {
+        throw new Error(data?.msg || t('filemanager.editor.autoSaveFailed'));
+      }
+
+      lastSavedContentRef.current = snapshot;
+      lastSavedAtRef.current = Date.now();
+
+      if (reason === 'manual') {
+        addToast(t('filemanager.previewModal.saveSuccess'), 'success');
       }
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Save failed';
-      addToast(msg, 'error');
+      const msg = e instanceof Error ? e.message : t('filemanager.editor.autoSaveFailed');
+
+      if (reason === 'manual') {
+        addToast(msg, 'error');
+      } else {
+        const now = Date.now();
+        if (now - lastAutoSaveErrorAtRef.current >= AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS) {
+          lastAutoSaveErrorAtRef.current = now;
+          addToast(msg, 'error');
+        }
+      }
     } finally {
       setSaving(false);
+      savingRef.current = false;
     }
   };
+
+  useAutoSave({
+    enabled: true,
+    intervalMs: AUTO_SAVE_TICK_MS,
+    task: async () => {
+      if (loading) return;
+      if (savingRef.current) return;
+      if (loadedPathRef.current !== path) return;
+      if (content === lastSavedContentRef.current) return;
+      await saveContent('auto');
+    },
+  });
 
   const renderWithLatexmk = async () => {
     setRendering(true);
@@ -339,7 +413,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
             <Button
               variant="primary"
               className="h-10 px-6 rounded-xl text-sm font-black uppercase"
-              onClick={handleSave}
+              onClick={() => { void saveContent('manual'); }}
               disabled={saving || loading}
             >
               {saving ? <Loader2 size={18} className="animate-spin mr-2" /> : <Save size={18} className="mr-2" />}
@@ -375,7 +449,10 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
                 scrollBeyondLastLine: false,
                 scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 }
               }}
-              onChange={(val) => setContent(val || '')}
+              onChange={(val) => {
+                setContent(val || '');
+                lastEditAtRef.current = Date.now();
+              }}
             />
           )}
         </section>
