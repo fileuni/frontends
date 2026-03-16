@@ -65,6 +65,7 @@ export interface SystemConfigWorkbenchProps {
   onOpenAdminPassword?: () => void;
   adminPasswordLabel?: string;
   adminPasswordPanelProps?: ConfigQuickWizardModalProps['adminPasswordPanelProps'];
+  onPickStorageDirectory?: ConfigQuickWizardModalProps['onPickStorageDirectory'];
 }
 
 export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
@@ -96,6 +97,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   onOpenAdminPassword,
   adminPasswordLabel,
   adminPasswordPanelProps,
+  onPickStorageDirectory,
 }) => {
   const { t } = useTranslation();
   const [isQuickWizardOpen, setIsQuickWizardOpen] = useState(false);
@@ -343,6 +345,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           {...(onResetAdminPassword ? { onResetAdminPassword } : {})}
           {...(typeof isResettingAdminPassword === 'boolean' ? { isResettingAdminPassword } : {})}
           {...(adminPasswordPanelProps ? { adminPasswordPanelProps } : {})}
+          {...(onPickStorageDirectory ? { onPickStorageDirectory } : {})}
         />
       )}
     </div>

@@ -1342,6 +1342,11 @@ export interface ConfigQuickWizardModalProps {
   isResettingAdminPassword?: boolean;
   adminPasswordPanelProps?: Partial<import('./AdminPasswordPanel').AdminPasswordPanelProps>;
   runtimeOs?: string;
+  onPickStorageDirectory?: () => Promise<{
+    driver: string;
+    root: string;
+    display?: string | null;
+  } | null>;
 }
 
 export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
@@ -1355,6 +1360,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   isResettingAdminPassword = false,
   adminPasswordPanelProps,
   runtimeOs,
+  onPickStorageDirectory,
 }) => {
   const { t } = useTranslation();
   const [friendlyStep, setFriendlyStep] = useState<FriendlyStep>('performance');
@@ -2703,6 +2709,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
         onClose={() => setIsVfsStorageModalOpen(false)}
         tomlAdapter={tomlAdapter}
         content={content}
+        {...(onPickStorageDirectory ? { onPickDirectory: onPickStorageDirectory } : {})}
         onContentChange={(nextContent) => {
           isInternalSyncRef.current = true;
           lastObservedContentRef.current = nextContent;

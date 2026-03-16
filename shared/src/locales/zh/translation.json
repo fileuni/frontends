@@ -1861,6 +1861,7 @@
           "addPool": "添加存储池",
           "addPolicy": "添加策略",
           "addOption": "添加选项",
+          "pickDirectory": "选择目录",
           "resetLocal": "重置为本地存储默认值",
           "apply": "写入配置"
         },
@@ -2119,7 +2120,8 @@
       "criticalActions": "危险操作",
       "forceReset": "强制重置密码",
       "softDelete": "软删除账号",
-      "accessing": "正在获取用户信息..."
+      "accessing": "正在获取用户信息...",
+      "recalibrateSuccess": "存储使用量已重新校准"
     }
   },
   "configGuard": {

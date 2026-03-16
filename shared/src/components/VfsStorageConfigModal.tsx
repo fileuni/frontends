@@ -56,6 +56,11 @@ export interface VfsStorageConfigModalProps {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
+  onPickDirectory?: () => Promise<{
+    driver: string;
+    root: string;
+    display?: string | null;
+  } | null>;
 }
 
 const isRecord = (value: unknown): value is ConfigObject => {
@@ -360,10 +365,58 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
   tomlAdapter,
   content,
   onContentChange,
+  onPickDirectory,
 }) => {
   const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
+
+  const [pickingConnectorId, setPickingConnectorId] = useState<string | null>(null);
   const isDark = resolvedTheme === 'dark';
+
+  const isVfsDriver = (value: string): value is VfsDriver => {
+    return (
+      value === 'fs'
+      || value === 's3'
+      || value === 'webdav'
+      || value === 'memory'
+      || value === 'android_saf'
+      || value === 'ios_scoped_fs'
+    );
+  };
+
+  const canPickRootForDriver = (driver: VfsDriver): boolean => {
+    if (!onPickDirectory) {
+      return false;
+    }
+    // The mobile storage picker returns android_saf / ios_scoped_fs.
+    // Allow starting from fs for a smoother "pick -> switch driver" workflow.
+    return driver === 'fs' || driver === 'android_saf' || driver === 'ios_scoped_fs';
+  };
+
+  const pickConnectorRoot = async (connectorId: string) => {
+    if (!onPickDirectory) {
+      return;
+    }
+    setPickingConnectorId(connectorId);
+    try {
+      const picked = await onPickDirectory();
+      if (!picked) {
+        return;
+      }
+      const nextDriver = isVfsDriver(picked.driver) ? picked.driver : null;
+      updateConnector(connectorId, (prev) => {
+        const driver: VfsDriver = nextDriver ?? prev.driver;
+        return {
+          ...prev,
+          driver,
+          root: picked.root,
+          options: normalizeOptionsForDriver(driver, prev.options),
+        };
+      });
+    } finally {
+      setPickingConnectorId(null);
+    }
+  };
 
   const [tab, setTab] = useState<ActiveTab>('pools');
   const [connectors, setConnectors] = useState<ConnectorDraft[]>([]);
@@ -863,15 +916,34 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
 
                     <label className={cn('text-sm font-black md:col-span-2', isDark ? 'text-slate-300' : 'text-slate-700')}>
                       {t('admin.config.storage.fields.root')}
-                      <input
-                        className={cn(
-                          'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold focus:outline-none focus:ring-2',
-                          isDark ? 'border-white/15 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm',
+                      <div className="mt-1 flex items-center gap-2">
+                        <input
+                          className={cn(
+                            'w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold focus:outline-none focus:ring-2',
+                            isDark ? 'border-white/15 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm',
+                          )}
+                          value={c.root}
+                          placeholder={t(`admin.config.storage.placeholders.root.${c.driver}`)}
+                          onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, root: e.target.value }))}
+                        />
+                        {canPickRootForDriver(c.driver) && (
+                          <button
+                            type="button"
+                            className={cn(
+                              'h-10 px-3 rounded-lg border text-sm font-black shrink-0 transition-all',
+                              isDark
+                                ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'
+                                : 'border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100',
+                            )}
+                            onClick={() => { void pickConnectorRoot(c.id); }}
+                            disabled={pickingConnectorId === c.id}
+                          >
+                            {pickingConnectorId === c.id
+                              ? t('common.processing')
+                              : t('admin.config.storage.actions.pickDirectory')}
+                          </button>
                         )}
-                        value={c.root}
-                        placeholder={t(`admin.config.storage.placeholders.root.${c.driver}`)}
-                        onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, root: e.target.value }))}
-                      />
+                      </div>
                       <div className={cn('text-xs font-bold mt-1 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
                         {t(`admin.config.storage.hints.root.${c.driver}`)}
                       </div>

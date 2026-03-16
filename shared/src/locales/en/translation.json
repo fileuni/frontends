@@ -1842,6 +1842,7 @@
           "addPool": "Add Pool",
           "addPolicy": "Add Policy",
           "addOption": "Add Option",
+          "pickDirectory": "Pick Directory",
           "resetLocal": "Reset to Local Storage Defaults",
           "apply": "Write to Config"
         },
@@ -2100,7 +2101,8 @@
       "criticalActions": "Critical Actions",
       "forceReset": "Force Reset Password",
       "softDelete": "Soft Delete Account",
-      "accessing": "Accessing user info..."
+      "accessing": "Accessing user info...",
+      "recalibrateSuccess": "Storage usage recalibrated"
     }
   },
   "configGuard": {

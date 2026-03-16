@@ -78,6 +78,12 @@ interface RuntimeDirPresets {
   default_app_data_dir: string;
 }
 
+type PickedDirectory = {
+  driver: string;
+  root: string;
+  display?: string | null;
+};
+
 interface MissingConfigPromptState {
   configPath: string;
 }
@@ -229,6 +235,16 @@ export default function Launcher() {
       setLicenseStatus(payload);
     } catch (error: unknown) {
       console.error('Failed to load license status:', error);
+    }
+  };
+
+  const pickExternalStorageDirectory = async (): Promise<PickedDirectory | null> => {
+    try {
+      const picked = await safeInvoke<PickedDirectory>('plugin:yh-tauri-storage-picker|pick_directory');
+      return picked;
+    } catch (error: unknown) {
+      toast.error(extractErrorMessage(error));
+      return null;
     }
   };
 
@@ -937,6 +953,7 @@ export default function Launcher() {
                   reloadSummaryLevel={configSummaryLevel}
                   restartNotice={t('setup.admin.finalConfirmDesc')}
                   quickWizardEnabled={true}
+                  {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
                   quickWizardLicense={{
                     isValid: Boolean(licenseStatus?.is_valid),
                     currentUsers: licenseStatus?.current_users ?? 0,
@@ -1343,6 +1360,7 @@ export default function Launcher() {
               showCancel={false}
               reloadSummary={configSummary}
               reloadSummaryLevel={configSummaryLevel}
+              {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
               quickWizardLicense={{
                 isValid: Boolean(licenseStatus?.is_valid),
                 currentUsers: licenseStatus?.current_users ?? 0,

@@ -237,7 +237,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
       if (res?.success && res.data) {
         const usageData = res.data as { storage_used: number | string };
         setFileSettings(s => ({ ...s, storage_used: Number(usageData.storage_used) }));
-        addToast('Storage usage recalibrated', 'success');
+        addToast(t('admin.edit.recalibrateSuccess'), 'success');
       }
     } catch (e) { /* handled */ }
     finally { setRecalibrating(false); }
