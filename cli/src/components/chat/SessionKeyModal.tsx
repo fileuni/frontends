@@ -36,9 +36,9 @@ export const SessionKeyModal: React.FC = () => {
   const targetName = nicknames[keyTargetId] || keyTargetId.slice(0, 8);
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-background border border-border rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-        <div className="p-8 border-b border-border bg-muted/10 relative">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-2 sm:p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200" role="dialog" aria-modal="true">
+      <div className="w-full max-w-md bg-background border border-border rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
+        <div className="p-5 sm:p-8 border-b border-border bg-muted/10 relative shrink-0">
           <button 
             onClick={closeKeyModal}
             className="absolute right-6 top-6 p-2 hover:bg-muted rounded-full transition-colors"
@@ -64,7 +64,7 @@ export const SessionKeyModal: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-8 space-y-6">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-8 space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-black uppercase opacity-40 tracking-[0.2em] ml-1">
               {t('chat.conversationWith', { name: targetName })}

@@ -46,6 +46,7 @@
     "subtitle": "View the current version, official resources, and the latest release status.",
     "description": "FileUni is a unified file platform for multi-protocol and multi-surface workflows. It brings together the Web UI, desktop GUI, and backend service capabilities so storage, accounts, services, and extensions stay in one operational workspace.",
     "currentVersion": "Current Version",
+    "versionCode": "Version Code",
     "currentChannel": "Current Channel",
     "latestVersion": "Latest Version",
     "channel": "Channel",

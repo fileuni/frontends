@@ -122,12 +122,12 @@ export const AdminPasswordPanel: React.FC<AdminPasswordPanelProps> = ({
       "border overflow-hidden",
       mode === 'panel' ? "bg-card border-border rounded-3xl sm:rounded-[2.5rem] shadow-2xl" : 
       cn(
-        "max-w-md w-full animate-in fade-in zoom-in duration-300 rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]",
+        "max-w-md w-full animate-in fade-in zoom-in duration-300 rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
         isDark ? "bg-slate-950 border-white/10 ring-1 ring-white/5" : "bg-white border-gray-200"
       )
     )}>
       <div className={cn(
-        "p-6 sm:p-8 relative",
+        "p-6 sm:p-8 relative shrink-0",
         mode === 'modal' && (isDark ? "bg-amber-500/5 border-b border-white/5" : "bg-amber-50/50 border-b border-gray-100")
       )}>
         {mode === 'modal' && onClose && (
@@ -167,7 +167,12 @@ export const AdminPasswordPanel: React.FC<AdminPasswordPanelProps> = ({
         </div>
       </div>
 
-      <div className="p-6 sm:p-8 space-y-5 sm:space-y-6">
+      <div
+        className={cn(
+          "p-6 sm:p-8 space-y-5 sm:space-y-6",
+          mode === 'modal' && "flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar",
+        )}
+      >
         {error && (
           <div className={cn(
             "p-4 border rounded-2xl text-sm font-bold flex items-center gap-3 animate-in shake duration-300",
@@ -317,9 +322,9 @@ export const AdminPasswordPanel: React.FC<AdminPasswordPanelProps> = ({
     if (!isOpen) return null;
     return (
       <div className={cn(
-        "fixed inset-0 backdrop-blur-2xl flex items-center justify-center p-4 animate-in fade-in duration-300",
+        "fixed inset-0 backdrop-blur-2xl flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300",
         isDark ? "bg-black/95" : "bg-slate-900/80"
-      )} style={{ zIndex }}>
+      )} style={{ zIndex }} role="dialog" aria-modal="true">
         {innerContent}
       </div>
     );

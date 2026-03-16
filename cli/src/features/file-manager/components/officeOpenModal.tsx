@@ -135,9 +135,9 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[190] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[190] flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm" role="dialog" aria-modal="true">
       <div className={cn(
-        "w-full max-w-lg rounded-[2rem] border shadow-2xl p-6 space-y-4",
+        "w-full max-w-lg rounded-[2rem] border shadow-2xl p-4 sm:p-6 space-y-4 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain custom-scrollbar",
         isDark ? "bg-zinc-950 border-white/10 text-white" : "bg-white border-zinc-200 text-zinc-900"
       )}>
         <div className="flex items-start justify-between gap-4">

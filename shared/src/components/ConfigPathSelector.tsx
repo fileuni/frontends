@@ -135,15 +135,19 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
   }
 
   return (
-    <div className={cn(
-      "fixed inset-0 backdrop-blur-2xl flex items-center justify-center z-50 p-4 animate-in fade-in duration-300",
-      isDark ? "bg-black/95" : "bg-slate-900/80"
-    )}>
+    <div
+      className={cn(
+        "fixed inset-0 backdrop-blur-2xl flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in duration-300",
+        isDark ? "bg-black/95" : "bg-slate-900/80",
+      )}
+      role="dialog"
+      aria-modal="true"
+    >
       <div className={cn(
-        "rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in duration-300",
+        "rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in duration-300 flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
         isDark ? "bg-slate-950 border border-white/10 ring-1 ring-white/5" : "bg-white border border-gray-200"
       )}>
-        <div className="bg-gradient-to-r from-blue-600 to-cyan-700 p-6 text-white relative">
+        <div className="bg-gradient-to-r from-blue-600 to-cyan-700 p-4 sm:p-6 text-white relative shrink-0">
           <div className="flex items-center gap-4">
             <div className="bg-white/10 p-2 rounded-xl backdrop-blur-md shadow-inner">
               <img src="/ui/favicon.svg" alt="FileUni Logo" width={48} height={48} className="drop-shadow-lg" />
@@ -163,7 +167,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
           )}
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-5">
           <div className={cn(
             "p-4 border rounded-xl flex items-start gap-3",
             isDark ? "bg-amber-500/10 border-amber-500/20" : "bg-amber-50 border-amber-200"
@@ -290,7 +294,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
         </div>
 
         <div className={cn(
-          "flex items-center justify-end gap-3 p-6 border-t",
+          "flex items-center justify-end gap-3 p-4 sm:p-6 border-t shrink-0",
           isDark ? "border-white/10 bg-black/40" : "border-gray-100 bg-gray-50"
         )}>
           <button

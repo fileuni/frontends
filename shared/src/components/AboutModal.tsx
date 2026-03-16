@@ -52,6 +52,7 @@ export interface AboutModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentVersion: string;
+  versionCode?: number | null;
   showCheckUpdates?: boolean;
   isCheckingUpdates?: boolean;
   updateInfo?: AboutUpdateInfo | null;
@@ -205,6 +206,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
   isOpen,
   onClose,
   currentVersion,
+  versionCode = null,
   showCheckUpdates = false,
   isCheckingUpdates = false,
   updateInfo = null,
@@ -228,11 +230,12 @@ export const AboutModal: React.FC<AboutModalProps> = ({
 
   const isDark = resolvedTheme === 'dark';
   const currentVersionText = currentVersion || '—';
+  const versionCodeText = versionCode === null || typeof versionCode === 'undefined' ? '' : String(versionCode);
   const currentChannel = updateInfo?.current_channel || 'stable';
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 flex items-center justify-center p-2 sm:p-6"
       role="dialog"
       aria-modal="true"
       style={{ zIndex }}
@@ -245,13 +248,13 @@ export const AboutModal: React.FC<AboutModalProps> = ({
 
       {/* Main Container: Fully Opaque */}
       <div className={cn(
-        "relative flex w-full max-w-[480px] flex-col overflow-hidden rounded-2xl border shadow-[0_20px_70px_-15px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-200",
+        "relative flex w-full max-w-[480px] flex-col overflow-hidden rounded-2xl border shadow-[0_20px_70px_-15px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-200 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-3rem)]",
         isDark ? "border-white/10 bg-slate-950 text-white ring-1 ring-white/5" : "border-gray-200 bg-white text-slate-900"
       )}>
         
         {/* Modern Header: Solid background */}
         <div className={cn(
-          "relative flex flex-col items-center px-6 pt-12 pb-8 text-center border-b",
+          "relative flex flex-col items-center px-6 pt-9 pb-6 sm:pt-12 sm:pb-8 text-center border-b shrink-0",
           isDark ? "bg-slate-950 border-white/5" : "bg-gray-50/50 border-gray-100"
         )}>
            <button
@@ -277,9 +280,19 @@ export const AboutModal: React.FC<AboutModalProps> = ({
             "mt-3 flex items-center gap-2 rounded-full border px-4 py-1",
             isDark ? "border-white/10 bg-white/5" : "border-gray-200 bg-white shadow-sm"
           )}>
-            <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isDark ? "text-slate-500" : "text-slate-400")}>Version</span>
+            <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isDark ? "text-slate-500" : "text-slate-400")}>{t('about.currentVersion')}</span>
             <span className="text-xs font-mono font-black text-primary">{currentVersionText}</span>
           </div>
+
+          {versionCodeText && (
+            <div className={cn(
+              "mt-2 flex items-center gap-2 rounded-full border px-4 py-1",
+              isDark ? "border-white/10 bg-white/5" : "border-gray-200 bg-white shadow-sm"
+            )}>
+              <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isDark ? "text-slate-500" : "text-slate-400")}>{t('about.versionCode')}</span>
+              <span className="text-xs font-mono font-black text-primary">{versionCodeText}</span>
+            </div>
+          )}
 
           <p className={cn(
             "mt-5 max-w-[320px] text-sm font-bold leading-relaxed",
@@ -289,7 +302,12 @@ export const AboutModal: React.FC<AboutModalProps> = ({
           </p>
         </div>
 
-        <div className={cn("flex-1 space-y-8 px-8 pb-8 pt-8", isDark ? "bg-slate-950" : "bg-white")}>
+        <div
+          className={cn(
+            "flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar space-y-6 sm:space-y-8 px-6 py-6 sm:px-8 sm:py-8",
+            isDark ? "bg-slate-950" : "bg-white",
+          )}
+        >
           {/* Links Grid: Adaptive Cards */}
           <div className="grid grid-cols-3 gap-3">
             <LinkCard
@@ -393,7 +411,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
 
         {/* Minimal Footer: Solid and centered */}
         <div className={cn(
-          "flex items-center justify-between border-t px-8 py-5 text-[10px] font-black uppercase tracking-[0.3em]",
+          "shrink-0 flex items-center justify-between border-t px-6 py-4 sm:px-8 sm:py-5 text-[10px] font-black uppercase tracking-[0.3em]",
           isDark ? "border-white/5 bg-slate-900/50 text-slate-600" : "border-gray-100 bg-gray-50 text-slate-400"
         )}>
            <span className="opacity-80">FileUni Project</span>

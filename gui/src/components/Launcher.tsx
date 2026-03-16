@@ -115,6 +115,7 @@ export default function Launcher() {
 
   const [status, setStatus] = useState<string>('Checking...');
   const [version, setVersion] = useState<string>('0.0.0');
+  const [versionCode, setVersionCode] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [osInfo, setOsInfo] = useState<OSInfo | null>(null);
 
@@ -517,8 +518,7 @@ export default function Launcher() {
         return;
       }
       await refreshStatus();
-      await getVersion();
-      await getOS();
+      await Promise.all([getVersion(), getVersionCode(), getOS()]);
 
       unlistenServiceAction = await safeListen<string>('service-action', (event) => {
         if (event.payload === 'start') handleStart();
@@ -572,6 +572,16 @@ export default function Launcher() {
       setVersion(v);
     } catch (e: unknown) {
       console.error(e);
+    }
+  };
+
+  const getVersionCode = async () => {
+    try {
+      const code = await safeInvoke<number | null>('get_android_version_code');
+      setVersionCode(code);
+    } catch (e: unknown) {
+      console.error(e);
+      setVersionCode(null);
     }
   };
 
@@ -1303,6 +1313,7 @@ export default function Launcher() {
         isOpen={isAboutOpen}
         onClose={() => setIsAboutOpen(false)}
         currentVersion={version}
+        versionCode={versionCode}
         showCheckUpdates={true}
         isCheckingUpdates={isCheckingAboutUpdates}
         updateInfo={aboutUpdateInfo}

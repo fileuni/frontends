@@ -57,12 +57,12 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
       
-      <div className="bg-zinc-900 border border-white/10 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden relative z-10 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+      <div className="bg-zinc-900 border border-white/10 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden relative z-10 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
         {/* Header */}
-        <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+        <div className="p-4 sm:p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02] shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
               <Upload size={20} />
@@ -81,14 +81,14 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
         </div>
 
         {/* Content */}
-        <div className="p-8">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-8">
           {/* Drag & Drop Area */}
           <div 
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
             className={cn(
-              "border-2 border-dashed rounded-3xl p-12 flex flex-col items-center justify-center transition-all duration-300 relative group",
+              "border-2 border-dashed rounded-3xl p-7 sm:p-12 flex flex-col items-center justify-center transition-all duration-300 relative group",
               isDragging 
                 ? "border-primary bg-primary/5 scale-[1.02]" 
                 : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/20"
@@ -160,7 +160,7 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
         </div>
 
         {/* Footer */}
-        <div className="p-6 bg-white/[0.02] border-t border-white/5 flex justify-end">
+        <div className="p-4 sm:p-6 bg-white/[0.02] border-t border-white/5 flex justify-end shrink-0">
           <Button variant="ghost" onClick={onClose} className="rounded-xl px-6 h-11 font-bold">
             {t('common.cancel')}
           </Button>
