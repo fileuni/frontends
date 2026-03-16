@@ -633,6 +633,7 @@
     "viewDetails": "查看详情",
     "copy": "复制",
     "copied": "已复制",
+    "delete": "删除",
     "name": "名称",
     "rawJson": "原始 JSON",
     "visualMode": "可视化模式",

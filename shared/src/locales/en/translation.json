@@ -584,6 +584,7 @@
     "viewDetails": "View Details",
     "copy": "Copy",
     "copied": "Copied",
+    "delete": "Delete",
     "name": "Name",
     "rawJson": "Raw JSON",
     "visualMode": "Visual Mode",
