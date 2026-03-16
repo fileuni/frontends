@@ -641,7 +641,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
 
       <div
         className={cn(
-          'relative w-full max-w-5xl max-h-[92dvh] rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300',
+          'relative w-full max-w-5xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]',
           isDark
             ? 'bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5'
             : 'bg-white border-gray-200 text-slate-900',
@@ -649,7 +649,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       >
         <div
           className={cn(
-            'flex items-center justify-between gap-2 border-b px-4 py-4 sm:px-6',
+            'flex items-center justify-between gap-2 border-b px-4 py-4 sm:px-6 shrink-0',
             isDark ? 'border-white/10 bg-slate-900/50' : 'border-slate-100 bg-slate-50/50',
           )}
         >
@@ -678,7 +678,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
           </button>
         </div>
 
-        <div className="p-4 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-4">
           <div className={cn(
             'rounded-xl border p-3 sm:p-4',
             isDark ? 'border-white/10 bg-white/[0.02]' : 'border-slate-200 bg-white',

@@ -66,12 +66,12 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
       />
 
       <div className={cn(
-        "relative w-full max-w-lg max-h-[90vh] rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300",
+        "relative w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
         isDark ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5" : "bg-white border-gray-200 text-slate-900"
       )}>
         {/* Header */}
         <div className={cn(
-          "flex items-center justify-between gap-2 border-b px-4 py-4 sm:px-6",
+          "flex items-center justify-between gap-2 border-b px-4 py-4 sm:px-6 shrink-0",
           isDark ? "border-white/10 bg-slate-900/50" : "border-slate-100 bg-slate-50/50"
         )}>
           <div className="flex items-center gap-3 min-w-0">
@@ -103,7 +103,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
         </div>
 
         {/* Body */}
-        <div className="p-4 sm:p-6 space-y-6 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className={cn(
               "rounded-xl border p-4 transition-colors",
@@ -183,7 +183,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
         </div>
 
         <div className={cn(
-          "border-t px-5 py-4",
+          "border-t px-5 py-4 shrink-0",
           isDark ? "border-white/5 bg-black/20 text-slate-500" : "border-gray-100 bg-gray-50 text-slate-400"
         )}>
           <p className="text-xs font-bold leading-relaxed italic">

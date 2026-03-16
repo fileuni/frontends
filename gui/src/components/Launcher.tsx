@@ -211,19 +211,9 @@ export default function Launcher() {
         return null;
       }
 
-      const ensured = await safeInvoke<RuntimeDirsInspection>('ensure_runtime_config', {
-        configDir: inspected.config_dir,
-        appDataDir: inspected.app_data_dir,
-      });
-
-      await safeInvoke<void>('set_runtime_dirs', {
-        configDir: ensured.config_dir,
-        appDataDir: ensured.app_data_dir,
-      });
-      setRuntimeDirs(ensured.config_dir, ensured.app_data_dir);
-      setConfigFilePath(ensured.config_path);
-      toast.success(t('launcher.messages.runtime_config_created'));
-      return ensured;
+      // Config file must be created by the setup wizard apply flow.
+      await inspectInstallationState(inspected.config_dir, inspected.app_data_dir);
+      return null;
     } catch (error) {
       toast.error(extractErrorMessage(error));
       return null;
@@ -264,7 +254,7 @@ export default function Launcher() {
     setConfigFetching(true);
     try {
       const [content, notes] = await Promise.all([
-        safeInvoke<string>('get_config_content'),
+        safeInvoke<string>('get_config_template_content'),
         safeInvoke<Record<string, ConfigNoteEntry>>('get_config_notes'),
       ]);
       setConfigContent(content);
@@ -992,19 +982,19 @@ export default function Launcher() {
             />
 
           {isSetupCompletedPromptOpen && (
-            <div className="fixed inset-0 z-[160] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="w-full max-w-md rounded-3xl border border-emerald-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden">
-                <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60">
+            <div className="fixed inset-0 z-[160] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
+              <div className="w-full max-w-md rounded-3xl border border-emerald-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
+                <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
                   <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
                     {t('setup.final.title')}
                   </h2>
                 </div>
-                <div className="px-6 py-5">
+                <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
                   <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
                     {setupFinalMessage || t('setup.final.subtitle', { user: setupAdminUsername })}
                   </p>
                 </div>
-                <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end bg-slate-50/80 dark:bg-slate-950/40">
+                <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
                   <button
                     onClick={() => { void finishSetupAndReturnToLauncher(); }}
                     className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all"
@@ -1240,14 +1230,14 @@ export default function Launcher() {
       />
 
       {missingConfigPrompt && (
-        <div className="fixed inset-0 z-[130] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-200/70 dark:border-slate-700/60 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60">
+        <div className="fixed inset-0 z-[130] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-200/70 dark:border-slate-700/60 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
+            <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
               <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
                 {t('launcher.runtime_config_missing_title')}
               </h2>
             </div>
-            <div className="px-6 py-5 space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5 space-y-4">
               <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
                 {t('launcher.runtime_config_missing_prompt', { path: missingConfigPrompt.configPath })}
               </p>
@@ -1255,7 +1245,7 @@ export default function Launcher() {
                 {missingConfigPrompt.configPath}
               </div>
             </div>
-            <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/40">
+            <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
               <button
                 onClick={() => closeMissingConfigPrompt(false)}
                 className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
@@ -1274,14 +1264,14 @@ export default function Launcher() {
       )}
 
       {isSetupRequiredPromptOpen && (
-        <div className="fixed inset-0 z-[140] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-3xl border border-amber-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60">
+        <div className="fixed inset-0 z-[140] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-lg rounded-3xl border border-amber-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
+            <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
               <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
                 {t('setup.wizard.title')}
               </h2>
             </div>
-            <div className="px-6 py-5 space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5 space-y-4">
               <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
                 {t('forgotPassword.adminRecoveryHint')}
               </p>
@@ -1291,7 +1281,7 @@ export default function Launcher() {
                 </div>
               )}
             </div>
-            <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/40">
+            <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
               <button
                 onClick={() => setIsSetupRequiredPromptOpen(false)}
                 className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"

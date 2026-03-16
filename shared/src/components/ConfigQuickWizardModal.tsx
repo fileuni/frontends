@@ -1817,7 +1817,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
         onClick={onClose} 
       />
       <div className={cn(
-        "relative w-full max-w-6xl max-h-[92dvh] rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300",
+        "relative w-full max-w-6xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
         isDark ? "border-white/10 bg-slate-950 text-slate-100 ring-1 ring-white/5" : "border-slate-300 bg-white text-slate-900"
       )}>
         <div className={cn(
@@ -1857,7 +1857,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain p-3 sm:p-5 space-y-4 custom-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5 space-y-4 custom-scrollbar">
           {parseError && (
             <div className={cn(
               "rounded-xl border p-3 sm:p-4",
