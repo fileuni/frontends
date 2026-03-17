@@ -211,12 +211,14 @@ export interface components {
             password_hint?: string | null;
         };
         ConfigSetLicenseStatusResponse: {
+            aux_id: string;
             /** Format: int32 */
             current_users: number;
             device_code: string;
             /** Format: date-time */
             expires_at?: string | null;
             features: string[];
+            hw_id: string;
             is_valid: boolean;
             /** Format: int32 */
             max_users: number;

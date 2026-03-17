@@ -6,7 +6,7 @@
     "license": {
       "name": ""
     },
-    "version": "0.0.4-alpha.6"
+    "version": "0.0.4-alpha.9"
   },
   "paths": {
     "/api/v1/config-set/apply": {
@@ -541,11 +541,16 @@
           "is_valid",
           "msg",
           "device_code",
+          "hw_id",
+          "aux_id",
           "current_users",
           "max_users",
           "features"
         ],
         "properties": {
+          "aux_id": {
+            "type": "string"
+          },
           "current_users": {
             "type": "integer",
             "format": "int32",
@@ -566,6 +571,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "hw_id": {
+            "type": "string"
           },
           "is_valid": {
             "type": "boolean"
