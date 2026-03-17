@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { useTranslation } from 'react-i18next';
+import { KeyValueForm, parseJsonObjectToStringMap } from './KeyValueForm';
 
 interface ProviderFormProps {
   providerKey: string;
@@ -8,6 +9,7 @@ interface ProviderFormProps {
   configJson: string;
   onChangeCredential: (json: string) => void;
   onChangeConfig: (json: string) => void;
+  isEdit?: boolean;
 }
 
 interface FieldDef {
@@ -103,19 +105,15 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
   configJson,
   onChangeCredential,
   onChangeConfig,
+  isEdit = false,
 }) => {
   const { t } = useTranslation();
   const [fields, setFields] = useState<Record<string, string>>({});
-  const [mode, setMode] = useState<'form' | 'raw'>('form');
 
   useEffect(() => {
-    try {
-      const cred = JSON.parse(credentialJson || '{}');
-      const conf = JSON.parse(configJson || '{}');
-      setFields({ ...cred, ...conf });
-    } catch {
-      setMode('raw');
-    }
+    const cred = parseJsonObjectToStringMap(credentialJson);
+    const conf = parseJsonObjectToStringMap(configJson);
+    setFields({ ...cred, ...conf });
   }, [providerKey, credentialJson, configJson]);
 
   const handleFieldChange = (key: string, value: string) => {
@@ -136,40 +134,43 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
       }
     });
 
-    onChangeCredential(JSON.stringify(credObj));
+    // Update semantics:
+    // - create: always send a json object string (possibly {})
+    // - edit: empty string means "keep existing encrypted credential" on backend
+    if (isEdit && Object.keys(credObj).length === 0) {
+      onChangeCredential('');
+    } else {
+      onChangeCredential(JSON.stringify(credObj));
+    }
     onChangeConfig(JSON.stringify(confObj));
   };
 
   const currentDefs = PROVIDER_FIELDS[providerKey];
 
-  if (!currentDefs || mode === 'raw') {
+  const fallbackCred = useMemo(() => parseJsonObjectToStringMap(credentialJson), [credentialJson]);
+  const fallbackConf = useMemo(() => parseJsonObjectToStringMap(configJson), [configJson]);
+
+  if (!currentDefs) {
     return (
-      <div className="space-y-4 text-foreground">
-        <div className="flex justify-end">
-          {currentDefs && (
-            <button
-              type="button"
-              className="text-[14px] font-black uppercase tracking-widest text-primary underline underline-offset-4"
-              onClick={() => setMode('form')}
-            >
-              Switch to Form Mode
-            </button>
-          )}
-        </div>
+      <div className="space-y-6 text-foreground">
         <div className="space-y-2">
           <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.credentialJson')}</label>
-          <textarea
-            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-sm text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
-            value={credentialJson}
-            onChange={(e) => onChangeCredential(e.target.value)}
+          <KeyValueForm
+            value={fallbackCred}
+            onChange={(obj) => onChangeCredential(JSON.stringify(obj))}
+            addLabel="Add credential"
+            keyPlaceholder="credential_key"
+            valuePlaceholder="credential_value"
           />
         </div>
         <div className="space-y-2">
           <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.configJson')}</label>
-          <textarea
-            className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-white dark:bg-black/20 px-4 py-3 font-mono text-sm text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
-            value={configJson}
-            onChange={(e) => onChangeConfig(e.target.value)}
+          <KeyValueForm
+            value={fallbackConf}
+            onChange={(obj) => onChangeConfig(JSON.stringify(obj))}
+            addLabel="Add config"
+            keyPlaceholder="config_key"
+            valuePlaceholder="config_value"
           />
         </div>
       </div>
@@ -178,21 +179,12 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <button
-          type="button"
-          className="text-[14px] font-black uppercase tracking-widest text-primary underline underline-offset-4 opacity-60 hover:opacity-100 transition-opacity"
-          onClick={() => setMode('raw')}
-        >
-          {t('common.switchToRawJson')}
-        </button>
-      </div>
       <div className="grid grid-cols-1 gap-4">
         {currentDefs.map((def) => (
           <div key={def.key} className="space-y-1.5">
             <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
               {def.label}
-              {def.required && <span className="text-red-500 ml-1">*</span>}
+              {def.required && !isEdit && <span className="text-red-500 ml-1">*</span>}
             </label>
             <Input
               type={def.type || 'text'}
@@ -202,6 +194,11 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
               className={controlBase}
             />
             {def.helper && <div className="text-[14px] opacity-50 dark:opacity-30 italic text-foreground/60">{def.helper}</div>}
+            {isEdit && def.type === 'password' && (
+              <div className="text-[14px] opacity-50 dark:opacity-30 italic text-foreground/60">
+                Leave blank to keep current value.
+              </div>
+            )}
           </div>
         ))}
       </div>

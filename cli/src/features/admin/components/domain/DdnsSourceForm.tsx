@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Switch } from '@/components/ui/Switch';
-import { Network, Globe, Terminal, ShieldCheck, Database, Settings2, Zap } from 'lucide-react';
+import { Network, Globe, Terminal, ShieldCheck, Database, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
@@ -54,14 +54,19 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const [config, setConfig] = useState<SourceConfig>({ type: 'url', url: isIpv6 ? DEFAULT_V6_URLS[0] : DEFAULT_V4_URLS[0] });
-  const [mode, setMode] = useState<'form' | 'raw'>('form');
+  const [hadParseError, setHadParseError] = useState(false);
 
   useEffect(() => {
     try {
       const parsed = JSON.parse(sourceJson || '{}');
       if (Object.keys(parsed).length > 0) setConfig(parsed);
+      setHadParseError(false);
     } catch {
-      setMode('raw');
+      // Keep UI usable: fallback to defaults and require reconfigure.
+      setHadParseError(true);
+      const fallback: SourceConfig = { type: 'url', url: isIpv6 ? DEFAULT_V6_URLS[0] : DEFAULT_V4_URLS[0] };
+      setConfig(fallback);
+      onChange(JSON.stringify(fallback));
     }
   }, [sourceJson]);
 
@@ -117,31 +122,19 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-4">
-           {enabled && (
-             <button
-              type="button"
-              className="text-[14px] font-black uppercase tracking-widest text-primary underline underline-offset-4 opacity-60 hover:opacity-100 transition-all flex items-center gap-1"
-              onClick={() => setMode(mode === 'form' ? 'raw' : 'form')}
-            >
-              <Settings2 size={18} />
-              {mode === 'form' ? t('common.rawJson') : t('common.visualMode')}
-            </button>
-           )}
            <Switch checked={enabled} onChange={onToggle} />
         </div>
       </div>
 
       {enabled && (
         <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-          {mode === 'raw' ? (
-            <textarea
-              className="w-full min-h-[100px] rounded-xl border border-zinc-400/60 dark:border-white/5 bg-gray-50 dark:bg-black/20 px-4 py-3 font-mono text-sm text-foreground dark:text-white/80 outline-none focus:border-primary/30 transition-all shadow-inner"
-              value={sourceJson}
-              onChange={(e) => onChange(e.target.value)}
-              spellCheck={false}
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-4 items-center">
+          {hadParseError && (
+            <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[14px] font-bold opacity-80">
+              {t('admin.domain.invalidSourceConfigReset') || 'Invalid source config detected. Reset to defaults, please reconfigure.'}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-4 items-center">
               <div className="space-y-1.5">
                 <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.detectionSource')}</label>
                 <div className="relative text-foreground">
@@ -232,8 +225,7 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
                 )}
               </div>
             </div>
-          )}
-        </div>
+          </div>
       )}
     </div>
   );

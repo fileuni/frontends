@@ -10,6 +10,7 @@ import { useToastStore } from '@fileuni/shared';
 import { ProviderForm } from './domain/ProviderForm';
 import { DdnsSourceForm } from './domain/DdnsSourceForm';
 import { CertificateForm } from './domain/CertificateForm';
+import { KeyValueForm, parseJsonObjectToStringMap } from './domain/KeyValueForm';
 import { 
   Globe, ShieldCheck, Plus, RefreshCw, 
   Trash2, Edit3, Play, Activity, 
@@ -280,7 +281,13 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [inspectLoading, setInspectLoading] = useState(false);
   const [inspectData, setInspectData] = useState<DdnsInspectItem | null>(null);
 
-  const [featureFlags, setFeatureFlags] = useState<{ moduleEnabled: boolean; ddnsEnabled: boolean; sslEnabled: boolean } | null>(null);
+  const [featureFlags, setFeatureFlags] = useState<{
+    moduleEnabled: boolean;
+    ddnsEnabled: boolean;
+    sslEnabled: boolean;
+    ddnsSchedulerEnabled: boolean;
+    sslSchedulerEnabled: boolean;
+  } | null>(null);
 
   const [ddnsModalOpen, setDdnsModalOpen] = useState(false);
   const [sslModalOpen, setSslModalOpen] = useState(false);
@@ -356,14 +363,20 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         }
         return typeof cur === 'boolean' ? cur : null;
       };
-      const moduleEnabled = getBool(configData, ['domain_acme_ddns', 'enabled']) ?? false;
-      const ddnsJobEnabled = getBool(configData, ['task_registry', 'domain_ddns_sync_check', 'enabled']) ?? false;
-      const sslJobEnabled = getBool(configData, ['task_registry', 'domain_acme_renewal_check', 'enabled']) ?? false;
-      setFeatureFlags({
-        moduleEnabled,
-        ddnsEnabled: moduleEnabled && ddnsJobEnabled,
-        sslEnabled: moduleEnabled && sslJobEnabled,
-      });
+       // The admin system config endpoint may return a subset of config fields.
+       // If a flag is missing, treat it as "unknown" and keep the UI visible.
+       const moduleEnabled = getBool(configData, ['domain_acme_ddns', 'enabled']) ?? true;
+       const ddnsJobEnabled = getBool(configData, ['task_registry', 'domain_ddns_sync_check', 'enabled']) ?? true;
+       const sslJobEnabled = getBool(configData, ['task_registry', 'domain_acme_renewal_check', 'enabled']) ?? true;
+       setFeatureFlags({
+         moduleEnabled,
+         // Manual operations should be allowed when module is enabled.
+         // Scheduler enable is tracked separately and only affects auto-run.
+         ddnsEnabled: moduleEnabled,
+         sslEnabled: moduleEnabled,
+         ddnsSchedulerEnabled: ddnsJobEnabled,
+         sslSchedulerEnabled: sslJobEnabled,
+       });
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     } finally {
@@ -711,6 +724,9 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
   const isDdns = view === 'ddns';
   const viewEnabled = isDdns ? (featureFlags?.ddnsEnabled ?? true) : (featureFlags?.sslEnabled ?? true);
+  const schedulerEnabled = isDdns
+    ? (featureFlags?.ddnsSchedulerEnabled ?? true)
+    : (featureFlags?.sslSchedulerEnabled ?? true);
 
   const selectedDdnsProviderKey = useMemo(() => {
     const account = providers.find((p) => p.id === ddnsDraft.provider_account_id);
@@ -779,14 +795,23 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         </div>
       </div>
 
-      {!viewEnabled && (
-        <div className={cn(sectionCardBase, "border-red-500/20 bg-red-500/5")}> 
-          <SectionHeader icon={XCircle} title={t('common.disabled') || 'Disabled'} desc={isDdns ? (t('admin.domain.ddnsDisabledByConfig') || 'DDNS is disabled by config') : (t('admin.domain.sslDisabledByConfig') || 'SSL/TLS is disabled by config')} colorClass="bg-red-500/10 text-red-600 border-red-500/20" />
-          <div className="text-sm font-bold opacity-70">
-            {(featureFlags && !featureFlags.moduleEnabled) ? (t('admin.domain.domainModuleDisabled') || 'Enable [domain_acme_ddns] in config to use this module.') : (t('admin.domain.enableSchedulerHint') || 'Also ensure the related scheduled job is enabled in [task_registry].')}
-          </div>
-        </div>
-      )}
+       {!viewEnabled && (
+         <div className={cn(sectionCardBase, "border-red-500/20 bg-red-500/5")}> 
+           <SectionHeader icon={XCircle} title={t('common.disabled') || 'Disabled'} desc={isDdns ? (t('admin.domain.ddnsDisabledByConfig') || 'DDNS is disabled by config') : (t('admin.domain.sslDisabledByConfig') || 'SSL/TLS is disabled by config')} colorClass="bg-red-500/10 text-red-600 border-red-500/20" />
+           <div className="text-sm font-bold opacity-70">
+             {(featureFlags && !featureFlags.moduleEnabled) ? (t('admin.domain.domainModuleDisabled') || 'Enable [domain_acme_ddns] in config to use this module.') : (t('admin.domain.enableSchedulerHint') || 'Also ensure the related scheduled job is enabled in [task_registry].')}
+           </div>
+         </div>
+       )}
+
+       {viewEnabled && !schedulerEnabled && (
+         <div className={cn(sectionCardBase, "border-orange-500/20 bg-orange-500/5")}> 
+           <SectionHeader icon={Info} title={isDdns ? 'DDNS Scheduler' : 'ACME Scheduler'} desc={t('admin.domain.enableSchedulerHint') || 'Also ensure the related scheduled job is enabled in [task_registry].'} colorClass="bg-orange-500/10 text-orange-700 border-orange-500/20" />
+           <div className="text-sm font-bold opacity-70">
+             {t('admin.domain.enableSchedulerHint') || 'Also ensure the related scheduled job is enabled in [task_registry].'}
+           </div>
+         </div>
+       )}
 
       {/* Content Table */}
       <div className="bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden dark:shadow-2xl backdrop-blur-sm transition-all shadow-sm">
@@ -1034,15 +1059,18 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.webhookJson') || 'Webhook JSON'}</label>
-                  <textarea
-                    placeholder={t('admin.domain.webhookJsonPlaceholder') || '{"key":"value"}'}
-                    value={ddnsDraft.webhook_json}
-                    onChange={(e) => setDdnsDraft({ ...ddnsDraft, webhook_json: e.target.value })}
-                    className="w-full min-h-[120px] rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm text-foreground placeholder:opacity-30"
+                  <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                    {t('admin.domain.webhookJson') || 'Webhook Fields'}
+                  </label>
+                  <KeyValueForm
+                    value={parseJsonObjectToStringMap(ddnsDraft.webhook_json)}
+                    onChange={(obj) => setDdnsDraft({ ...ddnsDraft, webhook_json: JSON.stringify(obj) })}
+                    addLabel={t('admin.domain.addWebhookField') || 'Add field'}
+                    keyPlaceholder="key"
+                    valuePlaceholder="value"
                   />
                   <p className="text-[14px] opacity-50 italic">
-                    {t('admin.domain.webhookJsonHint') || 'Used by callback provider and as extra payload fields when running DDNS.'}
+                    {t('admin.domain.webhookJsonHint') || 'Primarily used by callback provider and merged as extra fields in callback payload.'}
                   </p>
                 </div>
               </div>
@@ -1218,6 +1246,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                       configJson={providerDraft.config_json}
                       onChangeCredential={(v) => setProviderDraft({ ...providerDraft, credential_json_enc: v })}
                       onChangeConfig={(v) => setProviderDraft({ ...providerDraft, config_json: v })}
+                      isEdit={!!providerDraft.id}
                     />
                     {providerDraft.id && (
                       <p className="mt-4 text-[14px] text-zinc-500 italic px-1">{t('admin.domain.providerCredentialEditPlaceholder')}</p>
