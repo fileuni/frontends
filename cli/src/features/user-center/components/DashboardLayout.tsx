@@ -7,6 +7,7 @@ import { useConfigStore } from "@/stores/config.ts";
 import { useThemeStore } from "@fileuni/shared";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
+import { client, extractData } from "@/lib/api";
 
 import { MustChangePasswordModal } from "@/features/public/components/MustChangePasswordModal.tsx";
 
@@ -41,6 +42,11 @@ export const DashboardLayout: React.FC<{
   const { theme } = useThemeStore();
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [domainNavFlags, setDomainNavFlags] = useState<{
+    moduleEnabled: boolean;
+    ddnsEnabled: boolean;
+    sslEnabled: boolean;
+  } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -51,6 +57,51 @@ export const DashboardLayout: React.FC<{
   const page = params.page || 'index';
   const isAdmin = mounted && hasPermission("admin.access");
   const enableFileManager = capabilities?.enable_api !== false;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!mounted || !isAdmin) {
+      setDomainNavFlags(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    (async () => {
+      try {
+        const configData = await extractData<Record<string, unknown>>(client.GET('/api/v1/admin/system/config'));
+
+        const getBool = (root: unknown, path: string[]): boolean | null => {
+          let cur: unknown = root;
+          for (const key of path) {
+            if (typeof cur !== 'object' || cur === null) return null;
+            const rec = cur as Record<string, unknown>;
+            cur = rec[key];
+          }
+          return typeof cur === 'boolean' ? cur : null;
+        };
+
+        const moduleEnabled = getBool(configData, ['domain_acme_ddns', 'enabled']) ?? false;
+        const ddnsJobEnabled = getBool(configData, ['task_registry', 'domain_ddns_sync_check', 'enabled']) ?? false;
+        const sslJobEnabled = getBool(configData, ['task_registry', 'domain_acme_renewal_check', 'enabled']) ?? false;
+
+        if (!cancelled) {
+          setDomainNavFlags({
+            moduleEnabled,
+            ddnsEnabled: moduleEnabled && ddnsJobEnabled,
+            sslEnabled: moduleEnabled && sslJobEnabled,
+          });
+        }
+      } catch {
+        if (!cancelled) setDomainNavFlags(null);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mounted, isAdmin]);
 
   // Use useMemo to ensure config objects are not initialized at module top level
   const { navItems, adminItems } = useMemo(() => ({
@@ -76,6 +127,16 @@ export const DashboardLayout: React.FC<{
       { name: t("nav.about"), icon: "Info", m: "admin", p: "about", path: "#mod=admin&page=about" },
     ]
   }), [t]);
+
+  const filteredAdminItems = useMemo(() => {
+    const ddnsVisible = domainNavFlags ? domainNavFlags.ddnsEnabled : true;
+    const sslVisible = domainNavFlags ? domainNavFlags.sslEnabled : true;
+    return adminItems.filter((item) => {
+      if (item.p === 'domain-ddns') return ddnsVisible;
+      if (item.p === 'domain-ssl') return sslVisible;
+      return true;
+    });
+  }, [adminItems, domainNavFlags]);
 
   // Extract sidebar content as inner render function to ensure closure safety
   const renderSidebar = (isMobile = false) => (
@@ -129,7 +190,7 @@ export const DashboardLayout: React.FC<{
             <p className="px-4 text-sm font-black uppercase tracking-widest opacity-30 mb-4 text-red-500">
               {t("common.admin")}
             </p>
-            {adminItems.map((item) => (
+            {filteredAdminItems.map((item) => (
               <a
                 key={item.path}
                 href={item.path}

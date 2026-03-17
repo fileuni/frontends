@@ -1026,7 +1026,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     <div className="text-sm font-bold opacity-70">
                       {ddnsDraft.force_update ? (t('admin.domain.automaticUpdates') || 'Enabled') : (t('admin.domain.statusIdle') || 'Idle')}
                     </div>
-                    <Switch checked={ddnsDraft.force_update} onCheckedChange={(v) => setDdnsDraft({ ...ddnsDraft, force_update: v })} />
+                    <Switch checked={ddnsDraft.force_update} onChange={(v: boolean) => setDdnsDraft({ ...ddnsDraft, force_update: v })} />
                   </div>
                   <p className="text-[14px] opacity-50 italic">
                     {t('admin.domain.forceUpdateHint') || 'When enabled, the next run will upsert records even if IP has not changed.'}
