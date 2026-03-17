@@ -164,6 +164,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_ddns_entry_logs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run": {
         parameters: {
             query?: never;
@@ -4670,6 +4686,18 @@ export interface operations {
         responses: never;
     };
     delete_ddns_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    list_ddns_entry_logs: {
         parameters: {
             query?: never;
             header?: never;
