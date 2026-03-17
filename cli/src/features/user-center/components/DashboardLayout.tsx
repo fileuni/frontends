@@ -42,11 +42,7 @@ export const DashboardLayout: React.FC<{
   const { theme } = useThemeStore();
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [domainNavFlags, setDomainNavFlags] = useState<{
-    moduleEnabled: boolean;
-    ddnsEnabled: boolean;
-    sslEnabled: boolean;
-  } | null>(null);
+  const [domainNavFlags, setDomainNavFlags] = useState<{ moduleEnabled: boolean } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -82,16 +78,12 @@ export const DashboardLayout: React.FC<{
           return typeof cur === 'boolean' ? cur : null;
         };
 
-        const moduleEnabled = getBool(configData, ['domain_acme_ddns', 'enabled']) ?? false;
-        const ddnsJobEnabled = getBool(configData, ['task_registry', 'domain_ddns_sync_check', 'enabled']) ?? false;
-        const sslJobEnabled = getBool(configData, ['task_registry', 'domain_acme_renewal_check', 'enabled']) ?? false;
+        // Some backends return only a subset of config fields.
+        // If the domain module flag is not present, keep domain entries visible.
+        const moduleEnabled = getBool(configData, ['domain_acme_ddns', 'enabled']) ?? true;
 
         if (!cancelled) {
-          setDomainNavFlags({
-            moduleEnabled,
-            ddnsEnabled: moduleEnabled && ddnsJobEnabled,
-            sslEnabled: moduleEnabled && sslJobEnabled,
-          });
+          setDomainNavFlags({ moduleEnabled });
         }
       } catch {
         if (!cancelled) setDomainNavFlags(null);
@@ -129,11 +121,10 @@ export const DashboardLayout: React.FC<{
   }), [t]);
 
   const filteredAdminItems = useMemo(() => {
-    const ddnsVisible = domainNavFlags ? domainNavFlags.ddnsEnabled : true;
-    const sslVisible = domainNavFlags ? domainNavFlags.sslEnabled : true;
+    const domainVisible = domainNavFlags ? domainNavFlags.moduleEnabled : true;
     return adminItems.filter((item) => {
-      if (item.p === 'domain-ddns') return ddnsVisible;
-      if (item.p === 'domain-ssl') return sslVisible;
+      if (item.p === 'domain-ddns') return domainVisible;
+      if (item.p === 'domain-ssl') return domainVisible;
       return true;
     });
   }, [adminItems, domainNavFlags]);
