@@ -43,6 +43,7 @@ const BlacklistAdmin = lazy(() => import('@/features/admin/components/BlacklistA
 const FileSystemAdmin = lazy(() => import('@/features/admin/components/FileSystemAdmin').then(m => ({ default: m.FileSystemAdmin })));
 const SystemBackupAdmin = lazy(() => import('@/features/admin/components/SystemBackupAdmin').then(m => ({ default: m.SystemBackupAdmin })));
 const ExtensionManagerAdmin = lazy(() => import('@/features/admin/components/ExtensionManagerAdmin').then(m => ({ default: m.ExtensionManagerAdmin })));
+const AdminAboutPage = lazy(() => import('@/features/admin/components/AdminAboutPage').then(m => ({ default: m.AdminAboutPage })));
 const DomainAcmeDdnsAdmin = lazy(() =>
   import('@/features/admin/components/DomainAcmeDdnsAdmin').then(m => ({ default: m.DomainAcmeDdnsAdmin })),
 );
@@ -151,6 +152,9 @@ const PageRenderer: React.FC<{
       case 'config': return <DashboardLayout title={t('pages.admin.settings.title')}><SystemConfigAdmin /></DashboardLayout>;
       case 'permissions': return <DashboardLayout title={t('pages.admin.permissions.title')}><PermissionAdmin /></DashboardLayout>;
       case 'blacklist': return <DashboardLayout title={t('admin.blacklist.title') || 'Access Guard'}><BlacklistAdmin /></DashboardLayout>;
+      case 'about':
+      case 'AdminAboutPage':
+        return <DashboardLayout title={t('about.title')}><AdminAboutPage /></DashboardLayout>;
       case 'files':
       case 'fs': return <DashboardLayout title={t('pages.admin.fs.title')}><FileSystemAdmin /></DashboardLayout>;
       case 'backup': return <DashboardLayout title={t('admin.backup.title')}><SystemBackupAdmin /></DashboardLayout>;

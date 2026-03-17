@@ -62,9 +62,12 @@ export interface SystemConfigWorkbenchProps {
   restartNotice?: string;
   quickWizardLicense?: {
     isValid: boolean;
+    msg?: string;
     currentUsers: number;
     maxUsers: number;
     deviceCode: string;
+    expiresAt?: string | null;
+    features?: string[];
     licenseKey: string;
     saving: boolean;
     onLicenseKeyChange: (value: string) => void;
@@ -491,12 +494,15 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           isOpen={isLicenseOpen}
           onClose={() => setIsLicenseOpen(false)}
           isValid={quickWizardLicense.isValid}
+          statusMessage={quickWizardLicense.msg}
           currentUsers={quickWizardLicense.currentUsers}
           maxUsers={quickWizardLicense.maxUsers}
           deviceCode={quickWizardLicense.deviceCode}
           licenseKey={quickWizardLicense.licenseKey}
           saving={quickWizardLicense.saving}
           onLicenseKeyChange={quickWizardLicense.onLicenseKeyChange}
+          expiresAt={quickWizardLicense.expiresAt}
+          features={quickWizardLicense.features}
           onApplyLicense={() => {
             const nextKey = quickWizardLicense.licenseKey.trim();
             if (nextKey.length > 0) {

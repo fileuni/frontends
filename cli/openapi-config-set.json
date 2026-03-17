@@ -289,6 +289,86 @@
         }
       }
     },
+    "/api/v1/config-set/license/status": {
+      "get": {
+        "tags": [
+          "config-set"
+        ],
+        "operationId": "get_config_set_license_status",
+        "responses": {
+          "200": {
+            "description": "Get license status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/config-set/license/update": {
+      "post": {
+        "tags": [
+          "config-set"
+        ],
+        "operationId": "update_config_set_license_key",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigSetLicenseUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "License key verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid license key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/config-set/notes": {
       "get": {
         "tags": [
@@ -452,6 +532,62 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "ConfigSetLicenseStatusResponse": {
+        "type": "object",
+        "required": [
+          "is_valid",
+          "msg",
+          "device_code",
+          "current_users",
+          "max_users",
+          "features"
+        ],
+        "properties": {
+          "current_users": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "device_code": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "is_valid": {
+            "type": "boolean"
+          },
+          "max_users": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "msg": {
+            "type": "string"
+          }
+        }
+      },
+      "ConfigSetLicenseUpdateRequest": {
+        "type": "object",
+        "required": [
+          "license_key"
+        ],
+        "properties": {
+          "license_key": {
+            "type": "string"
           }
         }
       },

@@ -66,6 +66,20 @@ export const ConfigSetEditor: React.FC = () => {
   const [notes, setNotes] = useState<Record<string, ConfigNoteEntry>>({});
   const [validationErrors, setValidationErrors] = useState<ConfigError[]>([]);
 
+  type ConfigSetLicenseStatusResponse = {
+    is_valid: boolean;
+    msg: string;
+    device_code: string;
+    current_users: number;
+    max_users: number;
+    expires_at?: string | null;
+    features: string[];
+  };
+
+  const [licenseStatus, setLicenseStatus] = useState<ConfigSetLicenseStatusResponse | null>(null);
+  const [licenseKey, setLicenseKey] = useState('');
+  const [licenseSaving, setLicenseSaving] = useState(false);
+
   const [adminUsername, setAdminUsername] = useState('admin');
   const [adminAction, setAdminAction] = useState<string>('existing_admin');
   const [passwordHint, setPasswordHint] = useState<string | null>(null);
@@ -96,6 +110,22 @@ export const ConfigSetEditor: React.FC = () => {
       setConfigPath(data.current_config_path);
       setContent(data.current_config_content);
       setSavedContent(data.current_config_content);
+
+      try {
+        const parsed = toml.parse(data.current_config_content) as unknown;
+        if (typeof parsed === 'object' && parsed !== null) {
+          const root = parsed as Record<string, unknown>;
+          const license = root.license;
+          if (typeof license === 'object' && license !== null) {
+            const licenseKeyInToml = (license as Record<string, unknown>).license_key;
+            if (typeof licenseKeyInToml === 'string' && licenseKeyInToml.trim().length > 0) {
+              setLicenseKey(licenseKeyInToml);
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
     } catch (e) {
       addToast(handleApiError(e, t), 'error');
     }
@@ -124,12 +154,43 @@ export const ConfigSetEditor: React.FC = () => {
     }
   }, []);
 
+  const refreshLicenseStatus = useCallback(async () => {
+    try {
+      const data = await extractData<ConfigSetLicenseStatusResponse>(
+        client.GET('/api/v1/config-set/license/status')
+      );
+      setLicenseStatus(data);
+    } catch (e) {
+      // License endpoints may be unavailable on older servers; ignore.
+      console.warn('Failed to fetch config-set license status', e);
+    }
+  }, []);
+
+  const applyLicenseKey = useCallback(async () => {
+    const trimmed = licenseKey.trim();
+    if (!trimmed) return;
+    setLicenseSaving(true);
+    try {
+      const data = await extractData<ConfigSetLicenseStatusResponse>(
+        client.POST('/api/v1/config-set/license/update', {
+          body: { license_key: trimmed },
+        })
+      );
+      setLicenseStatus(data);
+      addToast(t('admin.config.saveSuccess'), 'success');
+    } catch (e) {
+      addToast(handleApiError(e, t), 'error');
+    } finally {
+      setLicenseSaving(false);
+    }
+  }, [addToast, licenseKey, t]);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
         await fetchStatus();
-        await Promise.all([fetchTemplate(), fetchNotes(), fetchCapabilities()]);
+        await Promise.all([fetchTemplate(), fetchNotes(), fetchCapabilities(), refreshLicenseStatus()]);
       } catch (e) {
         console.error('Config-set init failed', e);
       } finally {
@@ -137,7 +198,7 @@ export const ConfigSetEditor: React.FC = () => {
       }
     };
     load();
-  }, [fetchStatus, fetchTemplate, fetchNotes, fetchCapabilities]);
+  }, [fetchStatus, fetchTemplate, fetchNotes, fetchCapabilities, refreshLicenseStatus]);
 
   const finishAndReturnToHome = async () => {
     if (finishing) return;
@@ -350,43 +411,58 @@ export const ConfigSetEditor: React.FC = () => {
   }
 
   return (
-    <ConfigWorkbenchShell
-      title={t('configSet.wizard.title')}
-      subtitle={t('configSet.wizard.subtitle')}
-      configPath={configPath}
-      headerActions={headerActions}
-    >
-        <SystemConfigWorkbench
-        tomlAdapter={toml}
-        loading={loading}
+      <ConfigWorkbenchShell
+        title={t('configSet.wizard.title')}
+        subtitle={t('configSet.wizard.subtitle')}
         configPath={configPath}
-        content={content}
-        savedContent={savedContent}
-        notes={notes}
+        headerActions={headerActions}
+      >
+        <SystemConfigWorkbench
+          tomlAdapter={toml}
+          loading={loading}
+          configPath={configPath}
+          content={content}
+          savedContent={savedContent}
+          notes={notes}
           validationErrors={validationErrors}
-        busy={testing}
-        onChange={setContent}
-        onTest={handleTest}
-        onSave={handleApplyWithoutPassword}
-        onCancel={handleResetToSaved}
-        showCancel={false}
-        allowSaveWithoutChanges={true}
-        forceEnableSave={true}
-        onClearValidationErrors={() => setValidationErrors([])}
-        restartNotice={t('admin.config.restartNotice')}
-        quickWizardEnabled={true}
-        runtimeOs={runtimeOs}
-        adminPasswordLabel={t('configSet.admin.changePassword')}
-        onResetAdminPassword={handleQuickWizardResetAdminPassword}
-        isResettingAdminPassword={resettingAdminPassword}
-        adminPasswordPanelProps={{
-          showWarning: false,
-          showSuccess: false,
-          showResetHint: false,
-          confirmLabel: t('configSet.admin.changePassword'),
-          pendingHint: t('configSet.admin.pendingHint'),
-        }}
-      />
-    </ConfigWorkbenchShell>
-  );
+          busy={testing}
+          onChange={setContent}
+          onTest={handleTest}
+          onSave={handleApplyWithoutPassword}
+          onCancel={handleResetToSaved}
+          showCancel={false}
+          allowSaveWithoutChanges={true}
+          forceEnableSave={true}
+          onClearValidationErrors={() => setValidationErrors([])}
+          restartNotice={t('admin.config.restartNotice')}
+          quickWizardEnabled={true}
+          runtimeOs={runtimeOs}
+          quickWizardLicense={{
+            isValid: Boolean(licenseStatus?.is_valid),
+            msg: licenseStatus?.msg,
+            currentUsers: licenseStatus?.current_users ?? 0,
+            maxUsers: licenseStatus?.max_users ?? 0,
+            deviceCode: licenseStatus?.device_code ?? '',
+            expiresAt: licenseStatus?.expires_at ?? null,
+            features: licenseStatus?.features ?? [],
+            licenseKey,
+            saving: licenseSaving,
+            onLicenseKeyChange: setLicenseKey,
+            onApplyLicense: () => {
+              void applyLicenseKey();
+            },
+          }}
+          adminPasswordLabel={t('configSet.admin.changePassword')}
+          onResetAdminPassword={handleQuickWizardResetAdminPassword}
+          isResettingAdminPassword={resettingAdminPassword}
+          adminPasswordPanelProps={{
+            showWarning: false,
+            showSuccess: false,
+            showResetHint: false,
+            confirmLabel: t('configSet.admin.changePassword'),
+            pendingHint: t('configSet.admin.pendingHint'),
+          }}
+        />
+      </ConfigWorkbenchShell>
+    );
 };

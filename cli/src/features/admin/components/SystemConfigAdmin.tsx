@@ -23,6 +23,7 @@ type LicenseStatus = {
   device_code: string;
   current_users: number;
   max_users: number;
+  expires_at?: string | null;
   features: string[];
 };
 
@@ -352,9 +353,12 @@ export const SystemConfigAdmin = () => {
         reloadSummaryLevel={reloadSummaryLevel}
         quickWizardLicense={{
           isValid: Boolean(licenseStatus?.is_valid),
+          msg: licenseStatus?.msg,
           currentUsers: licenseStatus?.current_users || 0,
           maxUsers: licenseStatus?.max_users || 0,
           deviceCode: licenseStatus?.device_code || '',
+          expiresAt: licenseStatus?.expires_at ?? null,
+          features: licenseStatus?.features ?? [],
           licenseKey,
           saving,
           onLicenseKeyChange: setLicenseKey,

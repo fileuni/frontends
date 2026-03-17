@@ -58,6 +58,7 @@ interface LicenseStatusPayload {
   device_code: string;
   current_users: number;
   max_users: number;
+  expires_at?: string | null;
   features: string[];
 }
 
@@ -259,7 +260,7 @@ export default function Launcher() {
     }
     setLicenseSaving(true);
     try {
-      await safeInvoke<void>('update_license_key', { licenseKey: trimmed });
+      await safeInvoke<void>('update_license_key', { license_key: trimmed });
       toast.success(t('admin.saveSuccess'));
       setLicenseKey('');
       await refreshLicenseStatus();
@@ -956,9 +957,12 @@ export default function Launcher() {
                   {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
                   quickWizardLicense={{
                     isValid: Boolean(licenseStatus?.is_valid),
+                    ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),
                     currentUsers: licenseStatus?.current_users ?? 0,
                     maxUsers: licenseStatus?.max_users ?? 0,
                     deviceCode: licenseStatus?.device_code ?? '',
+                    expiresAt: licenseStatus?.expires_at ?? null,
+                    features: licenseStatus?.features ?? [],
                     licenseKey,
                     saving: licenseSaving,
                     onLicenseKeyChange: setLicenseKey,
@@ -1348,9 +1352,12 @@ export default function Launcher() {
               {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
               quickWizardLicense={{
                 isValid: Boolean(licenseStatus?.is_valid),
+                ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),
                 currentUsers: licenseStatus?.current_users ?? 0,
                 maxUsers: licenseStatus?.max_users ?? 0,
                 deviceCode: licenseStatus?.device_code ?? '',
+                expiresAt: licenseStatus?.expires_at ?? null,
+                features: licenseStatus?.features ?? [],
                 licenseKey,
                 saving: licenseSaving,
                 onLicenseKeyChange: setLicenseKey,

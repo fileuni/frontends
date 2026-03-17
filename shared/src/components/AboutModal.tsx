@@ -64,6 +64,21 @@ export interface AboutModalProps {
   zIndex?: number;
 }
 
+export interface AboutViewProps {
+  currentVersion: string;
+  versionCode?: number | null;
+  showCheckUpdates?: boolean;
+  isCheckingUpdates?: boolean;
+  updateInfo?: AboutUpdateInfo | null;
+  updateError?: string | null;
+  onCheckUpdates?: () => void | Promise<void>;
+  onOpenLink?: (url: string) => void;
+  getUpdateGuideUrl?: (info: AboutReleaseChannelInfo, updateInfo: AboutUpdateInfo) => string;
+  showCloseButton?: boolean;
+  onClose?: () => void;
+  className?: string;
+}
+
 export function buildAboutUpdateGuideUrl(
   baseUrl: string,
   releaseInfo: AboutReleaseChannelInfo,
@@ -217,7 +232,6 @@ export const AboutModal: React.FC<AboutModalProps> = ({
   getUpdateGuideUrl,
   zIndex = 130,
 }) => {
-  const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
 
   useEscapeToCloseTopLayer({
@@ -229,9 +243,6 @@ export const AboutModal: React.FC<AboutModalProps> = ({
   if (!isOpen) return null;
 
   const isDark = resolvedTheme === 'dark';
-  const currentVersionText = currentVersion || '—';
-  const versionCodeText = versionCode === null || typeof versionCode === 'undefined' ? '' : String(versionCode);
-  const currentChannel = updateInfo?.current_channel || 'stable';
 
   return (
     <div
@@ -241,182 +252,288 @@ export const AboutModal: React.FC<AboutModalProps> = ({
       style={{ zIndex }}
     >
       {/* Background Overlay: Strong isolation */}
-      <div className={cn(
-        "absolute inset-0 backdrop-blur-2xl transition-opacity",
-        isDark ? "bg-black/95" : "bg-slate-900/80"
-      )} onClick={onClose} />
+      <div
+        className={cn(
+          'absolute inset-0 backdrop-blur-2xl transition-opacity',
+          isDark ? 'bg-black/95' : 'bg-slate-900/80',
+        )}
+        onClick={onClose}
+      />
 
-      {/* Main Container: Fully Opaque */}
-      <div className={cn(
-        "relative flex w-full max-w-[480px] flex-col overflow-hidden rounded-2xl border shadow-[0_20px_70px_-15px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-200 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-3rem)]",
-        isDark ? "border-white/10 bg-slate-950 text-white ring-1 ring-white/5" : "border-gray-200 bg-white text-slate-900"
-      )}>
-        
-        {/* Modern Header: Solid background */}
-        <div className={cn(
-          "relative flex flex-col items-center px-6 pt-9 pb-6 sm:pt-12 sm:pb-8 text-center border-b shrink-0",
-          isDark ? "bg-slate-950 border-white/5" : "bg-gray-50/50 border-gray-100"
-        )}>
-           <button
+      <AboutView
+        currentVersion={currentVersion}
+        versionCode={versionCode}
+        showCheckUpdates={showCheckUpdates}
+        isCheckingUpdates={isCheckingUpdates}
+        updateInfo={updateInfo}
+        updateError={updateError}
+        onCheckUpdates={onCheckUpdates}
+        onOpenLink={onOpenLink}
+        getUpdateGuideUrl={getUpdateGuideUrl}
+        showCloseButton={true}
+        onClose={onClose}
+        className={cn(
+          'shadow-[0_20px_70px_-15px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-200 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-3rem)]',
+        )}
+      />
+    </div>
+  );
+};
+
+export const AboutView: React.FC<AboutViewProps> = ({
+  currentVersion,
+  versionCode = null,
+  showCheckUpdates = false,
+  isCheckingUpdates = false,
+  updateInfo = null,
+  updateError = null,
+  onCheckUpdates,
+  onOpenLink,
+  getUpdateGuideUrl,
+  showCloseButton = false,
+  onClose,
+  className,
+}) => {
+  const { t } = useTranslation();
+  const resolvedTheme = useResolvedTheme();
+
+  const isDark = resolvedTheme === 'dark';
+  const currentVersionText = currentVersion || '—';
+  const versionCodeText = versionCode === null || typeof versionCode === 'undefined' ? '' : String(versionCode);
+  const currentChannel = updateInfo?.current_channel || 'stable';
+
+  return (
+    <div
+      className={cn(
+        'relative flex w-full max-w-[480px] flex-col overflow-hidden rounded-2xl border ring-1 min-h-0',
+        isDark
+          ? 'border-white/10 bg-slate-950 text-white ring-white/5'
+          : 'border-gray-200 bg-white text-slate-900 ring-black/[0.03]',
+        className,
+      )}
+    >
+      {/* Modern Header: Solid background */}
+      <div
+        className={cn(
+          'relative flex flex-col items-center px-6 pt-9 pb-6 sm:pt-12 sm:pb-8 text-center border-b shrink-0',
+          isDark ? 'bg-slate-950 border-white/5' : 'bg-gray-50/50 border-gray-100',
+        )}
+      >
+        {showCloseButton && onClose && (
+          <button
             onClick={onClose}
             className={cn(
-              "absolute right-4 top-4 rounded-full p-2 transition-all",
-              isDark ? "text-slate-500 hover:bg-white/5 hover:text-white" : "text-slate-400 hover:bg-gray-200 hover:text-slate-900"
+              'absolute right-4 top-4 rounded-full p-2 transition-all',
+              isDark
+                ? 'text-slate-500 hover:bg-white/5 hover:text-white'
+                : 'text-slate-400 hover:bg-gray-200 hover:text-slate-900',
             )}
+            aria-label={t('common.close')}
           >
             <X size={20} />
           </button>
-
-          <div className={cn(
-            "mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg ring-4",
-            isDark ? "bg-primary text-primary-foreground shadow-primary/20 ring-slate-950" : "bg-primary text-white shadow-primary/30 ring-white"
-          )}>
-            <Info size={32} />
-          </div>
-          
-          <h2 className="text-2xl font-black tracking-tight uppercase">FileUni</h2>
-          
-          <div className={cn(
-            "mt-3 flex items-center gap-2 rounded-full border px-4 py-1",
-            isDark ? "border-white/10 bg-white/5" : "border-gray-200 bg-white shadow-sm"
-          )}>
-            <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isDark ? "text-slate-500" : "text-slate-400")}>{t('about.currentVersion')}</span>
-            <span className="text-xs font-mono font-black text-primary">{currentVersionText}</span>
-          </div>
-
-          {versionCodeText && (
-            <div className={cn(
-              "mt-2 flex items-center gap-2 rounded-full border px-4 py-1",
-              isDark ? "border-white/10 bg-white/5" : "border-gray-200 bg-white shadow-sm"
-            )}>
-              <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isDark ? "text-slate-500" : "text-slate-400")}>{t('about.versionCode')}</span>
-              <span className="text-xs font-mono font-black text-primary">{versionCodeText}</span>
-            </div>
-          )}
-
-          <p className={cn(
-            "mt-5 max-w-[320px] text-sm font-bold leading-relaxed",
-            isDark ? "text-slate-400" : "text-slate-500"
-          )}>
-            {t('about.subtitle')}
-          </p>
-        </div>
+        )}
 
         <div
           className={cn(
-            "flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar space-y-6 sm:space-y-8 px-6 py-6 sm:px-8 sm:py-8",
-            isDark ? "bg-slate-950" : "bg-white",
+            'mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg ring-4',
+            isDark
+              ? 'bg-primary text-primary-foreground shadow-primary/20 ring-slate-950'
+              : 'bg-primary text-white shadow-primary/30 ring-white',
           )}
         >
-          {/* Links Grid: Adaptive Cards */}
-          <div className="grid grid-cols-3 gap-3">
-            <LinkCard
-              href={PROJECT_HOMEPAGE_URL}
-              label={t('about.links.website')}
-              icon={Globe}
-              isDark={isDark}
-              {...(onOpenLink ? { onOpenLink } : {})}
-            />
-            <LinkCard
-              href={PROJECT_DOCS_URL}
-              label={t('about.links.docs')}
-              icon={BookOpen}
-              isDark={isDark}
-              {...(onOpenLink ? { onOpenLink } : {})}
-            />
-            <LinkCard
-              href={PROJECT_REPOSITORY_URL}
-              label="GitHub"
-              icon={Github}
-              isDark={isDark}
-              {...(onOpenLink ? { onOpenLink } : {})}
-            />
-          </div>
+          <Info size={32} />
+        </div>
 
-          {/* Update Section */}
-          {showCheckUpdates && (
-            <div className="space-y-4">
-              <div className={cn("h-px w-full", isDark ? "bg-white/5" : "bg-gray-100")} />
-              
-              <div className={cn(
-                "flex items-center justify-between rounded-xl border p-1.5 pl-4 shadow-sm",
-                isDark ? "border-white/10 bg-slate-900" : "border-gray-200 bg-gray-50"
-              )}>
-                <div className={cn("flex items-center gap-2 text-[10px] font-black uppercase tracking-widest", isDark ? "text-slate-500" : "text-slate-400")}>
-                  <Sparkles size={14} className="text-primary" />
-                  {t('about.updateSectionTitle')}
-                </div>
-                {onCheckUpdates && (
-                  <Button
-                    size="sm"
-                    variant={isDark ? "ghost" : "outline"}
-                    onClick={() => void onCheckUpdates()}
-                    disabled={isCheckingUpdates}
-                    className="h-8 gap-2 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-sm"
-                  >
-                    {isCheckingUpdates ? <Loader2 size={12} className="animate-spin" /> : <RefreshCcw size={12} />}
-                    {isCheckingUpdates ? t('about.checking') : t('about.checkUpdates')}
-                  </Button>
-                )}
-              </div>
+        <h2 className="text-2xl font-black tracking-tight uppercase">FileUni</h2>
 
-              {updateError ? (
-                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-center shadow-inner">
-                  <div className="text-[10px] font-black text-destructive uppercase tracking-widest">{t('about.updateError')}</div>
-                  <div className="mt-1 text-xs font-bold text-destructive/80">{updateError}</div>
-                </div>
-              ) : updateInfo ? (
-                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className={cn(
-                    'flex items-center justify-center gap-2.5 py-1 text-xs font-black uppercase tracking-[0.15em]',
-                    updateInfo.has_update ? 'text-amber-600' : 'text-emerald-600'
-                  )}>
-                    {updateInfo.has_update ? <Download size={14} className="animate-bounce" /> : <CheckCircle2 size={14} />}
-                    <span>
-                      {updateInfo.has_update
-                        ? t('about.updateAvailableForCurrentChannel', { channel: t(`about.channels.${currentChannel}`) })
-                        : t('about.upToDateForCurrentChannel', { channel: t(`about.channels.${currentChannel}`) })}
-                    </span>
-                  </div>
-
-                  <div className="grid gap-2.5">
-                    {updateInfo.stable && (
-                      <ReleaseRow 
-                        info={updateInfo.stable} 
-                        updateInfo={updateInfo}
-                        title={t('about.channels.stable')} 
-                        {...(onOpenLink ? { onOpenLink } : {})}
-                        {...(getUpdateGuideUrl ? { getUpdateGuideUrl } : {})}
-                        t={t}
-                        isDark={isDark}
-                      />
-                    )}
-                    {updateInfo.prerelease && (
-                      <ReleaseRow 
-                        info={updateInfo.prerelease} 
-                        updateInfo={updateInfo}
-                        title={t('about.channels.prerelease')} 
-                        {...(onOpenLink ? { onOpenLink } : {})}
-                        {...(getUpdateGuideUrl ? { getUpdateGuideUrl } : {})}
-                        t={t}
-                        isDark={isDark}
-                      />
-                    )}
-                  </div>
-                </div>
-              ) : null}
-            </div>
+        <div
+          className={cn(
+            'mt-3 flex items-center gap-2 rounded-full border px-4 py-1',
+            isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-white shadow-sm',
           )}
+        >
+          <span
+            className={cn(
+              'text-[10px] font-black uppercase tracking-[0.2em]',
+              isDark ? 'text-slate-500' : 'text-slate-400',
+            )}
+          >
+            {t('about.currentVersion')}
+          </span>
+          <span className="text-xs font-mono font-black text-primary">{currentVersionText}</span>
         </div>
 
-        {/* Minimal Footer: Solid and centered */}
-        <div className={cn(
-          "shrink-0 flex items-center justify-between border-t px-6 py-4 sm:px-8 sm:py-5 text-[10px] font-black uppercase tracking-[0.3em]",
-          isDark ? "border-white/5 bg-slate-900/50 text-slate-600" : "border-gray-100 bg-gray-50 text-slate-400"
-        )}>
-           <span className="opacity-80">FileUni Project</span>
-           <span className="opacity-50">© {new Date().getFullYear()}</span>
+        {versionCodeText && (
+          <div
+            className={cn(
+              'mt-2 flex items-center gap-2 rounded-full border px-4 py-1',
+              isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-white shadow-sm',
+            )}
+          >
+            <span
+              className={cn(
+                'text-[10px] font-black uppercase tracking-[0.2em]',
+                isDark ? 'text-slate-500' : 'text-slate-400',
+              )}
+            >
+              {t('about.versionCode')}
+            </span>
+            <span className="text-xs font-mono font-black text-primary">{versionCodeText}</span>
+          </div>
+        )}
+
+        <p
+          className={cn(
+            'mt-5 max-w-[320px] text-sm font-bold leading-relaxed',
+            isDark ? 'text-slate-400' : 'text-slate-500',
+          )}
+        >
+          {t('about.subtitle')}
+        </p>
+      </div>
+
+      <div
+        className={cn(
+          'flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar space-y-6 sm:space-y-8 px-6 py-6 sm:px-8 sm:py-8',
+          isDark ? 'bg-slate-950' : 'bg-white',
+        )}
+      >
+        {/* Links Grid: Adaptive Cards */}
+        <div className="grid grid-cols-3 gap-3">
+          <LinkCard
+            href={PROJECT_HOMEPAGE_URL}
+            label={t('about.links.website')}
+            icon={Globe}
+            isDark={isDark}
+            {...(onOpenLink ? { onOpenLink } : {})}
+          />
+          <LinkCard
+            href={PROJECT_DOCS_URL}
+            label={t('about.links.docs')}
+            icon={BookOpen}
+            isDark={isDark}
+            {...(onOpenLink ? { onOpenLink } : {})}
+          />
+          <LinkCard
+            href={PROJECT_REPOSITORY_URL}
+            label="GitHub"
+            icon={Github}
+            isDark={isDark}
+            {...(onOpenLink ? { onOpenLink } : {})}
+          />
         </div>
+
+        {/* Update Section */}
+        {showCheckUpdates && (
+          <div className="space-y-4">
+            <div className={cn('h-px w-full', isDark ? 'bg-white/5' : 'bg-gray-100')} />
+
+            <div
+              className={cn(
+                'flex items-center justify-between rounded-xl border p-1.5 pl-4 shadow-sm',
+                isDark ? 'border-white/10 bg-slate-900' : 'border-gray-200 bg-gray-50',
+              )}
+            >
+              <div
+                className={cn(
+                  'flex items-center gap-2 text-[10px] font-black uppercase tracking-widest',
+                  isDark ? 'text-slate-500' : 'text-slate-400',
+                )}
+              >
+                <Sparkles size={14} className="text-primary" />
+                {t('about.updateSectionTitle')}
+              </div>
+              {onCheckUpdates && (
+                <Button
+                  size="sm"
+                  variant={isDark ? 'ghost' : 'outline'}
+                  onClick={() => void onCheckUpdates()}
+                  disabled={isCheckingUpdates}
+                  className="h-8 gap-2 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-sm"
+                >
+                  {isCheckingUpdates ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <RefreshCcw size={12} />
+                  )}
+                  {isCheckingUpdates ? t('about.checking') : t('about.checkUpdates')}
+                </Button>
+              )}
+            </div>
+
+            {updateError ? (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-center shadow-inner">
+                <div className="text-[10px] font-black text-destructive uppercase tracking-widest">
+                  {t('about.updateError')}
+                </div>
+                <div className="mt-1 text-xs font-bold text-destructive/80">{updateError}</div>
+              </div>
+            ) : updateInfo ? (
+              <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div
+                  className={cn(
+                    'flex items-center justify-center gap-2.5 py-1 text-xs font-black uppercase tracking-[0.15em]',
+                    updateInfo.has_update ? 'text-amber-600' : 'text-emerald-600',
+                  )}
+                >
+                  {updateInfo.has_update ? (
+                    <Download size={14} className="animate-bounce" />
+                  ) : (
+                    <CheckCircle2 size={14} />
+                  )}
+                  <span>
+                    {updateInfo.has_update
+                      ? t('about.updateAvailableForCurrentChannel', {
+                          channel: t(`about.channels.${currentChannel}`),
+                        })
+                      : t('about.upToDateForCurrentChannel', {
+                          channel: t(`about.channels.${currentChannel}`),
+                        })}
+                  </span>
+                </div>
+
+                <div className="grid gap-2.5">
+                  {updateInfo.stable && (
+                    <ReleaseRow
+                      info={updateInfo.stable}
+                      updateInfo={updateInfo}
+                      title={t('about.channels.stable')}
+                      {...(onOpenLink ? { onOpenLink } : {})}
+                      {...(getUpdateGuideUrl ? { getUpdateGuideUrl } : {})}
+                      t={t}
+                      isDark={isDark}
+                    />
+                  )}
+                  {updateInfo.prerelease && (
+                    <ReleaseRow
+                      info={updateInfo.prerelease}
+                      updateInfo={updateInfo}
+                      title={t('about.channels.prerelease')}
+                      {...(onOpenLink ? { onOpenLink } : {})}
+                      {...(getUpdateGuideUrl ? { getUpdateGuideUrl } : {})}
+                      t={t}
+                      isDark={isDark}
+                    />
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
+      </div>
+
+      {/* Minimal Footer: Solid and centered */}
+      <div
+        className={cn(
+          'shrink-0 flex items-center justify-between border-t px-6 py-4 sm:px-8 sm:py-5 text-[10px] font-black uppercase tracking-[0.3em]',
+          isDark
+            ? 'border-white/5 bg-slate-900/50 text-slate-600'
+            : 'border-gray-100 bg-gray-50 text-slate-400',
+        )}
+      >
+        <span className="opacity-80">FileUni Project</span>
+        <span className="opacity-50">© {new Date().getFullYear()}</span>
       </div>
     </div>
   );

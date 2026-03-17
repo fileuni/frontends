@@ -581,6 +581,7 @@
     "home": "个人中心",
     "backToHome": "返回首页",
     "admin": "系统管理",
+    "system": "系统",
     "test": "测试连接",
     "dashboard": "控制台",
     "username": "用户名/ID/邮箱/手机号",
@@ -671,6 +672,7 @@
     "cacheManager": "缓存管理",
     "domainDdns": "DDNS 动态域名",
     "domainSsl": "SSL/TLS 证书",
+    "about": "关于",
     "activeWorkspace": "当前工作区"
   },
   "blacklist": {

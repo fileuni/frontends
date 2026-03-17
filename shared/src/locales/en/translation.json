@@ -532,6 +532,7 @@
     "home": "User Center",
     "backToHome": "Back to Home",
     "admin": "System Admin",
+    "system": "System",
     "test": "Test Connection",
     "dashboard": "Dashboard",
     "username": "Username/ID/Email/Phone",
@@ -624,6 +625,7 @@
     "cacheManager": "Cache Manager",
     "domainDdns": "DDNS Dynamic DNS",
     "domainSsl": "SSL/TLS Certificates",
+    "about": "About",
     "activeWorkspace": "Active Workspace"
   },
   "blacklist": {

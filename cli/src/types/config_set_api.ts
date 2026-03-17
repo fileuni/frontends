@@ -100,6 +100,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/config-set/license/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_config_set_license_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/config-set/license/update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["update_config_set_license_key"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/config-set/notes": {
         parameters: {
             query?: never;
@@ -177,6 +209,21 @@ export interface components {
             admin_action: string;
             admin_username: string;
             password_hint?: string | null;
+        };
+        ConfigSetLicenseStatusResponse: {
+            /** Format: int32 */
+            current_users: number;
+            device_code: string;
+            /** Format: date-time */
+            expires_at?: string | null;
+            features: string[];
+            is_valid: boolean;
+            /** Format: int32 */
+            max_users: number;
+            msg: string;
+        };
+        ConfigSetLicenseUpdateRequest: {
+            license_key: string;
         };
         ConfigSetStatusResponse: {
             is_config_set_mode: boolean;
@@ -442,6 +489,77 @@ export interface operations {
         responses: {
             /** @description Config-set finishing */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    get_config_set_license_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get license status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    update_config_set_license_key: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfigSetLicenseUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description License key verified */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Invalid license key */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };

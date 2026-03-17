@@ -13,6 +13,7 @@ export interface LicenseManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   isValid: boolean;
+  statusMessage?: string;
   currentUsers: number;
   maxUsers: number;
   deviceCode: string;
@@ -28,6 +29,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
   isOpen,
   onClose,
   isValid,
+  statusMessage,
   currentUsers,
   maxUsers,
   deviceCode,
@@ -35,8 +37,10 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
   saving,
   onLicenseKeyChange,
   onApplyLicense,
+  expiresAt = null,
+  features = [],
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const resolvedTheme = useResolvedTheme();
 
   const isDark = resolvedTheme === 'dark';
@@ -48,6 +52,23 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
   });
 
   if (!isOpen) return null;
+
+  const expiresText = (() => {
+    if (!expiresAt) return t('common.none');
+    const dt = new Date(expiresAt);
+    if (Number.isNaN(dt.getTime())) return expiresAt;
+    try {
+      return new Intl.DateTimeFormat(i18n.language || undefined, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(dt);
+    } catch {
+      return dt.toLocaleString();
+    }
+  })();
 
   return (
     <div
@@ -118,6 +139,14 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                   ? t('admin.config.quickWizard.options.licenseAuthorized')
                   : t('admin.config.quickWizard.options.licenseUnauthorized')}
               </div>
+              {statusMessage && statusMessage.trim().length > 0 && (
+                <div className={cn(
+                  'mt-2 text-xs font-bold leading-relaxed',
+                  isDark ? 'text-slate-400' : 'text-slate-600'
+                )}>
+                  {statusMessage}
+                </div>
+              )}
             </div>
 
             <div className={cn(
@@ -136,6 +165,21 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             </div>
 
             <div className={cn(
+              "rounded-xl border p-4 transition-colors",
+              isDark ? "bg-white/[0.02] border-white/5" : "bg-gray-50 border-gray-100 shadow-sm"
+            )}>
+              <div className="flex items-center gap-2 mb-2">
+                <Key size={18} className="text-amber-500 shrink-0" />
+                <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  {t('admin.config.quickWizard.fields.expiresAt')}
+                </div>
+              </div>
+              <div className="text-sm font-black font-mono">
+                {expiresText}
+              </div>
+            </div>
+
+            <div className={cn(
               "rounded-xl border p-4 sm:col-span-2 transition-colors",
               isDark ? "bg-black/40 border-white/5" : "bg-zinc-100 border-gray-200 shadow-inner"
             )}>
@@ -149,6 +193,31 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                 {deviceCode || '-'}
               </div>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-xs font-black uppercase tracking-widest opacity-40 ml-1">
+              {t('admin.config.quickWizard.fields.features')}
+            </div>
+            {features.length === 0 ? (
+              <div className={cn('text-sm font-bold italic', isDark ? 'text-slate-500' : 'text-slate-600')}>
+                {t('common.none')}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {features.map((f) => (
+                  <span
+                    key={f}
+                    className={cn(
+                      'px-2.5 py-1 rounded-lg border text-xs font-black uppercase tracking-widest',
+                      isDark ? 'border-white/10 bg-white/5 text-slate-200' : 'border-slate-200 bg-white text-slate-800'
+                    )}
+                  >
+                    {f}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">

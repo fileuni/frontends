@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
 import { useAuthStore } from "@/stores/auth.ts";
@@ -48,14 +48,6 @@ export const UserHomeView = () => {
     };
     fetchMe();
   }, [currentUserData]);
-
-  const securityScore = React.useMemo(() => {
-    if (!userData) return 0;
-    let score = 0;
-    if (userData.email_verified) score += 35;
-    if (userData.phone_verified) score += 35;
-    return score;
-  }, [userData]);
 
   const createdDate = userData?.created_at
     ? new Date(userData.created_at).toLocaleDateString()
@@ -160,17 +152,13 @@ export const UserHomeView = () => {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-6 text-sm">
-              <div className="flex items-center gap-3">
+              <a
+                href="#mod=user&page=security"
+                className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity font-bold"
+              >
                 <ShieldCheck size={18} />
-                <span className="font-bold">{t("nav.security")}:</span>
-                <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-1000 ${securityScore < 70 ? "bg-orange-400" : "bg-green-400"}`}
-                    style={{ width: `${securityScore}%` }}
-                  />
-                </div>
-                <span className="font-black">{securityScore}%</span>
-              </div>
+                <span>{t("nav.security")}</span>
+              </a>
               <div className="flex items-center gap-2 opacity-60 font-bold">
                 <Calendar size={16} /> {createdDate}
               </div>
