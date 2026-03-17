@@ -173,7 +173,7 @@ const controlBase = "h-11 rounded-xl border border-zinc-400/60 dark:border-white
 const selectBase = cn(controlBase, "appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1rem] font-normal");
 const selectStyle = { backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\' /%3E%3C/svg%3E")' };
 
-const sectionCardBase = "p-8 rounded-[2.5rem] bg-zinc-50/50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 dark:shadow-2xl transition-all";
+const sectionCardBase = "p-5 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-zinc-50/50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 dark:shadow-2xl transition-all";
 
 const normalizeStatus = (value?: string | null): 'idle' | 'running' | 'success' | 'failed' => {
   const input = (value || '').toLowerCase().trim();
@@ -271,6 +271,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const { addToast } = useToastStore();
 
   const [loading, setLoading] = useState(false);
+  const [runningDdnsById, setRunningDdnsById] = useState<Record<string, boolean>>({});
+  const [runningDdnsAll, setRunningDdnsAll] = useState(false);
   const [providerProfiles, setProviderProfiles] = useState<ProviderProfileItem[]>([]);
   const [providers, setProviders] = useState<ProviderAccountItem[]>([]);
   const [ddnsEntries, setDdnsEntries] = useState<DdnsEntryItem[]>([]);
@@ -385,6 +387,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   };
 
   const runDdns = async (id: string) => {
+    if (runningDdnsAll || runningDdnsById[id]) return;
+    setRunningDdnsById((prev) => ({ ...prev, [id]: true }));
     try {
       addToast(t('common.loading'), 'info');
       await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run', { params: { path: { id } } }));
@@ -392,10 +396,18 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
+    } finally {
+      setRunningDdnsById((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
     }
   };
 
   const runDdnsAndRefreshInspect = async (id: string) => {
+    if (runningDdnsAll || runningDdnsById[id]) return;
+    setRunningDdnsById((prev) => ({ ...prev, [id]: true }));
     try {
       addToast(t('common.loading'), 'info');
       await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run', { params: { path: { id } } }));
@@ -403,10 +415,18 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       await Promise.all([loadAll(), openInspect(id)]);
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
+    } finally {
+      setRunningDdnsById((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
     }
   };
 
   const runDdnsAll = async () => {
+    if (runningDdnsAll) return;
+    setRunningDdnsAll(true);
     try {
       addToast(t('common.loading'), 'info');
       await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/run-all'));
@@ -414,6 +434,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
+    } finally {
+      setRunningDdnsAll(false);
     }
   };
 
@@ -789,10 +811,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             <RefreshCw size={18} className={cn("opacity-70", loading && "animate-spin")} />
           </Button>
           {isDdns && viewEnabled && (
-            <Button size="sm" variant="outline" onClick={runDdnsAll} disabled={loading} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.ddnsRunNow') || 'Run now'}>
-              <Play size={16} className="mr-2 opacity-70 text-blue-600 dark:text-blue-400" />
-              <span className="hidden sm:inline">{t('admin.domain.ddnsRunNow') || 'Run now'}</span>
-            </Button>
+          <Button size="sm" variant="outline" onClick={runDdnsAll} disabled={loading || runningDdnsAll} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.ddnsRunNow') || 'Run now'}>
+            <Play size={16} className="mr-2 opacity-70 text-blue-600 dark:text-blue-400" />
+            <span>{t('admin.domain.ddnsRunNow') || 'Run now'}</span>
+          </Button>
           )}
           {!isDdns && viewEnabled && (
             <>
@@ -809,7 +831,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           {viewEnabled && (
             <Button className="h-12 px-6 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20" onClick={isDdns ? openCreateDdns : openCreateSsl}>
               <Plus size={18} className="mr-2 stroke-[3px]" />
-              <span className="hidden sm:inline font-bold tracking-wider">{t('admin.domain.create')}</span>
+              <span className="font-bold tracking-wider">{t('admin.domain.create')}</span>
             </Button>
           )}
         </div>
@@ -833,8 +855,97 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
          </div>
        )}
 
-      {/* Content Table */}
-      <div className="bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden dark:shadow-2xl backdrop-blur-sm transition-all shadow-sm">
+      {/* Mobile Cards */}
+      <div className="lg:hidden space-y-3">
+        {loading && (!ddnsEntries.length && !certificates.length) ? (
+          <div className="px-5 py-10 text-center text-foreground/40 font-bold uppercase tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
+            <RefreshCw className="animate-spin mb-3 mx-auto" size={26} />
+            {t('common.loading')}
+          </div>
+        ) : (isDdns ? ddnsEntries : certificates).length === 0 ? (
+          <div className="px-5 py-12 text-center text-foreground/30 font-bold uppercase tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
+            {isDdns ? <Globe className="mx-auto mb-3" size={40} /> : <ShieldCheck className="mx-auto mb-3" size={40} />}
+            {isDdns ? t('admin.domain.noDdnsEntries') : t('admin.domain.noCertificates')}
+          </div>
+        ) : (
+          (isDdns ? ddnsEntries : certificates).map((item: DdnsEntryItem | CertificateItem) => {
+            const isDdnsItem = isDdnsEntryItem(item);
+            return (
+              <div key={item.id} className="p-4 rounded-3xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-black text-base truncate">{item.name}</div>
+                    {isDdnsItem && <div className="mt-1 text-[14px] font-mono opacity-70 truncate">{item.fqdn}</div>}
+                    {!isDdnsItem && item.expires_at && (
+                      <div className="mt-1 text-[14px] font-bold opacity-60">{new Date(item.expires_at).toLocaleDateString()}</div>
+                    )}
+                  </div>
+                  <div className="shrink-0">
+                    <StatusBadge status={item.last_status} />
+                  </div>
+                </div>
+
+                {isDdnsItem && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 uppercase font-black">
+                      TTL {item.ttl}
+                    </Badge>
+                    {item.proxied && (
+                      <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 uppercase font-black">
+                        {t('admin.domain.proxyBadge')}
+                      </Badge>
+                    )}
+                    {(item.last_ipv4 || item.last_ipv6) && (
+                      <div className="text-[14px] font-mono opacity-60">
+                        {item.last_ipv4 ? `v4 ${item.last_ipv4}` : ''}{item.last_ipv4 && item.last_ipv6 ? '  ' : ''}{item.last_ipv6 ? `v6 ${item.last_ipv6}` : ''}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="mt-4 flex items-center justify-end gap-2">
+                  {isDdnsItem ? (
+                    <>
+                      {viewEnabled && (
+                        <button
+                          onClick={() => runDdns(item.id)}
+                          disabled={runningDdnsAll || !!runningDdnsById[item.id]}
+                          className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                          title={t('admin.domain.ddnsRunNow') || 'Run now'}
+                        >
+                          <Play size={16} className={cn(!!runningDdnsById[item.id] && 'animate-pulse')} />
+                        </button>
+                      )}
+                      <button onClick={() => openInspect(item.id)} className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm" title={t('admin.domain.ddnsInspect') || 'Inspect'}>
+                        <Activity size={16} />
+                      </button>
+                    </>
+                  ) : (
+                    viewEnabled ? (
+                      <button onClick={() => runSsl(item.id)} className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white transition-all shadow-sm" title={t('admin.domain.certRunNow') || 'Run now'}>
+                        <Play size={16} />
+                      </button>
+                    ) : null
+                  )}
+                  {viewEnabled && (
+                    <button onClick={() => isDdnsItem ? openEditDdns(item) : openEditSsl(item)} className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-primary hover:text-white transition-all shadow-sm" title={t('common.edit') || 'Edit'}>
+                      <Edit3 size={16} />
+                    </button>
+                  )}
+                  {viewEnabled && (
+                    <button onClick={() => isDdnsItem ? deleteDdns(item.id) : deleteSsl(item.id)} className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-red-500 hover:text-white transition-all shadow-sm" title={t('common.delete') || 'Delete'}>
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden lg:block bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden dark:shadow-2xl backdrop-blur-sm transition-all shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -900,11 +1011,18 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                       <StatusBadge status={item.last_status} />
                     </td>
                     <td className="px-8 py-6 text-right">
-                      <div className="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                      <div className="flex justify-end gap-2 opacity-100 [@media(hover:hover)]:opacity-60 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity">
                         {isDdnsEntryItem(item) ? (
                           <>
                             {viewEnabled && (
-                              <button onClick={() => runDdns(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white transition-all shadow-sm" title={t('admin.domain.ddnsRunNow') || 'Run now'}><Play size={16} /></button>
+                              <button
+                                onClick={() => runDdns(item.id)}
+                                disabled={runningDdnsAll || !!runningDdnsById[item.id]}
+                                className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                                title={t('admin.domain.ddnsRunNow') || 'Run now'}
+                              >
+                                <Play size={16} className={cn(!!runningDdnsById[item.id] && 'animate-pulse')} />
+                              </button>
                             )}
                             <button onClick={() => openInspect(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm" title={t('admin.domain.ddnsInspect') || 'Inspect'}><Activity size={16} /></button>
                           </>
@@ -949,29 +1067,45 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
                     <div className="text-[14px] font-black uppercase tracking-widest opacity-60">Detected IP</div>
                     <div className="mt-2 font-mono text-sm">
-                      <div>v4: {inspectData.detected_ipv4 || '-'}</div>
-                      {inspectData.detect_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.detect_error_v4}</div>}
-                      <div className="mt-2">v6: {inspectData.detected_ipv6 || '-'}</div>
-                      {inspectData.detect_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.detect_error_v6}</div>}
+                      {inspectData.ipv4_enabled && (
+                        <>
+                          <div>v4: {inspectData.detected_ipv4 || '-'}</div>
+                          {inspectData.detect_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.detect_error_v4}</div>}
+                        </>
+                      )}
+                      {inspectData.ipv6_enabled && (
+                        <>
+                          <div className={inspectData.ipv4_enabled ? 'mt-2' : ''}>v6: {inspectData.detected_ipv6 || '-'}</div>
+                          {inspectData.detect_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.detect_error_v6}</div>}
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
                     <div className="text-[14px] font-black uppercase tracking-widest opacity-60">DNS Resolved</div>
                     <div className="mt-2 font-mono text-sm">
-                      <div>v4: {(inspectData.dns_ipv4 && inspectData.dns_ipv4.length > 0) ? inspectData.dns_ipv4.join(', ') : '-'}</div>
-                    {inspectData.dns_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v4}</div>}
-                    {inspectData.dns_error_v4 && (
-                      <div className="mt-2 text-[14px] opacity-60">
-                        {t('admin.domain.dnsDiagHint') || 'DNS diagnostics uses DoH servers configured in domain_acme_ddns.dns_servers. If unreachable, add multiple DoH endpoints or check proxy/network.'}
-                      </div>
-                    )}
-                    <div className="mt-2">v6: {(inspectData.dns_ipv6 && inspectData.dns_ipv6.length > 0) ? inspectData.dns_ipv6.join(', ') : '-'}</div>
-                    {inspectData.dns_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v6}</div>}
-                    {inspectData.dns_error_v6 && (
-                      <div className="mt-2 text-[14px] opacity-60">
-                        {t('admin.domain.dnsDiagHint') || 'DNS diagnostics uses DoH servers configured in domain_acme_ddns.dns_servers. If unreachable, add multiple DoH endpoints or check proxy/network.'}
-                      </div>
-                    )}
+                      {inspectData.ipv4_enabled && (
+                        <>
+                          <div>v4: {(inspectData.dns_ipv4 && inspectData.dns_ipv4.length > 0) ? inspectData.dns_ipv4.join(', ') : '-'}</div>
+                          {inspectData.dns_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v4}</div>}
+                          {inspectData.dns_error_v4 && (
+                            <div className="mt-2 text-[14px] opacity-60">
+                              {t('admin.domain.dnsDiagHint') || 'DNS diagnostics uses DoH servers configured in domain_acme_ddns.dns_servers. If unreachable, add multiple DoH endpoints or check proxy/network.'}
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {inspectData.ipv6_enabled && (
+                        <>
+                          <div className={inspectData.ipv4_enabled ? 'mt-2' : ''}>v6: {(inspectData.dns_ipv6 && inspectData.dns_ipv6.length > 0) ? inspectData.dns_ipv6.join(', ') : '-'}</div>
+                          {inspectData.dns_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v6}</div>}
+                          {inspectData.dns_error_v6 && (
+                            <div className="mt-2 text-[14px] opacity-60">
+                              {t('admin.domain.dnsDiagHint') || 'DNS diagnostics uses DoH servers configured in domain_acme_ddns.dns_servers. If unreachable, add multiple DoH endpoints or check proxy/network.'}
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                     {inspectData.dns_used_server && (
                       <div className="mt-3 text-[14px] opacity-50">DoH: <span className="font-mono">{inspectData.dns_used_server}</span></div>
@@ -987,7 +1121,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   </div>
                   {inspectData.last_error && <div className="mt-2 text-red-600 dark:text-red-400 text-[14px]">{inspectData.last_error}</div>}
                   <div className="mt-3 text-[14px] opacity-60 font-mono">
-                    need_update: {(inspectData.need_update_v4 || inspectData.need_update_v6) ? 'yes' : 'no'}
+                    need_update:
+                    {(inspectData.ipv4_enabled && inspectData.need_update_v4) || (inspectData.ipv6_enabled && inspectData.need_update_v6)
+                      ? 'yes'
+                      : 'no'}
                   </div>
                 </div>
               </div>
@@ -996,7 +1133,11 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
           <div className="flex justify-end pt-2 gap-3">
             {viewEnabled && inspectData?.id && (
-              <Button onClick={() => runDdnsAndRefreshInspect(inspectData.id)} className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-sm">
+              <Button
+                onClick={() => runDdnsAndRefreshInspect(inspectData.id)}
+                disabled={runningDdnsAll || !!runningDdnsById[inspectData.id]}
+                className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-sm"
+              >
                 <Play size={18} className="mr-2" />
                 {t('admin.domain.ddnsRunNow') || 'Run now'}
               </Button>
