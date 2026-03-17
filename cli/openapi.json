@@ -317,6 +317,30 @@
         ]
       }
     },
+    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/logs": {
+      "get": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "list_ddns_entry_logs",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
     "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run": {
       "post": {
         "tags": [

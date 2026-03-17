@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Switch } from '@/components/ui/Switch';
 import { Badge } from '@/components/ui/Badge';
+import { Pagination } from '@/components/common/Pagination.tsx';
 import { client, extractData, handleApiError } from '@/lib/api';
 import { useToastStore } from '@fileuni/shared';
 import { ProviderForm } from './domain/ProviderForm';
@@ -13,7 +14,7 @@ import { CertificateForm } from './domain/CertificateForm';
 import { KeyValueForm, parseJsonObjectToStringMap } from './domain/KeyValueForm';
 import { 
   Globe, ShieldCheck, Plus, RefreshCw, 
-  Trash2, Edit3, Play, Activity, 
+  Trash2, Edit3, Play, Activity, ScrollText,
   Server, Calendar, Link as LinkIcon, CheckCircle, XCircle, 
   Info, Network, Key
 } from 'lucide-react';
@@ -66,27 +67,15 @@ interface DdnsEntryItem {
   last_ipv6?: string | null;
 }
 
-interface DdnsInspectItem {
+interface DdnsRunLogItem {
   id: string;
-  fqdn: string;
-  ipv4_enabled: boolean;
-  ipv6_enabled: boolean;
-  detected_ipv4?: string | null;
-  detect_error_v4?: string | null;
-  detected_ipv6?: string | null;
-  detect_error_v6?: string | null;
-  last_ipv4?: string | null;
-  last_ipv6?: string | null;
-  dns_ipv4: string[];
-  dns_error_v4?: string | null;
-  dns_ipv6: string[];
-  dns_error_v6?: string | null;
-  dns_used_server?: string | null;
-  need_update_v4: boolean;
-  need_update_v6: boolean;
-  last_status?: string | null;
-  last_error?: string | null;
-  last_run_at?: string | null;
+  ddns_entry_id: string;
+  run_at: string;
+  status: string;
+  provider_key: string;
+  message: string;
+  ipv4?: string | null;
+  ipv6?: string | null;
 }
 
 interface CertificateItem {
@@ -276,12 +265,21 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [providerProfiles, setProviderProfiles] = useState<ProviderProfileItem[]>([]);
   const [providers, setProviders] = useState<ProviderAccountItem[]>([]);
   const [ddnsEntries, setDdnsEntries] = useState<DdnsEntryItem[]>([]);
+  const [ddnsTotal, setDdnsTotal] = useState(0);
+  const [ddnsPage, setDdnsPage] = useState(1);
+  const [ddnsPageSize, setDdnsPageSize] = useState(20);
   const [certificates, setCertificates] = useState<CertificateItem[]>([]);
   const [zerosslAccounts, setZeroSslAccounts] = useState<ZeroSslAccountItem[]>([]);
 
-  const [inspectOpen, setInspectOpen] = useState(false);
-  const [inspectLoading, setInspectLoading] = useState(false);
-  const [inspectData, setInspectData] = useState<DdnsInspectItem | null>(null);
+  const [logOpen, setLogOpen] = useState(false);
+  const [logEntry, setLogEntry] = useState<DdnsEntryItem | null>(null);
+  const [logLoading, setLogLoading] = useState(false);
+  const [logItems, setLogItems] = useState<DdnsRunLogItem[]>([]);
+  const [logTotal, setLogTotal] = useState(0);
+  const [logPage, setLogPage] = useState(1);
+  const [logPageSize, setLogPageSize] = useState(20);
+
+  const [bulkCreateOpen, setBulkCreateOpen] = useState(false);
 
   const [featureFlags, setFeatureFlags] = useState<{
     moduleEnabled: boolean;
@@ -342,17 +340,34 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const loadAll = async () => {
     setLoading(true);
     try {
-      const [profileData, providerData, ddnsData, certData, zerosslData, configData] = await Promise.all([
+      const [profileData, providerData, ddnsDataRaw, certData, zerosslData, configData] = await Promise.all([
         extractData<ProviderProfileItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/providers/profiles')),
         extractData<ProviderAccountItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/providers/accounts')),
-        extractData<DdnsEntryItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries')),
+        extractData<unknown>(client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries', {
+          params: {
+            query: {
+              page: ddnsPage,
+              page_size: ddnsPageSize,
+            },
+          },
+        })),
         extractData<CertificateItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/certs')),
         fetchZeroSslAccounts(),
         extractData<Record<string, unknown>>(client.GET('/api/v1/admin/system/config')),
       ]);
       setProviderProfiles(Array.isArray(profileData) ? profileData : []);
       setProviders(Array.isArray(providerData) ? providerData : []);
-      setDdnsEntries(Array.isArray(ddnsData) ? ddnsData : []);
+      const ddnsData = ddnsDataRaw as any;
+      if (Array.isArray(ddnsData)) {
+        setDdnsEntries(ddnsData as DdnsEntryItem[]);
+        setDdnsTotal(ddnsData.length);
+      } else if (ddnsData && Array.isArray(ddnsData.items)) {
+        setDdnsEntries(ddnsData.items as DdnsEntryItem[]);
+        setDdnsTotal(typeof ddnsData.total === 'number' ? ddnsData.total : ddnsData.items.length);
+      } else {
+        setDdnsEntries([]);
+        setDdnsTotal(0);
+      }
       setCertificates(Array.isArray(certData) ? certData : []);
       setZeroSslAccounts(Array.isArray(zerosslData) ? zerosslData : []);
 
@@ -405,25 +420,6 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     }
   };
 
-  const runDdnsAndRefreshInspect = async (id: string) => {
-    if (runningDdnsAll || runningDdnsById[id]) return;
-    setRunningDdnsById((prev) => ({ ...prev, [id]: true }));
-    try {
-      addToast(t('common.loading'), 'info');
-      await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run', { params: { path: { id } } }));
-      addToast(t('admin.domain.ddnsRunCompleted'), 'success');
-      await Promise.all([loadAll(), openInspect(id)]);
-    } catch (error) {
-      addToast(handleApiError(error, t), 'error');
-    } finally {
-      setRunningDdnsById((prev) => {
-        const next = { ...prev };
-        delete next[id];
-        return next;
-      });
-    }
-  };
-
   const runDdnsAll = async () => {
     if (runningDdnsAll) return;
     setRunningDdnsAll(true);
@@ -439,26 +435,54 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     }
   };
 
-  const openInspect = async (id: string) => {
-    setInspectOpen(true);
-    setInspectLoading(true);
-    setInspectData(null);
-    try {
-      const data = await extractData<DdnsInspectItem>(client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/inspect', { params: { path: { id } } }));
-      setInspectData(data);
-    } catch (error) {
-      addToast(handleApiError(error, t), 'error');
-    } finally {
-      setInspectLoading(false);
-    }
+  const openLogs = (entry: DdnsEntryItem) => {
+    setLogEntry(entry);
+    setLogPage(1);
+    setLogOpen(true);
   };
 
   React.useEffect(() => {
+    if (!logOpen || !logEntry) return;
+    let cancelled = false;
+    (async () => {
+      setLogLoading(true);
+      try {
+        const data = await extractData<any>(
+          client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/logs', {
+            params: {
+              path: { id: logEntry.id },
+              query: {
+                page: logPage,
+                page_size: logPageSize,
+              },
+            },
+          }),
+        );
+        if (cancelled) return;
+        setLogItems(Array.isArray(data?.items) ? (data.items as DdnsRunLogItem[]) : []);
+        setLogTotal(typeof data?.total === 'number' ? data.total : 0);
+      } catch (error) {
+        if (!cancelled) addToast(handleApiError(error, t), 'error');
+      } finally {
+        if (!cancelled) setLogLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [logOpen, logEntry?.id, logPage, logPageSize]);
+
+  React.useEffect(() => {
     loadAll();
-  }, []);
+  }, [ddnsPage, ddnsPageSize, view]);
 
   const openCreateDdns = () => {
+    if (ddnsTotal >= 100) {
+      addToast(t('admin.domain.ddnsLimitReached') || 'DDNS entries limit reached (max=100)', 'error');
+      return;
+    }
     setDdnsDraft(newDdnsDraft());
+    setBulkCreateOpen(false);
     setDdnsModalOpen(true);
   };
 
@@ -480,6 +504,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       webhook_json: item.webhook_json || '{}',
       force_update: item.force_update || false,
     });
+    setBulkCreateOpen(false);
     setDdnsModalOpen(true);
   };
 
@@ -526,6 +551,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         await extractData(client.PUT('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}', { params: { path: { id: ddnsDraft.id } }, body: payload }));
         addToast(t('admin.domain.ddnsUpdated'), 'success');
       } else {
+        const createdIds: string[] = [];
         const hostLines = ddnsDraft.fqdns
           .split('\n')
           .map((l) => l.trim())
@@ -564,9 +590,21 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             webhook_json: ddnsDraft.webhook_json,
             force_update: ddnsDraft.force_update,
           };
-          await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries', { body: payload }));
+          const created = await extractData<DdnsEntryItem>(
+            client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries', { body: payload }),
+          );
+          createdIds.push(created.id);
         }
         addToast(t('admin.domain.ddnsCreated'), 'success');
+        setDdnsModalOpen(false);
+        await loadAll();
+        if (createdIds.length > 0 && window.confirm(t('admin.domain.ddnsSavedRunNowConfirm') || 'Saved successfully. Run once now?')) {
+          for (const id of createdIds) {
+            // run sequentially to avoid provider burst
+            await runDdns(id);
+          }
+        }
+        return;
       }
       setDdnsModalOpen(false);
       await loadAll();
@@ -775,6 +813,12 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     return account?.provider_key;
   }, [providers, ddnsDraft.provider_account_id]);
 
+  React.useEffect(() => {
+    if (selectedDdnsProviderKey !== 'cloudflare' && ddnsDraft.proxied) {
+      setDdnsDraft((prev) => ({ ...prev, proxied: false }));
+    }
+  }, [selectedDdnsProviderKey, ddnsDraft.proxied]);
+
   return (
     <div className="space-y-8 pb-20">
       {/* Page Header */}
@@ -916,8 +960,12 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                           <Play size={16} className={cn(!!runningDdnsById[item.id] && 'animate-pulse')} />
                         </button>
                       )}
-                      <button onClick={() => openInspect(item.id)} className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm" title={t('admin.domain.ddnsInspect') || 'Inspect'}>
-                        <Activity size={16} />
+                      <button
+                        onClick={() => openLogs(item)}
+                        className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                        title={t('admin.domain.ddnsLogs') || 'Logs'}
+                      >
+                        <ScrollText size={16} />
                       </button>
                     </>
                   ) : (
@@ -1024,7 +1072,13 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                                 <Play size={16} className={cn(!!runningDdnsById[item.id] && 'animate-pulse')} />
                               </button>
                             )}
-                            <button onClick={() => openInspect(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm" title={t('admin.domain.ddnsInspect') || 'Inspect'}><Activity size={16} /></button>
+                            <button
+                              onClick={() => openLogs(item)}
+                              className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                              title={t('admin.domain.ddnsLogs') || 'Logs'}
+                            >
+                              <ScrollText size={16} />
+                            </button>
                           </>
                         ) : (
                           viewEnabled ? (
@@ -1047,103 +1101,108 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         </div>
       </div>
 
-      {/* DDNS Inspect Modal */}
-      <Modal isOpen={inspectOpen} onClose={() => setInspectOpen(false)} title={t('admin.domain.ddnsInspect') || 'DDNS Inspect'} maxWidth="max-w-2xl">
+      {isDdns && (
+        <Pagination
+          current={ddnsPage}
+          total={ddnsTotal}
+          pageSize={ddnsPageSize}
+          onPageChange={setDdnsPage}
+          onPageSizeChange={(size) => {
+            setDdnsPageSize(size);
+            setDdnsPage(1);
+          }}
+          className="bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-3xl"
+        />
+      )}
+
+      {/* DDNS Logs Modal */}
+      <Modal
+        isOpen={logOpen}
+        onClose={() => {
+          setLogOpen(false);
+          setLogEntry(null);
+          setLogItems([]);
+          setLogTotal(0);
+        }}
+        title={t('admin.domain.ddnsLogs') || 'DDNS Logs'}
+        maxWidth="max-w-4xl"
+      >
         <div className="space-y-6 p-1 text-foreground">
-          {inspectLoading ? (
-            <div className="py-16 text-center opacity-50 font-bold uppercase tracking-widest">
-              <RefreshCw className="animate-spin mb-4 mx-auto" size={28} />
-              {t('common.loading')}
-            </div>
-          ) : !inspectData ? (
+          {!logEntry ? (
             <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
               {t('common.noData') || 'No data'}
             </div>
           ) : (
             <div className={sectionCardBase}>
-              <div className="space-y-4">
-                <div className="text-sm font-black uppercase tracking-widest opacity-70">{inspectData.fqdn}</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
-                    <div className="text-[14px] font-black uppercase tracking-widest opacity-60">Detected IP</div>
-                    <div className="mt-2 font-mono text-sm">
-                      {inspectData.ipv4_enabled && (
-                        <>
-                          <div>v4: {inspectData.detected_ipv4 || '-'}</div>
-                          {inspectData.detect_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.detect_error_v4}</div>}
-                        </>
-                      )}
-                      {inspectData.ipv6_enabled && (
-                        <>
-                          <div className={inspectData.ipv4_enabled ? 'mt-2' : ''}>v6: {inspectData.detected_ipv6 || '-'}</div>
-                          {inspectData.detect_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.detect_error_v6}</div>}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
-                    <div className="text-[14px] font-black uppercase tracking-widest opacity-60">DNS Resolved</div>
-                    <div className="mt-2 font-mono text-sm">
-                      {inspectData.ipv4_enabled && (
-                        <>
-                          <div>v4: {(inspectData.dns_ipv4 && inspectData.dns_ipv4.length > 0) ? inspectData.dns_ipv4.join(', ') : '-'}</div>
-                          {inspectData.dns_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v4}</div>}
-                          {inspectData.dns_error_v4 && (
-                            <div className="mt-2 text-[14px] opacity-60">
-                              {t('admin.domain.dnsDiagHint') || 'DNS diagnostics uses DoH servers configured in domain_acme_ddns.dns_servers. If unreachable, add multiple DoH endpoints or check proxy/network.'}
-                            </div>
-                          )}
-                        </>
-                      )}
-                      {inspectData.ipv6_enabled && (
-                        <>
-                          <div className={inspectData.ipv4_enabled ? 'mt-2' : ''}>v6: {(inspectData.dns_ipv6 && inspectData.dns_ipv6.length > 0) ? inspectData.dns_ipv6.join(', ') : '-'}</div>
-                          {inspectData.dns_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v6}</div>}
-                          {inspectData.dns_error_v6 && (
-                            <div className="mt-2 text-[14px] opacity-60">
-                              {t('admin.domain.dnsDiagHint') || 'DNS diagnostics uses DoH servers configured in domain_acme_ddns.dns_servers. If unreachable, add multiple DoH endpoints or check proxy/network.'}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                    {inspectData.dns_used_server && (
-                      <div className="mt-3 text-[14px] opacity-50">DoH: <span className="font-mono">{inspectData.dns_used_server}</span></div>
-                    )}
-                  </div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-sm font-black uppercase tracking-widest opacity-70 truncate">{logEntry.name}</div>
+                  <div className="mt-1 text-[14px] font-mono opacity-60 truncate">{logEntry.fqdn}</div>
                 </div>
-
-                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5">
-                  <div className="text-[14px] font-black uppercase tracking-widest opacity-60">Last Run</div>
-                  <div className="mt-2 text-sm font-bold opacity-70">
-                    {inspectData.last_run_at ? new Date(inspectData.last_run_at).toLocaleString() : (t('admin.domain.statusIdle') || 'Idle')}
-                    {inspectData.last_status ? ` · ${inspectData.last_status}` : ''}
-                  </div>
-                  {inspectData.last_error && <div className="mt-2 text-red-600 dark:text-red-400 text-[14px]">{inspectData.last_error}</div>}
-                  <div className="mt-3 text-[14px] opacity-60 font-mono">
-                    need_update:
-                    {(inspectData.ipv4_enabled && inspectData.need_update_v4) || (inspectData.ipv6_enabled && inspectData.need_update_v6)
-                      ? 'yes'
-                      : 'no'}
-                  </div>
+                <div className="shrink-0 text-[14px] font-black uppercase tracking-widest opacity-50">
+                  {logTotal}
                 </div>
               </div>
+
+              <div className="mt-5 overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-200 dark:border-white/5">
+                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('common.time') || 'Time'}</th>
+                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('admin.acme.table.status') || 'Status'}</th>
+                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">IP</th>
+                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('common.message') || 'Message'}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {logLoading ? (
+                      <tr>
+                        <td colSpan={4} className="py-10 text-center opacity-50 font-bold uppercase tracking-widest">
+                          <RefreshCw className="animate-spin mb-3 mx-auto" size={22} />
+                          {t('common.loading')}
+                        </td>
+                      </tr>
+                    ) : logItems.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="py-10 text-center opacity-40 font-bold uppercase tracking-widest">
+                          {t('common.noData') || 'No data'}
+                        </td>
+                      </tr>
+                    ) : (
+                      logItems.map((row) => (
+                        <tr key={row.id} className="border-b border-zinc-100 dark:border-white/5 last:border-0">
+                          <td className="py-3 text-[14px] font-bold opacity-70 whitespace-nowrap">
+                            {new Date(row.run_at).toLocaleString()}
+                          </td>
+                          <td className="py-3">
+                            <StatusBadge status={row.status} />
+                          </td>
+                          <td className="py-3 text-[14px] font-mono opacity-70 whitespace-nowrap">
+                            {row.ipv4 ? `v4 ${row.ipv4}` : '-'}{row.ipv6 ? `  v6 ${row.ipv6}` : ''}
+                          </td>
+                          <td className="py-3 text-[14px] font-bold opacity-70">
+                            <div className="truncate" title={row.message}>{row.message}</div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                current={logPage}
+                total={logTotal}
+                pageSize={logPageSize}
+                onPageChange={setLogPage}
+                onPageSizeChange={(size) => {
+                  setLogPageSize(size);
+                  setLogPage(1);
+                }}
+                className="bg-transparent"
+              />
             </div>
           )}
-
-          <div className="flex justify-end pt-2 gap-3">
-            {viewEnabled && inspectData?.id && (
-              <Button
-                onClick={() => runDdnsAndRefreshInspect(inspectData.id)}
-                disabled={runningDdnsAll || !!runningDdnsById[inspectData.id]}
-                className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-sm"
-              >
-                <Play size={18} className="mr-2" />
-                {t('admin.domain.ddnsRunNow') || 'Run now'}
-              </Button>
-            )}
-            <Button variant="outline" onClick={() => setInspectOpen(false)} className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-sm">{t('common.close')}</Button>
-          </div>
         </div>
       </Modal>
 
@@ -1169,9 +1228,9 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                  </div>
                </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 <div className="space-y-2">
-                   <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 <div className="space-y-2 min-w-0">
+                   <label className="text-[14px] font-black uppercase tracking-wider md:tracking-widest text-foreground/50 dark:text-foreground/40 ml-1 whitespace-nowrap overflow-hidden text-ellipsis">
                      {t('admin.domain.zoneLabel') || 'Zone'}
                    </label>
                    <Input
@@ -1181,8 +1240,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                      className={controlBase}
                    />
                  </div>
-                 <div className="space-y-2">
-                   <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                 <div className="space-y-2 min-w-0">
+                   <label className="text-[14px] font-black uppercase tracking-wider md:tracking-widest text-foreground/50 dark:text-foreground/40 ml-1 whitespace-nowrap overflow-hidden text-ellipsis">
                      {t('admin.domain.hostLabel') || 'Host'}
                    </label>
                    <Input
@@ -1192,8 +1251,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                      className={controlBase}
                    />
                  </div>
-                 <div className="space-y-2">
-                   <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                 <div className="space-y-2 min-w-0">
+                   <label className="text-[14px] font-black uppercase tracking-wider md:tracking-widest text-foreground/50 dark:text-foreground/40 ml-1 whitespace-nowrap overflow-hidden text-ellipsis">
                      {t('admin.domain.ttlLabel') || 'TTL'}
                    </label>
                    <Input
@@ -1224,21 +1283,29 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
           {!ddnsDraft.id && (
             <div className={sectionCardBase}>
-              <div className="space-y-8">
-                <SectionHeader icon={Network} title={t('admin.domain.bulkCreateTitle') || 'Bulk Create'} desc={t('admin.domain.bulkCreateDesc') || 'Optional: create multiple hosts under the same zone'} colorClass="bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 border-indigo-500/20" />
-                <div className="space-y-2">
-                  <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
-                    {t('admin.domain.hostsListLabel') || 'Hosts list'}
-                  </label>
-                  <textarea
-                    placeholder={t('admin.domain.hostsListPlaceholder') || '@\nwww\napi,120'}
-                    value={ddnsDraft.fqdns}
-                    onChange={(e) => setDdnsDraft({ ...ddnsDraft, fqdns: e.target.value })}
-                    className="w-full min-h-[120px] rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm text-foreground placeholder:opacity-30"
-                    spellCheck={false}
-                  />
-                  <p className="text-[14px] opacity-50 italic">{t('admin.domain.hostsListHint') || 'One host per line. Optional per-line TTL: host,ttl. Zone is taken from the Zone field.'}</p>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between gap-4">
+                  <SectionHeader icon={Network} title={t('admin.domain.bulkCreateTitle') || 'Bulk Create'} desc={t('admin.domain.bulkCreateDesc') || 'Optional: create multiple hosts under the same zone'} colorClass="bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 border-indigo-500/20" />
+                  <Button type="button" variant="outline" onClick={() => setBulkCreateOpen((v) => !v)} className="h-11 px-4 rounded-xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 shadow-sm font-bold">
+                    {bulkCreateOpen ? (t('admin.domain.hideBulkCreate') || 'Hide') : (t('admin.domain.showBulkCreate') || 'Show')}
+                  </Button>
                 </div>
+
+                {bulkCreateOpen && (
+                  <div className="space-y-2">
+                    <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                      {t('admin.domain.hostsListLabel') || 'Hosts list'}
+                    </label>
+                    <textarea
+                      placeholder={t('admin.domain.hostsListPlaceholder') || '@\nwww\napi,120'}
+                      value={ddnsDraft.fqdns}
+                      onChange={(e) => setDdnsDraft({ ...ddnsDraft, fqdns: e.target.value })}
+                      className="w-full min-h-[120px] rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm text-foreground placeholder:opacity-30"
+                      spellCheck={false}
+                    />
+                    <p className="text-[14px] opacity-50 italic">{t('admin.domain.hostsListHint') || 'One host per line. Optional per-line TTL: host,ttl. Zone is taken from the Zone field.'}</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
