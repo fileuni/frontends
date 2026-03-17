@@ -70,6 +70,8 @@ export const ConfigSetEditor: React.FC = () => {
     is_valid: boolean;
     msg: string;
     device_code: string;
+    hw_id: string;
+    aux_id: string;
     current_users: number;
     max_users: number;
     expires_at?: string | null;
@@ -443,6 +445,8 @@ export const ConfigSetEditor: React.FC = () => {
             currentUsers: licenseStatus?.current_users ?? 0,
             maxUsers: licenseStatus?.max_users ?? 0,
             deviceCode: licenseStatus?.device_code ?? '',
+            hwId: licenseStatus?.hw_id,
+            auxId: licenseStatus?.aux_id,
             expiresAt: licenseStatus?.expires_at ?? null,
             features: licenseStatus?.features ?? [],
             licenseKey,

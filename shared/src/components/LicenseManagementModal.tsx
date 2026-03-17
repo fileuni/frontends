@@ -17,6 +17,8 @@ export interface LicenseManagementModalProps {
   currentUsers: number;
   maxUsers: number;
   deviceCode: string;
+  hwId?: string;
+  auxId?: string;
   licenseKey: string;
   saving: boolean;
   onLicenseKeyChange: (value: string) => void;
@@ -33,6 +35,8 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
   currentUsers,
   maxUsers,
   deviceCode,
+  hwId,
+  auxId,
   licenseKey,
   saving,
   onLicenseKeyChange,
@@ -52,6 +56,17 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
   });
 
   if (!isOpen) return null;
+
+  const featureKey = (raw: string) => raw.replace(/[^A-Za-z0-9_-]/g, '_');
+  const featureItems = features
+    .map((code) => {
+      const safe = featureKey(code);
+      const base = `admin.config.license.featureCatalog.${safe}`;
+      const title = t(`${base}.title`, { defaultValue: code });
+      const desc = t(`${base}.desc`, { defaultValue: '' });
+      return { code, title, desc };
+    })
+    .sort((a, b) => a.title.localeCompare(b.title));
 
   const expiresText = (() => {
     if (!expiresAt) return t('common.none');
@@ -192,6 +207,32 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               <div className="text-xs font-mono break-all select-all font-bold opacity-80">
                 {deviceCode || '-'}
               </div>
+              {(hwId || auxId) && (
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className={cn(
+                    'rounded-lg border px-3 py-2',
+                    isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white'
+                  )}>
+                    <div className={cn('text-[10px] font-black uppercase tracking-widest', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                      {t('admin.config.license.technical.hwId')}
+                    </div>
+                    <div className={cn('text-xs font-mono break-all select-all font-bold mt-1', isDark ? 'text-slate-200/80' : 'text-slate-800')}>
+                      {hwId || '-'}
+                    </div>
+                  </div>
+                  <div className={cn(
+                    'rounded-lg border px-3 py-2',
+                    isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white'
+                  )}>
+                    <div className={cn('text-[10px] font-black uppercase tracking-widest', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                      {t('admin.config.license.technical.auxId')}
+                    </div>
+                    <div className={cn('text-xs font-mono break-all select-all font-bold mt-1', isDark ? 'text-slate-200/80' : 'text-slate-800')}>
+                      {auxId || '-'}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -199,22 +240,32 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             <div className="text-xs font-black uppercase tracking-widest opacity-40 ml-1">
               {t('admin.config.quickWizard.fields.features')}
             </div>
-            {features.length === 0 ? (
+            {featureItems.length === 0 ? (
               <div className={cn('text-sm font-bold italic', isDark ? 'text-slate-500' : 'text-slate-600')}>
                 {t('common.none')}
               </div>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                {features.map((f) => (
-                  <span
-                    key={f}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {featureItems.map((f) => (
+                  <div
+                    key={f.code}
                     className={cn(
-                      'px-2.5 py-1 rounded-lg border text-xs font-black uppercase tracking-widest',
-                      isDark ? 'border-white/10 bg-white/5 text-slate-200' : 'border-slate-200 bg-white text-slate-800'
+                      'rounded-xl border p-3',
+                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
                     )}
                   >
-                    {f}
-                  </span>
+                    <div className={cn('text-xs font-black uppercase tracking-widest', isDark ? 'text-slate-200' : 'text-slate-900')}>
+                      {f.title}
+                    </div>
+                    {f.desc && f.desc.trim().length > 0 && (
+                      <div className={cn('mt-1 text-xs font-bold leading-relaxed', isDark ? 'text-slate-400' : 'text-slate-600')}>
+                        {f.desc}
+                      </div>
+                    )}
+                    <div className={cn('mt-2 text-[10px] font-mono font-bold opacity-70', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                      {f.code}
+                    </div>
+                  </div>
                 ))}
               </div>
             )}

@@ -1803,7 +1803,25 @@
       "noteEmpty": "No note available for the current key.",
       "noteHint": "Notes map to config keys and sections.",
       "license": {
-        "title": "License Management"
+        "title": "License Management",
+        "technical": {
+          "hwId": "HW ID",
+          "auxId": "AUX ID"
+        },
+        "featureCatalog": {
+          "free": {
+            "title": "Free",
+            "desc": "Core features for personal or light usage."
+          },
+          "premium": {
+            "title": "Premium",
+            "desc": "Unlock advanced features and higher limits."
+          },
+          "storage": {
+            "title": "Storage",
+            "desc": "Storage-related enhancements and policy controls."
+          }
+        }
       },
       "storage": {
         "title": "Storage Pools & Backends",

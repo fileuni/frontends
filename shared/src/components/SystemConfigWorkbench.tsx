@@ -66,6 +66,8 @@ export interface SystemConfigWorkbenchProps {
     currentUsers: number;
     maxUsers: number;
     deviceCode: string;
+    hwId?: string;
+    auxId?: string;
     expiresAt?: string | null;
     features?: string[];
     licenseKey: string;
@@ -498,6 +500,8 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           currentUsers={quickWizardLicense.currentUsers}
           maxUsers={quickWizardLicense.maxUsers}
           deviceCode={quickWizardLicense.deviceCode}
+          hwId={quickWizardLicense.hwId}
+          auxId={quickWizardLicense.auxId}
           licenseKey={quickWizardLicense.licenseKey}
           saving={quickWizardLicense.saving}
           onLicenseKeyChange={quickWizardLicense.onLicenseKeyChange}

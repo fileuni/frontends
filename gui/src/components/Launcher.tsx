@@ -56,6 +56,8 @@ interface LicenseStatusPayload {
   is_valid: boolean;
   msg: string;
   device_code: string;
+  hw_id: string;
+  aux_id: string;
   current_users: number;
   max_users: number;
   expires_at?: string | null;
@@ -961,6 +963,8 @@ export default function Launcher() {
                     currentUsers: licenseStatus?.current_users ?? 0,
                     maxUsers: licenseStatus?.max_users ?? 0,
                     deviceCode: licenseStatus?.device_code ?? '',
+                    ...(licenseStatus?.hw_id ? { hwId: licenseStatus.hw_id } : {}),
+                    ...(licenseStatus?.aux_id ? { auxId: licenseStatus.aux_id } : {}),
                     expiresAt: licenseStatus?.expires_at ?? null,
                     features: licenseStatus?.features ?? [],
                     licenseKey,
@@ -1350,21 +1354,23 @@ export default function Launcher() {
               onResetAdminPassword={handleResetAdminPassword}
               isResettingAdminPassword={resettingAdminPassword}
               {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
-              quickWizardLicense={{
-                isValid: Boolean(licenseStatus?.is_valid),
-                ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),
-                currentUsers: licenseStatus?.current_users ?? 0,
-                maxUsers: licenseStatus?.max_users ?? 0,
-                deviceCode: licenseStatus?.device_code ?? '',
-                expiresAt: licenseStatus?.expires_at ?? null,
-                features: licenseStatus?.features ?? [],
-                licenseKey,
-                saving: licenseSaving,
-                onLicenseKeyChange: setLicenseKey,
-                onApplyLicense: () => {
-                  void handleUpdateLicenseKey();
-                },
-              }}
+                  quickWizardLicense={{
+                    isValid: Boolean(licenseStatus?.is_valid),
+                    ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),
+                    currentUsers: licenseStatus?.current_users ?? 0,
+                    maxUsers: licenseStatus?.max_users ?? 0,
+                    deviceCode: licenseStatus?.device_code ?? '',
+                    ...(licenseStatus?.hw_id ? { hwId: licenseStatus.hw_id } : {}),
+                    ...(licenseStatus?.aux_id ? { auxId: licenseStatus.aux_id } : {}),
+                    expiresAt: licenseStatus?.expires_at ?? null,
+                    features: licenseStatus?.features ?? [],
+                    licenseKey,
+                    saving: licenseSaving,
+                    onLicenseKeyChange: setLicenseKey,
+                    onApplyLicense: () => {
+                      void handleUpdateLicenseKey();
+                    },
+                  }}
             />
           </ConfigWorkbenchShell>
         </div>

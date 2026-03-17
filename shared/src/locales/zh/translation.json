@@ -1822,7 +1822,25 @@
       "noteEmpty": "当前项没有可用说明。",
       "noteHint": "说明对应于配置键和各段落。",
       "license": {
-        "title": "授权管理"
+        "title": "授权管理",
+        "technical": {
+          "hwId": "HW ID",
+          "auxId": "AUX ID"
+        },
+        "featureCatalog": {
+          "free": {
+            "title": "免费版",
+            "desc": "基础功能可用，适合个人或轻量使用。"
+          },
+          "premium": {
+            "title": "高级授权",
+            "desc": "解锁高级功能与更高配额。"
+          },
+          "storage": {
+            "title": "存储能力",
+            "desc": "启用存储相关的增强功能与限制策略。"
+          }
+        }
       },
       "storage": {
         "title": "存储池与后端",
