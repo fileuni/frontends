@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Shield, Eye, EyeOff, RefreshCw, AlertTriangle, Check, X } from 'lucide-react';
 import { useResolvedTheme } from '../lib/theme';
 import { cn } from '../lib/utils';
+import { useEscapeToCloseTopLayer } from '../lib/escapeCloseLayer';
 
 
 export type AdminPasswordMode = 'modal' | 'panel';
@@ -82,16 +83,13 @@ export const AdminPasswordPanel: React.FC<AdminPasswordPanelProps> = ({
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (mode !== 'modal' || !isOpen) return undefined;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !loading) {
-        onClose?.();
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [mode, isOpen, loading, onClose]);
+  useEscapeToCloseTopLayer({
+    active: mode === 'modal' && isOpen && typeof onClose === 'function',
+    enabled: !loading,
+    onEscape: () => {
+      onClose?.();
+    },
+  });
 
   const handleRandomPassword = useCallback(() => {
     const newPass = generateRandomPassword(16);

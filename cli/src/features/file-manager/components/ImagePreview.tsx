@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
+import { useEscapeToCloseTopLayer } from '@fileuni/shared';
 import type { FileInfo } from '../types/index.ts';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 
@@ -36,6 +37,20 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
   // UI State
   const [showList, setShowList] = useState(true);
   const [transform, setTransform] = useState({ scale: 1, rotate: 0, flipH: false });
+
+  useEscapeToCloseTopLayer({
+    active: true,
+    onEscape: () => {
+      if (onClose) {
+        onClose();
+        return;
+      }
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      params.delete('preview_path');
+      window.location.hash = params.toString();
+    },
+  });
 
   // 1. When index changes, fetch Token and set image URL
   useEffect(() => {
@@ -78,15 +93,6 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') handleNavigate(currentIndex - 1);
       if (e.key === 'ArrowRight') handleNavigate(currentIndex + 1);
-      if (e.key === 'Escape') {
-        if (onClose) onClose();
-        else {
-          const hash = window.location.hash.substring(1);
-          const params = new URLSearchParams(hash);
-          params.delete('preview_path');
-          window.location.hash = params.toString();
-        }
-      }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);

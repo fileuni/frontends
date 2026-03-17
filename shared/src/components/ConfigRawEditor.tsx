@@ -5,7 +5,7 @@ import type { editor as MonacoEditor } from "monaco-editor";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "./ui/Button";
 import { cn } from "../lib/utils";
-import { useMonacoReady } from "../lib/monaco";
+import { isMonacoSupported, useMonacoReady } from "../lib/monaco";
 
 /**
  * Configuration note entry interface
@@ -176,10 +176,15 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
   const decorationCollectionRef = useRef<MonacoEditor.IEditorDecorationsCollection | null>(null);
   const monacoStatus = useMonacoReady();
   const [forceFallbackEditor, setForceFallbackEditor] = useState(false);
+  const [mounted, setMounted] = useState(typeof window !== "undefined");
   const useFallbackEditor = forceFallbackEditor || monacoStatus === "failed";
   const resolvedHeight = height === "100%" ? "clamp(360px, 62vh, 900px)" : height;
 
   const activePath = externalActivePath || internalActivePath;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (monacoStatus === "failed") {
@@ -434,17 +439,34 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
           </div>
         )}
 
-        {embeddedTemplate && (
-          <div className="flex justify-end shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 sm:h-8 border-dashed text-sm font-black uppercase px-3"
-              onClick={() => onChange(embeddedTemplate)}
-            >
-              <AlertTriangle size={18} className="mr-2" />
-              {t("admin.config.reset")}
-            </Button>
+        {(embeddedTemplate || (mounted && isMonacoSupported() && monacoStatus !== "failed")) && (
+          <div className="flex items-center justify-between shrink-0 gap-2">
+            {mounted && isMonacoSupported() && monacoStatus !== "failed" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 sm:h-8 text-sm font-black uppercase px-3"
+                onClick={() => setForceFallbackEditor((v) => !v)}
+              >
+                {useFallbackEditor
+                  ? (t("common.editorEngine.switchToMonaco") || "Switch to Monaco")
+                  : (t("common.editorEngine.switchToTextarea") || "Switch to Textarea")}
+              </Button>
+            ) : (
+              <div />
+            )}
+
+            {embeddedTemplate && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 sm:h-8 border-dashed text-sm font-black uppercase px-3"
+                onClick={() => onChange(embeddedTemplate)}
+              >
+                <AlertTriangle size={18} className="mr-2" />
+                {t("admin.config.reset")}
+              </Button>
+            )}
           </div>
         )}
       </div>

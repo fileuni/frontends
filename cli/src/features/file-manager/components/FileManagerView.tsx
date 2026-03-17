@@ -21,7 +21,7 @@ import { ClipboardBar } from "./ClipboardBar.tsx";
 import { useTranslation } from "react-i18next";
 import { client } from "@/lib/api.ts";
 import type { components } from "@/types/api.ts";
-import { useToastStore } from "@fileuni/shared";
+import { isAnyEscLayerOpen, useToastStore } from "@fileuni/shared";
 import { useNavigationStore } from "@/stores/navigation.ts";
 
 import { FileManagerTabs } from "./FileManagerTabs.tsx";
@@ -136,6 +136,10 @@ export const FileManagerView = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      // If any top-layer modal/overlay is open, let it handle Escape (and other keys).
+      if (isAnyEscLayerOpen()) return;
+
       const isAnyModalOpen = actionModal.isOpen || activeShareFile || propertiesFile || browsingArchivePath || archiveOpModal.isOpen;
       const isMod = e.ctrlKey || e.metaKey;
       const paths = Array.from(selectedIds);

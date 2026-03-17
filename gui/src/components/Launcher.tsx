@@ -10,7 +10,11 @@ import {
   FileText,
   Info,
 } from 'lucide-react';
-import { useThemeStore, type Theme, useLanguageStore, type Language,
+import {
+  useThemeStore,
+  type Theme,
+  useLanguageStore,
+  type Language,
   AboutModal,
   buildAboutUpdateGuideUrl,
   type AboutUpdateInfo,
@@ -27,7 +31,8 @@ import { useThemeStore, type Theme, useLanguageStore, type Language,
   AdminPasswordPanel,
   type ConfigError,
   type ConfigNoteEntry,
-  type ServiceInstallLevel
+  type ServiceInstallLevel,
+  useEscapeToCloseTopLayer,
 } from '@fileuni/shared';
 import { useConfigStore } from '../stores/config';
 import '../lib/i18n';
@@ -411,20 +416,10 @@ export default function Launcher() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!missingConfigPrompt) {
-      return undefined;
-    }
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        closeMissingConfigPrompt(false);
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [missingConfigPrompt]);
+  useEscapeToCloseTopLayer({
+    active: Boolean(missingConfigPrompt),
+    onEscape: () => closeMissingConfigPrompt(false),
+  });
 
   const handleRuntimeDirsSelected = async (nextConfigDir: string, nextAppDataDir: string) => {
     try {
@@ -688,18 +683,10 @@ export default function Launcher() {
     setIsEditingConfig(false);
   };
 
-  useEffect(() => {
-    if (!isEditingConfig) {
-      return;
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        handleCloseConfigEditor();
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isEditingConfig]);
+  useEscapeToCloseTopLayer({
+    active: isEditingConfig,
+    onEscape: handleCloseConfigEditor,
+  });
 
   const handleOpenWebUI = async () => {
     try {

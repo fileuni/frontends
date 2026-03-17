@@ -589,6 +589,12 @@
     "rawJson": "Raw JSON",
     "visualMode": "Visual Mode",
     "switchToRawJson": "Switch to Raw JSON Mode",
+    "editorEngine": {
+      "monaco": "Monaco",
+      "textarea": "Text",
+      "switchToMonaco": "Switch to Monaco",
+      "switchToTextarea": "Switch to Textarea"
+    },
     "on": "ON",
     "off": "OFF",
     "na": "N/A",

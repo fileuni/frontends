@@ -35,7 +35,7 @@ import { ChatSidebar } from "@/features/chat/components/ChatSidebar";
 import { ChatMessageList } from "@/features/chat/components/ChatMessageList";
 import { ChatInput } from "@/features/chat/components/ChatInput";
 import { SessionKeyModal } from "./SessionKeyModal";
-import { toast } from "@fileuni/shared";
+import { toast, useEscapeToCloseTopLayer } from "@fileuni/shared";
 import { client } from "@/lib/api";
 import type { InviteInfo, GroupInfo, TransportBackend } from "@/hooks/ChatTypes";
 import { Modal } from "@/components/ui/Modal.tsx";
@@ -445,19 +445,16 @@ export const ChatUnifiedUI: React.FC = () => {
     return `${window.location.origin}/ui/#mod=chat&page=guest&invite=${encodeURIComponent(id)}`;
   }, []);
 
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) {
-        if (isMobileMenuOpen) {
-          setIsMobileMenuOpen(false);
-        } else {
-          setIsOpen(false);
-        }
+  useEscapeToCloseTopLayer({
+    active: isOpen,
+    onEscape: () => {
+      if (isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+        return;
       }
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [isOpen, setIsOpen, isMobileMenuOpen]);
+      setIsOpen(false);
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {

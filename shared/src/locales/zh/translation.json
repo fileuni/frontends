@@ -638,6 +638,12 @@
     "rawJson": "原始 JSON",
     "visualMode": "可视化模式",
     "switchToRawJson": "切换到原始 JSON 模式",
+    "editorEngine": {
+      "monaco": "Monaco",
+      "textarea": "文本框",
+      "switchToMonaco": "切换到 Monaco",
+      "switchToTextarea": "切换到文本框"
+    },
     "on": "开",
     "off": "关",
     "na": "N/A",

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MonacoEditor } from '@fileuni/shared';
+import { MonacoEditor, isMonacoSupported } from '@fileuni/shared';
 import { client, BASE_URL } from '@/lib/api.ts';
 import { 
   Loader2, Save, Edit3, Eye
@@ -43,6 +43,9 @@ const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Props) => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
+
+  const [mounted, setMounted] = useState(typeof window !== 'undefined');
+  const [forcePlainTextarea, setForcePlainTextarea] = useState(false);
   
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
@@ -57,12 +60,19 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
   const lastAutoSaveErrorAtRef = useRef<number>(0);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     setIsEditing(false);
   }, [path]);
   
   const fileName = path.split('/').pop() || 'File';
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   const language = LANGUAGE_MAP[ext] || 'plaintext';
+
+  const monacoAvailable = mounted && isMonacoSupported();
+  const useMonaco = monacoAvailable && !forcePlainTextarea;
 
   // 1. 获取内容 / Fetch content
   useEffect(() => {
@@ -173,20 +183,36 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
 
   return (
     <div className={cn("h-screen w-screen flex flex-col overflow-hidden", isDark ? "dark bg-[#09090b] text-white" : "bg-white text-zinc-900")}>
-      <FilePreviewHeader 
+        <FilePreviewHeader 
         path={path}
         isDark={isDark}
         subtitle={language}
         onClose={onClose}
-        extra={
-          <div className="flex items-center gap-3">
-            {headerExtra}
-            
-            {!loading && (
-              <div className={cn(
-                "flex items-center p-1 rounded-2xl",
-                isDark ? "bg-white/5 border border-white/5 shadow-inner" : "bg-zinc-100 border border-zinc-200"
-              )}>
+          extra={
+            <div className="flex items-center gap-3">
+              {headerExtra}
+
+              {monacoAvailable && (
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "h-10 px-4 rounded-xl text-sm font-black uppercase",
+                    isDark
+                      ? "border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                      : "border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-900"
+                  )}
+                  onClick={() => setForcePlainTextarea((v) => !v)}
+                  title={useMonaco ? (t('common.editorEngine.switchToTextarea') || 'Switch to Textarea') : (t('common.editorEngine.switchToMonaco') || 'Switch to Monaco')}
+                >
+                  {useMonaco ? (t('common.editorEngine.textarea') || 'Textarea') : (t('common.editorEngine.monaco') || 'Monaco')}
+                </Button>
+              )}
+              
+              {!loading && (
+                <div className={cn(
+                  "flex items-center p-1 rounded-2xl",
+                  isDark ? "bg-white/5 border border-white/5 shadow-inner" : "bg-zinc-100 border border-zinc-200"
+                )}>
                  <button 
                   onClick={() => setIsEditing(false)}
                   className={cn(
@@ -234,32 +260,48 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
             <p className="text-sm font-black uppercase tracking-[0.3em]">Opening {fileName}...</p>
           </div>
         ) : (
-          <MonacoEditor
-            height="100%"
-            language={language}
-            value={content}
-            theme={isDark ? 'vs-dark' : 'light'}
-            options={{
-              readOnly: !isEditing,
-              fontSize: 14,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-              minimap: { enabled: true },
-              automaticLayout: true,
-              wordWrap: 'on',
-              lineNumbers: 'on',
-              renderLineHighlight: isEditing ? 'all' : 'none',
-              padding: { top: 20 },
-              scrollBeyondLastLine: false,
-              scrollbar: {
+          useMonaco ? (
+            <MonacoEditor
+              height="100%"
+              language={language}
+              value={content}
+              theme={isDark ? 'vs-dark' : 'light'}
+              options={{
+                readOnly: !isEditing,
+                fontSize: 14,
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                minimap: { enabled: true },
+                automaticLayout: true,
+                wordWrap: 'on',
+                lineNumbers: 'on',
+                renderLineHighlight: isEditing ? 'all' : 'none',
+                padding: { top: 20 },
+                scrollBeyondLastLine: false,
+                scrollbar: {
                   verticalScrollbarSize: 8,
                   horizontalScrollbarSize: 8
-              }
-            }}
-            onChange={(val) => {
-              setContent(val || '');
-              lastEditAtRef.current = Date.now();
-            }}
-          />
+                }
+              }}
+              onChange={(val) => {
+                setContent(val || '');
+                lastEditAtRef.current = Date.now();
+              }}
+            />
+          ) : (
+            <textarea
+              className={cn(
+                'h-full w-full resize-none p-4 font-mono text-sm leading-6 outline-none custom-scrollbar',
+                isDark ? 'bg-[#09090b] text-white' : 'bg-white text-zinc-900'
+              )}
+              value={content}
+              readOnly={!isEditing}
+              spellCheck={false}
+              onChange={(e) => {
+                setContent(e.target.value);
+                lastEditAtRef.current = Date.now();
+              }}
+            />
+          )
         )}
       </main>
     </div>

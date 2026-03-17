@@ -1,6 +1,7 @@
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
+import { useEscapeToCloseTopLayer } from '@fileuni/shared';
 
 interface ModalProps {
   isOpen: boolean;
@@ -23,13 +24,11 @@ export const Modal = ({
   maxWidth = "max-w-md",
   hideCloseButton = false
 }: ModalProps) => {
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !hideCloseButton) onClose();
-    };
-    if (isOpen) window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [isOpen, onClose, hideCloseButton]);
+  useEscapeToCloseTopLayer({
+    active: isOpen,
+    enabled: !hideCloseButton,
+    onEscape: onClose,
+  });
 
   if (!isOpen) return null;
 

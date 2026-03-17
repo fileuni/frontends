@@ -4,7 +4,7 @@ import { ShieldCheck, X, Key, Info } from 'lucide-react';
 import { useChat } from '@/hooks/ChatContext.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
-import { toast } from '@fileuni/shared';
+import { toast, useEscapeToCloseTopLayer } from '@fileuni/shared';
 
 export const SessionKeyModal: React.FC = () => {
   const { t } = useTranslation();
@@ -17,13 +17,10 @@ export const SessionKeyModal: React.FC = () => {
     }
   }, [isKeyModalOpen, keyTargetId, sessionKeys]);
 
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isKeyModalOpen) closeKeyModal();
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [isKeyModalOpen, closeKeyModal]);
+  useEscapeToCloseTopLayer({
+    active: isKeyModalOpen,
+    onEscape: closeKeyModal,
+  });
 
   if (!isKeyModalOpen) return null;
 

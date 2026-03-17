@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { MonacoEditor } from '@fileuni/shared';
+import { MonacoEditor, isMonacoSupported } from '@fileuni/shared';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
@@ -83,6 +83,9 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const { addToast } = useToastStore();
   const { capabilities } = useConfigStore();
 
+  const [mounted, setMounted] = useState(typeof window !== 'undefined');
+  const [forcePlainTextarea, setForcePlainTextarea] = useState(false);
+
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -96,6 +99,10 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const loadedPathRef = useRef('');
   const savingRef = useRef(false);
   const lastAutoSaveErrorAtRef = useRef<number>(0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const defaultMode = (capabilities?.latex_preview_mode || 'monaco') as LatexPreviewMode;
   const enableLatexmk = capabilities?.enable_latexmk === true;
@@ -112,6 +119,9 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const [previewMode, setPreviewMode] = useState<LatexPreviewMode>(initialMode);
   const [modeOpen, setModeOpen] = useState(false);
   const canRender = previewMode === 'latexmk' || previewMode === 'latexjs';
+
+  const monacoAvailable = mounted && isMonacoSupported();
+  const useMonaco = monacoAvailable && !forcePlainTextarea;
 
   const fileName = path.split('/').pop() || 'LaTeX';
   const jsdelivrBase = capabilities?.jsdelivr_mirror_base || 'https://cdn.jsdelivr.net';
@@ -368,6 +378,16 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
         onClose={onClose}
         extra={
           <div className="flex items-center gap-3">
+            {monacoAvailable && (
+              <Button
+                variant="outline"
+                className="h-10 px-4 rounded-xl text-sm font-black uppercase"
+                onClick={() => setForcePlainTextarea((v) => !v)}
+                title={useMonaco ? (t('common.editorEngine.switchToTextarea') || 'Switch to Textarea') : (t('common.editorEngine.switchToMonaco') || 'Switch to Monaco')}
+              >
+                {useMonaco ? (t('common.editorEngine.textarea') || 'Textarea') : (t('common.editorEngine.monaco') || 'Monaco')}
+              </Button>
+            )}
             <div className="relative">
               <Button
                 variant="outline"
@@ -431,29 +451,44 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
               {t('filemanager.editor.opening') || 'Opening'}
             </div>
           ) : (
-        <MonacoEditor
-          height="100%"
-          language="latex"
-          value={content}
-          theme={isDark ? 'vs-dark' : 'light'}
-              options={{
-                readOnly: false,
-                fontSize: 14,
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                minimap: { enabled: true },
-                automaticLayout: true,
-                wordWrap: 'on',
-                lineNumbers: 'on',
-                renderLineHighlight: 'all',
-                padding: { top: 16 },
-                scrollBeyondLastLine: false,
-                scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 }
-              }}
-              onChange={(val) => {
-                setContent(val || '');
-                lastEditAtRef.current = Date.now();
-              }}
-            />
+            useMonaco ? (
+              <MonacoEditor
+                height="100%"
+                language="latex"
+                value={content}
+                theme={isDark ? 'vs-dark' : 'light'}
+                options={{
+                  readOnly: false,
+                  fontSize: 14,
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                  minimap: { enabled: true },
+                  automaticLayout: true,
+                  wordWrap: 'on',
+                  lineNumbers: 'on',
+                  renderLineHighlight: 'all',
+                  padding: { top: 16 },
+                  scrollBeyondLastLine: false,
+                  scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 }
+                }}
+                onChange={(val) => {
+                  setContent(val || '');
+                  lastEditAtRef.current = Date.now();
+                }}
+              />
+            ) : (
+              <textarea
+                className={cn(
+                  'h-full w-full resize-none p-4 font-mono text-sm leading-6 outline-none custom-scrollbar',
+                  isDark ? 'bg-[#09090b] text-white' : 'bg-white text-zinc-900'
+                )}
+                value={content}
+                spellCheck={false}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  lastEditAtRef.current = Date.now();
+                }}
+              />
+            )
           )}
         </section>
 

@@ -418,7 +418,11 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
       : preset.tier === 'medium'
         ? 2048
         : 4096;
-  const sqliteMmapSize = preset.tier === 'good' ? 268435456 : 33554432;
+  const sqliteMmapSize = preset.tier === 'extreme-low'
+    ? 0
+    : preset.tier === 'good'
+      ? 268435456
+      : 33554432;
   const kvTtlByTier: Record<PerformanceTier, { defaultTtl: number; conditionTtl: number; dashmapUpperLimitRatio: number }> = {
     'extreme-low': { defaultTtl: 900, conditionTtl: 60, dashmapUpperLimitRatio: 0.6 },
     low: { defaultTtl: 1200, conditionTtl: 90, dashmapUpperLimitRatio: 0.7 },
@@ -1148,6 +1152,12 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
       sqliteConfig.cache_size = tuningPlan.sqliteCacheSize;
       sqliteConfig.temp_store = 2;
       sqliteConfig.mmap_size = tuningPlan.sqliteMmapSize;
+
+      // Extreme-low tier targets very low-RAM devices (e.g. 32MB).
+      // Force mmap off to avoid memory pressure.
+      if (preset.tier === 'extreme-low') {
+        sqliteConfig.mmap_size = 0;
+      }
     } else {
       postgresConfig.max_connections = tuningPlan.dbMaxConnections;
       postgresConfig.max_connections_low_memory = tuningPlan.dbMaxConnectionsLowMemory;
@@ -1201,6 +1211,13 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     bruteForce.max_failures_per_ip_global = tuningPlan.middleware.bruteForceMaxFailuresPerIpGlobal;
     bruteForce.lockout_secs = tuningPlan.middleware.bruteForceLockoutSecs;
     bruteForce.enable_exponential_backoff = tuningPlan.middleware.bruteForceBackoffEnabled;
+
+    // Extreme-low tier targets very low-RAM devices (e.g. 32MB).
+    // Force a small bloom filter capacity to reduce memory footprint.
+    if (preset.tier === 'extreme-low') {
+      const safeaccessGuard = ensureRecord(next, 'safeaccess_guard');
+      safeaccessGuard.bloom_filter_capacity = 10000;
+    }
 
     const vfsHub = ensureRecord(next, 'vfs_storage_hub');
     vfsHub.enable_webdav = effectiveFeatures.webdav;
@@ -1462,6 +1479,11 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('middleware.brute_force.max_failures_per_ip_global', previewTuningPlan.middleware.bruteForceMaxFailuresPerIpGlobal);
     pushItem('middleware.brute_force.lockout_secs', previewTuningPlan.middleware.bruteForceLockoutSecs);
     pushItem('middleware.brute_force.enable_exponential_backoff', previewTuningPlan.middleware.bruteForceBackoffEnabled);
+
+    if (draft.performanceTier === 'extreme-low') {
+      pushItem('safeaccess_guard.bloom_filter_capacity', 10000);
+    }
+
     pushItem('captcha_code.graphic_cache_size', previewTuningPlan.captchaPreheat.graphicCacheSize);
     pushItem('captcha_code.graphic_gen_concurrency', previewTuningPlan.captchaPreheat.graphicGenConcurrency);
     pushItem('captcha_code.max_gen_concurrency', previewTuningPlan.captchaPreheat.maxGenConcurrency);

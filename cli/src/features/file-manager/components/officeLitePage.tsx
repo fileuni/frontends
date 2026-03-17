@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
+import { useEscapeToCloseTopLayer } from '@fileuni/shared';
 import { DocxLiteEditor } from './officeDocxEditor.tsx';
 import { XlsxLiteEditor } from './officeXlsxEditor.tsx';
 import { PptxLitePreview } from './officePptxPreview.tsx';
@@ -16,15 +17,10 @@ export const OfficeLitePage: React.FC<Props> = ({ path, onClose }) => {
   const { t } = useTranslation();
   const ext = getFileExtension(path);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  useEscapeToCloseTopLayer({
+    active: true,
+    onEscape: onClose,
+  });
 
   if (OFFICE_DOCX_EXTS.has(ext)) {
     return <DocxLiteEditor path={path} onClose={onClose} />;

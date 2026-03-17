@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mail, X } from "lucide-react";
 import { EmailPage } from "@/features/email/components/EmailPage";
+import { useEscapeToCloseTopLayer } from "@fileuni/shared";
 
 export interface EmailRouterState {
   isOpen: boolean;
@@ -71,23 +72,6 @@ export const EmailUnifiedUI: React.FC = () => {
     return () => window.removeEventListener("hashchange", checkHash);
   }, []);
 
-  // Handle escape key
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && routerState.isOpen) {
-        // Only close if NO other dialog modals are open
-        // Standard Modals now have role="dialog"
-        const anySubModalOpen = document.querySelector('[role="dialog"]');
-        if (anySubModalOpen) {
-          return;
-        }
-        closeEmail();
-      }
-    };
-    window.addEventListener("keydown", handleEsc, true); // Use capture phase to catch it early
-    return () => window.removeEventListener("keydown", handleEsc, true);
-  }, [routerState.isOpen]);
-
   const closeEmail = () => {
     const hash = window.location.hash.replace(/^#/, "");
     const params = new URLSearchParams(hash);
@@ -99,6 +83,11 @@ export const EmailUnifiedUI: React.FC = () => {
     const newHash = params.toString();
     window.location.hash = newHash ? `#${newHash}` : "";
   };
+
+  useEscapeToCloseTopLayer({
+    active: routerState.isOpen,
+    onEscape: closeEmail,
+  });
 
   if (!routerState.isOpen) return null;
 

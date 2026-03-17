@@ -4,7 +4,7 @@ import { ExternalLink, FileText, Download, XCircle, Loader2 } from 'lucide-react
 import { Button } from '@/components/ui/Button.tsx';
 import { client } from '@/lib/api.ts';
 import { useConfigStore } from '@/stores/config.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useEscapeToCloseTopLayer, useThemeStore } from '@fileuni/shared';
 import { cn } from '@/lib/utils.ts';
 import { fetchFileDownloadUrl, fetchFileStatSize, getFileExtension, isComplexOfficeFile, OFFICE_PPTX_EXTS, resolveLimitBytes } from '../utils/officeLite.ts';
 
@@ -67,15 +67,10 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
     loadApps();
   }, [loadApps]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  useEscapeToCloseTopLayer({
+    active: true,
+    onEscape: onClose,
+  });
 
   const openOfficeLite = () => {
     const hash = window.location.hash.substring(1);
