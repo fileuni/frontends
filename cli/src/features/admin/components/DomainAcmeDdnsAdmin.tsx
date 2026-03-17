@@ -39,6 +39,8 @@ interface ProviderAccountItem {
   enabled: boolean;
   config_json: string;
   has_credential: boolean;
+  auth_ok?: boolean;
+  auth_error?: string | null;
 }
 
 interface DdnsEntryItem {
@@ -130,10 +132,9 @@ interface DdnsDraft {
   id?: string;
   name: string;
   provider_account_id: string;
-  fqdns: string; // Multi-line input
+  fqdns: string; // Optional: hosts list for bulk create
   zone: string;
   host: string;
-  fqdn: string;
   ttl: number;
   proxied: boolean;
   enabled: boolean;
@@ -219,7 +220,6 @@ const newDdnsDraft = (): DdnsDraft => ({
   name: '',
   provider_account_id: '',
   fqdns: '',
-  fqdn: '',
   zone: '',
   host: '@',
   ttl: 120,
@@ -445,8 +445,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       id: item.id,
       name: item.name,
       provider_account_id: item.provider_account_id,
-      fqdns: item.fqdn,
-      fqdn: item.fqdn,
+      fqdns: '',
       zone: item.zone,
       host: item.host,
       ttl: item.ttl,
@@ -463,28 +462,35 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   };
 
   const saveDdns = async () => {
-    if (!ddnsDraft.name.trim() || !ddnsDraft.fqdns.trim() || !ddnsDraft.provider_account_id.trim()) {
+    if (!ddnsDraft.name.trim() || !ddnsDraft.provider_account_id.trim()) {
       addToast(t('admin.domain.ddnsRequired'), 'error');
       return;
     }
 
-    const lines = ddnsDraft.fqdns.split('\n').map(l => l.trim()).filter(l => l);
-    
+    const zone = ddnsDraft.zone.trim().replace(/\.+$/g, '');
+    const host = ddnsDraft.host.trim().replace(/\.+$/g, '');
+    const ttl = Number(ddnsDraft.ttl);
+    if (!zone || !host) {
+      addToast(t('admin.domain.ddnsTargetRequired') || 'Zone and host are required', 'error');
+      return;
+    }
+    if (!Number.isFinite(ttl) || ttl < 60 || ttl > 86400) {
+      addToast(t('admin.domain.invalidTtl') || 'TTL must be between 60 and 86400', 'error');
+      return;
+    }
+
+    const buildFqdn = (z: string, h: string) => (h === '@' ? z : `${h}.${z}`);
+
     try {
       if (ddnsDraft.id) {
-        // Edit mode (only one entry)
-        const line = lines[0];
-        const parts = line.split(',');
-        const fqdn = parts[0].trim();
-        const ttl = parts[1] ? Number(parts[1]) : ddnsDraft.ttl;
-        const zone = parts[2] ? parts[2].trim() : (ddnsDraft.zone || ''); // Fallback to empty if not provided
-
+        // Edit mode (single entry)
+        const fqdn = buildFqdn(zone, host);
         const payload = {
           name: ddnsDraft.name.trim(),
           enabled: ddnsDraft.enabled,
           provider_account_id: ddnsDraft.provider_account_id,
-          zone: zone || fqdn.split('.').slice(-2).join('.'), // Simple guess if empty
-          host: fqdn.split('.').slice(0, -2).join('.') || '@',
+          zone,
+          host,
           fqdn,
           ttl,
           proxied: ddnsDraft.proxied,
@@ -498,22 +504,36 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         await extractData(client.PUT('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}', { params: { path: { id: ddnsDraft.id } }, body: payload }));
         addToast(t('admin.domain.ddnsUpdated'), 'success');
       } else {
-        // Bulk Create mode
-        addToast(`正在创建 ${lines.length} 个条目...`, 'info');
-        for (const line of lines) {
-          const parts = line.split(',');
-          const fqdn = parts[0].trim();
-          const ttl = parts[1] ? Number(parts[1]) : 120;
-          const zone = parts[2] ? parts[2].trim() : '';
+        const hostLines = ddnsDraft.fqdns
+          .split('\n')
+          .map((l) => l.trim())
+          .filter((l) => l);
 
+        const targets = hostLines.length > 0
+          ? hostLines.map((line) => {
+              const parts = line.split(',').map((p) => p.trim()).filter((p) => p);
+              const h = parts[0] || '';
+              const t = parts[1] ? Number(parts[1]) : ttl;
+              return { host: h, ttl: t };
+            })
+          : [{ host, ttl }];
+
+        if (targets.some((x) => !x.host)) {
+          addToast(t('admin.domain.ddnsHostListInvalid') || 'Hosts list is invalid', 'error');
+          return;
+        }
+
+        addToast(`正在创建 ${targets.length} 个条目...`, 'info');
+        for (const target of targets) {
+          const fqdn = buildFqdn(zone, target.host);
           const payload = {
-            name: lines.length > 1 ? `${ddnsDraft.name.trim()} - ${fqdn}` : ddnsDraft.name.trim(),
+            name: targets.length > 1 ? `${ddnsDraft.name.trim()} - ${fqdn}` : ddnsDraft.name.trim(),
             enabled: ddnsDraft.enabled,
             provider_account_id: ddnsDraft.provider_account_id,
-            zone: zone || fqdn.split('.').slice(-2).join('.'),
-            host: fqdn.split('.').slice(0, -2).join('.') || '@',
+            zone,
+            host: target.host,
             fqdn,
-            ttl,
+            ttl: target.ttl,
             proxied: ddnsDraft.proxied,
             ipv4_enabled: ddnsDraft.ipv4_enabled,
             ipv6_enabled: ddnsDraft.ipv6_enabled,
@@ -982,44 +1002,95 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           <div className={sectionCardBase}>
             <div className="space-y-8">
               <SectionHeader icon={Info} title={t('admin.domain.basicInfo')} desc={t('admin.domain.basicInfo')} colorClass="bg-blue-500/10 text-blue-600 dark:text-blue-500 border-blue-500/20" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('common.name')}</label>
-                  <Input placeholder={t('admin.domain.ddnsNamePlaceholder')} value={ddnsDraft.name} onChange={(e) => setDdnsDraft({ ...ddnsDraft, name: e.target.value })} className={controlBase} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.panelProvider')}</label>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div className="space-y-2">
+                   <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('common.name')}</label>
+                   <Input placeholder={t('admin.domain.ddnsNamePlaceholder')} value={ddnsDraft.name} onChange={(e) => setDdnsDraft({ ...ddnsDraft, name: e.target.value })} className={controlBase} />
+                 </div>
+                 <div className="space-y-2">
+                   <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.panelProvider')}</label>
                   <div className="flex gap-2">
                     <select className={selectBase} style={selectStyle} value={ddnsDraft.provider_account_id} onChange={(e) => setDdnsDraft({ ...ddnsDraft, provider_account_id: e.target.value })}>
                       <option value="">{ddnsProviders.length === 0 ? t('admin.domain.noProviders') : t('admin.domain.ddnsProviderPlaceholder')}</option>
                       {ddnsProviders.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.provider_key})</option>)}
                     </select>
                     <Button type="button" variant="outline" onClick={() => setProviderModalOpen(true)} className="h-11 w-11 p-0 border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm text-foreground"><Plus size={18}/></Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+                 </div>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 <div className="space-y-2">
+                   <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                     {t('admin.domain.zoneLabel') || 'Zone'}
+                   </label>
+                   <Input
+                     placeholder={t('admin.domain.zonePlaceholder') || 'e.g. nascore.eu.org'}
+                     value={ddnsDraft.zone}
+                     onChange={(e) => setDdnsDraft({ ...ddnsDraft, zone: e.target.value })}
+                     className={controlBase}
+                   />
+                 </div>
+                 <div className="space-y-2">
+                   <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                     {t('admin.domain.hostLabel') || 'Host'}
+                   </label>
+                   <Input
+                     placeholder={t('admin.domain.hostPlaceholder') || '@ or sub'}
+                     value={ddnsDraft.host}
+                     onChange={(e) => setDdnsDraft({ ...ddnsDraft, host: e.target.value })}
+                     className={controlBase}
+                   />
+                 </div>
+                 <div className="space-y-2">
+                   <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                     {t('admin.domain.ttlLabel') || 'TTL'}
+                   </label>
+                   <Input
+                     type="number"
+                     min={60}
+                     max={86400}
+                     value={ddnsDraft.ttl}
+                     onChange={(e) => setDdnsDraft({ ...ddnsDraft, ttl: Number(e.target.value) })}
+                     className={controlBase}
+                   />
+                 </div>
+               </div>
+
+               <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5">
+                 <div className="text-[14px] font-black uppercase tracking-widest opacity-60">FQDN</div>
+                 <div className="mt-2 font-mono text-sm">
+                   {(ddnsDraft.host.trim() === '@' || !ddnsDraft.host.trim())
+                     ? (ddnsDraft.zone.trim() || '-')
+                     : `${ddnsDraft.host.trim().replace(/\.+$/g, '')}.${ddnsDraft.zone.trim().replace(/\.+$/g, '')}`}
+                 </div>
+                 <div className="mt-2 text-[14px] opacity-50">
+                   {t('admin.domain.zoneHostExplicitHint') || 'Please explicitly fill Zone and Host. No automatic inference.'}
+                 </div>
+               </div>
+             </div>
+           </div>
           </div>
 
-          <div className={sectionCardBase}>
-            <div className="space-y-8">
-              <SectionHeader icon={Network} title={t('admin.domain.networkConfig')} desc={t('admin.domain.networkConfig')} colorClass="bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 border-indigo-500/20" />
-              <div className="space-y-4">
+          {!ddnsDraft.id && (
+            <div className={sectionCardBase}>
+              <div className="space-y-8">
+                <SectionHeader icon={Network} title={t('admin.domain.bulkCreateTitle') || 'Bulk Create'} desc={t('admin.domain.bulkCreateDesc') || 'Optional: create multiple hosts under the same zone'} colorClass="bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 border-indigo-500/20" />
                 <div className="space-y-2">
                   <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
-                    {t('admin.domain.certDomainsPlaceholder')} (domain.com,ttl,zone)
+                    {t('admin.domain.hostsListLabel') || 'Hosts list'}
                   </label>
                   <textarea
-                    placeholder={t('admin.domain.fqdnsPlaceholderExample')}
+                    placeholder={t('admin.domain.hostsListPlaceholder') || '@\nwww\napi,120'}
                     value={ddnsDraft.fqdns}
                     onChange={(e) => setDdnsDraft({ ...ddnsDraft, fqdns: e.target.value })}
                     className="w-full min-h-[120px] rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm text-foreground placeholder:opacity-30"
+                    spellCheck={false}
                   />
-                  <p className="text-[14px] opacity-50 italic">{t('admin.domain.multiUrlHint')}</p>
+                  <p className="text-[14px] opacity-50 italic">{t('admin.domain.hostsListHint') || 'One host per line. Optional per-line TTL: host,ttl. Zone is taken from the Zone field.'}</p>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="space-y-4">
             <DdnsSourceForm
@@ -1191,6 +1262,16 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                           <div className="font-bold text-sm flex items-center gap-2">
                             {p.name}
                             {!p.enabled && <Badge variant="outline" className="text-[14px] h-4 px-1 opacity-50">{t('common.disabled')}</Badge>}
+                            {p.auth_ok === false && (
+                              <Badge variant="outline" className="text-[10px] h-4 px-1 bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400">
+                                AUTH ERROR
+                              </Badge>
+                            )}
+                            {p.auth_ok === true && (
+                              <Badge variant="outline" className="text-[10px] h-4 px-1 bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400">
+                                AUTH OK
+                              </Badge>
+                            )}
                           </div>
                           <div className="text-[14px] opacity-50 font-mono uppercase flex items-center gap-2">
                             <span>{p.provider_key}</span>
@@ -1198,13 +1279,28 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                               <Badge variant="outline" className="text-[10px] h-4 px-1 bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400">DDNS ONLY</Badge>
                             )}
                           </div>
+                          {p.auth_ok === false && p.auth_error && (
+                            <div className="text-[14px] font-bold opacity-70 text-red-700 dark:text-red-400 max-w-[520px] truncate" title={p.auth_error}>
+                              {p.auth_error}
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => openEditProvider(p)} className="p-2 rounded-lg bg-white dark:bg-white/10 border border-zinc-200 dark:border-white/10 hover:bg-primary hover:text-white transition-all shadow-sm">
+                      <div className="flex gap-2 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => openEditProvider(p)}
+                          className="p-2 rounded-lg bg-white dark:bg-white/10 border border-zinc-200 dark:border-white/10 hover:bg-primary hover:text-white transition-all shadow-sm"
+                          title={t('common.edit') || 'Edit'}
+                          aria-label={t('common.edit') || 'Edit'}
+                        >
                           <Edit3 size={18} />
                         </button>
-                        <button onClick={() => deleteProvider(p.id)} className="p-2 rounded-lg bg-white dark:bg-white/10 border border-zinc-200 dark:border-white/10 hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                        <button
+                          onClick={() => deleteProvider(p.id)}
+                          className="p-2 rounded-lg bg-white dark:bg-white/10 border border-zinc-200 dark:border-white/10 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                          title={t('common.delete') || 'Delete'}
+                          aria-label={t('common.delete') || 'Delete'}
+                        >
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -1224,11 +1320,11 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('common.name')}</label>
-                      <Input value={providerDraft.name} onChange={(e) => setProviderDraft({ ...providerDraft, name: e.target.value })} className={controlBase} />
+                      <Input value={providerDraft.name} onChange={(e) => setProviderDraft((prev) => ({ ...prev, name: e.target.value }))} className={controlBase} />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.detectionSource')}</label>
-                      <select className={selectBase} style={selectStyle} value={providerDraft.provider_key} onChange={(e) => setProviderDraft({ ...providerDraft, provider_key: e.target.value })}>
+                      <select className={selectBase} style={selectStyle} value={providerDraft.provider_key} onChange={(e) => setProviderDraft((prev) => ({ ...prev, provider_key: e.target.value }))}>
                         {providerProfilesForCurrentView.map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
                       </select>
                     </div>
@@ -1244,8 +1340,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                       providerKey={providerDraft.provider_key}
                       credentialJson={providerDraft.credential_json_enc}
                       configJson={providerDraft.config_json}
-                      onChangeCredential={(v) => setProviderDraft({ ...providerDraft, credential_json_enc: v })}
-                      onChangeConfig={(v) => setProviderDraft({ ...providerDraft, config_json: v })}
+                      onChangeCredential={(v) => setProviderDraft((prev) => ({ ...prev, credential_json_enc: v }))}
+                      onChangeConfig={(v) => setProviderDraft((prev) => ({ ...prev, config_json: v }))}
                       isEdit={!!providerDraft.id}
                     />
                     {providerDraft.id && (
@@ -1257,7 +1353,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
               <div className={sectionCardBase}>
                 <label className="flex items-start gap-4 cursor-pointer group">
-                  <div className="pt-1"><Switch checked={providerDraft.enabled} onChange={(v) => setProviderDraft({ ...providerDraft, enabled: v })} /></div>
+                  <div className="pt-1"><Switch checked={providerDraft.enabled} onChange={(v) => setProviderDraft((prev) => ({ ...prev, enabled: v }))} /></div>
                   <div>
                       <div className="text-sm font-black uppercase tracking-widest group-hover:text-primary transition-colors opacity-80">{t('admin.domain.statusEnabled')}</div>
                       <div className="text-[14px] opacity-60 dark:opacity-30 font-bold uppercase tracking-tighter">{t('admin.domain.readyForDdns')}</div>
