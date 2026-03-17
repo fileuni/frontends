@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   BookOpen,
   Calendar,
@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
 import { Button } from './ui/Button';
 import { useResolvedTheme } from '../lib/theme';
+import { useEscapeToCloseTopLayer } from '../lib/escapeCloseLayer';
 
 const PROJECT_HOMEPAGE_URL = 'https://fileuni.com';
 const PROJECT_DOCS_URL = 'https://docs.fileuni.com';
@@ -219,12 +220,11 @@ export const AboutModal: React.FC<AboutModalProps> = ({
   const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
 
-  useEffect(() => {
-    if (!isOpen) return undefined;
-    const onKeyDown = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, onClose]);
+  useEscapeToCloseTopLayer({
+    active: isOpen,
+    enabled: true,
+    onEscape: onClose,
+  });
 
   if (!isOpen) return null;
 

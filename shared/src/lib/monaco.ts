@@ -19,34 +19,23 @@ const isMobileUserAgent = (): boolean => {
   return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 };
 
-const isLowMemoryDevice = (): boolean => {
-  if (typeof navigator === "undefined") {
+const isTauriRuntime = (): boolean => {
+  if (typeof window === "undefined") {
     return false;
   }
-
-  // `deviceMemory` is supported in Chromium-based browsers (including Android WebView).
-  // When missing, fall back to a conservative heuristic.
-  const nav = navigator as Navigator & { deviceMemory?: number };
-  const deviceMemory = typeof nav.deviceMemory === "number" ? nav.deviceMemory : undefined;
-  const cores = typeof navigator.hardwareConcurrency === "number" ? navigator.hardwareConcurrency : undefined;
-
-  if (typeof deviceMemory === "number") {
-    return deviceMemory <= 2;
-  }
-  if (typeof cores === "number") {
-    return cores <= 2;
-  }
-  return false;
+  const w = window as unknown as Record<string, unknown>;
+  return Boolean(w.__TAURI__ || w.__TAURI_INTERNALS__);
 };
+
+const isTauriMobileRuntime = (): boolean => isTauriRuntime() && isMobileUserAgent();
 
 export const isMonacoSupported = (): boolean => {
   if (typeof window === "undefined") {
     return false;
   }
-  if (isMobileUserAgent()) {
-    return false;
-  }
-  if (isLowMemoryDevice()) {
+  // Product decision: only disable Monaco on Tauri Android/iOS.
+  // Keep Monaco available in PC browsers.
+  if (isTauriMobileRuntime()) {
     return false;
   }
   return typeof window.Worker !== "undefined";
@@ -80,10 +69,14 @@ export const ensureMonacoReady = (): Promise<MonacoModule> => {
   return monacoReadyPromise;
 };
 
-export const useMonacoReady = () => {
+export const useMonacoReady = (options?: { enabled?: boolean }) => {
   const [status, setStatus] = useState<"pending" | "ready" | "failed">("pending");
 
   useEffect(() => {
+    if (options?.enabled === false) {
+      setStatus("pending");
+      return undefined;
+    }
     if (!isMonacoSupported()) {
       setStatus("failed");
       return undefined;
@@ -103,7 +96,7 @@ export const useMonacoReady = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [options?.enabled]);
 
   return status;
 };

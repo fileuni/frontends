@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect, Suspense } from "react";
+import React, { useCallback, useMemo, useRef, useState, useEffect, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import type { OnMount } from "@monaco-editor/react";
 import type { editor as MonacoEditor } from "monaco-editor";
@@ -174,10 +174,23 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [internalActivePath, setInternalActivePath] = useState("");
   const decorationCollectionRef = useRef<MonacoEditor.IEditorDecorationsCollection | null>(null);
-  const monacoStatus = useMonacoReady();
-  const [forceFallbackEditor, setForceFallbackEditor] = useState(false);
   const [mounted, setMounted] = useState(typeof window !== "undefined");
-  const useFallbackEditor = forceFallbackEditor || monacoStatus === "failed";
+
+  const preferTextareaByDefault = useMemo(() => {
+    if (typeof navigator === "undefined") {
+      return true;
+    }
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  }, []);
+
+  const [editorEngine, setEditorEngine] = useState<"textarea" | "monaco">(
+    preferTextareaByDefault ? "textarea" : "monaco",
+  );
+
+  const monacoStatus = useMonacoReady({
+    enabled: mounted && editorEngine === "monaco",
+  });
+  const useFallbackEditor = editorEngine === "textarea" || monacoStatus === "failed";
   const resolvedHeight = height === "100%" ? "clamp(360px, 62vh, 900px)" : height;
 
   const activePath = externalActivePath || internalActivePath;
@@ -185,6 +198,12 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (monacoStatus === "failed" && editorEngine === "monaco") {
+      setEditorEngine("textarea");
+    }
+  }, [editorEngine, monacoStatus]);
 
   useEffect(() => {
     if (monacoStatus === "failed") {
@@ -324,7 +343,6 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
     try {
       editorRef.current = editor;
       monacoRef.current = monaco;
-      setForceFallbackEditor(false);
       const languageId = registerTomlLanguage(monaco);
       const model = editor.getModel();
       if (model) {
@@ -342,9 +360,31 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
       });
     } catch (error) {
       console.error("Monaco editor mount failed, falling back to textarea:", error);
-      setForceFallbackEditor(true);
+      setEditorEngine("textarea");
     }
   };
+
+  const updateActivePathFromTextarea = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const idx = typeof textarea.selectionStart === "number" ? textarea.selectionStart : 0;
+    const before = content.slice(0, Math.max(0, idx));
+    let line = 1;
+    for (let i = 0; i < before.length; i += 1) {
+      if (before.charCodeAt(i) === 10) {
+        line += 1;
+      }
+    }
+    const path = resolveActivePath(content, line);
+    setInternalActivePath(path);
+  }, [content]);
+
+  useEffect(() => {
+    if (!useFallbackEditor) return undefined;
+    // Initial sync for textarea mode.
+    updateActivePathFromTextarea();
+    return undefined;
+  }, [useFallbackEditor, updateActivePathFromTextarea]);
 
   return (
     <div className="flex flex-col w-full gap-3 sm:gap-4" style={{ height: resolvedHeight, minHeight: "360px" }}>
@@ -439,14 +479,16 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
           </div>
         )}
 
-        {(embeddedTemplate || (mounted && isMonacoSupported() && monacoStatus !== "failed")) && (
+        {(embeddedTemplate || (mounted && isMonacoSupported())) && (
           <div className="flex items-center justify-between shrink-0 gap-2">
             {mounted && isMonacoSupported() && monacoStatus !== "failed" ? (
               <Button
                 variant="outline"
                 size="sm"
                 className="h-7 sm:h-8 text-sm font-black uppercase px-3"
-                onClick={() => setForceFallbackEditor((v) => !v)}
+                onClick={() => {
+                  setEditorEngine((prev) => (prev === "monaco" ? "textarea" : "monaco"));
+                }}
               >
                 {useFallbackEditor
                   ? (t("common.editorEngine.switchToMonaco") || "Switch to Monaco")
@@ -486,7 +528,13 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
             )}
             spellCheck={false}
             value={content}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => {
+              onChange(e.target.value);
+              requestAnimationFrame(() => updateActivePathFromTextarea());
+            }}
+            onSelect={() => updateActivePathFromTextarea()}
+            onClick={() => updateActivePathFromTextarea()}
+            onKeyUp={() => updateActivePathFromTextarea()}
           />
         ) : monacoStatus !== "ready" ? (
           <div className={cn(

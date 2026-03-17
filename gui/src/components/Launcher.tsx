@@ -28,7 +28,6 @@ import {
   ConfigWorkbenchShell,
   ServiceControlPanel,
   QuickActionsPanel,
-  AdminPasswordPanel,
   type ConfigError,
   type ConfigNoteEntry,
   type ServiceInstallLevel,
@@ -149,6 +148,7 @@ export default function Launcher() {
   const [configErrors, setConfigErrors] = useState<ConfigError[]>([]);
   const [configFetching, setConfigFetching] = useState(false);
   const [configBusy, setConfigBusy] = useState(false);
+  const [resettingAdminPassword, setResettingAdminPassword] = useState(false);
   const [configSummary, setConfigSummary] = useState('');
   const [configSummaryLevel, setConfigSummaryLevel] = useState<'success' | 'warning' | 'error' | 'info'>('info');
   const [configFilePath, setConfigFilePath] = useState('');
@@ -162,7 +162,6 @@ export default function Launcher() {
   const [missingConfigPrompt, setMissingConfigPrompt] = useState<MissingConfigPromptState | null>(null);
   const [setupStatus, setSetupStatus] = useState<InstallationStatus | null>(null);
   const [setupRequired, setSetupRequired] = useState(false);
-  const [isSetupAdminPasswordOpen, setIsSetupAdminPasswordOpen] = useState(false);
   const [setupAdminUsername, setSetupAdminUsername] = useState('admin');
   const [setupAdminAction, setSetupAdminAction] = useState('existing_admin');
   const [setupPasswordHint, setSetupPasswordHint] = useState<string | null>(null);
@@ -487,6 +486,22 @@ export default function Launcher() {
     setConfigBusy(false);
   };
 
+  const handleResetAdminPassword = async (password: string): Promise<string> => {
+    setResettingAdminPassword(true);
+    try {
+      const username = await safeInvoke<string>('reset_admin_password', {
+        new_password: password,
+      });
+      toast.success(t('launcher.reset_admin_password_success'));
+      return (typeof username === 'string' && username.trim().length > 0) ? username : 'admin';
+    } catch (e: unknown) {
+      toast.error(extractErrorMessage(e));
+      throw e;
+    } finally {
+      setResettingAdminPassword(false);
+    }
+  };
+
   const handleTestConfig = async () => {
     setConfigBusy(true);
     try {
@@ -756,7 +771,6 @@ export default function Launcher() {
       setConfigSummary(t('setup.logs.setupSuccess'));
       setConfigSummaryLevel('success');
       setConfigErrors([]);
-      setIsSetupAdminPasswordOpen(false);
       toast.success(t('setup.logs.setupSuccess'));
       setIsSetupCompletedPromptOpen(true);
       setPendingAdminPassword('');
@@ -773,7 +787,6 @@ export default function Launcher() {
     setSetupApplying(true);
     try {
       setPendingAdminPassword(password);
-      setIsSetupAdminPasswordOpen(false);
       return setupAdminUsername;
     } finally {
       setSetupApplying(false);
@@ -953,9 +966,6 @@ export default function Launcher() {
                       void handleUpdateLicenseKey();
                     },
                   }}
-                  onOpenAdminPassword={() => {
-                    setIsSetupAdminPasswordOpen(true);
-                  }}
                   adminPasswordLabel={t('setup.admin.changePassword')}
                   onResetAdminPassword={handleStoreAdminPassword}
                   isResettingAdminPassword={setupApplying}
@@ -964,26 +974,12 @@ export default function Launcher() {
                     showSuccess: false,
                     showResetHint: false,
                     confirmLabel: t('setup.admin.changePassword'),
+                    pendingHint: t('setup.admin.pendingHint'),
                   }}
                 />
               </ConfigWorkbenchShell>
             </div>
           </div>
-
-            <AdminPasswordPanel
-              mode="modal"
-              isOpen={isSetupAdminPasswordOpen}
-              onClose={() => setIsSetupAdminPasswordOpen(false)}
-              onConfirm={handleStoreAdminPassword}
-              loading={setupApplying}
-              showWarning={false}
-              showRandomGenerator={true}
-              minPasswordLength={8}
-              confirmLabel={t('setup.admin.changePassword')}
-              showSuccess={false}
-              showResetHint={false}
-              pendingHint={t('setup.admin.pendingHint')}
-            />
 
           {isSetupCompletedPromptOpen && (
             <div className="fixed inset-0 z-[160] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
@@ -1347,6 +1343,8 @@ export default function Launcher() {
               showCancel={false}
               reloadSummary={configSummary}
               reloadSummaryLevel={configSummaryLevel}
+              onResetAdminPassword={handleResetAdminPassword}
+              isResettingAdminPassword={resettingAdminPassword}
               {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
               quickWizardLicense={{
                 isValid: Boolean(licenseStatus?.is_valid),

@@ -9,7 +9,6 @@ import {
   type ConfigNoteEntry,
   SystemConfigWorkbench,
   ConfigWorkbenchShell,
-  AdminPasswordPanel,
   useToastStore,
   useThemeStore,
   useLanguageStore,
@@ -67,7 +66,6 @@ export const ConfigSetEditor: React.FC = () => {
   const [notes, setNotes] = useState<Record<string, ConfigNoteEntry>>({});
   const [validationErrors, setValidationErrors] = useState<ConfigError[]>([]);
 
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminUsername, setAdminUsername] = useState('admin');
   const [adminAction, setAdminAction] = useState<string>('existing_admin');
   const [passwordHint, setPasswordHint] = useState<string | null>(null);
@@ -191,17 +189,6 @@ export const ConfigSetEditor: React.FC = () => {
       }
     } finally {
       setTesting(false);
-    }
-  };
-
-  const handleResetAdminPasswordOnly = async (password: string) => {
-    setResettingAdminPassword(true);
-    try {
-      setPendingAdminPassword(password);
-      setShowAdminPanel(false);
-      return adminUsername;
-    } finally {
-      setResettingAdminPassword(false);
     }
   };
 
@@ -362,31 +349,6 @@ export const ConfigSetEditor: React.FC = () => {
     );
   }
 
-  if (showAdminPanel) {
-    return (
-      <ConfigWorkbenchShell
-        title={t('configSet.wizard.title')}
-        subtitle={t('configSet.wizard.subtitle')}
-        configPath={configPath}
-        headerActions={headerActions}
-      >
-        <AdminPasswordPanel
-          mode="panel"
-          showWarning={false}
-          showRandomGenerator={true}
-          minPasswordLength={8}
-          onConfirm={handleResetAdminPasswordOnly}
-          loading={resettingAdminPassword}
-          onClose={() => setShowAdminPanel(false)}
-          confirmLabel={t('configSet.admin.changePassword')}
-          showSuccess={false}
-          showResetHint={false}
-          pendingHint={t('configSet.admin.pendingHint')}
-        />
-      </ConfigWorkbenchShell>
-    );
-  }
-
   return (
     <ConfigWorkbenchShell
       title={t('configSet.wizard.title')}
@@ -414,7 +376,6 @@ export const ConfigSetEditor: React.FC = () => {
         restartNotice={t('admin.config.restartNotice')}
         quickWizardEnabled={true}
         runtimeOs={runtimeOs}
-        onOpenAdminPassword={() => setShowAdminPanel(true)}
         adminPasswordLabel={t('configSet.admin.changePassword')}
         onResetAdminPassword={handleQuickWizardResetAdminPassword}
         isResettingAdminPassword={resettingAdminPassword}

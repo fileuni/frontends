@@ -6,31 +6,53 @@ type EscapeLayer = {
   onEscape: () => void;
 };
 
-const ESC_LAYERS: EscapeLayer[] = [];
+type EscapeLayerStore = {
+  layers: EscapeLayer[];
+  listenerUsers: number;
+  keydownListenerInstalled: boolean;
+  idSeq: number;
+};
 
-let idSeq = 0;
+const ESC_LAYER_STORE_KEY = '__fileuni_escape_layer_store__';
+
+const store: EscapeLayerStore = (() => {
+  const g = globalThis as unknown as Record<string, unknown>;
+  const existing = g[ESC_LAYER_STORE_KEY];
+  if (existing && typeof existing === 'object') {
+    return existing as EscapeLayerStore;
+  }
+  const next: EscapeLayerStore = {
+    layers: [],
+    listenerUsers: 0,
+    keydownListenerInstalled: false,
+    idSeq: 0,
+  };
+  g[ESC_LAYER_STORE_KEY] = next;
+  return next;
+})();
+
 const nextId = () => {
-  idSeq += 1;
-  return `esc-layer-${idSeq}`;
+  store.idSeq += 1;
+  return `esc-layer-${store.idSeq}`;
 };
 
 const removeLayer = (id: string) => {
-  const idx = ESC_LAYERS.findIndex((layer) => layer.id === id);
+  const idx = store.layers.findIndex((layer) => layer.id === id);
   if (idx >= 0) {
-    ESC_LAYERS.splice(idx, 1);
+    store.layers.splice(idx, 1);
   }
 };
 
 const upsertLayer = (layer: EscapeLayer) => {
-  const idx = ESC_LAYERS.findIndex((it) => it.id === layer.id);
+  const idx = store.layers.findIndex((it) => it.id === layer.id);
   if (idx >= 0) {
-    ESC_LAYERS[idx] = layer;
+    store.layers[idx] = layer;
     return;
   }
-  ESC_LAYERS.push(layer);
+  store.layers.push(layer);
 };
 
-export const isAnyEscLayerOpen = (): boolean => ESC_LAYERS.length > 0;
+export const isAnyEscLayerOpen = (): boolean => store.layers.length > 0;
 
 export interface UseEscapeToCloseTopLayerOptions {
   active: boolean;
@@ -41,6 +63,7 @@ export interface UseEscapeToCloseTopLayerOptions {
 // Registers an "Escape closable" layer. When Escape is pressed, only the top-most
 // active layer gets the event. If the top layer is disabled, Escape is swallowed.
 export const useEscapeToCloseTopLayer = (options: UseEscapeToCloseTopLayerOptions) => {
+  useEscLayerListener();
   const { active, enabled = true, onEscape } = options;
   const layerIdRef = useRef<string>(nextId());
 
@@ -56,38 +79,63 @@ export const useEscapeToCloseTopLayer = (options: UseEscapeToCloseTopLayerOption
       removeLayer(layerIdRef.current);
     };
   }, [active, enabled, onEscape]);
+};
 
+const handleKeyDownCapture = (event: KeyboardEvent) => {
+  if (event.key !== 'Escape') {
+    return;
+  }
+
+  if (store.layers.length === 0) {
+    return;
+  }
+
+  const top = store.layers[store.layers.length - 1];
+  if (!top) {
+    return;
+  }
+
+  // Swallow Escape if any top-layer is open; only the top one can handle it.
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  if (top.enabled) {
+    top.onEscape();
+  }
+};
+
+const ensureKeydownListener = () => {
+  if (store.keydownListenerInstalled) {
+    return;
+  }
+  if (typeof window === 'undefined') {
+    return;
+  }
+  window.addEventListener('keydown', handleKeyDownCapture, { capture: true });
+  store.keydownListenerInstalled = true;
+};
+
+const maybeRemoveKeydownListener = () => {
+  if (!store.keydownListenerInstalled) {
+    return;
+  }
+  if (typeof window === 'undefined') {
+    return;
+  }
+  if (store.listenerUsers > 0) {
+    return;
+  }
+  window.removeEventListener('keydown', handleKeyDownCapture, { capture: true } as AddEventListenerOptions);
+  store.keydownListenerInstalled = false;
+};
+
+export function useEscLayerListener() {
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return undefined;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') {
-        return;
-      }
-
-      if (ESC_LAYERS.length === 0) {
-        return;
-      }
-
-      const top = ESC_LAYERS[ESC_LAYERS.length - 1];
-      if (!top) {
-        return;
-      }
-
-      // Swallow Escape if any top-layer is open; only the top one can handle it.
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (top.enabled) {
-        top.onEscape();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    store.listenerUsers += 1;
+    ensureKeydownListener();
     return () => {
-      window.removeEventListener('keydown', handleKeyDown, { capture: true } as AddEventListenerOptions);
+      store.listenerUsers -= 1;
+      maybeRemoveKeydownListener();
     };
   }, []);
-};
+}

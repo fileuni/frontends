@@ -18,6 +18,7 @@ export * from './components/ui/Toast';
 export * from './lib/theme';
 export * from './lib/escapeCloseLayer';
 export * from './lib/monaco';
+export * from './lib/configObject';
 export * from './lib/utils';
 export * from './lib/storageHub';
 export * from './stores/theme';

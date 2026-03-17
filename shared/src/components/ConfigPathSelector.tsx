@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Check, X } from 'lucide-react';
 import { useResolvedTheme } from '../lib/theme';
 import { cn } from '../lib/utils';
+import { useEscapeToCloseTopLayer } from '../lib/escapeCloseLayer';
 
 
 export interface ConfigPathValidationResult {
@@ -80,18 +81,11 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
     defaultPreset?.appDataDir,
   ]);
 
-  useEffect(() => {
-    if (!isOpen || !canClose) {
-      return undefined;
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, canClose, onClose]);
+  useEscapeToCloseTopLayer({
+    active: isOpen && canClose,
+    enabled: canClose,
+    onEscape: onClose,
+  });
 
   const handleBrowse = async (target: 'config' | 'appData') => {
     try {

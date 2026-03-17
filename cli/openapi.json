@@ -9849,7 +9849,7 @@
             "items": {
               "type": "string"
             },
-            "example": "[\"stun:stun.l.google.com:19302\"]"
+            "example": "[\"stun:stun.nextcloud.com:443\",\"stun:stun.threema.ch:3478\",\"stun:stun.telnyx.com:3478\"]"
           },
           "turn_servers": {
             "type": "array",

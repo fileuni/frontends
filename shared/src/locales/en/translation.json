@@ -1791,6 +1791,10 @@
       "changedLines": "Changed",
       "addedLines": "Added",
       "removedLines": "Removed",
+      "shortcuts": {
+        "title": "Quick Shortcuts",
+        "subtitle": "Common tools and settings"
+      },
       "pathUnavailable": "Config path unavailable",
       "quickNotes": "Quick Notes",
       "example": "example",
@@ -1908,7 +1912,7 @@
         "parseErrorTitle": "Current TOML cannot be parsed in friendly mode.",
         "parseErrorHint": "Please fix TOML in the page-level config editor, then reopen this wizard.",
         "steps": {
-          "performance": "Optimization",
+          "performance": "Performance Optimization",
           "database": "Database",
           "cache": "Cache",
           "advanced": "Common Advanced",
@@ -1977,7 +1981,7 @@
           "allocatorRecommendationLinux": "Allocator recommendation ({{os}}): jemalloc",
           "allocatorRecommendationOthers": "Allocator recommendation ({{os}}): mimalloc",
           "maxConnections": "Max {{count}} connections",
-          "recommendedSettings": "Suggested Settings Preview",
+          "recommendedSettings": "Performance Optimization Preview",
           "featureCompression": "Compression",
           "featureSftp": "SFTP Service",
           "featureFtp": "FTP Service",

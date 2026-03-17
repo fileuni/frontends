@@ -1,9 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, WandSparkles } from 'lucide-react';
+import { AlertTriangle, HardDrive, Key, Settings2, Shield, WandSparkles } from 'lucide-react';
 import { ConfigEditorPanel } from './ConfigEditorPanel';
-import { ConfigQuickWizardModal, type ConfigQuickWizardModalProps } from './ConfigQuickWizardModal';
+import { AdminPasswordPanel } from './AdminPasswordPanel';
+import { ConfigQuickWizardModal, type ConfigQuickWizardModalProps, type FriendlyStep } from './ConfigQuickWizardModal';
+import { LicenseManagementModal } from './LicenseManagementModal';
+import { VfsStorageConfigModal } from './VfsStorageConfigModal';
 import type { ConfigError, ConfigNoteEntry, EditorJumpPosition } from './ConfigRawEditor';
+import { deepClone, ensureRecord, isRecord } from '../lib/configObject';
 import { useResolvedTheme } from '../lib/theme';
 import { cn } from '../lib/utils';
 
@@ -56,16 +60,24 @@ export interface SystemConfigWorkbenchProps {
   reloadSummary?: string;
   reloadSummaryLevel?: 'success' | 'warning' | 'error' | 'info';
   restartNotice?: string;
-  quickWizardLicense?: ConfigQuickWizardModalProps['licenseWizard'];
+  quickWizardLicense?: {
+    isValid: boolean;
+    currentUsers: number;
+    maxUsers: number;
+    deviceCode: string;
+    licenseKey: string;
+    saving: boolean;
+    onLicenseKeyChange: (value: string) => void;
+    onApplyLicense: () => void;
+  };
   quickWizardEnabled?: boolean;
   runtimeOs?: string;
   onClearValidationErrors?: () => void;
   onResetAdminPassword?: (password: string) => Promise<void | string | { username?: string }>;
   isResettingAdminPassword?: boolean;
-  onOpenAdminPassword?: () => void;
   adminPasswordLabel?: string;
-  adminPasswordPanelProps?: ConfigQuickWizardModalProps['adminPasswordPanelProps'];
-  onPickStorageDirectory?: ConfigQuickWizardModalProps['onPickStorageDirectory'];
+  adminPasswordPanelProps?: Partial<import('./AdminPasswordPanel').AdminPasswordPanelProps>;
+  onPickStorageDirectory?: import('./VfsStorageConfigModal').VfsStorageConfigModalProps['onPickDirectory'];
 }
 
 export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
@@ -94,13 +106,16 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   onClearValidationErrors,
   onResetAdminPassword,
   isResettingAdminPassword,
-  onOpenAdminPassword,
   adminPasswordLabel,
   adminPasswordPanelProps,
   onPickStorageDirectory,
 }) => {
   const { t } = useTranslation();
   const [isQuickWizardOpen, setIsQuickWizardOpen] = useState(false);
+  const [quickWizardInitialStep, setQuickWizardInitialStep] = useState<FriendlyStep | undefined>(undefined);
+  const [isAdminPasswordOpen, setIsAdminPasswordOpen] = useState(false);
+  const [isLicenseOpen, setIsLicenseOpen] = useState(false);
+  const [isStorageOpen, setIsStorageOpen] = useState(false);
   const [jumpTo, setJumpTo] = useState<EditorJumpPosition | null>(null);
   const resolvedTheme = useResolvedTheme();
 
@@ -109,6 +124,29 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const isDirty = content !== savedContent;
   const pendingDiffStats = useMemo(() => calculateLineDiffStats(savedContent, content), [savedContent, content]);
   const isSaveDisabled = !forceEnableSave && !allowSaveWithoutChanges && !isDirty;
+
+  const openQuickWizardAt = useCallback((step: FriendlyStep) => {
+    setQuickWizardInitialStep(step);
+    setIsQuickWizardOpen(true);
+  }, []);
+
+  const openAdminPassword = useCallback(() => {
+    setIsLicenseOpen(false);
+    setIsStorageOpen(false);
+    setIsAdminPasswordOpen(true);
+  }, []);
+
+  const openLicenseManagement = useCallback(() => {
+    setIsAdminPasswordOpen(false);
+    setIsStorageOpen(false);
+    setIsLicenseOpen(true);
+  }, []);
+
+  const openStorageConfig = useCallback(() => {
+    setIsAdminPasswordOpen(false);
+    setIsLicenseOpen(false);
+    setIsStorageOpen(true);
+  }, []);
 
   if (loading) {
     return (
@@ -138,20 +176,103 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           {t('admin.config.quickWizard.title')}
         </button>
       )}
-      {onOpenAdminPassword && (
+    </div>
+  );
+
+  const shortcuts = (
+    <div className={cn(
+      "mb-3 sm:mb-4 rounded-2xl border p-3 sm:p-4",
+      isDark ? "border-white/10 bg-black/20" : "border-slate-300 bg-slate-50/70 shadow-inner"
+    )}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+        <div>
+          <div className={cn("text-sm font-black uppercase tracking-wide", isDark ? "text-slate-200" : "text-slate-900")}>{t('admin.config.shortcuts.title')}</div>
+          <div className={cn("text-sm sm:text-sm font-bold", isDark ? "text-slate-500" : "text-slate-600")}>{t('admin.config.shortcuts.subtitle')}</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        {quickWizardEnabled && (
+          <button
+            type="button"
+            className={cn(
+              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+              isDark ? "border-primary/30 bg-primary/10 text-slate-100 hover:bg-primary/15" : "border-primary/30 bg-primary/5 text-slate-900 hover:bg-primary/10"
+            )}
+            onClick={() => openQuickWizardAt('performance')}
+          >
+            <WandSparkles size={18} className="text-primary" />
+            {t('admin.config.quickWizard.steps.performance')}
+          </button>
+        )}
+
+        {quickWizardEnabled && (
+          <button
+            type="button"
+            className={cn(
+              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+              isDark ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15" : "border-cyan-500/30 bg-cyan-50 text-cyan-900 hover:bg-cyan-100"
+            )}
+            onClick={() => openQuickWizardAt('database')}
+          >
+            <Settings2 size={18} className={isDark ? "text-cyan-300" : "text-cyan-700"} />
+            {t('admin.config.quickWizard.steps.database')}
+          </button>
+        )}
+
+        {quickWizardEnabled && (
+          <button
+            type="button"
+            className={cn(
+              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+              isDark ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/15" : "border-emerald-500/25 bg-emerald-50 text-emerald-900 hover:bg-emerald-100"
+            )}
+            onClick={() => openQuickWizardAt('cache')}
+          >
+            <Settings2 size={18} className={isDark ? "text-emerald-300" : "text-emerald-700"} />
+            {t('admin.config.quickWizard.steps.cache')}
+          </button>
+        )}
+
+        {onResetAdminPassword && (
+          <button
+            type="button"
+            className={cn(
+              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+              isDark ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15" : "border-cyan-500/30 bg-cyan-50 text-cyan-900 hover:bg-cyan-100"
+            )}
+            onClick={openAdminPassword}
+          >
+            <Shield size={18} className={isDark ? "text-cyan-300" : "text-cyan-700"} />
+            {adminPasswordLabel || t('admin.config.quickWizard.actions.setAdminPassword')}
+          </button>
+        )}
+
+        {quickWizardLicense && (
+          <button
+            type="button"
+            className={cn(
+              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+              isDark ? "border-amber-500/30 bg-amber-500/10 text-amber-200 hover:bg-amber-500/15" : "border-amber-500/30 bg-amber-50 text-amber-900 hover:bg-amber-100"
+            )}
+            onClick={openLicenseManagement}
+          >
+            <Key size={18} className={isDark ? "text-amber-400" : "text-amber-600"} />
+            {t('admin.config.license.title')}
+          </button>
+        )}
+
         <button
           type="button"
           className={cn(
-            "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border font-black uppercase tracking-wide transition-all inline-flex items-center gap-1.5 shadow-sm",
-            isDark 
-              ? "border-cyan-400/40 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20" 
-              : "border-cyan-500/50 bg-cyan-50 text-cyan-900 hover:bg-cyan-100"
+            "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+            isDark ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10" : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50"
           )}
-          onClick={onOpenAdminPassword}
+          onClick={openStorageConfig}
         >
-          {adminPasswordLabel || t('setup.admin.changePassword')}
+          <HardDrive size={18} className={isDark ? "text-slate-200" : "text-slate-700"} />
+          {t('admin.config.storage.title')}
         </button>
-      )}
+      </div>
     </div>
   );
 
@@ -300,6 +421,8 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </div>
       )}
 
+      {shortcuts}
+
       <ConfigEditorPanel
         configPath={configPath || t('admin.config.pathUnavailable')}
         content={content}
@@ -318,7 +441,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         cancelLabel={t('common.cancel')}
         showCancel={showCancel}
         isDark={isDark}
-        actionsPrefix={quickWizardEnabled || onOpenAdminPassword ? actionButtons : undefined}
+        actionsPrefix={quickWizardEnabled ? actionButtons : undefined}
       />
 
       {reloadSummary && (
@@ -340,14 +463,71 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           onClose={() => setIsQuickWizardOpen(false)}
           content={content}
           onContentChange={onChange}
+          {...(quickWizardInitialStep ? { initialStep: quickWizardInitialStep } : {})}
           {...(runtimeOs ? { runtimeOs } : {})}
-          {...(quickWizardLicense ? { licenseWizard: quickWizardLicense } : {})}
-          {...(onResetAdminPassword ? { onResetAdminPassword } : {})}
-          {...(typeof isResettingAdminPassword === 'boolean' ? { isResettingAdminPassword } : {})}
-          {...(adminPasswordPanelProps ? { adminPasswordPanelProps } : {})}
-          {...(onPickStorageDirectory ? { onPickStorageDirectory } : {})}
+          {...(onResetAdminPassword ? { onOpenAdminPassword: openAdminPassword } : {})}
+          {...(quickWizardLicense ? { onOpenLicenseManagement: openLicenseManagement } : {})}
+          onOpenStorageConfig={openStorageConfig}
         />
       )}
+
+      {onResetAdminPassword && (
+        <AdminPasswordPanel
+          mode="modal"
+          isOpen={isAdminPasswordOpen}
+          onClose={() => setIsAdminPasswordOpen(false)}
+          onConfirm={onResetAdminPassword}
+          loading={Boolean(isResettingAdminPassword)}
+          showWarning={true}
+          showRandomGenerator={true}
+          minPasswordLength={8}
+          zIndex={150}
+          {...adminPasswordPanelProps}
+        />
+      )}
+
+      {quickWizardLicense && (
+        <LicenseManagementModal
+          isOpen={isLicenseOpen}
+          onClose={() => setIsLicenseOpen(false)}
+          isValid={quickWizardLicense.isValid}
+          currentUsers={quickWizardLicense.currentUsers}
+          maxUsers={quickWizardLicense.maxUsers}
+          deviceCode={quickWizardLicense.deviceCode}
+          licenseKey={quickWizardLicense.licenseKey}
+          saving={quickWizardLicense.saving}
+          onLicenseKeyChange={quickWizardLicense.onLicenseKeyChange}
+          onApplyLicense={() => {
+            const nextKey = quickWizardLicense.licenseKey.trim();
+            if (nextKey.length > 0) {
+              try {
+                const parsed = tomlAdapter.parse(content);
+                if (isRecord(parsed)) {
+                  const nextConfig = deepClone(parsed);
+                  const licenseSection = ensureRecord(nextConfig, 'license');
+                  licenseSection.license_key = nextKey;
+                  const nextContent = tomlAdapter.stringify(nextConfig);
+                  onChange(nextContent);
+                }
+              } catch {
+                // Ignore TOML parse errors; backend apply may still validate.
+              }
+            }
+            quickWizardLicense.onApplyLicense();
+          }}
+        />
+      )}
+
+      <VfsStorageConfigModal
+        isOpen={isStorageOpen}
+        onClose={() => setIsStorageOpen(false)}
+        tomlAdapter={tomlAdapter}
+        content={content}
+        {...(onPickStorageDirectory ? { onPickDirectory: onPickStorageDirectory } : {})}
+        onContentChange={(nextContent) => {
+          onChange(nextContent);
+        }}
+      />
     </div>
   );
 };

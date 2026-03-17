@@ -1810,6 +1810,10 @@
       "changedLines": "变更",
       "addedLines": "新增",
       "removedLines": "删除",
+      "shortcuts": {
+        "title": "快捷入口",
+        "subtitle": "常用功能入口"
+      },
       "pathUnavailable": "配置文件路径不可用",
       "quickNotes": "快速说明",
       "example": "示例配置",
@@ -1927,7 +1931,7 @@
         "parseErrorTitle": "当前 TOML 无法在友好模式下解析。",
         "parseErrorHint": "请先在页面配置编辑器中修复 TOML，然后重新打开向导。",
         "steps": {
-          "performance": "优化建议",
+          "performance": "性能优化",
           "database": "数据库",
           "cache": "缓存",
           "advanced": "常见高阶配置",
@@ -1996,7 +2000,7 @@
           "allocatorRecommendationLinux": "内存分配器推荐（{{os}}）：jemalloc",
           "allocatorRecommendationOthers": "内存分配器推荐（{{os}}）：mimalloc",
           "maxConnections": "最大 {{count}} 连接",
-          "recommendedSettings": "建议配置预览",
+          "recommendedSettings": "性能优化预览",
           "featureCompression": "压缩解压",
           "featureSftp": "SFTP服务",
           "featureFtp": "FTP服务",

@@ -3343,7 +3343,7 @@ export interface components {
             rate_limit_messages_per_window: number;
             /** Format: int64 */
             rate_limit_window_secs: number;
-            /** @example ["stun:stun.l.google.com:19302"] */
+            /** @example ["stun:stun.nextcloud.com:443","stun:stun.threema.ch:3478","stun:stun.telnyx.com:3478"] */
             stun_servers: string[];
             turn_servers: components["schemas"]["TurnServerConfig"][];
         };

@@ -1,11 +1,12 @@
 //  License Management Modal
 //  Standalone modal for viewing license status and applying license keys.
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Shield, Users, Fingerprint, Key, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useResolvedTheme } from '../lib/theme';
+import { useEscapeToCloseTopLayer } from '../lib/escapeCloseLayer';
 import { Button } from './ui/Button';
 
 export interface LicenseManagementModalProps {
@@ -40,20 +41,17 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
 
   const isDark = resolvedTheme === 'dark';
 
-  useEffect(() => {
-    if (!isOpen) return undefined;
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [isOpen, onClose]);
+  useEscapeToCloseTopLayer({
+    active: isOpen,
+    enabled: true,
+    onEscape: onClose,
+  });
 
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[130] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300"
+      className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300"
       role="dialog"
       aria-modal="true"
     >

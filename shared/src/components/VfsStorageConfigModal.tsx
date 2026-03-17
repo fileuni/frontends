@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { Database, HardDrive, Layers, Plus, Trash2, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useResolvedTheme } from '../lib/theme';
+import { deepClone, ensureRecord, isRecord, type ConfigObject } from '../lib/configObject';
+import { useEscapeToCloseTopLayer } from '../lib/escapeCloseLayer';
 import { Button } from './ui/Button';
-
-type ConfigObject = Record<string, unknown>;
 
 type TomlAdapter = {
   parse: (source: string) => unknown;
@@ -62,24 +62,6 @@ export interface VfsStorageConfigModalProps {
     display?: string | null;
   } | null>;
 }
-
-const isRecord = (value: unknown): value is ConfigObject => {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-};
-
-const ensureRecord = (target: ConfigObject, key: string): ConfigObject => {
-  const value = target[key];
-  if (isRecord(value)) {
-    return value;
-  }
-  const next: ConfigObject = {};
-  target[key] = next;
-  return next;
-};
-
-const deepClone = <T,>(value: T): T => {
-  return JSON.parse(JSON.stringify(value)) as T;
-};
 
 const makeId = (() => {
   let seed = 0;
@@ -426,14 +408,11 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const esc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', esc);
-    return () => window.removeEventListener('keydown', esc);
-  }, [isOpen, onClose]);
+  useEscapeToCloseTopLayer({
+    active: isOpen,
+    enabled: true,
+    onEscape: onClose,
+  });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -680,7 +659,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[130] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300"
+      className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300"
       role="dialog"
       aria-modal="true"
     >
