@@ -57,6 +57,33 @@ interface DdnsEntryItem {
   force_update: boolean;
   enabled: boolean;
   last_status?: string | null;
+  last_error?: string | null;
+  last_run_at?: string | null;
+  last_ipv4?: string | null;
+  last_ipv6?: string | null;
+}
+
+interface DdnsInspectItem {
+  id: string;
+  fqdn: string;
+  ipv4_enabled: boolean;
+  ipv6_enabled: boolean;
+  detected_ipv4?: string | null;
+  detect_error_v4?: string | null;
+  detected_ipv6?: string | null;
+  detect_error_v6?: string | null;
+  last_ipv4?: string | null;
+  last_ipv6?: string | null;
+  dns_ipv4: string[];
+  dns_error_v4?: string | null;
+  dns_ipv6: string[];
+  dns_error_v6?: string | null;
+  dns_used_server?: string | null;
+  need_update_v4: boolean;
+  need_update_v6: boolean;
+  last_status?: string | null;
+  last_error?: string | null;
+  last_run_at?: string | null;
 }
 
 interface CertificateItem {
@@ -73,6 +100,13 @@ interface CertificateItem {
   export_path?: string | null;
   expires_at?: string | null;
   last_status?: string | null;
+  last_error?: string | null;
+}
+
+interface CertRunAllCheckResponse {
+  renew_before_days: number;
+  force_update: boolean;
+  results: Array<{ id: string; status: string }>;
 }
 
 interface ZeroSslAccountItem {
@@ -106,6 +140,8 @@ interface DdnsDraft {
   ipv6_enabled: boolean;
   ipv4_source_json: string;
   ipv6_source_json: string;
+  webhook_json: string;
+  force_update: boolean;
 }
 
 interface SslDraft {
@@ -190,8 +226,10 @@ const newDdnsDraft = (): DdnsDraft => ({
   enabled: true,
   ipv4_enabled: true,
   ipv6_enabled: false,
-  ipv4_source_json: '{"type":"url","url":"https://api.ipify.org"}',
-  ipv6_source_json: '{"type":"url","url":"https://api64.ipify.org"}',
+  ipv4_source_json: '{"type":"url","urls":["https://api.ipify.org","https://ifconfig.me/ip","https://ipv4.icanhazip.com"]}',
+  ipv6_source_json: '{"type":"url","urls":["https://api64.ipify.org","https://ifconfig.me/ip","https://ipv6.icanhazip.com"]}',
+  webhook_json: '{}',
+  force_update: false,
 });
 
 const newSslDraft = (): SslDraft => ({
@@ -237,6 +275,12 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [ddnsEntries, setDdnsEntries] = useState<DdnsEntryItem[]>([]);
   const [certificates, setCertificates] = useState<CertificateItem[]>([]);
   const [zerosslAccounts, setZeroSslAccounts] = useState<ZeroSslAccountItem[]>([]);
+
+  const [inspectOpen, setInspectOpen] = useState(false);
+  const [inspectLoading, setInspectLoading] = useState(false);
+  const [inspectData, setInspectData] = useState<DdnsInspectItem | null>(null);
+
+  const [featureFlags, setFeatureFlags] = useState<{ moduleEnabled: boolean; ddnsEnabled: boolean; sslEnabled: boolean } | null>(null);
 
   const [ddnsModalOpen, setDdnsModalOpen] = useState(false);
   const [sslModalOpen, setSslModalOpen] = useState(false);
@@ -289,22 +333,88 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const loadAll = async () => {
     setLoading(true);
     try {
-      const [profileData, providerData, ddnsData, certData, zerosslData] = await Promise.all([
+      const [profileData, providerData, ddnsData, certData, zerosslData, configData] = await Promise.all([
         extractData<ProviderProfileItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/providers/profiles')),
         extractData<ProviderAccountItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/providers/accounts')),
         extractData<DdnsEntryItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries')),
         extractData<CertificateItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/certs')),
         fetchZeroSslAccounts(),
+        extractData<Record<string, unknown>>(client.GET('/api/v1/admin/system/config')),
       ]);
       setProviderProfiles(Array.isArray(profileData) ? profileData : []);
       setProviders(Array.isArray(providerData) ? providerData : []);
       setDdnsEntries(Array.isArray(ddnsData) ? ddnsData : []);
       setCertificates(Array.isArray(certData) ? certData : []);
       setZeroSslAccounts(Array.isArray(zerosslData) ? zerosslData : []);
+
+      const getBool = (root: unknown, path: string[]): boolean | null => {
+        let cur: unknown = root;
+        for (const key of path) {
+          if (typeof cur !== 'object' || cur === null) return null;
+          const rec = cur as Record<string, unknown>;
+          cur = rec[key];
+        }
+        return typeof cur === 'boolean' ? cur : null;
+      };
+      const moduleEnabled = getBool(configData, ['domain_acme_ddns', 'enabled']) ?? false;
+      const ddnsJobEnabled = getBool(configData, ['task_registry', 'domain_ddns_sync_check', 'enabled']) ?? false;
+      const sslJobEnabled = getBool(configData, ['task_registry', 'domain_acme_renewal_check', 'enabled']) ?? false;
+      setFeatureFlags({
+        moduleEnabled,
+        ddnsEnabled: moduleEnabled && ddnsJobEnabled,
+        sslEnabled: moduleEnabled && sslJobEnabled,
+      });
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const runDdns = async (id: string) => {
+    try {
+      addToast(t('common.loading'), 'info');
+      await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run', { params: { path: { id } } }));
+      addToast(t('admin.domain.ddnsRunCompleted'), 'success');
+      await loadAll();
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    }
+  };
+
+  const runDdnsAndRefreshInspect = async (id: string) => {
+    try {
+      addToast(t('common.loading'), 'info');
+      await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run', { params: { path: { id } } }));
+      addToast(t('admin.domain.ddnsRunCompleted'), 'success');
+      await Promise.all([loadAll(), openInspect(id)]);
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    }
+  };
+
+  const runDdnsAll = async () => {
+    try {
+      addToast(t('common.loading'), 'info');
+      await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/run-all'));
+      addToast(t('admin.domain.ddnsRunAllCompleted'), 'success');
+      await loadAll();
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    }
+  };
+
+  const openInspect = async (id: string) => {
+    setInspectOpen(true);
+    setInspectLoading(true);
+    setInspectData(null);
+    try {
+      const data = await extractData<DdnsInspectItem>(client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/inspect', { params: { path: { id } } }));
+      setInspectData(data);
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setInspectLoading(false);
     }
   };
 
@@ -333,6 +443,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       ipv6_enabled: item.ipv6_enabled,
       ipv4_source_json: item.ipv4_source_json,
       ipv6_source_json: item.ipv6_source_json,
+      webhook_json: item.webhook_json || '{}',
+      force_update: item.force_update || false,
     });
     setDdnsModalOpen(true);
   };
@@ -367,8 +479,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           ipv6_enabled: ddnsDraft.ipv6_enabled,
           ipv4_source_json: ddnsDraft.ipv4_source_json,
           ipv6_source_json: ddnsDraft.ipv6_source_json,
-          webhook_json: '{}',
-          force_update: false,
+          webhook_json: ddnsDraft.webhook_json,
+          force_update: ddnsDraft.force_update,
         };
         await extractData(client.PUT('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}', { params: { path: { id: ddnsDraft.id } }, body: payload }));
         addToast(t('admin.domain.ddnsUpdated'), 'success');
@@ -394,8 +506,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             ipv6_enabled: ddnsDraft.ipv6_enabled,
             ipv4_source_json: ddnsDraft.ipv4_source_json,
             ipv6_source_json: ddnsDraft.ipv6_source_json,
-            webhook_json: '{}',
-            force_update: false,
+            webhook_json: ddnsDraft.webhook_json,
+            force_update: ddnsDraft.force_update,
           };
           await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries', { body: payload }));
         }
@@ -496,6 +608,26 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     }
   };
 
+  const runSslRenewalCheckAll = async (forceUpdate: boolean) => {
+    try {
+      addToast(t('common.loading'), 'info');
+      const resp = await extractData<CertRunAllCheckResponse>(
+        client.POST('/api/v1/admin/domain-acme-ddns/certs/run-all-check', { body: { force_update: forceUpdate } }),
+      );
+      const renewed = Array.isArray(resp.results)
+        ? resp.results.filter((r) => (r.status || '').toLowerCase() === 'success').length
+        : 0;
+      if (forceUpdate) {
+        addToast(t('admin.domain.forceRenewCompleted', { renewed }), 'success');
+      } else {
+        addToast(t('admin.domain.renewalCheckCompleted', { threshold: resp.renew_before_days, renewed }), 'success');
+      }
+      await loadAll();
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    }
+  };
+
   const openEditProvider = (item: ProviderAccountItem) => {
     setProviderDraft({
       id: item.id,
@@ -578,6 +710,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   };
 
   const isDdns = view === 'ddns';
+  const viewEnabled = isDdns ? (featureFlags?.ddnsEnabled ?? true) : (featureFlags?.sslEnabled ?? true);
 
   const selectedDdnsProviderKey = useMemo(() => {
     const account = providers.find((p) => p.id === ddnsDraft.provider_account_id);
@@ -619,12 +752,41 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           <Button size="sm" variant="outline" onClick={loadAll} disabled={loading} className="h-12 w-12 rounded-xl p-0 border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 flex items-center justify-center shadow-sm transition-all text-foreground/60">
             <RefreshCw size={18} className={cn("opacity-70", loading && "animate-spin")} />
           </Button>
-          <Button className="h-12 px-6 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20" onClick={isDdns ? openCreateDdns : openCreateSsl}>
-            <Plus size={18} className="mr-2 stroke-[3px]" />
-            <span className="hidden sm:inline font-bold tracking-wider">{t('admin.domain.create')}</span>
-          </Button>
+          {isDdns && viewEnabled && (
+            <Button size="sm" variant="outline" onClick={runDdnsAll} disabled={loading} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.ddnsRunNow') || 'Run now'}>
+              <Play size={16} className="mr-2 opacity-70 text-blue-600 dark:text-blue-400" />
+              <span className="hidden sm:inline">{t('admin.domain.ddnsRunNow') || 'Run now'}</span>
+            </Button>
+          )}
+          {!isDdns && viewEnabled && (
+            <>
+              <Button size="sm" variant="outline" onClick={() => runSslRenewalCheckAll(false)} disabled={loading} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.runRenewalCheck')}>
+                <Activity size={16} className="mr-2 opacity-70 text-green-600 dark:text-green-400" />
+                <span className="hidden sm:inline">{t('admin.domain.runRenewalCheck')}</span>
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => runSslRenewalCheckAll(true)} disabled={loading} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.forceRenewAll')}>
+                <Play size={16} className="mr-2 opacity-70 text-orange-600 dark:text-orange-400" />
+                <span className="hidden sm:inline">{t('admin.domain.forceRenewAll')}</span>
+              </Button>
+            </>
+          )}
+          {viewEnabled && (
+            <Button className="h-12 px-6 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20" onClick={isDdns ? openCreateDdns : openCreateSsl}>
+              <Plus size={18} className="mr-2 stroke-[3px]" />
+              <span className="hidden sm:inline font-bold tracking-wider">{t('admin.domain.create')}</span>
+            </Button>
+          )}
         </div>
       </div>
+
+      {!viewEnabled && (
+        <div className={cn(sectionCardBase, "border-red-500/20 bg-red-500/5")}> 
+          <SectionHeader icon={XCircle} title={t('common.disabled') || 'Disabled'} desc={isDdns ? (t('admin.domain.ddnsDisabledByConfig') || 'DDNS is disabled by config') : (t('admin.domain.sslDisabledByConfig') || 'SSL/TLS is disabled by config')} colorClass="bg-red-500/10 text-red-600 border-red-500/20" />
+          <div className="text-sm font-bold opacity-70">
+            {(featureFlags && !featureFlags.moduleEnabled) ? (t('admin.domain.domainModuleDisabled') || 'Enable [domain_acme_ddns] in config to use this module.') : (t('admin.domain.enableSchedulerHint') || 'Also ensure the related scheduled job is enabled in [task_registry].')}
+          </div>
+        </div>
+      )}
 
       {/* Content Table */}
       <div className="bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden dark:shadow-2xl backdrop-blur-sm transition-all shadow-sm">
@@ -674,8 +836,13 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     <td className="px-8 py-6">
                       {isDdns ? (
                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 uppercase font-black">TTL {isDdnsEntryItem(item) ? item.ttl : 0}</Badge>
-                            {isDdnsEntryItem(item) && item.proxied && <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 uppercase font-black">{t('admin.domain.proxyBadge')}</Badge>}
+                             <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 uppercase font-black">TTL {isDdnsEntryItem(item) ? item.ttl : 0}</Badge>
+                             {isDdnsEntryItem(item) && item.proxied && <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 uppercase font-black">{t('admin.domain.proxyBadge')}</Badge>}
+                             {isDdnsEntryItem(item) && (item.last_ipv4 || item.last_ipv6) && (
+                               <span className="ml-2 text-[14px] font-mono opacity-60">
+                                 {item.last_ipv4 ? `v4 ${item.last_ipv4}` : ''}{item.last_ipv4 && item.last_ipv6 ? '  ' : ''}{item.last_ipv6 ? `v6 ${item.last_ipv6}` : ''}
+                               </span>
+                             )}
                          </div>
                       ) : (
                         <div className="flex items-center gap-2 text-[14px] font-bold opacity-60 dark:opacity-40 uppercase tracking-widest text-foreground">
@@ -689,11 +856,24 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     </td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                        {!isDdnsEntryItem(item) && (
-                          <button onClick={() => runSsl(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white transition-all shadow-sm"><Play size={16} /></button>
+                        {isDdnsEntryItem(item) ? (
+                          <>
+                            {viewEnabled && (
+                              <button onClick={() => runDdns(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white transition-all shadow-sm" title={t('admin.domain.ddnsRunNow') || 'Run now'}><Play size={16} /></button>
+                            )}
+                            <button onClick={() => openInspect(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm" title={t('admin.domain.ddnsInspect') || 'Inspect'}><Activity size={16} /></button>
+                          </>
+                        ) : (
+                          viewEnabled ? (
+                            <button onClick={() => runSsl(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white transition-all shadow-sm"><Play size={16} /></button>
+                          ) : null
                         )}
-                        <button onClick={() => isDdnsEntryItem(item) ? openEditDdns(item) : openEditSsl(item)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-primary hover:text-white transition-all shadow-sm"><Edit3 size={16} /></button>
-                        <button onClick={() => isDdnsEntryItem(item) ? deleteDdns(item.id) : deleteSsl(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-red-500 hover:text-white transition-all shadow-sm"><Trash2 size={16} /></button>
+                        {viewEnabled && (
+                          <button onClick={() => isDdnsEntryItem(item) ? openEditDdns(item) : openEditSsl(item)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-primary hover:text-white transition-all shadow-sm"><Edit3 size={16} /></button>
+                        )}
+                        {viewEnabled && (
+                          <button onClick={() => isDdnsEntryItem(item) ? deleteDdns(item.id) : deleteSsl(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-red-500 hover:text-white transition-all shadow-sm"><Trash2 size={16} /></button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -703,6 +883,73 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           </table>
         </div>
       </div>
+
+      {/* DDNS Inspect Modal */}
+      <Modal isOpen={inspectOpen} onClose={() => setInspectOpen(false)} title={t('admin.domain.ddnsInspect') || 'DDNS Inspect'} maxWidth="max-w-2xl">
+        <div className="space-y-6 p-1 text-foreground">
+          {inspectLoading ? (
+            <div className="py-16 text-center opacity-50 font-bold uppercase tracking-widest">
+              <RefreshCw className="animate-spin mb-4 mx-auto" size={28} />
+              {t('common.loading')}
+            </div>
+          ) : !inspectData ? (
+            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+              {t('common.noData') || 'No data'}
+            </div>
+          ) : (
+            <div className={sectionCardBase}>
+              <div className="space-y-4">
+                <div className="text-sm font-black uppercase tracking-widest opacity-70">{inspectData.fqdn}</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
+                    <div className="text-[14px] font-black uppercase tracking-widest opacity-60">Detected IP</div>
+                    <div className="mt-2 font-mono text-sm">
+                      <div>v4: {inspectData.detected_ipv4 || '-'}</div>
+                      {inspectData.detect_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.detect_error_v4}</div>}
+                      <div className="mt-2">v6: {inspectData.detected_ipv6 || '-'}</div>
+                      {inspectData.detect_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.detect_error_v6}</div>}
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
+                    <div className="text-[14px] font-black uppercase tracking-widest opacity-60">DNS Resolved</div>
+                    <div className="mt-2 font-mono text-sm">
+                      <div>v4: {(inspectData.dns_ipv4 && inspectData.dns_ipv4.length > 0) ? inspectData.dns_ipv4.join(', ') : '-'}</div>
+                      {inspectData.dns_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v4}</div>}
+                      <div className="mt-2">v6: {(inspectData.dns_ipv6 && inspectData.dns_ipv6.length > 0) ? inspectData.dns_ipv6.join(', ') : '-'}</div>
+                      {inspectData.dns_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v6}</div>}
+                    </div>
+                    {inspectData.dns_used_server && (
+                      <div className="mt-3 text-[14px] opacity-50">DoH: <span className="font-mono">{inspectData.dns_used_server}</span></div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5">
+                  <div className="text-[14px] font-black uppercase tracking-widest opacity-60">Last Run</div>
+                  <div className="mt-2 text-sm font-bold opacity-70">
+                    {inspectData.last_run_at ? new Date(inspectData.last_run_at).toLocaleString() : (t('admin.domain.statusIdle') || 'Idle')}
+                    {inspectData.last_status ? ` · ${inspectData.last_status}` : ''}
+                  </div>
+                  {inspectData.last_error && <div className="mt-2 text-red-600 dark:text-red-400 text-[14px]">{inspectData.last_error}</div>}
+                  <div className="mt-3 text-[14px] opacity-60 font-mono">
+                    need_update: {(inspectData.need_update_v4 || inspectData.need_update_v6) ? 'yes' : 'no'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end pt-2 gap-3">
+            {viewEnabled && inspectData?.id && (
+              <Button onClick={() => runDdnsAndRefreshInspect(inspectData.id)} className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-sm">
+                <Play size={18} className="mr-2" />
+                {t('admin.domain.ddnsRunNow') || 'Run now'}
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => setInspectOpen(false)} className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-sm">{t('common.close')}</Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* DDNS Modal */}
       <Modal isOpen={ddnsModalOpen} onClose={() => setDdnsModalOpen(false)} title={ddnsDraft.id ? t('admin.domain.ddnsEditTitle') : t('admin.domain.create') + ' DDNS'} maxWidth="max-w-3xl">
@@ -766,6 +1013,46 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
               onToggle={(v) => setDdnsDraft({ ...ddnsDraft, ipv6_enabled: v })}
               isIpv6={true}
             />
+          </div>
+
+          <div className={sectionCardBase}>
+            <div className="space-y-6">
+              <SectionHeader icon={LinkIcon} title={t('admin.domain.webhookTitle') || 'Webhook'} desc={t('admin.domain.webhookTitle') || 'Webhook'} colorClass="bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20" />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.forceUpdate') || 'Force Update'}</label>
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
+                    <div className="text-sm font-bold opacity-70">
+                      {ddnsDraft.force_update ? (t('admin.domain.automaticUpdates') || 'Enabled') : (t('admin.domain.statusIdle') || 'Idle')}
+                    </div>
+                    <Switch checked={ddnsDraft.force_update} onCheckedChange={(v) => setDdnsDraft({ ...ddnsDraft, force_update: v })} />
+                  </div>
+                  <p className="text-[14px] opacity-50 italic">
+                    {t('admin.domain.forceUpdateHint') || 'When enabled, the next run will upsert records even if IP has not changed.'}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.webhookJson') || 'Webhook JSON'}</label>
+                  <textarea
+                    placeholder={t('admin.domain.webhookJsonPlaceholder') || '{"key":"value"}'}
+                    value={ddnsDraft.webhook_json}
+                    onChange={(e) => setDdnsDraft({ ...ddnsDraft, webhook_json: e.target.value })}
+                    className="w-full min-h-[120px] rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm text-foreground placeholder:opacity-30"
+                  />
+                  <p className="text-[14px] opacity-50 italic">
+                    {t('admin.domain.webhookJsonHint') || 'Used by callback provider and as extra payload fields when running DDNS.'}
+                  </p>
+                </div>
+              </div>
+
+              {selectedDdnsProviderKey?.toLowerCase() === 'callback' && (
+                <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 text-sm font-bold opacity-80">
+                  {t('admin.domain.callbackProviderHint') || 'Callback provider reads endpoint config from provider credential/config JSON. webhook_json here will be merged into callback payload.'}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className={sectionCardBase}>
