@@ -19,11 +19,25 @@ type SourceType = 'static' | 'url' | 'interface' | 'command' | 'inherit_last';
 interface SourceConfig {
   type: SourceType;
   value?: string;
-  url?: string;
-  urls?: string[]; // Back-end now supports this
+  urls?: string[];
   name?: string; // interface name
   cmd?: string;
 }
+
+const splitUrls = (raw: string): string[] => {
+  return raw
+    .split(/[\n,;\s]+/)
+    .map((s) => s.trim())
+    .filter((s) => s);
+};
+
+const normalizeUrls = (urls: string[]): string[] => {
+  const out = urls
+    .map((s) => s.trim())
+    .filter((s) => s)
+    .filter((s) => s.startsWith('http://') || s.startsWith('https://'));
+  return Array.from(new Set(out));
+};
 
 const DEFAULT_V4_URLS = [
   "https://api.ipify.org",
@@ -53,31 +67,51 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
   isIpv6 = false,
 }) => {
   const { t } = useTranslation();
-  const [config, setConfig] = useState<SourceConfig>({ type: 'url', url: isIpv6 ? DEFAULT_V6_URLS[0] : DEFAULT_V4_URLS[0] });
+  const [config, setConfig] = useState<SourceConfig>({
+    type: 'url',
+    urls: isIpv6 ? DEFAULT_V6_URLS : DEFAULT_V4_URLS,
+  });
   const [hadParseError, setHadParseError] = useState(false);
 
   useEffect(() => {
     try {
       const parsed = JSON.parse(sourceJson || '{}');
-      if (Object.keys(parsed).length > 0) setConfig(parsed);
+      if (typeof parsed === 'object' && parsed && !Array.isArray(parsed)) {
+        const p = parsed as Partial<SourceConfig> & { url?: string };
+        if (p.type === 'url') {
+          const urls = Array.isArray(p.urls)
+            ? p.urls.filter((x): x is string => typeof x === 'string')
+            : typeof p.url === 'string'
+              ? splitUrls(p.url)
+              : [];
+          const normalized = normalizeUrls(urls);
+          setConfig({ type: 'url', urls: normalized.length > 0 ? normalized : (isIpv6 ? DEFAULT_V6_URLS : DEFAULT_V4_URLS) });
+        } else {
+          setConfig(p as SourceConfig);
+        }
+      }
       setHadParseError(false);
     } catch {
       // Keep UI usable: fallback to defaults and require reconfigure.
       setHadParseError(true);
-      const fallback: SourceConfig = { type: 'url', url: isIpv6 ? DEFAULT_V6_URLS[0] : DEFAULT_V4_URLS[0] };
+      const fallback: SourceConfig = { type: 'url', urls: isIpv6 ? DEFAULT_V6_URLS : DEFAULT_V4_URLS };
       setConfig(fallback);
       onChange(JSON.stringify(fallback));
     }
   }, [sourceJson]);
 
   const updateConfig = (newConfig: SourceConfig) => {
-    setConfig(newConfig);
-    onChange(JSON.stringify(newConfig));
+    const normalized: SourceConfig =
+      newConfig.type === 'url'
+        ? { ...newConfig, urls: normalizeUrls(newConfig.urls || []) }
+        : newConfig;
+    setConfig(normalized);
+    onChange(JSON.stringify(normalized));
   };
 
   const handleTypeChange = (type: SourceType) => {
     const newConfig: SourceConfig = { type };
-    if (type === 'url') newConfig.url = isIpv6 ? DEFAULT_V6_URLS[0] : DEFAULT_V4_URLS[0];
+    if (type === 'url') newConfig.urls = isIpv6 ? DEFAULT_V6_URLS : DEFAULT_V4_URLS;
     if (type === 'static') newConfig.value = isIpv6 ? '::1' : '127.0.0.1';
     if (type === 'interface') newConfig.name = 'eth0';
     if (type === 'command') newConfig.cmd = 'ip addr show';
@@ -95,12 +129,16 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
   };
 
   const applyDefaultUrl = (u: string) => {
-    const current = config.url || '';
-    const urls = current.split(/[;,]/).map(s => s.trim()).filter(s => s);
-    if (!urls.includes(u)) {
-      urls.push(u);
-      updateConfig({ ...config, url: urls.join(', ') });
-    }
+    const urls = normalizeUrls([...(config.urls || []), u]);
+    updateConfig({ ...config, urls });
+  };
+
+  const applyRecommendedUrls = () => {
+    updateConfig({
+      ...config,
+      type: 'url',
+      urls: isIpv6 ? DEFAULT_V6_URLS : DEFAULT_V4_URLS,
+    });
   };
 
   return (
@@ -166,23 +204,33 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
                 
                 {config.type === 'url' && (
                   <div className="space-y-2">
-                    <Input
+                    <textarea
                       placeholder={t('admin.domain.ddnsUrlPlaceholder')}
-                      value={config.url || ''}
-                      onChange={(e) => updateConfig({ ...config, url: e.target.value })}
-                      className={controlBase}
+                      value={(config.urls || []).join('\n')}
+                      onChange={(e) => updateConfig({ ...config, urls: splitUrls(e.target.value) })}
+                      className="w-full min-h-[96px] rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm text-foreground placeholder:opacity-30"
+                      spellCheck={false}
                     />
                     <div className="flex flex-wrap gap-1.5">
                        {(isIpv6 ? DEFAULT_V6_URLS : DEFAULT_V4_URLS).map(u => (
-                         <button 
-                           key={u}
-                           type="button"
-                           onClick={() => applyDefaultUrl(u)}
-                           className="px-2 py-1 rounded-md bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-[14px] font-bold text-foreground/60 hover:text-primary hover:border-primary/30 transition-all flex items-center gap-1"
-                         >
-                           <Zap size={10}/> {u.replace('https://', '')}
-                         </button>
-                       ))}
+                          <button 
+                            key={u}
+                            type="button"
+                            onClick={() => applyDefaultUrl(u)}
+                            className="px-2 py-1 rounded-md bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-[14px] font-bold text-foreground/60 hover:text-primary hover:border-primary/30 transition-all flex items-center gap-1"
+                          >
+                            <Zap size={10}/> {u.replace('https://', '')}
+                          </button>
+                        ))}
+                    </div>
+                    <div>
+                      <button
+                        type="button"
+                        onClick={applyRecommendedUrls}
+                        className="text-[14px] font-black uppercase tracking-widest text-primary underline underline-offset-4 opacity-70 hover:opacity-100 transition-opacity"
+                      >
+                        {t('admin.domain.useRecommendedUrls') || 'Use recommended URLs'}
+                      </button>
                     </div>
                     <p className="text-[14px] opacity-50 dark:opacity-30 font-bold uppercase tracking-tighter text-foreground/60">{t('admin.domain.multiUrlHint')}</p>
                   </div>

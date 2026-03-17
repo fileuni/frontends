@@ -959,9 +959,19 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     <div className="text-[14px] font-black uppercase tracking-widest opacity-60">DNS Resolved</div>
                     <div className="mt-2 font-mono text-sm">
                       <div>v4: {(inspectData.dns_ipv4 && inspectData.dns_ipv4.length > 0) ? inspectData.dns_ipv4.join(', ') : '-'}</div>
-                      {inspectData.dns_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v4}</div>}
-                      <div className="mt-2">v6: {(inspectData.dns_ipv6 && inspectData.dns_ipv6.length > 0) ? inspectData.dns_ipv6.join(', ') : '-'}</div>
-                      {inspectData.dns_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v6}</div>}
+                    {inspectData.dns_error_v4 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v4}</div>}
+                    {inspectData.dns_error_v4 && (
+                      <div className="mt-2 text-[14px] opacity-60">
+                        {t('admin.domain.dnsDiagHint') || 'DNS diagnostics uses DoH servers configured in domain_acme_ddns.dns_servers. If unreachable, add multiple DoH endpoints or check proxy/network.'}
+                      </div>
+                    )}
+                    <div className="mt-2">v6: {(inspectData.dns_ipv6 && inspectData.dns_ipv6.length > 0) ? inspectData.dns_ipv6.join(', ') : '-'}</div>
+                    {inspectData.dns_error_v6 && <div className="mt-1 text-red-600 dark:text-red-400 font-sans text-[14px]">{inspectData.dns_error_v6}</div>}
+                    {inspectData.dns_error_v6 && (
+                      <div className="mt-2 text-[14px] opacity-60">
+                        {t('admin.domain.dnsDiagHint') || 'DNS diagnostics uses DoH servers configured in domain_acme_ddns.dns_servers. If unreachable, add multiple DoH endpoints or check proxy/network.'}
+                      </div>
+                    )}
                     </div>
                     {inspectData.dns_used_server && (
                       <div className="mt-3 text-[14px] opacity-50">DoH: <span className="font-mono">{inspectData.dns_used_server}</span></div>
