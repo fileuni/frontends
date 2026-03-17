@@ -100,7 +100,7 @@ export const UserHomeView = () => {
           name: t("nav.changePassword"),
           icon: ShieldCheck,
           path: "#mod=user&page=security",
-          desc: t("security.passwordDesc") || "Update your security credentials",
+          desc: t("security.passwordDesc"),
         },
         {
           name: t("nav.sessions"),

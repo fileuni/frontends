@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
-import { ShieldCheck, Mail, Phone, HelpCircle, AlertTriangle, Trash2, Send, ChevronRight, Cloud, RefreshCw, Key } from 'lucide-react';
+import { ShieldCheck, Mail, Phone, HelpCircle, AlertTriangle, Trash2, Send, ChevronRight, Cloud, RefreshCw, Key, Eye, EyeOff } from 'lucide-react';
 import { client, isApiError, postCaptchaPolicy } from '@/lib/api.ts';
 import { isPhoneInputValid, normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 import type { components } from '@/types/api.ts';
@@ -33,6 +33,7 @@ export const SecurityView = () => {
   const [security, setSecurity] = useState<SecurityUserResponse | null>(null);
   const [s3Keys, setS3Keys] = useState<{ access_key: string, secret_key: string } | null>(null);
   const [regenerating, setRegenerating] = useState(false);
+  const [showS3SecretKey, setShowS3SecretKey] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -57,6 +58,7 @@ export const SecurityView = () => {
         const { data: s3Res } = await client.GET('/api/v1/file/s3-keys');
         if (s3Res?.success && s3Res.data) {
           setS3Keys(s3Res.data as { access_key: string, secret_key: string });
+          setShowS3SecretKey(false);
         }
       }
     } catch (e) { console.error(e); }
@@ -107,6 +109,7 @@ export const SecurityView = () => {
       const { data: res } = await client.POST('/api/v1/file/s3-keys/regenerate');
       if (res?.success && res.data) {
         setS3Keys(res.data as { access_key: string, secret_key: string });
+        setShowS3SecretKey(false);
         addToast(t('security.rotateSuccess'), 'success');
       }
     } catch (e) { console.error(e); }
@@ -313,7 +316,7 @@ export const SecurityView = () => {
               </div>
               <div>
                 <h3 className="text-xl font-black">{t('nav.changePassword')}</h3>
-                <p className="text-sm opacity-50 font-bold">{t('security.passwordDesc') || 'Keep your account secure by updating your password regularly.'}</p>
+                <p className="text-sm opacity-50 font-bold">{t('security.passwordDesc')}</p>
               </div>
             </div>
           </div>
@@ -356,8 +359,23 @@ export const SecurityView = () => {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('security.secretKey')}</label>
-                <div className="bg-black/40 px-4 py-3 rounded-xl font-mono text-sm border border-white/5 select-all">
-                  {s3Keys?.secret_key ? '••••••••••••••••••••••••••••••••' : t('security.notGenerated')}
+                <div className="flex gap-2 items-stretch">
+                  <div className="bg-black/40 px-4 py-3 rounded-xl font-mono text-sm border border-white/5 select-all flex-1 overflow-hidden">
+                    {s3Keys?.secret_key
+                      ? (showS3SecretKey ? s3Keys.secret_key : '••••••••••••••••••••••••••••••••')
+                      : t('security.notGenerated')}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-12 w-12 border border-white/5 bg-black/20 hover:bg-white/10"
+                    onClick={() => setShowS3SecretKey(v => !v)}
+                    disabled={!s3Keys?.secret_key}
+                    title={showS3SecretKey ? t('security.hideSecretKey') : t('security.showSecretKey')}
+                    aria-label={showS3SecretKey ? t('security.hideSecretKey') : t('security.showSecretKey')}
+                  >
+                    {showS3SecretKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -372,7 +390,7 @@ export const SecurityView = () => {
                 ) : ''}
               </div>
               <div className="pl-6 opacity-60">
-                (Virtual Bucket: user-data)
+                ({t('security.virtualBucket')}: user-data)
               </div>
             </div>
           </div>
