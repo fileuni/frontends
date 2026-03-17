@@ -16,6 +16,7 @@ export * from './components/LogViewer';
 export * from './components/ui/Button';
 export * from './components/ui/Toast';
 export * from './lib/theme';
+export * from './lib/escapeCloseLayer';
 export * from './lib/monaco';
 export * from './lib/utils';
 export * from './lib/storageHub';

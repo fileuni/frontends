@@ -9,7 +9,7 @@ import { VfsStorageConfigModal } from './VfsStorageConfigModal';
 import { useResolvedTheme } from '../lib/theme';
 
 type DatabaseType = 'postgres' | 'sqlite';
-type FriendlyStep = 'performance' | 'database' | 'cache' | 'advanced' | 'other';
+type FriendlyStep = 'performance' | 'database' | 'cache' | 'other';
 type PerformanceTier = 'extreme-low' | 'low' | 'medium' | 'good';
 type LoadProfile = 'light' | 'heavy';
 type CaptchaPreheatMode = 'memory' | 'balanced' | 'throughput';
@@ -1397,8 +1397,17 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   const isDark = resolvedTheme === 'dark';
 
   const friendlySteps = useMemo<FriendlyStep[]>(() => {
-    return ['performance', 'database', 'cache', 'advanced', 'other'];
+    return ['performance', 'database', 'cache', 'other'];
   }, []);
+
+  useEffect(() => {
+    if (!friendlySteps.includes(friendlyStep)) {
+      const first = friendlySteps[0];
+      if (first) {
+        setFriendlyStep(first);
+      }
+    }
+  }, [friendlyStep, friendlySteps]);
 
   const allocatorRecommendation = useMemo(() => {
     const normalized = normalizeRuntimeOs(runtimeOs);
@@ -2569,33 +2578,6 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         }}
                       />
                     </label>
-                  </div>
-                </section>
-              )}
-
-              {friendlyStep === 'advanced' && (
-                <section className={cn(
-                  "rounded-2xl border p-3 sm:p-4 shadow-sm",
-                  isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white"
-                )}>
-                  <h4 className="text-sm sm:text-sm font-black uppercase tracking-wide mb-3">{t('admin.config.quickWizard.steps.advanced')}</h4>
-                  <p className={cn("text-sm sm:text-sm mb-3", isDark ? "text-slate-400" : "text-slate-800 font-black")}>{t('admin.config.quickWizard.advancedActions.intro')}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {onResetAdminPassword && (
-                      <button
-                        type="button"
-                        className={cn(
-                          "h-12 rounded-lg border text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-                          isDark
-                            ? "border-cyan-400/40 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20"
-                            : "border-cyan-500/50 bg-cyan-50 text-cyan-900 hover:bg-cyan-100"
-                        )}
-                        onClick={() => setShowAdminPasswordPanel(true)}
-                      >
-                        <Shield size={18} className={isDark ? "text-cyan-300" : "text-cyan-700"} />
-                        {t('admin.config.quickWizard.actions.setAdminPassword')}
-                      </button>
-                    )}
                   </div>
                 </section>
               )}
