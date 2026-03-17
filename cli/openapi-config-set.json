@@ -6,7 +6,7 @@
     "license": {
       "name": ""
     },
-    "version": "0.0.4-alpha.5"
+    "version": "0.0.4-alpha.6"
   },
   "paths": {
     "/api/v1/config-set/apply": {
