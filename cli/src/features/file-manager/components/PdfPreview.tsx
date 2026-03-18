@@ -40,17 +40,9 @@ if (typeof window !== "undefined") {
     typeof pdfjs?.version === "string" && pdfjs.version.length > 0
       ? pdfjs.version
       : "5.4.296";
-  try {
-    if (pdfjs) {
-      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-      "pdfjs-dist/build/pdf.worker.min.mjs",
-      import.meta.url,
-      ).toString();
-    }
-  } catch {
-    if (pdfjs) {
-      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${runtimePdfVersion}/pdf.worker.min.mjs`;
-    }
+  if (pdfjs) {
+    // Use CDN worker to avoid bundler resolution issues.
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${runtimePdfVersion}/pdf.worker.min.mjs`;
   }
 }
 

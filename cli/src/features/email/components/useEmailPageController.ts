@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@fileuni/shared";
-import { BASE_URL, client, extractData, type BaseResponse } from "@/lib/api.ts";
+import { BASE_URL, client, extractData } from "@/lib/api.ts";
 import { storageHub } from "@fileuni/shared";
 import { useAuthStore } from "@/stores/auth.ts";
 import { createClientUniqueId, resolveAttachmentFileName, stripHtml } from "./emailUtils.tsx";
-import type { ComposeAttachment, EmailAccount, EmailDraft, EmailFolder, EmailMessage, EmailMessageDetail, SendEmailResponse, UploadFileInfo } from "./emailTypes.ts";
+import type { ComposeAttachment, EmailAccount, EmailDraft, EmailFolder, EmailMessage, EmailMessageDetail, SendEmailResponse } from "./emailTypes.ts";
+import { uploadTempVfsAttachment } from './emailAttachmentUpload.ts';
 
 type DraftSavePayload = { id?: string };
 type SyncStatusPayload = { is_syncing: boolean };
@@ -492,22 +493,10 @@ export const useEmailPageController = (): UseEmailPageController => {
       return attachment.uploadedPath;
     }
 
-    const safeFilename = attachment.name.replace(/[\\/]/g, "_");
-    const targetPath = `/.virtual/tmp/email_attachments/${createClientUniqueId()}_${safeFilename}`;
-    const uploadUrl = `${BASE_URL}/api/v1/file/upload-raw?path=${encodeURIComponent(targetPath)}`;
-    const response = await fetch(uploadUrl, {
-      method: "POST",
-      headers: currentUserData?.access_token ? { Authorization: `Bearer ${currentUserData.access_token}` } : undefined,
-      body: attachment.file,
+    const uploadedPath = await uploadTempVfsAttachment({
+      attachment,
+      accessToken: currentUserData?.access_token,
     });
-
-    const payload = (await response
-      .json()
-      .catch((): null => null)) as BaseResponse<UploadFileInfo> | null;
-    const uploadedPath = payload?.data?.path;
-    if (!response.ok || !payload?.success || !uploadedPath) {
-      throw new Error(payload?.msg || "Attachment upload failed");
-    }
 
     setComposeAttachments((prev) =>
       prev.map((item) => (item.id === attachment.id ? { ...item, uploadedPath } : item)),
