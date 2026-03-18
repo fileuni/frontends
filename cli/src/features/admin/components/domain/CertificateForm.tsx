@@ -185,15 +185,8 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
               <select className={selectBase} style={selectStyle} value={caProvider} onChange={(e) => onChangeCaProvider(e.target.value)}>
                 <option value="letsencrypt">Let's Encrypt</option>
                 <option value="letsencrypt-staging">Staging (Test)</option>
-                <option value="zerossl" disabled>
-                  ZeroSSL (Not supported yet)
-                </option>
+                <option value="zerossl">ZeroSSL (EAB)</option>
               </select>
-              {caProvider === 'zerossl' && (
-                <div className="mt-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-[14px] font-bold text-red-700 dark:text-red-400">
-                  ZeroSSL is not supported yet in the pure Rust ACME engine. Please switch to Let's Encrypt.
-                </div>
-              )}
             </div>
             <div className="space-y-2">
               <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.challengeType')}</label>
