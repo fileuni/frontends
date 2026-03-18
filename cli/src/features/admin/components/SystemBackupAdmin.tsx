@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { client } from '@/lib/api.ts';
 import { Archive, Download, Upload, AlertTriangle, RefreshCw, Database, Server } from 'lucide-react';
+import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
 
 const getErrorMessage = (error: unknown): string => {
   if (typeof error === 'object' && error !== null && 'msg' in error) {
@@ -118,22 +119,19 @@ export const SystemBackupAdmin: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner shrink-0">
-          <Archive size={24} />
-        </div>
-        <div>
-          <h2 className="text-2xl font-black tracking-tight">{t("admin.backup.title")}</h2>
-          <p className="text-sm font-bold opacity-40 uppercase tracking-widest">
-            Core Data Management
-          </p>
-        </div>
-      </div>
+    <AdminPage>
+      <AdminPageHeader
+        icon={<Archive size={24} />}
+        title={t("admin.backup.title")}
+        subtitle={'Core Data Management'}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Export Section */}
-        <div className="p-8 bg-white/[0.03] rounded-[2rem] border border-white/5 shadow-xl flex flex-col justify-between">
+        <AdminCard
+          variant="glass"
+          className="p-8 rounded-[2rem] shadow-xl flex flex-col justify-between"
+        >
           <div>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center border border-primary/20">
@@ -157,10 +155,13 @@ export const SystemBackupAdmin: React.FC = () => {
             {loading ? <RefreshCw className="animate-spin mr-2" size={18} /> : <Download className="mr-2" size={18} />}
             {loading ? t("common.loading") : t("admin.backup.exportBtn")}
           </Button>
-        </div>
+        </AdminCard>
 
         {/* Local Backup Section */}
-        <div className="p-8 bg-white/[0.03] rounded-[2rem] border border-white/5 shadow-xl flex flex-col justify-between">
+        <AdminCard
+          variant="glass"
+          className="p-8 rounded-[2rem] shadow-xl flex flex-col justify-between"
+        >
           <div>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-500 flex items-center justify-center border border-indigo-500/20">
@@ -181,10 +182,13 @@ export const SystemBackupAdmin: React.FC = () => {
             {localLoading ? <RefreshCw className="animate-spin mr-2" size={18} /> : <Archive className="mr-2" size={18} />}
             {localLoading ? t("common.loading") : t("admin.backup.localBtn")}
           </Button>
-        </div>
+        </AdminCard>
 
         {/* Import Section */}
-        <div className="p-8 bg-white/[0.03] rounded-[2rem] border border-white/5 border-l-4 border-l-red-500 shadow-xl flex flex-col justify-between">
+        <AdminCard
+          variant="glass"
+          className="p-8 rounded-[2rem] border-l-4 border-l-red-500 shadow-xl flex flex-col justify-between"
+        >
           <div>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-500 flex items-center justify-center border border-red-500/20">
@@ -215,7 +219,7 @@ export const SystemBackupAdmin: React.FC = () => {
                 {loading ? t("common.loading") : t("admin.backup.importBtn")}
             </Button>
           </div>
-        </div>
+        </AdminCard>
       </div>
 
       {/* Confirmation Modal */}
@@ -259,6 +263,6 @@ export const SystemBackupAdmin: React.FC = () => {
           </div>
         </div>
       </Modal>
-    </div>
+    </AdminPage>
   );
 };
