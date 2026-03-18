@@ -5,6 +5,7 @@ import { useToastStore } from '@fileuni/shared';
 import { Input } from '@/components/ui/Input.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Pagination } from '@fileuni/shared';
+import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
 import { 
   ClipboardList, Search,
   RefreshCw, Calendar, User,
@@ -108,24 +109,19 @@ export const AuditLogAdmin = () => {
   };
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-        <div className="flex items-center gap-4 min-w-0 w-full xl:w-auto">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner shrink-0">
-            <ClipboardList size={24} />
+    <AdminPage>
+      <AdminPageHeader
+        icon={<ClipboardList size={24} />}
+        title={t('admin.audit.title') || 'Audit Logs'}
+        subtitle={
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] shrink-0" />
+            <p className="text-sm font-bold opacity-40 uppercase tracking-widest truncate">
+              {t('admin.audit.eventsTotal', { count: total })}
+            </p>
           </div>
-          <div className="min-w-0">
-            <h2 className="text-2xl font-black tracking-tight truncate">{t('admin.audit.title') || 'Audit Logs'}</h2>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] shrink-0" />
-              <p className="text-sm font-bold opacity-40 uppercase tracking-widest truncate">
-                {t('admin.audit.eventsTotal', { count: total })}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full xl:w-auto">
+        }
+        actions={
           <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-3">
             <div className="relative group min-w-[150px]">
                <User className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
@@ -180,10 +176,10 @@ export const AuditLogAdmin = () => {
               <RefreshCw size={18} />
             </button>
           </form>
-        </div>
-      </div>
+        }
+      />
 
-      <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+      <AdminCard variant="glass" className="rounded-[2.5rem] overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse table-fixed">
             <thead>
@@ -279,7 +275,7 @@ export const AuditLogAdmin = () => {
           }}
           className="bg-background/50 backdrop-blur-md"
         />
-      </div>
-    </div>
+      </AdminCard>
+    </AdminPage>
   );
 };

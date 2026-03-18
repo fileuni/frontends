@@ -7,10 +7,7 @@ import { toast } from '@fileuni/shared';
 import { client, BASE_URL } from '@/lib/api.ts';
 import { useAuthStore } from '@/stores/auth.ts';
 
-//  批量任务进度弹窗 / Batch task progress modal
-//
-//  Why/为什么：后端压缩/解压/批量操作以 task_id 异步执行，需要前端轮询展示进度与统计。
-//  What/做什么：轮询 /api/v1/file/admin/file-manager/task/{id} 与 statistics 接口，并在 Modal 中展示。
+// Batch task progress modal: poll task status by task_id.
 
 type TaskStatusValue = 'pending' | 'running' | 'success' | 'failed' | 'interrupted';
 

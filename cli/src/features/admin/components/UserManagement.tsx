@@ -19,6 +19,7 @@ import { client, extractData } from '@/lib/api.ts';
 import type { components } from '@/types/api.ts';
 import { cn } from '@/lib/utils.ts';
 import { fetchRolesAndPermissions, type RolePermissionView } from './roleApi';
+import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
 
 type UserResponse = components["schemas"]["UserResponse"];
 
@@ -178,45 +179,42 @@ export const UserManagement = () => {
   };
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-        <div className="flex items-center gap-4 min-w-0 w-full xl:w-auto">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner shrink-0">
-            <Users size={24} />
+    <AdminPage>
+      <AdminPageHeader
+        icon={<Users size={24} />}
+        title={t('admin.users.title')}
+        subtitle={
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] shrink-0" />
+            <p className="text-sm font-bold opacity-40 uppercase tracking-widest truncate">
+              {total} {t('admin.users.table.user')} Total
+            </p>
           </div>
-          <div className="min-w-0">
-            <h2 className="text-2xl font-black tracking-tight truncate">{t('admin.users.title')}</h2>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] shrink-0" />
-              <p className="text-sm font-bold opacity-40 uppercase tracking-widest truncate">
-                {total} {t('admin.users.table.user')} Total
-              </p>
+        }
+        actions={
+          <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+            <form onSubmit={handleSearch} className="relative flex-1 md:w-80 min-w-[200px] group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
+              <Input 
+                value={search} 
+                onChange={e => setSearch(e.target.value)} 
+                placeholder={t('admin.users.searchPlaceholder')} 
+                className="pl-12 h-12"
+              />
+            </form>
+            <div className="flex items-center gap-2 px-4 rounded-xl bg-white/5 border border-white/5 h-12 shrink-0">
+              <span className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.showDeleted')}</span>
+              <Switch checked={includeDeleted} onChange={setIncludeDeleted} />
             </div>
+            <Button className="h-12 px-6 rounded-xl shadow-lg shadow-primary/20 shrink-0" onClick={() => window.location.hash = 'mod=admin&page=user-create'}>
+              <UserPlus size={18} className="mr-2" />
+              <span className="hidden sm:inline">{t('admin.users.addUser')}</span>
+            </Button>
           </div>
-        </div>
+        }
+      />
 
-        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-          <form onSubmit={handleSearch} className="relative flex-1 md:w-80 min-w-[200px] group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
-            <Input 
-              value={search} 
-              onChange={e => setSearch(e.target.value)} 
-              placeholder={t('admin.users.searchPlaceholder')} 
-              className="pl-12 h-12"
-            />
-          </form>
-          <div className="flex items-center gap-2 px-4 rounded-xl bg-white/5 border border-white/5 h-12 shrink-0">
-            <span className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.showDeleted')}</span>
-            <Switch checked={includeDeleted} onChange={setIncludeDeleted} />
-          </div>
-          <Button className="h-12 px-6 rounded-xl shadow-lg shadow-primary/20 shrink-0" onClick={() => window.location.hash = 'mod=admin&page=user-create'}>
-            <UserPlus size={18} className="mr-2" />
-            <span className="hidden sm:inline">{t('admin.users.addUser')}</span>
-          </Button>
-        </div>
-      </div>
-
-      <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+      <AdminCard variant="glass" className="rounded-[2.5rem] overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -341,7 +339,7 @@ export const UserManagement = () => {
           }}
           className="bg-background/50 backdrop-blur-md"
         />
-      </div>
+      </AdminCard>
 
       {/* Reset Password Modal */}
       <Modal
@@ -453,6 +451,6 @@ export const UserManagement = () => {
           </div>
         </div>
       </Modal>
-    </div>
+    </AdminPage>
   );
 };

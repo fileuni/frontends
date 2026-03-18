@@ -125,6 +125,16 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
     onChangeDnsConfig(JSON.stringify(next));
   };
 
+  const suggestDnsZoneFromDomains = () => {
+    const first = (domains || []).map((d) => (d || '').trim()).find((d) => d);
+    if (!first) return;
+    const base = first.replace(/^\*\./, '').replace(/\.+$/g, '');
+    const parts = base.split('.').map((p) => p.trim()).filter((p) => p);
+    if (parts.length < 2) return;
+    const zone2 = parts.slice(-2).join('.');
+    updateDnsConfig('dns_zone', zone2);
+  };
+
   return (
     <div className="space-y-8">
       {/* Identity Group */}
@@ -212,12 +222,23 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
 
               <div className="pt-2 space-y-2">
                 <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.zoneLabel') || 'Managed Zone'}</label>
-                <Input
-                  value={getConfigValue('dns_zone') || getConfigValue('zone')}
-                  onChange={(e) => updateDnsConfig('dns_zone', e.target.value)}
-                  placeholder={t('admin.domain.zonePlaceholder') || 'e.g. nascore.eu.org'}
-                  className={controlBase}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={getConfigValue('dns_zone') || getConfigValue('zone')}
+                    onChange={(e) => updateDnsConfig('dns_zone', e.target.value)}
+                    placeholder={t('admin.domain.zonePlaceholder') || 'e.g. nascore.eu.org'}
+                    className={controlBase}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={suggestDnsZoneFromDomains}
+                    className="h-11 px-4 border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 shrink-0 shadow-sm font-bold"
+                    title={t('admin.domain.suggestDnsZone') || 'Suggest'}
+                  >
+                    {t('admin.domain.suggest') || 'Suggest'}
+                  </Button>
+                </div>
                 <div className="text-[14px] opacity-50 italic">
                   {t('admin.domain.zoneHostExplicitHint') || 'Zone here means the DNS managed zone (domain), not geographic region.'}
                 </div>

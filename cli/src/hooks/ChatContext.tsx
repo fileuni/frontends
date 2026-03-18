@@ -1076,7 +1076,7 @@ export const ChatProvider: React.FC<{
         if (content.startsWith("Welcome, ")) {
           const welcomeText = content.replace("Welcome, ", "").trim();
 
-          // 1. Parse own nickname and ID
+          // Parse own nickname and ID.
           // Format A: Welcome, {nickname} (ID: {id} | Inviter: {iid} | Name: {iname})
           // Format B: Welcome, {nickname}
           const ownMatch = welcomeText.match(/^(.*?) \(ID: (.*?) \|/);
@@ -1090,7 +1090,7 @@ export const ChatProvider: React.FC<{
             setNicknames((prev) => ({ ...prev, [selfId]: welcomeText }));
           }
 
-          // 2. Parse inviter info
+          // Parse inviter info.
           const inviterMatch = welcomeText.match(
             /Inviter: (.*?) \| Name: (.*?)\)/,
           );

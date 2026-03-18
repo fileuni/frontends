@@ -21,21 +21,14 @@ interface Props {
   onClose?: () => void;
 }
 
-/**
- * Image Preview Component
- * Simplified logic: Get token -> Build URL -> Display image
- */
 export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onClose }: Props) => {
   const { t } = useTranslation();
-  // Playlist State
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const activeFile = playlist[currentIndex];
 
-  // Image State
   const [imgSrc, setImgSrc] = useState<string>('');
   const imgRef = useRef<HTMLImageElement>(null);
   
-  // UI State
   const [showList, setShowList] = useState(true);
   const [transform, setTransform] = useState({ scale: 1, rotate: 0, flipH: false });
 
@@ -53,7 +46,6 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     },
   });
 
-  // 1. When index changes, fetch Token and set image URL
   useEffect(() => {
     if (!activeFile) return;
 
@@ -75,7 +67,6 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     setTransform({ scale: 1, rotate: 0, flipH: false });
   }, [currentIndex]); // Only depend on currentIndex since activeFile is derived
 
-  // 2. Navigation Handler
   const handleNavigate = (idx: number) => {
     if (idx >= 0 && idx < playlist.length && idx !== currentIndex) {
       setCurrentIndex(idx);
@@ -87,7 +78,6 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     }
   };
 
-  // 3. Keyboard Navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') handleNavigate(currentIndex - 1);

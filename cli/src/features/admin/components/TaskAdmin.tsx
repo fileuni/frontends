@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@fileuni/shared';
 import { Button } from '@/components/ui/Button.tsx';
+import { AdminPage, AdminPageHeader } from './admin-ui';
 import { 
   Activity, Clock, XCircle, CheckCircle2, 
   AlertCircle, RefreshCw
@@ -108,12 +109,32 @@ export const TaskAdmin = () => {
     }
   };
 
-  if (loading && tasks.length === 0) return <div className="h-64 flex items-center justify-center font-black animate-pulse opacity-50 uppercase tracking-widest">{t('admin.loading')}</div>;
+  if (loading && tasks.length === 0) {
+    return (
+      <AdminPage>
+        <AdminPageHeader
+          icon={<Activity size={24} />}
+          title={t('admin.tasks.title') || 'Tasks'}
+          subtitle={t('admin.loading') || 'Loading...'}
+        />
+        <div className="h-64 flex items-center justify-center font-black animate-pulse opacity-50 uppercase tracking-widest">
+          {t('admin.loading')}
+        </div>
+      </AdminPage>
+    );
+  }
 
   return (
-    <div className="space-y-10">
-      {/* Scheduled Jobs Section */}
-      <section className="space-y-6">
+    <AdminPage>
+      <AdminPageHeader
+        icon={<Activity size={24} />}
+        title={t('admin.tasks.title') || 'Tasks'}
+        subtitle={t('admin.tasks.subtitle') || 'Background tasks and scheduled jobs'}
+      />
+
+      <div className="space-y-10">
+        {/* Scheduled Jobs Section */}
+        <section className="space-y-6">
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <Clock size={18} className="text-primary" />
@@ -277,7 +298,8 @@ export const TaskAdmin = () => {
             </div>
           )}
         </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </AdminPage>
   );
 };

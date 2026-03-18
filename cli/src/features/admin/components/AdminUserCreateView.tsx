@@ -68,8 +68,7 @@ export const AdminUserCreateView = () => {
       });
       addToast(t("pages.admin.userCreate.createSuccess"), "success");
       window.location.hash = "mod=admin&page=users";
-    } catch (e: unknown) {
-      /* Handled */
+    } catch {
     } finally {
       setLoading(false);
     }

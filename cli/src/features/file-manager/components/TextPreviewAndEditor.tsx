@@ -75,7 +75,6 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
   const monacoAvailable = mounted && isMonacoSupported();
   const useMonaco = monacoAvailable && !forcePlainTextarea;
 
-  // 1. 获取内容 / Fetch content
   useEffect(() => {
     let canceled = false;
     const fetchContent = async () => {
@@ -109,7 +108,6 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
     };
   }, [path]);
 
-  // 2. 保存内容 / Save content
   const saveContent = async (reason: 'manual' | 'auto') => {
     if (savingRef.current) return;
     if (loadedPathRef.current !== path) return;

@@ -102,8 +102,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
     try {
       const token = await getFileDownloadToken(archivePath);
       
-      // 2. 构建下载 URL / Construct download URL
-      // 直接使用 a 标签下载，避免 Blob 炸掉浏览器内存 / Direct link download to save memory
+      // Use a direct link to avoid large Blob in memory.
       let url = `${BASE_URL}/api/v1/file/archive/extract-file?archive_path=${encodeURIComponent(archivePath)}&file_path=${encodeURIComponent(fileInArchive)}&file_download_token=${encodeURIComponent(token)}`;
       if (password) {
           url += `&password=${encodeURIComponent(password)}`;
@@ -111,7 +110,6 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
 
       toast.info(t('common.downloadStarted') || "Starting download...");
 
-      // 3. 触发原生下载 / Trigger native download
       const a = document.createElement('a');
       a.href = url;
       a.download = fileInArchive.split('/').pop() || 'file';

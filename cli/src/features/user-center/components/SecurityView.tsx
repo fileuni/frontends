@@ -195,7 +195,7 @@ export const SecurityView = () => {
         setNeedCaptcha(true);
         fetchCaptcha();
       }
-    } catch (e: unknown) { /* Handled by interceptor */ }
+    } catch {}
   };
 
   const handleVerify = async (type: 'email' | 'phone') => {
@@ -213,8 +213,7 @@ export const SecurityView = () => {
           });
 
       if (error) {
-        // Verification failed, clear code but keep modal open
-        // Verification failed, clear code but keep modal open
+        // Verification failed: clear code but keep modal open.
         setBindForm(f => ({ ...f, code: '' }));
         return;
       }

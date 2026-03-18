@@ -15,6 +15,7 @@ import {
 import { client, extractData, handleApiError, type PaginatedData } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
 import type { components } from '@/types/api.ts';
+import { AdminPage, AdminPageHeader } from './admin-ui';
 
 type BlacklistItemResponse = components["schemas"]["BlacklistItemResponse"];
 
@@ -138,25 +139,21 @@ export const BlacklistAdmin = () => {
   };
 
   return (
-    <div className="space-y-8 pb-20 animate-in fade-in duration-500">
-      {/* Header & Controls */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center shadow-inner">
-            <ShieldX size={24} />
+    <AdminPage className="animate-in fade-in duration-500">
+      <AdminPageHeader
+        icon={<ShieldX size={24} />}
+        iconClassName="bg-red-500/10 text-red-500"
+        title={t('admin.blacklist.title') || 'Access Guard'}
+        subtitle={
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            <p className="text-sm font-bold opacity-40 uppercase tracking-widest">
+              {total} {t('admin.blacklist.totalEntries') || 'Security Constraints Active'}
+            </p>
           </div>
-          <div>
-            <h2 className="text-2xl font-black tracking-tight">{t('admin.blacklist.title') || 'Access Guard'}</h2>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              <p className="text-sm font-bold opacity-40 uppercase tracking-widest">
-                {total} {t('admin.blacklist.totalEntries') || 'Security Constraints Active'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+        }
+        actions={
+          <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
           <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
             <button 
               onClick={() => setGuardType('blacklist')}
@@ -187,8 +184,9 @@ export const BlacklistAdmin = () => {
             <Plus size={18} className="mr-2" />
             <span className="font-bold">{t('admin.blacklist.addEntry') || 'Add Constraint'}</span>
           </Button>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -392,6 +390,6 @@ export const BlacklistAdmin = () => {
           </div>
         </div>
       </Modal>
-    </div>
+    </AdminPage>
   );
 };

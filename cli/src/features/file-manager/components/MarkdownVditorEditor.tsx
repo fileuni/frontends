@@ -60,7 +60,6 @@ export const MarkdownVditorEditor = ({
     setIsEditing(false);
   }, [path]);
 
-  // 1. Fetch content
   useEffect(() => {
     let canceled = false;
     const fetchContent = async () => {
@@ -100,7 +99,6 @@ export const MarkdownVditorEditor = ({
   const resolvedCdnBase = (cdnBase || 'https://cdn.jsdelivr.net').replace(/\/+$/, '');
   const currentCdn = `${resolvedCdnBase}/npm/vditor`;
 
-  // 2. Init Vditor
   useEffect(() => {
     if (!vditorRef.current || loading) return undefined;
 

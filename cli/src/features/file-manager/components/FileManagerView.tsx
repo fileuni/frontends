@@ -78,7 +78,6 @@ export const FileManagerView = () => {
   const [propertiesFile, setPropertiesFile] = useState<FileInfo | null>(null);
   const isSyncingRef = useRef(false);
 
-  // 1. 初始化加载同步 / Init and sync
   useEffect(() => {
     isSyncingRef.current = true;
     const page = params.page as FileManagerMode;
@@ -99,7 +98,6 @@ export const FileManagerView = () => {
   }, [params.page, params.path]);
 
 
-  // 2. Store -> URL 同步 / Store to URL sync
   useEffect(() => {
     if (!isReady || isSyncingRef.current) return;
     
@@ -117,7 +115,6 @@ export const FileManagerView = () => {
     }
   }, [fmMode, currentPath, isReady, navigate, params.page, params.path]);
 
-  // 3. 数据加载 / Data loading
   const sortConfig = store.getSortConfig();
   const isSearchMode = store.getIsSearchMode();
   const searchKeyword = store.getSearchKeyword();
@@ -132,7 +129,6 @@ export const FileManagerView = () => {
     searchKeyword, pageSize, isReady
   ]);
 
-  // 4. 键盘快捷键 / Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
