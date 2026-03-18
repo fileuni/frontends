@@ -16,264 +16,51 @@ import {
   Globe, ShieldCheck, Plus, RefreshCw, 
   Trash2, Edit3, Play, Activity, ScrollText,
   Server, Calendar, Link as LinkIcon, CheckCircle, XCircle, 
-  Info, Network, Key, MoreHorizontal
+  Info, Network, Key, MoreHorizontal, Search
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  type DomainAcmeDdnsView,
+  type ProviderProfileItem,
+  type ProviderAccountItem,
+  type DdnsEntryItem,
+  type DdnsRunLogItem,
+  type DdnsCheckResult,
+  type CertRunLogItem,
+  type CertPreflightResult,
+  type CertificateItem,
+  type CertRunAllCheckResponse,
+  type ZeroSslAccountItem,
+  type ProviderDraft,
+  type DdnsDraft,
+  type SslDraft,
+  type ZeroSslDraft,
+  type RowActionsTarget,
+  isDdnsEntryItem,
+  newProviderDraft,
+  newDdnsDraft,
+  newSslDraft,
+  newZeroSslDraft,
+  normalizeChallengeType,
+} from './domain/types';
+import { parseItemsAndTotal } from './domain/paginated';
+import {
+  controlBase,
+  sectionCardBase,
+  selectBase,
+  selectStyle,
+  SectionHeader,
+  StatusBadge,
+} from './domain/presentation';
+import { DdnsLogsModal } from './domain/modals/DdnsLogsModal';
+import { CertLogsModal } from './domain/modals/CertLogsModal';
 
 interface DomainAcmeDdnsAdminProps {
-  view: 'ddns' | 'ssl';
+  view: DomainAcmeDdnsView;
 }
 
-interface ProviderProfileItem {
-  key: string;
-  name: string;
-  vendor_type?: 'domain' | 'ddns_only';
-  supports_acme_dns01: boolean;
-  supports_ddns: boolean;
-  credential_fields?: Array<{
-    key: string;
-    label: string;
-    required: boolean;
-    field_type: 'text' | 'password';
-    placeholder?: string | null;
-    helper?: string | null;
-  }>;
-  config_fields?: Array<{
-    key: string;
-    label: string;
-    required: boolean;
-    field_type: 'text' | 'password';
-    placeholder?: string | null;
-    helper?: string | null;
-  }>;
-}
 
-interface ProviderAccountItem {
-  id: string;
-  name: string;
-  provider_key: string;
-  enabled: boolean;
-  config_json: string;
-  has_credential: boolean;
-  auth_ok?: boolean;
-  auth_error?: string | null;
-}
 
-interface DdnsEntryItem {
-  id: string;
-  name: string;
-  provider_account_id: string;
-  zone: string;
-  host: string;
-  fqdn: string;
-  ttl: number;
-  proxied: boolean;
-  ipv4_enabled: boolean;
-  ipv6_enabled: boolean;
-  ipv4_source_json: string;
-  ipv6_source_json: string;
-  webhook_json: string;
-  force_update: boolean;
-  enabled: boolean;
-  last_status?: string | null;
-  last_error?: string | null;
-  last_run_at?: string | null;
-  last_ipv4?: string | null;
-  last_ipv6?: string | null;
-}
-
-interface DdnsRunLogItem {
-  id: string;
-  ddns_entry_id: string;
-  run_at: string;
-  status: string;
-  provider_key: string;
-  message: string;
-  ipv4?: string | null;
-  ipv6?: string | null;
-}
-
-interface CertRunLogItem {
-  id: string;
-  cert_id: string;
-  run_at: string;
-  status: string;
-  message: string;
-  expires_at?: string | null;
-}
-
-interface CertificateItem {
-  id: string;
-  name: string;
-  enabled: boolean;
-  auto_renew: boolean;
-  ca_provider: string;
-  challenge_type: string;
-  domains_json: string;
-  provider_account_id?: string | null;
-  dns_config_json: string;
-  account_email: string;
-  export_path?: string | null;
-  expires_at?: string | null;
-  last_status?: string | null;
-  last_error?: string | null;
-}
-
-interface CertRunAllCheckResponse {
-  renew_before_days: number;
-  force_update: boolean;
-  results: Array<{ id: string; status: string }>;
-}
-
-interface ZeroSslAccountItem {
-  id: string;
-  name: string;
-  eab_kid: string;
-  enabled: boolean;
-}
-
-interface ProviderDraft {
-  id?: string;
-  name: string;
-  provider_key: string;
-  credential_json_enc: string;
-  config_json: string;
-  enabled: boolean;
-}
-
-interface DdnsDraft {
-  id?: string;
-  name: string;
-  provider_account_id: string;
-  fqdns: string; // Optional: hosts list for bulk create
-  zone: string;
-  host: string;
-  ttl: number;
-  proxied: boolean;
-  enabled: boolean;
-  ipv4_enabled: boolean;
-  ipv6_enabled: boolean;
-  ipv4_source_json: string;
-  ipv6_source_json: string;
-  webhook_json: string;
-  force_update: boolean;
-}
-
-interface SslDraft {
-  id?: string;
-  name: string;
-  ca_provider: string;
-  challenge_type: 'dns01' | 'http01';
-  provider_account_id: string;
-  domains_json: string;
-  account_email: string;
-  export_path: string;
-  enabled: boolean;
-  auto_renew: boolean;
-  dns_config_json?: string;
-}
-
-interface ZeroSslDraft {
-  id?: string;
-  name: string;
-  eab_kid: string;
-  eab_hmac_key: string;
-  enabled: boolean;
-}
-
-// Global styles for high-visibility controls in light mode
-const controlBase = "h-11 rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-3 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm font-bold text-foreground placeholder:opacity-30";
-const selectBase = cn(controlBase, "appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1rem] font-normal");
-const selectStyle = { backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\' /%3E%3C/svg%3E")' };
-
-const sectionCardBase = "p-5 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-zinc-50/50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 dark:shadow-2xl transition-all";
-
-const normalizeStatus = (value?: string | null): 'idle' | 'running' | 'success' | 'failed' => {
-  const input = (value || '').toLowerCase().trim();
-  if (input.includes('skipped_running')) return 'running';
-  if (input.includes('run') || input.includes('processing')) return 'running';
-  if (input.includes('fail') || input.includes('error')) return 'failed';
-  if (input.includes('success') || input.includes('ok')) return 'success';
-  return 'idle';
-};
-
-const isDdnsEntryItem = (item: DdnsEntryItem | CertificateItem): item is DdnsEntryItem => {
-  return 'fqdn' in item;
-};
-
-type RowActionsTarget =
-  | { kind: 'ddns'; item: DdnsEntryItem }
-  | { kind: 'ssl'; item: CertificateItem };
-
-const StatusBadge = ({ status }: { status?: string | null }) => {
-  const { t } = useTranslation();
-  const s = normalizeStatus(status);
-  if (s === 'success') return <Badge variant="outline" className="bg-green-500/10 text-green-700 dark:text-green-500 border-green-500/20 whitespace-nowrap font-bold"><CheckCircle size={18} className="mr-1"/> {t('admin.domain.statusSuccess')}</Badge>;
-  if (s === 'failed') return <Badge variant="outline" className="bg-red-500/10 text-red-700 dark:text-red-500 border-red-500/20 whitespace-nowrap font-bold"><XCircle size={18} className="mr-1"/> {t('admin.domain.statusFailed')}</Badge>;
-  if (s === 'running') return <Badge variant="outline" className="bg-blue-500/10 text-blue-700 dark:text-blue-500 border-blue-500/20 whitespace-nowrap animate-pulse font-bold"><RefreshCw size={18} className="mr-1 animate-spin"/> {t('admin.domain.statusRunning')}</Badge>;
-  return <Badge variant="outline" className="whitespace-nowrap opacity-50 dark:opacity-40 font-bold">{t('admin.domain.statusIdle')}</Badge>;
-};
-
-const SectionHeader = ({ icon: Icon, title, desc, colorClass = "bg-primary/10 text-primary border-primary/20" }: { icon: LucideIcon, title: string, desc?: string, colorClass?: string }) => (
-  <div className="flex items-start gap-3 mb-6">
-    <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center border shrink-0", colorClass)}>
-      <Icon size={16} />
-    </div>
-    <div>
-      <h4 className="text-sm font-black uppercase tracking-widest text-foreground/80 leading-none mb-1">{title}</h4>
-      {desc && <p className="text-[14px] opacity-60 dark:opacity-40 font-bold uppercase tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">{desc}</p>}
-    </div>
-  </div>
-);
-
-const newProviderDraft = (): ProviderDraft => ({
-  name: '',
-  provider_key: 'cloudflare',
-  credential_json_enc: '{}',
-  config_json: '{}',
-  enabled: true,
-});
-
-const newDdnsDraft = (): DdnsDraft => ({
-  name: '',
-  provider_account_id: '',
-  fqdns: '',
-  zone: '',
-  host: '@',
-  ttl: 120,
-  proxied: false,
-  enabled: true,
-  ipv4_enabled: true,
-  ipv6_enabled: false,
-  ipv4_source_json: '{"type":"url","urls":["https://api.ipify.org","https://ifconfig.me/ip","https://ipv4.icanhazip.com"]}',
-  ipv6_source_json: '{"type":"url","urls":["https://api64.ipify.org","https://ifconfig.me/ip","https://ipv6.icanhazip.com"]}',
-  webhook_json: '{}',
-  force_update: false,
-});
-
-const newSslDraft = (): SslDraft => ({
-  name: '',
-  ca_provider: 'letsencrypt',
-  challenge_type: 'dns01',
-  provider_account_id: '',
-  domains_json: '[]',
-  account_email: '',
-  export_path: '',
-  enabled: true,
-  auto_renew: true,
-});
-
-const normalizeChallengeType = (value: string): 'dns01' | 'http01' => {
-  return value === 'http01' ? 'http01' : 'dns01';
-};
-
-const newZeroSslDraft = (): ZeroSslDraft => ({
-  name: '',
-  eab_kid: '',
-  eab_hmac_key: '',
-  enabled: true,
-});
 
 const fetchZeroSslAccounts = async (): Promise<ZeroSslAccountItem[]> => {
   return extractData<ZeroSslAccountItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/zerossl/accounts'));
@@ -324,6 +111,14 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
   const [rowActionsOpen, setRowActionsOpen] = useState<RowActionsTarget | null>(null);
 
+  const [ddnsCheckOpen, setDdnsCheckOpen] = useState(false);
+  const [ddnsCheckLoading, setDdnsCheckLoading] = useState(false);
+  const [ddnsCheckResult, setDdnsCheckResult] = useState<DdnsCheckResult | null>(null);
+
+  const [certCheckOpen, setCertCheckOpen] = useState(false);
+  const [certCheckLoading, setCertCheckLoading] = useState(false);
+  const [certCheckResult, setCertCheckResult] = useState<CertPreflightResult | null>(null);
+
   const [bulkCreateOpen, setBulkCreateOpen] = useState(false);
 
   const [featureFlags, setFeatureFlags] = useState<{
@@ -338,6 +133,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [sslModalOpen, setSslModalOpen] = useState(false);
   const [providerModalOpen, setProviderModalOpen] = useState(false);
   const [zerosslModalOpen, setZeroSslModalOpen] = useState(false);
+
+  const [providerTestZone, setProviderTestZone] = useState('');
+  const [providerTestHost, setProviderTestHost] = useState('_fileuni_verify');
+  const [providerTestRunning, setProviderTestRunning] = useState(false);
 
   const [providerDraft, setProviderDraft] = useState<ProviderDraft>(newProviderDraft());
   const [showProviderList, setShowProviderList] = useState(true);
@@ -406,30 +205,14 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       setProviderProfiles(Array.isArray(profileData) ? profileData : []);
       setProviders(Array.isArray(providerData) ? providerData : []);
       if (isDdnsView) {
-        const ddnsData = ddnsDataRaw as any;
-        if (Array.isArray(ddnsData)) {
-          setDdnsEntries(ddnsData as DdnsEntryItem[]);
-          setDdnsTotal(ddnsData.length);
-        } else if (ddnsData && Array.isArray(ddnsData.items)) {
-          setDdnsEntries(ddnsData.items as DdnsEntryItem[]);
-          setDdnsTotal(typeof ddnsData.total === 'number' ? ddnsData.total : ddnsData.items.length);
-        } else {
-          setDdnsEntries([]);
-          setDdnsTotal(0);
-        }
+        const { items, total } = parseItemsAndTotal<DdnsEntryItem>(ddnsDataRaw);
+        setDdnsEntries(items);
+        setDdnsTotal(total);
       }
       if (isSslView) {
-        const certData = certDataRaw as any;
-        if (Array.isArray(certData)) {
-          setCertificates(certData as CertificateItem[]);
-          setCertTotal(certData.length);
-        } else if (certData && Array.isArray(certData.items)) {
-          setCertificates(certData.items as CertificateItem[]);
-          setCertTotal(typeof certData.total === 'number' ? certData.total : certData.items.length);
-        } else {
-          setCertificates([]);
-          setCertTotal(0);
-        }
+        const { items, total } = parseItemsAndTotal<CertificateItem>(certDataRaw);
+        setCertificates(items);
+        setCertTotal(total);
       }
       setZeroSslAccounts(Array.isArray(zerosslData) ? zerosslData : []);
 
@@ -497,6 +280,38 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     }
   };
 
+  const checkDdns = async (id: string) => {
+    if (ddnsCheckLoading) return;
+    setDdnsCheckLoading(true);
+    try {
+      const data = await extractData<DdnsCheckResult>(
+        client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/check', { params: { path: { id } } }),
+      );
+      setDdnsCheckResult(data);
+      setDdnsCheckOpen(true);
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setDdnsCheckLoading(false);
+    }
+  };
+
+  const checkCert = async (id: string) => {
+    if (certCheckLoading) return;
+    setCertCheckLoading(true);
+    try {
+      const data = await extractData<CertPreflightResult>(
+        client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/check', { params: { path: { id } } }),
+      );
+      setCertCheckResult(data);
+      setCertCheckOpen(true);
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setCertCheckLoading(false);
+    }
+  };
+
   const openLogs = (entry: DdnsEntryItem) => {
     setLogEntry(entry);
     setLogPage(1);
@@ -510,12 +325,12 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   };
 
   React.useEffect(() => {
-    if (!logOpen || !logEntry) return;
+    if (!logOpen || !logEntry) return undefined;
     let cancelled = false;
     (async () => {
       setLogLoading(true);
       try {
-        const data = await extractData<any>(
+        const data = await extractData<unknown>(
           client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/logs', {
             params: {
               path: { id: logEntry.id },
@@ -527,8 +342,9 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           }),
         );
         if (cancelled) return;
-        setLogItems(Array.isArray(data?.items) ? (data.items as DdnsRunLogItem[]) : []);
-        setLogTotal(typeof data?.total === 'number' ? data.total : 0);
+        const parsed = parseItemsAndTotal<DdnsRunLogItem>(data);
+        setLogItems(parsed.items);
+        setLogTotal(parsed.total);
       } catch (error) {
         if (!cancelled) addToast(handleApiError(error, t), 'error');
       } finally {
@@ -541,12 +357,12 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   }, [logOpen, logEntry?.id, logPage, logPageSize]);
 
   React.useEffect(() => {
-    if (!certLogOpen || !certLogCert) return;
+    if (!certLogOpen || !certLogCert) return undefined;
     let cancelled = false;
     (async () => {
       setCertLogLoading(true);
       try {
-        const data = await extractData<any>(
+        const data = await extractData<unknown>(
           client.GET('/api/v1/admin/domain-acme-ddns/certs/{id}/logs', {
             params: {
               path: { id: certLogCert.id },
@@ -558,8 +374,9 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           }),
         );
         if (cancelled) return;
-        setCertLogItems(Array.isArray(data?.items) ? (data.items as CertRunLogItem[]) : []);
-        setCertLogTotal(typeof data?.total === 'number' ? data.total : 0);
+        const parsed = parseItemsAndTotal<CertRunLogItem>(data);
+        setCertLogItems(parsed.items);
+        setCertLogTotal(parsed.total);
       } catch (error) {
         if (!cancelled) addToast(handleApiError(error, t), 'error');
       } finally {
@@ -888,6 +705,38 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     }
   };
 
+  const testProviderDns = async () => {
+    if (!providerDraft.id) {
+      addToast(t('admin.domain.providerNameRequired') || 'Save provider first', 'error');
+      return;
+    }
+    if (!providerTestZone.trim()) {
+      addToast(t('admin.domain.zoneLabel') || 'Zone is required', 'error');
+      return;
+    }
+    if (providerTestRunning) return;
+    setProviderTestRunning(true);
+    try {
+      const res = await extractData<unknown>(
+        client.POST('/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-dns', {
+          params: { path: { id: providerDraft.id } },
+          body: { zone: providerTestZone.trim(), host: providerTestHost.trim() || undefined },
+        }),
+      );
+
+      const rec = typeof res === 'object' && res !== null ? (res as Record<string, unknown>) : null;
+      const observed = rec?.observed === true;
+      const messageRaw = rec?.message;
+      const message =
+        typeof messageRaw === 'string' ? messageRaw : observed ? 'ok' : 'ok (pending)';
+      addToast(message, observed ? 'success' : 'info');
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setProviderTestRunning(false);
+    }
+  };
+
   const saveZeroSslQuick = async () => {
     try {
       const created = await createZeroSslAccount(zerosslDraft);
@@ -914,6 +763,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   };
 
   const isDdns = view === 'ddns';
+  const isSsl = view === 'ssl';
   const viewEnabled = isDdns ? (featureFlags?.ddnsEnabled ?? true) : (featureFlags?.sslEnabled ?? true);
   const schedulerEnabled = isDdns
     ? (featureFlags?.ddnsSchedulerEnabled ?? true)
@@ -1357,6 +1207,22 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   </Button>
                 )}
 
+                {rowActionsOpen.kind === 'ddns' && (
+                  <Button
+                    variant="outline"
+                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                    onClick={async () => {
+                      const id = rowActionsOpen.item.id;
+                      setRowActionsOpen(null);
+                      await checkDdns(id);
+                    }}
+                    disabled={ddnsCheckLoading}
+                  >
+                    <Search size={16} className="mr-2" />
+                    {t('common.check') || 'Check'}
+                  </Button>
+                )}
+
                 {viewEnabled && rowActionsOpen.kind === 'ssl' && (
                   <Button
                     variant="outline"
@@ -1373,6 +1239,22 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   </Button>
                 )}
 
+                {rowActionsOpen.kind === 'ssl' && (
+                  <Button
+                    variant="outline"
+                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                    onClick={async () => {
+                      const id = rowActionsOpen.item.id;
+                      setRowActionsOpen(null);
+                      await checkCert(id);
+                    }}
+                    disabled={certCheckLoading}
+                  >
+                    <Search size={16} className="mr-2" />
+                    {t('common.check') || 'Check'}
+                  </Button>
+                )}
+
                 <Button
                   variant="outline"
                   className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
@@ -1385,7 +1267,9 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   }}
                 >
                   <ScrollText size={16} className="mr-2" />
-                  {t('admin.domain.ddnsLogs') || 'Logs'}
+                  {(rowActionsOpen.kind === 'ddns'
+                    ? (t('admin.domain.ddnsLogs') || 'Logs')
+                    : (t('admin.domain.certLogs') || 'Logs'))}
                 </Button>
 
                 {viewEnabled && (
@@ -1427,6 +1311,216 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         </div>
       </Modal>
 
+      {/* DDNS Check Modal */}
+      <Modal
+        isOpen={ddnsCheckOpen}
+        onClose={() => {
+          setDdnsCheckOpen(false);
+          setDdnsCheckResult(null);
+        }}
+        title={t('common.check') || 'Check'}
+        maxWidth="max-w-3xl"
+      >
+        <div className="space-y-6 p-1 text-foreground">
+          {!ddnsCheckResult ? (
+            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+              {t('common.noData') || 'No data'}
+            </div>
+          ) : (
+            <div className={sectionCardBase}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-sm font-black uppercase tracking-widest opacity-60">FQDN</div>
+                  <div className="mt-1 font-mono text-sm truncate">{ddnsCheckResult.fqdn}</div>
+                  <div className="mt-2 text-[14px] opacity-60">
+                    {ddnsCheckResult.dns_used_server
+                      ? `DoH: ${ddnsCheckResult.dns_used_server}`
+                      : (t('admin.domain.enableSchedulerHint') || 'DoH not available')}
+                  </div>
+                </div>
+                <div className="shrink-0">
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      'h-8 px-3 rounded-xl font-black uppercase tracking-widest',
+                      (ddnsCheckResult.need_update_ipv4 || ddnsCheckResult.need_update_ipv6)
+                        ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400'
+                        : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400',
+                    )}
+                  >
+                    {(ddnsCheckResult.need_update_ipv4 || ddnsCheckResult.need_update_ipv6) ? 'UPDATE' : 'OK'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
+                  <div className="text-[12px] font-black uppercase tracking-widest opacity-50">IPv4</div>
+                  <div className="mt-2 text-[14px] font-mono opacity-80">desired: {ddnsCheckResult.desired_ipv4 || '-'}</div>
+                  <div className="mt-2 text-[14px] font-mono opacity-60">dns: {ddnsCheckResult.dns_ipv4?.length ? ddnsCheckResult.dns_ipv4.join(', ') : '-'}</div>
+                  {ddnsCheckResult.dns_error_ipv4 && (
+                    <div className="mt-2 text-[14px] font-bold text-orange-600 dark:text-orange-400">
+                      {ddnsCheckResult.dns_error_ipv4}
+                    </div>
+                  )}
+                  <div className="mt-3 flex items-center gap-2 text-[14px] font-bold">
+                    <Badge variant="outline" className={cn('h-7 px-2 rounded-lg', ddnsCheckResult.need_update_ipv4 ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400' : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400')}>
+                      {ddnsCheckResult.need_update_ipv4 ? 'UPDATE' : 'OK'}
+                    </Badge>
+                    {ddnsCheckResult.ip_changed_ipv4 && <span className="opacity-60">ip changed</span>}
+                    {ddnsCheckResult.dns_mismatch_ipv4 && <span className="opacity-60">dns mismatch</span>}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
+                  <div className="text-[12px] font-black uppercase tracking-widest opacity-50">IPv6</div>
+                  <div className="mt-2 text-[14px] font-mono opacity-80">desired: {ddnsCheckResult.desired_ipv6 || '-'}</div>
+                  <div className="mt-2 text-[14px] font-mono opacity-60">dns: {ddnsCheckResult.dns_ipv6?.length ? ddnsCheckResult.dns_ipv6.join(', ') : '-'}</div>
+                  {ddnsCheckResult.dns_error_ipv6 && (
+                    <div className="mt-2 text-[14px] font-bold text-orange-600 dark:text-orange-400">
+                      {ddnsCheckResult.dns_error_ipv6}
+                    </div>
+                  )}
+                  <div className="mt-3 flex items-center gap-2 text-[14px] font-bold">
+                    <Badge variant="outline" className={cn('h-7 px-2 rounded-lg', ddnsCheckResult.need_update_ipv6 ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400' : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400')}>
+                      {ddnsCheckResult.need_update_ipv6 ? 'UPDATE' : 'OK'}
+                    </Badge>
+                    {ddnsCheckResult.ip_changed_ipv6 && <span className="opacity-60">ip changed</span>}
+                    {ddnsCheckResult.dns_mismatch_ipv6 && <span className="opacity-60">dns mismatch</span>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                  onClick={() => {
+                    setDdnsCheckOpen(false);
+                    setDdnsCheckResult(null);
+                  }}
+                >
+                  {t('common.close') || 'Close'}
+                </Button>
+                {(ddnsCheckResult.need_update_ipv4 || ddnsCheckResult.need_update_ipv6) && (
+                  <Button
+                    className="h-12 px-6 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30"
+                    onClick={async () => {
+                      const id = ddnsCheckResult.id;
+                      setDdnsCheckOpen(false);
+                      setDdnsCheckResult(null);
+                      await runDdns(id);
+                    }}
+                  >
+                    <Play size={16} className="mr-2" />
+                    {t('admin.domain.ddnsRunNow') || 'Run now'}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* Cert Check Modal */}
+      <Modal
+        isOpen={certCheckOpen}
+        onClose={() => {
+          setCertCheckOpen(false);
+          setCertCheckResult(null);
+        }}
+        title={t('common.check') || 'Check'}
+        maxWidth="max-w-3xl"
+      >
+        <div className="space-y-6 p-1 text-foreground">
+          {!certCheckResult ? (
+            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+              {t('common.noData') || 'No data'}
+            </div>
+          ) : (
+            <div className={sectionCardBase}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-sm font-black uppercase tracking-widest opacity-60">CERT</div>
+                  <div className="mt-1 text-base font-black truncate">{certCheckResult.name}</div>
+                </div>
+                <div className="shrink-0">
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      'h-8 px-3 rounded-xl font-black uppercase tracking-widest',
+                      certCheckResult.overall_status === 'fail'
+                        ? 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400'
+                        : certCheckResult.overall_status === 'warn'
+                          ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400'
+                          : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400',
+                    )}
+                  >
+                    {certCheckResult.overall_status}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-3">
+                {(certCheckResult.items || []).map((it, idx) => (
+                  <div
+                    key={`${it.key}-${idx}`}
+                    className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="text-[12px] font-black uppercase tracking-widest opacity-50">{it.key}</div>
+                        <div className="mt-1 text-[14px] font-bold opacity-70">{it.message}</div>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          'h-7 px-2 rounded-lg font-black uppercase tracking-widest',
+                          it.status === 'fail'
+                            ? 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400'
+                            : it.status === 'warn'
+                              ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400'
+                              : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400',
+                        )}
+                      >
+                        {it.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                  onClick={() => {
+                    setCertCheckOpen(false);
+                    setCertCheckResult(null);
+                  }}
+                >
+                  {t('common.close') || 'Close'}
+                </Button>
+                {viewEnabled && certCheckResult.overall_status !== 'fail' && (
+                  <Button
+                    className="h-12 px-6 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30"
+                    onClick={async () => {
+                      const certId = certCheckResult.cert_id;
+                      setCertCheckOpen(false);
+                      setCertCheckResult(null);
+                      await runSsl(certId);
+                    }}
+                  >
+                    <Play size={16} className="mr-2" />
+                    {t('admin.domain.certRunNow') || 'Run now'}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
+
       {isDdns && (
         <Pagination
           current={ddnsPage}
@@ -1455,198 +1549,41 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         />
       )}
 
-      {/* DDNS Logs Modal */}
-      <Modal
+      <DdnsLogsModal
         isOpen={logOpen}
+        entry={logEntry}
+        loading={logLoading}
+        items={logItems}
+        total={logTotal}
+        page={logPage}
+        pageSize={logPageSize}
+        onPageChange={setLogPage}
+        onPageSizeChange={setLogPageSize}
         onClose={() => {
           setLogOpen(false);
           setLogEntry(null);
           setLogItems([]);
           setLogTotal(0);
         }}
-        title={t('admin.domain.ddnsLogs') || 'DDNS Logs'}
-        maxWidth="max-w-4xl"
-      >
-        <div className="space-y-6 p-1 text-foreground">
-          {!logEntry ? (
-            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
-              {t('common.noData') || 'No data'}
-            </div>
-          ) : (
-            <div className={sectionCardBase}>
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="text-sm font-black uppercase tracking-widest opacity-70 truncate">{logEntry.name}</div>
-                  <div className="mt-1 text-[14px] font-mono opacity-60 truncate">{logEntry.fqdn}</div>
-                </div>
-                <div className="shrink-0 text-[14px] font-black uppercase tracking-widest opacity-50">
-                  {logTotal}
-                </div>
-              </div>
+      />
 
-              <div className="mt-5 overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-zinc-200 dark:border-white/5">
-                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('common.time') || 'Time'}</th>
-                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('admin.acme.table.status') || 'Status'}</th>
-                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">IP</th>
-                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('common.message') || 'Message'}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {logLoading ? (
-                      <tr>
-                        <td colSpan={4} className="py-10 text-center opacity-50 font-bold uppercase tracking-widest">
-                          <RefreshCw className="animate-spin mb-3 mx-auto" size={22} />
-                          {t('common.loading')}
-                        </td>
-                      </tr>
-                    ) : logItems.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="py-10 text-center opacity-40 font-bold uppercase tracking-widest">
-                          {t('common.noData') || 'No data'}
-                        </td>
-                      </tr>
-                    ) : (
-                      logItems.map((row) => (
-                        <tr key={row.id} className="border-b border-zinc-100 dark:border-white/5 last:border-0">
-                          <td className="py-3 text-[14px] font-bold opacity-70 whitespace-nowrap">
-                            {new Date(row.run_at).toLocaleString()}
-                          </td>
-                          <td className="py-3">
-                            <StatusBadge status={row.status} />
-                          </td>
-                          <td className="py-3 text-[14px] font-mono opacity-70 whitespace-nowrap">
-                            {row.ipv4 ? `v4 ${row.ipv4}` : '-'}{row.ipv6 ? `  v6 ${row.ipv6}` : ''}
-                          </td>
-                          <td className="py-3 text-[14px] font-bold opacity-70">
-                            <div className="truncate" title={row.message}>{row.message}</div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              <Pagination
-                current={logPage}
-                total={logTotal}
-                pageSize={logPageSize}
-                onPageChange={setLogPage}
-                onPageSizeChange={(size) => {
-                  setLogPageSize(size);
-                  setLogPage(1);
-                }}
-                className="bg-transparent"
-              />
-            </div>
-          )}
-        </div>
-      </Modal>
-
-      {/* Certificate Logs Modal */}
-      <Modal
+      <CertLogsModal
         isOpen={certLogOpen}
+        cert={certLogCert}
+        loading={certLogLoading}
+        items={certLogItems}
+        total={certLogTotal}
+        page={certLogPage}
+        pageSize={certLogPageSize}
+        onPageChange={setCertLogPage}
+        onPageSizeChange={setCertLogPageSize}
         onClose={() => {
           setCertLogOpen(false);
           setCertLogCert(null);
           setCertLogItems([]);
           setCertLogTotal(0);
         }}
-        title={t('admin.domain.certLogs') || 'Certificate Logs'}
-        maxWidth="max-w-4xl"
-      >
-        <div className="space-y-6 p-1 text-foreground">
-          {!certLogCert ? (
-            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
-              {t('common.noData') || 'No data'}
-            </div>
-          ) : (
-            <div className={sectionCardBase}>
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="text-sm font-black uppercase tracking-widest opacity-70 truncate">
-                    {certLogCert.name}
-                  </div>
-                  <div className="mt-1 text-[14px] font-mono opacity-60 truncate">
-                    {(() => {
-                      try {
-                        const arr = JSON.parse(certLogCert.domains_json) as unknown;
-                        return Array.isArray(arr) ? arr.join(', ') : certLogCert.domains_json;
-                      } catch {
-                        return certLogCert.domains_json;
-                      }
-                    })()}
-                  </div>
-                </div>
-                <div className="shrink-0 text-[14px] font-black uppercase tracking-widest opacity-50">
-                  {certLogTotal}
-                </div>
-              </div>
-
-              <div className="mt-5 overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-zinc-200 dark:border-white/5">
-                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('common.time') || 'Time'}</th>
-                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('admin.acme.table.status') || 'Status'}</th>
-                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('admin.domain.certExpiresAt') || 'Expires'}</th>
-                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('common.message') || 'Message'}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {certLogLoading ? (
-                      <tr>
-                        <td colSpan={4} className="py-10 text-center opacity-50 font-bold uppercase tracking-widest">
-                          <RefreshCw className="animate-spin mb-3 mx-auto" size={22} />
-                          {t('common.loading')}
-                        </td>
-                      </tr>
-                    ) : certLogItems.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="py-10 text-center opacity-40 font-bold uppercase tracking-widest">
-                          {t('common.noData') || 'No data'}
-                        </td>
-                      </tr>
-                    ) : (
-                      certLogItems.map((row) => (
-                        <tr key={row.id} className="border-b border-zinc-100 dark:border-white/5 last:border-0">
-                          <td className="py-3 text-[14px] font-bold opacity-70 whitespace-nowrap">
-                            {new Date(row.run_at).toLocaleString()}
-                          </td>
-                          <td className="py-3">
-                            <StatusBadge status={row.status} />
-                          </td>
-                          <td className="py-3 text-[14px] font-mono opacity-70 whitespace-nowrap">
-                            {row.expires_at ? new Date(row.expires_at).toLocaleDateString() : '-'}
-                          </td>
-                          <td className="py-3 text-[14px] font-bold opacity-70">
-                            <div className="truncate" title={row.message}>{row.message}</div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              <Pagination
-                current={certLogPage}
-                total={certLogTotal}
-                pageSize={certLogPageSize}
-                onPageChange={setCertLogPage}
-                onPageSizeChange={(size) => {
-                  setCertLogPageSize(size);
-                  setCertLogPage(1);
-                }}
-                className="bg-transparent"
-              />
-            </div>
-          )}
-        </div>
-      </Modal>
+      />
 
       {/* DDNS Modal */}
       <Modal isOpen={ddnsModalOpen} onClose={() => setDdnsModalOpen(false)} title={ddnsDraft.id ? t('admin.domain.ddnsEditTitle') : t('admin.domain.create') + ' DDNS'} maxWidth="max-w-3xl">
@@ -2011,6 +1948,56 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   </div>
                 </div>
               </div>
+
+              {providerDraft.id && (providerProfileMap.get(providerDraft.provider_key)?.vendor_type === 'domain') && (
+                <div className={sectionCardBase}>
+                  <div className="space-y-6">
+                    <SectionHeader
+                      icon={Network}
+                      title={t('common.check') || 'Check'}
+                      desc={t('admin.domain.zoneHostExplicitHint') || 'Test DNS write permission with a temporary TXT record.'}
+                      colorClass="bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20"
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">
+                          {t('admin.domain.zoneLabel') || 'Zone'}
+                        </label>
+                        <Input
+                          value={providerTestZone}
+                          onChange={(e) => setProviderTestZone(e.target.value)}
+                          placeholder={t('admin.domain.zonePlaceholder') || 'e.g. example.com'}
+                          className={controlBase}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">
+                          {t('admin.domain.hostLabel') || 'Host'}
+                        </label>
+                        <Input
+                          value={providerTestHost}
+                          onChange={(e) => setProviderTestHost(e.target.value)}
+                          placeholder="_fileuni_verify"
+                          className={controlBase}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={testProviderDns}
+                        disabled={providerTestRunning}
+                        className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                      >
+                        <Search size={16} className={cn('mr-2', providerTestRunning && 'animate-pulse')} />
+                        {providerTestRunning ? (t('common.loading') || 'Loading') : ((t('common.check') || 'Check') + ' DNS')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className={sectionCardBase}>
                 <label className="flex items-start gap-4 cursor-pointer group">
