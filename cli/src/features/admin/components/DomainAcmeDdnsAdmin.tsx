@@ -1214,7 +1214,15 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 </tr>
               ) : (
                 (isDdns ? ddnsEntries : certificates).map((item: DdnsEntryItem | CertificateItem) => (
-                  <tr key={item.id} className="border-b border-zinc-100 dark:border-white/5 last:border-0 hover:bg-zinc-50/50 dark:hover:bg-white/[0.02] transition-colors group">
+                  <tr
+                    key={item.id}
+                    onClick={() => {
+                      if (!viewEnabled) return;
+                      if (isDdnsEntryItem(item)) openEditDdns(item);
+                      else openEditSsl(item as CertificateItem);
+                    }}
+                    className="border-b border-zinc-100 dark:border-white/5 last:border-0 hover:bg-zinc-50/50 dark:hover:bg-white/[0.02] transition-colors group cursor-pointer"
+                  >
                     <td className="px-8 py-5 text-foreground font-bold">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-white/5 flex items-center justify-center border border-zinc-200 dark:border-white/5 font-black text-sm group-hover:border-primary/30 transition-all shadow-inner">
@@ -1253,7 +1261,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                           <>
                             {viewEnabled && (
                               <button
-                                onClick={() => runDdns(item.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  runDdns(item.id);
+                                }}
                                 disabled={runningDdnsAll || !!runningDdnsById[item.id]}
                                 className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
                                 title={t('admin.domain.ddnsRunNow') || 'Run now'}
@@ -1262,7 +1273,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                               </button>
                             )}
                             <button
-                              onClick={() => setRowActionsOpen({ kind: 'ddns', item })}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setRowActionsOpen({ kind: 'ddns', item });
+                              }}
                               className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm"
                               title={t('common.actions') || 'Actions'}
                               aria-label={t('common.actions') || 'Actions'}
@@ -1274,7 +1288,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                           <>
                             {viewEnabled ? (
                               <button
-                                onClick={() => runSsl(item.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  runSsl(item.id);
+                                }}
                                 disabled={runningSslAll || !!runningSslById[item.id]}
                                 className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
                                 title={t('admin.domain.certRunNow') || 'Run now'}
@@ -1283,7 +1300,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                               </button>
                             ) : null}
                             <button
-                              onClick={() => setRowActionsOpen({ kind: 'ssl', item: item as CertificateItem })}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setRowActionsOpen({ kind: 'ssl', item: item as CertificateItem });
+                              }}
                               className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm"
                               title={t('common.actions') || 'Actions'}
                               aria-label={t('common.actions') || 'Actions'}
