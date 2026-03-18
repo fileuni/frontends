@@ -13,6 +13,7 @@ export * from './components/ConfigWorkbenchShell';
 export * from './components/ServiceControlPanel';
 export * from './components/QuickActionsPanel';
 export * from './components/LogViewer';
+export * from './components/Pagination';
 export * from './components/ui/Button';
 export * from './components/ui/Toast';
 export * from './lib/theme';
