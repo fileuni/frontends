@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils.ts';
 import { useFileStore } from "../store/useFileStore.ts";
 import { useFileActions } from "../hooks/useFileActions.ts";
 import { FileBrowser } from "./FileBrowser.tsx";
-import { Pagination } from '@/components/common/Pagination.tsx';
+import { Pagination } from '@fileuni/shared';
 import { FileManagerContextMenu } from "./FileManagerContextMenu.tsx";
 import { ShareModal } from "./ShareModal.tsx";
 import { FilePropertiesModal } from "./FilePropertiesModal";

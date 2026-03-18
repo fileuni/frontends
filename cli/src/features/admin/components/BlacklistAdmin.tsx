@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
-import { Pagination } from '@/components/common/Pagination.tsx';
+import { Pagination } from '@fileuni/shared';
 import { 
   ShieldX, UserX, MonitorOff, 
   Trash2, Plus, RefreshCw,

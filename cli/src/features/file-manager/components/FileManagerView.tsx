@@ -4,7 +4,7 @@ import { FileBrowser } from "./FileBrowser.tsx";
 import { FileManagerContextMenu } from "./FileManagerContextMenu.tsx";
 import { ShareModal } from "./ShareModal.tsx";
 import { GlobalUploader } from "./GlobalUploader.tsx";
-import { Pagination } from "@/components/common/Pagination.tsx";
+import { Pagination } from "@fileuni/shared";
 
 import { useFileActions } from "../hooks/useFileActions.ts";
 import { useFileStore } from "../store/useFileStore.ts";

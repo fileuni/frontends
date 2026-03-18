@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/Input.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
-import { Pagination } from '@/components/common/Pagination.tsx';
+import { Pagination } from '@fileuni/shared';
 import { 
   Users, UserPlus, Search,
   Edit3, Trash2, ShieldAlert,

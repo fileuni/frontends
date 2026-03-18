@@ -4,7 +4,7 @@ import '@/lib/i18n';
 import { useToastStore } from '@fileuni/shared';
 import { Input } from '@/components/ui/Input.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
-import { Pagination } from '@/components/common/Pagination.tsx';
+import { Pagination } from '@fileuni/shared';
 import { 
   ClipboardList, Search,
   RefreshCw, Calendar, User,
