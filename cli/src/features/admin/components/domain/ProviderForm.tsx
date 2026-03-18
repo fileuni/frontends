@@ -10,6 +10,24 @@ interface ProviderFormProps {
   onChangeCredential: (json: string) => void;
   onChangeConfig: (json: string) => void;
   isEdit?: boolean;
+  providerProfile?: {
+    credential_fields?: Array<{
+      key: string;
+      label: string;
+      required: boolean;
+      field_type: 'text' | 'password';
+      placeholder?: string | null;
+      helper?: string | null;
+    }> | null;
+    config_fields?: Array<{
+      key: string;
+      label: string;
+      required: boolean;
+      field_type: 'text' | 'password';
+      placeholder?: string | null;
+      helper?: string | null;
+    }> | null;
+  };
 }
 
 interface FieldDef {
@@ -25,78 +43,34 @@ interface FieldDef {
 // Reuse standard high-visibility control base
 const controlBase = "h-11 rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-3 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm font-bold text-foreground placeholder:opacity-30";
 
-const PROVIDER_FIELDS: Record<string, FieldDef[]> = {
-  aliyun: [
-    { key: 'access_key_id', label: 'AccessKey ID', required: true },
-    { key: 'access_key_secret', label: 'AccessKey Secret', type: 'password', required: true },
-  ],
-  tencentcloud: [
-    { key: 'secret_id', label: 'SecretId', required: true },
-    { key: 'secret_key', label: 'SecretKey', type: 'password', required: true },
-  ],
-  dnspod: [
-    { key: 'token_id', label: 'Token ID', required: true },
-    { key: 'token_key', label: 'Token Key', type: 'password', required: true },
-  ],
-  cloudflare: [
-    { key: 'api_token', label: 'API Token', type: 'password', placeholder: 'Cloudflare API Token', required: true },
-  ],
-  aws: [
-    { key: 'access_key_id', label: 'AccessKey ID', required: true },
-    { key: 'secret_access_key', label: 'Secret Access Key', type: 'password', required: true },
-    { key: 'hosted_zone_id', label: 'Hosted Zone ID', required: true },
-    { key: 'session_token', label: 'Session Token', type: 'password', placeholder: 'Optional' },
-  ],
-  huaweicloud: [
-    { key: 'token', label: 'IAM Token', type: 'password' },
-    { key: 'zone_id', label: 'Zone ID', placeholder: 'Optional' },
-    { key: 'username', label: 'Username', placeholder: 'Password mode only' },
-    { key: 'password', label: 'Password', type: 'password', placeholder: 'Password mode only' },
-    { key: 'domain_name', label: 'Domain Name', placeholder: 'Password mode only' },
-  ],
-  volcengine: [
-    { key: 'access_key_id', label: 'AccessKey ID', required: true },
-    { key: 'secret_access_key', label: 'Secret Access Key', type: 'password', required: true },
-  ],
-  google: [
-    { key: 'access_token', label: 'Access Token', type: 'password', required: true },
-    { key: 'project_id', label: 'Project ID', required: true, isConfig: true },
-    { key: 'managed_zone', label: 'Managed Zone', required: true, isConfig: true },
-  ],
-  azure: [
-    { key: 'subscription_id', label: 'Subscription ID', required: true },
-    { key: 'access_token', label: 'Access Token', type: 'password', placeholder: 'Token mode' },
-    { key: 'tenant_id', label: 'Tenant ID', placeholder: 'SP mode' },
-    { key: 'client_id', label: 'Client ID', placeholder: 'SP mode' },
-    { key: 'client_secret', label: 'Client Secret', type: 'password', placeholder: 'SP mode' },
-    { key: 'resource_group', label: 'Resource Group', placeholder: 'Optional' },
-    { key: 'zone_name', label: 'Zone Name', placeholder: 'Optional' },
-  ],
-  godaddy: [
-    { key: 'key', label: 'API Key', required: true },
-    { key: 'secret', label: 'API Secret', type: 'password', required: true },
-  ],
-  gandi: [
-    { key: 'api_key', label: 'API Key', type: 'password' },
-    { key: 'bearer_token', label: 'Bearer Token', type: 'password' },
-  ],
-  digitalocean: [
-    { key: 'api_token', label: 'API Token', type: 'password', required: true },
-  ],
-  vultr: [
-    { key: 'api_key', label: 'API Key', type: 'password', required: true },
-  ],
-  linode: [
-    { key: 'api_token', label: 'API Token', type: 'password', required: true },
-  ],
-  duckdns: [
-    { key: 'token', label: 'Token', type: 'password', required: true },
-    { key: 'domain', label: 'Domain', placeholder: 'Optional default domain' },
-  ],
-  callback: [
-    { key: 'url', label: 'Webhook URL', required: true },
-    { key: 'method', label: 'Method', placeholder: 'POST' },
-  ],
+const buildFieldDefsFromProfile = (
+  profile: ProviderFormProps['providerProfile'],
+): FieldDef[] | null => {
+  if (!profile) return null;
+  const defs: FieldDef[] = [];
+  for (const f of profile.credential_fields || []) {
+    defs.push({
+      key: f.key,
+      label: f.label,
+      required: !!f.required,
+      type: f.field_type === 'password' ? 'password' : 'text',
+      placeholder: f.placeholder || undefined,
+      helper: f.helper || undefined,
+      isConfig: false,
+    });
+  }
+  for (const f of profile.config_fields || []) {
+    defs.push({
+      key: f.key,
+      label: f.label,
+      required: !!f.required,
+      type: f.field_type === 'password' ? 'password' : 'text',
+      placeholder: f.placeholder || undefined,
+      helper: f.helper || undefined,
+      isConfig: true,
+    });
+  }
+  return defs.length > 0 ? defs : null;
 };
 
 export const ProviderForm: React.FC<ProviderFormProps> = ({
@@ -106,6 +80,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
   onChangeCredential,
   onChangeConfig,
   isEdit = false,
+  providerProfile,
 }) => {
   const { t } = useTranslation();
   const [fields, setFields] = useState<Record<string, string>>({});
@@ -120,7 +95,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
     const newFields = { ...fields, [key]: value };
     setFields(newFields);
 
-    const fieldDefs = PROVIDER_FIELDS[providerKey] || [];
+    const fieldDefs = buildFieldDefsFromProfile(providerProfile) || [];
     const credObj: Record<string, string> = {};
     const confObj: Record<string, string> = {};
 
@@ -135,17 +110,14 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
     });
 
     // Update semantics:
-    // - create: always send a json object string (possibly {})
-    // - edit: empty string means "keep existing encrypted credential" on backend
-    if (isEdit && Object.keys(credObj).length === 0) {
-      onChangeCredential('');
-    } else {
-      onChangeCredential(JSON.stringify(credObj));
-    }
+    // - create: always send a full json object string (possibly {})
+    // - edit: treat json as a patch; empty string means "keep existing" on backend
+    if (isEdit && Object.keys(credObj).length === 0) onChangeCredential('');
+    else onChangeCredential(JSON.stringify(credObj));
     onChangeConfig(JSON.stringify(confObj));
   };
 
-  const currentDefs = PROVIDER_FIELDS[providerKey];
+  const currentDefs = buildFieldDefsFromProfile(providerProfile);
 
   const fallbackCred = useMemo(() => parseJsonObjectToStringMap(credentialJson), [credentialJson]);
   const fallbackConf = useMemo(() => parseJsonObjectToStringMap(configJson), [configJson]);

@@ -16,7 +16,7 @@ import {
   Globe, ShieldCheck, Plus, RefreshCw, 
   Trash2, Edit3, Play, Activity, ScrollText,
   Server, Calendar, Link as LinkIcon, CheckCircle, XCircle, 
-  Info, Network, Key
+  Info, Network, Key, MoreHorizontal
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -31,6 +31,22 @@ interface ProviderProfileItem {
   vendor_type?: 'domain' | 'ddns_only';
   supports_acme_dns01: boolean;
   supports_ddns: boolean;
+  credential_fields?: Array<{
+    key: string;
+    label: string;
+    required: boolean;
+    field_type: 'text' | 'password';
+    placeholder?: string | null;
+    helper?: string | null;
+  }>;
+  config_fields?: Array<{
+    key: string;
+    label: string;
+    required: boolean;
+    field_type: 'text' | 'password';
+    placeholder?: string | null;
+    helper?: string | null;
+  }>;
 }
 
 interface ProviderAccountItem {
@@ -186,6 +202,10 @@ const isDdnsEntryItem = (item: DdnsEntryItem | CertificateItem): item is DdnsEnt
   return 'fqdn' in item;
 };
 
+type RowActionsTarget =
+  | { kind: 'ddns'; item: DdnsEntryItem }
+  | { kind: 'ssl'; item: CertificateItem };
+
 const StatusBadge = ({ status }: { status?: string | null }) => {
   const { t } = useTranslation();
   const s = normalizeStatus(status);
@@ -301,6 +321,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [certLogTotal, setCertLogTotal] = useState(0);
   const [certLogPage, setCertLogPage] = useState(1);
   const [certLogPageSize, setCertLogPageSize] = useState(20);
+
+  const [rowActionsOpen, setRowActionsOpen] = useState<RowActionsTarget | null>(null);
 
   const [bulkCreateOpen, setBulkCreateOpen] = useState(false);
 
@@ -902,6 +924,124 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     return account?.provider_key;
   }, [providers, ddnsDraft.provider_account_id]);
 
+  const cardsData = isDdns ? ddnsEntries : certificates;
+
+  const renderCards = () => {
+    if (loading && (!ddnsEntries.length && !certificates.length)) {
+      return (
+        <div className="sm:col-span-2 px-5 py-10 text-center text-foreground/40 font-bold uppercase tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
+          <RefreshCw className="animate-spin mb-3 mx-auto" size={26} />
+          {t('common.loading')}
+        </div>
+      );
+    }
+
+    if (cardsData.length === 0) {
+      return (
+        <div className="sm:col-span-2 px-5 py-12 text-center text-foreground/30 font-bold uppercase tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
+          {isDdns ? <Globe className="mx-auto mb-3" size={40} /> : <ShieldCheck className="mx-auto mb-3" size={40} />}
+          {isDdns ? t('admin.domain.noDdnsEntries') : t('admin.domain.noCertificates')}
+        </div>
+      );
+    }
+
+    return (
+      <>
+        {cardsData.map((item: DdnsEntryItem | CertificateItem) => {
+          const isDdnsItem = isDdnsEntryItem(item);
+          return (
+            <div key={item.id} className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 shadow-sm h-full flex flex-col">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-black text-base truncate">{item.name}</div>
+                  {isDdnsItem && <div className="mt-1 text-[14px] font-mono opacity-70 truncate">{item.fqdn}</div>}
+                  {!isDdnsItem && item.expires_at && (
+                    <div className="mt-1 text-[14px] font-bold opacity-60">{new Date(item.expires_at).toLocaleDateString()}</div>
+                  )}
+                </div>
+                <div className="shrink-0">
+                  <StatusBadge status={item.last_status} />
+                </div>
+              </div>
+
+              {isDdnsItem && (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 uppercase font-black">
+                    TTL {item.ttl}
+                  </Badge>
+                  {item.proxied && (
+                    <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 uppercase font-black">
+                      {t('admin.domain.proxyBadge')}
+                    </Badge>
+                  )}
+                  {(item.last_ipv4 || item.last_ipv6) && (
+                    <div className="text-[14px] font-mono opacity-60">
+                      {item.last_ipv4 ? `v4 ${item.last_ipv4}` : ''}{item.last_ipv4 && item.last_ipv6 ? '  ' : ''}{item.last_ipv6 ? `v6 ${item.last_ipv6}` : ''}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-4 flex items-center justify-end gap-2 pt-3 border-t border-zinc-200/60 dark:border-white/5 mt-auto">
+                {isDdnsItem ? (
+                  <>
+                    {viewEnabled && (
+                      <button
+                        onClick={() => runDdns(item.id)}
+                        disabled={runningDdnsAll || !!runningDdnsById[item.id]}
+                        className="h-11 w-11 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                        title={t('admin.domain.ddnsRunNow') || 'Run now'}
+                      >
+                        <Play size={16} className={cn(!!runningDdnsById[item.id] && 'animate-pulse')} />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => openLogs(item)}
+                      className="h-11 w-11 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                      title={t('admin.domain.ddnsLogs') || 'Logs'}
+                    >
+                      <ScrollText size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => openCertLogs(item as CertificateItem)}
+                      className="h-11 w-11 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                      title={t('admin.domain.certLogs') || 'Logs'}
+                    >
+                      <ScrollText size={16} />
+                    </button>
+                    {viewEnabled ? (
+                      <button
+                        onClick={() => runSsl(item.id)}
+                        disabled={runningSslAll || !!runningSslById[item.id]}
+                        className="h-11 w-11 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                        title={t('admin.domain.certRunNow') || 'Run now'}
+                      >
+                        <Play size={16} className={cn(!!runningSslById[item.id] && 'animate-pulse')} />
+                      </button>
+                    ) : null}
+                  </>
+                )}
+                {viewEnabled && (
+                  <button onClick={() => isDdnsItem ? openEditDdns(item) : openEditSsl(item)} className="h-11 w-11 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-primary hover:text-white transition-all shadow-sm" title={t('common.edit') || 'Edit'}>
+                    <Edit3 size={16} />
+                  </button>
+                )}
+                {viewEnabled && (
+                  <button onClick={() => isDdnsItem ? deleteDdns(item.id) : deleteSsl(item.id)} className="h-11 w-11 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-red-500 hover:text-white transition-all shadow-sm" title={t('common.delete') || 'Delete'}>
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </>
+    );
+  };
+
   React.useEffect(() => {
     if (selectedDdnsProviderKey !== 'cloudflare' && ddnsDraft.proxied) {
       setDdnsDraft((prev) => ({ ...prev, proxied: false }));
@@ -929,40 +1069,83 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-          <Button size="sm" variant="outline" onClick={() => setProviderModalOpen(true)} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground">
+        <div className="w-full xl:w-auto grid grid-cols-2 sm:flex flex-wrap items-center gap-3">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setProviderModalOpen(true)}
+            className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground"
+          >
             <Server size={16} className="mr-2 opacity-70 text-indigo-600 dark:text-indigo-400" /> 
             {t('admin.domain.panelProvider')}
           </Button>
           {!isDdns && (
-            <Button size="sm" variant="outline" onClick={() => setZeroSslModalOpen(true)} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setZeroSslModalOpen(true)}
+              className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground"
+            >
                <LinkIcon size={16} className="mr-2 opacity-70 text-cyan-600 dark:text-cyan-400" /> 
                ZeroSSL
             </Button>
           )}
-          <Button size="sm" variant="outline" onClick={loadAll} disabled={loading} className="h-12 w-12 rounded-xl p-0 border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 flex items-center justify-center shadow-sm transition-all text-foreground/60">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={loadAll}
+            disabled={loading}
+            className="h-12 w-full sm:w-12 rounded-xl p-0 sm:p-0 border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 flex items-center justify-center shadow-sm transition-all text-foreground/60"
+            title={t('common.refresh') || 'Refresh'}
+          >
             <RefreshCw size={18} className={cn("opacity-70", loading && "animate-spin")} />
           </Button>
           {isDdns && viewEnabled && (
-          <Button size="sm" variant="outline" onClick={runDdnsAll} disabled={loading || runningDdnsAll} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.ddnsRunNow') || 'Run now'}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={runDdnsAll}
+            disabled={loading || runningDdnsAll}
+            className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground"
+            title={t('admin.domain.ddnsRunNow') || 'Run now'}
+          >
             <Play size={16} className="mr-2 opacity-70 text-blue-600 dark:text-blue-400" />
             <span>{t('admin.domain.ddnsRunNow') || 'Run now'}</span>
           </Button>
           )}
           {!isDdns && viewEnabled && (
             <>
-              <Button size="sm" variant="outline" onClick={() => runSslRenewalCheckAll(false)} disabled={loading || runningSslAll} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.runRenewalCheck')}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => runSslRenewalCheckAll(false)}
+                disabled={loading || runningSslAll}
+                className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground"
+                title={t('admin.domain.runRenewalCheck')}
+              >
                 <Activity size={16} className="mr-2 opacity-70 text-green-600 dark:text-green-400" />
                 <span className="hidden sm:inline">{t('admin.domain.runRenewalCheck')}</span>
+                <span className="sm:hidden">{t('admin.domain.runRenewalCheck')?.slice(0, 4) || 'Check'}</span>
               </Button>
-              <Button size="sm" variant="outline" onClick={() => runSslRenewalCheckAll(true)} disabled={loading || runningSslAll} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.forceRenewAll')}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => runSslRenewalCheckAll(true)}
+                disabled={loading || runningSslAll}
+                className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground"
+                title={t('admin.domain.forceRenewAll')}
+              >
                 <Play size={16} className="mr-2 opacity-70 text-orange-600 dark:text-orange-400" />
                 <span className="hidden sm:inline">{t('admin.domain.forceRenewAll')}</span>
+                <span className="sm:hidden">{t('admin.domain.forceRenewAll')?.slice(0, 5) || 'Force'}</span>
               </Button>
             </>
           )}
           {viewEnabled && (
-            <Button className="h-12 px-6 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20" onClick={isDdns ? openCreateDdns : openCreateSsl}>
+            <Button
+              className="h-12 px-6 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 col-span-2 sm:col-span-1"
+              onClick={isDdns ? openCreateDdns : openCreateSsl}
+            >
               <Plus size={18} className="mr-2 stroke-[3px]" />
               <span className="font-bold tracking-wider">{t('admin.domain.create')}</span>
             </Button>
@@ -988,127 +1171,30 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
          </div>
        )}
 
-      {/* Mobile Cards */}
-      <div className="lg:hidden space-y-3">
-        {loading && (!ddnsEntries.length && !certificates.length) ? (
-          <div className="px-5 py-10 text-center text-foreground/40 font-bold uppercase tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
-            <RefreshCw className="animate-spin mb-3 mx-auto" size={26} />
-            {t('common.loading')}
-          </div>
-        ) : (isDdns ? ddnsEntries : certificates).length === 0 ? (
-          <div className="px-5 py-12 text-center text-foreground/30 font-bold uppercase tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
-            {isDdns ? <Globe className="mx-auto mb-3" size={40} /> : <ShieldCheck className="mx-auto mb-3" size={40} />}
-            {isDdns ? t('admin.domain.noDdnsEntries') : t('admin.domain.noCertificates')}
-          </div>
-        ) : (
-          (isDdns ? ddnsEntries : certificates).map((item: DdnsEntryItem | CertificateItem) => {
-            const isDdnsItem = isDdnsEntryItem(item);
-            return (
-              <div key={item.id} className="p-4 rounded-3xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 shadow-sm">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-black text-base truncate">{item.name}</div>
-                    {isDdnsItem && <div className="mt-1 text-[14px] font-mono opacity-70 truncate">{item.fqdn}</div>}
-                    {!isDdnsItem && item.expires_at && (
-                      <div className="mt-1 text-[14px] font-bold opacity-60">{new Date(item.expires_at).toLocaleDateString()}</div>
-                    )}
-                  </div>
-                  <div className="shrink-0">
-                    <StatusBadge status={item.last_status} />
-                  </div>
-                </div>
+      {/* Cards (phone + pad portrait) */}
+      <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {renderCards()}
+      </div>
 
-                {isDdnsItem && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 uppercase font-black">
-                      TTL {item.ttl}
-                    </Badge>
-                    {item.proxied && (
-                      <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 uppercase font-black">
-                        {t('admin.domain.proxyBadge')}
-                      </Badge>
-                    )}
-                    {(item.last_ipv4 || item.last_ipv6) && (
-                      <div className="text-[14px] font-mono opacity-60">
-                        {item.last_ipv4 ? `v4 ${item.last_ipv4}` : ''}{item.last_ipv4 && item.last_ipv6 ? '  ' : ''}{item.last_ipv6 ? `v6 ${item.last_ipv6}` : ''}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="mt-4 flex items-center justify-end gap-2">
-                  {isDdnsItem ? (
-                    <>
-                      {viewEnabled && (
-                        <button
-                          onClick={() => runDdns(item.id)}
-                          disabled={runningDdnsAll || !!runningDdnsById[item.id]}
-                          className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
-                          title={t('admin.domain.ddnsRunNow') || 'Run now'}
-                        >
-                          <Play size={16} className={cn(!!runningDdnsById[item.id] && 'animate-pulse')} />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => openLogs(item)}
-                        className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
-                        title={t('admin.domain.ddnsLogs') || 'Logs'}
-                      >
-                        <ScrollText size={16} />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => openCertLogs(item as CertificateItem)}
-                        className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
-                        title={t('admin.domain.certLogs') || 'Logs'}
-                      >
-                        <ScrollText size={16} />
-                      </button>
-                      {viewEnabled ? (
-                        <button
-                          onClick={() => runSsl(item.id)}
-                          disabled={runningSslAll || !!runningSslById[item.id]}
-                          className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
-                          title={t('admin.domain.certRunNow') || 'Run now'}
-                        >
-                          <Play size={16} className={cn(!!runningSslById[item.id] && 'animate-pulse')} />
-                        </button>
-                      ) : null}
-                    </>
-                  )}
-                  {viewEnabled && (
-                    <button onClick={() => isDdnsItem ? openEditDdns(item) : openEditSsl(item)} className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-primary hover:text-white transition-all shadow-sm" title={t('common.edit') || 'Edit'}>
-                      <Edit3 size={16} />
-                    </button>
-                  )}
-                  {viewEnabled && (
-                    <button onClick={() => isDdnsItem ? deleteDdns(item.id) : deleteSsl(item.id)} className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-red-500 hover:text-white transition-all shadow-sm" title={t('common.delete') || 'Delete'}>
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })
-        )}
+      {/* Cards fallback for low-height pad/split-screen even on lg+ */}
+      <div className="hidden [@media(min-width:1024px)_and_(max-height:720px)]:grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {renderCards()}
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden lg:block bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden dark:shadow-2xl backdrop-blur-sm transition-all shadow-sm">
-        <div className="overflow-x-auto">
+      <div className="hidden lg:block [@media(min-width:1024px)_and_(max-height:720px)]:hidden bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-[2.5rem] overflow-hidden dark:shadow-2xl backdrop-blur-sm transition-all shadow-sm">
+        <div className="overflow-auto max-h-[calc(100vh-360px)]">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-zinc-200 dark:border-white/5 bg-zinc-50/50 dark:bg-white/[0.02]">
-                <th className="px-8 py-6 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30">
+                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30 bg-zinc-50/90 dark:bg-black/40 backdrop-blur">
                   {isDdns ? t('common.name') : t('admin.acme.table.name')}
                 </th>
-                <th className="px-8 py-6 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30">
+                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30 bg-zinc-50/90 dark:bg-black/40 backdrop-blur">
                   {isDdns ? 'Target / Details' : t('admin.acme.table.status')}
                 </th>
-                <th className="px-8 py-6 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30">{t('admin.acme.table.status')}</th>
-                <th className="px-8 py-6 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30 text-right">{t('common.actions')}</th>
+                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30 bg-zinc-50/90 dark:bg-black/40 backdrop-blur">{t('admin.acme.table.status')}</th>
+                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30 text-right bg-zinc-50/90 dark:bg-black/40 backdrop-blur">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1129,7 +1215,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
               ) : (
                 (isDdns ? ddnsEntries : certificates).map((item: DdnsEntryItem | CertificateItem) => (
                   <tr key={item.id} className="border-b border-zinc-100 dark:border-white/5 last:border-0 hover:bg-zinc-50/50 dark:hover:bg-white/[0.02] transition-colors group">
-                    <td className="px-8 py-6 text-foreground font-bold">
+                    <td className="px-8 py-5 text-foreground font-bold">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-white/5 flex items-center justify-center border border-zinc-200 dark:border-white/5 font-black text-sm group-hover:border-primary/30 transition-all shadow-inner">
                           {isDdns ? <Activity size={18} className="opacity-70 text-blue-600 dark:text-blue-400" /> : <ShieldCheck size={18} className="opacity-70 text-green-600 dark:text-green-400" />}
@@ -1140,7 +1226,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-8 py-5">
                       {isDdns ? (
                          <div className="flex items-center gap-2">
                              <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 uppercase font-black">TTL {isDdnsEntryItem(item) ? item.ttl : 0}</Badge>
@@ -1158,10 +1244,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                         </div>
                       )}
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-8 py-5">
                       <StatusBadge status={item.last_status} />
                     </td>
-                    <td className="px-8 py-6 text-right">
+                    <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-2 opacity-100 [@media(hover:hover)]:opacity-60 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity">
                         {isDdnsEntryItem(item) ? (
                           <>
@@ -1169,46 +1255,42 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                               <button
                                 onClick={() => runDdns(item.id)}
                                 disabled={runningDdnsAll || !!runningDdnsById[item.id]}
-                                className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                                className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
                                 title={t('admin.domain.ddnsRunNow') || 'Run now'}
                               >
                                 <Play size={16} className={cn(!!runningDdnsById[item.id] && 'animate-pulse')} />
                               </button>
                             )}
                             <button
-                              onClick={() => openLogs(item)}
-                              className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
-                              title={t('admin.domain.ddnsLogs') || 'Logs'}
+                              onClick={() => setRowActionsOpen({ kind: 'ddns', item })}
+                              className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm"
+                              title={t('common.actions') || 'Actions'}
+                              aria-label={t('common.actions') || 'Actions'}
                             >
-                              <ScrollText size={16} />
+                              <MoreHorizontal size={18} className="opacity-70" />
                             </button>
                           </>
                         ) : (
                           <>
-                            <button
-                              onClick={() => openCertLogs(item as CertificateItem)}
-                              className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
-                              title={t('admin.domain.certLogs') || 'Logs'}
-                            >
-                              <ScrollText size={16} />
-                            </button>
                             {viewEnabled ? (
                               <button
                                 onClick={() => runSsl(item.id)}
                                 disabled={runningSslAll || !!runningSslById[item.id]}
-                                className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                                className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
                                 title={t('admin.domain.certRunNow') || 'Run now'}
                               >
                                 <Play size={16} className={cn(!!runningSslById[item.id] && 'animate-pulse')} />
                               </button>
                             ) : null}
+                            <button
+                              onClick={() => setRowActionsOpen({ kind: 'ssl', item: item as CertificateItem })}
+                              className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm"
+                              title={t('common.actions') || 'Actions'}
+                              aria-label={t('common.actions') || 'Actions'}
+                            >
+                              <MoreHorizontal size={18} className="opacity-70" />
+                            </button>
                           </>
-                        )}
-                        {viewEnabled && (
-                          <button onClick={() => isDdnsEntryItem(item) ? openEditDdns(item) : openEditSsl(item)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-primary hover:text-white transition-all shadow-sm"><Edit3 size={16} /></button>
-                        )}
-                        {viewEnabled && (
-                          <button onClick={() => isDdnsEntryItem(item) ? deleteDdns(item.id) : deleteSsl(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-red-500 hover:text-white transition-all shadow-sm"><Trash2 size={16} /></button>
                         )}
                       </div>
                     </td>
@@ -1219,6 +1301,111 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           </table>
         </div>
       </div>
+
+      {/* Row Actions Modal (touch-friendly for pad/low-res) */}
+      <Modal
+        isOpen={!!rowActionsOpen}
+        onClose={() => setRowActionsOpen(null)}
+        title={t('common.actions') || 'Actions'}
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-5 p-1 text-foreground">
+          {rowActionsOpen && (
+            <div className={cn(sectionCardBase, "p-5")}> 
+              <div className="text-sm font-black uppercase tracking-widest opacity-60">
+                {rowActionsOpen.kind === 'ddns' ? 'DDNS' : 'SSL/TLS'}
+              </div>
+              <div className="mt-1 text-base font-black truncate">{rowActionsOpen.item.name}</div>
+              {rowActionsOpen.kind === 'ddns' && (
+                <div className="mt-1 text-[14px] font-mono opacity-60 truncate">{rowActionsOpen.item.fqdn}</div>
+              )}
+
+              <div className="mt-5 grid grid-cols-1 gap-2">
+                {viewEnabled && rowActionsOpen.kind === 'ddns' && (
+                  <Button
+                    variant="outline"
+                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                    onClick={async () => {
+                      const id = rowActionsOpen.item.id;
+                      setRowActionsOpen(null);
+                      await runDdns(id);
+                    }}
+                    disabled={runningDdnsAll || !!runningDdnsById[rowActionsOpen.item.id]}
+                  >
+                    <Play size={16} className="mr-2" />
+                    {t('admin.domain.ddnsRunNow') || 'Run now'}
+                  </Button>
+                )}
+
+                {viewEnabled && rowActionsOpen.kind === 'ssl' && (
+                  <Button
+                    variant="outline"
+                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                    onClick={async () => {
+                      const id = rowActionsOpen.item.id;
+                      setRowActionsOpen(null);
+                      await runSsl(id);
+                    }}
+                    disabled={runningSslAll || !!runningSslById[rowActionsOpen.item.id]}
+                  >
+                    <Play size={16} className="mr-2" />
+                    {t('admin.domain.certRunNow') || 'Run now'}
+                  </Button>
+                )}
+
+                <Button
+                  variant="outline"
+                  className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                  onClick={() => {
+                    const current = rowActionsOpen;
+                    setRowActionsOpen(null);
+                    if (!current) return;
+                    if (current.kind === 'ddns') openLogs(current.item);
+                    else openCertLogs(current.item);
+                  }}
+                >
+                  <ScrollText size={16} className="mr-2" />
+                  {t('admin.domain.ddnsLogs') || 'Logs'}
+                </Button>
+
+                {viewEnabled && (
+                  <Button
+                    variant="outline"
+                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                    onClick={() => {
+                      const current = rowActionsOpen;
+                      setRowActionsOpen(null);
+                      if (!current) return;
+                      if (current.kind === 'ddns') openEditDdns(current.item);
+                      else openEditSsl(current.item);
+                    }}
+                  >
+                    <Edit3 size={16} className="mr-2" />
+                    {t('common.edit') || 'Edit'}
+                  </Button>
+                )}
+
+                {viewEnabled && (
+                  <Button
+                    variant="outline"
+                    className="h-12 justify-start rounded-2xl border-red-500/30 text-red-600 dark:text-red-400 bg-white dark:bg-white/5 font-bold hover:bg-red-500 hover:text-white"
+                    onClick={async () => {
+                      const current = rowActionsOpen;
+                      setRowActionsOpen(null);
+                      if (!current) return;
+                      if (current.kind === 'ddns') await deleteDdns(current.item.id);
+                      else await deleteSsl(current.item.id);
+                    }}
+                  >
+                    <Trash2 size={16} className="mr-2" />
+                    {t('common.delete') || 'Delete'}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
 
       {isDdns && (
         <Pagination
@@ -1628,7 +1815,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-6 border-t border-zinc-200 dark:border-white/5">
+          <div className="sticky bottom-0 -mx-1 px-1 py-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-white/5 bg-white/85 dark:bg-black/40 backdrop-blur-xl">
             <Button variant="outline" onClick={() => setDdnsModalOpen(false)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black uppercase tracking-widest text-sm shadow-sm text-foreground">{t('common.cancel')}</Button>
             <Button onClick={saveDdns} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">{t('common.save')}</Button>
           </div>
@@ -1680,7 +1867,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-6 border-t border-zinc-200 dark:border-white/5">
+          <div className="sticky bottom-0 -mx-1 px-1 py-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-white/5 bg-white/85 dark:bg-black/40 backdrop-blur-xl">
             <Button variant="outline" onClick={() => setSslModalOpen(false)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black uppercase tracking-widest text-sm shadow-sm text-foreground">{t('common.cancel')}</Button>
             <Button onClick={saveSsl} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">{t('common.save')}</Button>
           </div>
@@ -1761,7 +1948,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   ))
                 )}
               </div>
-              <div className="flex justify-end pt-4 border-t border-zinc-200 dark:border-white/5">
+              <div className="sticky bottom-0 -mx-1 px-1 py-4 flex justify-end border-t border-zinc-200 dark:border-white/5 bg-white/85 dark:bg-black/40 backdrop-blur-xl">
                 <Button variant="outline" onClick={() => setProviderModalOpen(false)} className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-sm">{t('common.close')}</Button>
               </div>
             </div>
@@ -1791,6 +1978,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   <div className="p-1">
                     <ProviderForm 
                       providerKey={providerDraft.provider_key}
+                      providerProfile={providerProfileMap.get(providerDraft.provider_key) || null}
                       credentialJson={providerDraft.credential_json_enc}
                       configJson={providerDraft.config_json}
                       onChangeCredential={(v) => setProviderDraft((prev) => ({ ...prev, credential_json_enc: v }))}
@@ -1814,7 +2002,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 </label>
               </div>
 
-              <div className="flex justify-end gap-3 pt-6 border-t border-zinc-200 dark:border-white/5">
+              <div className="sticky bottom-0 -mx-1 px-1 py-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-white/5 bg-white/85 dark:bg-black/40 backdrop-blur-xl">
                 <Button variant="outline" onClick={() => setShowProviderList(true)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black uppercase tracking-widest text-sm shadow-sm text-foreground">{t('common.back')}</Button>
                 <Button onClick={saveProviderQuick} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">
                   {providerDraft.id ? t('common.save') : t('admin.domain.create')}
