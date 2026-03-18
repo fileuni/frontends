@@ -201,6 +201,30 @@
         ]
       }
     },
+    "/api/v1/admin/domain-acme-ddns/certs/{id}/logs": {
+      "get": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "list_cert_logs",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
     "/api/v1/admin/domain-acme-ddns/certs/{id}/run": {
       "post": {
         "tags": [

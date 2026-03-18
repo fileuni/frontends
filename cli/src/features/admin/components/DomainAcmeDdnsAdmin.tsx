@@ -5,7 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Switch } from '@/components/ui/Switch';
 import { Badge } from '@/components/ui/Badge';
-import { Pagination } from '@/components/common/Pagination.tsx';
+import { Pagination } from '@fileuni/shared';
 import { client, extractData, handleApiError } from '@/lib/api';
 import { useToastStore } from '@fileuni/shared';
 import { ProviderForm } from './domain/ProviderForm';
@@ -76,6 +76,15 @@ interface DdnsRunLogItem {
   message: string;
   ipv4?: string | null;
   ipv6?: string | null;
+}
+
+interface CertRunLogItem {
+  id: string;
+  cert_id: string;
+  run_at: string;
+  status: string;
+  message: string;
+  expires_at?: string | null;
 }
 
 interface CertificateItem {
@@ -271,6 +280,9 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [ddnsPage, setDdnsPage] = useState(1);
   const [ddnsPageSize, setDdnsPageSize] = useState(20);
   const [certificates, setCertificates] = useState<CertificateItem[]>([]);
+  const [certTotal, setCertTotal] = useState(0);
+  const [certPage, setCertPage] = useState(1);
+  const [certPageSize, setCertPageSize] = useState(20);
   const [zerosslAccounts, setZeroSslAccounts] = useState<ZeroSslAccountItem[]>([]);
 
   const [logOpen, setLogOpen] = useState(false);
@@ -280,6 +292,14 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [logTotal, setLogTotal] = useState(0);
   const [logPage, setLogPage] = useState(1);
   const [logPageSize, setLogPageSize] = useState(20);
+
+  const [certLogOpen, setCertLogOpen] = useState(false);
+  const [certLogCert, setCertLogCert] = useState<CertificateItem | null>(null);
+  const [certLogLoading, setCertLogLoading] = useState(false);
+  const [certLogItems, setCertLogItems] = useState<CertRunLogItem[]>([]);
+  const [certLogTotal, setCertLogTotal] = useState(0);
+  const [certLogPage, setCertLogPage] = useState(1);
+  const [certLogPageSize, setCertLogPageSize] = useState(20);
 
   const [bulkCreateOpen, setBulkCreateOpen] = useState(false);
 
@@ -342,35 +362,52 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const loadAll = async () => {
     setLoading(true);
     try {
-      const [profileData, providerData, ddnsDataRaw, certData, zerosslData, configData] = await Promise.all([
+      const isDdnsView = view === 'ddns';
+      const isSslView = view === 'ssl';
+      const [profileData, providerData, ddnsDataRaw, certDataRaw, zerosslData, configData] = await Promise.all([
         extractData<ProviderProfileItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/providers/profiles')),
         extractData<ProviderAccountItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/providers/accounts')),
-        extractData<unknown>(client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries', {
-          params: {
-            query: {
-              page: ddnsPage,
-              page_size: ddnsPageSize,
-            },
-          },
-        })),
-        extractData<CertificateItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/certs')),
+        isDdnsView
+          ? extractData<unknown>(client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries', {
+              params: { query: { page: ddnsPage, page_size: ddnsPageSize } },
+            }))
+          : Promise.resolve(null),
+        isSslView
+          ? extractData<unknown>(client.GET('/api/v1/admin/domain-acme-ddns/certs', {
+              params: { query: { page: certPage, page_size: certPageSize } },
+            }))
+          : Promise.resolve(null),
         fetchZeroSslAccounts(),
         extractData<Record<string, unknown>>(client.GET('/api/v1/admin/system/config')),
       ]);
       setProviderProfiles(Array.isArray(profileData) ? profileData : []);
       setProviders(Array.isArray(providerData) ? providerData : []);
-      const ddnsData = ddnsDataRaw as any;
-      if (Array.isArray(ddnsData)) {
-        setDdnsEntries(ddnsData as DdnsEntryItem[]);
-        setDdnsTotal(ddnsData.length);
-      } else if (ddnsData && Array.isArray(ddnsData.items)) {
-        setDdnsEntries(ddnsData.items as DdnsEntryItem[]);
-        setDdnsTotal(typeof ddnsData.total === 'number' ? ddnsData.total : ddnsData.items.length);
-      } else {
-        setDdnsEntries([]);
-        setDdnsTotal(0);
+      if (isDdnsView) {
+        const ddnsData = ddnsDataRaw as any;
+        if (Array.isArray(ddnsData)) {
+          setDdnsEntries(ddnsData as DdnsEntryItem[]);
+          setDdnsTotal(ddnsData.length);
+        } else if (ddnsData && Array.isArray(ddnsData.items)) {
+          setDdnsEntries(ddnsData.items as DdnsEntryItem[]);
+          setDdnsTotal(typeof ddnsData.total === 'number' ? ddnsData.total : ddnsData.items.length);
+        } else {
+          setDdnsEntries([]);
+          setDdnsTotal(0);
+        }
       }
-      setCertificates(Array.isArray(certData) ? certData : []);
+      if (isSslView) {
+        const certData = certDataRaw as any;
+        if (Array.isArray(certData)) {
+          setCertificates(certData as CertificateItem[]);
+          setCertTotal(certData.length);
+        } else if (certData && Array.isArray(certData.items)) {
+          setCertificates(certData.items as CertificateItem[]);
+          setCertTotal(typeof certData.total === 'number' ? certData.total : certData.items.length);
+        } else {
+          setCertificates([]);
+          setCertTotal(0);
+        }
+      }
       setZeroSslAccounts(Array.isArray(zerosslData) ? zerosslData : []);
 
       const getBool = (root: unknown, path: string[]): boolean | null => {
@@ -443,6 +480,12 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setLogOpen(true);
   };
 
+  const openCertLogs = (cert: CertificateItem) => {
+    setCertLogCert(cert);
+    setCertLogPage(1);
+    setCertLogOpen(true);
+  };
+
   React.useEffect(() => {
     if (!logOpen || !logEntry) return;
     let cancelled = false;
@@ -475,8 +518,39 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   }, [logOpen, logEntry?.id, logPage, logPageSize]);
 
   React.useEffect(() => {
+    if (!certLogOpen || !certLogCert) return;
+    let cancelled = false;
+    (async () => {
+      setCertLogLoading(true);
+      try {
+        const data = await extractData<any>(
+          client.GET('/api/v1/admin/domain-acme-ddns/certs/{id}/logs', {
+            params: {
+              path: { id: certLogCert.id },
+              query: {
+                page: certLogPage,
+                page_size: certLogPageSize,
+              },
+            },
+          }),
+        );
+        if (cancelled) return;
+        setCertLogItems(Array.isArray(data?.items) ? (data.items as CertRunLogItem[]) : []);
+        setCertLogTotal(typeof data?.total === 'number' ? data.total : 0);
+      } catch (error) {
+        if (!cancelled) addToast(handleApiError(error, t), 'error');
+      } finally {
+        if (!cancelled) setCertLogLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [certLogOpen, certLogCert?.id, certLogPage, certLogPageSize]);
+
+  React.useEffect(() => {
     loadAll();
-  }, [ddnsPage, ddnsPageSize, view]);
+  }, [ddnsPage, ddnsPageSize, certPage, certPageSize, view]);
 
   const openCreateDdns = () => {
     if (ddnsTotal >= 100) {
@@ -983,16 +1057,25 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                       </button>
                     </>
                   ) : (
-                    viewEnabled ? (
+                    <>
                       <button
-                        onClick={() => runSsl(item.id)}
-                        disabled={runningSslAll || !!runningSslById[item.id]}
-                        className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
-                        title={t('admin.domain.certRunNow') || 'Run now'}
+                        onClick={() => openCertLogs(item as CertificateItem)}
+                        className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                        title={t('admin.domain.certLogs') || 'Logs'}
                       >
-                        <Play size={16} className={cn(!!runningSslById[item.id] && 'animate-pulse')} />
+                        <ScrollText size={16} />
                       </button>
-                    ) : null
+                      {viewEnabled ? (
+                        <button
+                          onClick={() => runSsl(item.id)}
+                          disabled={runningSslAll || !!runningSslById[item.id]}
+                          className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                          title={t('admin.domain.certRunNow') || 'Run now'}
+                        >
+                          <Play size={16} className={cn(!!runningSslById[item.id] && 'animate-pulse')} />
+                        </button>
+                      ) : null}
+                    </>
                   )}
                   {viewEnabled && (
                     <button onClick={() => isDdnsItem ? openEditDdns(item) : openEditSsl(item)} className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-primary hover:text-white transition-all shadow-sm" title={t('common.edit') || 'Edit'}>
@@ -1100,16 +1183,25 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                             </button>
                           </>
                         ) : (
-                          viewEnabled ? (
+                          <>
                             <button
-                              onClick={() => runSsl(item.id)}
-                              disabled={runningSslAll || !!runningSslById[item.id]}
-                              className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
-                              title={t('admin.domain.certRunNow') || 'Run now'}
+                              onClick={() => openCertLogs(item as CertificateItem)}
+                              className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                              title={t('admin.domain.certLogs') || 'Logs'}
                             >
-                              <Play size={16} className={cn(!!runningSslById[item.id] && 'animate-pulse')} />
+                              <ScrollText size={16} />
                             </button>
-                          ) : null
+                            {viewEnabled ? (
+                              <button
+                                onClick={() => runSsl(item.id)}
+                                disabled={runningSslAll || !!runningSslById[item.id]}
+                                className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                                title={t('admin.domain.certRunNow') || 'Run now'}
+                              >
+                                <Play size={16} className={cn(!!runningSslById[item.id] && 'animate-pulse')} />
+                              </button>
+                            ) : null}
+                          </>
                         )}
                         {viewEnabled && (
                           <button onClick={() => isDdnsEntryItem(item) ? openEditDdns(item) : openEditSsl(item)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-primary hover:text-white transition-all shadow-sm"><Edit3 size={16} /></button>
@@ -1136,6 +1228,20 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           onPageSizeChange={(size) => {
             setDdnsPageSize(size);
             setDdnsPage(1);
+          }}
+          className="bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-3xl"
+        />
+      )}
+
+      {isSsl && (
+        <Pagination
+          current={certPage}
+          total={certTotal}
+          pageSize={certPageSize}
+          onPageChange={setCertPage}
+          onPageSizeChange={(size) => {
+            setCertPageSize(size);
+            setCertPage(1);
           }}
           className="bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-3xl"
         />
@@ -1224,6 +1330,108 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 onPageSizeChange={(size) => {
                   setLogPageSize(size);
                   setLogPage(1);
+                }}
+                className="bg-transparent"
+              />
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* Certificate Logs Modal */}
+      <Modal
+        isOpen={certLogOpen}
+        onClose={() => {
+          setCertLogOpen(false);
+          setCertLogCert(null);
+          setCertLogItems([]);
+          setCertLogTotal(0);
+        }}
+        title={t('admin.domain.certLogs') || 'Certificate Logs'}
+        maxWidth="max-w-4xl"
+      >
+        <div className="space-y-6 p-1 text-foreground">
+          {!certLogCert ? (
+            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+              {t('common.noData') || 'No data'}
+            </div>
+          ) : (
+            <div className={sectionCardBase}>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-sm font-black uppercase tracking-widest opacity-70 truncate">
+                    {certLogCert.name}
+                  </div>
+                  <div className="mt-1 text-[14px] font-mono opacity-60 truncate">
+                    {(() => {
+                      try {
+                        const arr = JSON.parse(certLogCert.domains_json) as unknown;
+                        return Array.isArray(arr) ? arr.join(', ') : certLogCert.domains_json;
+                      } catch {
+                        return certLogCert.domains_json;
+                      }
+                    })()}
+                  </div>
+                </div>
+                <div className="shrink-0 text-[14px] font-black uppercase tracking-widest opacity-50">
+                  {certLogTotal}
+                </div>
+              </div>
+
+              <div className="mt-5 overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-200 dark:border-white/5">
+                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('common.time') || 'Time'}</th>
+                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('admin.acme.table.status') || 'Status'}</th>
+                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('admin.domain.certExpiresAt') || 'Expires'}</th>
+                      <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">{t('common.message') || 'Message'}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {certLogLoading ? (
+                      <tr>
+                        <td colSpan={4} className="py-10 text-center opacity-50 font-bold uppercase tracking-widest">
+                          <RefreshCw className="animate-spin mb-3 mx-auto" size={22} />
+                          {t('common.loading')}
+                        </td>
+                      </tr>
+                    ) : certLogItems.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="py-10 text-center opacity-40 font-bold uppercase tracking-widest">
+                          {t('common.noData') || 'No data'}
+                        </td>
+                      </tr>
+                    ) : (
+                      certLogItems.map((row) => (
+                        <tr key={row.id} className="border-b border-zinc-100 dark:border-white/5 last:border-0">
+                          <td className="py-3 text-[14px] font-bold opacity-70 whitespace-nowrap">
+                            {new Date(row.run_at).toLocaleString()}
+                          </td>
+                          <td className="py-3">
+                            <StatusBadge status={row.status} />
+                          </td>
+                          <td className="py-3 text-[14px] font-mono opacity-70 whitespace-nowrap">
+                            {row.expires_at ? new Date(row.expires_at).toLocaleDateString() : '-'}
+                          </td>
+                          <td className="py-3 text-[14px] font-bold opacity-70">
+                            <div className="truncate" title={row.message}>{row.message}</div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                current={certLogPage}
+                total={certLogTotal}
+                pageSize={certLogPageSize}
+                onPageChange={setCertLogPage}
+                onPageSizeChange={(size) => {
+                  setCertLogPageSize(size);
+                  setCertLogPage(1);
                 }}
                 className="bg-transparent"
               />
