@@ -1250,6 +1250,8 @@
       "hideBulkCreate": "Hide",
       "ddnsSavedRunNowConfirm": "Saved successfully. Run once now?",
       "ddnsLogs": "Logs",
+      "certLogs": "Logs",
+      "certExpiresAt": "Expires",
       "ddnsLimitReached": "DDNS entries limit reached (max=100)",
       "dnsDiagHint": "DNS diagnostics uses DoH servers configured in domain_acme_ddns.dns_servers. If unreachable, add multiple DoH endpoints or check proxy/network.",
       "ddnsCreated": "DDNS entry created",
