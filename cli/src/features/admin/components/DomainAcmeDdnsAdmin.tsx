@@ -175,6 +175,7 @@ const sectionCardBase = "p-5 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-zinc-50/5
 
 const normalizeStatus = (value?: string | null): 'idle' | 'running' | 'success' | 'failed' => {
   const input = (value || '').toLowerCase().trim();
+  if (input.includes('skipped_running')) return 'running';
   if (input.includes('run') || input.includes('processing')) return 'running';
   if (input.includes('fail') || input.includes('error')) return 'failed';
   if (input.includes('success') || input.includes('ok')) return 'success';
