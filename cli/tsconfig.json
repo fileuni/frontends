@@ -12,6 +12,7 @@
     },
     "types": ["astro/client", "react", "react-dom"],
     "strict": false,
+    "noImplicitAny": true,
     "skipLibCheck": true,
     "noEmit": true,
     "exactOptionalPropertyTypes": false,
