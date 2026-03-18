@@ -501,7 +501,9 @@ export const useEmailPageController = (): UseEmailPageController => {
       body: attachment.file,
     });
 
-    const payload = await response.json().catch(() => null) as BaseResponse<UploadFileInfo> | null;
+    const payload = (await response
+      .json()
+      .catch((): null => null)) as BaseResponse<UploadFileInfo> | null;
     const uploadedPath = payload?.data?.path;
     if (!response.ok || !payload?.success || !uploadedPath) {
       throw new Error(payload?.msg || "Attachment upload failed");

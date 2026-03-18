@@ -206,7 +206,7 @@ export async function postCaptchaPolicy(request: CaptchaPolicyRequest): Promise<
     body: JSON.stringify(request),
   });
 
-  const parsedUnknown: unknown = await response.json().catch(() => null);
+  const parsedUnknown: unknown = await response.json().catch((): null => null);
   const parsed = parsedUnknown as BaseResponse<CaptchaPolicyResponse> | ApiError | null;
   if (!parsed) {
     throw new Error("Invalid response");
@@ -262,7 +262,7 @@ const refreshTokenAction = async () => {
       body: JSON.stringify({ refresh_token: currentUserData.refresh_token })
     });
 
-    const data: unknown = await response.json().catch(() => null);
+    const data: unknown = await response.json().catch((): null => null);
     if (typeof data !== 'object' || data === null) {
       throw new Error('Refresh failed');
     }
@@ -293,7 +293,7 @@ const refreshTokenAction = async () => {
 };
 
 client.use({
-  async onRequest({ request }) {
+  async onRequest({ request }: { request: Request }) {
     await waitForHydration();
     const { currentUserData } = useAuthStore.getState();
     request.headers.set("X-Client-Id", clientId);
@@ -309,7 +309,13 @@ client.use({
     return request;
   },
 
-  async onResponse({ response, request }) {
+  async onResponse({
+    response,
+    request,
+  }: {
+    response: Response;
+    request: Request;
+  }) {
     // Handle 401 and not login/refresh endpoint
     if (response.status === 401 && 
         !request.url.includes('/refresh-token') && 
@@ -358,7 +364,7 @@ client.use({
       if (request.headers.get("X-No-Toast") === "true") return response;
 
       const clone = response.clone();
-      const parsed: unknown = await clone.json().catch(() => null);
+      const parsed: unknown = await clone.json().catch((): null => null);
       const rec = typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : {};
       const msg = typeof rec.msg === 'string' ? rec.msg : undefined;
       const bizCode = typeof rec.biz_code === 'string' ? rec.biz_code : undefined;

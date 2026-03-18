@@ -35,8 +35,8 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()(
-  persist(
-    (set, get) => ({
+  persist<AuthState>(
+    (set, get): AuthState => ({
       usersMap: {},
       currentUserId: null,
       currentUserData: null,
@@ -129,7 +129,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'fileuni-auth',
       storage: createJSONStorage(() => storageHub.createZustandStorage()),
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (state?: AuthState) => {
         state?.setHasHydrated(true);
       },
     }

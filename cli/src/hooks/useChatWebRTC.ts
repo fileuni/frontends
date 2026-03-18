@@ -279,11 +279,11 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
   );
 
   const handleSignal = useCallback(
-    async (payload: WireSignalPayload) => {
+    async (payload: WireSignalPayload): Promise<void> => {
       if (payload.from === selfId) return;
       const targetId = payload.from;
       const pc = ensurePeerConnection(targetId);
-      if (!pc) return undefined;
+      if (!pc) return;
 
       const polite = selfId < targetId;
       const description = payload.data as RTCSessionDescriptionInit;

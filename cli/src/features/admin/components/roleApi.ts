@@ -43,7 +43,11 @@ export const fetchRolesAndPermissions = async (): Promise<RolesResponse> => {
   const response = await fetch(`${BASE_URL}/api/v1/users/admin/roles`, {
     headers: getAuthHeader(),
   });
-  const payload = await response.json().catch(() => null) as { success?: boolean; data?: RolesResponse; msg?: string } | null;
+  const payload = (await response
+    .json()
+    .catch((): null => null)) as
+    | { success?: boolean; data?: RolesResponse; msg?: string }
+    | null;
   if (!response.ok || !payload?.success || !payload.data) {
     throw new Error(payload?.msg || "Failed to load roles");
   }
@@ -62,7 +66,9 @@ export const updateRolePermissions = async (
     },
     body: JSON.stringify(payload),
   });
-  const data = await response.json().catch(() => null) as { success?: boolean; msg?: string } | null;
+  const data = (await response
+    .json()
+    .catch((): null => null)) as { success?: boolean; msg?: string } | null;
   if (!response.ok || !data?.success) {
     throw new Error(data?.msg || "Failed to update role permissions");
   }
@@ -72,7 +78,11 @@ export const fetchUserPermissions = async (userId: string): Promise<UserPermissi
   const response = await fetch(`${BASE_URL}/api/v1/users/admin/users/${userId}/permissions`, {
     headers: getAuthHeader(),
   });
-  const payload = await response.json().catch(() => null) as { success?: boolean; data?: UserPermissionPayload; msg?: string } | null;
+  const payload = (await response
+    .json()
+    .catch((): null => null)) as
+    | { success?: boolean; data?: UserPermissionPayload; msg?: string }
+    | null;
   if (!response.ok || !payload?.success || !payload.data) {
     throw new Error(payload?.msg || "Failed to load user permissions");
   }
@@ -88,7 +98,9 @@ export const updateUserPermissions = async (userId: string, overrides: UserPermi
     },
     body: JSON.stringify({ overrides }),
   });
-  const payload = await response.json().catch(() => null) as { success?: boolean; msg?: string } | null;
+  const payload = (await response
+    .json()
+    .catch((): null => null)) as { success?: boolean; msg?: string } | null;
   if (!response.ok || !payload?.success) {
     throw new Error(payload?.msg || "Failed to update user permissions");
   }

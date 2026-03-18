@@ -163,7 +163,7 @@ const getInitialUserData = (): UserFileData => ({
 
 export const useFileStore = create<FileState>()(
   persist(
-    (set, get) => ({
+    (set, get): FileState => ({
       files: [],
       loading: false,
       fmMode: 'files',
@@ -679,7 +679,7 @@ export const useFileStore = create<FileState>()(
     {
       name: 'fileuni-file-manager-v5',
       storage: createJSONStorage(() => storageHub.createZustandStorage()),
-      partialize: (state) => ({ 
+      partialize: (state: FileState) => ({
         showShareStatus: state.showShareStatus,
         userStates: state.userStates 
       }),
