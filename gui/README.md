@@ -18,7 +18,7 @@ Bun + Astro 5 + React 19 + Tailwind CSS 4 + Tauri 2.x desktop launcher for FileU
 
 ## Technical Constraints
 
-- **Tauri API Access**: Use `safeInvoke`/`safeListen` from `src/lib/tauri.ts`, not direct `@tauri-apps/api` imports in components
-- **Shared Components**: Import from `@fileuni/shared`, not from `../shared/src/...`
-- **i18n**: Initialize at module top-level via `src/lib/i18n.ts`
-- **Theme/Language**: Preload in `src/pages/index.astro` to avoid FOUC
+- Tauri API Access: Use `safeInvoke`/`safeListen` from `src/lib/tauri.ts`, not direct `@tauri-apps/api` imports in components
+- Shared Components: Import from `@fileuni/shared`, not from `../shared/src/...`
+- i18n: Initialize at module top-level via `src/lib/i18n.ts`
+- Theme/Language: Preload in `src/pages/index.astro` to avoid FOUC

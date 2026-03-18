@@ -18,7 +18,7 @@ Bun + Astro 5 + React 19 + Tailwind CSS 4 + shadcn/ui, SSG embedded in Rust bina
 
 ## Technical Constraints
 
-- **Cache**: All business cache MUST go through `storageHub.ts`; direct browser cache API calls prohibited
-- **Types**: Run `bun run gen-api` after backend API changes; manual type definitions forbidden
-- **i18n**: Missing keys fallback to English, then display `[key_name]`
-- **Account Isolation**: Cache keys must be isolated by `userId` (e.g., `chat_*_${userId}`)
+- Cache: All business cache MUST go through `storageHub.ts`; direct browser cache API calls prohibited
+- Types: Run `bun run gen-api` after backend API changes; manual type definitions forbidden
+- i18n: Missing keys fallback to English, then display `[key_name]`
+- Account Isolation: Cache keys must be isolated by `userId` (e.g., `chat_*_${userId}`)

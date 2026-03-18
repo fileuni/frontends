@@ -13,6 +13,6 @@ Shared components, stores, and utilities for `cli/` and `gui/`.
 
 ## Technical Constraints
 
-- **Platform-Agnostic**: Components must not hardcode Tauri or backend paths; inject via props/callbacks
-- **Single Source**: `cli/` and `gui/` MUST import from `@fileuni/shared`, not internal paths
-- **No Duplication**: Do not create duplicate stores in cli/gui for theme/language/toast
+- Platform-Agnostic: Components must not hardcode Tauri or backend paths; inject via props/callbacks
+- Single Source: `cli/` and `gui/` MUST import from `@fileuni/shared`, not internal paths
+- No Duplication: Do not create duplicate stores in cli/gui for theme/language/toast
