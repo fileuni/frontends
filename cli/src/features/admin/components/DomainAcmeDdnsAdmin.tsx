@@ -15,7 +15,7 @@ import { KeyValueForm, parseJsonObjectToStringMap } from './domain/KeyValueForm'
 import { 
   Globe, ShieldCheck, Plus, RefreshCw, 
   Trash2, Edit3, Play, Activity, ScrollText,
-  Server, Calendar, Link as LinkIcon, CheckCircle, XCircle, 
+  Server, Calendar, Link as LinkIcon, XCircle, 
   Info, Network, Key, MoreHorizontal, Search
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
