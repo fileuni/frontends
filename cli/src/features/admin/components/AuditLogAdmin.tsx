@@ -10,7 +10,7 @@ import {
   RefreshCw, Calendar, User,
   Activity, AlertCircle
 } from 'lucide-react';
-import { client } from '@/lib/api.ts';
+import { client, extractData, type PaginatedData } from '@/lib/api.ts';
 
 // Journal log entry type - matches yh_journal_log entity / 审计日志条目类型
 interface JournalLogEntry {
@@ -47,23 +47,23 @@ export const AuditLogAdmin = () => {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const { data: res } = await client.GET('/api/v1/admin/journal/logs', {
-        params: {
-          query: {
-            page,
-            page_size: pageSize,
-            user_id: userIdFilter || undefined,
-            journal_type: typeFilter || undefined,
-            action: actionFilter || undefined,
-            status: statusFilter || undefined
-          }
-        }
-      });
-      
-      if (res?.success && res.data) {
-        setLogs(res.data.items);
-        setTotal(res.data.total);
-      }
+      const res = await extractData<PaginatedData<JournalLogEntry>>(
+        client.GET('/api/v1/admin/journal/logs', {
+          params: {
+            query: {
+              page,
+              page_size: pageSize,
+              user_id: userIdFilter || undefined,
+              journal_type: typeFilter || undefined,
+              action: actionFilter || undefined,
+              status: statusFilter || undefined,
+            },
+          },
+        }),
+      );
+
+      setLogs(res.items);
+      setTotal(res.total ?? res.pagination?.total ?? res.items.length);
     } catch (e) { 
       console.error(e);
       addToast(t('admin.audit.fetchError') || 'Failed to fetch audit logs', 'error');

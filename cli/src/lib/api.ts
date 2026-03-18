@@ -12,8 +12,16 @@ const rawClient = createClient<paths>({
   baseUrl: BASE_URL
 });
 
-type ClientResult = { data?: any; error?: any; response?: Response };
-type ClientMethod = (path: string, init?: Record<string, unknown>) => Promise<ClientResult>;
+export type ClientResult<TData = Record<string, unknown>, TError = Record<string, unknown>> = {
+  data?: TData;
+  error?: TError;
+  response?: Response;
+};
+
+type ClientMethod = <TData = Record<string, unknown>, TError = Record<string, unknown>>(
+  path: string,
+  init?: Record<string, unknown>,
+) => Promise<ClientResult<TData, TError>>;
 
 interface LooseClient {
   use: (middleware: Record<string, unknown>) => void;
@@ -137,7 +145,7 @@ export interface CaptchaPolicyResponse {
  * Helper: Safely extract API data and handle errors
  */
 export async function extractData<T>(
-  promise: Promise<ClientResult>
+  promise: Promise<ClientResult<unknown, unknown>>
 ): Promise<T> {
   const { data, error, response } = await promise;
   
@@ -158,11 +166,17 @@ export async function extractData<T>(
 
   // Core logic: If it's BaseResponse format (contains success and data fields)
   if (typeof data === 'object' && data !== null && 'success' in data && 'data' in data) {
-    if (data.success === false) {
-      throw data as ApiError;
+    const rec = data as Record<string, unknown>;
+    if (rec.success === false) {
+      if (isApiError(data)) throw data;
+      const code = typeof rec.code === 'number' ? rec.code : 500;
+      const bizCode =
+        typeof rec.biz_code === 'string' || rec.biz_code === null ? (rec.biz_code as string | null) : null;
+      const msg = typeof rec.msg === 'string' ? rec.msg : 'API Error';
+      throw { success: false, code, biz_code: bizCode, msg } satisfies ApiError;
     }
     // Return internal data content and cast to T
-    return data.data as T;
+    return rec.data as T;
   }
 
   // Edge case: Backend may directly return data (e.g. boolean or raw string)
@@ -192,7 +206,8 @@ export async function postCaptchaPolicy(request: CaptchaPolicyRequest): Promise<
     body: JSON.stringify(request),
   });
 
-  const parsed = await response.json().catch(() => null) as BaseResponse<CaptchaPolicyResponse> | ApiError | null;
+  const parsedUnknown: unknown = await response.json().catch(() => null);
+  const parsed = parsedUnknown as BaseResponse<CaptchaPolicyResponse> | ApiError | null;
   if (!parsed) {
     throw new Error("Invalid response");
   }
@@ -247,14 +262,26 @@ const refreshTokenAction = async () => {
       body: JSON.stringify({ refresh_token: currentUserData.refresh_token })
     });
 
-    const data = await response.json();
-    if (data.success && data.data?.tokens) {
-      const { access_token, refresh_token } = data.data.tokens;
-      updateTokens(access_token, refresh_token);
-      return access_token;
-    } else {
-      throw new Error(data.msg || "Refresh failed");
+    const data: unknown = await response.json().catch(() => null);
+    if (typeof data !== 'object' || data === null) {
+      throw new Error('Refresh failed');
     }
+    const rec = data as Record<string, unknown>;
+    const success = rec.success === true;
+    const msg = typeof rec.msg === 'string' ? rec.msg : 'Refresh failed';
+    const dataObj = typeof rec.data === 'object' && rec.data !== null ? (rec.data as Record<string, unknown>) : null;
+    const tokens = dataObj && typeof dataObj.tokens === 'object' && dataObj.tokens !== null
+      ? (dataObj.tokens as Record<string, unknown>)
+      : null;
+    const accessToken = tokens && typeof tokens.access_token === 'string' ? tokens.access_token : null;
+    const refreshToken = tokens && typeof tokens.refresh_token === 'string' ? tokens.refresh_token : null;
+
+    if (success && accessToken && refreshToken) {
+      updateTokens(accessToken, refreshToken);
+      return accessToken;
+    }
+
+    throw new Error(msg);
   } catch (error) {
     // Refresh token also invalid, logout user
     logout();
@@ -331,12 +358,15 @@ client.use({
       if (request.headers.get("X-No-Toast") === "true") return response;
 
       const clone = response.clone();
-      const data = (await clone.json().catch(() => ({}))) as { msg?: string, biz_code?: string };
+      const parsed: unknown = await clone.json().catch(() => null);
+      const rec = typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : {};
+      const msg = typeof rec.msg === 'string' ? rec.msg : undefined;
+      const bizCode = typeof rec.biz_code === 'string' ? rec.biz_code : undefined;
       const { addToast } = useToastStore.getState();
       
-      let errorMsg = data.msg || response.statusText || "Network Error";
-      if (data.biz_code) {
-        const translated = i18next.t(`errors.${data.biz_code}`);
+      let errorMsg = msg || response.statusText || "Network Error";
+      if (bizCode) {
+        const translated = i18next.t(`errors.${bizCode}`);
         if (translated && !translated.startsWith('[')) {
           errorMsg = translated;
         }

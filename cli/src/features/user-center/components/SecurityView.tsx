@@ -177,9 +177,15 @@ export const SecurityView = () => {
       });
       
       if (res?.success && res.data) {
-        const normalizedTarget = res.data.target?.trim() || '';
+        const payload = res.data as { token: string; target?: string | null };
+        const normalizedTarget = payload.target?.trim() || '';
         const inputTarget = bindForm.target.trim();
-        setBindForm(f => ({ ...f, token: res.data.token, timer: 60, target: normalizedTarget || f.target }));
+        setBindForm((f) => ({
+          ...f,
+          token: payload.token,
+          timer: 60,
+          target: normalizedTarget || f.target,
+        }));
         if (normalizedTarget && normalizedTarget !== inputTarget) {
           addToast(t('security.targetNormalized'), 'warning');
         }
@@ -214,10 +220,13 @@ export const SecurityView = () => {
       }
 
       const inputTarget = bindForm.target.trim();
-      const serverTarget =
-        type === 'phone'
-          ? (res?.data?.phone?.trim() || '')
-          : (res?.data?.email?.trim() || '');
+      const resRec = typeof res === 'object' && res !== null ? (res as Record<string, unknown>) : null;
+      const innerRec =
+        resRec && typeof resRec.data === 'object' && resRec.data !== null
+          ? (resRec.data as Record<string, unknown>)
+          : null;
+      const rawTarget = type === 'phone' ? innerRec?.phone : innerRec?.email;
+      const serverTarget = typeof rawTarget === 'string' ? rawTarget.trim() : '';
       if (serverTarget && serverTarget !== inputTarget) {
         addToast(t('security.targetNormalized'), 'warning');
       }

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/Input.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { useAuthStore } from '@/stores/auth.ts';
-import { client } from '@/lib/api.ts';
+import { client, handleApiError } from '@/lib/api.ts';
 import { useToastStore } from '@fileuni/shared';
 import { Lock, Key, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
@@ -60,7 +60,7 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
       });
 
       if (error) {
-        addToast(error.msg || t('errors.INTERNAL_ERROR'), 'error');
+        addToast(handleApiError(error, t), 'error');
         return;
       }
 

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
-import { client } from '@/lib/api.ts';
+import { client, handleApiError } from '@/lib/api.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { UserPlus, User, Lock, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react';
@@ -58,7 +58,7 @@ export const RegisterView = () => {
       });
       
       if (error) {
-        addToast(error.msg || t("errors.INTERNAL_ERROR"), "error");
+        addToast(handleApiError(error, t), "error");
         return;
       }
       

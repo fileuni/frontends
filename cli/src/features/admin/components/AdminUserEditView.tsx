@@ -12,7 +12,7 @@ import {
   HardDrive, UserCircle,
   Hash, RotateCcw, Cloud
 } from 'lucide-react';
-import { client } from '@/lib/api.ts';
+import { client, extractData } from '@/lib/api.ts';
 import { normalizeEmailInput, normalizePhoneInput, isPhoneInputValid } from '@/lib/contactNormalize.ts';
 import type { components } from '@/types/api.ts';
 import { cn } from '@/lib/utils.ts';
@@ -122,25 +122,22 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
     if (!userId) return;
     setLoading(true);
     try {
-      // Fetch user base info
-      const { data: userRes } = await client.GET('/api/v1/users/admin/users/{user_id}', { 
-        params: { path: { user_id: userId || '' } } 
+      const u = await extractData<UserResponse>(
+        client.GET('/api/v1/users/admin/users/{user_id}', {
+          params: { path: { user_id: userId || '' } },
+        }),
+      );
+
+      setRawUser(u);
+      setForm({
+        full_name: u.full_name || '',
+        nickname: u.nickname || '',
+        email: u.email || '',
+        phone: u.phone || '',
+        other_phones: u.other_phones || [],
+        role_id: u.role_id,
+        status: normalizeUserStatus(u.status),
       });
-      
-      if (userRes?.success && userRes.data) {
-        const u = userRes.data;
-        setRawUser(u);
-        
-        setForm({
-          full_name: u.full_name || '',
-          nickname: u.nickname || '',
-          email: u.email || '',
-          phone: u.phone || '',
-          other_phones: u.other_phones || [],
-          role_id: u.role_id,
-          status: normalizeUserStatus(u.status),
-        });
-      }
 
       const userPermissionData = await fetchUserPermissions(userId);
       setPermissionCatalog(userPermissionData.catalog || []);
@@ -150,34 +147,32 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
       });
       setPermissionOverrides(nextOverrides);
 
-      // Fetch file settings
-      const { data: settingsRes } = await client.GET('/api/v1/file/admin/user-settings/{user_id}', {
-        params: { path: { user_id: userId || '' } }
+      const s = await extractData<FileSettingsBody>(
+        client.GET('/api/v1/file/admin/user-settings/{user_id}', {
+          params: { path: { user_id: userId || '' } },
+        }),
+      );
+      const defaults = createDefaultFileSettings(s.user_id || userId || '');
+      setFileSettings({
+        ...defaults,
+        user_id: s.user_id || defaults.user_id,
+        pool_name: s.pool_name || defaults.pool_name,
+        base_dir: s.base_dir || defaults.base_dir,
+        storage_type: s.storage_type || defaults.storage_type,
+        sftp_enable_password: Boolean(s.sftp_enable_password),
+        storage_quota: Number(s.storage_quota ?? defaults.storage_quota),
+        storage_used: Number(s.storage_used ?? defaults.storage_used),
+        s3_access_key: s.s3_access_key || '',
+        s3_secret_key: s.s3_secret_key || '',
+        thumbnail_disable_audio: Boolean(s.thumbnail_disable_audio),
+        thumbnail_disable_image: Boolean(s.thumbnail_disable_image),
+        thumbnail_disable_markdown: Boolean(s.thumbnail_disable_markdown),
+        thumbnail_disable_office: Boolean(s.thumbnail_disable_office),
+        thumbnail_disable_pdf: Boolean(s.thumbnail_disable_pdf),
+        thumbnail_disable_tex: Boolean(s.thumbnail_disable_tex),
+        thumbnail_disable_text: Boolean(s.thumbnail_disable_text),
+        thumbnail_disable_video: Boolean(s.thumbnail_disable_video),
       });
-      if (settingsRes?.success && settingsRes.data) {
-        const s = settingsRes.data;
-        const defaults = createDefaultFileSettings(s.user_id || userId || '');
-        setFileSettings({
-          ...defaults,
-          user_id: s.user_id || defaults.user_id,
-          pool_name: s.pool_name || defaults.pool_name,
-          base_dir: s.base_dir || defaults.base_dir,
-          storage_type: s.storage_type || defaults.storage_type,
-          sftp_enable_password: Boolean(s.sftp_enable_password),
-          storage_quota: Number(s.storage_quota ?? defaults.storage_quota),
-          storage_used: Number(s.storage_used ?? defaults.storage_used),
-          s3_access_key: s.s3_access_key || '',
-          s3_secret_key: s.s3_secret_key || '',
-          thumbnail_disable_audio: Boolean(s.thumbnail_disable_audio),
-          thumbnail_disable_image: Boolean(s.thumbnail_disable_image),
-          thumbnail_disable_markdown: Boolean(s.thumbnail_disable_markdown),
-          thumbnail_disable_office: Boolean(s.thumbnail_disable_office),
-          thumbnail_disable_pdf: Boolean(s.thumbnail_disable_pdf),
-          thumbnail_disable_tex: Boolean(s.thumbnail_disable_tex),
-          thumbnail_disable_text: Boolean(s.thumbnail_disable_text),
-          thumbnail_disable_video: Boolean(s.thumbnail_disable_video),
-        });
-      }
     } catch (e: unknown) { console.error(e); }
     finally { setLoading(false); }
   }, [userId]);
@@ -231,14 +226,13 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
     if (!userId) return;
     setRecalibrating(true);
     try {
-      const { data: res } = await client.POST('/api/v1/file/admin/recalibrate/{user_id}', {
-        params: { path: { user_id: userId } }
-      });
-      if (res?.success && res.data) {
-        const usageData = res.data as { storage_used: number | string };
-        setFileSettings(s => ({ ...s, storage_used: Number(usageData.storage_used) }));
-        addToast(t('admin.edit.recalibrateSuccess'), 'success');
-      }
+      const usageData = await extractData<{ storage_used: number | string }>(
+        client.POST('/api/v1/file/admin/recalibrate/{user_id}', {
+          params: { path: { user_id: userId } },
+        }),
+      );
+      setFileSettings((s) => ({ ...s, storage_used: Number(usageData.storage_used) }));
+      addToast(t('admin.edit.recalibrateSuccess'), 'success');
     } catch (e) { /* handled */ }
     finally { setRecalibrating(false); }
   };

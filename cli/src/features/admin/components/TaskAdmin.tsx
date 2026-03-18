@@ -7,7 +7,7 @@ import {
   Activity, Clock, XCircle, CheckCircle2, 
   AlertCircle, RefreshCw
 } from 'lucide-react';
-import { client } from '@/lib/api.ts';
+import { client, extractData } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
 
 // Background task type - matches yh_task_registry entity / 后台任务类型
@@ -30,6 +30,11 @@ interface ScheduledJob {
   last_run?: string | null;
 }
 
+interface TaskQueryData {
+  tasks: BackgroundTask[];
+  total: number;
+}
+
 export const TaskAdmin = () => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -43,27 +48,27 @@ export const TaskAdmin = () => {
 
   const fetchTasks = useCallback(async () => {
     try {
-      const { data: res } = await client.POST('/api/v1/admin/system/tasks/query', {
-        body: {
-          page,
-          page_size: pageSize,
-          status: statusFilter || undefined,
-          user_id: undefined
-        }
-      });
-      if (res?.success && res.data) {
-        setTasks(res.data.tasks);
-        setTotal(res.data.total);
-      }
+      const res = await extractData<TaskQueryData>(
+        client.POST('/api/v1/admin/system/tasks/query', {
+          body: {
+            page,
+            page_size: pageSize,
+            status: statusFilter || undefined,
+            user_id: undefined,
+          },
+        }),
+      );
+      setTasks(res.tasks);
+      setTotal(res.total);
     } catch (e) { console.error(e); }
   }, [page, pageSize, statusFilter]);
 
   const fetchScheduledJobs = useCallback(async () => {
     try {
-      const { data: res } = await client.GET('/api/v1/admin/system/tasks/scheduled');
-      if (res?.success && res.data) {
-        setScheduledJobs(res.data);
-      }
+      const res = await extractData<ScheduledJob[]>(
+        client.GET('/api/v1/admin/system/tasks/scheduled'),
+      );
+      setScheduledJobs(res);
     } catch (e) { console.error(e); }
   }, []);
 
@@ -82,13 +87,13 @@ export const TaskAdmin = () => {
   const handleCancelTask = async (id: string) => {
     if (!confirm(t('admin.tasks.cancel_confirm') || 'Are you sure you want to cancel this task?')) return;
     try {
-      const { data: res } = await client.POST('/api/v1/admin/system/tasks/cancel/{id}', {
-        params: { path: { id } }
-      });
-      if (res?.success) {
-        addToast(t('admin.tasks.cancel_success') || 'Task cancelled successfully', 'success');
-        fetchTasks();
-      }
+      await extractData<unknown>(
+        client.POST('/api/v1/admin/system/tasks/cancel/{id}', {
+          params: { path: { id } },
+        }),
+      );
+      addToast(t('admin.tasks.cancel_success') || 'Task cancelled successfully', 'success');
+      fetchTasks();
     } catch (e) { console.error(e); }
   };
 

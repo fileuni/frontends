@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { User, Mail, FileText, Plus, Trash2, Save, CheckCircle2 } from 'lucide-react';
-import { client } from '@/lib/api.ts';
+import { client, extractData, handleApiError } from '@/lib/api.ts';
 import { isPhoneInputValid, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 
 import { useToastStore } from '@fileuni/shared';
@@ -13,6 +13,7 @@ import { useToastStore } from '@fileuni/shared';
 import type { components } from '@/types/api.ts';
 
 type ProfileUpdateBody = components["schemas"]["UpdateProfileRequest"];
+type UserResponse = components["schemas"]["UserResponse"];
 
 export const ProfileView = () => {
   const { t } = useTranslation();
@@ -36,19 +37,18 @@ export const ProfileView = () => {
      */
     const fetchProfile = async () => {
       try {
-        const { data: res } = await client.GET('/api/v1/users/auth/me');
-        if (res?.success && res.data) {
-          setForm({
-            full_name: res.data.full_name || '',
-            nickname: res.data.nickname || '',
-            bio: res.data.bio || '',
-            email: res.data.email || '',
-            phone: res.data.phone || '',
-            other_phones: res.data.other_phones || [],
-          });
-        }
+        const me = await extractData<UserResponse>(client.GET('/api/v1/users/auth/me'));
+        setForm({
+          full_name: me.full_name || '',
+          nickname: me.nickname || '',
+          bio: me.bio || '',
+          email: me.email || '',
+          phone: me.phone || '',
+          other_phones: me.other_phones || [],
+        });
       } catch (e) {
         console.error(e);
+        addToast(handleApiError(e, t), 'error');
       } finally {
         setLoading(false);
       }
@@ -89,22 +89,19 @@ export const ProfileView = () => {
         bio: form.bio,
         other_phones: inputOtherPhones,
       };
-      const { data: res, error } = await client.PUT('/api/v1/users/auth/{user_id}/profile', {
-        params: { path: { user_id: currentUserData.user.id } },
-        body,
-      });
-      if (error || !res?.success || !res.data) {
-        return;
-      }
-      const serverOtherPhones: string[] = Array.isArray(res.data.other_phones)
-        ? (res.data.other_phones as string[])
-        : [];
+      const updated = await extractData<UserResponse>(
+        client.PUT('/api/v1/users/auth/{user_id}/profile', {
+          params: { path: { user_id: currentUserData.user.id } },
+          body,
+        }),
+      );
+      const serverOtherPhones: string[] = Array.isArray(updated.other_phones) ? updated.other_phones : [];
       setForm({
-        full_name: res.data.full_name || '',
-        nickname: res.data.nickname || '',
-        bio: res.data.bio || '',
-        email: res.data.email || '',
-        phone: res.data.phone || '',
+        full_name: updated.full_name || '',
+        nickname: updated.nickname || '',
+        bio: updated.bio || '',
+        email: updated.email || '',
+        phone: updated.phone || '',
         other_phones: serverOtherPhones,
       });
 
@@ -116,7 +113,7 @@ export const ProfileView = () => {
       }
       addToast(t('profile.success'), 'success');
     } catch (e: unknown) {
-      // Handled
+      addToast(handleApiError(e, t), 'error');
     } finally {
       setSaving(false);
     }

@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { cn } from '../lib/utils';
 import { Button } from './ui/Button';
 import { useResolvedTheme } from '../lib/theme';
@@ -153,7 +154,7 @@ const ReleaseRow: React.FC<{
   title: string;
   onOpenLink?: (url: string) => void;
   getUpdateGuideUrl?: (info: AboutReleaseChannelInfo, updateInfo: AboutUpdateInfo) => string;
-  t: any;
+  t: TFunction;
   isDark: boolean;
 }> = ({ info, updateInfo, title, onOpenLink, getUpdateGuideUrl, t, isDark }) => {
   const downloadUrl = info.target_download_url || info.release_page_url;

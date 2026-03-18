@@ -12,7 +12,7 @@ import {
   Trash2, Plus, RefreshCw,
   Calendar, Info, ShieldCheck
 } from 'lucide-react';
-import { client, handleApiError } from '@/lib/api.ts';
+import { client, extractData, handleApiError, type PaginatedData } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
 import type { components } from '@/types/api.ts';
 
@@ -50,21 +50,20 @@ export const BlacklistAdmin = () => {
   const fetchBlacklist = async () => {
     setLoading(true);
     try {
-      const { data: res } = await client.GET('/api/v1/users/admin/blacklist', {
-        params: {
-          query: {
-            page,
-            page_size: pageSize,
-            guard_type: guardType || undefined,
-            blacklist_type: blacklistType || undefined
-          }
-        }
-      });
-      
-      if (res?.success && res.data) {
-        setItems(res.data.items);
-        setTotal(res.data.total);
-      }
+      const res = await extractData<PaginatedData<BlacklistItemResponse>>(
+        client.GET('/api/v1/users/admin/blacklist', {
+          params: {
+            query: {
+              page,
+              page_size: pageSize,
+              guard_type: guardType || undefined,
+              blacklist_type: blacklistType || undefined,
+            },
+          },
+        }),
+      );
+      setItems(res.items);
+      setTotal(res.total ?? res.pagination?.total ?? res.items.length);
     } catch (e) {
       addToast(handleApiError(e, t), 'error');
     } finally {
@@ -76,24 +75,24 @@ export const BlacklistAdmin = () => {
     if (!newValue.trim()) return;
     setIsAdding(true);
     try {
-      const { data: res } = await client.POST('/api/v1/users/admin/blacklist', {
-        body: {
-          guard_type: newGuardType,
-          blacklist_type: newBlacklistType,
-          value: newValue.trim(),
-          reason: newReason.trim() || undefined,
-          expires_at: newExpiresAt || undefined
-        }
-      });
-      
-      if (res?.success) {
-        addToast(t('admin.blacklist.addSuccess') || 'Added successfully', 'success');
-        setIsAddModalOpen(false);
-        setNewValue('');
-        setNewReason('');
-        setNewExpiresAt('');
-        fetchBlacklist();
-      }
+      await extractData<unknown>(
+        client.POST('/api/v1/users/admin/blacklist', {
+          body: {
+            guard_type: newGuardType,
+            blacklist_type: newBlacklistType,
+            value: newValue.trim(),
+            reason: newReason.trim() || undefined,
+            expires_at: newExpiresAt || undefined,
+          },
+        }),
+      );
+
+      addToast(t('admin.blacklist.addSuccess') || 'Added successfully', 'success');
+      setIsAddModalOpen(false);
+      setNewValue('');
+      setNewReason('');
+      setNewExpiresAt('');
+      fetchBlacklist();
     } catch (e) {
       addToast(handleApiError(e, t), 'error');
     } finally {
@@ -104,18 +103,17 @@ export const BlacklistAdmin = () => {
   const handleDelete = async (item: BlacklistItemResponse) => {
     setIsDeleting(item.id);
     try {
-      const { data: res } = await client.DELETE('/api/v1/users/admin/blacklist', {
-        body: {
-          guard_type: item.guard_type,
-          blacklist_type: item.blacklist_type,
-          value: item.value
-        }
-      });
-      
-      if (res?.success) {
-        addToast(t('admin.blacklist.removeSuccess') || 'Removed successfully', 'success');
-        fetchBlacklist();
-      }
+      await extractData<unknown>(
+        client.DELETE('/api/v1/users/admin/blacklist', {
+          body: {
+            guard_type: item.guard_type,
+            blacklist_type: item.blacklist_type,
+            value: item.value,
+          },
+        }),
+      );
+      addToast(t('admin.blacklist.removeSuccess') || 'Removed successfully', 'success');
+      fetchBlacklist();
     } catch (e) {
       addToast(handleApiError(e, t), 'error');
     } finally {

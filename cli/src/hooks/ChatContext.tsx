@@ -1502,19 +1502,23 @@ export const ChatProvider: React.FC<{
   const isFirstLoad = useRef(true);
   useEffect(() => {
     if (auth.type === "system") {
-      client.GET("/api/v1/chat/settings").then(({ data }) => {
-        if (data?.success && data.data.settings_json) {
-          try {
-            const p = JSON.parse(data.data.settings_json);
-            isFirstLoad.current = true;
-            setChatConfig((prev: ChatUserConfig) => ({
-              ...prev,
-              ...p,
-              enabled: data.data.is_enabled ?? prev.enabled,
-            }));
-          } catch {}
-        }
-      });
+      client
+        .GET<{ success: boolean; data: { settings_json?: string | null; is_enabled?: boolean | null } }>(
+          "/api/v1/chat/settings",
+        )
+        .then(({ data }) => {
+          if (data?.success && data.data.settings_json) {
+            try {
+              const p = JSON.parse(data.data.settings_json);
+              isFirstLoad.current = true;
+              setChatConfig((prev: ChatUserConfig) => ({
+                ...prev,
+                ...p,
+                enabled: data.data.is_enabled ?? prev.enabled,
+              }));
+            } catch {}
+          }
+        });
     }
   }, [auth.type, setChatConfig]);
 

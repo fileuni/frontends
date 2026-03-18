@@ -15,7 +15,7 @@ import {
   RotateCcw, Key, Eye, EyeOff,
   AlertCircle
 } from 'lucide-react';
-import { client } from '@/lib/api.ts';
+import { client, extractData } from '@/lib/api.ts';
 import type { components } from '@/types/api.ts';
 import { cn } from '@/lib/utils.ts';
 import { fetchRolesAndPermissions, type RolePermissionView } from './roleApi';
@@ -65,26 +65,38 @@ export const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const { data: res } = await client.GET('/api/v1/users/admin/users', {
-        params: {
-          query: {
-            page,
-            page_size: pageSize,
-            include_deleted: includeDeleted,
-            keyword: search || undefined
-          }
-        }
-      });
-      // The response structure might vary depending on Resp<T> wrapper
-      // Based on handler: { users: ..., total: ..., page: ... }
-      if (res?.success && res.data) {
-        setUsers(res.data.users);
-        setTotal(res.data.total);
-      } else if (res?.users) {
-        // Fallback if not wrapped or wrapped differently
-        setUsers(res.users);
-        setTotal(res.total || res.users.length);
+      const data = await extractData<unknown>(
+        client.GET('/api/v1/users/admin/users', {
+          params: {
+            query: {
+              page,
+              page_size: pageSize,
+              include_deleted: includeDeleted,
+              keyword: search || undefined,
+            },
+          },
+        }),
+      );
+
+      if (Array.isArray(data)) {
+        setUsers(data as UserResponse[]);
+        setTotal(data.length);
+        return;
       }
+
+      if (typeof data === 'object' && data !== null) {
+        const rec = data as Record<string, unknown>;
+        const usersRaw = rec.users;
+        const totalRaw = rec.total;
+        if (Array.isArray(usersRaw)) {
+          setUsers(usersRaw as UserResponse[]);
+          setTotal(typeof totalRaw === 'number' ? totalRaw : usersRaw.length);
+          return;
+        }
+      }
+
+      setUsers([]);
+      setTotal(0);
     } catch (e) { 
       console.error(e);
       addToast(t('admin.users.fetchError'), 'error');
