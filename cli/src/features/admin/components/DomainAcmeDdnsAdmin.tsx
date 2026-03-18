@@ -262,6 +262,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [loading, setLoading] = useState(false);
   const [runningDdnsById, setRunningDdnsById] = useState<Record<string, boolean>>({});
   const [runningDdnsAll, setRunningDdnsAll] = useState(false);
+  const [runningSslById, setRunningSslById] = useState<Record<string, boolean>>({});
+  const [runningSslAll, setRunningSslAll] = useState(false);
   const [providerProfiles, setProviderProfiles] = useState<ProviderProfileItem[]>([]);
   const [providers, setProviders] = useState<ProviderAccountItem[]>([]);
   const [ddnsEntries, setDdnsEntries] = useState<DdnsEntryItem[]>([]);
@@ -691,6 +693,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   };
 
   const runSsl = async (id: string) => {
+    if (runningSslAll || runningSslById[id]) return;
+    setRunningSslById((prev) => ({ ...prev, [id]: true }));
     try {
       addToast(t('common.loading'), 'info');
       await extractData(client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/run', { params: { path: { id } } }));
@@ -698,10 +702,18 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
+    } finally {
+      setRunningSslById((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
     }
   };
 
   const runSslRenewalCheckAll = async (forceUpdate: boolean) => {
+    if (runningSslAll) return;
+    setRunningSslAll(true);
     try {
       addToast(t('common.loading'), 'info');
       const resp = await extractData<CertRunAllCheckResponse>(
@@ -718,6 +730,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       await loadAll();
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
+    } finally {
+      setRunningSslAll(false);
     }
   };
 
@@ -862,11 +876,11 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           )}
           {!isDdns && viewEnabled && (
             <>
-              <Button size="sm" variant="outline" onClick={() => runSslRenewalCheckAll(false)} disabled={loading} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.runRenewalCheck')}>
+              <Button size="sm" variant="outline" onClick={() => runSslRenewalCheckAll(false)} disabled={loading || runningSslAll} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.runRenewalCheck')}>
                 <Activity size={16} className="mr-2 opacity-70 text-green-600 dark:text-green-400" />
                 <span className="hidden sm:inline">{t('admin.domain.runRenewalCheck')}</span>
               </Button>
-              <Button size="sm" variant="outline" onClick={() => runSslRenewalCheckAll(true)} disabled={loading} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.forceRenewAll')}>
+              <Button size="sm" variant="outline" onClick={() => runSslRenewalCheckAll(true)} disabled={loading || runningSslAll} className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground" title={t('admin.domain.forceRenewAll')}>
                 <Play size={16} className="mr-2 opacity-70 text-orange-600 dark:text-orange-400" />
                 <span className="hidden sm:inline">{t('admin.domain.forceRenewAll')}</span>
               </Button>
@@ -970,8 +984,13 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     </>
                   ) : (
                     viewEnabled ? (
-                      <button onClick={() => runSsl(item.id)} className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white transition-all shadow-sm" title={t('admin.domain.certRunNow') || 'Run now'}>
-                        <Play size={16} />
+                      <button
+                        onClick={() => runSsl(item.id)}
+                        disabled={runningSslAll || !!runningSslById[item.id]}
+                        className="p-3 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                        title={t('admin.domain.certRunNow') || 'Run now'}
+                      >
+                        <Play size={16} className={cn(!!runningSslById[item.id] && 'animate-pulse')} />
                       </button>
                     ) : null
                   )}
@@ -1082,7 +1101,14 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                           </>
                         ) : (
                           viewEnabled ? (
-                            <button onClick={() => runSsl(item.id)} className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white transition-all shadow-sm"><Play size={16} /></button>
+                            <button
+                              onClick={() => runSsl(item.id)}
+                              disabled={runningSslAll || !!runningSslById[item.id]}
+                              className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-green-500 hover:text-white disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-inherit transition-all shadow-sm"
+                              title={t('admin.domain.certRunNow') || 'Run now'}
+                            >
+                              <Play size={16} className={cn(!!runningSslById[item.id] && 'animate-pulse')} />
+                            </button>
                           ) : null
                         )}
                         {viewEnabled && (

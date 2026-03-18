@@ -209,6 +209,19 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
                   <Plus size={16} />
                 </Button>
               </div>
+
+              <div className="pt-2 space-y-2">
+                <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.zoneLabel') || 'Managed Zone'}</label>
+                <Input
+                  value={getConfigValue('dns_zone') || getConfigValue('zone')}
+                  onChange={(e) => updateDnsConfig('dns_zone', e.target.value)}
+                  placeholder={t('admin.domain.zonePlaceholder') || 'e.g. nascore.eu.org'}
+                  className={controlBase}
+                />
+                <div className="text-[14px] opacity-50 italic">
+                  {t('admin.domain.zoneHostExplicitHint') || 'Zone here means the DNS managed zone (domain), not geographic region.'}
+                </div>
+              </div>
             </div>
           )}
 
