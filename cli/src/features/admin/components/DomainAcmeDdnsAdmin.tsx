@@ -54,6 +54,8 @@ import {
 } from './domain/presentation';
 import { DdnsLogsModal } from './domain/modals/DdnsLogsModal';
 import { CertLogsModal } from './domain/modals/CertLogsModal';
+import { DdnsCheckModal } from './domain/modals/DdnsCheckModal';
+import { CertCheckModal } from './domain/modals/CertCheckModal';
 
 interface DomainAcmeDdnsAdminProps {
   view: DomainAcmeDdnsView;
@@ -1311,215 +1313,26 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         </div>
       </Modal>
 
-      {/* DDNS Check Modal */}
-      <Modal
+      <DdnsCheckModal
         isOpen={ddnsCheckOpen}
+        result={ddnsCheckResult}
         onClose={() => {
           setDdnsCheckOpen(false);
           setDdnsCheckResult(null);
         }}
-        title={t('common.check') || 'Check'}
-        maxWidth="max-w-3xl"
-      >
-        <div className="space-y-6 p-1 text-foreground">
-          {!ddnsCheckResult ? (
-            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
-              {t('common.noData') || 'No data'}
-            </div>
-          ) : (
-            <div className={sectionCardBase}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="text-sm font-black uppercase tracking-widest opacity-60">FQDN</div>
-                  <div className="mt-1 font-mono text-sm truncate">{ddnsCheckResult.fqdn}</div>
-                  <div className="mt-2 text-[14px] opacity-60">
-                    {ddnsCheckResult.dns_used_server
-                      ? `DoH: ${ddnsCheckResult.dns_used_server}`
-                      : (t('admin.domain.enableSchedulerHint') || 'DoH not available')}
-                  </div>
-                </div>
-                <div className="shrink-0">
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      'h-8 px-3 rounded-xl font-black uppercase tracking-widest',
-                      (ddnsCheckResult.need_update_ipv4 || ddnsCheckResult.need_update_ipv6)
-                        ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400'
-                        : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400',
-                    )}
-                  >
-                    {(ddnsCheckResult.need_update_ipv4 || ddnsCheckResult.need_update_ipv6) ? 'UPDATE' : 'OK'}
-                  </Badge>
-                </div>
-              </div>
+        onRunNow={runDdns}
+      />
 
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
-                  <div className="text-[12px] font-black uppercase tracking-widest opacity-50">IPv4</div>
-                  <div className="mt-2 text-[14px] font-mono opacity-80">desired: {ddnsCheckResult.desired_ipv4 || '-'}</div>
-                  <div className="mt-2 text-[14px] font-mono opacity-60">dns: {ddnsCheckResult.dns_ipv4?.length ? ddnsCheckResult.dns_ipv4.join(', ') : '-'}</div>
-                  {ddnsCheckResult.dns_error_ipv4 && (
-                    <div className="mt-2 text-[14px] font-bold text-orange-600 dark:text-orange-400">
-                      {ddnsCheckResult.dns_error_ipv4}
-                    </div>
-                  )}
-                  <div className="mt-3 flex items-center gap-2 text-[14px] font-bold">
-                    <Badge variant="outline" className={cn('h-7 px-2 rounded-lg', ddnsCheckResult.need_update_ipv4 ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400' : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400')}>
-                      {ddnsCheckResult.need_update_ipv4 ? 'UPDATE' : 'OK'}
-                    </Badge>
-                    {ddnsCheckResult.ip_changed_ipv4 && <span className="opacity-60">ip changed</span>}
-                    {ddnsCheckResult.dns_mismatch_ipv4 && <span className="opacity-60">dns mismatch</span>}
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
-                  <div className="text-[12px] font-black uppercase tracking-widest opacity-50">IPv6</div>
-                  <div className="mt-2 text-[14px] font-mono opacity-80">desired: {ddnsCheckResult.desired_ipv6 || '-'}</div>
-                  <div className="mt-2 text-[14px] font-mono opacity-60">dns: {ddnsCheckResult.dns_ipv6?.length ? ddnsCheckResult.dns_ipv6.join(', ') : '-'}</div>
-                  {ddnsCheckResult.dns_error_ipv6 && (
-                    <div className="mt-2 text-[14px] font-bold text-orange-600 dark:text-orange-400">
-                      {ddnsCheckResult.dns_error_ipv6}
-                    </div>
-                  )}
-                  <div className="mt-3 flex items-center gap-2 text-[14px] font-bold">
-                    <Badge variant="outline" className={cn('h-7 px-2 rounded-lg', ddnsCheckResult.need_update_ipv6 ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400' : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400')}>
-                      {ddnsCheckResult.need_update_ipv6 ? 'UPDATE' : 'OK'}
-                    </Badge>
-                    {ddnsCheckResult.ip_changed_ipv6 && <span className="opacity-60">ip changed</span>}
-                    {ddnsCheckResult.dns_mismatch_ipv6 && <span className="opacity-60">dns mismatch</span>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end gap-3">
-                <Button
-                  variant="outline"
-                  className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
-                  onClick={() => {
-                    setDdnsCheckOpen(false);
-                    setDdnsCheckResult(null);
-                  }}
-                >
-                  {t('common.close') || 'Close'}
-                </Button>
-                {(ddnsCheckResult.need_update_ipv4 || ddnsCheckResult.need_update_ipv6) && (
-                  <Button
-                    className="h-12 px-6 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30"
-                    onClick={async () => {
-                      const id = ddnsCheckResult.id;
-                      setDdnsCheckOpen(false);
-                      setDdnsCheckResult(null);
-                      await runDdns(id);
-                    }}
-                  >
-                    <Play size={16} className="mr-2" />
-                    {t('admin.domain.ddnsRunNow') || 'Run now'}
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </Modal>
-
-      {/* Cert Check Modal */}
-      <Modal
+      <CertCheckModal
         isOpen={certCheckOpen}
+        result={certCheckResult}
         onClose={() => {
           setCertCheckOpen(false);
           setCertCheckResult(null);
         }}
-        title={t('common.check') || 'Check'}
-        maxWidth="max-w-3xl"
-      >
-        <div className="space-y-6 p-1 text-foreground">
-          {!certCheckResult ? (
-            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
-              {t('common.noData') || 'No data'}
-            </div>
-          ) : (
-            <div className={sectionCardBase}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="text-sm font-black uppercase tracking-widest opacity-60">CERT</div>
-                  <div className="mt-1 text-base font-black truncate">{certCheckResult.name}</div>
-                </div>
-                <div className="shrink-0">
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      'h-8 px-3 rounded-xl font-black uppercase tracking-widest',
-                      certCheckResult.overall_status === 'fail'
-                        ? 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400'
-                        : certCheckResult.overall_status === 'warn'
-                          ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400'
-                          : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400',
-                    )}
-                  >
-                    {certCheckResult.overall_status}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                {(certCheckResult.items || []).map((it, idx) => (
-                  <div
-                    key={`${it.key}-${idx}`}
-                    className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="text-[12px] font-black uppercase tracking-widest opacity-50">{it.key}</div>
-                        <div className="mt-1 text-[14px] font-bold opacity-70">{it.message}</div>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'h-7 px-2 rounded-lg font-black uppercase tracking-widest',
-                          it.status === 'fail'
-                            ? 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400'
-                            : it.status === 'warn'
-                              ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400'
-                              : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400',
-                        )}
-                      >
-                        {it.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 flex justify-end gap-3">
-                <Button
-                  variant="outline"
-                  className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
-                  onClick={() => {
-                    setCertCheckOpen(false);
-                    setCertCheckResult(null);
-                  }}
-                >
-                  {t('common.close') || 'Close'}
-                </Button>
-                {viewEnabled && certCheckResult.overall_status !== 'fail' && (
-                  <Button
-                    className="h-12 px-6 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30"
-                    onClick={async () => {
-                      const certId = certCheckResult.cert_id;
-                      setCertCheckOpen(false);
-                      setCertCheckResult(null);
-                      await runSsl(certId);
-                    }}
-                  >
-                    <Play size={16} className="mr-2" />
-                    {t('admin.domain.certRunNow') || 'Run now'}
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </Modal>
+        viewEnabled={viewEnabled}
+        onRunNow={runSsl}
+      />
 
       {isDdns && (
         <Pagination
