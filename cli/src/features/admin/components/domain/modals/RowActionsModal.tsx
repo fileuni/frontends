@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
-import { Edit3, Play, ScrollText, Search, Trash2 } from 'lucide-react';
+import { Activity, Edit3, Play, ScrollText, Search, Trash2 } from 'lucide-react';
 import type {
   CertificateItem,
   DdnsEntryItem,
@@ -18,10 +18,12 @@ export const RowActionsModal = ({
   runningSslAll,
   runningSslById,
   ddnsCheckLoading,
+  ddnsInspectLoading,
   certCheckLoading,
   onClose,
   onRunDdns,
   onCheckDdns,
+  onInspectDdns,
   onRunSsl,
   onCheckSsl,
   onOpenDdnsLogs,
@@ -38,10 +40,12 @@ export const RowActionsModal = ({
   runningSslAll: boolean;
   runningSslById: Record<string, boolean>;
   ddnsCheckLoading: boolean;
+  ddnsInspectLoading: boolean;
   certCheckLoading: boolean;
   onClose: () => void;
   onRunDdns: (id: string) => Promise<void>;
   onCheckDdns: (id: string) => Promise<void>;
+  onInspectDdns: (id: string) => Promise<void>;
   onRunSsl: (id: string) => Promise<void>;
   onCheckSsl: (id: string) => Promise<void>;
   onOpenDdnsLogs: (entry: DdnsEntryItem) => void;
@@ -105,6 +109,22 @@ export const RowActionsModal = ({
                 >
                   <Search size={16} className="mr-2" />
                   {t('common.check') || 'Check'}
+                </Button>
+              )}
+
+              {target.kind === 'ddns' && (
+                <Button
+                  variant="outline"
+                  className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                  onClick={async () => {
+                    const id = target.item.id;
+                    onClose();
+                    await onInspectDdns(id);
+                  }}
+                  disabled={ddnsInspectLoading}
+                >
+                  <Activity size={16} className="mr-2" />
+                  {t('admin.domain.ddnsInspect') || 'Inspect'}
                 </Button>
               )}
 

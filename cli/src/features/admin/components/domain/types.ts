@@ -33,6 +33,9 @@ export interface ProviderAccountItem {
   has_credential: boolean;
   auth_ok?: boolean;
   auth_error?: string | null;
+  auth_test_status?: string | null;
+  auth_test_message?: string | null;
+  auth_test_at?: string | null;
 }
 
 export interface ProviderTestDnsResult {
@@ -101,6 +104,29 @@ export interface DdnsCheckResult {
   need_update_ipv6: boolean;
 }
 
+export interface DdnsEntryInspectResult {
+  id: string;
+  fqdn: string;
+  ipv4_enabled: boolean;
+  ipv6_enabled: boolean;
+  detected_ipv4?: string | null;
+  detect_error_v4?: string | null;
+  detected_ipv6?: string | null;
+  detect_error_v6?: string | null;
+  last_ipv4?: string | null;
+  last_ipv6?: string | null;
+  dns_ipv4: string[];
+  dns_error_v4?: string | null;
+  dns_ipv6: string[];
+  dns_error_v6?: string | null;
+  dns_used_server?: string | null;
+  need_update_v4: boolean;
+  need_update_v6: boolean;
+  last_status?: string | null;
+  last_error?: string | null;
+  last_run_at?: string | null;
+}
+
 export interface CertRunLogItem {
   id: string;
   cert_id: string;
@@ -121,6 +147,13 @@ export interface CertPreflightResult {
   name: string;
   overall_status: 'ok' | 'warn' | 'fail' | string;
   items: CertPreflightItem[];
+}
+
+export interface CertTestDns01Result {
+  fqdn: string;
+  status: string;
+  message: string;
+  observed: boolean;
 }
 
 export interface CertificateItem {

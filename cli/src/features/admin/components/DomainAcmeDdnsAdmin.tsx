@@ -26,8 +26,10 @@ import {
   type DdnsEntryItem,
   type DdnsRunLogItem,
   type DdnsCheckResult,
+  type DdnsEntryInspectResult,
   type CertRunLogItem,
   type CertPreflightResult,
+  type CertTestDns01Result,
   type CertificateItem,
   type CertRunAllCheckResponse,
   type ZeroSslAccountItem,
@@ -57,6 +59,7 @@ import {
 import { DdnsLogsModal } from './domain/modals/DdnsLogsModal';
 import { CertLogsModal } from './domain/modals/CertLogsModal';
 import { DdnsCheckModal } from './domain/modals/DdnsCheckModal';
+import { DdnsInspectModal } from './domain/modals/DdnsInspectModal';
 import { CertCheckModal } from './domain/modals/CertCheckModal';
 import { RowActionsModal } from './domain/modals/RowActionsModal';
 
@@ -120,9 +123,15 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [ddnsCheckLoading, setDdnsCheckLoading] = useState(false);
   const [ddnsCheckResult, setDdnsCheckResult] = useState<DdnsCheckResult | null>(null);
 
+  const [ddnsInspectOpen, setDdnsInspectOpen] = useState(false);
+  const [ddnsInspectLoading, setDdnsInspectLoading] = useState(false);
+  const [ddnsInspectResult, setDdnsInspectResult] = useState<DdnsEntryInspectResult | null>(null);
+
   const [certCheckOpen, setCertCheckOpen] = useState(false);
   const [certCheckLoading, setCertCheckLoading] = useState(false);
   const [certCheckResult, setCertCheckResult] = useState<CertPreflightResult | null>(null);
+
+  const [certDns01TestRunning, setCertDns01TestRunning] = useState(false);
 
   const [bulkCreateOpen, setBulkCreateOpen] = useState(false);
 
@@ -311,6 +320,24 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     }
   };
 
+  const inspectDdns = async (id: string) => {
+    if (ddnsInspectLoading) return;
+    setDdnsInspectLoading(true);
+    try {
+      const data = await extractData<DdnsEntryInspectResult>(
+        client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/inspect', {
+          params: { path: { id } },
+        }),
+      );
+      setDdnsInspectResult(data);
+      setDdnsInspectOpen(true);
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setDdnsInspectLoading(false);
+    }
+  };
+
   const checkCert = async (id: string) => {
     if (certCheckLoading) return;
     setCertCheckLoading(true);
@@ -324,6 +351,27 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       addToast(handleApiError(error, t), 'error');
     } finally {
       setCertCheckLoading(false);
+    }
+  };
+
+  const testCertDns01 = async () => {
+    if (!sslDraft.id) {
+      addToast(t('admin.domain.saveCertFirst') || 'Save certificate first', 'error');
+      return;
+    }
+    if (certDns01TestRunning) return;
+    setCertDns01TestRunning(true);
+    try {
+      const res = await extractData<CertTestDns01Result>(
+        client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/test-dns01', {
+          params: { path: { id: sslDraft.id } },
+        }),
+      );
+      addToast(res.message, res.observed ? 'success' : 'info');
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setCertDns01TestRunning(false);
     }
   };
 
@@ -885,6 +933,14 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                       </button>
                     )}
                     <button
+                      onClick={() => inspectDdns(item.id)}
+                      disabled={ddnsInspectLoading}
+                      className="h-11 w-11 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm disabled:opacity-40"
+                      title={t('admin.domain.ddnsInspect') || 'Inspect'}
+                    >
+                      <Activity size={16} className={cn(ddnsInspectLoading && 'animate-pulse')} />
+                    </button>
+                    <button
                       onClick={() => openLogs(item)}
                       className="h-11 w-11 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
                       title={t('admin.domain.ddnsLogs') || 'Logs'}
@@ -1219,10 +1275,12 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         runningSslAll={runningSslAll}
         runningSslById={runningSslById}
         ddnsCheckLoading={ddnsCheckLoading}
+        ddnsInspectLoading={ddnsInspectLoading}
         certCheckLoading={certCheckLoading}
         onClose={() => setRowActionsOpen(null)}
         onRunDdns={runDdns}
         onCheckDdns={checkDdns}
+        onInspectDdns={inspectDdns}
         onRunSsl={runSsl}
         onCheckSsl={checkCert}
         onOpenDdnsLogs={openLogs}
@@ -1239,6 +1297,16 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         onClose={() => {
           setDdnsCheckOpen(false);
           setDdnsCheckResult(null);
+        }}
+        onRunNow={runDdns}
+      />
+
+      <DdnsInspectModal
+        isOpen={ddnsInspectOpen}
+        result={ddnsInspectResult}
+        onClose={() => {
+          setDdnsInspectOpen(false);
+          setDdnsInspectResult(null);
         }}
         onRunNow={runDdns}
       />
@@ -1538,6 +1606,30 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             onOpenZeroSslModal={() => setZeroSslModalOpen(true)}
           />
 
+          {sslDraft.challenge_type === 'dns01' && (
+            <div className={sectionCardBase}>
+              <div className="space-y-6">
+                <SectionHeader
+                  icon={Network}
+                  title={t('admin.domain.testDns01') || 'Test DNS-01'}
+                  desc={t('admin.domain.zoneHostExplicitHint') || 'Test DNS write permission with a temporary TXT record.'}
+                  colorClass="bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20"
+                />
+                <div className="flex justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={testCertDns01}
+                    disabled={certDns01TestRunning}
+                    className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                  >
+                    <Search size={16} className={cn('mr-2', certDns01TestRunning && 'animate-pulse')} />
+                    {certDns01TestRunning ? (t('common.loading') || 'Loading') : (t('admin.domain.testDns01') || 'Test DNS-01')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className={sectionCardBase}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
               <label className="flex items-start gap-4 cursor-pointer group text-foreground">
@@ -1584,6 +1676,9 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 ) : (
                   providersForCurrentView.map((p) => {
                     const profile = providerProfileMap.get(p.provider_key);
+                    const testStatusRaw = (p.auth_test_status || '').trim();
+                    const testStatus = testStatusRaw.toLowerCase();
+                    const hasTest = !!testStatusRaw;
                     return (
                       <div key={p.id} className="group p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 flex items-center justify-between hover:border-primary/30 transition-all">
                         <div className="flex items-center gap-4">
@@ -1609,15 +1704,36 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                                   {t('admin.domain.capDns01') || 'DNS-01'}
                                 </Badge>
                               )}
-                              {p.auth_ok === false && (
+                              {p.has_credential && p.auth_ok === false && (
                                 <Badge variant="outline" className="text-[10px] h-4 px-1 bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400">
-                                  {t('admin.domain.authErrorBadge') || 'AUTH ERROR'}
+                                  {t('admin.domain.credErrorBadge') || 'CRED ERROR'}
                                 </Badge>
                               )}
-                              {p.auth_ok === true && (
+                              {p.has_credential && p.auth_ok === true && (
                                 <Badge variant="outline" className="text-[10px] h-4 px-1 bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400">
-                                  {t('admin.domain.authOkBadge') || 'AUTH OK'}
+                                  {t('admin.domain.credOkBadge') || 'CRED OK'}
                                 </Badge>
+                              )}
+                              {hasTest && (
+                                <span title={p.auth_test_message || testStatusRaw}>
+                                  <Badge
+                                    variant="outline"
+                                    className={cn(
+                                      'text-[10px] h-4 px-1',
+                                      testStatus.includes('fail') || testStatus.includes('error')
+                                        ? 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400'
+                                        : testStatus.includes('skip')
+                                          ? 'bg-zinc-500/10 border-zinc-500/20 text-zinc-700 dark:text-zinc-300'
+                                          : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400',
+                                    )}
+                                  >
+                                    {testStatus.includes('fail') || testStatus.includes('error')
+                                      ? (t('admin.domain.testFailBadge') || 'TEST FAIL')
+                                      : testStatus.includes('skip')
+                                        ? (t('admin.domain.testSkipBadge') || 'TEST SKIP')
+                                        : (t('admin.domain.testOkBadge') || 'TEST OK')}
+                                  </Badge>
+                                </span>
                               )}
                             </div>
                             <div className="text-[14px] opacity-50 font-mono uppercase flex items-center gap-2">
@@ -1629,6 +1745,14 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                             {p.auth_ok === false && p.auth_error && (
                               <div className="text-[14px] font-bold opacity-70 text-red-700 dark:text-red-400 max-w-[520px] truncate" title={p.auth_error}>
                                 {p.auth_error}
+                              </div>
+                            )}
+                            {(p.auth_test_status || p.auth_test_message) && (
+                              <div
+                                className="text-[14px] font-bold opacity-70 text-zinc-700 dark:text-zinc-300 max-w-[520px] truncate"
+                                title={p.auth_test_message || p.auth_test_status || ''}
+                              >
+                                {p.auth_test_message || p.auth_test_status}
                               </div>
                             )}
                           </div>
