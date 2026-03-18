@@ -35,6 +35,18 @@ export interface ProviderAccountItem {
   auth_error?: string | null;
 }
 
+export interface ProviderTestDnsResult {
+  fqdn: string;
+  status: string;
+  message: string;
+  observed: boolean;
+}
+
+export interface ProviderTestAuthResult {
+  status: string;
+  message: string;
+}
+
 export interface DdnsEntryItem {
   id: string;
   name: string;

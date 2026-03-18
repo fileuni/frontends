@@ -31,6 +31,8 @@ import {
   type CertificateItem,
   type CertRunAllCheckResponse,
   type ZeroSslAccountItem,
+  type ProviderTestDnsResult,
+  type ProviderTestAuthResult,
   type ProviderDraft,
   type DdnsDraft,
   type SslDraft,
@@ -139,6 +141,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [providerTestZone, setProviderTestZone] = useState('');
   const [providerTestHost, setProviderTestHost] = useState('_fileuni_verify');
   const [providerTestRunning, setProviderTestRunning] = useState(false);
+  const [providerAuthTestRunning, setProviderAuthTestRunning] = useState(false);
 
   const [providerDraft, setProviderDraft] = useState<ProviderDraft>(newProviderDraft());
   const [showProviderList, setShowProviderList] = useState(true);
@@ -719,23 +722,47 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     if (providerTestRunning) return;
     setProviderTestRunning(true);
     try {
-      const res = await extractData<unknown>(
+      const res = await extractData<ProviderTestDnsResult>(
         client.POST('/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-dns', {
           params: { path: { id: providerDraft.id } },
           body: { zone: providerTestZone.trim(), host: providerTestHost.trim() || undefined },
         }),
       );
 
-      const rec = typeof res === 'object' && res !== null ? (res as Record<string, unknown>) : null;
-      const observed = rec?.observed === true;
-      const messageRaw = rec?.message;
-      const message =
-        typeof messageRaw === 'string' ? messageRaw : observed ? 'ok' : 'ok (pending)';
-      addToast(message, observed ? 'success' : 'info');
+      addToast(res.message, res.observed ? 'success' : 'info');
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     } finally {
       setProviderTestRunning(false);
+    }
+  };
+
+  const testProviderAuth = async () => {
+    if (!providerDraft.id) {
+      addToast(t('admin.domain.providerNameRequired') || 'Save provider first', 'error');
+      return;
+    }
+    if (providerAuthTestRunning) return;
+    setProviderAuthTestRunning(true);
+    try {
+      const res = await extractData<ProviderTestAuthResult>(
+        client.POST('/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-auth', {
+          params: { path: { id: providerDraft.id } },
+        }),
+      );
+
+      const status = res.status.toLowerCase();
+      const kind = status.includes('fail') || status.includes('error')
+        ? 'error'
+        : status.includes('skip')
+          ? 'info'
+          : 'success';
+      addToast(res.message, kind);
+      await loadAll();
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setProviderAuthTestRunning(false);
     }
   };
 
@@ -1798,14 +1825,49 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     </div>
 
                     <div className="flex justify-end">
+                      <div className="flex flex-wrap justify-end gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={testProviderAuth}
+                          disabled={providerAuthTestRunning}
+                          className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                        >
+                          <Key size={16} className={cn('mr-2', providerAuthTestRunning && 'animate-pulse')} />
+                          {providerAuthTestRunning ? (t('common.loading') || 'Loading') : (t('admin.domain.testAuth') || 'Test Auth')}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={testProviderDns}
+                          disabled={providerTestRunning}
+                          className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
+                        >
+                          <Search size={16} className={cn('mr-2', providerTestRunning && 'animate-pulse')} />
+                          {providerTestRunning ? (t('common.loading') || 'Loading') : (t('admin.domain.testDns') || 'Test DNS')}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {providerDraft.id && (providerProfileMap.get(providerDraft.provider_key)?.vendor_type !== 'domain') && (
+                <div className={sectionCardBase}>
+                  <div className="space-y-6">
+                    <SectionHeader
+                      icon={Key}
+                      title={t('admin.domain.testAuth') || 'Test Auth'}
+                      desc={t('common.test') || 'Test Connection'}
+                      colorClass="bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20"
+                    />
+                    <div className="flex justify-end">
                       <Button
                         variant="outline"
-                        onClick={testProviderDns}
-                        disabled={providerTestRunning}
+                        onClick={testProviderAuth}
+                        disabled={providerAuthTestRunning}
                         className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
                       >
-                        <Search size={16} className={cn('mr-2', providerTestRunning && 'animate-pulse')} />
-                        {providerTestRunning ? (t('common.loading') || 'Loading') : ((t('common.check') || 'Check') + ' DNS')}
+                        <Key size={16} className={cn('mr-2', providerAuthTestRunning && 'animate-pulse')} />
+                        {providerAuthTestRunning ? (t('common.loading') || 'Loading') : (t('admin.domain.testAuth') || 'Test Auth')}
                       </Button>
                     </div>
                   </div>
