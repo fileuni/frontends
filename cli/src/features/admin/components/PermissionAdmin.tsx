@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
 import { Shield, Save, RefreshCw } from "lucide-react";
 import { fetchRolesAndPermissions, updateRolePermissions, type PermissionCatalogItem, type RolePermissionView } from "./roleApi";
+import { AdminCard, AdminEmptyState, AdminLoadingState, AdminPage, AdminPageHeader } from "./admin-ui";
 
 const bytesToText = (value: number): string => {
   if (value <= 0) {
@@ -106,35 +107,43 @@ export const PermissionAdmin = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 opacity-40">
-        <RefreshCw className="animate-spin mb-4" size={28} />
-        <p className="text-sm font-black uppercase tracking-widest">{t("admin.loading")}</p>
-      </div>
+      <AdminPage className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <AdminCard variant="glass" className="p-8 rounded-[2.5rem] shadow-xl">
+          <AdminPageHeader
+            icon={<Shield size={24} />}
+            title={t("pages.admin.permissions.title")}
+            subtitle={t("admin.perms.subtitle") || "Role Permission Management"}
+            actions={
+              <Button variant="outline" className="rounded-xl" onClick={() => void loadData()}>
+                <RefreshCw size={16} className="mr-2" />
+                {t("filemanager.refresh")}
+              </Button>
+            }
+          />
+        </AdminCard>
+        <AdminLoadingState label={t("admin.loading")} />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between gap-4 bg-white/[0.03] border border-white/5 p-8 rounded-[2.5rem] shadow-xl">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
-            <Shield size={24} />
-          </div>
-          <div>
-            <h2 className="text-2xl font-black tracking-tight">{t("pages.admin.permissions.title")}</h2>
-            <p className="text-sm font-bold opacity-40 uppercase tracking-widest">
-              {t("admin.perms.subtitle") || "Role Permission Management"}
-            </p>
-          </div>
-        </div>
-        <Button variant="outline" className="rounded-xl" onClick={() => void loadData()}>
-          <RefreshCw size={16} className="mr-2" />
-          {t("filemanager.refresh")}
-        </Button>
-      </div>
+    <AdminPage className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <AdminCard variant="glass" className="p-8 rounded-[2.5rem] shadow-xl">
+        <AdminPageHeader
+          icon={<Shield size={24} />}
+          title={t("pages.admin.permissions.title")}
+          subtitle={t("admin.perms.subtitle") || "Role Permission Management"}
+          actions={
+            <Button variant="outline" className="rounded-xl" onClick={() => void loadData()}>
+              <RefreshCw size={16} className="mr-2" />
+              {t("filemanager.refresh")}
+            </Button>
+          }
+        />
+      </AdminCard>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-6 shadow-xl space-y-3">
+        <AdminCard variant="glass" className="rounded-[2.5rem] p-6 shadow-xl space-y-3">
           {roles.map((role) => (
             <button
               type="button"
@@ -151,11 +160,11 @@ export const PermissionAdmin = () => {
               <p className="text-sm opacity-50 mt-1">{role.role_key}</p>
             </button>
           ))}
-        </div>
+        </AdminCard>
 
-        <div className="xl:col-span-2 bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl space-y-8">
+        <AdminCard variant="glass" className="xl:col-span-2 rounded-[2.5rem] p-8 shadow-xl space-y-8">
           {!activeRole ? (
-            <div className="py-16 text-center opacity-40">{t("admin.users.noUsers")}</div>
+            <AdminEmptyState title={t("admin.perms.no_role") || "Select a role"} />
           ) : (
             <>
               <div className="flex items-center justify-between gap-4">
@@ -212,8 +221,8 @@ export const PermissionAdmin = () => {
               </div>
             </>
           )}
-        </div>
+        </AdminCard>
       </div>
-    </div>
+    </AdminPage>
   );
 };
