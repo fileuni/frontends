@@ -58,6 +58,7 @@ import { DdnsLogsModal } from './domain/modals/DdnsLogsModal';
 import { CertLogsModal } from './domain/modals/CertLogsModal';
 import { DdnsCheckModal } from './domain/modals/DdnsCheckModal';
 import { CertCheckModal } from './domain/modals/CertCheckModal';
+import { RowActionsModal } from './domain/modals/RowActionsModal';
 
 interface DomainAcmeDdnsAdminProps {
   view: DomainAcmeDdnsView;
@@ -178,6 +179,15 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     () => new Map(providerProfiles.map((p) => [p.key, p])),
     [providerProfiles],
   );
+
+  const providerDraftProfile = useMemo(() => {
+    return providerProfileMap.get(providerDraft.provider_key) || null;
+  }, [providerProfileMap, providerDraft.provider_key]);
+
+  const providerDraftAccount = useMemo(() => {
+    if (!providerDraft.id) return null;
+    return providers.find((p) => p.id === providerDraft.id) || null;
+  }, [providers, providerDraft.id]);
 
   const providersForCurrentView = useMemo(() => {
     if (view === 'ddns') {
@@ -712,11 +722,11 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
   const testProviderDns = async () => {
     if (!providerDraft.id) {
-      addToast(t('admin.domain.providerNameRequired') || 'Save provider first', 'error');
+      addToast(t('admin.domain.saveProviderFirst') || 'Save provider first', 'error');
       return;
     }
     if (!providerTestZone.trim()) {
-      addToast(t('admin.domain.zoneLabel') || 'Zone is required', 'error');
+      addToast(t('admin.domain.zoneRequired') || 'Zone is required', 'error');
       return;
     }
     if (providerTestRunning) return;
@@ -739,7 +749,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
   const testProviderAuth = async () => {
     if (!providerDraft.id) {
-      addToast(t('admin.domain.providerNameRequired') || 'Save provider first', 'error');
+      addToast(t('admin.domain.saveProviderFirst') || 'Save provider first', 'error');
       return;
     }
     if (providerAuthTestRunning) return;
@@ -1201,144 +1211,27 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         </div>
       </div>
 
-      {/* Row Actions Modal (touch-friendly for pad/low-res) */}
-      <Modal
-        isOpen={!!rowActionsOpen}
+      <RowActionsModal
+        target={rowActionsOpen}
+        viewEnabled={viewEnabled}
+        runningDdnsAll={runningDdnsAll}
+        runningDdnsById={runningDdnsById}
+        runningSslAll={runningSslAll}
+        runningSslById={runningSslById}
+        ddnsCheckLoading={ddnsCheckLoading}
+        certCheckLoading={certCheckLoading}
         onClose={() => setRowActionsOpen(null)}
-        title={t('common.actions') || 'Actions'}
-        maxWidth="max-w-md"
-      >
-        <div className="space-y-5 p-1 text-foreground">
-          {rowActionsOpen && (
-            <div className={cn(sectionCardBase, "p-5")}> 
-              <div className="text-sm font-black uppercase tracking-widest opacity-60">
-                {rowActionsOpen.kind === 'ddns' ? 'DDNS' : 'SSL/TLS'}
-              </div>
-              <div className="mt-1 text-base font-black truncate">{rowActionsOpen.item.name}</div>
-              {rowActionsOpen.kind === 'ddns' && (
-                <div className="mt-1 text-[14px] font-mono opacity-60 truncate">{rowActionsOpen.item.fqdn}</div>
-              )}
-
-              <div className="mt-5 grid grid-cols-1 gap-2">
-                {viewEnabled && rowActionsOpen.kind === 'ddns' && (
-                  <Button
-                    variant="outline"
-                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
-                    onClick={async () => {
-                      const id = rowActionsOpen.item.id;
-                      setRowActionsOpen(null);
-                      await runDdns(id);
-                    }}
-                    disabled={runningDdnsAll || !!runningDdnsById[rowActionsOpen.item.id]}
-                  >
-                    <Play size={16} className="mr-2" />
-                    {t('admin.domain.ddnsRunNow') || 'Run now'}
-                  </Button>
-                )}
-
-                {rowActionsOpen.kind === 'ddns' && (
-                  <Button
-                    variant="outline"
-                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
-                    onClick={async () => {
-                      const id = rowActionsOpen.item.id;
-                      setRowActionsOpen(null);
-                      await checkDdns(id);
-                    }}
-                    disabled={ddnsCheckLoading}
-                  >
-                    <Search size={16} className="mr-2" />
-                    {t('common.check') || 'Check'}
-                  </Button>
-                )}
-
-                {viewEnabled && rowActionsOpen.kind === 'ssl' && (
-                  <Button
-                    variant="outline"
-                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
-                    onClick={async () => {
-                      const id = rowActionsOpen.item.id;
-                      setRowActionsOpen(null);
-                      await runSsl(id);
-                    }}
-                    disabled={runningSslAll || !!runningSslById[rowActionsOpen.item.id]}
-                  >
-                    <Play size={16} className="mr-2" />
-                    {t('admin.domain.certRunNow') || 'Run now'}
-                  </Button>
-                )}
-
-                {rowActionsOpen.kind === 'ssl' && (
-                  <Button
-                    variant="outline"
-                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
-                    onClick={async () => {
-                      const id = rowActionsOpen.item.id;
-                      setRowActionsOpen(null);
-                      await checkCert(id);
-                    }}
-                    disabled={certCheckLoading}
-                  >
-                    <Search size={16} className="mr-2" />
-                    {t('common.check') || 'Check'}
-                  </Button>
-                )}
-
-                <Button
-                  variant="outline"
-                  className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
-                  onClick={() => {
-                    const current = rowActionsOpen;
-                    setRowActionsOpen(null);
-                    if (!current) return;
-                    if (current.kind === 'ddns') openLogs(current.item);
-                    else openCertLogs(current.item);
-                  }}
-                >
-                  <ScrollText size={16} className="mr-2" />
-                  {(rowActionsOpen.kind === 'ddns'
-                    ? (t('admin.domain.ddnsLogs') || 'Logs')
-                    : (t('admin.domain.certLogs') || 'Logs'))}
-                </Button>
-
-                {viewEnabled && (
-                  <Button
-                    variant="outline"
-                    className="h-12 justify-start rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
-                    onClick={() => {
-                      const current = rowActionsOpen;
-                      setRowActionsOpen(null);
-                      if (!current) return;
-                      if (current.kind === 'ddns') openEditDdns(current.item);
-                      else openEditSsl(current.item);
-                    }}
-                  >
-                    <Edit3 size={16} className="mr-2" />
-                    {t('common.edit') || 'Edit'}
-                  </Button>
-                )}
-
-                {viewEnabled && (
-                  <Button
-                    variant="outline"
-                    className="h-12 justify-start rounded-2xl border-red-500/30 text-red-600 dark:text-red-400 bg-white dark:bg-white/5 font-bold hover:bg-red-500 hover:text-white"
-                    onClick={async () => {
-                      const current = rowActionsOpen;
-                      setRowActionsOpen(null);
-                      if (!current) return;
-                      if (current.kind === 'ddns') await deleteDdns(current.item.id);
-                      else await deleteSsl(current.item.id);
-                    }}
-                  >
-                    <Trash2 size={16} className="mr-2" />
-                    {t('common.delete') || 'Delete'}
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </Modal>
+        onRunDdns={runDdns}
+        onCheckDdns={checkDdns}
+        onRunSsl={runSsl}
+        onCheckSsl={checkCert}
+        onOpenDdnsLogs={openLogs}
+        onOpenCertLogs={openCertLogs}
+        onEditDdns={openEditDdns}
+        onEditSsl={openEditSsl}
+        onDeleteDdns={deleteDdns}
+        onDeleteSsl={deleteSsl}
+      />
 
       <DdnsCheckModal
         isOpen={ddnsCheckOpen}
@@ -1689,60 +1582,78 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     {t('admin.domain.noProviders')}
                   </div>
                 ) : (
-                  providersForCurrentView.map((p) => (
-                    <div key={p.id} className="group p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 flex items-center justify-between hover:border-primary/30 transition-all">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center border border-zinc-200 dark:border-white/10 shadow-sm">
-                          <Server size={18} className="opacity-70 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <div>
-                          <div className="font-bold text-sm flex items-center gap-2">
-                            {p.name}
-                            {!p.enabled && <Badge variant="outline" className="text-[14px] h-4 px-1 opacity-50">{t('common.disabled')}</Badge>}
-                            {p.auth_ok === false && (
-                              <Badge variant="outline" className="text-[10px] h-4 px-1 bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400">
-                                AUTH ERROR
-                              </Badge>
-                            )}
-                            {p.auth_ok === true && (
-                              <Badge variant="outline" className="text-[10px] h-4 px-1 bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400">
-                                AUTH OK
-                              </Badge>
-                            )}
+                  providersForCurrentView.map((p) => {
+                    const profile = providerProfileMap.get(p.provider_key);
+                    return (
+                      <div key={p.id} className="group p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 flex items-center justify-between hover:border-primary/30 transition-all">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center border border-zinc-200 dark:border-white/10 shadow-sm">
+                            <Server size={18} className="opacity-70 text-indigo-600 dark:text-indigo-400" />
                           </div>
-                          <div className="text-[14px] opacity-50 font-mono uppercase flex items-center gap-2">
-                            <span>{p.provider_key}</span>
-                            {providerProfileMap.get(p.provider_key)?.vendor_type === 'ddns_only' && (
-                              <Badge variant="outline" className="text-[10px] h-4 px-1 bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400">DDNS ONLY</Badge>
-                            )}
-                          </div>
-                          {p.auth_ok === false && p.auth_error && (
-                            <div className="text-[14px] font-bold opacity-70 text-red-700 dark:text-red-400 max-w-[520px] truncate" title={p.auth_error}>
-                              {p.auth_error}
+                          <div>
+                            <div className="font-bold text-sm flex flex-wrap items-center gap-2">
+                              {p.name}
+                              {!p.enabled && <Badge variant="outline" className="text-[14px] h-4 px-1 opacity-50">{t('common.disabled')}</Badge>}
+                              {!p.has_credential && (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400">
+                                  {t('admin.domain.noCredentialBadge') || 'NO SECRET'}
+                                </Badge>
+                              )}
+                              {profile?.supports_ddns && (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400">
+                                  {t('admin.domain.capDdns') || 'DDNS'}
+                                </Badge>
+                              )}
+                              {profile?.supports_acme_dns01 && (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 bg-cyan-500/10 border-cyan-500/20 text-cyan-800 dark:text-cyan-300">
+                                  {t('admin.domain.capDns01') || 'DNS-01'}
+                                </Badge>
+                              )}
+                              {p.auth_ok === false && (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400">
+                                  {t('admin.domain.authErrorBadge') || 'AUTH ERROR'}
+                                </Badge>
+                              )}
+                              {p.auth_ok === true && (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400">
+                                  {t('admin.domain.authOkBadge') || 'AUTH OK'}
+                                </Badge>
+                              )}
                             </div>
-                          )}
+                            <div className="text-[14px] opacity-50 font-mono uppercase flex items-center gap-2">
+                              <span>{p.provider_key}</span>
+                              {profile?.vendor_type === 'ddns_only' && (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400">DDNS ONLY</Badge>
+                              )}
+                            </div>
+                            {p.auth_ok === false && p.auth_error && (
+                              <div className="text-[14px] font-bold opacity-70 text-red-700 dark:text-red-400 max-w-[520px] truncate" title={p.auth_error}>
+                                {p.auth_error}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => openEditProvider(p)}
+                            className="p-2 rounded-lg bg-white dark:bg-white/10 border border-zinc-200 dark:border-white/10 hover:bg-primary hover:text-white transition-all shadow-sm"
+                            title={t('common.edit') || 'Edit'}
+                            aria-label={t('common.edit') || 'Edit'}
+                          >
+                            <Edit3 size={18} />
+                          </button>
+                          <button
+                            onClick={() => deleteProvider(p.id)}
+                            className="p-2 rounded-lg bg-white dark:bg-white/10 border border-zinc-200 dark:border-white/10 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                            title={t('common.delete') || 'Delete'}
+                            aria-label={t('common.delete') || 'Delete'}
+                          >
+                            <Trash2 size={18} />
+                          </button>
                         </div>
                       </div>
-                      <div className="flex gap-2 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => openEditProvider(p)}
-                          className="p-2 rounded-lg bg-white dark:bg-white/10 border border-zinc-200 dark:border-white/10 hover:bg-primary hover:text-white transition-all shadow-sm"
-                          title={t('common.edit') || 'Edit'}
-                          aria-label={t('common.edit') || 'Edit'}
-                        >
-                          <Edit3 size={18} />
-                        </button>
-                        <button
-                          onClick={() => deleteProvider(p.id)}
-                          className="p-2 rounded-lg bg-white dark:bg-white/10 border border-zinc-200 dark:border-white/10 hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                          title={t('common.delete') || 'Delete'}
-                          aria-label={t('common.delete') || 'Delete'}
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
               <div className="sticky bottom-0 -mx-1 px-1 py-4 flex justify-end border-t border-zinc-200 dark:border-white/5 bg-white/85 dark:bg-black/40 backdrop-blur-xl">
@@ -1775,7 +1686,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   <div className="p-1">
                     <ProviderForm 
                       providerKey={providerDraft.provider_key}
-                      providerProfile={providerProfileMap.get(providerDraft.provider_key) || null}
+                      providerProfile={providerDraftProfile}
                       credentialJson={providerDraft.credential_json_enc}
                       configJson={providerDraft.config_json}
                       onChangeCredential={(v) => setProviderDraft((prev) => ({ ...prev, credential_json_enc: v }))}
@@ -1789,7 +1700,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 </div>
               </div>
 
-              {providerDraft.id && (providerProfileMap.get(providerDraft.provider_key)?.vendor_type === 'domain') && (
+              {providerDraft.id && providerDraftProfile?.supports_acme_dns01 && (
                 <div className={sectionCardBase}>
                   <div className="space-y-6">
                     <SectionHeader
@@ -1798,6 +1709,12 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                       desc={t('admin.domain.zoneHostExplicitHint') || 'Test DNS write permission with a temporary TXT record.'}
                       colorClass="bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20"
                     />
+
+                    {providerDraftAccount?.has_credential === false && (
+                      <div className="text-[14px] font-bold text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3">
+                        {t('admin.domain.noCredentialHint') || 'No credential stored. Enter credentials and Save before testing.'}
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
@@ -1829,7 +1746,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                         <Button
                           variant="outline"
                           onClick={testProviderAuth}
-                          disabled={providerAuthTestRunning}
+                          disabled={providerAuthTestRunning || providerDraftAccount?.has_credential === false}
                           className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
                         >
                           <Key size={16} className={cn('mr-2', providerAuthTestRunning && 'animate-pulse')} />
@@ -1838,7 +1755,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                         <Button
                           variant="outline"
                           onClick={testProviderDns}
-                          disabled={providerTestRunning}
+                          disabled={providerTestRunning || providerDraftAccount?.has_credential === false}
                           className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
                         >
                           <Search size={16} className={cn('mr-2', providerTestRunning && 'animate-pulse')} />
@@ -1850,7 +1767,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 </div>
               )}
 
-              {providerDraft.id && (providerProfileMap.get(providerDraft.provider_key)?.vendor_type !== 'domain') && (
+              {providerDraft.id && !providerDraftProfile?.supports_acme_dns01 && (
                 <div className={sectionCardBase}>
                   <div className="space-y-6">
                     <SectionHeader
@@ -1859,11 +1776,17 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                       desc={t('common.test') || 'Test Connection'}
                       colorClass="bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20"
                     />
+
+                    {providerDraftAccount?.has_credential === false && (
+                      <div className="text-[14px] font-bold text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3">
+                        {t('admin.domain.noCredentialHint') || 'No credential stored. Enter credentials and Save before testing.'}
+                      </div>
+                    )}
                     <div className="flex justify-end">
                       <Button
                         variant="outline"
                         onClick={testProviderAuth}
-                        disabled={providerAuthTestRunning}
+                        disabled={providerAuthTestRunning || providerDraftAccount?.has_credential === false}
                         className="h-12 px-6 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
                       >
                         <Key size={16} className={cn('mr-2', providerAuthTestRunning && 'animate-pulse')} />
