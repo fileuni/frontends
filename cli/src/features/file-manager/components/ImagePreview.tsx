@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { client, BASE_URL } from '@/lib/api.ts';
+import { BASE_URL } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { 
   ChevronLeft, ChevronRight, 
   ZoomIn, ZoomOut, RotateCw, Maximize2, RotateCcw, 
@@ -60,14 +61,12 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     setImgSrc('');
     
     const fetchToken = async () => {
-      const { data } = await client.GET('/api/v1/file/get-file-download-token', {
-        params: { query: { path: activeFile.path } }
-      });
-
-      if (data?.data?.token) {
-        // Construct full URL
-        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.data.token)}&inline=true`;
+      try {
+        const token = await getFileDownloadToken(activeFile.path);
+        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true`;
         setImgSrc(url);
+      } catch {
+        // No-op: handled by preview UI fallback
       }
     };
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { client, BASE_URL } from '@/lib/api.ts';
+import { client, BASE_URL, extractData } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { useThemeStore } from '@fileuni/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { useUserFileSettingsStore } from '@/stores/userFileSettings.ts';
@@ -92,8 +93,10 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
         // 加载当前文件的详细元数据 / Load current file metadata
         let size = 0;
         try {
-            const { data: statRes } = await client.GET('/api/v1/file/stat', { params: { query: { path: p } } });
-            if (statRes?.data) size = statRes.data.size;
+            const stat = await extractData<{ size: number }>(
+              client.GET('/api/v1/file/stat', { params: { query: { path: p } } }),
+            );
+            size = stat.size;
         } catch (e) {
             console.warn("Failed to fetch stat", e);
         }
@@ -176,11 +179,8 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
     let canceled = false;
     const triggerThumbnail = async () => {
       try {
-        const { data: tokenRes } = await client.GET('/api/v1/file/get-file-download-token', {
-          params: { query: { path: activePath } }
-        });
-        const token = tokenRes?.data?.token;
-        if (!token || canceled) return;
+        const token = await getFileDownloadToken(activePath);
+        if (canceled) return;
         const url = `${BASE_URL}/api/v1/file/thumbnail?file_download_token=${encodeURIComponent(token)}`;
         await fetch(url, { method: 'GET' });
       } catch (e) {

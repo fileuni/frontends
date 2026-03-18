@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MonacoEditor, isMonacoSupported } from '@fileuni/shared';
 import { client, BASE_URL } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { 
   Loader2, Save, Edit3, Eye
 } from 'lucide-react';
@@ -80,23 +81,17 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
     const fetchContent = async () => {
       setLoading(true);
       try {
-        const { data: tokenRes } = await client.GET('/api/v1/file/get-file-download-token', {
-            params: { query: { path } }
-        });
-
+        const token = await getFileDownloadToken(path);
         if (canceled) return;
-
-        if (tokenRes?.data?.token) {
-            const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(tokenRes.data.token)}&inline=true&mode=text`;
-            const res = await fetch(url);
-            const text = await res.text();
-            if (canceled) return;
-            const next = text || '';
-            setContent(next);
-            lastSavedContentRef.current = next;
-            lastSavedAtRef.current = Date.now();
-            loadedPathRef.current = path;
-        }
+        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
+        const res = await fetch(url);
+        const text = await res.text();
+        if (canceled) return;
+        const next = text || '';
+        setContent(next);
+        lastSavedContentRef.current = next;
+        lastSavedAtRef.current = Date.now();
+        loadedPathRef.current = path;
       } catch (e) {
         if (!canceled) {
           console.error("Load failed:", e);
@@ -142,7 +137,9 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
       }
 
       if (!data?.success) {
-        throw new Error(data?.msg || t('filemanager.editor.autoSaveFailed'));
+        const msgRaw = data?.msg;
+        const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
+        throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
       }
 
       lastSavedContentRef.current = snapshot;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from 'react-i18next';
-import { client } from "@/lib/api.ts";
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import {
   Loader2,
   AlertCircle,
@@ -112,15 +112,9 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
     const init = async () => {
       setLoading(true);
       try {
-        const { data: tokenRes } = await client.GET(
-          "/api/v1/file/get-file-download-token",
-          { params: { query: { path } } },
-        );
-        if (tokenRes?.data?.token) {
-          const authToken = tokenRes.data.token;
-          // Parent (FilePreviewPage) already checked size, so we proceed directly
-          await executeLoad(authToken);
-        }
+        const authToken = await getFileDownloadToken(path);
+        // Parent (FilePreviewPage) already checked size, so we proceed directly
+        await executeLoad(authToken);
       } catch (e) {
         setError("Metadata fetch failed");
       } finally {

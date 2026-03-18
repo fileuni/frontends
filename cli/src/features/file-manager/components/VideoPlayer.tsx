@@ -3,7 +3,8 @@ import Player from 'xgplayer';
 import FlvPlugin from 'xgplayer-flv';
 import 'xgplayer/dist/index.min.css';
 import type { FileInfo } from '../types/index.ts';
-import { client, BASE_URL } from '@/lib/api.ts';
+import { BASE_URL } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import {
   SkipBack,
   SkipForward,
@@ -94,9 +95,15 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
 
     const subs: SubtitleInfo[] = [];
     for (const f of subtitleFiles) {
-      const { data } = await client.GET('/api/v1/file/get-file-download-token', { params: { query: { path: f.path } } });
-      if (data?.data?.token) {
-        subs.push({ file: f, url: `${BASE_URL}/api/v1/file/get-content?file_download_token=${data.data.token}&inline=true`, isActive: false });
+      try {
+        const token = await getFileDownloadToken(f.path);
+        subs.push({
+          file: f,
+          url: `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true`,
+          isActive: false,
+        });
+      } catch {
+        // No-op
       }
     }
     setAvailableSubtitles(subs);
@@ -108,10 +115,10 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
 
     const init = async () => {
       if (playerRef.current) playerRef.current.destroy();
-      const { data } = await client.GET('/api/v1/file/get-file-download-token', { params: { query: { path: activeFile.path } } });
-      if (!isMounted || !data?.data?.token) return;
+      const token = await getFileDownloadToken(activeFile.path);
+      if (!isMounted) return;
 
-      const videoUrl = `${BASE_URL}/api/v1/file/get-content?file_download_token=${data.data.token}&inline=true`;
+      const videoUrl = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true`;
       const player = new Player({
         el: playerContainerRef.current!,
         url: videoUrl,

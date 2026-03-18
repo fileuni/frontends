@@ -78,9 +78,14 @@ export function resolvePublicBaseUrl(): string {
 }
 
 export async function fetchFileStatSize(path: string): Promise<number> {
-  const { data } = await client.GET('/api/v1/file/stat', { params: { query: { path } } });
-  if (data?.data?.size) return data.data.size as number;
-  return 0;
+  try {
+    const data = await extractData<{ size: number }>(
+      client.GET('/api/v1/file/stat', { params: { query: { path } } }),
+    );
+    return data.size;
+  } catch {
+    return 0;
+  }
 }
 
 export async function fetchFileArrayBuffer(path: string): Promise<ArrayBuffer> {
@@ -113,7 +118,9 @@ export async function uploadBase64File(path: string, base64: string): Promise<vo
     throw new Error((errObj.msg as string) || 'Upload failed');
   }
   if (!data?.success) {
-    throw new Error(data?.msg || 'Upload failed');
+    const msgRaw = data?.msg;
+    const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
+    throw new Error(msg ?? 'Upload failed');
   }
 }
 

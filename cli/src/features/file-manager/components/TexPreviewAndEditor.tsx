@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { BASE_URL, client } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { useToastStore } from '@fileuni/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { cn } from '@/lib/utils.ts';
@@ -134,23 +135,17 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     const fetchContent = async () => {
       setLoading(true);
       try {
-        const { data: tokenRes } = await client.GET('/api/v1/file/get-file-download-token', {
-          params: { query: { path } }
-        });
-
+        const token = await getFileDownloadToken(path);
         if (canceled) return;
-
-        if (tokenRes?.data?.token) {
-          const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(tokenRes.data.token)}&inline=true&mode=text`;
-          const res = await fetch(url);
-          const text = await res.text();
-          if (canceled) return;
-          const next = text || '';
-          setContent(next);
-          lastSavedContentRef.current = next;
-          lastSavedAtRef.current = Date.now();
-          loadedPathRef.current = path;
-        }
+        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
+        const res = await fetch(url);
+        const text = await res.text();
+        if (canceled) return;
+        const next = text || '';
+        setContent(next);
+        lastSavedContentRef.current = next;
+        lastSavedAtRef.current = Date.now();
+        loadedPathRef.current = path;
       } catch (e) {
         if (!canceled) {
           addToast(t('filemanager.errors.loadFailed') || 'Failed to load file content', 'error');
@@ -207,7 +202,9 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
         throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
       }
       if (!data?.success) {
-        throw new Error(data?.msg || t('filemanager.editor.autoSaveFailed'));
+        const msgRaw = data?.msg;
+        const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
+        throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
       }
 
       lastSavedContentRef.current = snapshot;
@@ -253,8 +250,11 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
         body: { path, content }
       });
       if (error || !data?.success || !data?.data) {
-        const msg = (error as { msg?: string } | undefined)?.msg || data?.msg || 'Render failed';
-        addToast(msg, 'error');
+        const errMsgRaw = (error as Record<string, unknown> | null)?.msg;
+        const errMsg = typeof errMsgRaw === 'string' ? errMsgRaw : undefined;
+        const dataMsgRaw = data?.msg;
+        const dataMsg = typeof dataMsgRaw === 'string' ? dataMsgRaw : undefined;
+        addToast(errMsg ?? dataMsg ?? 'Render failed', 'error');
         return;
       }
       const payload = data.data as unknown as { content_base64: string; content_type: string };

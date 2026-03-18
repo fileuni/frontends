@@ -5,6 +5,7 @@ import {
   ArrowLeft, Search, Archive, X
 } from 'lucide-react';
 import { client, BASE_URL } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { cn } from '@/lib/utils.ts';
@@ -99,16 +100,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
 
   const handleDownload = async (fileInArchive: string) => {
     try {
-      // 1. 获取下载凭证 / Get download token
-      const { data: tokenRes } = await client.GET('/api/v1/file/get-file-download-token', {
-        params: { query: { path: archivePath } } 
-      });
-
-      if (!tokenRes?.data?.token) {
-        throw new Error("Failed to get download token");
-      }
-
-      const token = tokenRes.data.token;
+      const token = await getFileDownloadToken(archivePath);
       
       // 2. 构建下载 URL / Construct download URL
       // 直接使用 a 标签下载，避免 Blob 炸掉浏览器内存 / Direct link download to save memory

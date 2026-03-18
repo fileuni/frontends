@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { client, BASE_URL, extractData } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { useFileStore, type StorageStats, type TaskState, type FileManagerMode } from '../store/useFileStore.ts';
 import { useSelectionStore } from '../store/useSelectionStore.ts';
 import { useTranslation } from 'react-i18next';
@@ -374,24 +375,17 @@ export function useFileActions() {
       const file = store.files.find(f => f.path === path);
       if (file) store.addToRecentFiles(file);
 
-      const { data } = await client.GET('/api/v1/file/get-file-download-token', {
-        params: { query: { path } }
-      });
+      const token = await getFileDownloadToken(path);
+      const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}`;
 
-      if (data?.data?.token) {
-        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.data.token)}`;
-        
-        // Create hidden link and trigger download, more reliable than window.open
-        const link = document.createElement('a');
-        link.href = url;
-        const fileName = path.split('/').pop() || 'file';
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        throw new Error("Failed to get download token");
-      }
+      // Create hidden link and trigger download, more reliable than window.open
+      const link = document.createElement('a');
+      link.href = url;
+      const fileName = path.split('/').pop() || 'file';
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (e) {
       console.error('Download failed:', e);
       addToast(t('common.error') || "Download failed", "error");

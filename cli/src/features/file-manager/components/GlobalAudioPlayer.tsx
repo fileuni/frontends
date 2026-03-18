@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useAudioStore } from '@/stores/audio.ts';
 import { useThemeStore } from '@fileuni/shared';
-import { client, BASE_URL } from '@/lib/api.ts';
+import { BASE_URL } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { 
   Music, X, ChevronDown, Download, ExternalLink
 } from 'lucide-react';
@@ -56,12 +57,8 @@ export const GlobalAudioPlayer = () => {
       
       const getTrackUrl = async (path: string) => {
         try {
-          const { data } = await client.GET('/api/v1/file/get-file-download-token', {
-            params: { query: { path } }
-          });
-          if (data?.data?.token) {
-            return `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.data.token)}&inline=true`;
-          }
+          const token = await getFileDownloadToken(path);
+          return `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true`;
         } catch (e) {
           console.error("Failed to get token for", path, e);
         }
@@ -144,18 +141,14 @@ export const GlobalAudioPlayer = () => {
   const handleDownload = async () => {
     if (!currentTrack) return;
     try {
-      const { data } = await client.GET('/api/v1/file/get-file-download-token', {
-        params: { query: { path: currentTrack.path } }
-      });
-      if (data?.data?.token) {
-        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.data.token)}`;
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = currentTrack.name;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      const token = await getFileDownloadToken(currentTrack.path);
+      const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = currentTrack.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (e) {
       console.error("Download failed", e);
     }

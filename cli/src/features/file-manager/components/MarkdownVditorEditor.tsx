@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils.ts';
 import { Loader2, Save, Eye, Edit3 } from 'lucide-react';
 import { client, BASE_URL } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { useToastStore } from '@fileuni/shared';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { Button } from '@/components/ui/Button.tsx';
@@ -66,25 +67,19 @@ export const MarkdownVditorEditor = ({
       setLoading(true);
       setIsInitializing(true);
       try {
-        const { data: tokenRes } = await client.GET('/api/v1/file/get-file-download-token', {
-            params: { query: { path } }
-        });
-
+        const token = await getFileDownloadToken(path);
         if (canceled) return;
-
-        if (tokenRes?.data?.token) {
-            const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(tokenRes.data.token)}&inline=true&mode=text`;
-            const res = await fetch(url);
-            const text = await res.text();
-            if (canceled) return;
-            const next = text || '';
-            setContent(next);
-            lastSavedContentRef.current = next;
-            lastSavedAtRef.current = Date.now();
-            loadedPathRef.current = path;
-            // If Vditor is already initialized, set value directly
-            if (vd) vd.setValue(next);
-        }
+        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
+        const res = await fetch(url);
+        const text = await res.text();
+        if (canceled) return;
+        const next = text || '';
+        setContent(next);
+        lastSavedContentRef.current = next;
+        lastSavedAtRef.current = Date.now();
+        loadedPathRef.current = path;
+        // If Vditor is already initialized, set value directly
+        if (vd) vd.setValue(next);
       } catch (e) {
         if (!canceled) {
           console.error("Load failed:", e);
@@ -176,7 +171,9 @@ export const MarkdownVditorEditor = ({
         throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
       }
       if (!data?.success) {
-        throw new Error(data?.msg || t('filemanager.editor.autoSaveFailed'));
+        const msgRaw = data?.msg;
+        const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
+        throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
       }
 
       lastSavedContentRef.current = snapshot;

@@ -4,6 +4,7 @@ import { ChevronDown, ExternalLink, Play, Monitor, Download, Loader2, FileCode, 
 import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
 import { BASE_URL, client } from '@/lib/api.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { OFFICE_DOCX_EXTS, OFFICE_PPTX_EXTS, OFFICE_XLSX_EXTS } from '../utils/officeLite.ts';
 import { useConfigStore } from '@/stores/config.ts';
@@ -124,15 +125,11 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
     if (app.app_type === 'local' && app.protocol) {
         // Local protocol
         try {
-            const { data } = await client.GET('/api/v1/file/get-file-download-token', {
-                params: { query: { path: file.path } }
-            });
-            if (data?.data?.token) {
-                // If BASE_URL is already absolute (dev), don't add origin
-                const apiPath = `/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.data.token)}&inline=true`;
-                const downloadUrl = BASE_URL ? `${BASE_URL}${apiPath}` : `${window.location.origin}${apiPath}`;
-                window.location.href = `${app.protocol}${downloadUrl}`;
-            }
+            const token = await getFileDownloadToken(file.path);
+            // If BASE_URL is already absolute (dev), don't add origin
+            const apiPath = `/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true`;
+            const downloadUrl = BASE_URL ? `${BASE_URL}${apiPath}` : `${window.location.origin}${apiPath}`;
+            window.location.href = `${app.protocol}${downloadUrl}`;
         } catch (e) {
             console.error("Failed to generate link", e);
         }
@@ -198,22 +195,20 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
           <div className="h-px bg-white/5 my-1" />
            <button
              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-white/5 text-left transition-colors text-zinc-300 hover:text-white"
-             onClick={async () => {
-                 setIsOpen(false);
-                 try {
-                    const { data } = await client.GET('/api/v1/file/get-file-download-token', { params: { query: { path: file.path } } });
-                    if (data?.data?.token) {
-                        const downloadUrl = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.data.token)}`;
-                        const link = document.createElement('a');
-                        link.href = downloadUrl;
-                        link.download = file.name;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    }
-                 } catch (e) { console.error(e); }
-             }}
-           >
+              onClick={async () => {
+                  setIsOpen(false);
+                  try {
+                     const token = await getFileDownloadToken(file.path);
+                     const downloadUrl = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}`;
+                     const link = document.createElement('a');
+                     link.href = downloadUrl;
+                     link.download = file.name;
+                     document.body.appendChild(link);
+                     link.click();
+                     document.body.removeChild(link);
+                  } catch (e) { console.error(e); }
+              }}
+            >
              <Download size={18} />
              <span>{t('filemanager.previewModal.downloadFile')}</span>
            </button>
