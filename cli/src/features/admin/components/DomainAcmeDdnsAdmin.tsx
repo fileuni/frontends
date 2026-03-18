@@ -27,6 +27,7 @@ import {
   type DdnsRunLogItem,
   type DdnsCheckResult,
   type DdnsEntryInspectResult,
+  type DdnsPlanResponse,
   type CertRunLogItem,
   type CertPreflightResult,
   type CertTestDns01Result,
@@ -60,6 +61,7 @@ import { DdnsLogsModal } from './domain/modals/DdnsLogsModal';
 import { CertLogsModal } from './domain/modals/CertLogsModal';
 import { DdnsCheckModal } from './domain/modals/DdnsCheckModal';
 import { DdnsInspectModal } from './domain/modals/DdnsInspectModal';
+import { DdnsPlanModal } from './domain/modals/DdnsPlanModal';
 import { CertCheckModal } from './domain/modals/CertCheckModal';
 import { RowActionsModal } from './domain/modals/RowActionsModal';
 
@@ -127,6 +129,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [ddnsInspectLoading, setDdnsInspectLoading] = useState(false);
   const [ddnsInspectResult, setDdnsInspectResult] = useState<DdnsEntryInspectResult | null>(null);
 
+  const [ddnsPlanOpen, setDdnsPlanOpen] = useState(false);
+  const [ddnsPlanLoading, setDdnsPlanLoading] = useState(false);
+  const [ddnsPlanData, setDdnsPlanData] = useState<DdnsPlanResponse | null>(null);
+
   const [certCheckOpen, setCertCheckOpen] = useState(false);
   const [certCheckLoading, setCertCheckLoading] = useState(false);
   const [certCheckResult, setCertCheckResult] = useState<CertPreflightResult | null>(null);
@@ -147,6 +153,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [sslModalOpen, setSslModalOpen] = useState(false);
   const [providerModalOpen, setProviderModalOpen] = useState(false);
   const [zerosslModalOpen, setZeroSslModalOpen] = useState(false);
+
+  const [ddnsFqdnHelper, setDdnsFqdnHelper] = useState('');
 
   const [providerTestZone, setProviderTestZone] = useState('');
   const [providerTestHost, setProviderTestHost] = useState('_fileuni_verify');
@@ -335,6 +343,24 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       addToast(handleApiError(error, t), 'error');
     } finally {
       setDdnsInspectLoading(false);
+    }
+  };
+
+  const loadDdnsPlan = async (openModal: boolean) => {
+    if (ddnsPlanLoading) return;
+    setDdnsPlanLoading(true);
+    try {
+      const data = await extractData<DdnsPlanResponse>(
+        client.POST('/api/v1/admin/domain-acme-ddns/ddns/plan', {
+          body: { limit: 200 },
+        }),
+      );
+      setDdnsPlanData(data);
+      if (openModal) setDdnsPlanOpen(true);
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setDdnsPlanLoading(false);
     }
   };
 
@@ -577,6 +603,12 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         addToast(t('admin.domain.ddnsCreated'), 'success');
         setDdnsModalOpen(false);
         await loadAll();
+
+        // Best-practice: show diagnostics immediately after creation.
+        if (createdIds.length > 0) {
+          await inspectDdns(createdIds[0]);
+        }
+
         if (createdIds.length > 0 && window.confirm(t('admin.domain.ddnsSavedRunNowConfirm') || 'Saved successfully. Run once now?')) {
           for (const id of createdIds) {
             // run sequentially to avoid provider burst
@@ -587,6 +619,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       }
       setDdnsModalOpen(false);
       await loadAll();
+
+      if (ddnsDraft.enabled && ddnsDraft.id) {
+        await inspectDdns(ddnsDraft.id);
+      }
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     }
@@ -644,15 +680,55 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         account_email: sslDraft.account_email.trim(),
         export_path: sslDraft.export_path.trim() || null,
       };
+      let savedId = sslDraft.id || '';
       if (sslDraft.id) {
-        await extractData(client.PUT('/api/v1/admin/domain-acme-ddns/certs/{id}', { params: { path: { id: sslDraft.id } }, body: payload }));
+        const updated = await extractData<CertificateItem>(
+          client.PUT('/api/v1/admin/domain-acme-ddns/certs/{id}', { params: { path: { id: sslDraft.id } }, body: payload }),
+        );
+        savedId = updated.id;
         addToast(t('admin.domain.certUpdated'), 'success');
       } else {
-        await extractData(client.POST('/api/v1/admin/domain-acme-ddns/certs', { body: payload }));
+        const created = await extractData<CertificateItem>(
+          client.POST('/api/v1/admin/domain-acme-ddns/certs', { body: payload }),
+        );
+        savedId = created.id;
         addToast(t('admin.domain.certCreated'), 'success');
       }
+
       setSslModalOpen(false);
       await loadAll();
+
+      // Best-practice gating: if enabling automation, run preflight and (dns01) dns01 write test.
+      const shouldGate = payload.enabled || payload.auto_renew;
+      if (shouldGate && savedId) {
+        const preflight = await extractData<CertPreflightResult>(
+          client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/check', { params: { path: { id: savedId } } }),
+        );
+        setCertCheckResult(preflight);
+        setCertCheckOpen(true);
+
+        if ((preflight.overall_status || '').toLowerCase() === 'fail') {
+          addToast(preflight.items?.find((x) => x.status === 'fail')?.message || 'preflight failed', 'error');
+          if (window.confirm(t('admin.domain.preflightFailDisableConfirm') || 'Preflight failed. Disable this certificate now?')) {
+            await extractData(
+              client.PUT('/api/v1/admin/domain-acme-ddns/certs/{id}', {
+                params: { path: { id: savedId } },
+                body: { ...payload, enabled: false, auto_renew: false },
+              }),
+            );
+            addToast(t('common.disabled') || 'disabled', 'info');
+            await loadAll();
+          }
+          return;
+        }
+
+        if (payload.challenge_type === 'dns01') {
+          const res = await extractData<CertTestDns01Result>(
+            client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/test-dns01', { params: { path: { id: savedId } } }),
+          );
+          addToast(res.message, res.observed ? 'success' : 'info');
+        }
+      }
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     }
@@ -1046,17 +1122,32 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             <RefreshCw size={18} className={cn("opacity-70", loading && "animate-spin")} />
           </Button>
           {isDdns && viewEnabled && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={runDdnsAll}
-            disabled={loading || runningDdnsAll}
-            className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground"
-            title={t('admin.domain.ddnsRunNow') || 'Run now'}
-          >
-            <Play size={16} className="mr-2 opacity-70 text-blue-600 dark:text-blue-400" />
-            <span>{t('admin.domain.ddnsRunNow') || 'Run now'}</span>
-          </Button>
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  await loadDdnsPlan(true);
+                }}
+                disabled={loading || ddnsPlanLoading}
+                className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground"
+                title={t('admin.domain.ddnsPlan') || 'Plan'}
+              >
+                <Activity size={16} className={cn('mr-2 opacity-70 text-indigo-600 dark:text-indigo-400', ddnsPlanLoading && 'animate-spin')} />
+                <span>{t('admin.domain.ddnsPlan') || 'Plan'}</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={runDdnsAll}
+                disabled={loading || runningDdnsAll}
+                className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground"
+                title={t('admin.domain.ddnsRunNow') || 'Run now'}
+              >
+                <Play size={16} className="mr-2 opacity-70 text-blue-600 dark:text-blue-400" />
+                <span>{t('admin.domain.ddnsRunNow') || 'Run now'}</span>
+              </Button>
+            </>
           )}
           {!isDdns && viewEnabled && (
             <>
@@ -1311,6 +1402,26 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         onRunNow={runDdns}
       />
 
+      <DdnsPlanModal
+        isOpen={ddnsPlanOpen}
+        loading={ddnsPlanLoading}
+        data={ddnsPlanData}
+        onClose={() => {
+          setDdnsPlanOpen(false);
+        }}
+        onRefresh={async () => {
+          await loadDdnsPlan(false);
+        }}
+        onRun={runDdns}
+        onInspect={inspectDdns}
+        onCheck={checkDdns}
+        onOpenLogs={(id) => {
+          const entry = ddnsEntries.find((x) => x.id === id) || null;
+          if (entry) openLogs(entry);
+          else addToast(t('common.noData') || 'No data', 'info');
+        }}
+      />
+
       <CertCheckModal
         isOpen={certCheckOpen}
         result={certCheckResult}
@@ -1406,7 +1517,54 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     </select>
                     <Button type="button" variant="outline" onClick={() => setProviderModalOpen(true)} className="h-11 w-11 p-0 border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm text-foreground"><Plus size={18}/></Button>
                  </div>
-               </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5">
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div className="text-[12px] font-black uppercase tracking-widest opacity-60">
+                      {t('admin.domain.fqdnHelper') || 'FQDN Helper'}
+                    </div>
+                  </div>
+                  <div className="mt-3 flex flex-col md:flex-row gap-3">
+                    <Input
+                      placeholder={t('admin.domain.fqdnHelperPlaceholder') || 'e.g. www.example.com'}
+                      value={ddnsFqdnHelper}
+                      onChange={(e) => setDdnsFqdnHelper(e.target.value)}
+                      className={cn(controlBase, 'font-mono')}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-11 px-5 rounded-xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold shrink-0"
+                      onClick={() => {
+                        const raw = ddnsFqdnHelper.trim().replace(/\.+$/g, '');
+                        if (!raw || !raw.includes('.')) {
+                          addToast(t('admin.domain.ddnsTargetRequired') || 'Zone and host are required', 'error');
+                          return;
+                        }
+                        const cleaned = raw.toLowerCase();
+                        const currentZone = ddnsDraft.zone.trim().replace(/\.+$/g, '').toLowerCase();
+                        if (currentZone && (cleaned === currentZone || cleaned.endsWith(`.${currentZone}`))) {
+                          const hostPart = cleaned === currentZone ? '@' : cleaned.slice(0, -(currentZone.length + 1));
+                          setDdnsDraft((prev) => ({ ...prev, host: hostPart || '@' }));
+                          addToast(t('admin.domain.confirmZoneHostHint') || 'Auto-filled Zone/Host as a suggestion. Please verify.', 'info');
+                          return;
+                        }
+                        const parts = cleaned.split('.').filter((p) => p);
+                        if (parts.length < 2) {
+                          addToast(t('admin.domain.ddnsTargetRequired') || 'Zone and host are required', 'error');
+                          return;
+                        }
+                        const zone = parts.slice(-2).join('.');
+                        const host = parts.slice(0, -2).join('.') || '@';
+                        setDdnsDraft((prev) => ({ ...prev, zone, host }));
+                        addToast(t('admin.domain.confirmZoneHostHint') || 'Auto-filled Zone/Host as a suggestion. Please verify.', 'info');
+                      }}
+                    >
+                      {t('admin.domain.fillZoneHost') || 'Fill Zone/Host'}
+                    </Button>
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                  <div className="space-y-2 min-w-0">

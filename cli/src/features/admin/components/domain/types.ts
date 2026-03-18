@@ -127,6 +127,49 @@ export interface DdnsEntryInspectResult {
   last_run_at?: string | null;
 }
 
+export interface DdnsPlanRequest {
+  ids?: string[];
+  limit?: number;
+}
+
+export interface DdnsPlanItem {
+  id: string;
+  name: string;
+  fqdn: string;
+  enabled: boolean;
+  provider_account_id: string;
+  provider_key: string;
+  provider_enabled: boolean;
+  has_credential: boolean;
+  credential_ok: boolean;
+  credential_error?: string | null;
+  desired_ipv4?: string | null;
+  desired_ipv6?: string | null;
+  detect_error_v4?: string | null;
+  detect_error_v6?: string | null;
+  dns_ipv4: string[];
+  dns_ipv6: string[];
+  dns_used_server?: string | null;
+  dns_error_ipv4?: string | null;
+  dns_error_ipv6?: string | null;
+  ip_changed_ipv4: boolean;
+  ip_changed_ipv6: boolean;
+  dns_mismatch_ipv4: boolean;
+  dns_mismatch_ipv6: boolean;
+  need_update_ipv4: boolean;
+  need_update_ipv6: boolean;
+  action: 'update' | 'noop' | 'failed' | 'skipped' | string;
+  reasons: string[];
+}
+
+export interface DdnsPlanResponse {
+  total: number;
+  need_update: number;
+  failed: number;
+  skipped: number;
+  items: DdnsPlanItem[];
+}
+
 export interface CertRunLogItem {
   id: string;
   cert_id: string;
