@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/Input.tsx';
 import { User, Mail, FileText, Plus, Trash2, Save, CheckCircle2 } from 'lucide-react';
 import { client, extractData, handleApiError } from '@/lib/api.ts';
 import { isPhoneInputValid, normalizePhoneInput } from '@/lib/contactNormalize.ts';
+import { FormField } from '@/components/common/FormField.tsx';
+import { IconInput } from '@/components/common/IconInput.tsx';
 
 import { useToastStore } from '@fileuni/shared';
 import { DashboardSection, DashboardLoading } from './dashboard-ui';
@@ -150,34 +152,35 @@ export const ProfileView = () => {
         <DashboardSection variant="glass" className="p-8 md:p-12">
           <form onSubmit={handleSave} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('profile.fullName')}</label>
-                <div className="relative group">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
-                  <Input value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} className="pl-12" placeholder={t('profile.fullNamePlaceholder')} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('profile.nickname')}</label>
-                <div className="relative group">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
-                  <Input value={form.nickname} onChange={e => setForm({ ...form, nickname: e.target.value })} className="pl-12" placeholder={t('profile.nicknamePlaceholder')} />
-                </div>
-              </div>
+              <FormField label={t('profile.fullName')}>
+                <IconInput
+                  icon={<User size={18} />}
+                  value={form.full_name}
+                  onChange={e => setForm({ ...form, full_name: e.target.value })}
+                  placeholder={t('profile.fullNamePlaceholder')}
+                />
+              </FormField>
+              <FormField label={t('profile.nickname')}>
+                <IconInput
+                  icon={<User size={18} />}
+                  value={form.nickname}
+                  onChange={e => setForm({ ...form, nickname: e.target.value })}
+                  placeholder={t('profile.nicknamePlaceholder')}
+                />
+              </FormField>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('profile.bio')}</label>
+            <FormField label={t('profile.bio')}>
               <div className="relative group">
                 <FileText className="absolute left-4 top-4 opacity-30 group-focus-within:text-primary transition-all" size={18} />
-                <textarea 
-                  value={form.bio} 
+                <textarea
+                  value={form.bio}
                   onChange={e => setForm({ ...form, bio: e.target.value })}
                   className="w-full min-h-[120px] pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-primary outline-none transition-all font-bold text-base"
                   placeholder={t('profile.bioPlaceholder')}
                 />
               </div>
-            </div>
+            </FormField>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between ml-1">

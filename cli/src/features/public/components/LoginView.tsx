@@ -5,16 +5,16 @@ import { useAuthStore } from "@/stores/auth.ts";
 import { useToastStore } from "@fileuni/shared";
 import { useConfigStore } from "@/stores/config.ts";
 import { Button } from "@/components/ui/Button.tsx";
-import { Input } from "@/components/ui/Input.tsx";
 import { Modal } from "@/components/ui/Modal.tsx";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
 import { PublicCenteredCard } from "./public-ui/PublicCenteredCard.tsx";
+import { FormField } from "@/components/common/FormField.tsx";
+import { IconInput } from "@/components/common/IconInput.tsx";
+import { PasswordInput } from "@/components/common/PasswordInput.tsx";
 import {
   User,
   Lock,
-  Eye,
-  EyeOff,
   ArrowRight,
   ChevronRight,
   Laptop,
@@ -50,7 +50,6 @@ export const LoginView = () => {
   const [captchaData, setCaptchaData] = useState<CaptchaPayload | null>(null);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [needCaptcha, setNeedCaptcha] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [agreement, setAgreement] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -300,50 +299,43 @@ export const LoginView = () => {
             )}
 
             <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
-                  {capabilities?.enable_mobile_auth &&
-                  capabilities?.enable_email_auth
+              <FormField
+                label={
+                  capabilities?.enable_mobile_auth && capabilities?.enable_email_auth
                     ? t("auth.usernameEmailPhone")
                     : capabilities?.enable_email_auth
                       ? t("auth.usernameEmail")
                       : capabilities?.enable_mobile_auth
                         ? t("auth.usernamePhone")
-                        : t("common.usernameRegister")}
-                </label>
-                <div className="relative group">
-                  <User
-                    className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary group-focus-within:opacity-100 transition-all"
-                    size={18}
-                  />
-                  <Input
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    onBlur={() => {
-                      const trimmed = identifier.trim();
-                      if (trimmed.includes("@")) {
-                        setIdentifier(normalizeEmailInput(trimmed));
-                      } else if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed)) {
-                        // UUID - keep as is
-                      } else {
-                        // Try to normalize phone number, keep as is if clearly not a phone number
-                        const normalized = normalizePhoneInput(trimmed);
-                        if (normalized.length > 5 && /^\+?\d+$/.test(normalized)) {
-                          setIdentifier(normalized);
-                        }
-                      }
-                    }}
-                    className="pl-12"
-                    placeholder={
-                      capabilities?.enable_mobile_auth &&
-                      capabilities?.enable_email_auth
-                        ? t("auth.usernameEmailPhone")
                         : t("common.usernameRegister")
+                }
+                required
+              >
+                <IconInput
+                  icon={<User size={18} />}
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  onBlur={() => {
+                    const trimmed = identifier.trim();
+                    if (trimmed.includes("@")) {
+                      setIdentifier(normalizeEmailInput(trimmed));
+                    } else if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed)) {
+                      // UUID - keep as is
+                    } else {
+                      const normalized = normalizePhoneInput(trimmed);
+                      if (normalized.length > 5 && /^\+?\d+$/.test(normalized)) {
+                        setIdentifier(normalized);
+                      }
                     }
-                    required
-                  />
-                </div>
-              </div>
+                  }}
+                  placeholder={
+                    capabilities?.enable_mobile_auth && capabilities?.enable_email_auth
+                      ? t("auth.usernameEmailPhone")
+                      : t("common.usernameRegister")
+                  }
+                  required
+                />
+              </FormField>
 
               {needCaptcha && (
                 <CaptchaChallenge
@@ -361,11 +353,9 @@ export const LoginView = () => {
                 />
               )}
 
-              <div className="space-y-2">
-                <div className="flex justify-between items-center ml-1">
-                  <label className="text-sm font-black uppercase tracking-widest opacity-40">
-                    {t("common.password")}
-                  </label>
+              <FormField label={null}>
+                <div className="flex justify-between items-center ml-1 -mt-1 mb-2">
+                  <span className="text-sm font-black uppercase tracking-widest opacity-40">{t("common.password")}</span>
                   <a
                     href="#mod=public&page=forgot-password"
                     className="text-sm font-black text-primary hover:underline"
@@ -373,28 +363,14 @@ export const LoginView = () => {
                     {t("common.forgotPassword")}
                   </a>
                 </div>
-                <div className="relative group">
-                  <Lock
-                    className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary group-focus-within:opacity-100 transition-all"
-                    size={18}
-                  />
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-12 pr-12"
-                    placeholder=""
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 opacity-30 hover:opacity-100 transition-opacity"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
+                <PasswordInput
+                  icon={<Lock size={18} />}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder=""
+                  required
+                />
+              </FormField>
 
               <div className="space-y-3">
                 <label className="flex items-center gap-3 cursor-pointer group p-1 select-none">

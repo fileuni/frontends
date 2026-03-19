@@ -11,11 +11,13 @@ import { client, isApiError, postCaptchaPolicy } from '@/lib/api.ts';
 import { isPhoneInputValid, normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 import type { components } from '@/types/api.ts';
 import { CaptchaChallenge, type CaptchaPayload } from '@/components/common/CaptchaChallenge.tsx';
+import { FormField } from '@/components/common/FormField.tsx';
 
 import { useResolvedTheme, useToastStore } from '@fileuni/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { PasswordChangeForm } from './PasswordChangeForm.tsx';
 import { DashboardLoading, DashboardSection } from './dashboard-ui';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 
 type UserResponse = components["schemas"]["UserResponse"];
 type SecurityUserResponse = UserResponse & {
@@ -459,8 +461,7 @@ export const SecurityView = () => {
         title={t('security.verifyModalTitle', { type: activeModal === 'email' ? 'Email' : 'Phone' })}
       >
         <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('security.targetAddress')}</label>
+          <FormField label={t('security.targetAddress')}>
             <Input
               value={bindForm.target}
               onChange={(e) => setBindForm({ ...bindForm, target: e.target.value })}
@@ -471,7 +472,7 @@ export const SecurityView = () => {
               }}
               placeholder={activeModal === 'email' ? t('security.enterEmail') : t('security.enterPhone')}
             />
-          </div>
+          </FormField>
 
           {needCaptcha && (
             <CaptchaChallenge
@@ -522,7 +523,12 @@ export const SecurityView = () => {
             {t('auth.deleteConfirmPhrase')}
           </div>
           <Input value={deleteConfirm.phrase} onChange={e => setDeleteConfirm({ ...deleteConfirm, phrase: e.target.value })} placeholder={t('security.phrasePlaceholder')} className="text-center font-bold border-red-500/20 focus:border-red-500" />
-          <Input type="password" value={deleteConfirm.password} onChange={e => setDeleteConfirm({ ...deleteConfirm, password: e.target.value })} placeholder={t('security.currentPassword')} className="text-center border-red-500/20 focus:border-red-500" />
+          <PasswordInput
+            value={deleteConfirm.password}
+            onChange={e => setDeleteConfirm({ ...deleteConfirm, password: e.target.value })}
+            placeholder={t('security.currentPassword')}
+            inputClassName="text-center border-red-500/20 focus:border-red-500"
+          />
           <Button className="w-full h-14 bg-red-500 hover:bg-red-600 text-white shadow-red-500/20" disabled={deleteConfirm.phrase !== t('auth.deleteConfirmPhrase') || !deleteConfirm.password}>
             {t('security.deleteEverything')}
           </Button>
