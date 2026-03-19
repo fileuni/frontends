@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/Switch.tsx';
 import { client, extractData, handleApiError } from '@/lib/api.ts';
 import { useToastStore } from '@fileuni/shared';
 import { Globe, Plus, RefreshCw, ShieldCheck, Trash2, Pencil, Save, Server, Network } from 'lucide-react';
+import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
 
 type RouteMode = 'static' | 'proxy';
 
@@ -516,51 +517,51 @@ export const WebAdmin: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-20">
-      <div className="rounded-[2rem] border border-border bg-gradient-to-r from-cyan-500/10 via-sky-500/5 to-transparent p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/20 text-cyan-600">
-              <Globe size={24} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-black tracking-tight">{t('admin.web.title')}</h2>
-              <p className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.subtitle')}</p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <Button type="button" variant="outline" onClick={reloadRuntime}>
-              <RefreshCw size={16} className="mr-2" />
-              {t('admin.web.reload')}
-            </Button>
-            <Button type="button" onClick={openCreateModal}>
-              <Plus size={16} className="mr-2" />
-              {t('admin.web.newSite')}
-            </Button>
-          </div>
-        </div>
-      </div>
+    <AdminPage className="space-y-6">
+      <AdminCard
+        variant="shadcn"
+        className="rounded-[2rem] bg-gradient-to-r from-cyan-500/10 via-sky-500/5 to-transparent p-6"
+      >
+        <AdminPageHeader
+          icon={<Globe size={24} />}
+          iconClassName="bg-cyan-500/20 text-cyan-600"
+          title={t('admin.web.title')}
+          subtitle={t('admin.web.subtitle')}
+          actions={
+            <>
+              <Button type="button" variant="outline" onClick={reloadRuntime}>
+                <RefreshCw size={16} className="mr-2" />
+                {t('admin.web.reload')}
+              </Button>
+              <Button type="button" onClick={openCreateModal}>
+                <Plus size={16} className="mr-2" />
+                {t('admin.web.newSite')}
+              </Button>
+            </>
+          }
+        />
+      </AdminCard>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <AdminCard variant="shadcn" className="rounded-2xl p-4">
           <p className="text-sm font-bold uppercase tracking-wider opacity-50">{t('admin.web.stats.total')}</p>
           <p className="mt-2 text-2xl font-black">{totals.all}</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
+        </AdminCard>
+        <AdminCard variant="shadcn" className="rounded-2xl p-4">
           <p className="text-sm font-bold uppercase tracking-wider opacity-50">{t('admin.web.stats.enabled')}</p>
           <p className="mt-2 text-2xl font-black text-emerald-600">{totals.enabled}</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
+        </AdminCard>
+        <AdminCard variant="shadcn" className="rounded-2xl p-4">
           <p className="text-sm font-bold uppercase tracking-wider opacity-50">{t('admin.web.stats.tls')}</p>
           <p className="mt-2 text-2xl font-black text-sky-600">{totals.tls}</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
+        </AdminCard>
+        <AdminCard variant="shadcn" className="rounded-2xl p-4">
           <p className="text-sm font-bold uppercase tracking-wider opacity-50">{t('admin.web.stats.proxy')}</p>
           <p className="mt-2 text-2xl font-black text-sky-600">{totals.proxy}</p>
-        </div>
+        </AdminCard>
       </div>
 
-      <div className="rounded-[1.5rem] border border-border bg-card overflow-hidden">
+      <AdminCard variant="shadcn" className="rounded-[1.5rem] overflow-hidden">
         <div className="grid grid-cols-12 gap-2 px-4 py-3 text-sm font-black uppercase tracking-wider opacity-60 border-b border-border">
           <div className="col-span-3">{t('admin.web.table.site')}</div>
           <div className="col-span-2">{t('admin.web.table.bindings')}</div>
@@ -625,7 +626,7 @@ export const WebAdmin: React.FC = () => {
             ))}
           </div>
         )}
-      </div>
+      </AdminCard>
 
       <Modal
         isOpen={isModalOpen}
@@ -887,7 +888,7 @@ export const WebAdmin: React.FC = () => {
           </div>
         </div>
       </Modal>
-    </div>
+    </AdminPage>
   );
 };
 
