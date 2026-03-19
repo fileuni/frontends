@@ -37,7 +37,10 @@ export function docsUrl(path: string = '/', lang?: string): string {
   const p = normalizePath(path);
 
   // If caller already provided a locale-prefixed path, keep it.
-  if (p === '/zh-cn' || p.startsWith('/zh-cn/')) {
+  const knownPrefixes: DocsLocalePrefix[] = ['/zh-cn', '/es', '/de', '/fr', '/ru', '/ja'];
+  if (
+    knownPrefixes.some((candidate) => p === candidate || p.startsWith(`${candidate}/`))
+  ) {
     return `${DOCS_ORIGIN}${p}`;
   }
 
