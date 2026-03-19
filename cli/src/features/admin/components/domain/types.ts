@@ -38,6 +38,14 @@ export interface ProviderAccountItem {
   auth_test_at?: string | null;
 }
 
+export interface ProviderAccountPayload {
+  name: string;
+  provider_key: string;
+  credential_json_enc: string;
+  config_json: string;
+  enabled: boolean;
+}
+
 export interface ProviderTestDnsResult {
   fqdn: string;
   status: string;
@@ -71,6 +79,23 @@ export interface DdnsEntryItem {
   last_run_at?: string | null;
   last_ipv4?: string | null;
   last_ipv6?: string | null;
+}
+
+export interface DdnsEntryPayload {
+  name: string;
+  enabled: boolean;
+  provider_account_id: string;
+  zone: string;
+  host: string;
+  fqdn: string;
+  ttl: number;
+  proxied: boolean;
+  ipv4_enabled: boolean;
+  ipv6_enabled: boolean;
+  ipv4_source_json: string;
+  ipv6_source_json: string;
+  webhook_json: string;
+  force_update: boolean;
 }
 
 export interface DdnsRunLogItem {
@@ -214,6 +239,19 @@ export interface CertificateItem {
   expires_at?: string | null;
   last_status?: string | null;
   last_error?: string | null;
+}
+
+export interface CertificatePayload {
+  name: string;
+  enabled: boolean;
+  auto_renew: boolean;
+  ca_provider: string;
+  challenge_type: string;
+  domains_json: string;
+  provider_account_id: string | null;
+  dns_config_json: string;
+  account_email: string;
+  export_path: string | null;
 }
 
 export interface CertRunAllCheckResponse {
