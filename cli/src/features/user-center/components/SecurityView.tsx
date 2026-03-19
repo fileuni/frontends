@@ -423,7 +423,7 @@ export const SecurityView = () => {
                 ({t('security.virtualBucket')}: user-data)
               </div>
             </div>
-          </div>
+          </DashboardCard>
         )}
 
         {/* Danger Zone */}
