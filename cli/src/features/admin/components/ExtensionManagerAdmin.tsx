@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button } from '@/components/ui/Button.tsx';
 import { handleApiError } from '@/lib/api.ts';
 import { useAuthStore } from '@/stores/auth.ts';
 import { useConfigStore } from '@/stores/config.ts';
 import { useToastStore } from '@fileuni/shared';
 import { useTranslation } from 'react-i18next';
 import { useNavigationStore } from '@/stores/navigation.ts';
-import { storageHub } from '@fileuni/shared';
 import { ToolPanel } from './extensions/ToolPanel.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Puzzle, Cpu } from 'lucide-react';
-import { AdminCard, AdminHero, AdminLoadingState, AdminPage } from './admin-ui';
+import { AdminHero, AdminLoadingState, AdminPage } from './admin-ui';
+import { ExtensionsTabBar } from './extensions/components/ExtensionsTabBar';
+import { buildExtensionTabItems } from './extensions/tabItems';
+import { persistToolStateMap, restoreToolStateMap, type ToolState } from './extensions/uiState';
 import {
   fetchLatestToolInfoApi,
   fetchServicesApi,
@@ -22,20 +23,6 @@ import {
 } from './extensions/api.ts';
 
 import type { InstallBody, ToolInfo, ToolKind } from './extensions/types.ts';
-
-type ToolState = {
-  version: string;
-  downloadUrl: string;
-  binPath: string;
-  proxy: string;
-  // Extra fields
-  dataPath?: string;
-  rcloneConfigPath?: string;
-  rcloneMountCommand?: string;
-  rcloneUnmountCommand?: string;
-};
-
-type PersistedToolState = Omit<ToolState, 'version' | 'downloadUrl'>;
 
 export const ExtensionManagerAdmin = () => {
   const { t, i18n } = useTranslation();
@@ -54,16 +41,7 @@ export const ExtensionManagerAdmin = () => {
   
   const currentTool = useMemo(() => tools.find(t => t.name === extPage), [tools, extPage]);
   const extItems = useMemo(() => {
-    const order = ['openlist', 'rclone', 'kopia'];
-    return [...tools].sort((a, b) => {
-      const idxA = order.indexOf(a.name);
-      const idxB = order.indexOf(b.name);
-      return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
-    }).map(t => ({
-      key: t.name,
-      label: t.name === 'openlist' ? 'OpenList' : t.name === 'rclone' ? 'Rclone' : t.name.charAt(0).toUpperCase() + t.name.slice(1),
-      installed: t.installed
-    }));
+    return buildExtensionTabItems(tools);
   }, [tools]);
 
   const updateToolState = (tool: string, patch: Partial<ToolState>) => {
@@ -130,40 +108,13 @@ export const ExtensionManagerAdmin = () => {
   useEffect(() => {
     const userId = currentUserData?.user.id;
     if (!userId) return;
-    const key = `ext-ui-overrides-v2:${userId}`;
-    try {
-      const raw = storageHub.getLocalItem(key);
-      if (!raw) return;
-      const v = JSON.parse(raw);
-      setToolStates(prev => {
-        const next = { ...prev };
-        Object.keys(v).forEach(tool => {
-          // Only restore persistent settings, not transient suggestions
-          next[tool] = { 
-            ...next[tool], 
-            ...v[tool],
-            version: '', // Always reset suggestion on load
-            downloadUrl: '' 
-          };
-        });
-        return next;
-      });
-    } catch (_e) {}
+    setToolStates((prev) => restoreToolStateMap(userId, prev));
   }, [currentUserData?.user.id]);
 
   useEffect(() => {
     const userId = currentUserData?.user.id;
     if (!userId) return;
-    const key = `ext-ui-overrides-v2:${userId}`;
-    // Filter out version and downloadUrl before saving
-    const toSave: Record<string, PersistedToolState> = {};
-    Object.keys(toolStates).forEach(tool => {
-      const currentState = toolStates[tool];
-      if (!currentState) return;
-      const { version, downloadUrl, ...persistent } = currentState;
-      toSave[tool] = persistent;
-    });
-    storageHub.setLocalItem(key, JSON.stringify(toSave));
+    persistToolStateMap(userId, toolStates);
   }, [currentUserData?.user.id, toolStates]);
 
   const controlService = async (tool: string, action: 'start' | 'stop' | 'restart') => {
@@ -243,28 +194,11 @@ export const ExtensionManagerAdmin = () => {
         }
       />
 
-      <AdminCard
-        variant="glass"
-        className="p-1.5 sm:p-2 rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] flex gap-1.5 sm:gap-2 flex-wrap justify-center sm:justify-start shadow-xl md:shadow-2xl backdrop-blur-sm mx-0 sm:mx-1"
-      >
-        {extItems.map((item) => (
-          <Button 
-            key={item.key} 
-            size="sm" 
-            variant={extPage === item.key ? 'primary' : 'ghost'} 
-            onClick={() => navigate({ mod: 'admin', page: 'extensions', ext: item.key })}
-            className={`relative rounded-lg sm:rounded-xl md:rounded-2xl px-4 sm:px-6 md:px-8 h-9 sm:h-10 md:h-12 font-black uppercase tracking-widest text-xs sm:text-sm md:text-[14px] transition-all duration-300 ${extPage === item.key ? 'shadow-lg sm:shadow-xl md:shadow-xl shadow-primary/30' : 'opacity-40 hover:opacity-100 hover:bg-white/5'}`}
-          >
-            {item.label}
-            {item.installed && (
-              <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 flex h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 bg-green-500 shadow-sm shadow-green-500/50"></span>
-              </span>
-            )}
-          </Button>
-        ))}
-      </AdminCard>
+      <ExtensionsTabBar
+        items={extItems}
+        activeKey={extPage}
+        onSelect={(key) => navigate({ mod: 'admin', page: 'extensions', ext: key })}
+      />
 
       <ToolPanel
         tool={extPage}
