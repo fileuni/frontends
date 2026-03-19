@@ -1,9 +1,12 @@
 import React from 'react';
-import { cn } from '@/lib/utils.ts';
+import { cn } from '../../lib/utils';
 
-type ButtonVariant = 'primary' | 'ghost' | 'outline' | 'destructive';
-type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
+export type ButtonVariant = 'primary' | 'ghost' | 'outline' | 'destructive';
+export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
 
+/**
+ * 共享 UI 按钮组件 / Shared UI Button component
+ */
 export const Button = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & { 
@@ -12,8 +15,7 @@ export const Button = React.forwardRef<
   }
 >(({ className, variant = 'primary', size = 'md', ...props }, ref) => {
   const variants: Record<ButtonVariant, string> = {
-    primary: 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95',
-
+    primary: 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
     destructive: 'bg-red-500 text-white shadow-lg shadow-red-500/20 hover:bg-red-600 hover:scale-[1.02] active:scale-95'
@@ -30,7 +32,7 @@ export const Button = React.forwardRef<
     <button
       ref={ref}
       className={cn(
-        'inline-flex items-center justify-center font-black transition-all disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap',
+        'inline-flex items-center justify-center font-black transition-all disabled:opacity-50 disabled:pointer-events-none',
         variants[variant],
         sizes[size],
         className

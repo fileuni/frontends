@@ -1,0 +1,595 @@
+import React, { useCallback, useMemo, useRef, useState, useEffect, Suspense } from "react";
+import { useTranslation } from "react-i18next";
+import type { OnMount } from "@monaco-editor/react";
+import type { editor as MonacoEditor } from "monaco-editor";
+import { AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import { isMonacoSupported, useMonacoReady } from "@/lib/monaco";
+
+/**
+ * Configuration note entry interface
+ */
+export interface ConfigNoteEntry {
+  desc_en: string;
+  desc_zh: string;
+  example: string;
+}
+
+/**
+ * Configuration error interface
+ */
+export interface ConfigError {
+  line: number;
+  column: number;
+  message: string;
+  key?: string | null;
+}
+
+export interface EditorJumpPosition {
+  line: number;
+  column?: number;
+}
+
+interface ConfigRawEditorProps {
+  content: string;
+  onChange: (value: string) => void;
+  embeddedTemplate?: string;
+  notes: Record<string, ConfigNoteEntry>;
+  errors?: ConfigError[];
+  jumpTo?: EditorJumpPosition | null;
+  height?: string;
+  activePath?: string;
+  hideNotes?: boolean;
+  isDark?: boolean;
+}
+
+type MonacoModule = typeof import("monaco-editor");
+
+const LazyMonacoEditor = React.lazy(async () => {
+  const mod = await import("@monaco-editor/react");
+  return { default: mod.default };
+});
+
+/**
+ * Robust line number lookup
+ */
+const findLineByPath = (content: string, path: string): number => {
+  if (!path) return 1;
+  const lines = content.split(/\r?\n/);
+  const parts = path.split(".");
+  const key = parts.pop() || "";
+  const sectionName = parts.join(".");
+
+  let startLine = 0;
+  let endLine = lines.length;
+
+  if (sectionName) {
+    const sectionTarget = `[${sectionName}]`;
+    const sectionTargetArray = `[[${sectionName}]]`;
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = (lines[i] ?? '').trim();
+      if (trimmed === sectionTarget || trimmed === sectionTargetArray) {
+        startLine = i;
+        for (let j = i + 1; j < lines.length; j++) {
+          if ((lines[j] ?? '').trim().startsWith("[")) {
+            endLine = j;
+            break;
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  const keyRegex = new RegExp(`^\\s*${key}\\s*=`);
+  for (let i = startLine; i < endLine; i++) {
+    if (keyRegex.test(lines[i] ?? '')) {
+      return i + 1;
+    }
+  }
+
+  return startLine > 0 ? startLine + 1 : 1;
+};
+
+const resolveActivePath = (content: string, lineNumber: number): string => {
+  const lines = content.split(/\r?\n/);
+  if (lineNumber <= 0 || lineNumber > lines.length) return "";
+
+  let currentSection = "";
+  for (let i = lineNumber - 1; i >= 0; i--) {
+    const line = (lines[i] || "").trim();
+    if (line.startsWith("[") && line.endsWith("]")) {
+      currentSection = line.replace(/[\[\]]/g, "");
+      break;
+    }
+  }
+
+  const currentLine = (lines[lineNumber - 1] || "").trim();
+  const match = currentLine.match(/^([a-zA-Z0-9_-]+)\s*=/);
+  if (match && match[1]) {
+    return currentSection ? `${currentSection}.${match[1]}` : match[1];
+  }
+
+  return currentSection;
+};
+
+const getLocalizedNote = (note: ConfigNoteEntry, lang: string) => {
+  const isEn = lang.startsWith("en");
+  return {
+    title: isEn ? "Configuration Detail" : "配置详情",
+    description: isEn ? note.desc_en : note.desc_zh,
+  };
+};
+
+const registerTomlLanguage = (monacoInstance: MonacoModule) => {
+  const languageId = "toml-config";
+  const existing = monacoInstance.languages
+    .getLanguages()
+    .some((lang: { id: string }) => lang.id === languageId);
+
+  if (!existing) {
+    monacoInstance.languages.register({ id: languageId });
+  }
+
+  monacoInstance.languages.setMonarchTokensProvider(languageId, {
+    tokenizer: {
+      root: [
+        [/^\s*\[[^\]]+\]\s*$/, "type.identifier"],
+        [/^\s*\[\[[^\]]+\]\]\s*$/, "type.identifier"],
+        [/^\s*[A-Za-z0-9_.-]+\s*(?==)/, "key"],
+        [/=\s*/, "delimiter"],
+        [/#.*$/, "comment"],
+        [/"(?:[^"\\]|\\.)*"/, "string"],
+        [/'(?:[^'\\]|\\.)*'/, "string"],
+        [/\b(true|false)\b/, "keyword"],
+        [/\b[+-]?\d+\.\d+([eE][+-]?\d+)?\b/, "number.float"],
+        [/\b[+-]?\d+\b/, "number"],
+        [/\b\d{4}-\d{2}-\d{2}([Tt ][0-9:.+-Zz]+)?\b/, "number"],
+        [/[{},\[\]]/, "delimiter.bracket"],
+      ],
+    },
+  });
+
+  return languageId;
+};
+
+/**
+ * Unified Configuration Raw Editor
+ */
+export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
+  content,
+  onChange,
+  embeddedTemplate,
+  notes,
+  jumpTo,
+  height = "600px",
+  activePath: externalActivePath,
+  hideNotes = false,
+  isDark = true,
+}) => {
+  const { t, i18n } = useTranslation();
+  const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<MonacoModule | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [internalActivePath, setInternalActivePath] = useState("");
+  const decorationCollectionRef = useRef<MonacoEditor.IEditorDecorationsCollection | null>(null);
+  const [mounted, setMounted] = useState(typeof window !== "undefined");
+
+  const preferTextareaByDefault = useMemo(() => {
+    if (typeof navigator === "undefined") {
+      return true;
+    }
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  }, []);
+
+  const [editorEngine, setEditorEngine] = useState<"textarea" | "monaco">(
+    preferTextareaByDefault ? "textarea" : "monaco",
+  );
+
+  const monacoStatus = useMonacoReady({
+    enabled: mounted && editorEngine === "monaco",
+  });
+  const useFallbackEditor = editorEngine === "textarea" || monacoStatus === "failed";
+  const resolvedHeight = height === "100%" ? "clamp(360px, 62vh, 900px)" : height;
+
+  const activePath = externalActivePath || internalActivePath;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (monacoStatus === "failed" && editorEngine === "monaco") {
+      setEditorEngine("textarea");
+    }
+  }, [editorEngine, monacoStatus]);
+
+  useEffect(() => {
+    if (monacoStatus === "failed") {
+      console.error("Failed to initialize Monaco loader");
+    }
+  }, [monacoStatus]);
+
+  const activeNote = useMemo(() => {
+    if (!activePath) return null;
+    if (notes[activePath]) return notes[activePath];
+    const parts = activePath.split(".");
+    while (parts.length > 1) {
+      parts.pop();
+      const key = parts.join(".");
+      if (notes[key]) return notes[key];
+    }
+    return null;
+  }, [activePath, notes]);
+
+  useEffect(() => {
+    if (!externalActivePath || !editorRef.current) return undefined;
+
+    const editor = editorRef.current;
+    const line = findLineByPath(content, externalActivePath);
+
+    if (line > 0) {
+      editor.revealLineInCenter(line, 0);
+
+      const model = editor.getModel();
+      if (model) {
+        editor.setSelection({
+          startLineNumber: line,
+          startColumn: 1,
+          endLineNumber: line,
+          endColumn: model.getLineMaxColumn(line),
+        });
+
+        if (decorationCollectionRef.current) {
+          decorationCollectionRef.current.clear();
+        }
+
+        decorationCollectionRef.current = editor.createDecorationsCollection([
+          {
+            range: {
+              startLineNumber: line,
+              startColumn: 1,
+              endLineNumber: line,
+              endColumn: 1,
+            },
+            options: {
+              isWholeLine: true,
+              className: "bg-primary/20",
+              marginClassName: "bg-primary/40",
+            },
+          },
+        ]);
+
+        const timer = setTimeout(() => {
+          decorationCollectionRef.current?.clear();
+        }, 2500);
+        return () => clearTimeout(timer);
+      }
+    }
+    return undefined;
+  }, [externalActivePath, content]);
+
+  useEffect(() => {
+    if (!jumpTo || jumpTo.line <= 0) {
+      return undefined;
+    }
+
+    const line = jumpTo.line;
+    const col = typeof jumpTo.column === "number" && jumpTo.column > 0 ? jumpTo.column : 1;
+
+    if (!useFallbackEditor && editorRef.current) {
+      const editor = editorRef.current;
+      editor.revealLineInCenter(line, 0);
+
+      const model = editor.getModel();
+      if (!model) return undefined;
+
+      const maxCol = model.getLineMaxColumn(line);
+      const safeCol = Math.min(col, Math.max(1, maxCol));
+
+      editor.setSelection({
+        startLineNumber: line,
+        startColumn: safeCol,
+        endLineNumber: line,
+        endColumn: maxCol,
+      });
+      editor.focus();
+
+      if (decorationCollectionRef.current) {
+        decorationCollectionRef.current.clear();
+      }
+      decorationCollectionRef.current = editor.createDecorationsCollection([
+        {
+          range: {
+            startLineNumber: line,
+            startColumn: 1,
+            endLineNumber: line,
+            endColumn: 1,
+          },
+          options: {
+            isWholeLine: true,
+            className: "bg-primary/20",
+            marginClassName: "bg-primary/40",
+          },
+        },
+      ]);
+      const timer = window.setTimeout(() => {
+        decorationCollectionRef.current?.clear();
+      }, 2500);
+      return () => window.clearTimeout(timer);
+    }
+
+    // Fallback editor: best-effort selection to force scroll.
+    const textarea = textareaRef.current;
+    if (!textarea) return undefined;
+
+    const lines = content.split(/\r?\n/);
+    const targetLine = Math.min(line, Math.max(1, lines.length));
+    let lineStart = 0;
+    for (let i = 0; i < targetLine - 1; i += 1) {
+      lineStart += (lines[i]?.length ?? 0) + 1; // +1 for '\n'
+    }
+    const lineText = lines[targetLine - 1] ?? "";
+    const lineEnd = lineStart + lineText.length;
+    const start = Math.min(lineEnd, lineStart + Math.max(0, col - 1));
+    const end = lineEnd;
+
+    textarea.focus();
+    textarea.setSelectionRange(Math.min(start, end), Math.max(start, end));
+
+    return undefined;
+  }, [jumpTo, useFallbackEditor, content]);
+
+  const handleEditorMount: OnMount = (editor, monaco) => {
+    try {
+      editorRef.current = editor;
+      monacoRef.current = monaco;
+      const languageId = registerTomlLanguage(monaco);
+      const model = editor.getModel();
+      if (model) {
+        monaco.editor.setModelLanguage(model, languageId);
+      }
+
+      setTimeout(() => {
+        editor.layout();
+      }, 100);
+
+      editor.onDidChangeCursorPosition((evt) => {
+        const value = editor.getValue();
+        const path = resolveActivePath(value, evt.position.lineNumber);
+        setInternalActivePath(path);
+      });
+    } catch (error) {
+      console.error("Monaco editor mount failed, falling back to textarea:", error);
+      setEditorEngine("textarea");
+    }
+  };
+
+  const updateActivePathFromTextarea = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const idx = typeof textarea.selectionStart === "number" ? textarea.selectionStart : 0;
+    const before = content.slice(0, Math.max(0, idx));
+    let line = 1;
+    for (let i = 0; i < before.length; i += 1) {
+      if (before.charCodeAt(i) === 10) {
+        line += 1;
+      }
+    }
+    const path = resolveActivePath(content, line);
+    setInternalActivePath(path);
+  }, [content]);
+
+  useEffect(() => {
+    if (!useFallbackEditor) return undefined;
+    // Initial sync for textarea mode.
+    updateActivePathFromTextarea();
+    return undefined;
+  }, [useFallbackEditor, updateActivePathFromTextarea]);
+
+  return (
+    <div className="flex flex-col w-full gap-3 sm:gap-4" style={{ height: resolvedHeight, minHeight: "360px" }}>
+      <div className="flex flex-col shrink-0 gap-3 sm:gap-4">
+        {!hideNotes && (
+          <div className={cn(
+            "rounded-xl sm:rounded-2xl border p-3 sm:p-4 flex flex-col gap-3 transition-all animate-in fade-in slide-in-from-top-2 shadow-sm",
+            isDark 
+              ? "border-white/5 bg-white/[0.02]" 
+              : "border-slate-200 bg-slate-50"
+          )}>
+            {activeNote ? (
+              (() => {
+                const localized = getLocalizedNote(activeNote, i18n.language);
+                return (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-col min-w-0">
+                      <div className="text-sm sm:text-sm font-black uppercase text-primary leading-none mb-1">
+                        {localized.title}
+                      </div>
+                      <div className={cn(
+                        "text-sm sm:text-sm leading-relaxed break-words whitespace-normal font-bold",
+                        isDark ? "text-white/90" : "text-slate-800"
+                      )}>
+                        {localized.description}
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center">
+                      {activeNote.example !== "{SECTION}" && activeNote.example !== "" && (
+                        <div className={cn(
+                          "flex items-center gap-2 px-3 py-1.5 rounded-lg border shrink-0",
+                          isDark 
+                            ? "bg-black/40 border-white/5" 
+                            : "bg-white border-slate-200"
+                        )}>
+                          <span className={cn(
+                            "text-sm uppercase font-black whitespace-nowrap",
+                            isDark ? "opacity-40" : "text-slate-500"
+                          )}>
+                            {t("admin.config.example")}
+                          </span>
+                          <code className={cn(
+                            "text-sm font-mono break-all font-bold",
+                            isDark ? "text-emerald-400" : "text-emerald-700"
+                          )}>
+                            {activeNote.example}
+                          </code>
+                        </div>
+                      )}
+                      {activePath && (
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={cn(
+                            "text-sm uppercase font-black",
+                            isDark ? "opacity-30" : "text-slate-400"
+                          )}>Path</span>
+                          <code className={cn(
+                            "text-sm sm:text-sm font-mono break-all font-bold",
+                            isDark ? "opacity-60" : "text-slate-500"
+                          )}>
+                            {activePath}
+                          </code>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center">
+                <div className={cn(
+                  "text-sm sm:text-sm font-bold italic",
+                  isDark ? "opacity-30" : "text-slate-400"
+                )}>
+                  {t("admin.config.noteEmpty")}
+                </div>
+                {activePath && (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={cn(
+                      "text-sm uppercase font-black",
+                      isDark ? "opacity-30" : "text-slate-400"
+                    )}>Path</span>
+                    <code className={cn(
+                      "text-sm sm:text-sm font-mono break-all font-bold",
+                      isDark ? "opacity-60" : "text-slate-500"
+                    )}>
+                      {activePath}
+                    </code>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {(embeddedTemplate || (mounted && isMonacoSupported())) && (
+          <div className="flex items-center justify-between shrink-0 gap-2">
+            {mounted && isMonacoSupported() && monacoStatus !== "failed" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 sm:h-8 text-sm font-black uppercase px-3"
+                onClick={() => {
+                  setEditorEngine((prev) => (prev === "monaco" ? "textarea" : "monaco"));
+                }}
+              >
+                {useFallbackEditor
+                  ? (t("common.editorEngine.switchToMonaco") || "Switch to Monaco")
+                  : (t("common.editorEngine.switchToTextarea") || "Switch to Textarea")}
+              </Button>
+            ) : (
+              <div />
+            )}
+
+            {embeddedTemplate && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 sm:h-8 border-dashed text-sm font-black uppercase px-3"
+                onClick={() => onChange(embeddedTemplate)}
+              >
+                <AlertTriangle size={18} className="mr-2" />
+                {t("admin.config.reset")}
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className={cn(
+        "flex-1 h-full rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] border overflow-hidden shadow-2xl relative min-h-[320px] transition-colors",
+        isDark 
+          ? "bg-[#1e1e1e] border-white/10" 
+          : "bg-white border-slate-300"
+      )}>
+        {useFallbackEditor ? (
+          <textarea
+            ref={textareaRef}
+            className={cn(
+              "h-full w-full resize-none p-4 font-mono text-sm leading-6 outline-none",
+              isDark ? "bg-[#1e1e1e] text-[#d4d4d4]" : "bg-white text-slate-900"
+            )}
+            spellCheck={false}
+            value={content}
+            onChange={(e) => {
+              onChange(e.target.value);
+              requestAnimationFrame(() => updateActivePathFromTextarea());
+            }}
+            onSelect={() => updateActivePathFromTextarea()}
+            onClick={() => updateActivePathFromTextarea()}
+            onKeyUp={() => updateActivePathFromTextarea()}
+          />
+        ) : monacoStatus !== "ready" ? (
+          <div className={cn(
+            "h-full w-full flex items-center justify-center text-lg font-black",
+            isDark ? "text-slate-300" : "text-slate-600"
+          )}>
+            {t("admin.config.loading")}
+          </div>
+        ) : (
+          <Suspense
+            fallback={(
+              <div className={cn(
+                "h-full w-full flex items-center justify-center text-lg font-black",
+                isDark ? "text-slate-300" : "text-slate-600"
+              )}>
+                {t("admin.config.loading")}
+              </div>
+            )}
+          >
+            <LazyMonacoEditor
+              height="100%"
+              width="100%"
+              language="toml-config"
+              theme={isDark ? "vs-dark" : "vs"}
+              value={content}
+              onChange={(v) => {
+                if (typeof v === "string") {
+                  onChange(v);
+                }
+              }}
+              onMount={handleEditorMount}
+              options={{
+                minimap: { enabled: false },
+                fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                fontSize: 14,
+                lineNumbers: "on",
+                lineNumbersMinChars: 3,
+                renderLineHighlight: "all",
+                scrollBeyondLastLine: false,
+                wordWrap: "on",
+                automaticLayout: true,
+                padding: { top: 16, bottom: 16 },
+                scrollbar: {
+                  vertical: "visible",
+                  horizontal: "visible",
+                  verticalScrollbarSize: 10,
+                  horizontalScrollbarSize: 10,
+                },
+              }}
+            />
+          </Suspense>
+        )}
+      </div>
+    </div>
+  );
+};

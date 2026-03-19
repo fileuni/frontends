@@ -1,6 +1,7 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { zhTranslation, enTranslation } from '@/shared';
+import zhTranslation from '@/i18n/zh/translation.json';
+import enTranslation from '@/i18n/en/translation.json';
 
 // Must initialize at the top level of the module to ensure translation resources are available during the SSR phase.
 i18next

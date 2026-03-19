@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/stores/auth.ts";
-import { storageHub, type CacheEntry } from "@/shared";
+import { storageHub, type CacheEntry } from '@/lib/storageHub';
 
 export type CacheScope = "own" | "all";
 

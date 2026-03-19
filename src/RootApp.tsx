@@ -2,13 +2,13 @@ import React from "react";
 import { detectUiRuntime, type UiRuntime } from "@/platform/runtime";
 
 const WebApp = React.lazy(() =>
-  import("@/App").then((m) => ({
+  import("@/apps/webui/App").then((m) => ({
     default: m.App,
   }))
 );
 
 const TauriLauncher = React.lazy(() =>
-  import("@/launcher/Launcher").then((m) => ({
+  import("@/apps/launcher/Launcher").then((m) => ({
     default: m.default,
   }))
 );
