@@ -37,6 +37,9 @@ import {
   type ZeroSslAccountItem,
   type ProviderTestDnsResult,
   type ProviderTestAuthResult,
+  type ProviderAccountPayload,
+  type DdnsPlanRequest,
+  type CertPlanPayload,
   type ProviderDraft,
   type DdnsDraft,
   type SslDraft,
@@ -49,6 +52,7 @@ import {
   newZeroSslDraft,
   normalizeChallengeType,
 } from './domain/types';
+import type { CertificatePayload, DdnsEntryPayload } from './domain/types';
 import { parseItemsAndTotal } from './domain/paginated';
 import {
   controlBase,
@@ -181,6 +185,11 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     );
     return providers.filter((p) => set.has(p.provider_key));
   }, [providers, providerProfiles]);
+
+  const acmeDns01Providers = useMemo(() => {
+    const set = new Set(providerProfiles.filter((p) => p.supports_acme_dns01).map((p) => p.key));
+    return acmeProviders.filter((p) => set.has(p.provider_key));
+  }, [acmeProviders, providerProfiles]);
 
   const ddnsProviders = useMemo(() => {
     const set = new Set(
@@ -356,9 +365,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     if (ddnsPlanLoading) return;
     setDdnsPlanLoading(true);
     try {
+      const req: DdnsPlanRequest = { limit: 200 };
       const data = await extractData<DdnsPlanResponse>(
         client.POST('/api/v1/admin/domain-acme-ddns/ddns/plan', {
-          body: { limit: 200 },
+          body: req,
         }),
       );
       setDdnsPlanData(data);
@@ -390,9 +400,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     if (certPlanLoading) return;
     setCertPlanLoading(true);
     try {
+      const req: CertPlanPayload = { force_update: false };
       const data = await extractData<CertPlanResponse>(
         client.POST('/api/v1/admin/domain-acme-ddns/certs/plan', {
-          body: { force_update: false },
+          body: req,
         }),
       );
       setCertPlanData(data);
@@ -544,7 +555,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     }
 
     const zone = ddnsDraft.zone.trim().replace(/\.+$/g, '');
-    const host = ddnsDraft.host.trim().replace(/\.+$/g, '');
+    const hostRaw = ddnsDraft.host.trim().replace(/\.+$/g, '');
+    const host = hostRaw ? hostRaw : '@';
     const ttl = Number(ddnsDraft.ttl);
     if (!zone || !host) {
       addToast(t('admin.domain.ddnsTargetRequired') || 'Zone and host are required', 'error');
@@ -555,13 +567,32 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       return;
     }
 
+    const normHost = (h: string) => {
+      const v = (h || '').trim().replace(/\.+$/g, '');
+      return v ? v : '@';
+    };
     const buildFqdn = (z: string, h: string) => (h === '@' ? z : `${h}.${z}`);
+
+    let webhookJson = '{}';
+    try {
+      const s = (ddnsDraft.webhook_json || '').trim();
+      if (s) {
+        const v = JSON.parse(s);
+        if (!v || typeof v !== 'object' || Array.isArray(v)) {
+          throw new Error('not object');
+        }
+        webhookJson = s;
+      }
+    } catch {
+      addToast(t('admin.domain.invalidJson') || 'Invalid JSON', 'error');
+      return;
+    }
 
     try {
       if (ddnsDraft.id) {
         // Edit mode (single entry)
         const fqdn = buildFqdn(zone, host);
-        const payload = {
+        const payload: DdnsEntryPayload = {
           name: ddnsDraft.name.trim(),
           enabled: ddnsDraft.enabled,
           provider_account_id: ddnsDraft.provider_account_id,
@@ -574,7 +605,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           ipv6_enabled: ddnsDraft.ipv6_enabled,
           ipv4_source_json: ddnsDraft.ipv4_source_json,
           ipv6_source_json: ddnsDraft.ipv6_source_json,
-          webhook_json: ddnsDraft.webhook_json,
+          webhook_json: webhookJson,
           force_update: ddnsDraft.force_update,
         };
         await extractData(client.PUT('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}', { params: { path: { id: ddnsDraft.id } }, body: payload }));
@@ -589,21 +620,26 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         const targets = hostLines.length > 0
           ? hostLines.map((line) => {
               const parts = line.split(',').map((p) => p.trim()).filter((p) => p);
-              const h = parts[0] || '';
+              const h = normHost(parts[0] || '');
               const t = parts[1] ? Number(parts[1]) : ttl;
               return { host: h, ttl: t };
             })
-          : [{ host, ttl }];
+          : [{ host: normHost(host), ttl }];
 
         if (targets.some((x) => !x.host)) {
           addToast(t('admin.domain.ddnsHostListInvalid') || 'Hosts list is invalid', 'error');
           return;
         }
 
+        if (targets.some((x) => !Number.isFinite(x.ttl) || x.ttl < 60 || x.ttl > 86400)) {
+          addToast(t('admin.domain.invalidTtl') || 'TTL must be between 60 and 86400', 'error');
+          return;
+        }
+
         addToast(`正在创建 ${targets.length} 个条目...`, 'info');
         for (const target of targets) {
           const fqdn = buildFqdn(zone, target.host);
-          const payload = {
+          const payload: DdnsEntryPayload = {
             name: targets.length > 1 ? `${ddnsDraft.name.trim()} - ${fqdn}` : ddnsDraft.name.trim(),
             enabled: ddnsDraft.enabled,
             provider_account_id: ddnsDraft.provider_account_id,
@@ -616,7 +652,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             ipv6_enabled: ddnsDraft.ipv6_enabled,
             ipv4_source_json: ddnsDraft.ipv4_source_json,
             ipv6_source_json: ddnsDraft.ipv6_source_json,
-            webhook_json: ddnsDraft.webhook_json,
+            webhook_json: webhookJson,
             force_update: ddnsDraft.force_update,
           };
           const created = await extractData<DdnsEntryItem>(
@@ -690,9 +726,62 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       addToast(t('admin.domain.certNameEmailRequired'), 'error');
       return;
     }
-    
+
     try {
-      const payload = {
+      const parseJson = (raw: string): { ok: boolean; value: unknown } => {
+        const s = (raw || '').trim();
+        if (!s) return { ok: true, value: null };
+        try {
+          return { ok: true, value: JSON.parse(s) as unknown };
+        } catch {
+          return { ok: false, value: null };
+        }
+      };
+
+      const domainsParsed = parseJson(sslDraft.domains_json);
+      if (!domainsParsed.ok) {
+        addToast(t('admin.domain.invalidJson') || 'Invalid JSON', 'error');
+        return;
+      }
+      const domainsVal = domainsParsed.value;
+      if (!Array.isArray(domainsVal) || domainsVal.length === 0 || !domainsVal.every((x) => typeof x === 'string' && x.trim())) {
+        addToast(t('admin.domain.domainsRequired') || 'Domains are required', 'error');
+        return;
+      }
+
+      const dnsCfgRaw = (sslDraft.dns_config_json || '{}').trim();
+      const dnsCfgParsed = parseJson(dnsCfgRaw);
+      if (!dnsCfgParsed.ok) {
+        addToast(t('admin.domain.invalidJson') || 'Invalid JSON', 'error');
+        return;
+      }
+      const dnsCfgVal = dnsCfgParsed.value;
+      if (!dnsCfgVal || typeof dnsCfgVal !== 'object' || Array.isArray(dnsCfgVal)) {
+        addToast(t('admin.domain.invalidJson') || 'Invalid JSON', 'error');
+        return;
+      }
+      const dnsCfgObj = dnsCfgVal as Record<string, unknown>;
+
+      if (sslDraft.challenge_type === 'dns01') {
+        if (!sslDraft.provider_account_id?.trim()) {
+          addToast(t('admin.domain.providerRequiredForDns01') || 'DNS-01 requires provider account', 'error');
+          return;
+        }
+        const zone = String((dnsCfgObj.dns_zone ?? dnsCfgObj.zone ?? '')).trim();
+        if (!zone) {
+          addToast(t('admin.domain.zoneRequired') || 'Zone is required', 'error');
+          return;
+        }
+      }
+      if (sslDraft.challenge_type === 'http01') {
+        const webroot = String((dnsCfgObj.webroot ?? dnsCfgObj.http_webroot ?? '')).trim();
+        if (!webroot) {
+          addToast(t('admin.domain.webrootRequired') || 'Webroot is required', 'error');
+          return;
+        }
+      }
+
+      const payload: CertificatePayload = {
         name: sslDraft.name.trim(),
         enabled: sslDraft.enabled,
         auto_renew: sslDraft.auto_renew,
@@ -700,7 +789,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         challenge_type: sslDraft.challenge_type,
         domains_json: sslDraft.domains_json,
         provider_account_id: sslDraft.challenge_type === 'dns01' ? (sslDraft.provider_account_id || null) : null,
-        dns_config_json: sslDraft.dns_config_json || '{}',
+        dns_config_json: dnsCfgRaw || '{}',
         account_email: sslDraft.account_email.trim(),
         export_path: sslDraft.export_path.trim() || null,
       };
@@ -841,16 +930,52 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       return;
     }
     try {
+      const parseJsonObj = (raw: string): { ok: boolean; value: Record<string, unknown>; error?: string } => {
+        const s = (raw || '').trim();
+        if (!s) return { ok: true, value: {} };
+        try {
+          const v = JSON.parse(s);
+          if (!v || typeof v !== 'object' || Array.isArray(v)) {
+            return { ok: false, value: {}, error: t('admin.domain.invalidJson') || 'Invalid JSON' };
+          }
+          return { ok: true, value: v as Record<string, unknown> };
+        } catch {
+          return { ok: false, value: {}, error: t('admin.domain.invalidJson') || 'Invalid JSON' };
+        }
+      };
+
+      const cfgParsed = parseJsonObj(providerDraft.config_json);
+      if (!cfgParsed.ok) {
+        addToast(cfgParsed.error || 'Invalid JSON', 'error');
+        return;
+      }
+
+      if (!providerDraft.id) {
+        const credParsed = parseJsonObj(providerDraft.credential_json_enc);
+        if (!credParsed.ok) {
+          addToast(credParsed.error || 'Invalid JSON', 'error');
+          return;
+        }
+      }
+
+      const body: ProviderAccountPayload = {
+        name: providerDraft.name.trim(),
+        provider_key: providerDraft.provider_key,
+        credential_json_enc: providerDraft.credential_json_enc,
+        config_json: providerDraft.config_json || '{}',
+        enabled: providerDraft.enabled,
+      };
+
       let result: ProviderAccountItem;
       if (providerDraft.id) {
         result = await extractData<ProviderAccountItem>(client.PUT('/api/v1/admin/domain-acme-ddns/providers/accounts/{id}', { 
           params: { path: { id: providerDraft.id } },
-          body: providerDraft 
+          body
         }));
         addToast(t('admin.domain.providerUpdated'), 'success');
       } else {
         result = await extractData<ProviderAccountItem>(client.POST('/api/v1/admin/domain-acme-ddns/providers/accounts', { 
-          body: providerDraft 
+          body
         }));
         addToast(t('admin.domain.providerCreated'), 'success');
       }
@@ -1848,7 +1973,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             onChangeDnsConfig={(v) => setSslDraft({ ...sslDraft, dns_config_json: v })}
             providerAccountId={sslDraft.provider_account_id}
             onChangeProviderAccountId={(v) => setSslDraft({ ...sslDraft, provider_account_id: v })}
-            providers={acmeProviders}
+            providers={acmeDns01Providers}
             zeroSslAccounts={zerosslAccounts}
             exportPath={sslDraft.export_path}
             onChangeExportPath={(v) => setSslDraft({ ...sslDraft, export_path: v })}
