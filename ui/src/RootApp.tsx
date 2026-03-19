@@ -1,0 +1,35 @@
+import React from "react";
+import { detectUiRuntime, type UiRuntime } from "@/platform/runtime";
+
+const WebApp = React.lazy(() =>
+  import("@/App").then((m) => ({
+    default: m.App,
+  }))
+);
+
+const TauriLauncher = React.lazy(() =>
+  import("@/launcher/Launcher").then((m) => ({
+    default: m.default,
+  }))
+);
+
+const LoadingScreen: React.FC = () => {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-b-primary animate-spin" />
+    </div>
+  );
+};
+
+/**
+ * Single entry for both WebUI (/ui) and Tauri launcher.
+ */
+export const RootApp: React.FC = () => {
+  const [runtime] = React.useState<UiRuntime>(() => detectUiRuntime());
+
+  return (
+    <React.Suspense fallback={<LoadingScreen />}>
+      {runtime === "tauri" ? <TauriLauncher /> : <WebApp />}
+    </React.Suspense>
+  );
+};
