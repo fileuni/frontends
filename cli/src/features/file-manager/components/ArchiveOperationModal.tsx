@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Input } from '@/components/ui/Input.tsx';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
 import { useConfigStore } from '@/stores/config.ts';
@@ -221,12 +222,11 @@ export function ArchiveOperationModal({
               <label className="text-sm font-black uppercase opacity-60">
                 {t('filemanager.archive.passwordOptional')}
               </label>
-              <Input
+              <PasswordInput
                 value={decompressPassword}
                 onChange={(e) => setDecompressPassword(e.target.value)}
                 placeholder={t('filemanager.archive.passwordPlaceholder')}
-                type="password"
-                className="font-mono"
+                inputClassName="font-mono"
               />
             </div>
           </>
@@ -318,12 +318,11 @@ export function ArchiveOperationModal({
               <label className="text-sm font-black uppercase opacity-60">
                 {t('filemanager.archive.passwordOptional')}
               </label>
-              <Input
+              <PasswordInput
                 value={compressPassword}
                 onChange={(e) => setCompressPassword(e.target.value)}
                 placeholder={t('filemanager.archive.passwordPlaceholder')}
-                type="password"
-                className="font-mono"
+                inputClassName="font-mono"
               />
             </div>
           </>

@@ -4,6 +4,7 @@ import '@/lib/i18n';
 import { FileIcon } from './FileIcon.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Download, Lock, ShieldAlert, Clock, Calendar, ChevronRight, ArrowLeft, ExternalLink, ShieldCheck, Share2, QrCode, File as FileIconLucide } from 'lucide-react';
 import { client, extractData, isApiError, BASE_URL } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
@@ -196,13 +197,13 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
           <h1 className={cn("text-3xl font-black mb-2 uppercase", isDark ? "text-white" : "text-gray-900")}>{t('filemanager.publicShare.encryptedTitle')}</h1>
           <p className="text-sm opacity-50 font-bold mb-8">{t('filemanager.publicShare.passwordRequiredDesc')}</p>
           <div className="space-y-4">
-            <Input 
-              type="password" 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
+            <PasswordInput
+              defaultVisible
+              value={password}
+              onChange={e => setPassword(e.target.value)}
               onKeyUp={e => e.key === 'Enter' && fetchShare()}
-              placeholder={t('filemanager.publicShare.enterPassword')} 
-              className={cn("h-16 text-center text-xl tracking-widest font-black rounded-2xl", isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200")} 
+              placeholder={t('filemanager.publicShare.enterPassword')}
+              inputClassName={cn("h-16 text-center text-xl tracking-widest font-black rounded-2xl", isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200")}
             />
             <Button className="w-full h-16 text-lg font-black uppercase rounded-2xl" onClick={fetchShare}>{t('filemanager.publicShare.unlockBtn')}</Button>
           </div>

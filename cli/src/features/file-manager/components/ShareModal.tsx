@@ -5,6 +5,7 @@ import { useToastStore } from '@fileuni/shared';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Link as LinkIcon, Copy, CheckCircle2, Lock, Clock, Dices, Download, Zap, Settings, Info, User, QrCode, X, Upload, FilePenLine, Trash2 } from 'lucide-react';
 import type { FileInfo } from '../types/index.ts';
 import { client, BASE_URL } from '@/lib/api.ts';
@@ -442,7 +443,13 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                     {(form.passwordMode === 'change' || !isEditing) && (
                       <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                         {isEditing && <p className="text-[14px] text-yellow-500 font-bold bg-yellow-500/5 p-1.5 rounded-lg leading-relaxed italic border border-yellow-500/10">{t('filemanager.shareModal.passwordChangeWarning')}</p>}
-                        <Input value={form.password} onChange={e => setForm({ ...form, password: e.target.value, passwordMode: 'change' })} placeholder={t('filemanager.shareModal.passwordPlaceholder')} className="h-9 text-sm" />
+                        <PasswordInput
+                          defaultVisible
+                          value={form.password}
+                          onChange={e => setForm({ ...form, password: e.target.value, passwordMode: 'change' })}
+                          placeholder={t('filemanager.shareModal.passwordPlaceholder')}
+                          inputClassName="h-9 text-sm"
+                        />
                         <div className="flex flex-wrap items-center gap-1">
                           <button type="button" onClick={generateRandomPassword} className="flex items-center gap-1 px-2 py-1 rounded-lg text-[14px] font-black uppercase bg-white/5 hover:bg-white/10 text-white/60 border border-white/5 transition-all"><Dices size={10} className="text-primary" /> {t('filemanager.shareModal.randomPassword')}</button>
                           <div className="flex items-center gap-1 px-1">{['1111', '1234', '8888'].map(pwd => (<button key={pwd} type="button" onClick={() => setQuickPassword(pwd)} className="px-1.5 py-0.5 rounded-md text-[14px] font-black opacity-40 hover:opacity-100 hover:bg-white/5 transition-all">{pwd}</button>))}
