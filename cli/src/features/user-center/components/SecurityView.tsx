@@ -10,7 +10,7 @@ import { ShieldCheck, Mail, Phone, HelpCircle, AlertTriangle, Trash2, Send, Chev
 import { client, isApiError, postCaptchaPolicy } from '@/lib/api.ts';
 import { isPhoneInputValid, normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 import type { components } from '@/types/api.ts';
-import { TurnstileWidget } from '@/components/common/TurnstileWidget.tsx';
+import { CaptchaChallenge, type CaptchaPayload } from '@/components/common/CaptchaChallenge.tsx';
 
 import { useToastStore } from '@fileuni/shared';
 import { useConfigStore } from '@/stores/config.ts';
@@ -22,7 +22,6 @@ type SecurityUserResponse = UserResponse & {
   security_answer?: string | null;
   security_question?: string | null;
 };
-type CaptchaPayload = { token: string; image_base64: string; captcha_type: string; turnstile_site_key?: string | null };
 
 export const SecurityView = () => {
   const { t } = useTranslation();
