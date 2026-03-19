@@ -12,7 +12,7 @@ import { isPhoneInputValid, normalizeEmailInput, normalizePhoneInput } from '@/l
 import type { components } from '@/types/api.ts';
 import { CaptchaChallenge, type CaptchaPayload } from '@/components/common/CaptchaChallenge.tsx';
 
-import { useToastStore } from '@fileuni/shared';
+import { useResolvedTheme, useToastStore } from '@fileuni/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { PasswordChangeForm } from './PasswordChangeForm.tsx';
 import { DashboardLoading, DashboardSection } from './dashboard-ui';
@@ -26,6 +26,7 @@ type SecurityUserResponse = UserResponse & {
 export const SecurityView = () => {
   const { t } = useTranslation();
   const { currentUserData } = useAuthStore();
+  const resolvedTheme = useResolvedTheme();
   const { addToast } = useToastStore();
   const { capabilities } = useConfigStore();
   const [loading, setLoading] = useState(true);
@@ -473,42 +474,20 @@ export const SecurityView = () => {
           </div>
 
           {needCaptcha && (
-            <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('auth.captcha')}</label>
-              {isTurnstileCaptcha ? (
-                <div className="space-y-2">
-                  {captchaData?.turnstile_site_key ? (
-                    <TurnstileWidget siteKey={captchaData.turnstile_site_key} onTokenChange={setTurnstileToken} />
-                  ) : (
-                    <p className="text-sm font-bold uppercase tracking-widest text-red-500">{t('auth.turnstileSiteKeyMissing')}</p>
-                  )}
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <Input
-                    value={captchaCode}
-                    onChange={(e) => setCaptchaCode(e.target.value)}
-                    placeholder={t('auth.captcha') || "Captcha"}
-                    className="flex-1"
-                  />
-                  <div 
-                    className="w-24 h-10 rounded-lg border overflow-hidden cursor-pointer flex items-center justify-center bg-white/5"
-                    onClick={() => fetchCaptcha(true)}
-                  >
-                    {captchaData ? (
-                      <img src={captchaData.image_base64} alt={t('auth.captcha')} className="w-full h-full object-cover" />
-                    ) : (
-                      <RefreshCw size={18} className="animate-spin opacity-40" />
-                    )}
-                  </div>
-                </div>
-              )}
-              {captchaData?.captcha_type && (
-                <p className="text-sm font-bold uppercase tracking-widest opacity-40">
-                  {`Type: ${captchaData.captcha_type.replace("image:", "")}`}
-                </p>
-              )}
-            </div>
+            <CaptchaChallenge
+              isDark={resolvedTheme === 'dark'}
+              captchaData={captchaData}
+              captchaCode={captchaCode}
+              onCaptchaCodeChange={setCaptchaCode}
+              turnstileToken={turnstileToken}
+              onTurnstileTokenChange={setTurnstileToken}
+              onRefresh={() => void fetchCaptcha(true)}
+              label={t('auth.captcha')}
+              placeholder={t('auth.captcha') || 'Captcha'}
+              refreshTitle={t('auth.refreshCaptcha')}
+              turnstileSiteKeyMissingText={t('auth.turnstileSiteKeyMissing')}
+              size="compact"
+            />
           )}
 
           <div className="space-y-2">
