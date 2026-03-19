@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { FileInfo, ViewMode, FileManagerMode, ClipboardItem } from '../types/index.ts';
 import { useAuthStore } from '@/stores/auth.ts';
-import { storageHub } from '@fileuni/shared';
+import { storageHub } from '@/shared';
 
 export type { FileManagerMode };
 export type FMMode = FileManagerMode;

@@ -1,4 +1,4 @@
-import { storageHub } from '@fileuni/shared';
+import { storageHub } from '@/shared';
 
 export type ToolState = {
   version: string;

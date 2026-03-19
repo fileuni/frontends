@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils.ts';
 import { Loader2, Save, Eye, Edit3 } from 'lucide-react';
 import { client, BASE_URL } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { useAutoSave } from '../hooks/useAutoSave.ts';

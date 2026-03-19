@@ -1,4 +1,4 @@
-import type { AboutUpdateInfo } from '@fileuni/shared';
+import type { AboutUpdateInfo } from '@/shared';
 import { client, extractData } from '@/lib/api';
 
 interface RuntimeVersionPayload {

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useAuthStore } from '@/stores/auth.ts';
 import { useConfigStore } from '@/stores/config.ts';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { useTranslation } from 'react-i18next';
 import { useNavigationStore } from '@/stores/navigation.ts';
 import { ToolPanel } from './extensions/ToolPanel.tsx';

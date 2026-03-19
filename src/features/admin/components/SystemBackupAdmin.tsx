@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { client } from '@/lib/api.ts';

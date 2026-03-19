@@ -1,5 +1,5 @@
 import { open } from '@tauri-apps/plugin-dialog';
-import { ConfigPathSelector, type RuntimeDirsValue } from '@fileuni/shared';
+import { ConfigPathSelector, type RuntimeDirsValue } from '@/shared';
 import { safeInvoke } from './tauri';
 
 interface RuntimeDirPresets {

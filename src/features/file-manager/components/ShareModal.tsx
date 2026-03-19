@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
@@ -9,7 +9,7 @@ import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Link as LinkIcon, Copy, CheckCircle2, Lock, Clock, Dices, Download, Zap, Settings, Info, User, QrCode, X, Upload, FilePenLine, Trash2 } from 'lucide-react';
 import type { FileInfo } from '../types/index.ts';
 import { client, BASE_URL } from '@/lib/api.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 import { cn } from '@/lib/utils.ts';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import { QRCodeSVG } from 'qrcode.react';

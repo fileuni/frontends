@@ -32,7 +32,7 @@ import {
   type ConfigNoteEntry,
   type ServiceInstallLevel,
   useEscapeToCloseTopLayer,
-} from '@fileuni/shared';
+} from '@/shared';
 import { useConfigStore } from './stores/config';
 import '../lib/i18n';
 import ConfigSelector from './ConfigSelector';

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { storageHub } from '@fileuni/shared';
+import { storageHub } from '@/shared';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {

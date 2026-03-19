@@ -4,7 +4,7 @@ import { FileBrowser } from "./FileBrowser.tsx";
 import { FileManagerContextMenu } from "./FileManagerContextMenu.tsx";
 import { ShareModal } from "./ShareModal.tsx";
 import { GlobalUploader } from "./GlobalUploader.tsx";
-import { Pagination } from "@fileuni/shared";
+import { Pagination } from "@/shared";
 
 import { useFileActions } from "../hooks/useFileActions.ts";
 import { useFileStore } from "../store/useFileStore.ts";
@@ -21,7 +21,7 @@ import { ClipboardBar } from "./ClipboardBar.tsx";
 import { useTranslation } from "react-i18next";
 import { client } from "@/lib/api.ts";
 import type { components } from "@/types/api.ts";
-import { isAnyEscLayerOpen, useToastStore } from "@fileuni/shared";
+import { isAnyEscLayerOpen, useToastStore } from "@/shared";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { useConfigStore } from "@/stores/config.ts";
 

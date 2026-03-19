@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
-import { useEscapeToCloseTopLayer } from '@fileuni/shared';
+import { useEscapeToCloseTopLayer } from '@/shared';
 import type { FileInfo } from '../types/index.ts';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 

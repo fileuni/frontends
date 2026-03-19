@@ -5,7 +5,7 @@ import { client, extractData, handleApiError, isApiError, postCaptchaPolicy } fr
 import { normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { cn } from '@/lib/utils.ts';
 import { ShieldAlert, ArrowLeft, Send, ChevronRight, Lock, Key } from 'lucide-react';
 import type { components } from '@/types/api.ts';

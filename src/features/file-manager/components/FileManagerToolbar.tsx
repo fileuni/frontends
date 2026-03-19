@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useFileStore } from '../store/useFileStore.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { useUserFileSettingsStore, type UserFileSettingsUpdate } from '@/stores/userFileSettings.ts';
 import { useAuthzStore } from '@/stores/authz.ts';

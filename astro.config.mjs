@@ -25,7 +25,6 @@ export default defineConfig({
       }
     },
     optimizeDeps: {
-      exclude: ['@fileuni/shared'],
       include: ['libphonenumber-js/max'],
       esbuildOptions: {
         loader: {

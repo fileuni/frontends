@@ -78,7 +78,7 @@ const kvFromOptions = (raw: unknown): KvPair[] => {
     return [];
   }
   return Object.entries(raw)
-    .filter(([, value]) => typeof value === 'string')
+    .filter((entry): entry is [string, string] => typeof entry[1] === 'string')
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, value]) => ({ key, value }));
 };

@@ -225,7 +225,7 @@ export const storageHub = {
 
   async listAllEntries(): Promise<CacheEntry[]> {
     const localEntries = listLocalEntries();
-    const idbEntries = await listIndexedDbEntries().catch(() => []);
+    const idbEntries = await listIndexedDbEntries().catch((): CacheEntry[] => []);
     return [...localEntries, ...idbEntries];
   },
 

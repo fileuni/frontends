@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { BASE_URL, client, extractData } from '@/lib/api.ts';
 import { buildJsdelivrGhUrl, fetchFileStatSize, getFileExtension, isComplexOfficeFile, resolveLimitBytes } from '../utils/officeLite.ts';

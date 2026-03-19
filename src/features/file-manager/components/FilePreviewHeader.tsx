@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Download, X, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import { BASE_URL, client, extractData } from '@/lib/api.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 
 interface FilePreviewHeaderProps {
   path: string;

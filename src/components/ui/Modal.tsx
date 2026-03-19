@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
-import { useEscapeToCloseTopLayer } from '@fileuni/shared';
+import { useEscapeToCloseTopLayer } from '@/shared';
 
 interface ModalProps {
   isOpen: boolean;

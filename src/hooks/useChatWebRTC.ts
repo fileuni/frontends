@@ -7,7 +7,7 @@ import type {
   WireMessage,
   TransportType,
 } from "./ChatTypes";
-import { toast } from "@fileuni/shared";
+import { toast } from "@/shared";
 import i18next from "@/lib/i18n";
 import { createClientUniqueId } from "@/lib/id.ts";
 

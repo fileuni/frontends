@@ -12,7 +12,7 @@ import {
   Inbox,
 } from "lucide-react";
 import { Progress } from "@/components/ui/Progress.tsx";
-import { useThemeStore } from "@fileuni/shared";
+import { useThemeStore } from "@/shared";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils.ts";
 

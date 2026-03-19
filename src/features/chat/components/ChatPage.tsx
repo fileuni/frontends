@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/Input.tsx";
 import { Modal } from "@/components/ui/Modal.tsx";
 import { Badge } from "@/components/ui/Badge.tsx";
 import { Switch } from "@/components/ui/Switch.tsx";
-import { toast } from "@fileuni/shared";
+import { toast } from "@/shared";
 
 // Sub-components
 import { ChatSidebar } from "./ChatSidebar";

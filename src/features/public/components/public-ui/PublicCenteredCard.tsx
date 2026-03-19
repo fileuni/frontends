@@ -1,5 +1,5 @@
 import React from 'react';
-import { useResolvedTheme } from '@fileuni/shared';
+import { useResolvedTheme } from '@/shared';
 import { cn } from '@/lib/utils';
 
 type DecorativeBackgroundVariant = 'none' | 'diagonal' | 'diagonal-reverse';

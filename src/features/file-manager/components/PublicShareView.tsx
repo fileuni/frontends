@@ -9,7 +9,7 @@ import { client, extractData, isApiError, BASE_URL } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
 import { QRCodeSVG } from 'qrcode.react';
 import { useNavigationStore } from '@/stores/navigation.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 
 import type { components } from '@/types/api.ts';
 

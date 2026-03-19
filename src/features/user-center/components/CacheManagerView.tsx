@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button.tsx";
 import { cacheManager, type CacheScanSummary, type CacheScope, type ManagedCategoryId } from "@/lib/cacheManager.ts";
 import { useAuthStore } from "@/stores/auth.ts";
-import { toast } from "@fileuni/shared";
+import { toast } from "@/shared";
 import { DashboardCard, DashboardSection } from './dashboard-ui';
 
 const CATEGORY_ORDER: ManagedCategoryId[] = [

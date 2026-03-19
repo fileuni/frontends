@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
-import { useToastStore } from "@fileuni/shared";
+import { useToastStore } from "@/shared";
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
 import { Shield, Save, RefreshCw } from "lucide-react";

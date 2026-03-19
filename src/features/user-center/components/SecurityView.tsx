@@ -13,7 +13,7 @@ import type { components } from '@/types/api.ts';
 import { CaptchaChallenge, type CaptchaPayload } from '@/components/common/CaptchaChallenge.tsx';
 import { FormField } from '@/components/common/FormField.tsx';
 
-import { useResolvedTheme, useToastStore } from '@fileuni/shared';
+import { useResolvedTheme, useToastStore } from '@/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { PasswordChangeForm } from './PasswordChangeForm.tsx';
 import { DashboardLoading, DashboardSection } from './dashboard-ui';

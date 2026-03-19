@@ -1,2 +1,49 @@
-# Inherit from root .gitignore
-!../.gitignore
+# ============================================================
+# FileUni Frontends .gitignore
+#
+# This directory is designed to be subtree-friendly.
+# Keep this file self-contained so `frontends/` can be exported
+# as a standalone repository without inheriting the workspace root.
+# ============================================================
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Bun
+.bun/
+.bun_tmp/
+**/.bun/
+**/.bun_tmp/
+.bun-install/
+
+# Astro / Vite
+.astro/
+**/.astro/
+dist/
+**/dist/
+.vite/
+**/.vite/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+bun-debug.log*
+bun-error.log*
+
+# Env (keep templates)
+.env
+.env.*
+!.env.example
+!.env.template
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# TypeScript
+*.tsbuildinfo

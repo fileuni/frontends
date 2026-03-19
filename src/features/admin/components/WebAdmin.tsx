@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { client, extractData, handleApiError } from '@/lib/api.ts';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { Globe, Plus, RefreshCw } from 'lucide-react';
 import { AdminHero, AdminPage } from './admin-ui';
 import {

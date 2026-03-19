@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MonacoEditor, isMonacoSupported } from '@fileuni/shared';
+import { MonacoEditor, isMonacoSupported } from '@/shared';
 import { client, BASE_URL } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { 
   Loader2, Save, Edit3, Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { cn } from '@/lib/utils.ts';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { useAutoSave } from '../hooks/useAutoSave.ts';

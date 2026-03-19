@@ -9,7 +9,7 @@ import {
   type ConfigNoteEntry as SharedConfigNoteEntry,
   SystemConfigWorkbench,
   useToastStore,
-} from '@fileuni/shared';
+} from '@/shared';
 import { useAuthzStore } from '@/stores/authz.ts';
 import { useAuthStore } from '@/stores/auth.ts';
 import { AdminPage } from './admin-ui';

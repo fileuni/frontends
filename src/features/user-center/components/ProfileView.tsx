@@ -10,7 +10,7 @@ import { isPhoneInputValid, normalizePhoneInput } from '@/lib/contactNormalize.t
 import { FormField } from '@/components/common/FormField.tsx';
 import { IconInput } from '@/components/common/IconInput.tsx';
 
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { DashboardSection, DashboardLoading } from './dashboard-ui';
 
 import type { components } from '@/types/api.ts';

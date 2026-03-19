@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { client, BASE_URL, extractData } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { useUserFileSettingsStore } from '@/stores/userFileSettings.ts';
 import { cn } from '@/lib/utils.ts';
@@ -19,7 +19,7 @@ import { TexPreviewAndEditor } from './TexPreviewAndEditor.tsx';
 import { LargeFileWarning } from './LargeFileWarning.tsx';
 import { OpenWithMenu } from './OpenWithMenu.tsx';
 import { Button } from '@/components/ui/Button.tsx';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 
 // Lazy load PdfPreview to avoid SSR build errors
 const PdfPreview = React.lazy(() => import('./PdfPreview.tsx').then(m => ({ default: m.PdfPreview })));

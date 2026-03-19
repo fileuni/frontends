@@ -14,7 +14,7 @@ import {
   useLanguageStore,
   type Theme,
   type Language,
-} from '@fileuni/shared';
+} from '@/shared';
 import { client, extractData, handleApiError } from '@/lib/api';
 import { CheckCircle, ShieldAlert, Languages, Sun, Moon, Monitor } from 'lucide-react';
 

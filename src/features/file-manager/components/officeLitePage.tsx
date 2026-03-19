@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
-import { useEscapeToCloseTopLayer } from '@fileuni/shared';
+import { useEscapeToCloseTopLayer } from '@/shared';
 import { DocxLiteEditor } from './officeDocxEditor.tsx';
 import { XlsxLiteEditor } from './officeXlsxEditor.tsx';
 import { PptxLitePreview } from './officePptxPreview.tsx';

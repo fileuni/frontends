@@ -272,7 +272,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
 
   useEffect(() => {
     if (!jumpTo || jumpTo.line <= 0) {
-      return;
+      return undefined;
     }
 
     const line = jumpTo.line;
@@ -283,7 +283,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
       editor.revealLineInCenter(line, 0);
 
       const model = editor.getModel();
-      if (!model) return;
+      if (!model) return undefined;
 
       const maxCol = model.getLineMaxColumn(line);
       const safeCol = Math.min(col, Math.max(1, maxCol));
@@ -322,7 +322,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
 
     // Fallback editor: best-effort selection to force scroll.
     const textarea = textareaRef.current;
-    if (!textarea) return;
+    if (!textarea) return undefined;
 
     const lines = content.split(/\r?\n/);
     const targetLine = Math.min(line, Math.max(1, lines.length));
@@ -337,6 +337,8 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
 
     textarea.focus();
     textarea.setSelectionRange(Math.min(start, end), Math.max(start, end));
+
+    return undefined;
   }, [jumpTo, useFallbackEditor, content]);
 
   const handleEditorMount: OnMount = (editor, monaco) => {

@@ -13,7 +13,7 @@ import {
 import { client } from "@/lib/api";
 import { ConfigSetEditor } from "./ConfigSetEditor";
 import { useAuthStore } from "@/stores/auth.ts";
-import { useResolvedTheme } from "@fileuni/shared";
+import { useResolvedTheme } from "@/shared";
 import { cn } from "@/lib/utils.ts";
 import type { SystemCapabilities } from "@/stores/config.ts";
 

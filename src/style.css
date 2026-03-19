@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @source "../**/*.{astro,html,js,jsx,ts,tsx}";
-@source "../../shared/src/**/*.{js,jsx,ts,tsx}";
+@source "./shared/**/*.{js,jsx,ts,tsx}";
 
 @layer base {
   :root {

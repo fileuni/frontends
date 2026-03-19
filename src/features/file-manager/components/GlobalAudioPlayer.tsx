@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useAudioStore } from '@/stores/audio.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 import { BASE_URL } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { 

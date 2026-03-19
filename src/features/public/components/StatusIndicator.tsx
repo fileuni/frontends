@@ -26,9 +26,9 @@ import {
 import { cn } from "@/lib/utils.ts";
 import { client, extractData } from "@/lib/api.ts";
 import { formatDistanceToNow } from "date-fns";
-import { toast } from "@fileuni/shared";
+import { toast } from "@/shared";
 import { zhCN, enUS } from "date-fns/locale";
-import { useLanguageStore } from "@fileuni/shared";
+import { useLanguageStore } from "@/shared";
 import { useChat, type ChatContextProps } from "@/hooks/ChatContext.tsx";
 import { useConfigStore } from "@/stores/config.ts";
 import { useAuthzStore } from "@/stores/authz.ts";

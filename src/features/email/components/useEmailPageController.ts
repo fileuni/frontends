@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@fileuni/shared";
+import { toast } from "@/shared";
 import { BASE_URL, client, extractData } from "@/lib/api.ts";
-import { storageHub } from "@fileuni/shared";
+import { storageHub } from "@/shared";
 import { useAuthStore } from "@/stores/auth.ts";
 import { createClientUniqueId, resolveAttachmentFileName, stripHtml } from "./emailUtils.tsx";
 import type { ComposeAttachment, EmailAccount, EmailDraft, EmailFolder, EmailMessage, EmailMessageDetail, SendEmailResponse } from "./emailTypes.ts";

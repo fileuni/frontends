@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { Input } from '@/components/ui/Input.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
-import { Pagination } from '@fileuni/shared';
+import { Pagination } from '@/shared';
 import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
 import { 
   ClipboardList, Search,

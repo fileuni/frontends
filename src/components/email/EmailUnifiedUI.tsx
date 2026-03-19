@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mail, X } from "lucide-react";
 import { EmailPage } from "@/features/email/components/EmailPage";
-import { useEscapeToCloseTopLayer } from "@fileuni/shared";
+import { useEscapeToCloseTopLayer } from "@/shared";
 
 export interface EmailRouterState {
   isOpen: boolean;

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { useAuthStore } from '@/stores/auth.ts';
 import { client, handleApiError } from '@/lib/api.ts';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { Lock, Key, CheckCircle2, XCircle } from 'lucide-react';
 import { FormField } from '@/components/common/FormField.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';

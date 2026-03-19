@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AppRouter } from "@/components/Router";
 import { Navbar } from "@/features/public/components/Navbar.tsx";
 import { ToastContainer } from "@/components/ui/Toast.tsx";
-import { ToastI18nContext } from "@fileuni/shared";
+import { ToastI18nContext } from "@/shared";
 import { GlobalAudioPlayer } from "@/features/file-manager/components";
 import { ChatProvider, ChatErrorBoundary } from "@/hooks/ChatContext";
 import { ChatUnifiedUI } from "@/components/chat/ChatUnifiedUI";

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
 import { useAuthStore } from "@/stores/auth.ts";
-import { useToastStore } from "@fileuni/shared";
+import { useToastStore } from "@/shared";
 import { useConfigStore } from "@/stores/config.ts";
 import { Button } from "@/components/ui/Button.tsx";
 import { Modal } from "@/components/ui/Modal.tsx";

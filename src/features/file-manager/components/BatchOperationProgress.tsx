@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
-import { toast } from '@fileuni/shared';
+import { toast } from '@/shared';
 import { client, BASE_URL } from '@/lib/api.ts';
 import { useAuthStore } from '@/stores/auth.ts';
 

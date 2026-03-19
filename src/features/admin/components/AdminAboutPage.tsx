@@ -8,7 +8,7 @@ import {
   type AboutUpdateInfo,
   useLanguageStore,
   useThemeStore,
-} from '@fileuni/shared';
+} from '@/shared';
 
 import { cn } from '@/lib/utils';
 import { useConfigStore } from '@/stores/config';

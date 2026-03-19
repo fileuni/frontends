@@ -35,7 +35,7 @@ import { ChatSidebar } from "@/features/chat/components/ChatSidebar";
 import { ChatMessageList } from "@/features/chat/components/ChatMessageList";
 import { ChatInput } from "@/features/chat/components/ChatInput";
 import { SessionKeyModal } from "./SessionKeyModal";
-import { toast, useEscapeToCloseTopLayer } from "@fileuni/shared";
+import { toast, useEscapeToCloseTopLayer } from "@/shared";
 import { client } from "@/lib/api";
 import type { InviteInfo, GroupInfo, TransportBackend } from "@/hooks/ChatTypes";
 import { Modal } from "@/components/ui/Modal.tsx";

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFileStore } from '../store/useFileStore.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import type { ClipboardItem } from '../types/index.ts';
 import { 

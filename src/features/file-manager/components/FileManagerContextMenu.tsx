@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { useSelectionStore } from '../store/useSelectionStore.ts';
 import { useFileStore } from '../store/useFileStore.ts';
 import { useConfigStore } from '@/stores/config.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 import {
   FolderOpen, Eye, Download, Share2, Scissors, Copy, Pencil, Trash2,
   RotateCw, PlusSquare, FolderPlus, Clipboard, Undo2, Zap, Archive, StarOff, Star,

@@ -2,7 +2,7 @@ import createClient from "openapi-fetch";
 import type { paths, components } from "../types/api.ts";
 export type { paths, components };
 import { useAuthStore } from "@/stores/auth.ts";
-import { useToastStore } from "@fileuni/shared";
+import { useToastStore } from "@/shared";
 import i18next from "./i18n.ts";
 
 // DEV: Empty baseUrl routes through Vite proxy, consistent with WebSocket, solves CORS

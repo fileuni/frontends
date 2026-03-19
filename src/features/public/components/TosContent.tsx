@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18next from '@/lib/i18n.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { useThemeStore } from '@/shared';
 import { cn } from '@/lib/utils.ts';
-import { storageHub } from '@fileuni/shared';
+import { storageHub } from '@/shared';
 
 export const TosContent = () => {
   const { t } = useTranslation();

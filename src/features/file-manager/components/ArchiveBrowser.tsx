@@ -9,7 +9,7 @@ import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { cn } from '@/lib/utils.ts';
-import { toast } from '@fileuni/shared';
+import { toast } from '@/shared';
 
 interface ArchiveEntry {
   path: string;

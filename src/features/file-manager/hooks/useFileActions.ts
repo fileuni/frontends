@@ -5,7 +5,7 @@ import { useFileStore, type StorageStats, type TaskState, type FileManagerMode }
 import { useSelectionStore } from '../store/useSelectionStore.ts';
 import { useTranslation } from 'react-i18next';
 import type { FileInfo, ClipboardItem } from '../types/index.ts';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 
 interface TaskData {
   status: TaskState['status'];

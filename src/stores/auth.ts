@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { storageHub } from '@fileuni/shared';
+import { storageHub } from '@/shared';
 
 interface User {
   id: string;

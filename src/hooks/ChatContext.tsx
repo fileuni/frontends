@@ -9,12 +9,12 @@ import React, {
 } from "react";
 import mqtt from "mqtt";
 import type { MqttClient } from "mqtt";
-import { toast } from "@fileuni/shared";
+import { toast } from "@/shared";
 import { ChatCrypto } from "./ChatCrypto";
 import { useLocalStorage } from "./useLocalStorage";
 import { useAuthStore } from "@/stores/auth";
 import { client } from "@/lib/api";
-import { storageHub } from "@fileuni/shared";
+import { storageHub } from "@/shared";
 import { resolveTopic } from "./ChatTypes";
 import type {
   Message,

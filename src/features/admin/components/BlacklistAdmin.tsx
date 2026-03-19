@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
-import { Pagination } from '@fileuni/shared';
+import { Pagination } from '@/shared';
 import { 
   ShieldX, UserX, MonitorOff, 
   Trash2, Plus, RefreshCw,

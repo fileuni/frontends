@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
 import { Modal } from "@/components/ui/Modal.tsx";
 import { client, extractData } from "@/lib/api.ts";
-import { toast } from "@fileuni/shared";
+import { toast } from "@/shared";
 import { PasswordInput } from "@/components/common/PasswordInput.tsx";
 import type { EmailAccount } from "./emailTypes.ts";
 

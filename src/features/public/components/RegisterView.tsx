@@ -9,7 +9,7 @@ import { FormField } from '@/components/common/FormField.tsx';
 import { IconInput } from '@/components/common/IconInput.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 
-import { useToastStore } from '@fileuni/shared';
+import { useToastStore } from '@/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { PublicCenteredCard } from './public-ui/PublicCenteredCard.tsx';
 

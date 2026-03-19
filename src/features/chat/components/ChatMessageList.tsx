@@ -20,7 +20,7 @@ import {
 import { cn } from "@/lib/utils.ts";
 import { useChat, type Message } from "@/hooks/ChatContext.tsx";
 import { DecryptFailedBadge } from "@/components/chat/DecryptFailedBadge.tsx";
-import { toast } from "@fileuni/shared";
+import { toast } from "@/shared";
 
 interface ChatMessageListProps {
   filteredMessages: Message[];

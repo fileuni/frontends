@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.ts';
-import { useResolvedTheme, useToastStore } from '@fileuni/shared';
+import { useResolvedTheme, useToastStore } from '@/shared';
 import { 
   Trash2, ChevronRight, Plus
 } from 'lucide-react';

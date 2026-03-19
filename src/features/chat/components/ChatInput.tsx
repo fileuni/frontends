@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/Button.tsx";
 import { cn } from "@/lib/utils.ts";
 import { useChat } from "@/hooks/ChatContext.tsx";
-import { toast } from "@fileuni/shared";
+import { toast } from "@/shared";
 
 interface ChatInputProps {
   onSend: (text: string) => void;

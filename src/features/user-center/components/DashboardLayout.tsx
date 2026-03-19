@@ -4,7 +4,7 @@ import "@/lib/i18n";
 import * as LucideIcons from "lucide-react";
 import { useAuthzStore } from "@/stores/authz.ts";
 import { useConfigStore } from "@/stores/config.ts";
-import { useThemeStore } from "@fileuni/shared";
+import { useThemeStore } from "@/shared";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
 import { client, extractData } from "@/lib/api";

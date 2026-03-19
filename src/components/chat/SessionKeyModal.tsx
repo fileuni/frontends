@@ -4,7 +4,7 @@ import { ShieldCheck, X, Key, Info } from 'lucide-react';
 import { useChat } from '@/hooks/ChatContext.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
-import { toast, useEscapeToCloseTopLayer } from '@fileuni/shared';
+import { toast, useEscapeToCloseTopLayer } from '@/shared';
 
 export const SessionKeyModal: React.FC = () => {
   const { t } = useTranslation();

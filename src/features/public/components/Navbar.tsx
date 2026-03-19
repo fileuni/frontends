@@ -1,13 +1,13 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo, useThemeStore, type Theme } from '@fileuni/shared';
-import { useLanguageStore, type Language } from '@fileuni/shared';
+import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo, useThemeStore, type Theme } from '@/shared';
+import { useLanguageStore, type Language } from '@/shared';
 import { useAuthStore } from '@/stores/auth.ts';
 import { useAuthzStore } from '@/stores/authz.ts';
 import { useConfigStore } from '@/stores/config.ts';
 import { useNavigationStore } from '@/stores/navigation.ts';
 import { useTranslation } from 'react-i18next';
 import i18next from '@/lib/i18n.ts';
-import { storageHub } from '@fileuni/shared';
+import { storageHub } from '@/shared';
 import { 
   Sun, Moon, Laptop, LayoutDashboard, FolderOpen, 
   ShieldAlert, LogIn, UserPlus, Home, Menu, X, LogOut,

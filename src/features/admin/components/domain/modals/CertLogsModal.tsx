@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { RefreshCw } from 'lucide-react';
-import { Pagination } from '@fileuni/shared';
+import { Pagination } from '@/shared';
 import { Modal } from '@/components/ui/Modal';
 import type { CertificateItem, CertRunLogItem } from '../types';
 import { sectionCardBase, StatusBadge } from '../presentation';
