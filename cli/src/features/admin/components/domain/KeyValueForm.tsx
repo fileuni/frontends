@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { isSensitiveKeyName } from '@/lib/secretKeys.ts';
 
 export interface KeyValueItem {
   key: string;
@@ -12,18 +13,6 @@ export interface KeyValueItem {
 
 const controlBase =
   "h-11 rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-3 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm font-bold text-foreground placeholder:opacity-30";
-
-const isSecretKey = (key: string) => {
-  const k = key.toLowerCase();
-  return (
-    k.includes('token') ||
-    k.includes('secret') ||
-    k.includes('password') ||
-    k === 'key' ||
-    k.endsWith('_key') ||
-    k.endsWith('_secret')
-  );
-};
 
 const toItems = (obj: Record<string, string>): KeyValueItem[] => {
   return Object.keys(obj)
@@ -83,7 +72,7 @@ export const KeyValueForm: React.FC<{
                 updateItems(next);
               }}
             />
-            {isSecretKey(item.key) ? (
+            {isSensitiveKeyName(item.key) ? (
               <PasswordInput
                 value={item.value}
                 placeholder={valuePlaceholder}

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { FileIcon } from './FileIcon.tsx';
 import { Button } from '@/components/ui/Button.tsx';
-import { Input } from '@/components/ui/Input.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Download, Lock, ShieldAlert, Clock, Calendar, ChevronRight, ArrowLeft, ExternalLink, ShieldCheck, Share2, QrCode, File as FileIconLucide } from 'lucide-react';
 import { client, extractData, isApiError, BASE_URL } from '@/lib/api.ts';

@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Input } from '@/components/ui/Input';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { useTranslation } from 'react-i18next';
 import { KeyValueForm, parseJsonObjectToStringMap } from './KeyValueForm';
+import { isSensitiveKeyName } from '@/lib/secretKeys.ts';
 
 interface ProviderFormProps {
   providerKey: string;
@@ -158,15 +160,25 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
               {def.label}
               {def.required && !isEdit && <span className="text-red-500 ml-1">*</span>}
             </label>
-            <Input
-              type={def.type || 'text'}
-              placeholder={def.placeholder}
-              value={fields[def.key] || ''}
-                  onChange={(e) => handleFieldChange(def.key, e.target.value)}
-              className={controlBase}
-            />
+            {(def.type === 'password' || isSensitiveKeyName(def.key)) ? (
+              <PasswordInput
+                value={fields[def.key] || ''}
+                onChange={(e) => handleFieldChange(def.key, e.target.value)}
+                placeholder={def.placeholder}
+                required={def.required && !isEdit}
+                inputClassName={controlBase}
+              />
+            ) : (
+              <Input
+                type="text"
+                placeholder={def.placeholder}
+                value={fields[def.key] || ''}
+                onChange={(e) => handleFieldChange(def.key, e.target.value)}
+                className={controlBase}
+              />
+            )}
             {def.helper && <div className="text-[14px] opacity-50 dark:opacity-30 italic text-foreground/60">{def.helper}</div>}
-            {isEdit && def.type === 'password' && (
+            {isEdit && (def.type === 'password' || isSensitiveKeyName(def.key)) && (
               <div className="text-[14px] opacity-50 dark:opacity-30 italic text-foreground/60">
                 Leave blank to keep current value.
               </div>
