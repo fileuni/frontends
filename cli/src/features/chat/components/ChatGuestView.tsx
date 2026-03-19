@@ -7,19 +7,18 @@ import { Button } from '@/components/ui/Button.tsx';
 import { ChatUnifiedUI } from '@/components/chat/ChatUnifiedUI';
 
 /**
- * 访客入口视图 - 仅负责输入邀请码并初始化 ChatProvider
- * Guest Entry View - Only responsible for invite code entry and initializing ChatProvider
+ * Guest Entry View - Invite code entry and ChatProvider initialization.
  */
 export const ChatGuestView: React.FC<{ inviteCode?: string }> = ({ inviteCode }) => {
   const { t } = useTranslation();
   const [code, setCode] = useState(inviteCode || '');
   const [activeCode, setActiveCode] = useState(inviteCode || '');
 
-  // 渲染主体由 ChatUnifiedUI 负责 / Rendering logic is handled by ChatUnifiedUI
+  // Rendering logic is handled by ChatUnifiedUI
   const GuestWrapper: React.FC = () => {
     const { setIsOpen } = useChat();
     useEffect(() => {
-      // 访客模式下自动打开聊天界面 / Auto-open chat UI in guest mode
+      // Auto-open chat UI in guest mode
       setIsOpen(true);
     }, []);
     return <ChatUnifiedUI />;

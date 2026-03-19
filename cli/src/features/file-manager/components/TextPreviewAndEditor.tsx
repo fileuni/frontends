@@ -20,7 +20,7 @@ interface Props {
   onClose?: () => void;
 }
 
-// Monaco 语言映射 / Extension to Monaco Language Map
+// Extension to Monaco Language Map
 const LANGUAGE_MAP: Record<string, string> = {
   'js': 'javascript', 'ts': 'typescript', 'tsx': 'typescript', 'jsx': 'javascript',
   'py': 'python', 'rs': 'rust', 'cpp': 'cpp', 'c': 'c', 'h': 'cpp', 'hpp': 'cpp',
@@ -39,7 +39,7 @@ const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
 const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 
 /**
- * 通用文本预览与编辑器 (Monaco 驱动) / Common Text Preview and Editor (Monaco powered)
+ * Common Text Preview and Editor (Monaco powered).
  */
 export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Props) => {
   const { t } = useTranslation();

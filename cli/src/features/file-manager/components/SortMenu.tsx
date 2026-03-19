@@ -54,7 +54,7 @@ export const SortMenu = ({ className }: SortMenuProps) => {
         { field: 'size', label: t('filemanager.sort.size') || '大小' },
         { field: 'modified', label: t('filemanager.sort.modified') || '修改时间' },
       ];
-      // 只有在搜索模式下，路径排序才有意义 / Only show path sorting in search mode
+      // Only show path sorting in search mode
       if (store.getIsSearchMode()) {
         options.splice(1, 0, { field: 'path', label: t('filemanager.sort.path') || '路径' });
       }
@@ -71,7 +71,7 @@ export const SortMenu = ({ className }: SortMenuProps) => {
     setIsOpen(false);
   };
 
-  // 点击外部关闭菜单 / Close menu when clicking outside
+  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {

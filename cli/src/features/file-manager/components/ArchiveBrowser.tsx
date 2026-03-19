@@ -28,10 +28,10 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState<ArchiveEntry[]>([]);
-  const [currentSubPath, setCurrentSubPath] = useState(''); // 压缩包内的当前路径
+  const [currentSubPath, setCurrentSubPath] = useState(''); // Current path within archive
   const [searchKeyword, setSearchKeyword] = useState('');
 
-  // 加载压缩包内容 / Load archive contents
+  // Load archive contents
   useEffect(() => {
     const fetchContents = async () => {
       setLoading(true);
@@ -56,7 +56,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
     fetchContents();
   }, [archivePath, password]);
 
-  // 过滤并组织当前层级的文件 / Filter and organize current level files
+  // Filter and organize current level files
   const currentEntries = useMemo(() => {
     let filtered = entries;
     
@@ -65,7 +65,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
         return filtered.sort((a, b) => (a.is_dir === b.is_dir ? 0 : a.is_dir ? -1 : 1));
     }
 
-    // 提取当前层级 / Extract current level
+    // Extract current level
     const prefix = currentSubPath ? (currentSubPath.endsWith('/') ? currentSubPath : currentSubPath + '/') : '';
     const result = new Map<string, ArchiveEntry>();
 
@@ -137,7 +137,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
 
   return (
     <div className="fixed inset-0 z-[150] bg-background flex flex-col animate-in fade-in duration-300">
-      {/* 顶部导航栏 / Top Navigation */}
+      {/* Top Navigation */}
       <div className="h-16 border-b border-border bg-card/50 backdrop-blur-md px-4 flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <Button variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0">
@@ -182,7 +182,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
         </div>
       </div>
 
-      {/* 文件展示区 / File Display Area */}
+      {/* File Display Area */}
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
         {loading ? (
           <div className="h-full flex flex-col items-center justify-center gap-4 opacity-40">
@@ -237,7 +237,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
         )}
       </div>
 
-      {/* 底部信息栏 / Footer */}
+      {/* Footer */}
       <div className="h-10 border-t border-border bg-card/30 px-4 flex items-center justify-between text-sm font-bold text-muted-foreground uppercase tracking-widest">
         <div className="flex gap-4">
             <span>{currentSubPath || '/'}</span>

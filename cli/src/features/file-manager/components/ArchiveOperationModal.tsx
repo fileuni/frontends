@@ -84,8 +84,8 @@ export function ArchiveOperationModal({
   const needs7zForDecompress = useMemo(() => {
     if (mode !== 'decompress' || !paths.length) return false;
     if (capabilities?.has_7z) return false;
-    
-    // 检查选中的文件是否有非原生支持的后缀 / Check if selected files have non-native extensions
+
+    // Check if selected files have non-native extensions
     const nativeExts = ['.zip', '.tar.gz', '.gz'];
     return paths.some(p => {
         const lower = p.toLowerCase();

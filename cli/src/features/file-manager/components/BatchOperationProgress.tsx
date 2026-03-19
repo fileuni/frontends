@@ -470,7 +470,7 @@ export function BatchOperationProgress({
 
       toast.success(t('filemanager.batch.continueStarted', { count: retryCount }));
 
-      // 刷新任务状态 / Refresh task status
+      // Refresh task status
       window.location.reload();
     } catch (error) {
       console.error('Error continuing operation:', error);

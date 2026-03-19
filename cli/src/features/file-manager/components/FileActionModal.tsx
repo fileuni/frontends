@@ -42,7 +42,7 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
     }
   };
 
-  // 破坏性操作使用专用的 ConfirmDestructiveModal / Destructive operations use dedicated modal
+  // Destructive operations use dedicated modal
   if (actionModal.type === 'delete_confirm' || actionModal.type === 'mode_delete_confirm') return null;
 
   return (

@@ -20,12 +20,12 @@ import { LargeFileWarning } from './LargeFileWarning.tsx';
 import { OpenWithMenu } from './OpenWithMenu.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 
-// 动态导入 PdfPreview 以避免构建时 SSR 报错
+// Lazy load PdfPreview to avoid SSR build errors
 const PdfPreview = React.lazy(() => import('./PdfPreview.tsx').then(m => ({ default: m.PdfPreview })));
 
 const FALLBACK_PREVIEW_LIMIT_MB = 10;
 
-// 扩展名映射表 / Extension Map
+// Extension Map
 const TYPE_MAP = {
   IMAGE: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff', 'tif'],
   VIDEO: ['mp4', 'webm', 'mov', 'flv', 'avi', 'mkv', 'wmv'],
@@ -47,7 +47,7 @@ interface Props {
 }
 
 /**
- * 统一预览页面 / Unified Preview Page
+ * Unified Preview Page.
  */
 export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
   const { t } = useTranslation();
@@ -80,7 +80,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
         const parent = p.substring(0, p.lastIndexOf('/')) || '/';
         const ext = name.split('.').pop()?.toLowerCase() || '';
 
-        // 确定类型 / Determine type
+        // Determine type
         let currentType = 'unknown';
         if (TYPE_MAP.IMAGE.includes(ext)) currentType = 'image';
         else if (TYPE_MAP.VIDEO.includes(ext)) currentType = 'video';
@@ -90,7 +90,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
         else if (TYPE_MAP.TEXT.includes(ext)) currentType = 'text';
         else if (TYPE_MAP.PDF.includes(ext)) currentType = 'pdf';
 
-        // 加载当前文件的详细元数据 / Load current file metadata
+        // Load current file metadata
         let size = 0;
         try {
             const stat = await extractData<{ size: number }>(
@@ -101,7 +101,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
             console.warn("Failed to fetch stat", e);
         }
 
-        // 媒体列表加载 (支持切片预览切换) / Media list loading for gallery mode
+        // Media list loading for gallery mode
         if (['image', 'video', 'audio'].includes(currentType)) {
             try {
                 const { data: res } = await client.GET('/api/v1/file/list', { 
@@ -136,7 +136,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
             }
         }
 
-        // 单文件降级 / Single file fallback
+        // Single file fallback
         setData({ 
             playlist: [{ name, path: p, is_dir: false, size, modified: new Date().toISOString(), favorite_color: 0, has_active_share: false, has_active_direct: false }], 
             index: 0, 
@@ -219,8 +219,8 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
   if (data.type === 'tex') typeLimitMb = resolveLimitMb(limits?.tex_mb, defaultLimitMb);
   const sizeLimitBytes = typeLimitMb * 1024 * 1024;
   const isTooLarge = activeFile.size > sizeLimitBytes;
-  
-  // 大文件警告 / Large file guard
+
+  // Large file guard
   if (isTooLarge && !isStreamable && !isForced) {
       return (
           <div className="fixed inset-0 z-[200]">
@@ -234,7 +234,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
       );
   }
 
-  // 组件公用属性 / Common props
+  // Common props
   const commonProps = {
       onClose,
       isDark

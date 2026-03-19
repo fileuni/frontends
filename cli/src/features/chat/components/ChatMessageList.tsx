@@ -211,7 +211,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                       : "bg-muted rounded-tl-sm",
                   )}
                 >
-                  {/* 引用消息展示 / Quoted message display */}
+                  {/* Quoted message display */}
                   {msg.replyTo && (
                     <div
                       onClick={() => {

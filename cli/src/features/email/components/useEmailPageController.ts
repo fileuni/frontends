@@ -427,7 +427,7 @@ export const useEmailPageController = (): UseEmailPageController => {
     // Why: sent-folder backfill may rewrite sender display format; local pending should match on subject+time first
     if (localMessage.is_local_pending) {
       const pendingAliveMs = Date.now() - localDate;
-      // Why: 先保证乐观占位可见，再启动启发式去重，避免被旧邮件瞬间误消
+      // Why: keep optimistic placeholder visible first, then start heuristic dedup to avoid old emails instantly removing it
       if (pendingAliveMs >= 0 && pendingAliveMs < 12_000) {
         return false;
       }

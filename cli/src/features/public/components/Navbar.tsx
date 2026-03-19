@@ -89,7 +89,7 @@ export const Navbar = () => {
       }
     } else {
       items.push({ name: t('nav.dashboard'), icon: LayoutDashboard, path: `${base}mod=user&page=welcome`, active: mod === 'user' });
-      //  检查是否启用文件管理 API / Check if file manager API is enabled
+      // Check if file manager API is enabled
       if (capabilities?.enable_api !== false) {
         items.push({ name: t('nav.filemanager'), icon: FolderOpen, path: `${base}mod=file-manager`, active: mod === 'file-manager' });
       }
@@ -102,8 +102,8 @@ export const Navbar = () => {
           className: "text-red-500"
         });
       }
-      
-      // 添加统一聊天入口 / Add unified chat entry
+
+      // Add unified chat entry
       if (setChatOpen && canUseChat) {
         items.push({
           name: t('chat.title', { defaultValue: 'Chat' }),

@@ -208,7 +208,7 @@ export const FileManagerView = () => {
             setBrowsingArchivePath(target.path); 
           }
           else if (isAudio && action === "open") {
-            // 音频优先使用浮动播放器 / Audio prioritizes floating player
+            // Audio prioritizes floating player
             playAudio(target, files);
             addToast(t('filemanager.audio.addedToPlaylist'), 'success');
           }
@@ -299,8 +299,8 @@ export const FileManagerView = () => {
 
   const handleArchiveOperationSubmit = async (payload: ArchiveOperationSubmitPayload) => {
     const isBatch = payload.paths.length > 1;
-    
-    // 构造强类型 Body / Construct strongly typed Body
+
+    // Construct strongly typed Body
     const body: Record<string, unknown> = payload.mode === 'decompress' 
       ? { 
           paths: payload.paths, 
@@ -358,7 +358,7 @@ export const FileManagerView = () => {
         throw new Error((errObj.msg as string) || 'Operation failed');
       }
 
-      // 安全提取 taskId / Safely extract taskId
+      // Safely extract taskId
       const resultData = (data as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined;
       const taskId = resultData?.task_id as string | undefined;
       
@@ -419,7 +419,7 @@ export const FileManagerView = () => {
     );
   }
 
-  // 如果有预览路径，则显示预览页面 / If there's a preview path, show the preview page
+  // If there's a preview path, show the preview page
   if (previewPath) {
     return (
       <FilePreviewPage 

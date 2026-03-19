@@ -754,7 +754,7 @@ const EmailTabContent = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Account list with unread count / 账号列表带未读计数 */}
+      {/* Account list with unread count */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -810,7 +810,7 @@ const EmailTabContent = ({
         )}
       </div>
 
-      {/* Footer with total unread / 底部显示总未读数 */}
+      {/* Footer with total unread */}
       <div className="p-3 border-t flex items-center justify-between mt-2">
         <div className="flex flex-col">
           {externalTotalUnread > 0 && (
