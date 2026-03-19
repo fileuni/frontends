@@ -1,0 +1,16 @@
+{
+  "title": "Politique de confidentialité",
+  "backToWorkspace": "Retour à l'espace de travail",
+  "dataCollection": {
+    "title": "Collecte de données",
+    "content": "Nous ne collectons que les données essentielles nécessaires à la gestion des comptes et à la synchronisation du stockage de fichiers. Cela inclut votre nom d'utilisateur, des identifiants chiffrés et des journaux d'accès à des fins d'audit de sécurité."
+  },
+  "storageSecurity": {
+    "title": "Sécurité du stockage",
+    "content": "Vos fichiers sont stockés sur les nœuds backend que vous avez sélectionnés (S3, Local, etc.) avec un contrôle d'accès strict. Nous n'inspectons jamais le contenu de vos fichiers, sauf demande explicite pour le support technique."
+  },
+  "cookieUsage": {
+    "title": "Utilisation des cookies",
+    "content": "Nous utilisons un stockage persistant local (StorageHub : LocalStorage + IndexedDB) pour mémoriser les préférences de thème, les paramètres de langue et les jetons de session actifs."
+  }
+}

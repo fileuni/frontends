@@ -1,0 +1,22 @@
+{
+  "loading": "PROFIL WIRD GELADEN...",
+  "fullName": "Vollständiger Name",
+  "fullNamePlaceholder": "Ihr echter Name",
+  "nickname": "Spitzname",
+  "nicknamePlaceholder": "Öffentlicher Anzeigename",
+  "bio": "Biografie",
+  "bioPlaceholder": "Erzählen Sie uns von sich...",
+  "extraPhones": "Zusätzliche Kontaktnummern",
+  "addNew": "NEU HINZUFÜGEN",
+  "saveChanges": "Alle Änderungen speichern",
+  "readonlyIdentity": "Schreibgeschützte Identität",
+  "primaryEmail": "Primäre E-Mail",
+  "verifiedPhone": "Bestätigtes Telefon",
+  "none": "Keine",
+  "verifiedNote": "Diese bestätigten Anmeldedaten können nur im Sicherheitszentrum geändert werden.",
+  "success": "Profil erfolgreich aktualisiert",
+  "phoneListSynced": "Zusätzliche Telefonnummern wurden im Serverformat synchronisiert",
+  "invalidPhoneFormat": "Ungültiges Telefonnummernformat. Beispiele: China Festland +8613812345678, USA +12025550123, Japan +819012345678",
+  "invalidPhoneList": "Es gibt ungültige Telefonnummern. Bitte korrigieren Sie diese vor dem Speichern",
+  "phonePlaceholder": "+86 138..."
+}

@@ -1,0 +1,168 @@
+{
+  "tos": {
+    "title": "服务协议"
+  },
+  "privacy": {
+    "title": "隐私政策"
+  },
+  "forgotPassword": {
+    "title": "找回密码"
+  },
+  "share": {
+    "title": "文件分享"
+  },
+  "admin": {
+    "userCreate": {
+      "title": "创建用户",
+      "layoutTitle": "用户下发",
+      "provisionIdentity": "配置身份",
+      "manualAccountCreation": "手动创建账户",
+      "username": "用户名",
+      "usernamePlaceholder": "唯一标识符",
+      "fullName": "完整名称",
+      "fullNamePlaceholder": "显示名称",
+      "initialPassword": "初始密码",
+      "passwordPlaceholder": "最少 6 个字符",
+      "confirmPassword": "确认密码",
+      "confirmPasswordPlaceholder": "重复密码",
+      "role": "角色",
+      "regularUser": "普通用户",
+      "systemAdministrator": "系统管理员",
+      "status": "状态",
+      "active": "活跃",
+      "inactive": "未激活",
+      "banned": "已禁封",
+      "email": "邮箱",
+      "emailPlaceholder": "可选邮箱",
+      "phone": "手机",
+      "phonePlaceholder": "可选手机号码",
+      "createUser": "创建用户",
+      "createSuccess": "新用户创建成功"
+    },
+    "userEdit": {
+      "title": "编辑用户",
+      "layoutTitle": "编辑身份信息"
+    },
+    "settings": {
+      "title": "系统配置",
+      "layoutTitle": "核心运行设置"
+    },
+    "permissions": {
+      "title": "权限管理",
+      "layoutTitle": "访问控制列表",
+      "inherit": "继承",
+      "allow": "允许",
+      "deny": "拒绝"
+    },
+    "fs": {
+      "title": "文件系统管理",
+      "layoutTitle": "文件系统基础设施",
+      "hybridStorage": "混合存储",
+      "statusRecovering": "恢复中"
+    },
+    "web": {
+      "title": "网站管理",
+      "layoutTitle": "多站点管理",
+      "tls": "TLS"
+    },
+    "tasks": {
+      "title": "任务监控",
+      "layoutTitle": "后台任务与调度监控"
+    },
+    "users": {
+      "title": "用户管理",
+      "layoutTitle": "身份管理"
+    }
+  },
+  "admin_fs": {
+    "storage_stats": "存储统计",
+    "cluster_storage": "集群总存储",
+    "usage_efficiency": "使用效率",
+    "active_maintenance": "活跃维护中",
+    "storage_types": "存储后端类型",
+    "engine_distribution": "引擎分布",
+    "global_ops": "全局操作",
+    "global_ops_desc": "注意：这些操作影响整个集群，仅应在维护窗口执行。",
+    "sync_index": "同步全局索引",
+    "emergency_control": "紧急枢纽控制",
+    "emergency_desc": "警告：这些操作绕过正常 VFS 安全检查，可能导致数据不一致。",
+    "force_unlock": "强制全局解锁",
+    "locked_users": "被锁定用户 (正在执行 WAL 恢复)",
+    "system_status": "系统状态"
+  },
+  "admin_perms": {
+    "protocol_control": "协议访问控制",
+    "authorized": "已授权",
+    "filter_placeholder": "筛选授权用户...",
+    "s3_credentials": "S3 访问凭据",
+    "ssh_key": "当前 SSH 公钥"
+  },
+  "register": {
+    "title": "注册"
+  },
+  "login": {
+    "title": "登录"
+  },
+  "filemanager": {
+    "title": "文件管理"
+  },
+  "index": {
+    "title": "FileUni - 高性能模块化系统"
+  },
+  "user": {
+    "welcome": {
+      "title": "控制台"
+    },
+    "profile": {
+      "title": "个人资料",
+      "layoutTitle": "编辑个人资料"
+    },
+    "sessions": {
+      "title": "会话管理",
+      "layoutTitle": "活动会话"
+    },
+    "security": {
+      "title": "安全中心",
+      "layoutTitle": "安全控制"
+    },
+    "cache": {
+      "title": "缓存管理",
+      "layoutTitle": "缓存管理"
+    },
+    "shares": {
+      "title": "我的分享"
+    }
+  },
+  "colors": {
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "indigo": "Cyan",
+    "purple": "Deep Blue"
+  },
+  "publicShare": {
+    "verifying": "Verifying share link...",
+    "accessDenied": "Access Denied",
+    "linkExpired": "This share link has expired or reached its download limit.",
+    "tryAgain": "Try Again",
+    "encryptedTitle": "Encrypted Share",
+    "passwordRequiredDesc": "This content requires a password to unlock.",
+    "enterPassword": "Enter password...",
+    "unlockBtn": "Unlock Content",
+    "views": "Views",
+    "status": "Status",
+    "active": "Active",
+    "downloadNow": "Download Now",
+    "previewOnline": "Preview Online",
+    "expiresSoon": "Expires Soon",
+    "file": "File",
+    "folder": "Folder",
+    "qrMobileAccess": "Mobile Access",
+    "qrScanDesc": "Scan to open this share on your phone",
+    "qrBackToInfo": "Back to Info",
+    "emptyFolder": "This folder is empty",
+    "previewNotAvailable": "Preview Not Available"
+  }
+}

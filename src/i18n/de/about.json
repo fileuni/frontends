@@ -1,0 +1,40 @@
+{
+  "open": "Über FileUni",
+  "title": "Über FileUni",
+  "subtitle": "Zeigen Sie die aktuelle Version, offizielle Ressourcen und den neuesten Veröffentlichungsstatus an.",
+  "description": "FileUni ist eine einheitliche Dateiplattform für Multi-Protokoll- und Multi-Oberflächen-Workflows. Sie vereint Web-UI, Desktop-GUI und Backend-Service-Funktionen, sodass Speicherung, Konten, Dienste und Erweiterungen in einem operativen Arbeitsbereich bleiben.",
+  "currentVersion": "Aktuelle Version",
+  "versionCode": "Versionscode",
+  "currentChannel": "Aktueller Kanal",
+  "latestVersion": "Neueste Version",
+  "channel": "Kanal",
+  "publishedAt": "Veröffentlicht am",
+  "updateSectionTitle": "Updates",
+  "updateSectionDescription": "Check the latest release for the current runtime target and jump directly to the best download when an update is available.",
+  "checkUpdates": "Nach Updates suchen",
+  "checking": "Prüfe...",
+  "upToDate": "Diese Instanz ist bereits auf dem neuesten Stand",
+  "updateAvailable": "Update verfügbar: {{version}}",
+  "upToDateForCurrentChannel": "Der aktuelle Kanal ({{channel}}) ist bereits auf dem neuesten Stand",
+  "updateAvailableForCurrentChannel": "Ein Update ist für den aktuellen Kanal ({{channel}}) verfügbar",
+  "updateError": "Update-Prüfung fehlgeschlagen",
+  "updateIdle": "Es wurde noch keine Update-Prüfung durchgeführt.",
+  "downloadLatest": "Neueste herunterladen",
+  "downloadChannel": "Diesen Kanal herunterladen",
+  "openUpdateGuide": "Update-Anleitung öffnen",
+  "viewReleasePage": "Veröffentlichungsseite anzeigen",
+  "currentChannelBadge": "Aktueller Kanal",
+  "channels": {
+    "stable": "Stabil",
+    "prerelease": "Vorabversion"
+  },
+  "state": {
+    "updateAvailable": "Update verfügbar",
+    "upToDate": "Aktuell"
+  },
+  "links": {
+    "website": "Projekt-Homepage",
+    "docs": "Dokumentation",
+    "repository": "Repository"
+  }
+}

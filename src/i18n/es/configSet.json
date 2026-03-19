@@ -1,0 +1,147 @@
+{
+  "wizard": {
+    "title": "FileUni Initialization",
+    "subtitle": "Configure your high-performance file management system"
+  },
+  "steps": {
+    "step": "Step",
+    "profile": "Profile",
+    "database": "Database",
+    "cache": "Cache",
+    "advanced": "Tuning",
+    "config": "Review",
+    "admin": "Admin Setup",
+    "final": "Complete",
+    "review": "Review"
+  },
+  "locked": {
+    "title": "Setup Mode Locked",
+    "howToUnlockFile": "To unlock, create this flag file in the project root:",
+    "howToUnlockArg": "Or restart the service with this argument:"
+  },
+  "profile": {
+    "title": "Select Performance Profile",
+    "subtitle": "Choose a starting point based on your hardware. You can customize everything in the next step.",
+    "low": {
+      "name": "Eco / IoT",
+      "desc": "Perfect for Raspberry Pi or 1GB VPS. Lightweight SQLite & In-memory cache."
+    },
+    "medium": {
+      "name": "Standard",
+      "desc": "Balanced setting for Home NAS. Reliable and efficient metadata handling."
+    },
+    "high": {
+      "name": "Performance",
+      "desc": "Production grade. Best with PostgreSQL & Redis for massive file clusters."
+    }
+  },
+  "config": {
+    "title": "Environment Setup",
+    "subtitle": "Configure your database and cache. DSN strings will be built automatically.",
+    "changeProfile": "Change Profile",
+    "dbDsn": "Database DSN",
+    "dsnNote": "Note: Manual edits to the DSN will override form values.",
+    "rawToml": "Configuration Preview (TOML)",
+    "useTls": "Use Secure Connection (TLS/SSL)",
+    "dbType": "Database Type",
+    "host": "Host",
+    "port": "Port",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "dbName": "Database Name",
+    "dbPath": "SQLite File Path",
+    "kvUsername": "Redis UserName",
+    "kvType": "Cache Backend",
+    "kvRedisHint": "Redis-compatible backends (Redis/KeyDB/Valkey)",
+    "kvDashmapHint": "Note: In-memory cache is volatile and cleared on restart.",
+    "kvSqlHint": "Note: Will reuse primary database for cache storage.",
+    "versionWarning": {
+      "keydb": "KeyDB 6.3.4+ required",
+      "redis": "Redis 7.4.0+ required",
+      "valkey": "Valkey 9.0.0+ required"
+    },
+    "advanced": {
+      "toggle": "Expert Settings (Database, Pool, System Performance)",
+      "userCenterTitle": "Centro de usuario",
+      "enableReg": "Enable Registration",
+      "plusTitle": "Plus Plugin System",
+      "plusEnabled": "Enable Plugin System",
+      "plusCaptureLogs": "Capture Plugin Logs",
+      "captchaTitle": "Captcha Configuration",
+      "captchaLength": "Code Length",
+      "captchaExpires": "Expires In (s)",
+      "captchaSecret": "Captcha Secret Key",
+      "captchaMaxFailures": "Max Retries / Failures",
+      "captchaCooldown": "Failure Cooldown (s)",
+      "captchaGlobalLimit": "Global Hourly Limit",
+      "captchaCacheSize": "Captcha Pre-gen Pool Size",
+      "captchaConcurrency": "Background Gen Concurrency",
+      "accessTokenSecret": "Access Token Secret (JWT)",
+      "refreshTokenSecret": "Refresh Token Secret (JWT)",
+      "genSecret": "Generate 64-char Secret",
+      "poolTitle": "Pool & Health Check",
+      "maxConn": "Max Connections",
+      "minConn": "Min Connections",
+      "connectTimeout": "Connect Timeout (s)",
+      "idleTimeout": "Idle Timeout (s)",
+      "maxLifetime": "Max Lifetime (s)",
+      "healthCheck": "Health Check Timeout (s)",
+      "pgTitle": "PostgreSQL Engine Tuning",
+      "statementTimeout": "Statement Timeout (s)",
+      "lockTimeout": "Lock Timeout (ms)",
+      "poolSizeLimit": "Enable Pool Size Limit",
+      "tcpKeepalive": "TCP Keepalive (s, 0=def)",
+      "sqliteTitle": "SQLite Engine Tuning (Pragmas)",
+      "walMode": "Enable WAL Mode (High Perf Write)",
+      "busyTimeout": "Busy Timeout (ms)",
+      "cacheSize": "Cache Size (KB, neg=abs RAM)",
+      "tempStore": "Temp Store (0=Def, 1=File, 2=RAM)",
+      "mmapSize": "Mmap Size (Bytes, 0=Off)",
+      "pageSize": "Page Size (Bytes)",
+      "syncLevel": "Sync Level (0=OFF, 1=NORM, 2=FULL)",
+      "sharedCache": "Enable Shared Cache (shared_cache)"
+    }
+  },
+  "admin": {
+    "title": "Create Super Admin",
+    "subtitle": "This account will have full control over the system.",
+    "username": "Admin Username",
+    "password": "Secure Password",
+    "suggestPassword": "Generate Random Password",
+    "finalConfirm": "Final Confirmation",
+    "finalConfirmDesc": "Clicking will save the system configuration and ensure the admin account is ready. If tables or the administrator already exist, the system will only perform necessary synchronization.",
+    "finish": "Apply Configuration",
+    "changePassword": "Set Admin Password",
+    "pendingHint": "Takes effect after final apply",
+    "passwordHintTitle": "Admin password required to finish setup",
+    "passwordHintDesc": "Set or update the admin password to apply the configuration. You can do this at any time.",
+    "passwordHintAction": "Set Admin Password"
+  },
+  "final": {
+    "title": "Everything is ready!",
+    "subtitle": "Administrator {{user}} has been granted full access.",
+    "adminCreatedDefault": "Created administrator {{user}}. Default password: {{password}}.",
+    "adminCreatedWithPassword": "Created administrator {{user}}. Password: {{password}}.",
+    "adminReset": "Updated password for administrator {{user}}: {{password}}.",
+    "adminExisting": "Existing administrator {{user}} detected. Password unchanged.",
+    "nextSteps": "What to do next:",
+    "step1": "Sign in with your administrator account.",
+    "step2": "Edit and save configuration online in the Admin Console.",
+    "step3": "Click confirm to return to the home page and continue normal startup.",
+    "reload": "Return Home",
+    "docs": "View Documentation"
+  },
+  "logs": {
+    "title": "Real-time Deployment Log",
+    "selectingProfile": "Applying profile: {{profile}}...",
+    "templateLoadFailed": "Template load failed: {{error}}",
+    "testingDb": "Testing database connection...",
+    "dbError": "DB Error",
+    "dbSuccess": "Database connection success!",
+    "applyingConfig": "Applying configuration and syncing DB schema...",
+    "setupFailed": "Deployment failed",
+    "setupSuccess": "Setup completed successfully. Confirm to continue the normal flow.",
+    "failed": "Failed",
+    "success": "Éxito"
+  }
+}

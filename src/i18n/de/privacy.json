@@ -1,0 +1,16 @@
+{
+  "title": "Datenschutzrichtlinie",
+  "backToWorkspace": "Zurück zum Arbeitsbereich",
+  "dataCollection": {
+    "title": "Datenerfassung",
+    "content": "Wir erfassen nur wichtige Daten, die für die Kontoverwaltung und Dateispeichersynchronisation erforderlich sind. Dazu gehören Ihr Benutzername, verschlüsselte Anmeldedaten und Zugriffsprotokolle für die Sicherheitsüberwachung."
+  },
+  "storageSecurity": {
+    "title": "Speichersicherheit",
+    "content": "Ihre Dateien werden in Ihren ausgewählten Backend-Knoten (S3, Lokal usw.) mit strenger Zugriffskontrolle gespeichert. Wir prüfen niemals den Inhalt Ihrer Dateien, es sei denn, dies wird ausdrücklich für den technischen Support angefordert."
+  },
+  "cookieUsage": {
+    "title": "Cookie-Nutzung",
+    "content": "Wir verwenden lokalen persistenten Speicher (StorageHub: LocalStorage + IndexedDB), um Design-Einstellungen, Spracheinstellungen und aktive Sitzungstoken zu speichern."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "title": "Select Runtime Directories",
+  "subtitle": "Adjust the configuration and app-data directories when needed",
+  "config_path": "Configuration directory",
+  "path_placeholder": "Enter or select configuration directory...",
+  "app_data_path": "Application data directory",
+  "app_data_placeholder": "Enter or select application data directory...",
+  "browse": "Browse",
+  "create_example": "Create Example Config",
+  "creating": "Creating...",
+  "or": "or",
+  "current_dir": "Current Directory Preset",
+  "default_dir": "Default Directory",
+  "confirm": "Подтвердить",
+  "cancel": "Отмена",
+  "default_hint": "Enter absolute paths directly, or pick one of the absolute presets below.",
+  "no_config_warning": "If you do not specify directories manually, the app will use platform defaults and create the configuration file only when needed.",
+  "path_required": "Please enter configuration and application data directories",
+  "select_error": "Failed to select directory",
+  "invalid_config": "Configuration file format is invalid",
+  "file_not_exist": "Runtime directories are unavailable or not accessible."
+}

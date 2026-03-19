@@ -1,0 +1,22 @@
+{
+  "title": "选择运行时目录",
+  "subtitle": "可按需修改配置目录与应用数据目录",
+  "config_path": "配置目录",
+  "path_placeholder": "输入或选择配置目录...",
+  "app_data_path": "应用数据目录",
+  "app_data_placeholder": "输入或选择应用数据目录...",
+  "browse": "浏览",
+  "create_example": "创建示例配置文件",
+  "creating": "创建中...",
+  "or": "或",
+  "current_dir": "当前目录的",
+  "default_dir": "默认目录",
+  "confirm": "确认",
+  "cancel": "取消",
+  "default_hint": "你可以直接输入绝对路径，或使用下面的绝对路径预设。",
+  "no_config_warning": "若未手动指定，系统将自动使用平台默认目录，并在需要时创建配置文件。",
+  "path_required": "请输入配置目录与应用数据目录",
+  "select_error": "选择目录失败",
+  "invalid_config": "配置文件格式无效",
+  "file_not_exist": "运行时目录不可用或无权限访问"
+}

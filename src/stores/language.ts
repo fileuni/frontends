@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import i18next from 'i18next';
+import { changeLanguage, type SupportedLang } from '@/lib/i18n';
 import { storageHub } from '../lib/storageHub';
 
 export type Language = 'auto' | 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja';
@@ -53,7 +54,13 @@ export function applyLanguage(lang: Language) {
     targetLang = supported[base] ?? 'en';
   }
   
-  i18next.changeLanguage(targetLang);
+  const normalized = (['zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'] as const).includes(targetLang as SupportedLang)
+    ? (targetLang as SupportedLang)
+    : 'en';
+  void changeLanguage(normalized).catch(() => {
+    // Fallback to i18next internal changeLanguage on unexpected errors.
+    void i18next.changeLanguage(normalized);
+  });
   storageHub.setLocalItem('fileuni-language-raw', targetLang);
   document.documentElement.lang = targetLang;
 }

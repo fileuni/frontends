@@ -1,0 +1,12 @@
+{
+  "loading": "正在同步会话...",
+  "unknownDevice": "未知设备",
+  "current": "当前",
+  "lastActive": "最后活跃",
+  "revokeAccess": "取消授权",
+  "revokeConfirm": "确定要强制断开此会话吗？",
+  "adviceTitle": "安全建议",
+  "adviceDesc": "如果您发现不认识的设备，建议立即取消其授权并修改密码。",
+  "activeDeviceStatus": "活跃设备状态",
+  "slotsOccupied": "已占用槽位"
+}

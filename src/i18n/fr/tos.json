@@ -1,0 +1,16 @@
+{
+  "title": "Conditions d'utilisation",
+  "backToWorkspace": "Retour à l'espace de travail",
+  "acceptableUse": {
+    "title": "Utilisation acceptable",
+    "content": "Vous acceptez d'utiliser FileUni uniquement à des fins légales. Vous êtes responsable de toutes les activités effectuées sous votre compte."
+  },
+  "termination": {
+    "title": "Résiliation",
+    "content": "Nous nous réservons le droit de suspendre les comptes qui enfreignent l'intégrité du système ou qui se livrent à du scraping malveillant."
+  },
+  "disclaimers": {
+    "title": "Avertissements",
+    "content": "FileUni est fourni \"tel quel\". Bien que nous visons une disponibilité de 99,9 %, nous recommandons de conserver des sauvegardes externes pour les données critiques."
+  }
+}

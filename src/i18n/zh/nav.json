@@ -1,0 +1,22 @@
+{
+  "dashboard": "控制台",
+  "profile": "个人资料",
+  "security": "安全设置",
+  "sshKeys": "SSH 密钥",
+  "sessions": "会话管理",
+  "filemanager": "文件管理",
+  "userList": "用户管理",
+  "blacklist": "黑白名单",
+  "settings": "系统设置",
+  "maintenance": "系统运维",
+  "changePassword": "修改密码",
+  "changeUsername": "Change Username",
+  "deleteAccount": "Delete Account",
+  "adminPanel": "管理面板",
+  "backToPublic": "返回首页",
+  "cacheManager": "缓存管理",
+  "domainDdns": "DDNS 动态域名",
+  "domainSsl": "SSL/TLS 证书",
+  "about": "关于",
+  "activeWorkspace": "当前工作区"
+}

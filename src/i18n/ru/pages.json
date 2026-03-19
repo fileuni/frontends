@@ -1,0 +1,168 @@
+{
+  "tos": {
+    "title": "Условия использования"
+  },
+  "privacy": {
+    "title": "Политика конфиденциальности"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password"
+  },
+  "share": {
+    "title": "File Share"
+  },
+  "admin": {
+    "userCreate": {
+      "title": "Create User",
+      "layoutTitle": "Identity Provisioning",
+      "provisionIdentity": "Provision Identity",
+      "manualAccountCreation": "Manual Account Creation",
+      "username": "Имя пользователя",
+      "usernamePlaceholder": "Unique identifier",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Display name",
+      "initialPassword": "Initial Password",
+      "passwordPlaceholder": "Min 6 characters",
+      "confirmPassword": "Подтвердить пароль",
+      "confirmPasswordPlaceholder": "Repeat password",
+      "role": "Role",
+      "regularUser": "Regular User",
+      "systemAdministrator": "System Administrator",
+      "status": "Статус",
+      "active": "Active",
+      "inactive": "Inactive",
+      "banned": "Banned",
+      "email": "Email",
+      "emailPlaceholder": "Optional email",
+      "phone": "Phone",
+      "phonePlaceholder": "Optional phone number",
+      "createUser": "Create User",
+      "createSuccess": "New user created successfully"
+    },
+    "userEdit": {
+      "title": "Edit User",
+      "layoutTitle": "Edit Identity Info"
+    },
+    "settings": {
+      "title": "System Settings",
+      "layoutTitle": "Core Runtime Settings"
+    },
+    "permissions": {
+      "title": "Permission Management",
+      "layoutTitle": "Access Control List",
+      "inherit": "Inherit",
+      "allow": "Allow",
+      "deny": "Deny"
+    },
+    "fs": {
+      "title": "File System Management",
+      "layoutTitle": "File System Infrastructure",
+      "hybridStorage": "Hybrid",
+      "statusRecovering": "RECOVERING"
+    },
+    "web": {
+      "title": "Website Management",
+      "layoutTitle": "Multi Site Management",
+      "tls": "TLS"
+    },
+    "tasks": {
+      "title": "Task Monitor",
+      "layoutTitle": "Background tasks & scheduler monitoring"
+    },
+    "users": {
+      "title": "Users",
+      "layoutTitle": "Identity Management"
+    }
+  },
+  "admin_fs": {
+    "storage_stats": "Storage Stats",
+    "cluster_storage": "Cluster Storage",
+    "usage_efficiency": "Usage Efficiency",
+    "active_maintenance": "Active Maintenance",
+    "storage_types": "Storage Types",
+    "engine_distribution": "Engine Distribution",
+    "global_ops": "Global Operations",
+    "global_ops_desc": "Caution: These actions affect the entire cluster and should only be performed during maintenance windows.",
+    "sync_index": "Sync Global Index",
+    "emergency_control": "Emergency Hub Control",
+    "emergency_desc": "Caution: These actions bypass normal VFS safety checks and may lead to data inconsistency.",
+    "force_unlock": "Force Global Unlock",
+    "locked_users": "Locked Users (Under WAL Recovery)",
+    "system_status": "System Status"
+  },
+  "admin_perms": {
+    "protocol_control": "Protocol Access Control",
+    "authorized": "Authorized",
+    "filter_placeholder": "Filter authorized users...",
+    "s3_credentials": "S3 Credentials",
+    "ssh_key": "Active Public Key"
+  },
+  "register": {
+    "title": "Регистрация"
+  },
+  "login": {
+    "title": "Войти"
+  },
+  "filemanager": {
+    "title": "File Management"
+  },
+  "index": {
+    "title": "FileUni - High-performance modular system"
+  },
+  "user": {
+    "welcome": {
+      "title": "Панель управления"
+    },
+    "profile": {
+      "title": "Profile",
+      "layoutTitle": "Edit Profile"
+    },
+    "sessions": {
+      "title": "Sessions",
+      "layoutTitle": "Active Sessions"
+    },
+    "security": {
+      "title": "Security",
+      "layoutTitle": "Security Control"
+    },
+    "cache": {
+      "title": "Cache Manager",
+      "layoutTitle": "Cache Manager"
+    },
+    "shares": {
+      "title": "My Shares"
+    }
+  },
+  "colors": {
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "indigo": "Cyan",
+    "purple": "Deep Blue"
+  },
+  "publicShare": {
+    "verifying": "Verifying share link...",
+    "accessDenied": "Access Denied",
+    "linkExpired": "This share link has expired or reached its download limit.",
+    "tryAgain": "Try Again",
+    "encryptedTitle": "Encrypted Share",
+    "passwordRequiredDesc": "This content requires a password to unlock.",
+    "enterPassword": "Enter password...",
+    "unlockBtn": "Unlock Content",
+    "views": "Views",
+    "status": "Статус",
+    "active": "Active",
+    "downloadNow": "Download Now",
+    "previewOnline": "Preview Online",
+    "expiresSoon": "Expires Soon",
+    "file": "Файл",
+    "folder": "Папка",
+    "qrMobileAccess": "Mobile Access",
+    "qrScanDesc": "Scan to open this share on your phone",
+    "qrBackToInfo": "Back to Info",
+    "emptyFolder": "Эта папка пуста",
+    "previewNotAvailable": "Preview Not Available"
+  }
+}

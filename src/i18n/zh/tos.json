@@ -1,0 +1,16 @@
+{
+  "title": "服务协议",
+  "backToWorkspace": "返回工作区",
+  "acceptableUse": {
+    "title": "可接受使用",
+    "content": "您同意仅将 FileUni 用于合法目的。您对您账户下发生的所有活动负责。"
+  },
+  "termination": {
+    "title": "终止条款",
+    "content": "我们保留暂停违反系统完整性或从事恶意抓取的账户的权利。"
+  },
+  "disclaimers": {
+    "title": "免责声明",
+    "content": "FileUni 按\"原样\"提供。虽然我们致力于 99.9% 的正常运行时间，但我们建议为关键数据维护外部备份。"
+  }
+}

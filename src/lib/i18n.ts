@@ -1,54 +1,99 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import zhTranslation from '@/i18n/zh/translation.json';
-import enTranslation from '@/i18n/en/translation.json';
-import esTranslation from '@/i18n/es/translation.json';
-import deTranslation from '@/i18n/de/translation.json';
-import frTranslation from '@/i18n/fr/translation.json';
-import ruTranslation from '@/i18n/ru/translation.json';
-import jaTranslation from '@/i18n/ja/translation.json';
 
-const detectInitialLang = (): 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja' => {
-  if (typeof navigator === 'undefined') return 'en';
-  const base = (navigator.language || 'en').split('-')[0]?.toLowerCase() || 'en';
-  const supported: Record<string, 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja'> = {
-    en: 'en',
-    zh: 'zh',
-    es: 'es',
-    de: 'de',
-    fr: 'fr',
-    ru: 'ru',
-    ja: 'ja',
-  };
-  return supported[base] ?? 'en';
+export type SupportedLang = 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja';
+
+const supportedLangs: SupportedLang[] = ['zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'];
+
+const loaders: Record<SupportedLang, () => Promise<{ default: Record<string, unknown> }>> = {
+  zh: () => import('@/i18n/zh/index.ts'),
+  en: () => import('@/i18n/en/index.ts'),
+  es: () => import('@/i18n/es/index.ts'),
+  de: () => import('@/i18n/de/index.ts'),
+  fr: () => import('@/i18n/fr/index.ts'),
+  ru: () => import('@/i18n/ru/index.ts'),
+  ja: () => import('@/i18n/ja/index.ts')
 };
 
-// Must initialize at the top level of the module to ensure translation resources are available during the SSR phase.
-i18next
-  .use(initReactI18next)
-  .init({
-    resources: {
-      zh: { translation: zhTranslation },
-      en: { translation: enTranslation },
-      es: { translation: esTranslation },
-      de: { translation: deTranslation },
-      fr: { translation: frTranslation },
-      ru: { translation: ruTranslation },
-      ja: { translation: jaTranslation }
-    },
-    lng: detectInitialLang(), // Default: browser language
-    fallbackLng: 'en', // Any language missing a key will fall back to English
-    supportedLngs: ['zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'],
-    interpolation: {
-      escapeValue: false
-    },
-    // Handling logic when the key cannot be found in the current language or English.
-    parseMissingKeyHandler: (key) => {
-      // If even English is missing, display [key] as a placeholder to avoid blank pages.
-      return `[${key}]`;
-    },
-    // Key: Disable asynchronous loading to ensure consistent hydration.
-    initImmediate: false 
-  });
+const toSupportedLang = (raw: unknown): SupportedLang | null => {
+  if (typeof raw !== 'string') return null;
+  const base = raw.split('-')[0]?.toLowerCase() || '';
+  if (base === 'zh') return 'zh';
+  if (base === 'en') return 'en';
+  if (base === 'es') return 'es';
+  if (base === 'de') return 'de';
+  if (base === 'fr') return 'fr';
+  if (base === 'ru') return 'ru';
+  if (base === 'ja') return 'ja';
+  return null;
+};
+
+const detectInitialLang = (): SupportedLang => {
+  if (typeof window === 'undefined') return 'en';
+
+  try {
+    const stateRaw = window.localStorage.getItem('fileuni-language');
+    if (stateRaw) {
+      const parsed = JSON.parse(stateRaw) as { state?: { language?: string } };
+      const value = parsed?.state?.language;
+      if (value === 'auto') {
+        const detected = toSupportedLang(navigator.language || 'en');
+        return detected ?? 'en';
+      }
+      const normalized = toSupportedLang(value);
+      if (normalized) return normalized;
+    }
+  } catch {
+    // ignore
+  }
+
+  const saved = toSupportedLang(window.localStorage.getItem('fileuni-language-raw'));
+  if (saved) return saved;
+
+  return toSupportedLang(navigator.language || 'en') ?? 'en';
+};
+
+const loadTranslationFor = async (lang: SupportedLang): Promise<Record<string, unknown>> => {
+  const mod = await loaders[lang]();
+  return mod.default;
+};
+
+export const ensureLanguageLoaded = async (lang: SupportedLang): Promise<void> => {
+  if (i18next.hasResourceBundle(lang, 'translation')) return;
+  const resources = await loadTranslationFor(lang);
+  i18next.addResourceBundle(lang, 'translation', resources, true, true);
+};
+
+export const changeLanguage = async (lang: SupportedLang): Promise<void> => {
+  await ensureLanguageLoaded('en');
+  await ensureLanguageLoaded(lang);
+  await i18next.changeLanguage(lang);
+};
+
+// Must initialize at the top level of the module so React components can translate immediately.
+const initialLang = detectInitialLang();
+const enTranslation = await loadTranslationFor('en');
+const initialTranslation = initialLang === 'en' ? enTranslation : await loadTranslationFor(initialLang);
+
+i18next.use(initReactI18next).init({
+  resources: {
+    en: { translation: enTranslation },
+    ...(initialLang === 'en' ? {} : { [initialLang]: { translation: initialTranslation } })
+  },
+  lng: initialLang,
+  fallbackLng: 'en',
+  supportedLngs: supportedLangs,
+  interpolation: {
+    escapeValue: false
+  },
+  react: {
+    useSuspense: false
+  },
+  parseMissingKeyHandler: (key) => {
+    return `[${key}]`;
+  },
+  // Ensure stable hydration for first paint.
+  initImmediate: false
+});
 
 export default i18next;

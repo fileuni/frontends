@@ -60,25 +60,76 @@ function flattenKeys(obj, prefix = '') {
   return out;
 }
 
-const basePath = path.join(i18nRoot, BASE_LANG, 'translation.json');
-const base = readJson(basePath);
-const baseKeys = new Set(flattenKeys(base));
+function getNamespaceFiles(langDir) {
+  return fs
+    .readdirSync(langDir)
+    .filter((f) => f.endsWith('.json'))
+    .filter((f) => f !== 'translation.json')
+    .sort();
+}
+
+function toValidIdent(raw) {
+  const cleaned = raw.replace(/[^a-zA-Z0-9_]/g, '_');
+  return /^[a-zA-Z_]/.test(cleaned) ? cleaned : `_${cleaned}`;
+}
+
+function writeIndexTs(langDir, namespaces) {
+  const imports = namespaces
+    .map((ns) => {
+      const ident = toValidIdent(ns);
+      return `import ${ident} from './${ns}.json';`;
+    })
+    .join('\n');
+
+  const obj = namespaces
+    .map((ns) => {
+      const ident = toValidIdent(ns);
+      return `  ${JSON.stringify(ns)}: ${ident},`;
+    })
+    .join('\n');
+
+  const content = `${imports}\n\nconst translation = {\n${obj}\n} as const;\n\nexport default translation;\n`;
+  fs.writeFileSync(path.join(langDir, 'index.ts'), content, 'utf8');
+}
+
+const baseDir = path.join(i18nRoot, BASE_LANG);
+const baseNamespaces = getNamespaceFiles(baseDir).map((f) => f.replace(/\.json$/, ''));
+
+const baseKeySet = new Set();
+for (const ns of baseNamespaces) {
+  const baseNsObj = readJson(path.join(baseDir, `${ns}.json`));
+  for (const k of flattenKeys(baseNsObj, ns)) baseKeySet.add(k);
+}
 
 for (const lang of TARGET_LANGS) {
-  const targetPath = path.join(i18nRoot, lang, 'translation.json');
-  const target = readJson(targetPath);
-  const synced = syncFromBase(base, target);
-  writeJson(targetPath, synced);
+  const langDir = path.join(i18nRoot, lang);
+  let totalKeys = 0;
+  const langKeySet = new Set();
 
-  const keys = new Set(flattenKeys(synced));
-  const missing = [...baseKeys].filter((k) => !keys.has(k));
-  const extra = [...keys].filter((k) => !baseKeys.has(k));
+  for (const ns of baseNamespaces) {
+    const baseNsPath = path.join(baseDir, `${ns}.json`);
+    const targetNsPath = path.join(langDir, `${ns}.json`);
+
+    const baseNs = readJson(baseNsPath);
+    const targetNs = fs.existsSync(targetNsPath) ? readJson(targetNsPath) : {};
+    const syncedNs = syncFromBase(baseNs, targetNs);
+    writeJson(targetNsPath, syncedNs);
+
+    const keys = flattenKeys(syncedNs, ns);
+    totalKeys += keys.length;
+    for (const k of keys) langKeySet.add(k);
+  }
+
+  writeIndexTs(langDir, baseNamespaces);
+
+  const missing = [...baseKeySet].filter((k) => !langKeySet.has(k));
+  const extra = [...langKeySet].filter((k) => !baseKeySet.has(k));
 
   if (missing.length || extra.length) {
     // eslint-disable-next-line no-console
     console.log(`[${lang}] missing=${missing.length} extra=${extra.length}`);
   } else {
     // eslint-disable-next-line no-console
-    console.log(`[${lang}] ok (${keys.size} leaf keys)`);
+    console.log(`[${lang}] ok (${totalKeys} leaf keys)`);
   }
 }

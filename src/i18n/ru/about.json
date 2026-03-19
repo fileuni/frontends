@@ -1,0 +1,40 @@
+{
+  "open": "О FileUni",
+  "title": "О FileUni",
+  "subtitle": "Просмотр текущей версии, официальных ресурсов и статуса последнего релиза.",
+  "description": "FileUni — это унифицированная файловая платформа для многопротокольных и многоуровневых рабочих процессов. Она объединяет веб-интерфейс, графический интерфейс рабочего стола и возможности серверной службы, так что хранилище, учетные записи, службы и расширения остаются в одном рабочем пространстве.",
+  "currentVersion": "Текущая версия",
+  "versionCode": "Код версии",
+  "currentChannel": "Текущий канал",
+  "latestVersion": "Последняя версия",
+  "channel": "Канал",
+  "publishedAt": "Опубликовано",
+  "updateSectionTitle": "Обновления",
+  "updateSectionDescription": "Check the latest release for the current runtime target and jump directly to the best download when an update is available.",
+  "checkUpdates": "Проверить обновления",
+  "checking": "Проверка...",
+  "upToDate": "Этот экземпляр уже обновлен",
+  "updateAvailable": "Доступно обновление: {{version}}",
+  "upToDateForCurrentChannel": "The current channel ({{channel}}) is already up to date",
+  "updateAvailableForCurrentChannel": "An update is available for the current channel ({{channel}})",
+  "updateError": "Ошибка проверки обновлений",
+  "updateIdle": "No update check has been performed yet.",
+  "downloadLatest": "Скачать последнюю",
+  "downloadChannel": "Скачать этот канал",
+  "openUpdateGuide": "Открыть руководство по обновлению",
+  "viewReleasePage": "Просмотреть страницу релиза",
+  "currentChannelBadge": "Текущий канал",
+  "channels": {
+    "stable": "Стабильный",
+    "prerelease": "Предварительный"
+  },
+  "state": {
+    "updateAvailable": "Доступно обновление",
+    "upToDate": "Актуален"
+  },
+  "links": {
+    "website": "Домашняя страница проекта",
+    "docs": "Документация",
+    "repository": "Репозиторий"
+  }
+}
