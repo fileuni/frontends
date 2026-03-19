@@ -18,6 +18,7 @@ import type { components } from '@/types/api.ts';
 import { cn } from '@/lib/utils.ts';
 import { Plus } from 'lucide-react';
 import { fetchRolesAndPermissions, fetchUserPermissions, updateUserPermissions, type RolePermissionView, type PermissionCatalogItem } from './roleApi';
+import { AdminCard, AdminLoadingState, AdminPage, AdminPageHeader } from './admin-ui';
 
 type UserUpdateBody = components["schemas"]["AdminUpdateUserRequest"];
 type FileSettingsBody = components["schemas"]["UserFileSettings"];
@@ -274,31 +275,55 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
   };
 
-  if (loading) return <div className="h-64 flex items-center justify-center font-black animate-pulse opacity-50 uppercase tracking-widest">{t('admin.edit.accessing')}</div>;
+  if (loading) {
+    return (
+      <AdminPage>
+        <AdminPageHeader
+          icon={<UserCircle size={24} />}
+          title={t('admin.edit.accessing')}
+          subtitle={t('admin.loading') || 'Loading...'}
+        />
+        <AdminLoadingState label={t('admin.edit.accessing')} />
+      </AdminPage>
+    );
+  }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
-      <div className="flex items-center gap-4">
-        <button 
-          onClick={() => window.location.hash = 'mod=admin&page=users'}
-          className="p-2 hover:bg-white/5 rounded-full transition-colors opacity-50 hover:opacity-100"
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <div>
-          <h1 className="text-4xl font-black tracking-tight flex items-center gap-4">
-            {rawUser?.username}
-            {rawUser?.is_deleted && <span className="text-sm bg-red-500 text-white px-2 py-1 rounded font-black uppercase">{t('admin.users.status.deleted')}</span>}
-          </h1>
-          <p className="text-sm font-mono opacity-40 uppercase tracking-widest mt-1 flex items-center gap-2">
-            <Hash size={10} /> {userId}
-          </p>
-        </div>
-      </div>
+    <AdminPage className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <AdminPageHeader
+        icon={<UserCircle size={24} />}
+        title={
+          <div className="flex items-center gap-4 min-w-0">
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = 'mod=admin&page=users';
+              }}
+              className="p-2 hover:bg-white/5 rounded-full transition-colors opacity-50 hover:opacity-100 shrink-0"
+              aria-label={t('common.back') || 'Back'}
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <div className="min-w-0">
+              <div className="flex items-center gap-4 min-w-0">
+                <span className="text-4xl font-black tracking-tight truncate">{rawUser?.username}</span>
+                {rawUser?.is_deleted && (
+                  <span className="text-sm bg-red-500 text-white px-2 py-1 rounded font-black uppercase shrink-0">
+                    {t('admin.users.status.deleted')}
+                  </span>
+                )}
+              </div>
+              <div className="text-sm font-mono opacity-40 uppercase tracking-widest mt-1 flex items-center gap-2">
+                <Hash size={10} /> {userId}
+              </div>
+            </div>
+          </div>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <form onSubmit={handleUpdate} className="lg:col-span-8 space-y-8">
-          <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl space-y-10">
+          <AdminCard variant="glass" className="rounded-[2.5rem] p-10 shadow-2xl space-y-10">
             <div className="flex items-center gap-4 mb-2">
               <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
                 <UserCircle size={20} />
@@ -512,11 +537,11 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 {saving ? <RefreshCw className="animate-spin mr-2" /> : <><Save size={20} className="mr-2" /> {t('admin.edit.saveChanges')}</>}
               </Button>
             </div>
-          </div>
+          </AdminCard>
         </form>
 
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl">
+          <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl">
             <h3 className="text-sm font-black uppercase tracking-widest opacity-30 mb-6 flex items-center gap-2">
               <Database size={18} /> {t('admin.edit.usageStats')}
             </h3>
@@ -559,9 +584,9 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 </div>
               </div>
             </div>
-          </div>
+          </AdminCard>
 
-          <div className="bg-red-500/5 border border-red-500/10 rounded-[2.5rem] p-8 shadow-xl">
+          <AdminCard className="bg-red-500/5 border border-red-500/10 rounded-[2.5rem] p-8 shadow-xl">
             <h3 className="text-sm font-black uppercase tracking-widest text-red-500/50 mb-6 flex items-center gap-2">
               <ShieldAlert size={18} /> {t('admin.edit.criticalActions')}
             </h3>
@@ -600,7 +625,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 </Button>
               )}
             </div>
-          </div>
+          </AdminCard>
         </div>
       </div>
 
@@ -673,6 +698,6 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
           </div>
         </div>
       </Modal>
-    </div>
+    </AdminPage>
   );
 };

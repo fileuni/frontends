@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { useConfigStore } from '@/stores/config';
 import { client, extractData } from '@/lib/api';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from '@/features/public/components/about/api';
+import { AdminPage } from './admin-ui';
 
 type SystemOsInfo = {
   os_type: string;
@@ -134,7 +135,7 @@ export const AdminAboutPage: React.FC = () => {
   }, [updateInfo]);
 
   return (
-    <div className="pt-2">
+    <AdminPage withBottomPadding={false} className="pt-2">
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <AboutView
           currentVersion={runtimeVersion}
@@ -286,6 +287,6 @@ export const AdminAboutPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </AdminPage>
   );
 };

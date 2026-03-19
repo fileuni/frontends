@@ -70,6 +70,7 @@ import { DdnsPlanModal } from './domain/modals/DdnsPlanModal';
 import { CertCheckModal } from './domain/modals/CertCheckModal';
 import { CertPlanModal } from './domain/modals/CertPlanModal';
 import { RowActionsModal } from './domain/modals/RowActionsModal';
+import { AdminPage, AdminPageHeader } from './admin-ui';
 
 interface DomainAcmeDdnsAdminProps {
   view: DomainAcmeDdnsView;
@@ -1223,27 +1224,28 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   }, [selectedDdnsProviderKey, ddnsDraft.proxied]);
 
   return (
-    <div className="space-y-8 pb-20">
-      {/* Page Header */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-        <div className="flex items-center gap-4 min-w-0 w-full xl:w-auto">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner shrink-0 border border-primary/20">
-            {isDdns ? <Globe size={24} /> : <ShieldCheck size={24} />}
+    <AdminPage>
+      <AdminPageHeader
+        icon={isDdns ? <Globe size={24} /> : <ShieldCheck size={24} />}
+        iconClassName="bg-primary/10 text-primary border border-primary/20"
+        title={isDdns ? t('admin.domain.ddnsTitle') : t('admin.domain.acmeTitle')}
+        subtitle={
+          <div className="flex items-center gap-2">
+            <div
+              className={cn(
+                'w-1.5 h-1.5 rounded-full shadow-[0_0_8px] shrink-0',
+                isDdns ? 'bg-blue-500 shadow-blue-500/60' : 'bg-green-500 shadow-green-500/60',
+              )}
+            />
+            <p className="text-sm font-bold opacity-60 dark:opacity-40 uppercase tracking-widest truncate text-foreground">
+              {isDdns
+                ? `${ddnsEntries.length} ${t('admin.domain.statsDdnsEntries')}`
+                : `${certificates.length} ${t('admin.domain.statsCertificates')}`}
+            </p>
           </div>
-          <div className="min-w-0">
-            <h2 className="text-2xl font-black tracking-tight truncate text-foreground">
-              {isDdns ? t('admin.domain.ddnsTitle') : t('admin.domain.acmeTitle')}
-            </h2>
-            <div className="flex items-center gap-2">
-              <div className={cn("w-1.5 h-1.5 rounded-full shadow-[0_0_8px] shrink-0", isDdns ? "bg-blue-500 shadow-blue-500/60" : "bg-green-500 shadow-green-500/60")} />
-              <p className="text-sm font-bold opacity-60 dark:opacity-40 uppercase tracking-widest truncate text-foreground">
-                {isDdns ? `${ddnsEntries.length} ${t('admin.domain.statsDdnsEntries')}` : `${certificates.length} ${t('admin.domain.statsCertificates')}`}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full xl:w-auto grid grid-cols-2 sm:flex flex-wrap items-center gap-3">
+        }
+        actions={
+          <div className="w-full xl:w-auto grid grid-cols-2 sm:flex flex-wrap items-center gap-3">
           <Button
             size="sm"
             variant="outline"
@@ -1352,8 +1354,9 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
               <span className="font-bold tracking-wider">{t('admin.domain.create')}</span>
             </Button>
           )}
-        </div>
-      </div>
+          </div>
+        }
+      />
 
        {!viewEnabled && (
          <div className={cn(sectionCardBase, "border-red-500/20 bg-red-500/5")}> 
@@ -2356,7 +2359,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           </div>
         </div>
       </Modal>
-    </div>
+    </AdminPage>
   );
 };
 

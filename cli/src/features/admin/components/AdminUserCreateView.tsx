@@ -10,6 +10,7 @@ import { normalizeEmailInput, normalizePhoneInput } from "@/lib/contactNormalize
 import type { paths } from "@/types/api.ts";
 import { useConfigStore } from "@/stores/config.ts";
 import { fetchRolesAndPermissions, type RolePermissionView } from "./roleApi";
+import { AdminCard, AdminPage, AdminPageHeader } from "./admin-ui";
 
 type UserCreateBody =
   paths["/api/v1/users/admin/users"]["post"]["requestBody"]["content"]["application/json"];
@@ -75,25 +76,31 @@ export const AdminUserCreateView = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
-      <div className="flex items-center gap-4">
-        <a
-          href="#mod=admin&page=users"
-          className="p-2 hover:bg-white/5 rounded-full transition-colors opacity-50 hover:opacity-100"
-        >
-          <ArrowLeft size={24} />
-        </a>
-        <div>
-          <h1 className="text-4xl font-black tracking-tight">
-            {t("pages.admin.userCreate.provisionIdentity")}
-          </h1>
-          <p className="text-sm font-bold opacity-40 uppercase tracking-widest mt-1">
+    <AdminPage className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <AdminPageHeader
+        icon={<UserPlus size={24} />}
+        title={
+          <div className="flex items-center gap-3 min-w-0">
+            <a
+              href="#mod=admin&page=users"
+              className="p-2 hover:bg-white/5 rounded-full transition-colors opacity-50 hover:opacity-100 shrink-0"
+              aria-label={t('common.back') || 'Back'}
+            >
+              <ArrowLeft size={24} />
+            </a>
+            <span className="text-4xl font-black tracking-tight truncate">
+              {t("pages.admin.userCreate.provisionIdentity")}
+            </span>
+          </div>
+        }
+        subtitle={
+          <span className="text-sm font-bold opacity-40 uppercase tracking-widest">
             {t("pages.admin.userCreate.manualAccountCreation")}
-          </p>
-        </div>
-      </div>
+          </span>
+        }
+      />
 
-      <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden">
+      <AdminCard variant="glass" className="rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none rotate-12">
           <UserPlus size={160} />
         </div>
@@ -246,7 +253,7 @@ export const AdminUserCreateView = () => {
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </AdminCard>
+    </AdminPage>
   );
 };

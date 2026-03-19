@@ -12,6 +12,7 @@ import {
 } from '@fileuni/shared';
 import { useAuthzStore } from '@/stores/authz.ts';
 import { useAuthStore } from '@/stores/auth.ts';
+import { AdminPage } from './admin-ui';
 
 type ConfigRawResponse = components['schemas']['ConfigRawResponse'];
 type ConfigNotesResponse = components['schemas']['ConfigNotesResponse'];
@@ -334,7 +335,7 @@ export const SystemConfigAdmin = () => {
   }));
 
   return (
-    <>
+    <AdminPage>
       <SystemConfigWorkbench
         tomlAdapter={toml}
         loading={loading}
@@ -373,6 +374,6 @@ export const SystemConfigAdmin = () => {
         onResetAdminPassword={handleQuickWizardResetAdminPassword}
         isResettingAdminPassword={isResettingAdminPassword}
       />
-    </>
+    </AdminPage>
   );
 };
