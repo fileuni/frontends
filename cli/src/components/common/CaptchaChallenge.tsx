@@ -30,6 +30,8 @@ type Props = {
 
   showTypeHint?: boolean;
   typeHintPrefix?: string;
+
+  size?: 'default' | 'compact';
 };
 
 export const CaptchaChallenge: React.FC<Props> = ({
@@ -46,8 +48,10 @@ export const CaptchaChallenge: React.FC<Props> = ({
   turnstileSiteKeyMissingText,
   showTypeHint = true,
   typeHintPrefix = 'Type: ',
+  size = 'default',
 }) => {
   const isTurnstileCaptcha = captchaData?.captcha_type === 'turnstile';
+  const isCompact = size === 'compact';
 
   return (
     <div className="space-y-2">
@@ -80,14 +84,17 @@ export const CaptchaChallenge: React.FC<Props> = ({
             <Input
               value={captchaCode}
               onChange={(e) => onCaptchaCodeChange(e.target.value)}
-              className="pl-12"
+              className={cn('pl-12', isCompact && 'h-10')}
               placeholder={placeholder}
               required
             />
           </div>
           <div
             className={cn(
-              'w-36 h-12 sm:w-40 sm:h-14 rounded-xl border overflow-hidden cursor-pointer hover:border-primary/50 transition-all flex items-center justify-center',
+              isCompact
+                ? 'w-24 h-10 rounded-lg'
+                : 'w-36 h-12 sm:w-40 sm:h-14 rounded-xl',
+              'border overflow-hidden cursor-pointer hover:border-primary/50 transition-all flex items-center justify-center',
               isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200',
             )}
             onClick={onRefresh}
