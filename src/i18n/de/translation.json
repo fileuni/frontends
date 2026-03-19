@@ -1,1 +1,113 @@
-{}
+{
+  "common": {
+    "brandName": "FileUni",
+    "logoAlt": "FileUni-Logo",
+    "menu": "Menü",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden",
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen",
+    "retry": "Erneut versuchen",
+    "processing": "Wird verarbeitet...",
+    "language": "Sprache",
+    "theme": "Thema",
+    "back": "Zurück",
+    "backToLogin": "Zurück zur Anmeldung"
+  },
+  "nav": {
+    "backToPublic": "Startseite",
+    "dashboard": "Dashboard",
+    "filemanager": "Dateien",
+    "adminPanel": "Admin-Panel",
+    "activeWorkspace": "Aktiver Arbeitsbereich",
+    "userList": "Benutzer",
+    "maintenance": "Wartung",
+    "settings": "Einstellungen",
+    "about": "Über",
+    "domainDdns": "Domain & DDNS",
+    "domainSsl": "Domain & SSL"
+  },
+  "launcher": {
+    "switch_language": "Sprache wechseln",
+    "toggle_theme": "Thema wechseln"
+  },
+  "about": {
+    "open": "Über FileUni",
+    "title": "Über FileUni",
+    "subtitle": "Aktuelle Version und offizielle Ressourcen anzeigen.",
+    "links": {
+      "website": "Website",
+      "docs": "Dokumentation"
+    },
+    "updateSectionTitle": "Updates",
+    "checkUpdates": "Nach Updates suchen",
+    "checking": "Prüfe...",
+    "upToDate": "Diese Instanz ist bereits aktuell",
+    "updateAvailable": "Update verfügbar: {{version}}"
+  },
+  "auth": {
+    "switchUser": "Benutzer wechseln",
+    "captcha": "Captcha",
+    "captchaRequired": "Captcha erforderlich"
+  },
+  "pages": {
+    "index": { "title": "Start" },
+    "tos": { "title": "Nutzungsbedingungen" },
+    "privacy": { "title": "Datenschutz" },
+    "filemanager": { "title": "Dateimanager" },
+    "user": {
+      "welcome": { "title": "Dashboard" },
+      "profile": { "title": "Profil" },
+      "security": { "title": "Sicherheit" },
+      "sessions": { "title": "Sitzungen" },
+      "cache": { "title": "Cache" },
+      "shares": { "title": "Freigaben" }
+    },
+    "admin": {
+      "users": { "title": "Benutzer" },
+      "userCreate": { "title": "Benutzer erstellen" },
+      "userEdit": { "title": "Benutzer bearbeiten" },
+      "settings": { "title": "Einstellungen" },
+      "fs": { "title": "Dateisystem" }
+    }
+  },
+  "forgotPassword": {
+    "accountRecovery": "Kontowiederherstellung",
+    "verifyIdentity": "Identität bestätigen",
+    "findAccount": "Konto finden",
+    "adminRecovery": "Admin-Wiederherstellungsleitfaden",
+    "chooseVerification": "Verifizierung wählen",
+    "securityQuestion": "Sicherheitsfrage",
+    "verifyWithAnswer": "Mit Antwort verifizieren",
+    "emailCode": "E-Mail-Code",
+    "sentTo": "Gesendet an",
+    "protectingAccount": "Konto schützen ({{method}})",
+    "secretAnswerPlaceholder": "Geheime Antwort",
+    "codePlaceholder": "Code",
+    "resend": "Erneut senden",
+    "confirmIdentity": "Identität bestätigen",
+    "createNewPassword": "Neues Passwort erstellen",
+    "newPassword": "Neues Passwort",
+    "repeatPassword": "Passwort wiederholen",
+    "updatePassword": "Passwort aktualisieren",
+    "codeSent": "Code gesendet",
+    "resetSuccess": "Passwort aktualisiert"
+  },
+  "themes": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "auto": "Auto",
+    "system": "System"
+  },
+  "languages": {
+    "zh": "Chinesisch",
+    "en": "Englisch",
+    "es": "Spanisch",
+    "de": "Deutsch",
+    "fr": "Französisch",
+    "ru": "Russisch",
+    "ja": "Japanisch",
+    "auto": "Auto"
+  }
+}
