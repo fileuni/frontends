@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Switch } from '@/components/ui/Switch';
 import { Badge } from '@/components/ui/Badge';
 import { Pagination } from '@fileuni/shared';
@@ -2337,7 +2338,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 </div>
                 <div className="space-y-2">
                   <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.eabHmac')}</label>
-                  <Input type="password" value={zerosslDraft.eab_hmac_key} onChange={(e) => setZeroSslDraft({ ...zerosslDraft, eab_hmac_key: e.target.value })} className={cn(controlBase, "font-mono text-[14px] tracking-tight")} />
+                  <PasswordInput value={zerosslDraft.eab_hmac_key} onChange={(e) => setZeroSslDraft({ ...zerosslDraft, eab_hmac_key: e.target.value })} inputClassName={cn(controlBase, "font-mono text-[14px] tracking-tight")} />
                 </div>
               </div>
             </div>
