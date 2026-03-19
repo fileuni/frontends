@@ -3,7 +3,7 @@ import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { useAuthStore } from '@/stores/auth.ts';
 import { AlertTriangle } from 'lucide-react';
-import { PasswordChangeForm } from '@/features/user-center/components/PasswordChangeForm.tsx';
+import { PasswordChangeForm } from '@/components/user-center/components/PasswordChangeForm.tsx';
 
 export const MustChangePasswordModal = () => {
   const { t } = useTranslation();

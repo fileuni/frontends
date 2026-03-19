@@ -7,8 +7,8 @@ import type { components } from '@/lib/api.ts';
 import type {
   ConfigError,
   ConfigNoteEntry as SharedConfigNoteEntry,
-} from '@/features/system-config/components/ConfigRawEditor';
-import { SystemConfigWorkbench } from '@/features/system-config/components/SystemConfigWorkbench';
+} from '@/components/system-config/components/ConfigRawEditor';
+import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
 import { useToastStore } from '@/stores/toast';
 import { useAuthzStore } from '@/stores/authz.ts';
 import { useAuthStore } from '@/stores/auth.ts';

@@ -9,7 +9,7 @@ import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
 import { client, extractData } from "@/lib/api";
 
-import { MustChangePasswordModal } from "@/features/public/components/MustChangePasswordModal.tsx";
+import { MustChangePasswordModal } from "@/components/public/components/MustChangePasswordModal.tsx";
 
 type LucideIconComponent = React.ComponentType<{ size?: number; className?: string }>;
 

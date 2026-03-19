@@ -4,9 +4,9 @@ import '@/lib/i18n';
 import * as toml from 'smol-toml';
 import type { components as ApiComponents } from '@/types/api.ts';
 import type { components as ConfigSetComponents } from '@/types/config_set_api.ts';
-import type { ConfigError, ConfigNoteEntry } from '@/features/system-config/components/ConfigRawEditor';
-import { SystemConfigWorkbench } from '@/features/system-config/components/SystemConfigWorkbench';
-import { ConfigWorkbenchShell } from '@/features/system-config/components/ConfigWorkbenchShell';
+import type { ConfigError, ConfigNoteEntry } from '@/components/system-config/components/ConfigRawEditor';
+import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
+import { ConfigWorkbenchShell } from '@/components/system-config/components/ConfigWorkbenchShell';
 import { useToastStore } from '@/stores/toast';
 import { useThemeStore, type Theme } from '@/stores/theme';
 import { useLanguageStore, type Language } from '@/stores/language';
@@ -210,13 +210,13 @@ export const ConfigSetEditor: React.FC = () => {
           );
           if (data.is_config_set_mode !== true) {
             window.clearInterval(timer);
-            window.location.replace('/ui');
+            window.location.replace('/');
             return;
           }
         } catch {
           if (Date.now() - startedAt > 20_000) {
             window.clearInterval(timer);
-            window.location.replace('/ui');
+            window.location.replace('/');
           }
         }
       }, 1000);

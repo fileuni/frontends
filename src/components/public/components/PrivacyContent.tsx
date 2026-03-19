@@ -1,20 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18next from '@/lib/i18n.ts';
 import { useThemeStore } from '@/stores/theme';
 import { cn } from '@/lib/utils.ts';
-import { storageHub } from '@/lib/storageHub';
 
 export const PrivacyContent = () => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const [mounted, setMounted] = useState(false);
-  const base = '/ui';
+  const base = '#';
 
   useEffect(() => {
     setMounted(true);
-    const savedLang = storageHub.getLocalItem('fileuni-language-raw') || 'zh';
-    i18next.changeLanguage(savedLang);
   }, []);
 
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -43,7 +39,7 @@ export const PrivacyContent = () => {
       </div>
       <div className="mt-12 text-center">
         <a 
-          href={`${base}/`} 
+          href={`${base}mod=public&page=index`} 
           className={cn(
             "btn btn-ghost font-black uppercase tracking-widest transition-all",
             "opacity-40 hover:opacity-100"

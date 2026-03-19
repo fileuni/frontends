@@ -31,9 +31,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils.ts";
 import { useChat, type Message } from "../context/ChatContext";
-import { ChatSidebar } from "@/features/chat/components/ChatSidebar";
-import { ChatMessageList } from "@/features/chat/components/ChatMessageList";
-import { ChatInput } from "@/features/chat/components/ChatInput";
+import { ChatSidebar } from "@/components/chat/components/ChatSidebar";
+import { ChatMessageList } from "@/components/chat/components/ChatMessageList";
+import { ChatInput } from "@/components/chat/components/ChatInput";
 import { SessionKeyModal } from "./SessionKeyModal";
 import { toast } from "@/stores/toast";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
@@ -443,7 +443,7 @@ export const ChatUnifiedUI: React.FC = () => {
   );
 
   const inviteUrl = useCallback((id: string) => {
-    return `${window.location.origin}/ui/#mod=chat&page=guest&invite=${encodeURIComponent(id)}`;
+    return `${window.location.origin}/#mod=chat&page=guest&invite=${encodeURIComponent(id)}`;
   }, []);
 
   useEscapeToCloseTopLayer({

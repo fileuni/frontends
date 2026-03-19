@@ -14,7 +14,7 @@ import { useThemeStore } from '@/stores/theme';
 import { cn } from '@/lib/utils';
 import { useConfigStore } from '@/stores/config';
 import { client, extractData } from '@/lib/api';
-import { checkLatestReleaseApi, fetchRuntimeVersionApi } from '@/features/public/components/about/api';
+import { checkLatestReleaseApi, fetchRuntimeVersionApi } from '@/components/public/components/about/api';
 import { AdminPage } from './admin-ui';
 
 type SystemOsInfo = {

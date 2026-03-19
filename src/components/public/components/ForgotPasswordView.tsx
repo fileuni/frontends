@@ -12,6 +12,7 @@ import type { components } from '@/types/api.ts';
 import { CaptchaChallenge, type CaptchaPayload } from '@/components/common/CaptchaChallenge.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { PublicCenteredCard } from './public-ui/PublicCenteredCard.tsx';
+import { docsUrl } from '@/lib/docs';
 
 interface RecoveryOptions {
   user_id: string;
@@ -381,7 +382,7 @@ export const ForgotPasswordView = () => {
               </a>
               <div className="pt-4">
                 <a 
-                  href="https://docs.fileuni.com/get-admin-passwd/" 
+                  href={docsUrl('/get-admin-passwd/')}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className={cn(
@@ -394,9 +395,6 @@ export const ForgotPasswordView = () => {
                   <Key size={16} />
                   {t('forgotPassword.adminRecovery')}
                 </a>
-                <p className={cn("text-sm mt-2 opacity-40", isDark ? "text-gray-400" : "text-gray-500")}>
-                  {t('forgotPassword.adminRecoveryHint')}
-                </p>
               </div>
             </div>
           )}

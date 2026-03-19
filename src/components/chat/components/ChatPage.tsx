@@ -278,7 +278,7 @@ export const ChatPage: React.FC = () => {
   };
 
   const inviteUrl = (id: string) =>
-    `${window.location.origin}/ui/#mod=chat&page=guest&invite=${encodeURIComponent(id)}`;
+    `${window.location.origin}/#mod=chat&page=guest&invite=${encodeURIComponent(id)}`;
 
   return (
     <div className="flex h-[calc(100vh-140px)] bg-background border border-border rounded-[2.5rem] overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-700">

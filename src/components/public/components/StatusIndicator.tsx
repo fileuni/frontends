@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import {
   useFileStore,
   type TaskState,
-} from "@/features/file-manager/store/useFileStore.ts";
+} from "@/components/file-manager/store/useFileStore.ts";
 import {
   useNotificationStore,
   type Notification,
@@ -29,7 +29,7 @@ import { formatDistanceToNow } from "date-fns";
 import { toast } from '@/stores/toast';
 import { zhCN, enUS } from "date-fns/locale";
 import { useLanguageStore } from '@/stores/language';
-import { useChat, type ChatContextProps, type Room } from "@/features/chat/context/ChatContext";
+import { useChat, type ChatContextProps, type Room } from "@/components/chat/context/ChatContext";
 import { useConfigStore } from "@/stores/config.ts";
 import { useAuthzStore } from "@/stores/authz.ts";
 

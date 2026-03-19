@@ -19,9 +19,9 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
+import { docsHomeUrl } from '@/lib/docs';
 
 const PROJECT_HOMEPAGE_URL = 'https://fileuni.com';
-const PROJECT_DOCS_URL = 'https://docs.fileuni.com';
 const PROJECT_REPOSITORY_URL = 'https://github.com/FileUni/FileUni-Project';
 
 export interface AboutUpdateInfo {
@@ -410,7 +410,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
             {...(onOpenLink ? { onOpenLink } : {})}
           />
           <LinkCard
-            href={PROJECT_DOCS_URL}
+            href={docsHomeUrl()}
             label={t('about.links.docs')}
             icon={BookOpen}
             isDark={isDark}
