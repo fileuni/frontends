@@ -268,7 +268,9 @@
       "encryptFilenamesHint": "Only effective for 7z format.",
       "taskIdMissing": "Task id is missing in response",
       "browsingDisabled": "Archive browsing is disabled",
-      "browserMode": "Archive Browser Mode"
+      "browserMode": "Archive Browser Mode",
+      "browseTitle": "Browse Content",
+      "requires7zWarning": "This format (e.g. 7z, rar) requires the server to have 7-Zip configured. Please contact the administrator."
     },
     "actions": {
       "open": "Open",
@@ -302,6 +304,7 @@
       "restore": "Restore",
       "share": "Share",
       "cancelShare": "Cancel Share",
+      "help": "Shortcuts Help",
       "uploadFiles": "Upload Files",
       "uploadDirectory": "Upload Folder"
     },
@@ -391,6 +394,9 @@
       "enterNewName": "Please enter new name:",
       "confirmClearHistory": "Are you sure you want to clear browsing history?",
       "confirmClearTrash": "Are you sure you want to empty the trash?",
+      "confirmClearFavorites": "Are you sure you want to clear all favorites?",
+      "confirmClearShares": "Are you sure you want to cancel all shares?",
+      "confirmDeletePermanent": "Are you sure you want to delete these {{count}} items permanently?",
       "confirmClearTargetHistory": "Are you sure you want to permanently clear all local chat history with this contact?",
       "addedToClipboardCopy": "Added to clipboard (Ready to Copy)",
       "addedToClipboardCut": "Added to clipboard (Ready to Move)",
@@ -475,6 +481,8 @@
       "layoutTitle": "Shared Links",
       "allShares": "All Shares",
       "directOnly": "Direct Only",
+      "filterDirect": "Direct",
+      "filterPassword": "Password",
       "total": "Total Shares",
       "startTime": "Shared At",
       "expireTime": "Expires At",
@@ -521,7 +529,53 @@
       "queue": "Queue ({{count}})",
       "videoEngine": "Professional Video Engine",
       "pdfEngine": "Native PDF Engine"
+    },
+    "audio": {
+      "addedToPlaylist": "Added to playlist",
+      "highFidelity": "High fidelity"
+    },
+    "errors": {
+      "loadFailed": "Load failed",
+      "unsupportedType": "Unsupported type"
+    },
+    "task": {
+      "center": "Task Center",
+      "started": "Task started in background",
+      "runningCount": "{{count}} tasks running",
+      "allFinished": "All tasks finished",
+      "clearFinished": "Clear finished",
+      "type": {
+        "compress": "Compress",
+        "decompress": "Extract",
+        "batch_delete": "Batch delete",
+        "batch_move": "Batch move",
+        "batch_copy": "Batch copy"
+      }
+    },
+    "publicShare": {
+      "verifying": "Verifying share link...",
+      "accessDenied": "Access Denied",
+      "linkExpired": "This share link has expired or reached its download limit.",
+      "tryAgain": "Try Again",
+      "encryptedTitle": "Encrypted Share",
+      "passwordRequiredDesc": "This content requires a password to unlock.",
+      "enterPassword": "Enter password...",
+      "unlockBtn": "Unlock Content",
+      "views": "Views",
+      "status": "Status",
+      "active": "Active",
+      "downloadNow": "Download Now",
+      "qrMobileAccess": "Mobile Access",
+      "qrScanDesc": "Scan to open this share on your phone",
+      "qrBackToInfo": "Back to Info",
+      "emptyFolder": "This folder is empty",
+      "previewNotAvailable": "Preview Not Available"
     }
+  },
+  "player": {
+    "playlist": "Playlist",
+    "nowPlaying": "Now Playing",
+    "subtitlesOff": "Off"
   },
   "common": {
     "login": "Login",
@@ -567,6 +621,22 @@
     "notifications": "Notifications",
     "noNotifications": "No new messages",
     "markAllRead": "Mark all as read",
+    "add": "Add",
+    "edit": "Edit",
+    "error": "Error",
+    "success": "Success",
+    "time": "Time",
+    "message": "Message",
+    "noData": "No data",
+    "noItems": "No items",
+    "noResults": "No results",
+    "none": "None",
+    "status": "Status",
+    "confirmDelete": "Are you sure you want to delete this item?",
+    "downloadStarted": "Starting download...",
+    "loadingArchive": "Opening archive...",
+    "minimize": "Minimize",
+    "paginationTitle": "Pagination",
     "pagination": {
       "showing": "Showing {{start}} - {{end}} of {{total}}",
       "page": "Page",
@@ -665,6 +735,7 @@
     "member": "Member",
     "noAccount": "No account?",
     "hasAccount": "Has account?",
+    "alreadyHaveAccount": "Already have an account?",
     "loginSuccess": "Login successful",
     "registerSuccess": "Register successful",
     "passwordMismatch": "Passwords do not match",
@@ -1034,6 +1105,7 @@
     "slotsOccupied": "Slots Occupied"
   },
   "admin": {
+    "loading": "Loading...",
     "extensions": {
       "title": "Extension Manager",
       "subtitle": "Extension & Plugin Infrastructure",
@@ -1142,6 +1214,7 @@
     },
     "tasks": {
       "title": "Task Monitor",
+      "subtitle": "Background tasks and scheduled jobs",
       "scheduled_jobs": "Scheduled Maintenance Tasks",
       "no_scheduled_jobs": "No scheduled jobs found (check configuration)",
       "async_tasks": "Active & History Tasks",
@@ -1161,8 +1234,20 @@
         "failed": "Failed"
       }
     },
+    "permissions": {
+      "inherit": "Inherit",
+      "allow": "Allow",
+      "deny": "Deny"
+    },
+    "perms": {
+      "no_role": "Select a role"
+    },
+    "web": {
+      "tls": "TLS"
+    },
     "domain": {
       "title": "Domain Automation",
+      "certRunNow": "Run now",
       "panelProvider": "Provider Accounts",
       "panelDdns": "DDNS",
       "panelAcme": "Certificates",
@@ -1592,6 +1677,7 @@
     "web": {
       "title": "Website Management",
       "subtitle": "Single site supports multiple domains, IPs and ports",
+      "tls": "TLS",
       "newSite": "New Site",
       "editSite": "Edit Site",
       "reload": "Reload Runtime",
@@ -1743,6 +1829,9 @@
       "deleteAdminWarning": "Warning: You are attempting to delete a System Administrator. This may lead to loss of management access or system risks."
     },
     "fs": {
+      "title": "File System",
+      "subtitle": "Storage stats and maintenance",
+      "statusRecovering": "RECOVERING",
       "storage_stats": "Storage Stats",
       "cluster_storage": "Cluster Used Storage",
       "usage_efficiency": "Quota Utilization",
@@ -1774,6 +1863,7 @@
       "maintenance_status_unavailable": "Maintenance status unavailable (API error or insufficient permission)"
     },
     "perms": {
+      "no_role": "Select a role",
       "title": "Access Governance",
       "subtitle": "Security & Permissions Management",
       "protocol_control": "Protocol Access Control",
@@ -2496,7 +2586,9 @@
       "dbSuccess": "Database connection success!",
       "applyingConfig": "Applying configuration and syncing DB schema...",
       "setupFailed": "Deployment failed",
-      "setupSuccess": "Setup completed successfully. Confirm to continue the normal flow."
+      "setupSuccess": "Setup completed successfully. Confirm to continue the normal flow.",
+      "failed": "Failed",
+      "success": "Success"
     }
   },
   "chat": {
@@ -2539,6 +2631,8 @@
     "multiBackend": "Multi-Protocol Backend",
     "disabled": "Chat disabled",
     "conversations": "Conversations",
+    "chats": "Chats",
+    "profile": "Profile",
     "send": "Send",
     "nicknameOptional": "Optional",
     "invites": "Invites",
@@ -2557,6 +2651,7 @@
     "groupName": "Group name",
     "groupMembers": "Member IDs (comma separated)",
     "groupMembersPlaceholder": "Member IDs, comma separated",
+    "groupMembersDesc": "View group members",
     "createGroup": "Create group",
     "addMembers": "Add members",
     "addMembersDesc": "Add new members to the group",
@@ -2735,6 +2830,8 @@
     "sync": "Sync",
     "syncStarted": "Sync task started in background",
     "syncFailed": "Failed to start sync",
+    "syncSuccess": "Sync completed",
+    "newMessagesArrived": "You have {{count}} new emails",
     "export": "Export Config",
     "exportSuccess": "Configuration exported successfully",
     "exportFailed": "Export failed",
@@ -3067,6 +3164,8 @@
       "username": "Admin Username",
       "password": "Secure Password",
       "suggestPassword": "Generate Random Password",
+      "generate_password": "Generate Random Password",
+      "pendingHint": "Takes effect after final apply",
       "resetRuleHint": "Reset policy: if an admin exists, reset the first admin password; if none exists, create an admin user with username admin.",
       "resetSuccessWithUser": "Admin password applied. Current admin username: {{username}}",
       "finalConfirm": "Final Confirmation",
