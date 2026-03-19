@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo } from '@/components/modals/AboutModal';
 import { useThemeStore, type Theme } from '@/stores/theme';
 import { useLanguageStore, type Language } from '@/stores/language';
@@ -8,7 +8,6 @@ import { useConfigStore } from '@/stores/config.ts';
 import { useNavigationStore } from '@/stores/navigation.ts';
 import { useTranslation } from 'react-i18next';
 import i18next from '@/lib/i18n.ts';
-import { storageHub } from '@/lib/storageHub';
 import { 
   Sun, Moon, Laptop, LayoutDashboard, FolderOpen, 
   ShieldAlert, LogIn, UserPlus, Home, Menu, X, LogOut,
@@ -16,7 +15,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import { StatusIndicator } from './StatusIndicator.tsx';
-import { useChat } from '@/features/chat/context/ChatContext';
+import { useChat } from '@/components/chat/context/ChatContext';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
 
 
@@ -38,6 +37,8 @@ export const Navbar = () => {
   } catch {}
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [aboutVersion, setAboutVersion] = useState('');
@@ -51,8 +52,6 @@ export const Navbar = () => {
   useEffect(() => {
     setMounted(true);
     fetchCapabilities();
-    const savedLang = storageHub.getLocalItem('fileuni-language-raw') || 'zh';
-    i18next.changeLanguage(savedLang);
     void fetchRuntimeVersionApi()
       .then((payload) => setAboutVersion(payload.version))
       .catch((error) => {
@@ -76,6 +75,32 @@ export const Navbar = () => {
   const canUseChat = hasPermission("feature.chat.use") && capabilities?.enable_chat !== false;
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const updateGuideBaseUrl = language === 'en' ? 'https://fileuni.com/update' : 'https://fileuni.com/zh-cn/update';
+
+  const currentI18nLang = (i18next.language || 'en').split('-')[0].toLowerCase();
+  const resolvedLang: Language = currentI18nLang === 'zh' ? 'zh' : currentI18nLang === 'es' ? 'es' : 'en';
+  const langValueForUi: Language = language === 'auto' ? resolvedLang : language;
+  const langFlag = langValueForUi === 'zh'
+    ? String.fromCodePoint(0x1F1E8, 0x1F1F3)
+    : langValueForUi === 'es'
+      ? String.fromCodePoint(0x1F1EA, 0x1F1F8)
+      : String.fromCodePoint(0x1F1EC, 0x1F1E7);
+
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark');
+  };
+
+  useEffect(() => {
+    const onDocMouseDown = (event: MouseEvent) => {
+      if (!isLangMenuOpen) return;
+      const target = event.target as Node | null;
+      if (langMenuRef.current && target && !langMenuRef.current.contains(target)) {
+        setIsLangMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', onDocMouseDown);
+    return () => document.removeEventListener('mousedown', onDocMouseDown);
+  }, [isLangMenuOpen]);
 
   const navItems = useMemo(() => {
     if (capabilities?.is_config_set_mode) return []; // Config-set mode: hide nav links
@@ -168,7 +193,104 @@ export const Navbar = () => {
           )}
           
           {isLoggedIn && <StatusIndicator isDark={isDark} />}
-          
+
+          {/* Quick toggles (always visible) */}
+          <div className="flex items-center gap-2">
+            <div className="relative" ref={langMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsLangMenuOpen((v) => !v)}
+                className={cn(
+                  "h-9 w-10 rounded-xl border inline-flex items-center justify-center transition-all",
+                  isDark
+                    ? "bg-white/5 border-white/10 hover:bg-white/10"
+                    : "bg-gray-100 border-gray-200 hover:bg-gray-200",
+                )}
+                aria-label={t('launcher.switch_language')}
+                title={t('launcher.switch_language')}
+              >
+                <span className="text-lg leading-none" aria-hidden>
+                  {langFlag}
+                </span>
+              </button>
+
+              {isLangMenuOpen && (
+                <div
+                  className={cn(
+                    "absolute right-0 mt-2 w-44 rounded-2xl border shadow-2xl overflow-hidden",
+                    isDark ? "bg-zinc-950 border-white/10" : "bg-white border-gray-200",
+                  )}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLanguage('zh');
+                      setIsLangMenuOpen(false);
+                    }}
+                    className={cn(
+                      "w-full text-left px-4 py-3 text-sm font-black transition-colors",
+                      langValueForUi === 'zh'
+                        ? (isDark ? "bg-white/10" : "bg-gray-100")
+                        : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50"),
+                    )}
+                  >
+                    🇨🇳中文
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLanguage('en');
+                      setIsLangMenuOpen(false);
+                    }}
+                    className={cn(
+                      "w-full text-left px-4 py-3 text-sm font-black transition-colors",
+                      langValueForUi === 'en'
+                        ? (isDark ? "bg-white/10" : "bg-gray-100")
+                        : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50"),
+                    )}
+                  >
+                    🇬🇧English
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLanguage('es');
+                      setIsLangMenuOpen(false);
+                    }}
+                    className={cn(
+                      "w-full text-left px-4 py-3 text-sm font-black transition-colors",
+                      langValueForUi === 'es'
+                        ? (isDark ? "bg-white/10" : "bg-gray-100")
+                        : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50"),
+                    )}
+                  >
+                    🇪🇸Español
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className={cn(
+                "h-9 w-10 rounded-xl border inline-flex items-center justify-center transition-all",
+                isDark
+                  ? "bg-white/5 border-white/10 hover:bg-white/10"
+                  : "bg-gray-100 border-gray-200 hover:bg-gray-200",
+              )}
+              aria-label={t('launcher.toggle_theme')}
+              title={t('launcher.toggle_theme')}
+            >
+              {isDark ? (
+                <Sun size={18} className={cn("opacity-80", isDark ? "text-slate-200" : "text-slate-900")} />
+              ) : (
+                <Moon size={18} className={cn("opacity-80", isDark ? "text-slate-200" : "text-slate-900")} />
+              )}
+            </button>
+          </div>
+           
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className={cn(
