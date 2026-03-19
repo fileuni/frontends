@@ -731,6 +731,11 @@
   "languages": {
     "zh": "Chinese",
     "en": "English",
+    "es": "Spanish",
+    "de": "German",
+    "fr": "French",
+    "ru": "Russian",
+    "ja": "Japanese",
     "auto": "Auto"
   },
   "pages": {

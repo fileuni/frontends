@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import i18next from 'i18next';
 import { storageHub } from '../lib/storageHub';
 
-export type Language = 'auto' | 'zh' | 'en' | 'es';
+export type Language = 'auto' | 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja';
 
 interface LanguageState {
   language: Language;
@@ -41,7 +41,16 @@ export function applyLanguage(lang: Language) {
   let targetLang: string = lang;
   if (lang === 'auto') {
     const base = (navigator.language.split('-')[0] || 'en').toLowerCase();
-    targetLang = base === 'zh' ? 'zh' : base === 'es' ? 'es' : 'en';
+    const supported: Record<string, string> = {
+      en: 'en',
+      zh: 'zh',
+      es: 'es',
+      de: 'de',
+      fr: 'fr',
+      ru: 'ru',
+      ja: 'ja',
+    };
+    targetLang = supported[base] ?? 'en';
   }
   
   i18next.changeLanguage(targetLang);

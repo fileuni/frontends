@@ -3,13 +3,24 @@ import { initReactI18next } from 'react-i18next';
 import zhTranslation from '@/i18n/zh/translation.json';
 import enTranslation from '@/i18n/en/translation.json';
 import esTranslation from '@/i18n/es/translation.json';
+import deTranslation from '@/i18n/de/translation.json';
+import frTranslation from '@/i18n/fr/translation.json';
+import ruTranslation from '@/i18n/ru/translation.json';
+import jaTranslation from '@/i18n/ja/translation.json';
 
-const detectInitialLang = (): 'zh' | 'en' | 'es' => {
+const detectInitialLang = (): 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja' => {
   if (typeof navigator === 'undefined') return 'en';
-  const base = (navigator.language || 'en').split('-')[0]?.toLowerCase();
-  if (base === 'zh') return 'zh';
-  if (base === 'es') return 'es';
-  return 'en';
+  const base = (navigator.language || 'en').split('-')[0]?.toLowerCase() || 'en';
+  const supported: Record<string, 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja'> = {
+    en: 'en',
+    zh: 'zh',
+    es: 'es',
+    de: 'de',
+    fr: 'fr',
+    ru: 'ru',
+    ja: 'ja',
+  };
+  return supported[base] ?? 'en';
 };
 
 // Must initialize at the top level of the module to ensure translation resources are available during the SSR phase.
@@ -19,11 +30,15 @@ i18next
     resources: {
       zh: { translation: zhTranslation },
       en: { translation: enTranslation },
-      es: { translation: esTranslation }
+      es: { translation: esTranslation },
+      de: { translation: deTranslation },
+      fr: { translation: frTranslation },
+      ru: { translation: ruTranslation },
+      ja: { translation: jaTranslation }
     },
     lng: detectInitialLang(), // Default: browser language
     fallbackLng: 'en', // Any language missing a key will fall back to English
-    supportedLngs: ['zh', 'en', 'es'],
+    supportedLngs: ['zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'],
     interpolation: {
       escapeValue: false
     },
