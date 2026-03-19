@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { client } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
-import { DashboardCard, DashboardSectionHeader } from './dashboard-ui';
+import { DashboardCard, DashboardLoading, DashboardSection } from './dashboard-ui';
 
 import type { components } from '@/types/api.ts';
 
@@ -83,24 +83,25 @@ export const SessionsView = () => {
     return Math.min(Math.round((limitInfo.total / limitInfo.max) * 100), 100);
   }, [limitInfo]);
 
-  if (loading) return <div className="h-64 flex items-center justify-center opacity-50 font-black tracking-widest">{t('sessions.loading')}</div>;
+  if (loading) return <DashboardLoading label={t('sessions.loading')} />;
 
   return (
     <div className="space-y-10">
       {/* Session Stats Header */}
-      <DashboardCard variant="glass" className="p-8 md:p-10 overflow-hidden relative group">
+      <DashboardSection
+        variant="glass"
+        className="p-8 md:p-10 overflow-hidden relative group"
+        title={t('sessions.activeDeviceStatus')}
+        icon={(
+          <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shadow-inner">
+            <ShieldCheck size={20} />
+          </div>
+        )}
+        titleClassName="text-xl font-black tracking-tight uppercase"
+        headerClassName="mb-0"
+      >
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex-1 space-y-4">
-            <DashboardSectionHeader
-              title={t('sessions.activeDeviceStatus')}
-              icon={(
-                <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shadow-inner">
-                  <ShieldCheck size={20} />
-                </div>
-              )}
-              titleClassName="text-xl font-black tracking-tight uppercase"
-              className="gap-3 sm:gap-3"
-            />
             <div className="space-y-2 max-w-md">
               <div className="flex justify-between text-sm font-black uppercase tracking-widest opacity-40">
                 <span>{t('sessions.slotsOccupied')}</span>
@@ -125,7 +126,7 @@ export const SessionsView = () => {
             </Button>
           </div>
         </div>
-      </DashboardCard>
+      </DashboardSection>
 
       <div className="grid grid-cols-1 gap-4">
         {sessions.map(session => (

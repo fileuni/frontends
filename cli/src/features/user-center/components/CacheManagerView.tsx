@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button.tsx";
 import { cacheManager, type CacheScanSummary, type CacheScope, type ManagedCategoryId } from "@/lib/cacheManager.ts";
 import { useAuthStore } from "@/stores/auth.ts";
 import { toast } from "@fileuni/shared";
-import { DashboardCard, DashboardSectionHeader } from './dashboard-ui';
+import { DashboardCard, DashboardSection } from './dashboard-ui';
 
 const CATEGORY_ORDER: ManagedCategoryId[] = [
   "email_address_book",
@@ -82,18 +82,19 @@ export const CacheManagerView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <DashboardCard variant="glass" className="rounded-3xl border-white/10 p-4 sm:p-6">
-        <DashboardSectionHeader
-          title={t("cacheManager.title")}
-          subtitle={t("cacheManager.subtitle")}
-          icon={<Database size={20} className="text-primary" />}
-          actions={(
-            <Button variant="outline" className="gap-2 w-full sm:w-auto h-11 text-base" onClick={handleRefresh}>
-              <RefreshCw size={18} />
-              {t("common.refresh")}
-            </Button>
-          )}
-        />
+      <DashboardSection
+        variant="glass"
+        className="rounded-3xl p-4 sm:p-6"
+        title={t("cacheManager.title")}
+        subtitle={t("cacheManager.subtitle")}
+        icon={<Database size={20} className="text-primary" />}
+        actions={(
+          <Button variant="outline" className="gap-2 w-full sm:w-auto h-11 text-base" onClick={handleRefresh}>
+            <RefreshCw size={18} />
+            {t("common.refresh")}
+          </Button>
+        )}
+      >
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
           <DashboardCard variant="subtle" className="rounded-2xl p-4 bg-background/40">
@@ -112,7 +113,7 @@ export const CacheManagerView: React.FC = () => {
           <ShieldAlert size={18} className="mt-0.5 shrink-0" />
           <span>{t("cacheManager.warningText")}</span>
         </div>
-      </DashboardCard>
+      </DashboardSection>
 
       <div className="space-y-3">
         {CATEGORY_ORDER.map((categoryId) => {

@@ -18,6 +18,7 @@ import {
   Database,
 } from "lucide-react";
 import type { components } from "@/types/api.ts";
+import { DashboardLoading, DashboardLinkCard } from "./dashboard-ui";
 
 type UserResponse = components["schemas"]["UserResponse"];
 
@@ -114,9 +115,7 @@ export const UserHomeView = () => {
 
   if (loading)
     return (
-      <div className="h-64 flex items-center justify-center">
-        <span className="loading-spinner w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
+      <DashboardLoading />
     );
 
   return (
@@ -179,10 +178,9 @@ export const UserHomeView = () => {
             </h3>
             <div className="space-y-4">
               {group.items.map((item) => (
-                <a
+                <DashboardLinkCard
                   key={item.name}
                   href={item.path}
-                  className="group block p-6 bg-white/[0.03] border border-white/5 rounded-3xl hover:bg-white/[0.06] hover:border-primary/30 transition-all hover:scale-[1.01] hover:shadow-xl shadow-primary/5"
                 >
                   <div className="flex items-center gap-6">
                     <div
@@ -201,7 +199,7 @@ export const UserHomeView = () => {
                       size={20}
                     />
                   </div>
-                </a>
+                </DashboardLinkCard>
               ))}
             </div>
           </div>
