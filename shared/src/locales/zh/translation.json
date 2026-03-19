@@ -1931,6 +1931,16 @@
       "storage": {
         "title": "存储池与后端",
         "subtitle": "可视化编辑 vfs_storage_hub 存储配置",
+        "views": {
+          "main": "主存储",
+          "advanced": "高级"
+        },
+        "main": {
+          "hint": "主存储快捷编辑",
+          "openAdvanced": "打开高级配置",
+          "desc": "此处仅编辑默认存储池关联的主连接器；更多连接器/存储池/策略请切换到高级。",
+          "noPrimaryConnector": "当前默认存储池未配置主连接器 (primary_connector)。请先选择一个主连接器，或在高级模式中修复配置。"
+        },
         "tabs": {
           "pools": "存储池",
           "connectors": "后端连接器",

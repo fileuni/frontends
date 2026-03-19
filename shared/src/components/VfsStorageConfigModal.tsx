@@ -3,7 +3,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Database, HardDrive, Layers, Plus, Trash2, X } from 'lucide-react';
+import { Database, HardDrive, Layers, Plus, Settings2, Trash2, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useResolvedTheme } from '../lib/theme';
 import { deepClone, ensureRecord, isRecord, type ConfigObject } from '../lib/configObject';
@@ -49,6 +49,8 @@ type PolicyDraft = {
 };
 
 type ActiveTab = 'pools' | 'connectors' | 'policies';
+
+type ViewMode = 'main' | 'advanced';
 
 export interface VfsStorageConfigModalProps {
   isOpen: boolean;
@@ -401,6 +403,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
   };
 
   const [tab, setTab] = useState<ActiveTab>('pools');
+  const [view, setView] = useState<ViewMode>('main');
   const [connectors, setConnectors] = useState<ConnectorDraft[]>([]);
   const [pools, setPools] = useState<PoolDraft[]>([]);
   const [defaultPool, setDefaultPool] = useState('');
@@ -423,6 +426,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     setDefaultPool(parsed.defaultPool);
     setPolicies(parsed.policies);
     setError(parsed.error);
+    setView('main');
     setTab('pools');
   }, [content, isOpen, tomlAdapter]);
 
@@ -437,6 +441,22 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       .map((p) => p.name.trim())
       .filter((v) => v.length > 0);
   }, [pools]);
+
+  const mainPool = useMemo(() => {
+    const wanted = defaultPool.trim();
+    if (wanted.length > 0) {
+      const found = pools.find((p) => p.name.trim() === wanted);
+      if (found) return found;
+    }
+    return pools[0] ?? null;
+  }, [defaultPool, pools]);
+
+  const mainConnector = useMemo(() => {
+    if (!mainPool) return null;
+    const wanted = mainPool.primary_connector.trim();
+    if (wanted.length === 0) return null;
+    return connectors.find((c) => c.name.trim() === wanted) ?? null;
+  }, [connectors, mainPool]);
 
   const driverLabel = (driver: VfsDriver): string => {
     return t(`admin.config.storage.drivers.${driver}`);
@@ -755,99 +775,114 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
             </div>
           )}
 
-          <div className={cn(
-            'grid grid-cols-1 sm:grid-cols-3 gap-2',
-          )}>
+          <div className={cn('grid grid-cols-2 gap-2')}>
             <button
               type="button"
               className={cn(
                 'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
-                tab === 'pools'
+                view === 'main'
                   ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
                   : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
               )}
-              onClick={() => setTab('pools')}
+              onClick={() => setView('main')}
             >
-              <Layers size={16} />
-              {t('admin.config.storage.tabs.pools')}
+              <HardDrive size={16} />
+              {t('admin.config.storage.views.main')}
             </button>
             <button
               type="button"
               className={cn(
                 'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
-                tab === 'connectors'
+                view === 'advanced'
                   ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
                   : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
               )}
-              onClick={() => setTab('connectors')}
+              onClick={() => setView('advanced')}
             >
-              <Database size={16} />
-              {t('admin.config.storage.tabs.connectors')}
-            </button>
-            <button
-              type="button"
-              className={cn(
-                'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
-                tab === 'policies'
-                  ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
-                  : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
-              )}
-              onClick={() => setTab('policies')}
-            >
-              <Layers size={16} />
-              {t('admin.config.storage.tabs.policies')}
+              <Settings2 size={16} />
+              {t('admin.config.storage.views.advanced')}
             </button>
           </div>
 
-          {tab === 'connectors' && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                  {t('admin.config.storage.connectors.title')}
+          {view === 'main' && (
+            <div className={cn(
+              'rounded-2xl border p-3 sm:p-4',
+              isDark ? 'border-white/10 bg-white/[0.02]' : 'border-slate-200 bg-white',
+            )}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                    {t('admin.config.storage.main.hint')}
+                  </div>
                 </div>
                 <button
                   type="button"
                   className={cn(
-                    'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
+                    'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all shrink-0',
                     isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
                   )}
-                  onClick={addConnector}
+                  onClick={() => {
+                    setView('advanced');
+                    setTab('connectors');
+                  }}
                 >
-                  <Plus size={16} />
-                  {t('admin.config.storage.actions.addConnector')}
+                  <Settings2 size={16} />
+                  {t('admin.config.storage.main.openAdvanced')}
                 </button>
               </div>
 
-              {connectors.map((c, idx) => (
-                <div
-                  key={c.id}
-                  className={cn(
-                    'rounded-2xl border p-3 sm:p-4',
-                    isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white',
-                  )}
-                >
+              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                  {t('admin.config.storage.pools.primary')}
+                  <select
+                    className={cn(
+                      'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                      isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                    )}
+                    value={mainPool?.primary_connector || ''}
+                    onChange={(e) => {
+                      if (!mainPool) return;
+                      updatePool(mainPool.id, (prev) => ({ ...prev, primary_connector: e.target.value }));
+                    }}
+                  >
+                    <option value="">{t('common.none')}</option>
+                    {connectors
+                      .map((c) => c.name.trim())
+                      .filter((name) => name.length > 0)
+                      .map((name) => (
+                        <option key={name} value={name}>
+                          {name}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+
+                <div className={cn('text-xs font-bold leading-relaxed self-end opacity-70', isDark ? 'text-slate-400' : 'text-slate-600')}>
+                  {t('admin.config.storage.main.desc')}
+                </div>
+              </div>
+
+              {!mainConnector ? (
+                <div className={cn(
+                  'mt-3 rounded-xl border p-3 text-sm font-bold',
+                  isDark ? 'border-white/10 bg-black/20 text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-700',
+                )}>
+                  {t('admin.config.storage.main.noPrimaryConnector')}
+                </div>
+              ) : (
+                <div className={cn(
+                  'mt-3 rounded-2xl border p-3 sm:p-4',
+                  isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white',
+                )}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="text-sm font-black uppercase tracking-wide truncate">
-                        {c.name || `${t('admin.config.storage.connectors.connector')} #${idx + 1}`}
+                        {mainConnector.name || t('admin.config.storage.connectors.connector')}
                       </div>
                       <div className={cn('text-xs font-bold uppercase tracking-widest mt-0.5 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                        {driverLabel(c.driver)}
+                        {driverLabel(mainConnector.driver)}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      className={cn(
-                        'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
-                        isDark ? 'border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20' : 'border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100',
-                      )}
-                      onClick={() => removeConnector(c.id)}
-                      disabled={connectors.length <= 1}
-                      title={connectors.length <= 1 ? t('admin.config.storage.validation.minimumOneConnector') : undefined}
-                    >
-                      <Trash2 size={16} />
-                      {t('common.delete')}
-                    </button>
                   </div>
 
                   <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -858,8 +893,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                           'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold focus:outline-none focus:ring-2',
                           isDark ? 'border-white/15 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm',
                         )}
-                        value={c.name}
-                        onChange={(e) => renameConnector(c.id, e.target.value)}
+                        value={mainConnector.name}
+                        onChange={(e) => renameConnector(mainConnector.id, e.target.value)}
                       />
                     </label>
 
@@ -870,10 +905,10 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                           'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                           isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                         )}
-                        value={c.driver}
+                        value={mainConnector.driver}
                         onChange={(e) => {
                           const nextDriver = e.target.value as VfsDriver;
-                          updateConnector(c.id, (prev) => ({
+                          updateConnector(mainConnector.id, (prev) => ({
                             ...prev,
                             driver: nextDriver,
                             root: (nextDriver === 's3' || nextDriver === 'webdav')
@@ -901,11 +936,11 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                             'w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold focus:outline-none focus:ring-2',
                             isDark ? 'border-white/15 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm',
                           )}
-                          value={c.root}
-                          placeholder={t(`admin.config.storage.placeholders.root.${c.driver}`)}
-                          onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, root: e.target.value }))}
+                          value={mainConnector.root}
+                          placeholder={t(`admin.config.storage.placeholders.root.${mainConnector.driver}`)}
+                          onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, root: e.target.value }))}
                         />
-                        {canPickRootForDriver(c.driver) && (
+                        {canPickRootForDriver(mainConnector.driver) && (
                           <button
                             type="button"
                             className={cn(
@@ -914,17 +949,17 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                                 ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'
                                 : 'border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100',
                             )}
-                            onClick={() => { void pickConnectorRoot(c.id); }}
-                            disabled={pickingConnectorId === c.id}
+                            onClick={() => { void pickConnectorRoot(mainConnector.id); }}
+                            disabled={pickingConnectorId === mainConnector.id}
                           >
-                            {pickingConnectorId === c.id
+                            {pickingConnectorId === mainConnector.id
                               ? t('common.processing')
                               : t('admin.config.storage.actions.pickDirectory')}
                           </button>
                         )}
                       </div>
                       <div className={cn('text-xs font-bold mt-1 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                        {t(`admin.config.storage.hints.root.${c.driver}`)}
+                        {t(`admin.config.storage.hints.root.${mainConnector.driver}`)}
                       </div>
                     </label>
 
@@ -934,8 +969,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                         <input
                           type="checkbox"
                           className="h-5 w-5"
-                          checked={c.enable}
-                          onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, enable: e.target.checked }))}
+                          checked={mainConnector.enable}
+                          onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, enable: e.target.checked }))}
                         />
                       </div>
                     </label>
@@ -943,7 +978,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                     <div className="md:col-span-2" />
                   </div>
 
-                  {(c.driver === 's3' || c.driver === 'webdav') && (
+                  {(mainConnector.driver === 's3' || mainConnector.driver === 'webdav') && (
                     <div className={cn(
                       'mt-3 rounded-xl border p-3',
                       isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
@@ -951,7 +986,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                       <div className={cn('text-xs font-black uppercase tracking-widest opacity-60 mb-2', isDark ? 'text-slate-300' : 'text-slate-600')}>
                         {t('admin.config.storage.connectors.commonOptions')}
                       </div>
-                      {c.driver === 's3' && (
+                      {mainConnector.driver === 's3' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
                             endpoint
@@ -960,8 +995,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                                 'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                                 isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                               )}
-                              value={getOption(c.options, 'endpoint')}
-                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
+                              value={getOption(mainConnector.options, 'endpoint')}
+                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
                             />
                           </label>
                           <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
@@ -971,8 +1006,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                                 'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                                 isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                               )}
-                              value={getOption(c.options, 'region')}
-                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'region', e.target.value) }))}
+                              value={getOption(mainConnector.options, 'region')}
+                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'region', e.target.value) }))}
                             />
                           </label>
                           <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
@@ -982,8 +1017,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                                 'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                                 isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                               )}
-                              value={getOption(c.options, 'bucket')}
-                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'bucket', e.target.value) }))}
+                              value={getOption(mainConnector.options, 'bucket')}
+                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'bucket', e.target.value) }))}
                             />
                           </label>
                           <div />
@@ -994,8 +1029,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                                 'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                                 isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                               )}
-                              value={getOption(c.options, 'access_key_id')}
-                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'access_key_id', e.target.value) }))}
+                              value={getOption(mainConnector.options, 'access_key_id')}
+                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'access_key_id', e.target.value) }))}
                             />
                           </label>
                           <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
@@ -1006,13 +1041,13 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                                 'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                                 isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                               )}
-                              value={getOption(c.options, 'secret_access_key')}
-                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'secret_access_key', e.target.value) }))}
+                              value={getOption(mainConnector.options, 'secret_access_key')}
+                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'secret_access_key', e.target.value) }))}
                             />
                           </label>
                         </div>
                       )}
-                      {c.driver === 'webdav' && (
+                      {mainConnector.driver === 'webdav' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <label className={cn('text-sm font-black md:col-span-2', isDark ? 'text-slate-300' : 'text-slate-700')}>
                             endpoint
@@ -1021,8 +1056,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                                 'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                                 isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                               )}
-                              value={getOption(c.options, 'endpoint')}
-                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
+                              value={getOption(mainConnector.options, 'endpoint')}
+                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
                             />
                           </label>
                           <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
@@ -1032,8 +1067,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                                 'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                                 isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                               )}
-                              value={getOption(c.options, 'username')}
-                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'username', e.target.value) }))}
+                              value={getOption(mainConnector.options, 'username')}
+                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'username', e.target.value) }))}
                             />
                           </label>
                           <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
@@ -1044,410 +1079,716 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                                 'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                                 isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                               )}
-                              value={getOption(c.options, 'password')}
-                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'password', e.target.value) }))}
+                              value={getOption(mainConnector.options, 'password')}
+                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'password', e.target.value) }))}
                             />
                           </label>
                         </div>
                       )}
                     </div>
                   )}
-
-                  <div className={cn(
-                    'mt-3 rounded-xl border p-3',
-                    isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
-                  )}>
-                    <div className="flex items-center justify-between">
-                      <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                        {t('admin.config.storage.fields.options')}
-                      </div>
-                      <button
-                        type="button"
-                        className={cn(
-                          'h-8 px-2 rounded-lg border text-xs font-black inline-flex items-center gap-2 transition-all',
-                          isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
-                        )}
-                        onClick={() => updateConnector(c.id, (prev) => ({ ...prev, options: [...prev.options, { key: '', value: '' }] }))}
-                      >
-                        <Plus size={14} />
-                        {t('admin.config.storage.actions.addOption')}
-                      </button>
-                    </div>
-
-                    <div className="mt-2 space-y-2">
-                      {c.options.map((pair, pairIndex) => (
-                        <div key={`${c.id}-opt-${pairIndex}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
-                          <input
-                            className={cn(
-                              'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                            )}
-                            placeholder={t('admin.config.storage.placeholders.optionKey')}
-                            value={pair.key}
-                            onChange={(e) => {
-                              const nextKey = e.target.value;
-                              updateConnector(c.id, (prev) => {
-                                const next = prev.options.slice();
-                                next[pairIndex] = { ...next[pairIndex], key: nextKey };
-                                return { ...prev, options: next };
-                              });
-                            }}
-                          />
-                          <input
-                            className={cn(
-                              'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                            )}
-                            placeholder={t('admin.config.storage.placeholders.optionValue')}
-                            value={pair.value}
-                            onChange={(e) => {
-                              const nextValue = e.target.value;
-                              updateConnector(c.id, (prev) => {
-                                const next = prev.options.slice();
-                                next[pairIndex] = { ...next[pairIndex], value: nextValue };
-                                return { ...prev, options: next };
-                              });
-                            }}
-                          />
-                          <button
-                            type="button"
-                            className={cn(
-                              'h-10 w-10 rounded-lg border inline-flex items-center justify-center',
-                              isDark ? 'border-white/15 text-slate-200 hover:bg-white/10' : 'border-slate-300 text-slate-700 hover:bg-slate-100',
-                            )}
-                            onClick={() => {
-                              updateConnector(c.id, (prev) => {
-                                const next = prev.options.slice();
-                                next.splice(pairIndex, 1);
-                                return { ...prev, options: next };
-                              });
-                            }}
-                            aria-label={t('common.delete')}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
-              ))}
+              )}
             </div>
           )}
 
-          {tab === 'pools' && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                  {t('admin.config.storage.pools.title')}
-                </div>
+          {view === 'advanced' && (
+            <>
+              <div className={cn(
+                'grid grid-cols-1 sm:grid-cols-3 gap-2',
+              )}>
                 <button
                   type="button"
                   className={cn(
-                    'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
-                    isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
+                    'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+                    tab === 'pools'
+                      ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
+                      : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
                   )}
-                  onClick={addPool}
+                  onClick={() => setTab('pools')}
                 >
-                  <Plus size={16} />
-                  {t('admin.config.storage.actions.addPool')}
+                  <Layers size={16} />
+                  {t('admin.config.storage.tabs.pools')}
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+                    tab === 'connectors'
+                      ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
+                      : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
+                  )}
+                  onClick={() => setTab('connectors')}
+                >
+                  <Database size={16} />
+                  {t('admin.config.storage.tabs.connectors')}
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+                    tab === 'policies'
+                      ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
+                      : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
+                  )}
+                  onClick={() => setTab('policies')}
+                >
+                  <Layers size={16} />
+                  {t('admin.config.storage.tabs.policies')}
                 </button>
               </div>
 
-              {pools.map((p, idx) => (
-                <div
-                  key={p.id}
-                  className={cn(
-                    'rounded-2xl border p-3 sm:p-4',
-                    isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white',
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="text-sm font-black uppercase tracking-wide truncate">
-                        {p.name || `${t('admin.config.storage.pools.pool')} #${idx + 1}`}
-                      </div>
-                      <div className={cn('text-xs font-bold uppercase tracking-widest mt-0.5 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                        {t('admin.config.storage.pools.primary')}: {p.primary_connector || '-'}
-                      </div>
+              {tab === 'connectors' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                      {t('admin.config.storage.connectors.title')}
                     </div>
                     <button
                       type="button"
                       className={cn(
                         'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
-                        isDark ? 'border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20' : 'border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100',
+                        isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
                       )}
-                      onClick={() => removePool(p.id)}
-                      disabled={pools.length <= 1}
-                      title={pools.length <= 1 ? t('admin.config.storage.validation.minimumOnePool') : undefined}
+                      onClick={addConnector}
                     >
-                      <Trash2 size={16} />
-                      {t('common.delete')}
+                      <Plus size={16} />
+                      {t('admin.config.storage.actions.addConnector')}
                     </button>
                   </div>
 
-                  <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                      {t('admin.config.storage.fields.name')}
-                      <input
-                        className={cn(
-                          'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold focus:outline-none focus:ring-2',
-                          isDark ? 'border-white/15 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm',
-                        )}
-                        value={p.name}
-                        onChange={(e) => renamePool(p.id, e.target.value)}
-                      />
-                    </label>
-
-                    <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                      {t('admin.config.storage.pools.primary')}
-                      <select
-                        className={cn(
-                          'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                          isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                        )}
-                        value={p.primary_connector}
-                        onChange={(e) => updatePool(p.id, (prev) => ({ ...prev, primary_connector: e.target.value }))}
-                      >
-                        {connectors.map((c) => (
-                          <option key={c.id} value={c.name}>
-                            {c.name || '(unnamed)'}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                      {t('admin.config.storage.pools.backup')}
-                      <select
-                        className={cn(
-                          'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                          isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                        )}
-                        value={p.backup_connector}
-                        onChange={(e) => updatePool(p.id, (prev) => ({ ...prev, backup_connector: e.target.value }))}
-                      >
-                        <option value="">{t('common.none')}</option>
-                        {connectors.map((c) => (
-                          <option key={c.id} value={c.name}>
-                            {c.name || '(unnamed)'}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                      {t('admin.config.storage.fields.enabled')}
-                      <div className="mt-1">
-                        <input
-                          type="checkbox"
-                          className="h-5 w-5"
-                          checked={p.enable}
-                          onChange={(e) => updatePool(p.id, (prev) => ({ ...prev, enable: e.target.checked }))}
-                        />
+                  {connectors.map((c, idx) => (
+                    <div
+                      key={c.id}
+                      className={cn(
+                        'rounded-2xl border p-3 sm:p-4',
+                        isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white',
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-sm font-black uppercase tracking-wide truncate">
+                            {c.name || `${t('admin.config.storage.connectors.connector')} #${idx + 1}`}
+                          </div>
+                          <div className={cn('text-xs font-bold uppercase tracking-widest mt-0.5 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                            {driverLabel(c.driver)}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className={cn(
+                            'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
+                            isDark ? 'border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20' : 'border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100',
+                          )}
+                          onClick={() => removeConnector(c.id)}
+                          disabled={connectors.length <= 1}
+                          title={connectors.length <= 1 ? t('admin.config.storage.validation.minimumOneConnector') : undefined}
+                        >
+                          <Trash2 size={16} />
+                          {t('common.delete')}
+                        </button>
                       </div>
-                    </label>
 
-                    <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                      {t('admin.config.storage.pools.writeCache')}
-                      <div className="mt-1">
-                        <input
-                          type="checkbox"
-                          className="h-5 w-5"
-                          checked={p.enable_write_cache}
-                          onChange={(e) => updatePool(p.id, (prev) => ({ ...prev, enable_write_cache: e.target.checked }))}
-                        />
-                      </div>
-                    </label>
-                  </div>
-
-                  <div className={cn(
-                    'mt-3 rounded-xl border p-3',
-                    isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
-                  )}>
-                    <div className="flex items-center justify-between">
-                      <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                        {t('admin.config.storage.fields.options')}
-                      </div>
-                      <button
-                        type="button"
-                        className={cn(
-                          'h-8 px-2 rounded-lg border text-xs font-black inline-flex items-center gap-2 transition-all',
-                          isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
-                        )}
-                        onClick={() => updatePool(p.id, (prev) => ({ ...prev, options: [...prev.options, { key: '', value: '' }] }))}
-                      >
-                        <Plus size={14} />
-                        {t('admin.config.storage.actions.addOption')}
-                      </button>
-                    </div>
-                    <div className="mt-2 space-y-2">
-                      {p.options.map((pair, pairIndex) => (
-                        <div key={`${p.id}-opt-${pairIndex}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.fields.name')}
                           <input
                             className={cn(
-                              'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold focus:outline-none focus:ring-2',
+                              isDark ? 'border-white/15 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm',
                             )}
-                            placeholder={t('admin.config.storage.placeholders.optionKey')}
-                            value={pair.key}
-                            onChange={(e) => {
-                              const nextKey = e.target.value;
-                              updatePool(p.id, (prev) => {
-                                const next = prev.options.slice();
-                                next[pairIndex] = { ...next[pairIndex], key: nextKey };
-                                return { ...prev, options: next };
-                              });
-                            }}
+                            value={c.name}
+                            onChange={(e) => renameConnector(c.id, e.target.value)}
                           />
-                          <input
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.fields.driver')}
+                          <select
                             className={cn(
-                              'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
                               isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                             )}
-                            placeholder={t('admin.config.storage.placeholders.optionValue')}
-                            value={pair.value}
+                            value={c.driver}
                             onChange={(e) => {
-                              const nextValue = e.target.value;
-                              updatePool(p.id, (prev) => {
-                                const next = prev.options.slice();
-                                next[pairIndex] = { ...next[pairIndex], value: nextValue };
-                                return { ...prev, options: next };
-                              });
+                              const nextDriver = e.target.value as VfsDriver;
+                              updateConnector(c.id, (prev) => ({
+                                ...prev,
+                                driver: nextDriver,
+                                root: (nextDriver === 's3' || nextDriver === 'webdav')
+                                  ? (prev.driver === 's3' || prev.driver === 'webdav'
+                                    ? prev.root
+                                    : '/')
+                                  : prev.root,
+                                options: normalizeOptionsForDriver(nextDriver, prev.options),
+                              }));
                             }}
-                          />
+                          >
+                            {(['fs', 's3', 'webdav', 'memory', 'android_saf', 'ios_scoped_fs'] as VfsDriver[]).map((driver) => (
+                              <option key={driver} value={driver}>
+                                {driverLabel(driver)}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label className={cn('text-sm font-black md:col-span-2', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.fields.root')}
+                          <div className="mt-1 flex items-center gap-2">
+                            <input
+                              className={cn(
+                                'w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold focus:outline-none focus:ring-2',
+                                isDark ? 'border-white/15 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm',
+                              )}
+                              value={c.root}
+                              placeholder={t(`admin.config.storage.placeholders.root.${c.driver}`)}
+                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, root: e.target.value }))}
+                            />
+                            {canPickRootForDriver(c.driver) && (
+                              <button
+                                type="button"
+                                className={cn(
+                                  'h-10 px-3 rounded-lg border text-sm font-black shrink-0 transition-all',
+                                  isDark
+                                    ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'
+                                    : 'border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100',
+                                )}
+                                onClick={() => { void pickConnectorRoot(c.id); }}
+                                disabled={pickingConnectorId === c.id}
+                              >
+                                {pickingConnectorId === c.id
+                                  ? t('common.processing')
+                                  : t('admin.config.storage.actions.pickDirectory')}
+                              </button>
+                            )}
+                          </div>
+                          <div className={cn('text-xs font-bold mt-1 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                            {t(`admin.config.storage.hints.root.${c.driver}`)}
+                          </div>
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.fields.enabled')}
+                          <div className="mt-1">
+                            <input
+                              type="checkbox"
+                              className="h-5 w-5"
+                              checked={c.enable}
+                              onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, enable: e.target.checked }))}
+                            />
+                          </div>
+                        </label>
+
+                        <div className="md:col-span-2" />
+                      </div>
+
+                      {(c.driver === 's3' || c.driver === 'webdav') && (
+                        <div className={cn(
+                          'mt-3 rounded-xl border p-3',
+                          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
+                        )}>
+                          <div className={cn('text-xs font-black uppercase tracking-widest opacity-60 mb-2', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                            {t('admin.config.storage.connectors.commonOptions')}
+                          </div>
+                          {c.driver === 's3' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                                endpoint
+                                <input
+                                  className={cn(
+                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                  )}
+                                  value={getOption(c.options, 'endpoint')}
+                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
+                                />
+                              </label>
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                                region
+                                <input
+                                  className={cn(
+                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                  )}
+                                  value={getOption(c.options, 'region')}
+                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'region', e.target.value) }))}
+                                />
+                              </label>
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                                bucket
+                                <input
+                                  className={cn(
+                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                  )}
+                                  value={getOption(c.options, 'bucket')}
+                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'bucket', e.target.value) }))}
+                                />
+                              </label>
+                              <div />
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                                access_key_id
+                                <input
+                                  className={cn(
+                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                  )}
+                                  value={getOption(c.options, 'access_key_id')}
+                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'access_key_id', e.target.value) }))}
+                                />
+                              </label>
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                                secret_access_key
+                                <input
+                                  type="password"
+                                  className={cn(
+                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                  )}
+                                  value={getOption(c.options, 'secret_access_key')}
+                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'secret_access_key', e.target.value) }))}
+                                />
+                              </label>
+                            </div>
+                          )}
+                          {c.driver === 'webdav' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <label className={cn('text-sm font-black md:col-span-2', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                                endpoint
+                                <input
+                                  className={cn(
+                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                  )}
+                                  value={getOption(c.options, 'endpoint')}
+                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
+                                />
+                              </label>
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                                username
+                                <input
+                                  className={cn(
+                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                  )}
+                                  value={getOption(c.options, 'username')}
+                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'username', e.target.value) }))}
+                                />
+                              </label>
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                                password
+                                <input
+                                  type="password"
+                                  className={cn(
+                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                  )}
+                                  value={getOption(c.options, 'password')}
+                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'password', e.target.value) }))}
+                                />
+                              </label>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className={cn(
+                        'mt-3 rounded-xl border p-3',
+                        isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
+                      )}>
+                        <div className="flex items-center justify-between">
+                          <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                            {t('admin.config.storage.fields.options')}
+                          </div>
                           <button
                             type="button"
                             className={cn(
-                              'h-10 w-10 rounded-lg border inline-flex items-center justify-center',
-                              isDark ? 'border-white/15 text-slate-200 hover:bg-white/10' : 'border-slate-300 text-slate-700 hover:bg-slate-100',
+                              'h-8 px-2 rounded-lg border text-xs font-black inline-flex items-center gap-2 transition-all',
+                              isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
                             )}
-                            onClick={() => {
-                              updatePool(p.id, (prev) => {
-                                const next = prev.options.slice();
-                                next.splice(pairIndex, 1);
-                                return { ...prev, options: next };
-                              });
-                            }}
-                            aria-label={t('common.delete')}
+                            onClick={() => updateConnector(c.id, (prev) => ({ ...prev, options: [...prev.options, { key: '', value: '' }] }))}
                           >
-                            <Trash2 size={16} />
+                            <Plus size={14} />
+                            {t('admin.config.storage.actions.addOption')}
                           </button>
                         </div>
-                      ))}
+
+                        <div className="mt-2 space-y-2">
+                          {c.options.map((pair, pairIndex) => (
+                            <div key={`${c.id}-opt-${pairIndex}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                              <input
+                                className={cn(
+                                  'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                  isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                )}
+                                placeholder={t('admin.config.storage.placeholders.optionKey')}
+                                value={pair.key}
+                                onChange={(e) => {
+                                  const nextKey = e.target.value;
+                                  updateConnector(c.id, (prev) => {
+                                    const next = prev.options.slice();
+                                    next[pairIndex] = { ...next[pairIndex], key: nextKey };
+                                    return { ...prev, options: next };
+                                  });
+                                }}
+                              />
+                              <input
+                                className={cn(
+                                  'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                  isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                )}
+                                placeholder={t('admin.config.storage.placeholders.optionValue')}
+                                value={pair.value}
+                                onChange={(e) => {
+                                  const nextValue = e.target.value;
+                                  updateConnector(c.id, (prev) => {
+                                    const next = prev.options.slice();
+                                    next[pairIndex] = { ...next[pairIndex], value: nextValue };
+                                    return { ...prev, options: next };
+                                  });
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className={cn(
+                                  'h-10 w-10 rounded-lg border inline-flex items-center justify-center',
+                                  isDark ? 'border-white/15 text-slate-200 hover:bg-white/10' : 'border-slate-300 text-slate-700 hover:bg-slate-100',
+                                )}
+                                onClick={() => {
+                                  updateConnector(c.id, (prev) => {
+                                    const next = prev.options.slice();
+                                    next.splice(pairIndex, 1);
+                                    return { ...prev, options: next };
+                                  });
+                                }}
+                                aria-label={t('common.delete')}
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {tab === 'policies' && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                  {t('admin.config.storage.policies.title')}
-                </div>
-                <button
-                  type="button"
-                  className={cn(
-                    'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
-                    isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
-                  )}
-                  onClick={addPolicy}
-                >
-                  <Plus size={16} />
-                  {t('admin.config.storage.actions.addPolicy')}
-                </button>
-              </div>
-
-              <div className={cn('text-sm font-bold opacity-70', isDark ? 'text-slate-400' : 'text-slate-600')}>
-                {t('admin.config.storage.policies.hint')}
-              </div>
-
-              {policies.length === 0 && (
-                <div className={cn(
-                  'rounded-xl border p-3',
-                  isDark ? 'border-white/10 bg-black/20 text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-700',
-                )}>
-                  {t('admin.config.storage.policies.empty')}
+                  ))}
                 </div>
               )}
 
-              {policies.map((policy, idx) => (
-                <div
-                  key={policy.id}
-                  className={cn(
-                    'rounded-2xl border p-3 sm:p-4',
-                    isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white',
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="text-sm font-black uppercase tracking-wide truncate">
-                        {t('admin.config.storage.policies.policy')} #{idx + 1}
-                      </div>
+              {tab === 'pools' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                      {t('admin.config.storage.pools.title')}
                     </div>
                     <button
                       type="button"
                       className={cn(
                         'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
-                        isDark ? 'border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20' : 'border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100',
+                        isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
                       )}
-                      onClick={() => removePolicy(policy.id)}
+                      onClick={addPool}
                     >
-                      <Trash2 size={16} />
-                      {t('common.delete')}
+                      <Plus size={16} />
+                      {t('admin.config.storage.actions.addPool')}
                     </button>
                   </div>
 
-                  <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                      {t('admin.config.storage.policies.roleId')}
-                      <input
-                        className={cn(
-                          'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                          isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                        )}
-                        value={policy.role_id}
-                        onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, role_id: e.target.value }))}
-                      />
-                    </label>
+                  {pools.map((p, idx) => (
+                    <div
+                      key={p.id}
+                      className={cn(
+                        'rounded-2xl border p-3 sm:p-4',
+                        isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white',
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-sm font-black uppercase tracking-wide truncate">
+                            {p.name || `${t('admin.config.storage.pools.pool')} #${idx + 1}`}
+                          </div>
+                          <div className={cn('text-xs font-bold uppercase tracking-widest mt-0.5 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                            {t('admin.config.storage.pools.primary')}: {p.primary_connector || '-'}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className={cn(
+                            'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
+                            isDark ? 'border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20' : 'border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100',
+                          )}
+                          onClick={() => removePool(p.id)}
+                          disabled={pools.length <= 1}
+                          title={pools.length <= 1 ? t('admin.config.storage.validation.minimumOnePool') : undefined}
+                        >
+                          <Trash2 size={16} />
+                          {t('common.delete')}
+                        </button>
+                      </div>
 
-                    <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                      {t('admin.config.storage.policies.poolName')}
-                      <select
-                        className={cn(
-                          'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                          isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                        )}
-                        value={policy.pool_name}
-                        onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, pool_name: e.target.value }))}
-                      >
-                        {pools.map((p) => (
-                          <option key={p.id} value={p.name}>
-                            {p.name || '(unnamed)'}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.fields.name')}
+                          <input
+                            className={cn(
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold focus:outline-none focus:ring-2',
+                              isDark ? 'border-white/15 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm',
+                            )}
+                            value={p.name}
+                            onChange={(e) => renamePool(p.id, e.target.value)}
+                          />
+                        </label>
 
-                    <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                      {t('admin.config.storage.policies.defaultQuota')}
-                      <input
-                        className={cn(
-                          'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                          isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                        )}
-                        placeholder="0"
-                        value={policy.default_quota}
-                        onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, default_quota: e.target.value }))}
-                      />
-                    </label>
-                  </div>
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.pools.primary')}
+                          <select
+                            className={cn(
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                            )}
+                            value={p.primary_connector}
+                            onChange={(e) => updatePool(p.id, (prev) => ({ ...prev, primary_connector: e.target.value }))}
+                          >
+                            {connectors.map((c) => (
+                              <option key={c.id} value={c.name}>
+                                {c.name || '(unnamed)'}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.pools.backup')}
+                          <select
+                            className={cn(
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                            )}
+                            value={p.backup_connector}
+                            onChange={(e) => updatePool(p.id, (prev) => ({ ...prev, backup_connector: e.target.value }))}
+                          >
+                            <option value="">{t('common.none')}</option>
+                            {connectors.map((c) => (
+                              <option key={c.id} value={c.name}>
+                                {c.name || '(unnamed)'}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.fields.enabled')}
+                          <div className="mt-1">
+                            <input
+                              type="checkbox"
+                              className="h-5 w-5"
+                              checked={p.enable}
+                              onChange={(e) => updatePool(p.id, (prev) => ({ ...prev, enable: e.target.checked }))}
+                            />
+                          </div>
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.pools.writeCache')}
+                          <div className="mt-1">
+                            <input
+                              type="checkbox"
+                              className="h-5 w-5"
+                              checked={p.enable_write_cache}
+                              onChange={(e) => updatePool(p.id, (prev) => ({ ...prev, enable_write_cache: e.target.checked }))}
+                            />
+                          </div>
+                        </label>
+                      </div>
+
+                      <div className={cn(
+                        'mt-3 rounded-xl border p-3',
+                        isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
+                      )}>
+                        <div className="flex items-center justify-between">
+                          <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                            {t('admin.config.storage.fields.options')}
+                          </div>
+                          <button
+                            type="button"
+                            className={cn(
+                              'h-8 px-2 rounded-lg border text-xs font-black inline-flex items-center gap-2 transition-all',
+                              isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
+                            )}
+                            onClick={() => updatePool(p.id, (prev) => ({ ...prev, options: [...prev.options, { key: '', value: '' }] }))}
+                          >
+                            <Plus size={14} />
+                            {t('admin.config.storage.actions.addOption')}
+                          </button>
+                        </div>
+                        <div className="mt-2 space-y-2">
+                          {p.options.map((pair, pairIndex) => (
+                            <div key={`${p.id}-opt-${pairIndex}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                              <input
+                                className={cn(
+                                  'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                  isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                )}
+                                placeholder={t('admin.config.storage.placeholders.optionKey')}
+                                value={pair.key}
+                                onChange={(e) => {
+                                  const nextKey = e.target.value;
+                                  updatePool(p.id, (prev) => {
+                                    const next = prev.options.slice();
+                                    next[pairIndex] = { ...next[pairIndex], key: nextKey };
+                                    return { ...prev, options: next };
+                                  });
+                                }}
+                              />
+                              <input
+                                className={cn(
+                                  'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                                  isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                                )}
+                                placeholder={t('admin.config.storage.placeholders.optionValue')}
+                                value={pair.value}
+                                onChange={(e) => {
+                                  const nextValue = e.target.value;
+                                  updatePool(p.id, (prev) => {
+                                    const next = prev.options.slice();
+                                    next[pairIndex] = { ...next[pairIndex], value: nextValue };
+                                    return { ...prev, options: next };
+                                  });
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className={cn(
+                                  'h-10 w-10 rounded-lg border inline-flex items-center justify-center',
+                                  isDark ? 'border-white/15 text-slate-200 hover:bg-white/10' : 'border-slate-300 text-slate-700 hover:bg-slate-100',
+                                )}
+                                onClick={() => {
+                                  updatePool(p.id, (prev) => {
+                                    const next = prev.options.slice();
+                                    next.splice(pairIndex, 1);
+                                    return { ...prev, options: next };
+                                  });
+                                }}
+                                aria-label={t('common.delete')}
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )}
+
+              {tab === 'policies' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                      {t('admin.config.storage.policies.title')}
+                    </div>
+                    <button
+                      type="button"
+                      className={cn(
+                        'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
+                        isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
+                      )}
+                      onClick={addPolicy}
+                    >
+                      <Plus size={16} />
+                      {t('admin.config.storage.actions.addPolicy')}
+                    </button>
+                  </div>
+
+                  <div className={cn('text-sm font-bold opacity-70', isDark ? 'text-slate-400' : 'text-slate-600')}>
+                    {t('admin.config.storage.policies.hint')}
+                  </div>
+
+                  {policies.length === 0 && (
+                    <div className={cn(
+                      'rounded-xl border p-3',
+                      isDark ? 'border-white/10 bg-black/20 text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-700',
+                    )}>
+                      {t('admin.config.storage.policies.empty')}
+                    </div>
+                  )}
+
+                  {policies.map((policy, idx) => (
+                    <div
+                      key={policy.id}
+                      className={cn(
+                        'rounded-2xl border p-3 sm:p-4',
+                        isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white',
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-sm font-black uppercase tracking-wide truncate">
+                            {t('admin.config.storage.policies.policy')} #{idx + 1}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className={cn(
+                            'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
+                            isDark ? 'border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20' : 'border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100',
+                          )}
+                          onClick={() => removePolicy(policy.id)}
+                        >
+                          <Trash2 size={16} />
+                          {t('common.delete')}
+                        </button>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.policies.roleId')}
+                          <input
+                            className={cn(
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                            )}
+                            value={policy.role_id}
+                            onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, role_id: e.target.value }))}
+                          />
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.policies.poolName')}
+                          <select
+                            className={cn(
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                            )}
+                            value={policy.pool_name}
+                            onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, pool_name: e.target.value }))}
+                          >
+                            {pools.map((p) => (
+                              <option key={p.id} value={p.name}>
+                                {p.name || '(unnamed)'}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.policies.defaultQuota')}
+                          <input
+                            className={cn(
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                            )}
+                            placeholder="0"
+                            value={policy.default_quota}
+                            onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, default_quota: e.target.value }))}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
 

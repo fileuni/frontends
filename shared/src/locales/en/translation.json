@@ -1912,6 +1912,16 @@
       "storage": {
         "title": "Storage Pools & Backends",
         "subtitle": "Visual editor for vfs_storage_hub storage configuration",
+        "views": {
+          "main": "Main Storage",
+          "advanced": "Advanced"
+        },
+        "main": {
+          "hint": "Quick edit for the primary storage",
+          "openAdvanced": "Open Advanced",
+          "desc": "This view only edits the primary connector of the default pool. Use Advanced to manage pools/connectors/policies.",
+          "noPrimaryConnector": "The default pool has no primary_connector configured. Select one first, or fix it in Advanced mode."
+        },
         "tabs": {
           "pools": "Pools",
           "connectors": "Connectors",
