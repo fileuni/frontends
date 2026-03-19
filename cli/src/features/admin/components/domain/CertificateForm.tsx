@@ -307,7 +307,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
               <Input value={getConfigValue('webroot') || getConfigValue('http_webroot')} onChange={(e) => updateDnsConfig('webroot', e.target.value)} placeholder={t('admin.domain.certHttpWebrootInputPlaceholder')} className={controlBase} />
               {hasWildcard && (
                 <div className="mt-2 p-3 rounded-xl bg-red-500/5 border border-red-500/20 text-[14px] font-bold text-red-700 dark:text-red-400">
-                  wildcard requires DNS-01 (HTTP-01 cannot validate wildcard)
+                  {t('admin.domain.wildcardRequiresDns01') || 'Wildcard requires DNS-01 (HTTP-01 cannot validate wildcard)'}
                 </div>
               )}
             </div>
