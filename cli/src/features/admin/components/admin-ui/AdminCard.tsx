@@ -4,14 +4,16 @@ import { cn } from '@/lib/utils';
 type Props = {
   children: React.ReactNode;
   className?: string;
-  variant?: 'default' | 'glass';
+  variant?: 'default' | 'glass' | 'shadcn';
 };
 
 export const AdminCard = ({ children, className, variant = 'default' }: Props) => {
   const base =
     variant === 'glass'
       ? 'bg-white/[0.03] border border-white/5'
-      : 'bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5';
+      : variant === 'shadcn'
+        ? 'bg-card border-border'
+        : 'bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5';
 
   return (
     <div
