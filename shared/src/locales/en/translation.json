@@ -330,7 +330,8 @@
       "confirmEnable": "Enable thumbnails in this folder?",
       "cleared": "Thumbnail cache cleared",
       "disabled": "Thumbnails disabled",
-      "enabled": "Thumbnails enabled"
+      "enabled": "Thumbnails enabled",
+      "dependencyFailed": "Thumbnail generation unavailable"
     },
     "clipboard": {
       "title": "Clipboard",
@@ -1871,6 +1872,17 @@
       "resetHintTitle": "Reset Reminder",
       "resetHint": "Reset replaces editor content with the embedded template. Modify and save before reload.",
       "restartNotice": "Some settings require a server restart to take full effect.",
+      "thumbnail": {
+        "title": "Thumbnail Settings",
+        "subtitle": "Configure thumbnail external tools and video seek strategy. If a type is enabled but the tool is unavailable, the system will refuse to start.",
+        "apply": "Apply Thumbnail Settings",
+        "applied": "Thumbnail settings applied",
+        "applyFailed": "Failed to apply thumbnail settings",
+        "loadFailed": "Thumbnail config unavailable",
+        "videoSeekSeconds": "Video Seek Seconds",
+        "videoSeekRatio": "Video Seek Ratio",
+        "videoSeekHint": "If ratio is set, it takes precedence (0.0 < ratio <= 1.0)."
+      },
       "unsaved": "Unsaved",
       "saved": "Saved",
       "pendingChanges": "Pending changes",

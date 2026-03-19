@@ -43,6 +43,24 @@ type LineDiffStats = {
   removed: number;
 };
 
+type ThumbnailQuickForm = {
+  vipsPath: string;
+  imagemagickPath: string;
+  ffmpegPath: string;
+  libreofficePath: string;
+  videoSeekSeconds: string;
+  videoSeekRatio: string;
+};
+
+const DEFAULT_THUMB_FORM: ThumbnailQuickForm = {
+  vipsPath: 'vips',
+  imagemagickPath: 'convert',
+  ffmpegPath: 'ffmpeg',
+  libreofficePath: 'soffice',
+  videoSeekSeconds: '3',
+  videoSeekRatio: '0.3',
+};
+
 const isConfigValidationError = (value: unknown): value is ConfigValidationError => {
   if (typeof value !== 'object' || value === null) return false;
   const candidate = value as Record<string, unknown>;
@@ -125,6 +143,12 @@ export const SystemConfigAdmin = () => {
   const [reloadSummaryLevel, setReloadSummaryLevel] = useState<'success' | 'warning' | 'error' | 'info'>('info');
   const { currentUserData } = useAuthStore();
 
+  const [thumbForm, setThumbForm] = useState<ThumbnailQuickForm>({
+    ...DEFAULT_THUMB_FORM,
+  });
+  const [thumbConfigJson, setThumbConfigJson] = useState<Record<string, unknown> | null>(null);
+  const [thumbSaving, setThumbSaving] = useState(false);
+
   const fetchConfig = useCallback(async () => {
     const data = await extractData<ConfigRawResponse>(client.GET('/api/v1/admin/system/config/raw'));
     if (data) {
@@ -132,6 +156,42 @@ export const SystemConfigAdmin = () => {
       setContent(data.toml_content || '');
       setSavedContent(data.toml_content || '');
     }
+  }, []);
+
+  const fetchConfigJson = useCallback(async () => {
+    const data = await extractData<Record<string, unknown>>(client.GET('/api/v1/admin/system/config'));
+    if (!data) return;
+
+    const getObj = (root: unknown, path: string[]): Record<string, unknown> | null => {
+      let cur: unknown = root;
+      for (const k of path) {
+        if (typeof cur !== 'object' || cur === null) return null;
+        cur = (cur as Record<string, unknown>)[k];
+      }
+      return (typeof cur === 'object' && cur !== null) ? (cur as Record<string, unknown>) : null;
+    };
+
+    const thumb = getObj(data, ['file_manager_api', 'thumbnail']);
+    if (!thumb) return;
+    setThumbConfigJson(thumb);
+
+    const tools = getObj(thumb, ['tools']) || {};
+    const video = getObj(thumb, ['video']) || {};
+
+    const toStr = (v: unknown, fallback: string) => (typeof v === 'string' ? v : fallback);
+    const toNumStr = (v: unknown, fallback: string) => {
+      if (typeof v === 'number' && Number.isFinite(v)) return String(v);
+      return fallback;
+    };
+
+    setThumbForm({
+      vipsPath: toStr(tools.vips_path, DEFAULT_THUMB_FORM.vipsPath),
+      imagemagickPath: toStr(tools.imagemagick_path, DEFAULT_THUMB_FORM.imagemagickPath),
+      ffmpegPath: toStr(tools.ffmpeg_path, DEFAULT_THUMB_FORM.ffmpegPath),
+      libreofficePath: toStr(tools.libreoffice_path, DEFAULT_THUMB_FORM.libreofficePath),
+      videoSeekSeconds: toNumStr(video.seek_seconds, DEFAULT_THUMB_FORM.videoSeekSeconds),
+      videoSeekRatio: toNumStr(video.seek_ratio, DEFAULT_THUMB_FORM.videoSeekRatio),
+    });
   }, []);
 
   const fetchNotes = useCallback(async () => {
@@ -158,7 +218,7 @@ export const SystemConfigAdmin = () => {
     const load = async () => {
       if (!hasPermission('admin.access')) return;
       try {
-        await Promise.all([fetchConfig(), fetchNotes(), fetchLicenseStatus()]);
+        await Promise.all([fetchConfig(), fetchNotes(), fetchLicenseStatus(), fetchConfigJson()]);
       } catch (e) {
         addToast(handleApiError(e, t), 'error');
       } finally {
@@ -166,7 +226,60 @@ export const SystemConfigAdmin = () => {
       }
     };
     load();
-  }, [fetchConfig, fetchNotes, fetchLicenseStatus, addToast, t, hasPermission]);
+  }, [fetchConfig, fetchNotes, fetchLicenseStatus, fetchConfigJson, addToast, t, hasPermission]);
+
+  const handleApplyThumbnailSettings = async () => {
+    if (!thumbConfigJson) {
+      addToast(t('admin.config.thumbnail.loadFailed') || 'Thumbnail config unavailable', 'error');
+      return;
+    }
+    if (thumbSaving || testing || reloading) return;
+
+    const next = structuredClone(thumbConfigJson) as Record<string, unknown>;
+    const ensureObj = (obj: Record<string, unknown>, key: string) => {
+      const cur = obj[key];
+      if (typeof cur === 'object' && cur !== null) return cur as Record<string, unknown>;
+      const created: Record<string, unknown> = {};
+      obj[key] = created;
+      return created;
+    };
+
+    const tools = ensureObj(next, 'tools');
+    tools.vips_path = thumbForm.vipsPath;
+    tools.imagemagick_path = thumbForm.imagemagickPath;
+    tools.ffmpeg_path = thumbForm.ffmpegPath;
+    tools.libreoffice_path = thumbForm.libreofficePath;
+
+    const video = ensureObj(next, 'video');
+    const seekSeconds = Number(thumbForm.videoSeekSeconds);
+    const seekRatio = Number(thumbForm.videoSeekRatio);
+    if (Number.isFinite(seekSeconds) && seekSeconds > 0) {
+      video.seek_seconds = Math.floor(seekSeconds);
+    }
+    if (Number.isFinite(seekRatio) && seekRatio > 0 && seekRatio <= 1) {
+      video.seek_ratio = seekRatio;
+    }
+
+    setThumbSaving(true);
+    try {
+      const { error } = await client.PUT('/api/v1/admin/system/config', {
+        body: { keys: ['file_manager_api.thumbnail'], value: next },
+        headers: { 'X-No-Toast': 'true' },
+      });
+      if (error) throw error;
+      addToast(t('admin.config.thumbnail.applied') || 'Thumbnail settings applied', 'success');
+      await Promise.all([fetchConfig(), fetchConfigJson()]);
+    } catch (e) {
+      const errData = extractValidationErrorsFromException(e);
+      if (errData.length > 0) {
+        addToast(`${t('admin.config.thumbnail.applyFailed') || 'Apply failed'}: ${errData[0].message}`, 'error');
+      } else {
+        addToast(handleApiError(e, t), 'error');
+      }
+    } finally {
+      setThumbSaving(false);
+    }
+  };
 
   useEffect(() => {
     if (!testing && !reloading) return undefined;
@@ -336,6 +449,94 @@ export const SystemConfigAdmin = () => {
 
   return (
     <AdminPage>
+      <div className="mb-6 rounded-2xl border border-border bg-background/60 backdrop-blur p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-base font-black tracking-wide">
+              {t('admin.config.thumbnail.title') || 'Thumbnail Settings'}
+            </div>
+            <div className="text-sm opacity-70 mt-1">
+              {t('admin.config.thumbnail.subtitle') || 'Configure external tools and video seek strategy. Missing/unavailable tools will block startup when enabled.'}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => void handleApplyThumbnailSettings()}
+            disabled={loading || thumbSaving || testing || reloading}
+            className="h-10 px-4 rounded-xl bg-primary text-white font-black disabled:opacity-50"
+          >
+            {thumbSaving ? (t('common.loading') || 'Loading') : (t('admin.config.thumbnail.apply') || 'Apply')}
+          </button>
+        </div>
+
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-black uppercase opacity-60">libvips</label>
+            <input
+              value={thumbForm.vipsPath}
+              onChange={(e) => setThumbForm(s => ({ ...s, vipsPath: e.target.value }))}
+              className="mt-2 h-10 w-full rounded-xl bg-background border border-border px-3 text-sm font-mono"
+              placeholder="vips"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-black uppercase opacity-60">ImageMagick</label>
+            <input
+              value={thumbForm.imagemagickPath}
+              onChange={(e) => setThumbForm(s => ({ ...s, imagemagickPath: e.target.value }))}
+              className="mt-2 h-10 w-full rounded-xl bg-background border border-border px-3 text-sm font-mono"
+              placeholder="convert"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-black uppercase opacity-60">FFmpeg</label>
+            <input
+              value={thumbForm.ffmpegPath}
+              onChange={(e) => setThumbForm(s => ({ ...s, ffmpegPath: e.target.value }))}
+              className="mt-2 h-10 w-full rounded-xl bg-background border border-border px-3 text-sm font-mono"
+              placeholder="ffmpeg"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-black uppercase opacity-60">LibreOffice</label>
+            <input
+              value={thumbForm.libreofficePath}
+              onChange={(e) => setThumbForm(s => ({ ...s, libreofficePath: e.target.value }))}
+              className="mt-2 h-10 w-full rounded-xl bg-background border border-border px-3 text-sm font-mono"
+              placeholder="soffice"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-black uppercase opacity-60">
+              {t('admin.config.thumbnail.videoSeekSeconds') || 'Video Seek Seconds'}
+            </label>
+            <input
+              value={thumbForm.videoSeekSeconds}
+              onChange={(e) => setThumbForm(s => ({ ...s, videoSeekSeconds: e.target.value }))}
+              className="mt-2 h-10 w-full rounded-xl bg-background border border-border px-3 text-sm font-mono"
+              placeholder="3"
+              inputMode="numeric"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-black uppercase opacity-60">
+              {t('admin.config.thumbnail.videoSeekRatio') || 'Video Seek Ratio'}
+            </label>
+            <input
+              value={thumbForm.videoSeekRatio}
+              onChange={(e) => setThumbForm(s => ({ ...s, videoSeekRatio: e.target.value }))}
+              className="mt-2 h-10 w-full rounded-xl bg-background border border-border px-3 text-sm font-mono"
+              placeholder="0.3"
+              inputMode="decimal"
+            />
+            <div className="text-xs opacity-60 mt-2">
+              {t('admin.config.thumbnail.videoSeekHint') || 'If ratio is set, it overrides seek seconds (0.0 < ratio <= 1.0).'}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <SystemConfigWorkbench
         tomlAdapter={toml}
         loading={loading}

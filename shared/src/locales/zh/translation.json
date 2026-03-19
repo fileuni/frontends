@@ -343,7 +343,8 @@
       "confirmEnable": "确认启用当前目录的缩略图？",
       "cleared": "缩略图缓存已清理",
       "disabled": "缩略图已禁用",
-      "enabled": "缩略图已启用"
+      "enabled": "缩略图已启用",
+      "dependencyFailed": "缩略图生成不可用"
     },
     "clipboard": {
       "title": "剪切板",
@@ -1890,6 +1891,17 @@
       "resetHintTitle": "重置提醒",
       "resetHint": "重置将用内置模板替换编辑器内容。在重载前请修改并保存。",
       "restartNotice": "少数配置项需要重启服务器才能完全生效。",
+      "thumbnail": {
+        "title": "缩略图设置",
+        "subtitle": "配置缩略图外部工具路径与视频截帧策略。若启用相关类型但外部程序不可用，系统将禁止带病启动。",
+        "apply": "应用缩略图设置",
+        "applied": "缩略图设置已应用",
+        "applyFailed": "缩略图设置应用失败",
+        "loadFailed": "缩略图配置不可用",
+        "videoSeekSeconds": "视频截帧秒数",
+        "videoSeekRatio": "视频截帧比例",
+        "videoSeekHint": "填写比例时将优先按视频时长 * 比例计算截帧点；范围为 (0.0, 1.0]。"
+      },
       "unsaved": "未保存",
       "saved": "已保存",
       "pendingChanges": "待提交修改",
