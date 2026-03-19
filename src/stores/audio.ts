@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { FileInfo } from '@/features/file-manager/types';
+import type { FileInfo } from '@/components/file-manager/types';
 
 interface AudioTrack {
   name: string;
