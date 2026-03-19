@@ -10,7 +10,7 @@ import { storageHub } from '@fileuni/shared';
 import { ToolPanel } from './extensions/ToolPanel.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Puzzle, Cpu } from 'lucide-react';
-import { AdminCard, AdminLoadingState, AdminPage } from './admin-ui';
+import { AdminCard, AdminHero, AdminLoadingState, AdminPage } from './admin-ui';
 import {
   fetchLatestToolInfoApi,
   fetchServicesApi,
@@ -224,26 +224,24 @@ export const ExtensionManagerAdmin = () => {
 
   return (
     <AdminPage withBottomPadding={false} className="space-y-4 sm:space-y-6 pb-10 sm:pb-20">
-      <AdminCard
-        variant="shadcn"
+      <AdminHero
+        icon={<Puzzle size={18} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />}
+        iconClassName="bg-primary/20 text-primary"
+        title={t('admin.extensions.title')}
+        subtitle={t('admin.extensions.subtitle') || 'Extension & Plugin Infrastructure'}
         className="rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 sm:p-5 md:p-6 shadow-sm"
-      >
-        <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3 sm:gap-4 group">
-            <div className="flex h-10 w-10 sm:h-11 sm:w-11 md:h-12 md:w-12 items-center justify-center rounded-xl sm:rounded-[1.25rem] md:rounded-2xl bg-primary/20 text-primary group-hover:scale-110 transition-transform duration-500 shadow-inner">
-              <Puzzle size={18} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
-            </div>
-            <div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-black tracking-tight">{t("admin.extensions.title")}</h2>
-              <p className="text-xs sm:text-sm font-bold opacity-60 uppercase tracking-wider">{t("admin.extensions.subtitle") || 'Extension & Plugin Infrastructure'}</p>
-            </div>
-          </div>
-          <Badge variant="outline" className="h-8 sm:h-9 md:h-10 px-3 sm:px-4 rounded-xl sm:rounded-2xl border-white/10 bg-white/5 opacity-60 flex gap-2 sm:gap-3 items-center backdrop-blur-md self-start sm:self-auto whitespace-nowrap">
+        actions={
+          <Badge
+            variant="outline"
+            className="h-8 sm:h-9 md:h-10 px-3 sm:px-4 rounded-xl sm:rounded-2xl border-white/10 bg-white/5 opacity-60 flex gap-2 sm:gap-3 items-center backdrop-blur-md self-start sm:self-auto whitespace-nowrap"
+          >
             <Cpu size={14} className="opacity-40 sm:w-4 sm:h-4" />
-            <span className="font-mono text-xs sm:text-sm uppercase font-black tracking-widest">{capabilities?.runtime_os || 'linux'} / {capabilities?.runtime_arch || 'x86_64'}</span>
+            <span className="font-mono text-xs sm:text-sm uppercase font-black tracking-widest">
+              {capabilities?.runtime_os || 'linux'} / {capabilities?.runtime_arch || 'x86_64'}
+            </span>
           </Badge>
-        </div>
-      </AdminCard>
+        }
+      />
 
       <AdminCard
         variant="glass"
