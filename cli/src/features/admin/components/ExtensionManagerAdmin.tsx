@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import { handleApiError } from '@/lib/api.ts';
+import { useEffect, useMemo } from 'react';
 import { useAuthStore } from '@/stores/auth.ts';
 import { useConfigStore } from '@/stores/config.ts';
 import { useToastStore } from '@fileuni/shared';
@@ -11,18 +10,14 @@ import { Puzzle, Cpu } from 'lucide-react';
 import { AdminHero, AdminLoadingState, AdminPage } from './admin-ui';
 import { ExtensionsTabBar } from './extensions/components/ExtensionsTabBar';
 import { buildExtensionTabItems } from './extensions/tabItems';
-import { persistToolStateMap, restoreToolStateMap, type ToolState } from './extensions/uiState';
+import type { ToolState } from './extensions/uiState';
+import { usePersistedToolStates } from './extensions/hooks/usePersistedToolStates';
+import { useExtensionsBackend } from './extensions/hooks/useExtensionsBackend';
 import {
-  fetchLatestToolInfoApi,
-  fetchServicesApi,
-  fetchToolsApi,
-  installToolApi,
-  deleteToolApi,
   resetOpenlistAdminApi,
-  serviceActionApi,
 } from './extensions/api.ts';
 
-import type { InstallBody, ToolInfo, ToolKind } from './extensions/types.ts';
+import type { InstallBody } from './extensions/types.ts';
 
 export const ExtensionManagerAdmin = () => {
   const { t, i18n } = useTranslation();
@@ -31,72 +26,30 @@ export const ExtensionManagerAdmin = () => {
   const { currentUserData } = useAuthStore();
   const { capabilities, fetchCapabilities } = useConfigStore();
 
-  const [tools, setTools] = useState<ToolInfo[]>([]);
-  const [serviceStatus, setServiceStatus] = useState<Record<string, { follow_start: boolean; running: boolean; pid?: number | null; kind: ToolKind }>>({});
-  const [loading, setLoading] = useState(true);
-  const [toolStates, setToolStates] = useState<Record<string, ToolState>>({});
-  const [isFetchingInfo, setIsFetchingInfo] = useState(false);
+  const userId = currentUserData?.user.id;
+  const { toolStates, updateToolState } = usePersistedToolStates(userId);
+  const {
+    tools,
+    serviceStatus,
+    loading,
+    isFetchingInfo,
+    loadAll,
+    fetchLatestInfo,
+    installTool,
+    deleteTool,
+    controlService,
+  } = useExtensionsBackend({ t, addToast, fetchCapabilities });
 
   const extPage = params.ext || 'openlist';
   
-  const currentTool = useMemo(() => tools.find(t => t.name === extPage), [tools, extPage]);
+  const currentTool = useMemo(() => tools.find((tool) => tool.name === extPage), [tools, extPage]);
   const extItems = useMemo(() => {
     return buildExtensionTabItems(tools);
   }, [tools]);
 
-  const updateToolState = (tool: string, patch: Partial<ToolState>) => {
-    setToolStates(prev => ({
-      ...prev,
-      [tool]: { ...prev[tool], ...patch }
-    }));
-  };
-
-  const fetchTools = async () => {
-    const data = await fetchToolsApi();
-    if (data) setTools(data);
-  };
-
-  const fetchServices = async () => {
-    const data = await fetchServicesApi();
-    if (data) {
-      const next: Record<string, { follow_start: boolean; running: boolean; pid?: number | null; kind: ToolKind }> = {};
-      for (const item of data) {
-        next[item.tool] = { follow_start: item.follow_start, running: item.running, pid: item.pid, kind: item.kind };
-      }
-      setServiceStatus(next);
-    }
-  };
-
-  const fetchLatestInfo = async () => {
-    setIsFetchingInfo(true);
-    try {
-      const info = await fetchLatestToolInfoApi(extPage);
-      if (info) {
-        updateToolState(extPage, {
-          version: info.version,
-          downloadUrl: info.download_url,
-        });
-        addToast(t('admin.extensions.fetchLatestSuccess'), 'success');
-      }
-    } catch (e) {
-      addToast(handleApiError(e, t), 'error');
-    } finally {
-      setIsFetchingInfo(false);
-    }
-  };
-
   useEffect(() => {
-    const run = async () => {
-      try {
-        await Promise.all([fetchTools(), fetchServices(), fetchCapabilities()]);
-      } catch (error) {
-        addToast(handleApiError(error, t), 'error');
-      } finally {
-        setLoading(false);
-      }
-    };
-    run();
-  }, [addToast, t, fetchCapabilities]);
+    loadAll();
+  }, [loadAll]);
 
   useEffect(() => {
     if (!params.ext && extItems.length > 0) {
@@ -104,60 +57,25 @@ export const ExtensionManagerAdmin = () => {
     }
   }, [params.ext, navigate, extItems]);
 
-  // Persistence for user-defined settings (EXCLUDE version and downloadUrl)
-  useEffect(() => {
-    const userId = currentUserData?.user.id;
-    if (!userId) return;
-    setToolStates((prev) => restoreToolStateMap(userId, prev));
-  }, [currentUserData?.user.id]);
-
-  useEffect(() => {
-    const userId = currentUserData?.user.id;
-    if (!userId) return;
-    persistToolStateMap(userId, toolStates);
-  }, [currentUserData?.user.id, toolStates]);
-
-  const controlService = async (tool: string, action: 'start' | 'stop' | 'restart') => {
-    try {
-      await serviceActionApi(tool, action);
-      await fetchServices();
-      addToast(t('admin.extensions.serviceActionSuccess'), 'success');
-    } catch (error) {
-      addToast(handleApiError(error, t), 'error');
-    }
-  };
-
   const installToolQuick = async (tool: string) => {
     const state = toolStates[tool];
     if (!state) return;
-    try {
-      const body: InstallBody = { 
-        version: state.version, 
-        download_link: state.downloadUrl,
-        github_proxy: state.proxy,
-        target_bin_dir: state.binPath
-      };
-      if (!body.download_link) {
-        addToast(t('admin.extensions.downloadUrlMissing'), 'error');
-        return;
-      }
-      await installToolApi(tool, body);
-      addToast(t('admin.extensions.downloadSuccess', { tool }), 'success');
-      await fetchTools();
-    } catch (error) {
-      addToast(handleApiError(error, t), 'error');
+    const body: InstallBody = {
+      version: state.version,
+      download_link: state.downloadUrl,
+      github_proxy: state.proxy,
+      target_bin_dir: state.binPath,
+    };
+    if (!body.download_link) {
+      addToast(t('admin.extensions.downloadUrlMissing'), 'error');
+      return;
     }
+    await installTool(tool, body);
   };
 
   const deleteToolQuick = async (tool: string) => {
     if (!window.confirm(t('common.confirmDelete'))) return;
-    try {
-      await deleteToolApi(tool);
-      addToast(t('common.success'), 'success');
-      await fetchTools();
-    } catch (error) {
-      addToast(handleApiError(error, t), 'error');
-    }
+    await deleteTool(tool);
   };
 
 
@@ -169,7 +87,7 @@ export const ExtensionManagerAdmin = () => {
     );
   }
 
-  const currentState = toolStates[extPage] || { version: '', downloadUrl: '', binPath: '', proxy: '' };
+  const currentState: ToolState = toolStates[extPage] || { version: '', downloadUrl: '', binPath: '', proxy: '' };
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const description = currentTool ? (lang === 'en' ? currentTool.description_en : currentTool.description_zh) : '';
 
@@ -244,7 +162,14 @@ export const ExtensionManagerAdmin = () => {
         ]}
         onDownload={() => installToolQuick(extPage)}
         onDelete={() => deleteToolQuick(extPage)}
-        onFetchLatest={fetchLatestInfo}
+        onFetchLatest={async () => {
+          const info = await fetchLatestInfo(extPage);
+          if (!info) return;
+          updateToolState(extPage, {
+            version: info.version,
+            downloadUrl: info.download_url,
+          });
+        }}
         onStartService={() => controlService(extPage, 'start')}
         onStopService={() => controlService(extPage, 'stop')}
         onRestart={() => controlService(extPage, 'restart')}
