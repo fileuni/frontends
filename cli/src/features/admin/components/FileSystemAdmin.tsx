@@ -9,6 +9,7 @@ import {
   Unlock, HardDrive, Cpu, AlertTriangle, Users
 } from 'lucide-react';
 import { client, extractData, handleApiError } from '@/lib/api.ts';
+import { AdminCard, AdminLoadingState, AdminPage, AdminPageHeader } from './admin-ui';
 
 type AdminStorageStats = {
   total_users: number;
@@ -168,7 +169,6 @@ export const FileSystemAdmin = () => {
     if (!confirm(t('admin.fs.unlock_confirm'))) return;
     setUnlocking(true);
     try {
-      // 使用类型化的 client 调用终止 WAL 逻辑
       const { data: res } = await client.POST('/api/v1/file/admin/file-manager/wal/terminate');
       if (res?.success) {
         addToast(t('admin.fs.unlock_success'), 'success');
@@ -188,7 +188,24 @@ export const FileSystemAdmin = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
   };
 
-  if (loading) return <div className="h-64 flex items-center justify-center font-black animate-pulse opacity-50 uppercase tracking-widest">{t('admin.loading')}</div>;
+  if (loading) {
+    return (
+      <AdminPage>
+        <AdminPageHeader
+          icon={<HardDrive size={24} />}
+          title={t('admin.fs.title') || 'File System'}
+          subtitle={t('admin.fs.subtitle') || 'Storage stats and maintenance'}
+          actions={
+            <Button variant="outline" className="rounded-xl" onClick={fetchData}>
+              <RefreshCw size={16} className="mr-2" />
+              {t('common.refresh')}
+            </Button>
+          }
+        />
+        <AdminLoadingState label={t('admin.loading')} />
+      </AdminPage>
+    );
+  }
 
   const hasStats = stats !== null;
   const hasMaintenance = maintenanceStatus !== null;
@@ -204,48 +221,60 @@ export const FileSystemAdmin = () => {
   const isGlobalMaintenance = hasMaintenance ? maintenanceStatus.is_global_maintenance : null;
 
   return (
-    <div className="space-y-10">
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
-          <Database className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 -rotate-12 group-hover:scale-110 transition-transform" />
-          <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.cluster_storage')}</p>
-          <h3 className="text-3xl font-black">{formatSize(totalUsed)}</h3>
-          <p className="text-sm font-bold mt-4 text-primary uppercase tracking-widest">
-            {t('admin.fs.system_status')}:{' '}
-            {isGlobalMaintenance === null
-              ? t('common.na')
-              : (isGlobalMaintenance ? t('common.on') : t('common.off'))}
-          </p>
-        </div>
+    <AdminPage>
+      <AdminPageHeader
+        icon={<HardDrive size={24} />}
+        title={t('admin.fs.title') || 'File System'}
+        subtitle={t('admin.fs.subtitle') || 'Storage stats and maintenance'}
+        actions={
+          <Button variant="outline" className="rounded-xl" onClick={fetchData}>
+            <RefreshCw size={16} className="mr-2" />
+            {t('common.refresh')}
+          </Button>
+        }
+      />
 
-        <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
-          <Activity className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 group-hover:scale-110 transition-transform" />
-          <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.usage_efficiency')}</p>
-          <h3 className="text-3xl font-black">
-            {quotaPct === null ? t('common.na') : `${quotaPct.toFixed(1)}%`}
-          </h3>
-          <div className="mt-4 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-green-500"
-              style={{ width: `${quotaPct ?? 0}%` }}
-            />
-          </div>
-          <p className="text-sm font-bold mt-4 opacity-40 uppercase tracking-widest">
-            {formatSize(totalUsed)} / {formatSize(totalQuota)}
-          </p>
-        </div>
+      <div className="space-y-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
+            <Database className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 -rotate-12 group-hover:scale-110 transition-transform" />
+            <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.cluster_storage')}</p>
+            <h3 className="text-3xl font-black">{formatSize(totalUsed)}</h3>
+            <p className="text-sm font-bold mt-4 text-primary uppercase tracking-widest">
+              {t('admin.fs.system_status')}:{' '}
+              {isGlobalMaintenance === null
+                ? t('common.na')
+                : (isGlobalMaintenance ? t('common.on') : t('common.off'))}
+            </p>
+          </AdminCard>
 
-        <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
-          <Cpu className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 group-hover:scale-110 transition-transform" />
-          <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.total_users')}</p>
-          <h3 className="text-3xl font-black tabular-nums">{typeof totalUsers === 'number' ? totalUsers : t('common.na')}</h3>
-          <p className="text-sm font-bold mt-4 opacity-40 uppercase tracking-widest">
-            {t('admin.fs.locked_users')}:{' '}
-            {hasMaintenance ? lockedUsers.length : t('common.na')}
-          </p>
+          <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
+            <Activity className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 group-hover:scale-110 transition-transform" />
+            <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.usage_efficiency')}</p>
+            <h3 className="text-3xl font-black">
+              {quotaPct === null ? t('common.na') : `${quotaPct.toFixed(1)}%`}
+            </h3>
+            <div className="mt-4 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green-500"
+                style={{ width: `${quotaPct ?? 0}%` }}
+              />
+            </div>
+            <p className="text-sm font-bold mt-4 opacity-40 uppercase tracking-widest">
+              {formatSize(totalUsed)} / {formatSize(totalQuota)}
+            </p>
+          </AdminCard>
+
+          <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
+            <Cpu className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 group-hover:scale-110 transition-transform" />
+            <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.total_users')}</p>
+            <h3 className="text-3xl font-black tabular-nums">{typeof totalUsers === 'number' ? totalUsers : t('common.na')}</h3>
+            <p className="text-sm font-bold mt-4 opacity-40 uppercase tracking-widest">
+              {t('admin.fs.locked_users')}:{' '}
+              {hasMaintenance ? lockedUsers.length : t('common.na')}
+            </p>
+          </AdminCard>
         </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Maintenance Actions */}
@@ -259,7 +288,7 @@ export const FileSystemAdmin = () => {
               <RefreshCw size={18} className="mr-2" /> {t('common.refresh')}
             </Button>
           </div>
-          <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl space-y-6">
+          <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl space-y-6">
             <p className="text-sm font-bold opacity-50 italic">
               {t('admin.fs.global_ops_desc')}
             </p>
@@ -313,13 +342,13 @@ export const FileSystemAdmin = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </AdminCard>
 
           <div className="flex items-center gap-3 px-4 pt-4">
             <ShieldAlert size={18} className="text-red-500" />
             <h2 className="text-sm font-black uppercase tracking-widest text-red-500">{t('admin.fs.emergency_control')}</h2>
           </div>
-          <div className="bg-red-500/5 border border-red-500/10 rounded-[2.5rem] p-8 shadow-xl space-y-6">
+          <AdminCard className="bg-red-500/5 border border-red-500/10 rounded-[2.5rem] p-8 shadow-xl space-y-6">
             <p className="text-sm font-bold text-red-400/60 italic">
               {t('admin.fs.emergency_desc')}
             </p>
@@ -327,7 +356,7 @@ export const FileSystemAdmin = () => {
               <Unlock size={20} className="mr-3 group-hover:scale-110 transition-transform" />
               <span className="font-black uppercase tracking-widest text-sm">{t('admin.fs.force_unlock')}</span>
             </Button>
-          </div>
+          </AdminCard>
         </div>
 
         {/* Locked Users List */}
@@ -341,7 +370,7 @@ export const FileSystemAdmin = () => {
               <RefreshCw size={18} className="mr-2" /> {t('common.refresh')}
             </Button>
           </div>
-          <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl min-h-[400px]">
+          <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl min-h-[400px]">
             {!hasMaintenance ? (
               <div className="h-full flex flex-col items-center justify-center py-20 opacity-30 italic text-center">
                 <AlertTriangle size={48} className="mb-4" />
@@ -365,10 +394,11 @@ export const FileSystemAdmin = () => {
                 ))}
               </div>
             )}
-          </div>
+          </AdminCard>
         </div>
       </div>
-    </div>
+      </div>
+    </AdminPage>
   );
 };
 

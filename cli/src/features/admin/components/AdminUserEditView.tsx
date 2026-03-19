@@ -87,7 +87,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
     if (initialUserId) {
       setUserId(initialUserId);
     } else {
-      // 从 Hash 参数解析 ID / Parse ID from Hash params
+      // Parse ID from Hash params
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
       const queryId = params.get('id');

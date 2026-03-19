@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@fileuni/shared';
 import { Button } from '@/components/ui/Button.tsx';
-import { AdminPage, AdminPageHeader } from './admin-ui';
+import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
 import { 
   Activity, Clock, XCircle, CheckCircle2, 
   AlertCircle, RefreshCw
@@ -11,7 +11,7 @@ import {
 import { client, extractData } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
 
-// Background task type - matches yh_task_registry entity / 后台任务类型
+// Background task type - matches yh_task_registry entity
 interface BackgroundTask {
   id: string;
   user_id: string;
@@ -23,7 +23,7 @@ interface BackgroundTask {
   updated_at: string;
 }
 
-// Scheduled job status type - matches ScheduledJobStatus / 定时任务状态类型
+// Scheduled job status type - matches ScheduledJobStatus
 interface ScheduledJob {
   id: string;
   cron: string;
@@ -146,12 +146,12 @@ export const TaskAdmin = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {scheduledJobs.length === 0 ? (
-            <div className="col-span-full bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-10 text-center opacity-30 italic">
+            <AdminCard variant="glass" className="col-span-full rounded-[2.5rem] p-10 text-center opacity-30 italic">
               {t('admin.tasks.no_scheduled_jobs') || 'No scheduled jobs found (check configuration)'}
-            </div>
+            </AdminCard>
           ) : (
             scheduledJobs.map(job => (
-              <div key={job.id} className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden group">
+              <AdminCard key={job.id} variant="glass" className="rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden group">
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="font-black text-sm uppercase tracking-tight">{job.id}</h3>
                   <span className="text-sm font-mono bg-primary/10 text-primary px-2 py-0.5 rounded-full">{job.cron}</span>
@@ -166,7 +166,7 @@ export const TaskAdmin = () => {
                     <span>{job.next_run ? new Date(job.next_run).toLocaleString() : 'N/A'}</span>
                   </div>
                 </div>
-              </div>
+              </AdminCard>
             ))
           )}
         </div>
@@ -197,7 +197,7 @@ export const TaskAdmin = () => {
           </div>
         </div>
 
-        <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-xl">
+        <AdminCard variant="glass" className="rounded-[2.5rem] overflow-hidden shadow-xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -297,7 +297,7 @@ export const TaskAdmin = () => {
               </div>
             </div>
           )}
-        </div>
+        </AdminCard>
         </section>
       </div>
     </AdminPage>

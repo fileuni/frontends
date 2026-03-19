@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { client, extractData, type PaginatedData } from '@/lib/api.ts';
 
-// Journal log entry type - matches yh_journal_log entity / 审计日志条目类型
+// Journal log entry type - matches yh_journal_log entity
 interface JournalLogEntry {
   id: string | number;
   user_id: string;

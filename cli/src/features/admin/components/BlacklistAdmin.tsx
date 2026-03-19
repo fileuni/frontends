@@ -15,7 +15,7 @@ import {
 import { client, extractData, handleApiError, type PaginatedData } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
 import type { components } from '@/types/api.ts';
-import { AdminPage, AdminPageHeader } from './admin-ui';
+import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
 
 type BlacklistItemResponse = components["schemas"]["BlacklistItemResponse"];
 
@@ -220,7 +220,7 @@ export const BlacklistAdmin = () => {
       </div>
 
       {/* Main List */}
-      <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl relative">
+      <AdminCard variant="glass" className="rounded-[2.5rem] overflow-hidden shadow-2xl relative">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -311,7 +311,7 @@ export const BlacklistAdmin = () => {
           onPageSizeChange={setPageSize}
           className="bg-black/20"
         />
-      </div>
+      </AdminCard>
 
       {/* Add Modal */}
       <Modal
