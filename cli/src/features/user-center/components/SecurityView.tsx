@@ -15,6 +15,7 @@ import { TurnstileWidget } from '@/components/common/TurnstileWidget.tsx';
 import { useToastStore } from '@fileuni/shared';
 import { useConfigStore } from '@/stores/config.ts';
 import { PasswordChangeForm } from './PasswordChangeForm.tsx';
+import { DashboardCard, DashboardSectionHeader } from './dashboard-ui';
 
 type UserResponse = components["schemas"]["UserResponse"];
 type SecurityUserResponse = UserResponse & {
@@ -244,17 +245,24 @@ export const SecurityView = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Email Card */}
         {capabilities?.enable_email_auth !== false && (
-          <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl relative group overflow-hidden">
-            <div className="flex justify-between items-start mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
-                <Mail size={24} />
-              </div>
-              <Badge variant={security?.email_verified ? 'success' : 'warning'}>
-                {security?.email_verified ? t('security.verified') : t('security.unverified')}
-              </Badge>
-            </div>
-            <h3 className="text-xl font-black mb-2">{t('security.emailTitle')}</h3>
-            <p className="text-sm opacity-50 font-bold mb-6">{t('security.emailDesc')}</p>
+          <DashboardCard variant="glass" className="p-8 relative group overflow-hidden">
+            <DashboardSectionHeader
+              title={t('security.emailTitle')}
+              subtitle={t('security.emailDesc')}
+              icon={(
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
+                  <Mail size={24} />
+                </div>
+              )}
+              actions={(
+                <Badge variant={security?.email_verified ? 'success' : 'warning'}>
+                  {security?.email_verified ? t('security.verified') : t('security.unverified')}
+                </Badge>
+              )}
+              className="mb-6"
+              titleClassName="text-xl font-black"
+              subtitleClassName="text-sm opacity-50 font-bold"
+            />
             <div className="bg-white/5 px-4 py-3 rounded-xl font-mono text-sm font-black mb-6 truncate border border-white/5">
               {security?.email || t('security.notBound')}
             </div>
@@ -262,22 +270,29 @@ export const SecurityView = () => {
               {security?.email ? t('security.change') : t('security.bindNow')}
               <ChevronRight size={16} className="opacity-30 group-hover/btn:translate-x-1 transition-all" />
             </Button>
-          </div>
+          </DashboardCard>
         )}
 
         {/* Phone Card */}
         {capabilities?.enable_mobile_auth !== false && (
-          <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl relative group overflow-hidden">
-            <div className="flex justify-between items-start mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-green-500/10 text-green-500 flex items-center justify-center shadow-inner">
-                <Phone size={24} />
-              </div>
-              <Badge variant={security?.phone_verified ? 'success' : 'warning'}>
-                {security?.phone_verified ? t('security.verified') : t('security.unverified')}
-              </Badge>
-            </div>
-            <h3 className="text-xl font-black mb-2">{t('security.phoneTitle')}</h3>
-            <p className="text-sm opacity-50 font-bold mb-6">{t('security.phoneDesc')}</p>
+          <DashboardCard variant="glass" className="p-8 relative group overflow-hidden">
+            <DashboardSectionHeader
+              title={t('security.phoneTitle')}
+              subtitle={t('security.phoneDesc')}
+              icon={(
+                <div className="w-12 h-12 rounded-2xl bg-green-500/10 text-green-500 flex items-center justify-center shadow-inner">
+                  <Phone size={24} />
+                </div>
+              )}
+              actions={(
+                <Badge variant={security?.phone_verified ? 'success' : 'warning'}>
+                  {security?.phone_verified ? t('security.verified') : t('security.unverified')}
+                </Badge>
+              )}
+              className="mb-6"
+              titleClassName="text-xl font-black"
+              subtitleClassName="text-sm opacity-50 font-bold"
+            />
             <div className="bg-white/5 px-4 py-3 rounded-xl font-mono text-sm font-black mb-6 truncate border border-white/5">
               {security?.phone || t('security.notBound')}
             </div>
@@ -285,25 +300,28 @@ export const SecurityView = () => {
               {security?.phone ? t('security.change') : t('security.bindNow')}
               <ChevronRight size={16} className="opacity-30 group-hover/btn:translate-x-1 transition-all" />
             </Button>
-          </div>
+          </DashboardCard>
         )}
 
         {/* Security Question Card */}
-        <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl md:col-span-2 relative overflow-hidden group">
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex items-center gap-4">
+        <DashboardCard variant="glass" className="p-8 md:col-span-2 relative overflow-hidden group">
+          <DashboardSectionHeader
+            title={t('security.questionTitle')}
+            subtitle={t('security.questionDesc')}
+            icon={(
               <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-inner">
                 <HelpCircle size={24} />
               </div>
-              <div>
-                <h3 className="text-xl font-black">{t('security.questionTitle')}</h3>
-                <p className="text-sm opacity-50 font-bold">{t('security.questionDesc')}</p>
-              </div>
-            </div>
-            <Badge variant={security?.security_answer ? 'success' : 'ghost'}>
-              {security?.security_answer ? t('security.questionActive') : t('security.questionNotSet')}
-            </Badge>
-          </div>
+            )}
+            actions={(
+              <Badge variant={security?.security_answer ? 'success' : 'ghost'}>
+                {security?.security_answer ? t('security.questionActive') : t('security.questionNotSet')}
+              </Badge>
+            )}
+            className="mb-6"
+            titleClassName="text-xl font-black"
+            subtitleClassName="text-sm opacity-50 font-bold"
+          />
           {security?.security_question && (
             <div className="bg-white/5 p-6 rounded-2xl border border-white/5 mb-6">
               <span className="text-sm font-black opacity-30 uppercase tracking-widest block mb-1">{t('security.currentQuestion')}</span>
@@ -313,50 +331,54 @@ export const SecurityView = () => {
           <Button variant="outline" className="w-full md:w-auto px-10" onClick={() => setActiveModal('question')}>
             {security?.security_answer ? t('security.changeQuestion') : t('security.setupNow')}
           </Button>
-        </div>
+        </DashboardCard>
 
         {/* Change Password Card */}
-        <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl md:col-span-2 relative overflow-hidden group">
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex items-center gap-4">
+        <DashboardCard variant="glass" className="p-8 md:col-span-2 relative overflow-hidden group">
+          <DashboardSectionHeader
+            title={t('nav.changePassword')}
+            subtitle={t('security.passwordDesc')}
+            icon={(
               <div className="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center shadow-inner">
                 <Key size={24} />
               </div>
-              <div>
-                <h3 className="text-xl font-black">{t('nav.changePassword')}</h3>
-                <p className="text-sm opacity-50 font-bold">{t('security.passwordDesc')}</p>
-              </div>
-            </div>
-          </div>
+            )}
+            className="mb-6"
+            titleClassName="text-xl font-black"
+            subtitleClassName="text-sm opacity-50 font-bold"
+          />
           <Button variant="outline" className="w-full md:w-auto px-10" onClick={() => setActiveModal('password')}>
             {t('security.change') || 'Update Password'}
           </Button>
-        </div>
+        </DashboardCard>
 
         {/* S3 Credentials Card */}
         {capabilities?.enable_s3 !== false && (
-          <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl md:col-span-2 relative overflow-hidden group">
-            <div className="flex justify-between items-start mb-8">
-              <div className="flex items-center gap-4">
+          <DashboardCard variant="glass" className="p-8 md:col-span-2 relative overflow-hidden group">
+            <DashboardSectionHeader
+              title={t('security.s3Title')}
+              subtitle={t('security.s3Desc')}
+              icon={(
                 <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-inner">
                   <Cloud size={24} />
                 </div>
-                <div>
-                  <h3 className="text-xl font-black">{t('security.s3Title')}</h3>
-                  <p className="text-sm opacity-50 font-bold">{t('security.s3Desc')}</p>
-                </div>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="font-black text-sm uppercase opacity-40 hover:opacity-100"
-                onClick={handleRegenerateS3}
-                disabled={regenerating}
-              >
-                {regenerating ? <RefreshCw className="animate-spin mr-2" size={18} /> : <RefreshCw className="mr-2" size={18} />}
-                {regenerating ? t('security.rotating') : t('security.rotateKeys')}
-              </Button>
-            </div>
+              )}
+              actions={(
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="font-black text-sm uppercase opacity-40 hover:opacity-100"
+                  onClick={handleRegenerateS3}
+                  disabled={regenerating}
+                >
+                  {regenerating ? <RefreshCw className="animate-spin mr-2" size={18} /> : <RefreshCw className="mr-2" size={18} />}
+                  {regenerating ? t('security.rotating') : t('security.rotateKeys')}
+                </Button>
+              )}
+              className="mb-8"
+              titleClassName="text-xl font-black"
+              subtitleClassName="text-sm opacity-50 font-bold"
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -405,16 +427,19 @@ export const SecurityView = () => {
         )}
 
         {/* Danger Zone */}
-        <div className="bg-red-500/5 border border-red-500/10 rounded-[2.5rem] p-8 shadow-xl md:col-span-2 relative group overflow-hidden">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center shadow-inner">
-              <AlertTriangle size={24} />
-            </div>
-            <div>
-              <h3 className="text-xl font-black text-red-500">{t('security.dangerZone')}</h3>
-              <p className="text-sm opacity-50 font-bold">{t('security.dangerDesc')}</p>
-            </div>
-          </div>
+        <DashboardCard variant="danger" className="p-8 md:col-span-2 relative group overflow-hidden shadow-xl">
+          <DashboardSectionHeader
+            title={t('security.dangerZone')}
+            subtitle={t('security.dangerDesc')}
+            icon={(
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center shadow-inner">
+                <AlertTriangle size={24} />
+              </div>
+            )}
+            className="mb-6"
+            titleClassName="text-xl font-black text-red-500"
+            subtitleClassName="text-sm opacity-50 font-bold"
+          />
           <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
             <p className="text-sm font-bold opacity-60 leading-relaxed max-w-xl italic">
               {t('security.deleteNote')}
@@ -423,7 +448,7 @@ export const SecurityView = () => {
               <Trash2 size={18} className="mr-2" /> {t('security.deleteAccount')}
             </Button>
           </div>
-        </div>
+        </DashboardCard>
       </div>
 
       {/* Verification Modals */}

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button.tsx";
 import { cacheManager, type CacheScanSummary, type CacheScope, type ManagedCategoryId } from "@/lib/cacheManager.ts";
 import { useAuthStore } from "@/stores/auth.ts";
 import { toast } from "@fileuni/shared";
+import { DashboardCard, DashboardSectionHeader } from './dashboard-ui';
 
 const CATEGORY_ORDER: ManagedCategoryId[] = [
   "email_address_book",
@@ -81,39 +82,37 @@ export const CacheManagerView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div>
-            <h3 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2">
-              <Database size={20} className="text-primary" />
-              {t("cacheManager.title")}
-            </h3>
-            <p className="text-base opacity-75 mt-1 leading-relaxed">{t("cacheManager.subtitle")}</p>
-          </div>
-          <Button variant="outline" className="gap-2 w-full sm:w-auto h-11 text-base" onClick={handleRefresh}>
-            <RefreshCw size={18} />
-            {t("common.refresh")}
-          </Button>
-        </div>
+      <DashboardCard variant="glass" className="rounded-3xl border-white/10 p-4 sm:p-6">
+        <DashboardSectionHeader
+          title={t("cacheManager.title")}
+          subtitle={t("cacheManager.subtitle")}
+          icon={<Database size={20} className="text-primary" />}
+          actions={(
+            <Button variant="outline" className="gap-2 w-full sm:w-auto h-11 text-base" onClick={handleRefresh}>
+              <RefreshCw size={18} />
+              {t("common.refresh")}
+            </Button>
+          )}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
-          <div className="rounded-2xl border border-white/10 p-4 bg-background/40">
+          <DashboardCard variant="subtle" className="rounded-2xl p-4 bg-background/40">
             <div className="text-sm uppercase tracking-widest opacity-55">{t("cacheManager.managedCacheSize")}</div>
             <div className="text-2xl font-black mt-1">{cacheManager.formatBytes(summary.managed_total_bytes)}</div>
             <div className="text-sm opacity-70 mt-1">{t("cacheManager.managedKeys", { count: summary.managed_total_keys })}</div>
-          </div>
-          <div className="rounded-2xl border border-white/10 p-4 bg-background/40">
+          </DashboardCard>
+          <DashboardCard variant="subtle" className="rounded-2xl p-4 bg-background/40">
             <div className="text-sm uppercase tracking-widest opacity-55">{t("cacheManager.totalLocalStorage")}</div>
             <div className="text-2xl font-black mt-1">{cacheManager.formatBytes(summary.local_total_bytes)}</div>
             <div className="text-sm opacity-70 mt-1">{t("cacheManager.localKeys", { count: summary.local_total_keys })}</div>
-          </div>
+          </DashboardCard>
         </div>
 
         <div className="mt-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-400 flex items-start gap-2 leading-relaxed">
           <ShieldAlert size={18} className="mt-0.5 shrink-0" />
           <span>{t("cacheManager.warningText")}</span>
         </div>
-      </div>
+      </DashboardCard>
 
       <div className="space-y-3">
         {CATEGORY_ORDER.map((categoryId) => {
@@ -124,7 +123,7 @@ export const CacheManagerView: React.FC = () => {
           const isClearingOwn = loadingAction === `${categoryId}:own`;
           const isClearingAll = loadingAction === `${categoryId}:all`;
           return (
-            <div key={categoryId} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+            <DashboardCard key={categoryId} variant="subtle" className="rounded-2xl p-4">
               <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="text-xl font-bold">{t(`cacheManager.categories.${categoryId}.title`)}</div>
@@ -163,7 +162,7 @@ export const CacheManagerView: React.FC = () => {
                   )}
                 </div>
               </div>
-            </div>
+            </DashboardCard>
           );
         })}
       </div>

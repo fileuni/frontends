@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { client } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
+import { DashboardCard, DashboardSectionHeader } from './dashboard-ui';
 
 import type { components } from '@/types/api.ts';
 
@@ -87,15 +88,19 @@ export const SessionsView = () => {
   return (
     <div className="space-y-10">
       {/* Session Stats Header */}
-      <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 md:p-10 shadow-xl overflow-hidden relative group">
+      <DashboardCard variant="glass" className="p-8 md:p-10 overflow-hidden relative group">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex-1 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shadow-inner">
-                <ShieldCheck size={20} />
-              </div>
-              <h3 className="text-xl font-black tracking-tight uppercase">{t('sessions.activeDeviceStatus')}</h3>
-            </div>
+            <DashboardSectionHeader
+              title={t('sessions.activeDeviceStatus')}
+              icon={(
+                <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shadow-inner">
+                  <ShieldCheck size={20} />
+                </div>
+              )}
+              titleClassName="text-xl font-black tracking-tight uppercase"
+              className="gap-3 sm:gap-3"
+            />
             <div className="space-y-2 max-w-md">
               <div className="flex justify-between text-sm font-black uppercase tracking-widest opacity-40">
                 <span>{t('sessions.slotsOccupied')}</span>
@@ -120,11 +125,11 @@ export const SessionsView = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </DashboardCard>
 
       <div className="grid grid-cols-1 gap-4">
         {sessions.map(session => (
-          <div 
+          <DashboardCard
             key={session.id} 
             className={cn(
               "flex flex-col md:flex-row md:items-center justify-between p-6 rounded-[2rem] border transition-all cursor-pointer group",
@@ -132,6 +137,7 @@ export const SessionsView = () => {
               selectedIds.has(session.id) && "border-primary bg-primary/5"
             )}
             onClick={() => !session.is_current && toggleSelect(session.id)}
+            variant="subtle"
           >
             <div className="flex items-center gap-6 mb-4 md:mb-0">
               <div className="relative">
@@ -170,11 +176,11 @@ export const SessionsView = () => {
                 </Button>
               </div>
             )}
-          </div>
+          </DashboardCard>
         ))}
       </div>
 
-      <div className="p-8 bg-blue-500/5 border border-blue-500/10 rounded-[2.5rem] mt-10 flex items-start gap-6">
+      <DashboardCard variant="info" className="p-8 mt-10 flex items-start gap-6">
         <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
           <ShieldCheck size={24} />
         </div>
@@ -184,7 +190,7 @@ export const SessionsView = () => {
             {t('sessions.adviceDesc')}
           </p>
         </div>
-      </div>
+      </DashboardCard>
     </div>
   );
 };
