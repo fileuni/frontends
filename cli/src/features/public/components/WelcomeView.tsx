@@ -13,14 +13,14 @@ import {
 import { client } from "@/lib/api";
 import { ConfigSetEditor } from "./ConfigSetEditor";
 import { useAuthStore } from "@/stores/auth.ts";
-import { useThemeStore } from "@fileuni/shared";
+import { useResolvedTheme } from "@fileuni/shared";
 import { cn } from "@/lib/utils.ts";
 import type { SystemCapabilities } from "@/stores/config.ts";
 
 
 export const WelcomeView = () => {
   const { t } = useTranslation();
-  const { theme } = useThemeStore();
+  const resolvedTheme = useResolvedTheme();
   const { isLoggedIn, usersMap, _hasHydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [setupMode, setSetupMode] = useState(false);
@@ -33,7 +33,7 @@ export const WelcomeView = () => {
     checkCapabilities();
   }, []);
 
-  const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const isDark = resolvedTheme === 'dark';
 
   const checkCapabilities = async () => {
     try {

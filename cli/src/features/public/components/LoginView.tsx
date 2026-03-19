@@ -4,12 +4,12 @@ import "@/lib/i18n";
 import { useAuthStore } from "@/stores/auth.ts";
 import { useToastStore } from "@fileuni/shared";
 import { useConfigStore } from "@/stores/config.ts";
-import { useThemeStore } from "@fileuni/shared";
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
 import { Modal } from "@/components/ui/Modal.tsx";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
+import { PublicCenteredCard } from "./public-ui/PublicCenteredCard.tsx";
 import {
   User,
   Lock,
@@ -31,19 +31,11 @@ import { client, extractData, isApiError, postCaptchaPolicy } from "@/lib/api.ts
 import { normalizeEmailInput, normalizePhoneInput } from "@/lib/contactNormalize.ts";
 import type { components } from "@/types/api.ts";
 
-import { TurnstileWidget } from "@/components/common/TurnstileWidget.tsx";
+import { CaptchaChallenge, type CaptchaPayload } from "@/components/common/CaptchaChallenge.tsx";
 
 type UserSession = components["schemas"]["UserSession"];
-type CaptchaPayload = {
-  token: string;
-  image_base64: string;
-  captcha_type: string;
-  turnstile_site_key?: string | null;
-};
-
 export const LoginView = () => {
   const { t } = useTranslation();
-  const { theme } = useThemeStore();
   const { navigate } = useNavigationStore();
   const {
     usersMap,
@@ -62,7 +54,6 @@ export const LoginView = () => {
   const [loading, setLoading] = useState(false);
   const [agreement, setAgreement] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [mounted, setMounted] = useState(false);
 
   // Device Limit States
   const [showDeviceLimit, setShowDeviceLimit] = useState(false);
@@ -74,11 +65,8 @@ export const LoginView = () => {
   const captchaTokenForSubmit = isTurnstileCaptcha ? turnstileToken : (captchaData?.token ?? "");
 
   useEffect(() => {
-    setMounted(true);
-    fetchCapabilities();
-  }, []);
-
-  const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    void fetchCapabilities();
+  }, [fetchCapabilities]);
 
   const fetchCaptcha = async (isRefresh = false) => {
     try {
@@ -262,25 +250,15 @@ export const LoginView = () => {
     return <Laptop size={18} />;
   };
 
-  if (!mounted) return <div className="h-screen bg-background" />;
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-background relative overflow-hidden pt-16">
-      {/* Decorative Background */}
-      <div className="absolute inset-0 pointer-events-none opacity-20">
-        <div className="absolute top-[-300px] right-[-300px] w-[800px] h-[800px] rounded-full bg-primary/10 blur-[100px]" />
-        <div className="absolute bottom-[-300px] left-[-300px] w-[800px] h-[800px] rounded-full bg-blue-500/10 blur-[100px]" />
-      </div>
-
-      <div className="w-full max-w-[420px] relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className={cn(
-          "backdrop-blur-xl border rounded-[2.5rem] overflow-hidden shadow-2xl transition-all",
-          isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
-        )}>
-          <div className="h-1.5 bg-gradient-to-r from-primary to-blue-600 opacity-80" />
-
-          <div className="p-10 pt-12">
-            <div className="text-center mb-10">
+    <PublicCenteredCard
+      cardMaxWidthClass="max-w-[420px]"
+      decorativeBackground="diagonal"
+      accentBarClassName="bg-gradient-to-r from-primary to-blue-600"
+    >
+      {({ isDark }) => (
+        <>
+          <div className="text-center mb-10">
               <div className="inline-flex items-center justify-center mb-4">
                 <img src="/ui/favicon.svg" alt={t('common.logoAlt')} width={64} height={64} className="shadow-lg" />
               </div>
@@ -368,59 +346,19 @@ export const LoginView = () => {
               </div>
 
               {needCaptcha && (
-                <div className="space-y-2">
-                  <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
-                    {t("auth.captcha")}
-                  </label>
-                  {isTurnstileCaptcha ? (
-                    <div className="space-y-2">
-                      {captchaData?.turnstile_site_key ? (
-                        <TurnstileWidget siteKey={captchaData.turnstile_site_key} onTokenChange={setTurnstileToken} />
-                      ) : (
-                        <p className="text-sm font-bold uppercase tracking-widest text-red-500">{t('auth.turnstileSiteKeyMissing')}</p>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex gap-3">
-                      <div className="relative flex-1 group">
-                        <Lock
-                          className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary group-focus-within:opacity-100 transition-all"
-                          size={18}
-                        />
-                        <Input
-                          value={captchaCode}
-                          onChange={(e) => setCaptchaCode(e.target.value)}
-                          className="pl-12"
-                          placeholder={t('common.verificationCode')}
-                          required
-                        />
-                      </div>
-                      <div
-                        className={cn(
-                          "w-36 h-12 sm:w-40 sm:h-14 rounded-xl border overflow-hidden cursor-pointer hover:border-primary/50 transition-all flex items-center justify-center",
-                          isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200"
-                        )}
-                        onClick={() => fetchCaptcha(true)}
-                        title={t("auth.refreshCaptcha")}
-                      >
-                        {captchaData ? (
-                          <img
-                            src={captchaData.image_base64}
-                            alt={t('auth.captcha')}
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  {captchaData?.captcha_type && (
-                    <p className="text-sm font-bold uppercase tracking-widest opacity-40">
-                      {`Type: ${captchaData.captcha_type.replace("image:", "")}`}
-                    </p>
-                  )}
-                </div>
+                <CaptchaChallenge
+                  isDark={isDark}
+                  captchaData={captchaData}
+                  captchaCode={captchaCode}
+                  onCaptchaCodeChange={setCaptchaCode}
+                  turnstileToken={turnstileToken}
+                  onTurnstileTokenChange={setTurnstileToken}
+                  onRefresh={() => void fetchCaptcha(true)}
+                  label={t("auth.captcha")}
+                  placeholder={t('common.verificationCode')}
+                  refreshTitle={t("auth.refreshCaptcha")}
+                  turnstileSiteKeyMissingText={t('auth.turnstileSiteKeyMissing')}
+                />
               )}
 
               <div className="space-y-2">
@@ -514,111 +452,110 @@ export const LoginView = () => {
               </Button>
             </form>
 
-            {capabilities?.enable_registration !== false && (
-              <div className={cn("mt-10 pt-10 border-t text-center", isDark ? "border-white/5" : "border-gray-100")}>
-                <p className="text-sm font-bold opacity-50 mb-4">
-                  {t("auth.noAccount")}
-                </p>
-                <a
-                  href="#mod=public&page=register"
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-xl border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all font-black uppercase text-sm tracking-widest"
-                >
-                  {t("common.register")}
-                </a>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Device Limit Management Modal */}
-      <Modal
-        isOpen={showDeviceLimit}
-        onClose={() => setShowDeviceLimit(false)}
-        title={t("auth.deviceLimitExceeded")}
-        className="max-w-lg"
-      >
-        <div className="space-y-6">
-          <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-start gap-4">
-            <AlertTriangle
-              className="text-orange-500 shrink-0 mt-1"
-              size={20}
-            />
-            <p className="text-sm font-bold text-orange-200/80 leading-relaxed">
-              {t("auth.deviceLimitDesc", {
-                count: limitInfo.current,
-                max: limitInfo.max,
-              })}
-            </p>
-          </div>
-
-          <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
-            {sessions.map((session) => (
-              <div
-                key={session.id}
-                className={cn(
-                  "flex items-center justify-between p-4 rounded-2xl border group transition-all",
-                  isDark ? "bg-white/[0.03] border-white/5" : "bg-gray-50 border-gray-100"
-                )}
+          {capabilities?.enable_registration !== false && (
+            <div className={cn("mt-10 pt-10 border-t text-center", isDark ? "border-white/5" : "border-gray-100")}>
+              <p className="text-sm font-bold opacity-50 mb-4">
+                {t("auth.noAccount")}
+              </p>
+              <a
+                href="#mod=public&page=register"
+                className="inline-flex items-center justify-center px-8 py-3 rounded-xl border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all font-black uppercase text-sm tracking-widest"
               >
-                <div className="flex items-center gap-4">
-                  <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", isDark ? "bg-white/5" : "bg-white border border-gray-100")}>
-                    {getDeviceIcon(session.device_name)}
-                  </div>
-                  <div>
-                    <p className={cn("text-sm font-bold", isDark ? "text-white" : "text-gray-900")}>
-                      {session.device_name || t("sessions.unknownDevice")}
-                    </p>
-                    <div className="flex items-center gap-3 mt-0.5 text-[14px] font-mono opacity-40 uppercase tracking-tighter">
-                      <span className="flex items-center gap-1">
-                        <Globe size={10} /> {session.ip_address}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock size={10} />{" "}
-                        {new Date(
-                          session.last_accessed_at || "",
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleRevokeSession(session.id || "")}
-                  className="p-2 rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all border border-transparent hover:border-red-500/20 shadow-inner"
-                  title={t("sessions.revokeAccess")}
-                >
-                  <XCircle size={18} />
-                </button>
-              </div>
-            ))}
-          </div>
+                {t("common.register")}
+              </a>
+            </div>
+          )}
 
-          <div className={cn("pt-4 border-t", isDark ? "border-white/5" : "border-gray-100")}>
-            <Button
-              variant="outline"
-              className="w-full border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
-              onClick={async () => {
-                if (!confirm(t("sessions.revokeConfirm"))) return;
-                const { data } = await client.POST(
-                  "/api/v1/users/public/sessions/delete-all",
-                  {
-                    body: {
-                      username_or_email_or_phone_or_uid: identifier,
-                      password: password,
-                    },
-                  },
-                );
-                if (data?.success) {
-                  setShowDeviceLimit(false);
-                  handleLogin();
-                }
-              }}
-            >
-              {t("auth.revokeAll")}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-    </div>
+          {/* Device Limit Management Modal */}
+          <Modal
+            isOpen={showDeviceLimit}
+            onClose={() => setShowDeviceLimit(false)}
+            title={t("auth.deviceLimitExceeded")}
+            className="max-w-lg"
+          >
+            <div className="space-y-6">
+              <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-start gap-4">
+                <AlertTriangle
+                  className="text-orange-500 shrink-0 mt-1"
+                  size={20}
+                />
+                <p className="text-sm font-bold text-orange-200/80 leading-relaxed">
+                  {t("auth.deviceLimitDesc", {
+                    count: limitInfo.current,
+                    max: limitInfo.max,
+                  })}
+                </p>
+              </div>
+
+              <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                {sessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className={cn(
+                      "flex items-center justify-between p-4 rounded-2xl border group transition-all",
+                      isDark ? "bg-white/[0.03] border-white/5" : "bg-gray-50 border-gray-100"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", isDark ? "bg-white/5" : "bg-white border border-gray-100")}>
+                        {getDeviceIcon(session.device_name)}
+                      </div>
+                      <div>
+                        <p className={cn("text-sm font-bold", isDark ? "text-white" : "text-gray-900")}>
+                          {session.device_name || t("sessions.unknownDevice")}
+                        </p>
+                        <div className="flex items-center gap-3 mt-0.5 text-[14px] font-mono opacity-40 uppercase tracking-tighter">
+                          <span className="flex items-center gap-1">
+                            <Globe size={10} /> {session.ip_address}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock size={10} />{" "}
+                            {new Date(
+                              session.last_accessed_at || "",
+                            ).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleRevokeSession(session.id || "")}
+                      className="p-2 rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all border border-transparent hover:border-red-500/20 shadow-inner"
+                      title={t("sessions.revokeAccess")}
+                    >
+                      <XCircle size={18} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className={cn("pt-4 border-t", isDark ? "border-white/5" : "border-gray-100")}>
+                <Button
+                  variant="outline"
+                  className="w-full border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+                  onClick={async () => {
+                    if (!confirm(t("sessions.revokeConfirm"))) return;
+                    const { data } = await client.POST(
+                      "/api/v1/users/public/sessions/delete-all",
+                      {
+                        body: {
+                          username_or_email_or_phone_or_uid: identifier,
+                          password: password,
+                        },
+                      },
+                    );
+                    if (data?.success) {
+                      setShowDeviceLimit(false);
+                      handleLogin();
+                    }
+                  }}
+                >
+                  {t("auth.revokeAll")}
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        </>
+      )}
+    </PublicCenteredCard>
   );
 };

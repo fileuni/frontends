@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { client, handleApiError } from '@/lib/api.ts';
@@ -9,11 +9,10 @@ import { cn } from '@/lib/utils.ts';
 
 import { useToastStore } from '@fileuni/shared';
 import { useConfigStore } from '@/stores/config.ts';
-import { useThemeStore } from '@fileuni/shared';
+import { PublicCenteredCard } from './public-ui/PublicCenteredCard.tsx';
 
 export const RegisterView = () => {
   const { t } = useTranslation();
-  const { theme } = useThemeStore();
   const { addToast } = useToastStore();
   const { capabilities } = useConfigStore();
   
@@ -23,13 +22,6 @@ export const RegisterView = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [agreement, setAgreement] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const passwordStrength = useMemo(() => {
     let strength = 0;
@@ -76,38 +68,36 @@ export const RegisterView = () => {
 
   if (capabilities?.enable_registration === false) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background relative overflow-hidden">
-        <div className="w-full max-w-[420px] relative z-10 text-center">
-          <div className={cn(
-            "backdrop-blur-xl border rounded-[2.5rem] p-10 shadow-2xl transition-all",
-            isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
-          )}>
+      <PublicCenteredCard
+        cardMaxWidthClass="max-w-[420px]"
+        topPadding={false}
+        animate={false}
+        decorativeBackground="none"
+        bodyClassName="p-10"
+      >
+        {({ isDark }) => (
+          <div className="text-center">
             <XCircle className="mx-auto text-red-500 mb-4" size={64} />
-            <h1 className={cn("text-2xl font-black mb-2", isDark ? "text-white" : "text-gray-900")}>{t('auth.registrationDisabled') || 'Registration Disabled'}</h1>
+            <h1 className={cn("text-2xl font-black mb-2", isDark ? "text-white" : "text-gray-900")}>
+              {t('auth.registrationDisabled') || 'Registration Disabled'}
+            </h1>
             <p className="opacity-60 mb-8">{t('auth.registrationDisabledDesc') || 'User registration is currently disabled by system administrator.'}</p>
             <Button onClick={() => window.location.hash = 'mod=public&page=login'} className="w-full">{t('common.backToLogin') || 'Back to Login'}</Button>
           </div>
-        </div>
-      </div>
+        )}
+      </PublicCenteredCard>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-background relative overflow-hidden pt-16">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-[300px] -left-[300px] w-[800px] h-[800px] rounded-full bg-blue-500/5 blur-[100px]" />
-        <div className="absolute -bottom-[300px] right-[-300px] w-[800px] h-[800px] rounded-full bg-primary/5 blur-[100px]" />
-      </div>
-
-      <div className="w-full max-w-[420px] relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className={cn(
-          "backdrop-blur-xl border rounded-[2.5rem] overflow-hidden shadow-2xl transition-all",
-          isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
-        )}>
-          <div className="h-1.5 bg-gradient-to-r from-blue-600 to-primary opacity-80" />
-          
-          <div className="p-10 pt-12">
-            <div className="text-center mb-10">
+    <PublicCenteredCard
+      cardMaxWidthClass="max-w-[420px]"
+      decorativeBackground="diagonal-reverse"
+      accentBarClassName="bg-gradient-to-r from-blue-600 to-primary"
+    >
+      {({ isDark }) => (
+        <>
+          <div className="text-center mb-10">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/10 text-blue-500 mb-4 shadow-inner">
                 <UserPlus size={32} />
               </div>
@@ -186,9 +176,8 @@ export const RegisterView = () => {
                 <a href="#mod=public&page=login" className="text-primary hover:underline font-black">{t('common.login')}</a>
               </p>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        </>
+      )}
+    </PublicCenteredCard>
   );
 };

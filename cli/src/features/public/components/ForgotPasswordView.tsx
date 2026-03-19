@@ -6,11 +6,11 @@ import { normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { useToastStore } from '@fileuni/shared';
-import { useThemeStore } from '@fileuni/shared';
 import { cn } from '@/lib/utils.ts';
 import { ShieldAlert, ArrowLeft, Send, ChevronRight, Lock, Key } from 'lucide-react';
 import type { components } from '@/types/api.ts';
-import { TurnstileWidget } from '@/components/common/TurnstileWidget.tsx';
+import { CaptchaChallenge, type CaptchaPayload } from '@/components/common/CaptchaChallenge.tsx';
+import { PublicCenteredCard } from './public-ui/PublicCenteredCard.tsx';
 
 interface RecoveryOptions {
   user_id: string;
@@ -19,11 +19,9 @@ interface RecoveryOptions {
   has_security_question?: boolean;
   security_question?: string;
 }
-type CaptchaPayload = { token: string; image_base64: string; captcha_type: string; turnstile_site_key?: string | null };
 
 export const ForgotPasswordView = () => {
   const { t } = useTranslation();
-  const { theme } = useThemeStore();
   const { addToast } = useToastStore();
   
   const [step, setStep] = useState(1);
@@ -34,7 +32,6 @@ export const ForgotPasswordView = () => {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [needCaptcha, setNeedCaptcha] = useState(false);
   const [options, setOptions] = useState<RecoveryOptions | null>(null);
-  const [mounted, setMounted] = useState(false);
   
   const [selectedMethod, setSelectedMethod] = useState<'email' | 'phone' | 'question' | null>(null);
   const [verifyForm, setVerifyForm] = useState({ code: '', answer: '', token: '', timer: 0 });
@@ -44,11 +41,7 @@ export const ForgotPasswordView = () => {
     addToast(handleApiError(e, t), "error");
   };
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  // Theme is resolved inside PublicCenteredCard
   const isTurnstileCaptcha = captchaData?.captcha_type === "turnstile";
   const captchaTokenForSubmit = isTurnstileCaptcha ? turnstileToken : (captchaData?.token ?? "");
 
@@ -318,14 +311,13 @@ export const ForgotPasswordView = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-background relative overflow-hidden pt-16">
-      <div className={cn(
-        "w-full max-w-[420px] backdrop-blur-xl border rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 transition-all",
-        isDark ? "bg-white/[0.03] border-white/10" : "bg-white border-gray-200"
-      )}>
-        <div className="h-1.5 bg-gradient-to-r from-orange-500 to-red-600 opacity-80" />
-        
-        <div className="p-10 pt-12">
+    <PublicCenteredCard
+      cardMaxWidthClass="max-w-[420px]"
+      decorativeBackground="none"
+      accentBarClassName="bg-gradient-to-r from-orange-500 to-red-600"
+    >
+      {({ isDark }) => (
+        <>
           {/* Header */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-orange-500/10 text-orange-500 mb-4 shadow-inner">
@@ -358,54 +350,21 @@ export const ForgotPasswordView = () => {
                 className="h-14 rounded-2xl"
               />
               
-              {needCaptcha && (
-                <div className="space-y-2">
-                  <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
-                    {t("auth.captcha")}
-                  </label>
-                  {isTurnstileCaptcha ? (
-                    <div className="space-y-2">
-                      {captchaData?.turnstile_site_key ? (
-                        <TurnstileWidget siteKey={captchaData.turnstile_site_key} onTokenChange={setTurnstileToken} />
-                      ) : (
-                        <p className="text-sm font-bold uppercase tracking-widest text-red-500">{t('auth.turnstileSiteKeyMissing')}</p>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex gap-3">
-                      <div className="relative flex-1 group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary group-focus-within:opacity-100 transition-all" size={18} />
-                        <Input
-                          value={captchaCode}
-                          onChange={(e) => setCaptchaCode(e.target.value)}
-                          className="pl-12"
-                          placeholder={t('common.verificationCode')}
-                          required
-                        />
-                      </div>
-                      <div 
-                        className={cn(
-                          "w-36 h-12 sm:w-40 sm:h-14 rounded-xl border overflow-hidden cursor-pointer hover:border-primary/50 transition-all flex items-center justify-center",
-                          isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200"
-                        )}
-                        onClick={() => fetchCaptcha(true)}
-                        title={t("auth.refreshCaptcha")}
-                      >
-                        {captchaData ? (
-                          <img src={captchaData.image_base64} alt={t('auth.captcha')} className="w-full h-full object-contain" />
-                        ) : (
-                          <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  {captchaData?.captcha_type && (
-                    <p className="text-sm font-bold uppercase tracking-widest opacity-40">
-                      {`Type: ${captchaData.captcha_type.replace("image:", "")}`}
-                    </p>
-                  )}
-                </div>
-              )}
+               {needCaptcha && (
+                 <CaptchaChallenge
+                   isDark={isDark}
+                   captchaData={captchaData}
+                   captchaCode={captchaCode}
+                   onCaptchaCodeChange={setCaptchaCode}
+                   turnstileToken={turnstileToken}
+                   onTurnstileTokenChange={setTurnstileToken}
+                   onRefresh={() => void fetchCaptcha(true)}
+                   label={t("auth.captcha")}
+                   placeholder={t('common.verificationCode')}
+                   refreshTitle={t("auth.refreshCaptcha")}
+                   turnstileSiteKeyMissingText={t('auth.turnstileSiteKeyMissing')}
+                 />
+               )}
 
               <Button className="w-full h-14 text-lg" disabled={loading}>
                 {loading ? <span className="loading-spinner animate-spin w-6 h-6 border-2 border-white/30 border-t-white rounded-full" /> : t('forgotPassword.findAccount')}
@@ -526,8 +485,8 @@ export const ForgotPasswordView = () => {
               </Button>
             </form>
           )}
-        </div>
-      </div>
-    </div>
+        </>
+      )}
+    </PublicCenteredCard>
   );
 };

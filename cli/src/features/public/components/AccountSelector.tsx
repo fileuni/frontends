@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.ts';
-import { useToastStore } from '@fileuni/shared';
-import { useThemeStore } from '@fileuni/shared';
+import { useResolvedTheme, useToastStore } from '@fileuni/shared';
 import { 
   Trash2, ChevronRight, Plus
 } from 'lucide-react';
@@ -22,18 +21,13 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
   showAddButton = true
 }) => {
   const { t } = useTranslation();
-  const { theme } = useThemeStore();
+  const resolvedTheme = useResolvedTheme();
   const { usersMap, currentUserId, switchUser, logout } = useAuthStore();
   const { addToast } = useToastStore();
-  const [mounted, setMounted] = useState(false);
   
   const savedUsers = Object.values(usersMap);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const isDark = resolvedTheme === 'dark';
 
   const handleSelect = (userId: string) => {
     if (userId !== currentUserId) {
