@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -82,17 +83,30 @@ export const KeyValueForm: React.FC<{
                 updateItems(next);
               }}
             />
-            <Input
-              value={item.value}
-              placeholder={valuePlaceholder}
-              className={cn(controlBase, isSecretKey(item.key) ? '' : 'font-mono')}
-              type={isSecretKey(item.key) ? 'password' : 'text'}
-              onChange={(e) => {
-                const next = [...items];
-                next[idx] = { ...next[idx], value: e.target.value };
-                updateItems(next);
-              }}
-            />
+            {isSecretKey(item.key) ? (
+              <PasswordInput
+                value={item.value}
+                placeholder={valuePlaceholder}
+                inputClassName={cn(controlBase)}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[idx] = { ...next[idx], value: e.target.value };
+                  updateItems(next);
+                }}
+              />
+            ) : (
+              <Input
+                value={item.value}
+                placeholder={valuePlaceholder}
+                className={cn(controlBase, 'font-mono')}
+                type="text"
+                onChange={(e) => {
+                  const next = [...items];
+                  next[idx] = { ...next[idx], value: e.target.value };
+                  updateItems(next);
+                }}
+              />
+            )}
             <Button
               type="button"
               variant="outline"

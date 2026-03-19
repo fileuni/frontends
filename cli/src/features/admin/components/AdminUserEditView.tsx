@@ -4,6 +4,7 @@ import '@/lib/i18n';
 import { useToastStore } from '@fileuni/shared';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { 
@@ -475,20 +476,21 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.s3AccessKey') || 'S3 Access Key'}</label>
-                    <Input 
-                      value={fileSettings.s3_access_key || ''} 
-                      onChange={e => setFileSettings({ ...fileSettings, s3_access_key: e.target.value })} 
-                      placeholder={t('admin.edit.s3AccessKeyPlaceholder')} 
-                      className="font-mono text-sm" 
+                    <PasswordInput
+                      defaultVisible
+                      value={fileSettings.s3_access_key || ''}
+                      onChange={e => setFileSettings({ ...fileSettings, s3_access_key: e.target.value })}
+                      placeholder={t('admin.edit.s3AccessKeyPlaceholder')}
+                      inputClassName="font-mono text-sm"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.s3SecretKey') || 'S3 Secret Key'}</label>
-                    <Input 
-                      value={fileSettings.s3_secret_key || ''} 
-                      onChange={e => setFileSettings({ ...fileSettings, s3_secret_key: e.target.value })} 
-                      placeholder={t('admin.edit.s3SecretKeyPlaceholder')} 
-                      className="font-mono text-sm" 
+                    <PasswordInput
+                      value={fileSettings.s3_secret_key || ''}
+                      onChange={e => setFileSettings({ ...fileSettings, s3_secret_key: e.target.value })}
+                      placeholder={t('admin.edit.s3SecretKeyPlaceholder')}
+                      inputClassName="font-mono text-sm"
                     />
                   </div>
                 </div>
@@ -642,18 +644,16 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.newPassword')}</label>
-              <Input 
-                type="password" 
-                value={newPassword} 
+              <PasswordInput
+                value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder={t('admin.edit.passwordPlaceholder')}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.confirmPassword')}</label>
-              <Input 
-                type="password" 
-                value={confirmPassword} 
+              <PasswordInput
+                value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 placeholder={t('admin.edit.passwordPlaceholder')}
               />

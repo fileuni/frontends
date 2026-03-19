@@ -12,12 +12,13 @@ import {
   Users, UserPlus, Search,
   Edit3, Trash2, ShieldAlert,
   Calendar, RefreshCw,
-  RotateCcw, Key, Eye, EyeOff,
+  RotateCcw, Key,
   AlertCircle
 } from 'lucide-react';
 import { client, extractData } from '@/lib/api.ts';
 import type { components } from '@/types/api.ts';
 import { cn } from '@/lib/utils.ts';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { fetchRolesAndPermissions, type RolePermissionView } from './roleApi';
 import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
 
@@ -39,7 +40,6 @@ export const UserManagement = () => {
   const [resetPwdUser, setResetPwdUser] = useState<UserResponse | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
   const [deleteUser, setDeleteUser] = useState<UserResponse | null>(null);
@@ -346,7 +346,6 @@ export const UserManagement = () => {
         isOpen={!!resetPwdUser}
         onClose={() => {
           setResetPwdUser(null);
-          setShowPassword(false);
           setNewPassword('');
           setConfirmPassword('');
         }}
@@ -359,33 +358,21 @@ export const UserManagement = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.newPassword')}</label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  placeholder={t('common.passwordPlaceholder')}
-                  className={cn(isPasswordMismatch && "border-red-500/50 focus:border-red-500")}
-                />
-                <button 
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 opacity-30 hover:opacity-100 transition-all"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
+              <PasswordInput
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder={t('common.passwordPlaceholder')}
+                inputClassName={cn(isPasswordMismatch && "border-red-500/50 focus:border-red-500")}
+              />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.confirmPassword')}</label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder={t('common.passwordPlaceholder')}
-                  className={cn(isPasswordMismatch && "border-red-500/50 focus:border-red-500")}
-                />
-              </div>
+              <PasswordInput
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                placeholder={t('common.passwordPlaceholder')}
+                inputClassName={cn(isPasswordMismatch && "border-red-500/50 focus:border-red-500")}
+              />
               {isPasswordMismatch && (
                 <div className="flex items-center gap-2 text-red-500 mt-2 animate-in fade-in slide-in-from-top-1">
                   <AlertCircle size={18} />

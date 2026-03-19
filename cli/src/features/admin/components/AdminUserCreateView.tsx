@@ -4,6 +4,7 @@ import "@/lib/i18n";
 import { useToastStore } from "@fileuni/shared";
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
+import { PasswordInput } from "@/components/common/PasswordInput.tsx";
 import { UserPlus, Save, ArrowLeft } from "lucide-react";
 import { client } from "@/lib/api.ts";
 import { normalizeEmailInput, normalizePhoneInput } from "@/lib/contactNormalize.ts";
@@ -135,8 +136,7 @@ export const AdminUserCreateView = () => {
               <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.initialPassword")} *
               </label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 placeholder={t("pages.admin.userCreate.passwordPlaceholder")}
@@ -147,8 +147,7 @@ export const AdminUserCreateView = () => {
               <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.confirmPassword")} *
               </label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={form.confirmPassword}
                 onChange={(e) =>
                   setForm({ ...form, confirmPassword: e.target.value })
