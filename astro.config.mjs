@@ -21,8 +21,18 @@ export default defineConfig({
           target: 'http://127.0.0.1:19000',
           changeOrigin: true,
           ws: true,
-        }
-      }
+        },
+        // WebDAV is mounted at `/dav` (configurable; docs default to `/@dav`).
+        // In dev we proxy both so clients can probe via the Astro dev server origin.
+        '/dav': {
+          target: 'http://127.0.0.1:19000',
+          changeOrigin: true,
+        },
+        '/@dav': {
+          target: 'http://127.0.0.1:19000',
+          changeOrigin: true,
+        },
+      },
     },
     optimizeDeps: {
       include: ['libphonenumber-js/max'],
