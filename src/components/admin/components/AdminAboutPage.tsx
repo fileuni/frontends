@@ -129,12 +129,6 @@ export const AdminAboutPage: React.FC = () => {
     }
   };
 
-  const targetTriple = useMemo(() => {
-    if (!updateInfo) return '';
-    const libc = updateInfo.target_libc ? `-${updateInfo.target_libc}` : '';
-    return `${updateInfo.target_os}-${updateInfo.target_arch}${libc}`;
-  }, [updateInfo]);
-
   return (
     <AdminPage withBottomPadding={false} className="pt-2">
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
@@ -231,60 +225,6 @@ export const AdminAboutPage: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
-
-          <div className={cn('mt-6 h-px w-full', isDark ? 'bg-white/5' : 'bg-gray-100')} />
-
-          <div className="mt-6 space-y-3">
-            <div className={cn('text-xs font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
-              Update Details
-            </div>
-
-            {!updateInfo ? (
-              <div className={cn('rounded-xl border p-4 text-sm font-bold opacity-70', isDark ? 'border-white/10 bg-white/[0.02] text-white' : 'border-gray-200 bg-gray-50 text-gray-700')}>
-                {updateError ? updateError : '—'}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-3">
-                <div className={cn('rounded-xl border p-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-gray-200 bg-gray-50')}>
-                  <div className={cn('text-[10px] font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
-                    Artifact / Target
-                  </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-sm font-black text-primary">{updateInfo.artifact_kind || '—'}</span>
-                    <span className={cn('text-xs font-black uppercase tracking-widest opacity-40', isDark ? 'text-white' : 'text-gray-900')}>
-                      {targetTriple || '—'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className={cn('rounded-xl border p-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-gray-200 bg-gray-50')}>
-                  <div className={cn('text-[10px] font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
-                    Install Source
-                  </div>
-                  <div className="mt-1 font-mono text-sm font-black text-primary">
-                    {updateInfo.install_source?.source || '—'}
-                  </div>
-                  <div className={cn('mt-1 text-xs font-bold opacity-70', isDark ? 'text-white' : 'text-gray-700')}>
-                    confidence: {updateInfo.install_source?.confidence || '—'}
-                  </div>
-                  {Array.isArray(updateInfo.install_source?.evidence) && updateInfo.install_source.evidence.length > 0 && (
-                    <div className={cn('mt-3 rounded-lg border p-3', isDark ? 'border-white/10 bg-black/20' : 'border-gray-200 bg-white')}>
-                      <div className={cn('text-[10px] font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
-                        evidence
-                      </div>
-                      <div className={cn('mt-2 space-y-1 text-xs font-mono', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                        {updateInfo.install_source.evidence.map((line) => (
-                          <div key={line} className="truncate" title={line}>
-                            {line}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
