@@ -15,29 +15,41 @@ function isPlainObject(value) {
   );
 }
 
-function syncFromBase(base, target) {
+// Generate a translation "diff" object.
+// Keep only keys that are translated (value differs from base).
+// Missing keys fall back to English at runtime.
+function diffFromBase(base, target) {
   if (Array.isArray(base)) {
-    return Array.isArray(target) ? target : base;
+    if (!Array.isArray(target)) return undefined;
+    return JSON.stringify(target) === JSON.stringify(base) ? undefined : target;
   }
   if (isPlainObject(base)) {
     const out = {};
     const t = isPlainObject(target) ? target : {};
     for (const key of Object.keys(base)) {
-      out[key] = syncFromBase(base[key], t[key]);
+      const child = diffFromBase(base[key], t[key]);
+      if (child !== undefined) out[key] = child;
     }
-    return out;
+    return Object.keys(out).length ? out : undefined;
   }
+
   // primitive
   if (typeof base === 'string') {
-    return typeof target === 'string' ? target : base;
+    if (typeof target !== 'string') return undefined;
+    return target === base ? undefined : target;
   }
   if (typeof base === 'number') {
-    return typeof target === 'number' ? target : base;
+    if (typeof target !== 'number') return undefined;
+    return target === base ? undefined : target;
   }
   if (typeof base === 'boolean') {
-    return typeof target === 'boolean' ? target : base;
+    if (typeof target !== 'boolean') return undefined;
+    return target === base ? undefined : target;
   }
-  return target === undefined ? base : target;
+  if (base === null) {
+    return target === null || target === undefined ? undefined : target;
+  }
+  return target === undefined || target === base ? undefined : target;
 }
 
 function readJson(filePath) {
@@ -104,7 +116,7 @@ for (const ns of baseNamespaces) {
 for (const lang of TARGET_LANGS) {
   const langDir = path.join(i18nRoot, lang);
   let totalKeys = 0;
-  const langKeySet = new Set();
+  let keptKeys = 0;
 
   for (const ns of baseNamespaces) {
     const baseNsPath = path.join(baseDir, `${ns}.json`);
@@ -112,24 +124,15 @@ for (const lang of TARGET_LANGS) {
 
     const baseNs = readJson(baseNsPath);
     const targetNs = fs.existsSync(targetNsPath) ? readJson(targetNsPath) : {};
-    const syncedNs = syncFromBase(baseNs, targetNs);
-    writeJson(targetNsPath, syncedNs);
+    const diffNs = diffFromBase(baseNs, targetNs) ?? {};
+    writeJson(targetNsPath, diffNs);
 
-    const keys = flattenKeys(syncedNs, ns);
-    totalKeys += keys.length;
-    for (const k of keys) langKeySet.add(k);
+    totalKeys += flattenKeys(baseNs, ns).length;
+    keptKeys += flattenKeys(diffNs, ns).length;
   }
 
   writeIndexTs(langDir, baseNamespaces);
 
-  const missing = [...baseKeySet].filter((k) => !langKeySet.has(k));
-  const extra = [...langKeySet].filter((k) => !baseKeySet.has(k));
-
-  if (missing.length || extra.length) {
-    // eslint-disable-next-line no-console
-    console.log(`[${lang}] missing=${missing.length} extra=${extra.length}`);
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(`[${lang}] ok (${totalKeys} leaf keys)`);
-  }
+  // eslint-disable-next-line no-console
+  console.log(`[${lang}] kept=${keptKeys}/${totalKeys} translated leaf keys (diff-only)`);
 }
