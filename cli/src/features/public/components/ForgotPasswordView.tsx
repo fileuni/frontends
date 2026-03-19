@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils.ts';
 import { ShieldAlert, ArrowLeft, Send, ChevronRight, Lock, Key } from 'lucide-react';
 import type { components } from '@/types/api.ts';
 import { CaptchaChallenge, type CaptchaPayload } from '@/components/common/CaptchaChallenge.tsx';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { PublicCenteredCard } from './public-ui/PublicCenteredCard.tsx';
 
 interface RecoveryOptions {
@@ -478,8 +479,20 @@ export const ForgotPasswordView = () => {
                 <Key size={32} />
               </div>
               <h3 className="text-xl font-black mb-6">{t('forgotPassword.createNewPassword')}</h3>
-              <Input type="password" value={resetForm.newPassword} onChange={e => setResetForm({ ...resetForm, newPassword: e.target.value })} placeholder={t('forgotPassword.newPassword')} required className="h-14 rounded-2xl" />
-              <Input type="password" value={resetForm.confirmPassword} onChange={e => setResetForm({ ...resetForm, confirmPassword: e.target.value })} placeholder={t('forgotPassword.repeatPassword')} required className="h-14 rounded-2xl" />
+              <PasswordInput
+                value={resetForm.newPassword}
+                onChange={e => setResetForm({ ...resetForm, newPassword: e.target.value })}
+                placeholder={t('forgotPassword.newPassword')}
+                required
+                inputClassName="h-14 rounded-2xl"
+              />
+              <PasswordInput
+                value={resetForm.confirmPassword}
+                onChange={e => setResetForm({ ...resetForm, confirmPassword: e.target.value })}
+                placeholder={t('forgotPassword.repeatPassword')}
+                required
+                inputClassName="h-14 rounded-2xl"
+              />
               <Button className="w-full h-14 bg-green-600 text-white border-none shadow-green-500/20" disabled={loading}>
                 {t('forgotPassword.updatePassword')}
               </Button>

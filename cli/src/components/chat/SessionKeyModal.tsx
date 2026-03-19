@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ShieldCheck, X, Key, Info } from 'lucide-react';
 import { useChat } from '@/hooks/ChatContext.tsx';
 import { Button } from '@/components/ui/Button.tsx';
-import { Input } from '@/components/ui/Input.tsx';
+import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { toast, useEscapeToCloseTopLayer } from '@fileuni/shared';
 
 export const SessionKeyModal: React.FC = () => {
@@ -66,20 +66,15 @@ export const SessionKeyModal: React.FC = () => {
             <label className="text-sm font-black uppercase opacity-40 tracking-[0.2em] ml-1">
               {t('chat.conversationWith', { name: targetName })}
             </label>
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40">
-                <Key size={18} />
-              </div>
-              <Input
-                type="password"
-                value={keyValue}
-                onChange={(e) => setKeyValue(e.target.value)}
-                placeholder={t('chat.enterSessionKeyPlaceholder')}
-                className="h-14 pl-12 pr-4 text-base rounded-2xl bg-muted/20 border-none shadow-inner focus-visible:ring-2 focus-visible:ring-primary/20"
-                autoFocus
-                onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-              />
-            </div>
+            <PasswordInput
+              icon={<Key size={18} />}
+              value={keyValue}
+              onChange={(e) => setKeyValue(e.target.value)}
+              placeholder={t('chat.enterSessionKeyPlaceholder')}
+              inputClassName="h-14 text-base rounded-2xl bg-muted/20 border-none shadow-inner focus-visible:ring-2 focus-visible:ring-primary/20"
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+            />
           </div>
 
           <div className="flex gap-3">

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input.tsx";
 import { Modal } from "@/components/ui/Modal.tsx";
 import { client, extractData } from "@/lib/api.ts";
 import { toast } from "@fileuni/shared";
+import { PasswordInput } from "@/components/common/PasswordInput.tsx";
 import type { EmailAccount } from "./emailTypes.ts";
 
 type EmailExportPayload = { encrypted_data: string };
@@ -105,7 +106,7 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
       <Modal isOpen={showExportModal} onClose={() => setShowExportModal(false)} title={t("email.exportAccounts")} maxWidth="max-w-md">
         <div className="space-y-4 py-2 text-foreground">
           <p className="text-sm text-muted-foreground leading-relaxed">{t("email.exportDescription")}</p>
-          <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.exportPassword")}</label><Input type="password" value={exportPassword} onChange={e => setExportPassword(e.target.value)} placeholder={t("email.passwordPlaceholder")} /></div>
+          <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.exportPassword")}</label><PasswordInput value={exportPassword} onChange={e => setExportPassword(e.target.value)} placeholder={t("email.passwordPlaceholder")} /></div>
           <Button className="w-full h-11 rounded-2xl shadow-lg shadow-primary/20 font-black uppercase text-sm" onClick={handleExport} disabled={isExporting}>{isExporting ? <RefreshCw className="animate-spin mr-2" size={16} /> : <Share className="mr-2" size={16} />}{t("email.exportNow")}</Button>
         </div>
       </Modal>
@@ -144,7 +145,7 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
               </button>
             </div>
           )}
-          <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.importPassword")}</label><Input type="password" value={importPassword} onChange={e => setImportPassword(e.target.value)} placeholder={t("email.passwordPlaceholder")} /></div>
+          <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.importPassword")}</label><PasswordInput value={importPassword} onChange={e => setImportPassword(e.target.value)} placeholder={t("email.passwordPlaceholder")} /></div>
           <Button className="w-full h-11 rounded-2xl shadow-lg shadow-primary/20 font-black uppercase text-sm" onClick={handleImport} disabled={isImporting}>{isImporting ? <RefreshCw className="animate-spin mr-2" size={16} /> : <Share className="mr-2" size={16} />}{t("email.importNow")}</Button>
         </div>
       </Modal>
@@ -212,7 +213,7 @@ export const EmailAccountModal: React.FC<EmailAccountModalProps> = ({
           <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.emailAddress")}</label><Input value={formEmail} onChange={e => setFormEmail(e.target.value)} placeholder={t("email.emailPlaceholder")} /></div>
           <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.displayName")}</label><Input value={formDisplayName} onChange={e => setFormDisplayName(e.target.value)} placeholder={t("email.displayNamePlaceholderForm")} /></div>
         </div>
-        <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.password")}</label><Input type="password" value={formPassword} onChange={e => setFormPassword(e.target.value)} placeholder={editingAccount ? t("email.keepEmptyToNotChange") : t("email.passwordPlaceholder")} /></div>
+        <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.password")}</label><PasswordInput value={formPassword} onChange={e => setFormPassword(e.target.value)} placeholder={editingAccount ? t("email.keepEmptyToNotChange") : t("email.passwordPlaceholder")} /></div>
         <div className="h-px bg-border/40 my-2" />
         <div className="grid grid-cols-2 gap-3">
           <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.imapHost")}</label><Input value={formImapHost} onChange={e => setFormImapHost(e.target.value)} placeholder={t("email.imapHostPlaceholder")} /></div>
