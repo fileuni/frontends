@@ -88,7 +88,9 @@ export const Pagination: React.FC<PaginationProps> = ({
           className,
         )}
       >
-        <span className="text-sm font-black uppercase tracking-[0.2em]">{t('common.pagination') || 'Pagination'}</span>
+        <span className="text-sm font-black uppercase tracking-[0.2em]">
+          {t('common.paginationTitle', { defaultValue: 'Pagination' })}
+        </span>
       </div>
     );
   }

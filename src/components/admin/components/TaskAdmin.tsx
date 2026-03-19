@@ -205,7 +205,9 @@ export const TaskAdmin = () => {
                   <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">{t('admin.tasks.type') || 'Type'}</th>
                   <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">{t('admin.tasks.user') || 'User'}</th>
                   <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">{t('admin.tasks.progress') || 'Progress'}</th>
-                  <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">{t('admin.tasks.status') || 'Status'}</th>
+                  <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">
+                    {t('common.status', { defaultValue: 'Status' })}
+                  </th>
                   <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">{t('admin.tasks.time') || 'Created At'}</th>
                   <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40 text-right">{t('common.actions')}</th>
                 </tr>
