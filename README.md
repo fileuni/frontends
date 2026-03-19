@@ -13,8 +13,7 @@ This project builds a single static dist that is used by:
 |------|-------------|
 | `src/` | Application source (WebUI + Tauri launcher + shared UI) |
 | `src/apps/` | App variants (e.g. `webui/`, `launcher/`) |
-| `src/features/` | Feature modules (domain-specific UI + logic) |
-| `src/components/` | Reusable UI components (shared) |
+| `src/components/` | Domain modules (business-feature first; includes shared UI under `components/ui/`, `components/common/`) |
 | `src/lib/` | Shared utilities and service wrappers |
 | `src/stores/` | Global Zustand stores |
 | `src/i18n/` | i18n resources (`en/`, `zh/`) |
