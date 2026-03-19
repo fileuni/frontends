@@ -1,16 +1,16 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { AppRouter } from "./Router";
-import { Navbar } from "@/features/public/components/Navbar.tsx";
+import { Navbar } from "@/components/public/components/Navbar.tsx";
 import { ToastContainer, ToastI18nContext } from "@/components/ui/Toast";
-import { GlobalAudioPlayer } from "@/features/file-manager/components";
-import { ChatProvider, ChatErrorBoundary } from "@/features/chat/context/ChatContext";
-import { ChatUnifiedUI } from "@/features/chat/components/ChatUnifiedUI";
-import { EmailUnifiedUI } from "@/features/email/components/EmailUnifiedUI";
+import { GlobalAudioPlayer } from "@/components/file-manager/components";
+import { ChatProvider, ChatErrorBoundary } from "@/components/chat/context/ChatContext";
+import { ChatUnifiedUI } from "@/components/chat/components/ChatUnifiedUI";
+import { EmailUnifiedUI } from "@/components/email/components/EmailUnifiedUI";
 import { useAuthStore } from "@/stores/auth";
 import { useAuthzStore } from "@/stores/authz";
 import { useConfigStore } from "@/stores/config";
-import { MustChangePasswordModal } from "@/features/public/components/MustChangePasswordModal.tsx";
+import { MustChangePasswordModal } from "@/components/public/components/MustChangePasswordModal.tsx";
 
 const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation();

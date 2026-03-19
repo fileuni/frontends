@@ -5,51 +5,51 @@ import { useAuthStore } from '@/stores/auth';
 import { useAuthzStore } from '@/stores/authz';
 import { useConfigStore } from '@/stores/config';
 import { useTranslation } from 'react-i18next';
-import { DashboardLayout } from '@/features/user-center/components/DashboardLayout';
-import { FileSidebar } from '@/features/file-manager/components/FileSidebar';
+import { DashboardLayout } from '@/components/user-center/components/DashboardLayout';
+import { FileSidebar } from '@/components/file-manager/components/FileSidebar';
 
 // Dynamic import public components
-const WelcomeView = lazy(() => import('@/features/public/components/WelcomeView').then(m => ({ default: m.WelcomeView })));
-const LoginView = lazy(() => import('@/features/public/components/LoginView').then(m => ({ default: m.LoginView })));
-const RegisterView = lazy(() => import('@/features/public/components/RegisterView').then(m => ({ default: m.RegisterView })));
-const ForgotPasswordView = lazy(() => import('@/features/public/components/ForgotPasswordView').then(m => ({ default: m.ForgotPasswordView })));
-const AccountsView = lazy(() => import('@/features/public/components/AccountsView').then(m => ({ default: m.AccountsView })));
-const TosContent = lazy(() => import('@/features/public/components/TosContent').then(m => ({ default: m.TosContent })));
-const PrivacyContent = lazy(() => import('@/features/public/components/PrivacyContent').then(m => ({ default: m.PrivacyContent })));
+const WelcomeView = lazy(() => import('@/components/public/components/WelcomeView').then(m => ({ default: m.WelcomeView })));
+const LoginView = lazy(() => import('@/components/public/components/LoginView').then(m => ({ default: m.LoginView })));
+const RegisterView = lazy(() => import('@/components/public/components/RegisterView').then(m => ({ default: m.RegisterView })));
+const ForgotPasswordView = lazy(() => import('@/components/public/components/ForgotPasswordView').then(m => ({ default: m.ForgotPasswordView })));
+const AccountsView = lazy(() => import('@/components/public/components/AccountsView').then(m => ({ default: m.AccountsView })));
+const TosContent = lazy(() => import('@/components/public/components/TosContent').then(m => ({ default: m.TosContent })));
+const PrivacyContent = lazy(() => import('@/components/public/components/PrivacyContent').then(m => ({ default: m.PrivacyContent })));
 
 // Dynamic import user center components
-const UserHomeView = lazy(() => import('@/features/user-center/components/UserHomeView').then(m => ({ default: m.UserHomeView })));
-const ProfileView = lazy(() => import('@/features/user-center/components/ProfileView').then(m => ({ default: m.ProfileView })));
-const SecurityView = lazy(() => import('@/features/user-center/components/SecurityView').then(m => ({ default: m.SecurityView })));
-const SessionsView = lazy(() => import('@/features/user-center/components/SessionsView').then(m => ({ default: m.SessionsView })));
-const CacheManagerView = lazy(() => import('@/features/user-center/components/CacheManagerView').then(m => ({ default: m.CacheManagerView })));
+const UserHomeView = lazy(() => import('@/components/user-center/components/UserHomeView').then(m => ({ default: m.UserHomeView })));
+const ProfileView = lazy(() => import('@/components/user-center/components/ProfileView').then(m => ({ default: m.ProfileView })));
+const SecurityView = lazy(() => import('@/components/user-center/components/SecurityView').then(m => ({ default: m.SecurityView })));
+const SessionsView = lazy(() => import('@/components/user-center/components/SessionsView').then(m => ({ default: m.SessionsView })));
+const CacheManagerView = lazy(() => import('@/components/user-center/components/CacheManagerView').then(m => ({ default: m.CacheManagerView })));
 
 // Dynamic import file manager components
-const FileManagerView = lazy(() => import('@/features/file-manager/components/FileManagerView').then(m => ({ default: m.FileManagerView })));
-const PublicShareView = lazy(() => import('@/features/file-manager/components/PublicShareView').then(m => ({ default: m.PublicShareView })));
-const MySharesView = lazy(() => import('@/features/file-manager/components/MySharesView').then(m => ({ default: m.MySharesView })));
+const FileManagerView = lazy(() => import('@/components/file-manager/components/FileManagerView').then(m => ({ default: m.FileManagerView })));
+const PublicShareView = lazy(() => import('@/components/file-manager/components/PublicShareView').then(m => ({ default: m.PublicShareView })));
+const MySharesView = lazy(() => import('@/components/file-manager/components/MySharesView').then(m => ({ default: m.MySharesView })));
 
 // Dynamic import chat components
-const ChatPage = lazy(() => import('@/features/chat/components/ChatPage').then(m => ({ default: m.ChatPage })));
-const ChatGuestView = lazy(() => import('@/features/chat/components/ChatGuestView').then(m => ({ default: m.ChatGuestView })));
+const ChatPage = lazy(() => import('@/components/chat/components/ChatPage').then(m => ({ default: m.ChatPage })));
+const ChatGuestView = lazy(() => import('@/components/chat/components/ChatGuestView').then(m => ({ default: m.ChatGuestView })));
 
 // Dynamic import admin components
-const UserManagement = lazy(() => import('@/features/admin/components/UserManagement').then(m => ({ default: m.UserManagement })));
-const AdminUserCreateView = lazy(() => import('@/features/admin/components/AdminUserCreateView').then(m => ({ default: m.AdminUserCreateView })));
-const AdminUserEditView = lazy(() => import('@/features/admin/components/AdminUserEditView').then(m => ({ default: m.AdminUserEditView as ComponentType<{ userId?: string }> })));
-const SystemConfigAdmin = lazy(() => import('@/features/admin/components/SystemConfigAdmin').then(m => ({ default: m.SystemConfigAdmin })));
-const PermissionAdmin = lazy(() => import('@/features/admin/components/PermissionAdmin').then(m => ({ default: m.PermissionAdmin })));
-const BlacklistAdmin = lazy(() => import('@/features/admin/components/BlacklistAdmin').then(m => ({ default: m.BlacklistAdmin })));
-const FileSystemAdmin = lazy(() => import('@/features/admin/components/FileSystemAdmin').then(m => ({ default: m.FileSystemAdmin })));
-const SystemBackupAdmin = lazy(() => import('@/features/admin/components/SystemBackupAdmin').then(m => ({ default: m.SystemBackupAdmin })));
-const ExtensionManagerAdmin = lazy(() => import('@/features/admin/components/ExtensionManagerAdmin').then(m => ({ default: m.ExtensionManagerAdmin })));
-const AdminAboutPage = lazy(() => import('@/features/admin/components/AdminAboutPage').then(m => ({ default: m.AdminAboutPage })));
+const UserManagement = lazy(() => import('@/components/admin/components/UserManagement').then(m => ({ default: m.UserManagement })));
+const AdminUserCreateView = lazy(() => import('@/components/admin/components/AdminUserCreateView').then(m => ({ default: m.AdminUserCreateView })));
+const AdminUserEditView = lazy(() => import('@/components/admin/components/AdminUserEditView').then(m => ({ default: m.AdminUserEditView as ComponentType<{ userId?: string }> })));
+const SystemConfigAdmin = lazy(() => import('@/components/admin/components/SystemConfigAdmin').then(m => ({ default: m.SystemConfigAdmin })));
+const PermissionAdmin = lazy(() => import('@/components/admin/components/PermissionAdmin').then(m => ({ default: m.PermissionAdmin })));
+const BlacklistAdmin = lazy(() => import('@/components/admin/components/BlacklistAdmin').then(m => ({ default: m.BlacklistAdmin })));
+const FileSystemAdmin = lazy(() => import('@/components/admin/components/FileSystemAdmin').then(m => ({ default: m.FileSystemAdmin })));
+const SystemBackupAdmin = lazy(() => import('@/components/admin/components/SystemBackupAdmin').then(m => ({ default: m.SystemBackupAdmin })));
+const ExtensionManagerAdmin = lazy(() => import('@/components/admin/components/ExtensionManagerAdmin').then(m => ({ default: m.ExtensionManagerAdmin })));
+const AdminAboutPage = lazy(() => import('@/components/admin/components/AdminAboutPage').then(m => ({ default: m.AdminAboutPage })));
 const DomainAcmeDdnsAdmin = lazy(() =>
-  import('@/features/admin/components/DomainAcmeDdnsAdmin').then(m => ({ default: m.DomainAcmeDdnsAdmin })),
+  import('@/components/admin/components/DomainAcmeDdnsAdmin').then(m => ({ default: m.DomainAcmeDdnsAdmin })),
 );
-const WebAdmin = lazy(() => import('@/features/admin/components/WebAdmin').then(m => ({ default: m.WebAdmin })));
-const AuditLogAdmin = lazy(() => import('@/features/admin/components/AuditLogAdmin').then(m => ({ default: m.AuditLogAdmin })));
-const TaskAdmin = lazy(() => import('@/features/admin/components/TaskAdmin').then(m => ({ default: m.TaskAdmin })));
+const WebAdmin = lazy(() => import('@/components/admin/components/WebAdmin').then(m => ({ default: m.WebAdmin })));
+const AuditLogAdmin = lazy(() => import('@/components/admin/components/AuditLogAdmin').then(m => ({ default: m.AuditLogAdmin })));
+const TaskAdmin = lazy(() => import('@/components/admin/components/TaskAdmin').then(m => ({ default: m.TaskAdmin })));
 
 /**
  * Route dispatcher
@@ -115,8 +115,8 @@ const PageRenderer: React.FC<{
       case 'register': return <RegisterView />;
       case 'forgot-password': return <ForgotPasswordView />;
       case 'accounts': return <AccountsView />;
-      case 'tos': return <DashboardLayout title={t('pages.tos.title')}><TosContent /></DashboardLayout>;
-      case 'privacy': return <DashboardLayout title={t('pages.privacy.title')}><PrivacyContent /></DashboardLayout>;
+      case 'tos': return <TosContent />;
+      case 'privacy': return <PrivacyContent />;
       default: return <WelcomeView />;
     }
   }

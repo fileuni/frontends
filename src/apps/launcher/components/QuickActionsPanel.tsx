@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { BookOpen, FileCode, FolderOpen, Globe, Info, RefreshCcw, Rocket, Settings } from 'lucide-react';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { cn } from '@/lib/utils';
+import { docsHomeUrl } from '@/lib/docs';
 
 interface QuickActionsPanelProps {
   title: string;
@@ -47,7 +48,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
   onStartSetupWizard,
   onResetAdminPassword,
   resetAdminPasswordLabel,
-  helpUrl = 'https://docs.fileuni.com',
+  helpUrl,
   showSetupWizardAction = true,
 }) => {
   const [showConfigMenu, setShowConfigMenu] = useState(false);
@@ -55,6 +56,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
   const [mounted, setMounted] = useState(false);
   const resolvedTheme = useResolvedTheme();
   const isDark = resolvedTheme === 'dark';
+  const resolvedHelpUrl = helpUrl ?? docsHomeUrl();
   const isConfigDisabled = configDisabled;
 
   useEffect(() => {
@@ -198,7 +200,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
         </div>
 
         <a
-          href={helpUrl}
+          href={resolvedHelpUrl}
           target="_blank"
           className={cn(
             "flex items-center gap-3.5 p-3 rounded-xl transition-all duration-300 group border shadow-sm",
