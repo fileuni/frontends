@@ -1,15 +1,1 @@
-{
-  "statsTotal": "Total Bans",
-  "statsIp": "IP Bans",
-  "statsUser": "User Bans",
-  "statsClient": "Client Bans",
-  "type": "Type",
-  "value": "Value",
-  "reason": "Reason",
-  "expires": "Expires",
-  "never": "Never",
-  "addTitle": "Add Blacklist Item",
-  "placeholder": "IP, UUID or ClientID",
-  "formatHint": "Format: YYYY-MM-DD HH:MM",
-  "noReason": "No reason provided"
-}
+{}

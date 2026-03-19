@@ -8,9 +8,7 @@
   "home": "Benutzerzentrum",
   "backToHome": "Zurück zur Startseite",
   "admin": "Systemadministrator",
-  "system": "System",
   "test": "Verbindung testen",
-  "dashboard": "Dashboard",
   "username": "Benutzername/ID/E-Mail/Telefon",
   "usernameRegister": "Benutzername",
   "password": "Passwort",
@@ -52,17 +50,15 @@
   "noItems": "Keine Elemente",
   "noResults": "Keine Ergebnisse",
   "none": "Keine",
-  "status": "Status",
   "confirmDelete": "Sind Sie sicher, dass Sie dieses Element löschen möchten?",
   "downloadStarted": "Download wird gestartet...",
-  "loadingArchive": "Archiv wird ge\u00f6ffnet...",
+  "loadingArchive": "Archiv wird geöffnet...",
   "minimize": "Minimieren",
   "paginationTitle": "Paginierung",
   "pagination": {
     "showing": "Zeige {{start}} - {{end}} von {{total}}",
     "page": "Seite",
     "go": "Gehe",
-    "limit": "Limit",
     "jumpTo": "Zur Seite springen",
     "itemsPerPage": "Elemente pro Seite",
     "browseAll": "Alle {{count}} Seiten durchsuchen"
@@ -79,13 +75,10 @@
   "copy": "Kopieren",
   "copied": "Kopiert",
   "delete": "Löschen",
-  "name": "Name",
   "rawJson": "Roh-JSON",
   "visualMode": "Visueller Modus",
   "switchToRawJson": "Zum Roh-JSON-Modus wechseln",
   "editorEngine": {
-    "monaco": "Monaco",
-    "textarea": "Text",
     "switchToMonaco": "Zu Monaco wechseln",
     "switchToTextarea": "Zu Textarea wechseln"
   },
@@ -93,8 +86,6 @@
   "off": "AUS",
   "na": "N/V",
   "menu": "Menü",
-  "brandName": "FileUni",
   "logoAlt": "FileUni-Logo",
-  "passwordPlaceholder": "••••••••",
   "codePlaceholder": "6-stellig"
 }

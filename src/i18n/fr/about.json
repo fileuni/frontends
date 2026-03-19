@@ -10,22 +10,17 @@
   "channel": "Canal",
   "publishedAt": "Publié le",
   "updateSectionTitle": "Mises à jour",
-  "updateSectionDescription": "Check the latest release for the current runtime target and jump directly to the best download when an update is available.",
   "checkUpdates": "Rechercher des mises à jour",
   "checking": "Vérification...",
   "upToDate": "Cette instance est déjà à jour",
   "updateAvailable": "Mise à jour disponible : {{version}}",
-  "upToDateForCurrentChannel": "The current channel ({{channel}}) is already up to date",
-  "updateAvailableForCurrentChannel": "An update is available for the current channel ({{channel}})",
   "updateError": "Échec de la vérification des mises à jour",
-  "updateIdle": "No update check has been performed yet.",
   "downloadLatest": "Télécharger la dernière",
   "downloadChannel": "Télécharger ce canal",
   "openUpdateGuide": "Ouvrir le guide de mise à jour",
   "viewReleasePage": "Voir la page de publication",
   "currentChannelBadge": "Canal actuel",
   "channels": {
-    "stable": "Stable",
     "prerelease": "Pré-version"
   },
   "state": {
@@ -34,7 +29,6 @@
   },
   "links": {
     "website": "Page d'accueil du projet",
-    "docs": "Documentation",
     "repository": "Dépôt"
   }
 }

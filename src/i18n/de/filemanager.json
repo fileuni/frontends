@@ -21,7 +21,6 @@
   "pagination": "Paginierung",
   "emptyFolder": "Dieser Ordner ist leer",
   "sort": {
-    "name": "Name",
     "size": "Größe",
     "modified": "Geändert",
     "path": "Pfad",
@@ -34,7 +33,6 @@
     "viewCount": "Aufrufe",
     "accessedAt": "Zugegriffen am"
   },
-  "name": "Name",
   "size": "Größe",
   "modified": "Geändert",
   "deletedAt": "Gelöscht am",
@@ -103,10 +101,8 @@
     "shareUrlLabel": "Freigabe-URL",
     "accessPasswordLabel": "Zugriffspasswort",
     "protected": "Geschützt",
-    "preset24h": "24h",
     "preset7d": "7T",
-    "preset30d": "30T",
-    "presetForever": "∞"
+    "preset30d": "30T"
   },
   "previewModal": {
     "viewer": "Betrachter",
@@ -122,7 +118,6 @@
     "noAppsFound": "Keine Apps gefunden"
   },
   "officeLite": {
-    "name": "Office Lite",
     "openTitle": "Office-Datei öffnen",
     "openHint": "Wählen Sie eine Methode, um dieses Dokument zu öffnen.",
     "externalViewerHint": "Externe Viewer erfordern, dass die Datei-URL öffentlich erreichbar ist.",
@@ -151,29 +146,14 @@
     "cdnSave": "Speichern & Neu laden",
     "cdnReset": "Zurücksetzen"
   },
-  "texPreview": {
-    "subtitle": "LaTeX",
-    "render": "Render",
-    "rendering": "Rendering",
-    "noPreview": "No preview yet",
-    "disabled": "Preview disabled",
-    "mode": {
-      "latexmk": "Latexmk",
-      "latexjs": "Latex.js",
-      "monaco": "Monaco"
-    }
-  },
   "archive": {
     "compressTitle": "Komprimieren",
     "decompressTitle": "Entpacken",
     "archiveName": "Archivname",
     "archiveNamePlaceholder": "archiv",
     "batchNameHint": "Der Batch-Komprimierungs-Ausgabename wird vom Server generiert.",
-    "format": "Format",
     "level": "Stufe (0-9)",
     "targetPath": "Zielpfad",
-    "targetPathPlaceholder": "/",
-    "targetPathHint": "Choose the destination directory path. It must start with '/'.",
     "overwrite": "Vorhandene überschreiben",
     "overwriteHint": "Wenn deaktiviert, werden vorhandene Dateien beibehalten.",
     "deleteArchive": "Archiv nach dem Entpacken löschen",
@@ -208,13 +188,6 @@
     "unfavorite": "Aus Favoriten entfernen",
     "refresh": "Aktualisieren",
     "forceRefresh": "Aktualisierung erzwingen",
-    "pasteHere": "Paste Here",
-    "clipboardContent": "Clipboard Content",
-    "newTab": "New Tab",
-    "clearHistory": "Clear History",
-    "emptyTrash": "Empty Trash",
-    "cancelAllShares": "Cancel All Shares",
-    "clearAllFavorites": "Clear All Favorites",
     "compress": "Komprimieren",
     "extract": "Entpacken",
     "properties": "Eigenschaften",
@@ -225,34 +198,6 @@
     "help": "Tastaturkürzel-Hilfe",
     "uploadFiles": "Dateien hochladen",
     "uploadDirectory": "Ordner hochladen"
-  },
-  "thumbnail": {
-    "clearDir": "Clear Folder Thumbnails",
-    "clearAll": "Clear All Thumbnails",
-    "clearAllUsers": "Clear All Users Thumbnails",
-    "disable": "Disable Folder Thumbnails",
-    "enable": "Enable Folder Thumbnails",
-    "settingsTitle": "Thumbnail Settings",
-    "settingsDesc": "Enable or disable thumbnails by file type.",
-    "noTypes": "No thumbnail types available.",
-    "types": {
-      "image": "Images",
-      "video": "Videos",
-      "pdf": "PDF",
-      "office": "Office",
-      "text": "Text",
-      "markdown": "Markdown",
-      "tex": "LaTeX"
-    },
-    "confirmClearDir": "Clear thumbnails in this folder?",
-    "confirmClearAll": "Clear all thumbnails?",
-    "confirmClearAllUsers": "Clear thumbnail cache for all users?",
-    "confirmDisable": "Disable thumbnails in this folder?",
-    "confirmEnable": "Enable thumbnails in this folder?",
-    "cleared": "Thumbnail cache cleared",
-    "disabled": "Thumbnails disabled",
-    "enabled": "Thumbnails enabled",
-    "dependencyFailed": "Thumbnail generation unavailable"
   },
   "clipboard": {
     "title": "Zwischenablage",
@@ -292,8 +237,6 @@
     "cdnUrlLabel": "Vditor-CDN-URL",
     "saveAndReload": "Speichern & Neu laden",
     "reset": "Zurücksetzen",
-    "cdnSaved": "CDN Configuration saved. Please refresh to apply.",
-    "markdownEngine": "Markdown",
     "autoSaveFailed": "Automatisches Speichern fehlgeschlagen"
   },
   "messages": {
@@ -370,7 +313,6 @@
   },
   "batch": {
     "operationProgress": "Batch-Operationsfortschritt",
-    "status": "Status",
     "status_pending": "Ausstehend",
     "status_running": "Läuft",
     "status_success": "Erfolg",
@@ -440,7 +382,6 @@
     "previous": "Vorherige",
     "next": "Weiter",
     "play": "Abspielen",
-    "pause": "Pause",
     "mute": "Stummschalten",
     "unmute": "Ton einschalten",
     "nowPlaying": "Jetzt läuft",
@@ -480,7 +421,6 @@
     "enterPassword": "Passwort eingeben...",
     "unlockBtn": "Inhalt entsperren",
     "views": "Aufrufe",
-    "status": "Status",
     "active": "Aktiv",
     "downloadNow": "Jetzt herunterladen",
     "qrMobileAccess": "Mobiler Zugriff",

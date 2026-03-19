@@ -10,8 +10,6 @@
   "settings": "系统设置",
   "maintenance": "系统运维",
   "changePassword": "修改密码",
-  "changeUsername": "Change Username",
-  "deleteAccount": "Delete Account",
   "adminPanel": "管理面板",
   "backToPublic": "返回首页",
   "cacheManager": "缓存管理",

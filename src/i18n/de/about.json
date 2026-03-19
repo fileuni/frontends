@@ -9,8 +9,6 @@
   "latestVersion": "Neueste Version",
   "channel": "Kanal",
   "publishedAt": "Veröffentlicht am",
-  "updateSectionTitle": "Updates",
-  "updateSectionDescription": "Check the latest release for the current runtime target and jump directly to the best download when an update is available.",
   "checkUpdates": "Nach Updates suchen",
   "checking": "Prüfe...",
   "upToDate": "Diese Instanz ist bereits auf dem neuesten Stand",
@@ -34,7 +32,6 @@
   },
   "links": {
     "website": "Projekt-Homepage",
-    "docs": "Dokumentation",
-    "repository": "Repository"
+    "docs": "Dokumentation"
   }
 }

@@ -62,8 +62,7 @@
     },
     "web": {
       "title": "网站管理",
-      "layoutTitle": "多站点管理",
-      "tls": "TLS"
+      "layoutTitle": "多站点管理"
     },
     "tasks": {
       "title": "任务监控",
@@ -132,37 +131,5 @@
     "shares": {
       "title": "我的分享"
     }
-  },
-  "colors": {
-    "red": "Red",
-    "orange": "Orange",
-    "yellow": "Yellow",
-    "green": "Green",
-    "blue": "Blue",
-    "indigo": "Cyan",
-    "purple": "Deep Blue"
-  },
-  "publicShare": {
-    "verifying": "Verifying share link...",
-    "accessDenied": "Access Denied",
-    "linkExpired": "This share link has expired or reached its download limit.",
-    "tryAgain": "Try Again",
-    "encryptedTitle": "Encrypted Share",
-    "passwordRequiredDesc": "This content requires a password to unlock.",
-    "enterPassword": "Enter password...",
-    "unlockBtn": "Unlock Content",
-    "views": "Views",
-    "status": "Status",
-    "active": "Active",
-    "downloadNow": "Download Now",
-    "previewOnline": "Preview Online",
-    "expiresSoon": "Expires Soon",
-    "file": "File",
-    "folder": "Folder",
-    "qrMobileAccess": "Mobile Access",
-    "qrScanDesc": "Scan to open this share on your phone",
-    "qrBackToInfo": "Back to Info",
-    "emptyFolder": "This folder is empty",
-    "previewNotAvailable": "Preview Not Available"
   }
 }

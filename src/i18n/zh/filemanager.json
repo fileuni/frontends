@@ -122,7 +122,6 @@
     "noAppsFound": "未找到应用"
   },
   "officeLite": {
-    "name": "Office Lite",
     "openTitle": "打开 Office 文件",
     "openHint": "请选择打开方式。",
     "externalViewerHint": "外部预览要求文件 URL 可被公网访问。",
@@ -152,27 +151,19 @@
     "cdnReset": "恢复默认"
   },
   "texPreview": {
-    "subtitle": "LaTeX",
     "render": "渲染",
     "rendering": "渲染中",
     "noPreview": "暂无预览",
-    "disabled": "预览已关闭",
-    "mode": {
-      "latexmk": "Latexmk",
-      "latexjs": "Latex.js",
-      "monaco": "Monaco"
-    }
+    "disabled": "预览已关闭"
   },
   "archive": {
     "compressTitle": "压缩",
     "decompressTitle": "解压",
     "archiveName": "压缩包名称",
-    "archiveNamePlaceholder": "archive",
     "batchNameHint": "批量压缩的输出名称由服务端自动生成。",
     "format": "格式",
     "level": "等级 (0-9)",
     "targetPath": "解压目标路径",
-    "targetPathPlaceholder": "/",
     "targetPathHint": "请选择目标目录路径，必须以 '/' 开头。",
     "overwrite": "覆盖同名文件",
     "overwriteHint": "关闭时将保留已有文件。",
@@ -238,11 +229,7 @@
     "types": {
       "image": "图片",
       "video": "视频",
-      "pdf": "PDF",
-      "office": "Office",
-      "text": "文本",
-      "markdown": "Markdown",
-      "tex": "LaTeX"
+      "text": "文本"
     },
     "confirmClearDir": "确认清理当前目录的缩略图缓存？",
     "confirmClearAll": "确认清理全部缩略图缓存？",
@@ -293,7 +280,6 @@
     "saveAndReload": "保存并重载",
     "reset": "重置",
     "cdnSaved": "CDN 配置已保存，请刷新页面应用。",
-    "markdownEngine": "Markdown",
     "autoSaveFailed": "自动保存失败"
   },
   "messages": {

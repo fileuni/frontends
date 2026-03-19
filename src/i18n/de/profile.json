@@ -17,6 +17,5 @@
   "success": "Profil erfolgreich aktualisiert",
   "phoneListSynced": "Zusätzliche Telefonnummern wurden im Serverformat synchronisiert",
   "invalidPhoneFormat": "Ungültiges Telefonnummernformat. Beispiele: China Festland +8613812345678, USA +12025550123, Japan +819012345678",
-  "invalidPhoneList": "Es gibt ungültige Telefonnummern. Bitte korrigieren Sie diese vor dem Speichern",
-  "phonePlaceholder": "+86 138..."
+  "invalidPhoneList": "Es gibt ungültige Telefonnummern. Bitte korrigieren Sie diese vor dem Speichern"
 }

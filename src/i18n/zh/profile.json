@@ -17,6 +17,5 @@
   "success": "资料更新成功",
   "phoneListSynced": "备用联系电话已按后端规范同步更新",
   "invalidPhoneFormat": "手机号格式无效。示例：中国大陆 +8613812345678，美国 +12025550123，日本 +819012345678",
-  "invalidPhoneList": "存在无效手机号，请修正后再保存",
-  "phonePlaceholder": "+86 138..."
+  "invalidPhoneList": "存在无效手机号，请修正后再保存"
 }

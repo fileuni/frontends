@@ -1,5 +1,4 @@
 {
-  "title": "Chat",
   "pageTitle": "聊天",
   "tabTitle": "聊天",
   "openFull": "打开完整聊天",
@@ -12,7 +11,6 @@
   "encryptionKey": "加密密钥",
   "transportBackend": "通信后端",
   "transport": {
-    "ws": "WebSocket",
     "mqttProxy": "MQTT 代理",
     "mqttExternal": "外部 MQTT"
   },
@@ -147,17 +145,12 @@
     "failed": "失败",
     "recalled": "已撤回"
   },
-  "enterSessionKeyPrompt": "Enter private session key for this conversation (not saved):",
   "sessionKeySet": "会话密钥已设置",
   "e2e": "端到端加密",
   "setSessionKey": "设置会话密钥",
   "setKeyToDecrypt": "设置密钥解密",
   "system_crashed": "聊天系统崩溃，请刷新页面",
   "message_recalled": "消息已撤回",
-  "webrtc_failed": "P2P connection with {{name}} failed. Falling back to server relay.",
-  "webrtc_retrying": "WebRTC connection with {{name}} failed. Retrying ({{count}}/3)...",
-  "rate_limit_exceeded": "Rate limit exceeded. Please wait a moment.",
-  "message_too_large": "Message content too large (max {{size}} bytes).",
   "tabs": {
     "chats": "聊天",
     "invites": "邀请",
@@ -169,8 +162,6 @@
   "guestNote": "访客模式仅供临时聊天使用，请勿在此模式下发送敏感信息。",
   "copyLink": "复制链接",
   "copied": "已复制",
-  "selectToStart": "Select a conversation from the left to start",
-  "typeMessage": "Type your message, press Enter to send...",
   "nicknameUpdated": "昵称已更新",
   "offline": "离线",
   "reply": "回复",
@@ -180,7 +171,6 @@
   "startCall": "语音通话",
   "endCall": "挂断",
   "noGroups": "暂无群组",
-  "guests": "guests",
   "daysValidDesc": "有效期（天）",
   "confirmClearTargetHistory": "确定要永久清除与此对象的全部本地聊天记录吗？",
   "inviteDeleted": "邀请已删除",

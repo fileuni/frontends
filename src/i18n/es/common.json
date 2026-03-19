@@ -44,7 +44,6 @@
   "markAllRead": "Marcar todo como leído",
   "add": "Añadir",
   "edit": "Editar",
-  "error": "Error",
   "success": "Éxito",
   "time": "Hora",
   "message": "Mensaje",
@@ -73,7 +72,7 @@
   "download": "Descargar",
   "refresh": "Actualizar",
   "check": "Comprobar",
-  "doNotShowAgain": "Recordarme m\u00e1s tarde",
+  "doNotShowAgain": "Recordarme más tarde",
   "hideDetails": "Ocultar detalles",
   "viewDetails": "Ver detalles",
   "copy": "Copiar",
@@ -84,17 +83,12 @@
   "visualMode": "Modo visual",
   "switchToRawJson": "Cambiar a modo JSON sin procesar",
   "editorEngine": {
-    "monaco": "Monaco",
     "textarea": "Texto",
     "switchToMonaco": "Cambiar a Monaco",
-    "switchToTextarea": "Cambiar a \u00e1rea de texto"
+    "switchToTextarea": "Cambiar a área de texto"
   },
-  "on": "ON",
-  "off": "OFF",
   "na": "N/D",
-  "menu": "Men\u00fa",
-  "brandName": "FileUni",
+  "menu": "Menú",
   "logoAlt": "Logotipo de FileUni",
-  "passwordPlaceholder": "••••••••",
-  "codePlaceholder": "6 d\u00edgitos"
+  "codePlaceholder": "6 dígitos"
 }

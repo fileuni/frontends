@@ -1,12 +1,12 @@
 {
-  "loading": "SYNCING SESSIONS...",
-  "unknownDevice": "Unknown Device",
-  "current": "Current",
-  "lastActive": "Last active",
-  "revokeAccess": "Revoke Access",
-  "revokeConfirm": "Are you sure you want to terminate this session?",
-  "adviceTitle": "Security Advice",
-  "adviceDesc": "If you see a device you don't recognize, we recommend revoking its access immediately and changing your password.",
-  "activeDeviceStatus": "Active Device Status",
-  "slotsOccupied": "Slots Occupied"
+  "loading": "SINCRONIZANDO SESIONES...",
+  "unknownDevice": "Dispositivo desconocido",
+  "current": "Actual",
+  "lastActive": "Última actividad",
+  "revokeAccess": "Revocar acceso",
+  "revokeConfirm": "¿Seguro que desea terminar esta sesión?",
+  "adviceTitle": "Consejo de seguridad",
+  "adviceDesc": "Si ve un dispositivo que no reconoce, recomendamos revocar su acceso de inmediato y cambiar su contraseña.",
+  "activeDeviceStatus": "Estado de dispositivos activos",
+  "slotsOccupied": "Ranuras ocupadas"
 }

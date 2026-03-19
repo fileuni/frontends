@@ -97,7 +97,6 @@
       "tempStore": "临时表位置 (0=默认, 1=文件, 2=内存)",
       "mmapSize": "内存映射大小 (Bytes, mmap_size)",
       "pageSize": "页面大小 (Bytes, page_size)",
-      "syncLevel": "Sync Level (0=OFF, 1=NORM, 2=FULL)",
       "sharedCache": "启用共享缓存 (shared_cache)"
     }
   },

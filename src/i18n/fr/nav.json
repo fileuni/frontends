@@ -1,14 +1,12 @@
 {
   "dashboard": "Tableau de bord",
   "profile": "Profil",
-  "security": "S\u00e9curit\u00e9",
-  "sshKeys": "Cl\u00e9s SSH",
-  "sessions": "Sessions",
+  "security": "Sécurité",
+  "sshKeys": "Clés SSH",
   "filemanager": "Gestionnaire de fichiers",
   "userList": "Liste des utilisateurs",
   "blacklist": "Liste noire",
-  "settings": "Param\u00e8tres syst\u00e8me",
-  "maintenance": "Maintenance",
+  "settings": "Paramètres système",
   "changePassword": "Changer le mot de passe",
   "changeUsername": "Changer le nom d'utilisateur",
   "deleteAccount": "Supprimer le compte",
@@ -17,6 +15,6 @@
   "cacheManager": "Gestionnaire de cache",
   "domainDdns": "DDNS (DNS dynamique)",
   "domainSsl": "Certificats SSL/TLS",
-  "about": "\u00c0 propos",
+  "about": "À propos",
   "activeWorkspace": "Espace de travail actif"
 }

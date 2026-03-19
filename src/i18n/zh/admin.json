@@ -148,7 +148,6 @@
   "web": {
     "title": "网站管理",
     "subtitle": "单站点支持多域名、多IP、多端口",
-    "tls": "TLS",
     "newSite": "新建站点",
     "editSite": "编辑站点",
     "reload": "重载运行时",
@@ -192,18 +191,10 @@
       "tlsKeyPath": "私钥路径",
       "proxyHeaders": "自定义请求头 (JSON)",
       "proxyHeadersHint": "转发给上游时附加的自定义 HTTP 头，必须是 JSON 格式的对象",
-      "ip": "IP",
       "port": "端口",
       "default": "默认",
       "hostnameSuggestionHint": "使用 DDNS 管理的域名作为主机名建议。",
-      "siteNamePlaceholder": "站点名称",
-      "staticRootPlaceholder": "/var/www/site",
-      "proxyUpstreamPlaceholder": "http://127.0.0.1:8080",
-      "ipPlaceholder": "0.0.0.0",
-      "portPlaceholder": "80",
-      "hostnamesPlaceholder": "example.com, *.example.com",
-      "tlsCertPathPlaceholder": "/etc/ssl/site.crt",
-      "tlsKeyPathPlaceholder": "/etc/ssl/site.key"
+      "siteNamePlaceholder": "站点名称"
     },
     "validation": {
       "nameRequired": "站点名称不能为空",
@@ -237,7 +228,6 @@
     "title": "域名自动化",
     "certRunNow": "立即执行",
     "panelProvider": "厂商账户",
-    "panelDdns": "DDNS",
     "panelAcme": "证书",
     "panelWeb": "Web 复用",
     "statsProviderProfiles": "厂商配置",
@@ -285,8 +275,6 @@
     "testFailBadge": "测试失败",
     "testSkipBadge": "测试跳过",
     "noCredentialBadge": "无密钥",
-    "capDdns": "DDNS",
-    "capDns01": "DNS-01",
     "noCredentialHint": "当前账户未保存密钥，请填写凭据并保存后再测试。",
     "noProviders": "暂无厂商账户",
     "ddnsEditTitle": "编辑 DDNS 条目",
@@ -295,12 +283,8 @@
     "ddnsFqdnPlaceholder": "完全限定域名",
     "ddnsZonePlaceholder": "区域",
     "ddnsHostPlaceholder": "主机 @",
-    "ddnsTtlPlaceholder": "120",
-    "ddnsUrlPlaceholder": "https://api.ipify.org, https://myip.ipip.net",
     "ddnsInterfacePlaceholder": "eth0 或 wlan0",
-    "ddnsCommandPlaceholder": "curl -s https://api.ipify.org",
     "noDdnsEntries": "暂无 DDNS 条目",
-    "ddnsTitle": "DDNS",
     "acmeTitle": "证书",
     "sslPlan": "计划",
     "sslPlanDesc": "预览即将续签的证书与诊断结果。",
@@ -310,14 +294,11 @@
     "certDomainsPlaceholder": "域名列表（每行一个）",
     "certDomainsInputPlaceholder": "例如 *.fileuni.com",
     "certHttpWebrootPlaceholder": "HTTP-01 Webroot（例如 /var/www/acme）",
-    "certHttpWebrootInputPlaceholder": "/var/www/html",
-    "certAccountEmailPlaceholder": "admin@example.com",
     "certDnsConfigPlaceholder": "DNS/HTTP-01 额外设置（例如 Webroot 路径）",
     "certEmailPlaceholder": "账户邮箱",
     "zerosslKidPlaceholder": "ZeroSSL EAB Kid（可留空，优先使用厂商账户）",
     "zerosslHmacPlaceholder": "ZeroSSL EAB HMAC Key（可留空，优先使用厂商账户）",
     "providerOptional": "可选",
-    "certExportPlaceholder": "/etc/nginx/certs/mysite",
     "certProviderPlaceholder": "厂商账户（DNS-01）",
     "certEditTitle": "编辑证书",
     "noCertificates": "暂无证书",
@@ -347,12 +328,10 @@
     "zonePlaceholder": "例如 nascore.eu.org",
     "hostLabel": "记录主机名 (Host)",
     "hostPlaceholder": "@ 或子域（例如 www）",
-    "ttlLabel": "TTL",
     "zoneHostExplicitHint": "这里的 Zone 指 DNS 托管域名（Zone），不是地理区域。",
     "bulkCreateTitle": "批量创建",
     "bulkCreateDesc": "可选：在同一个 Zone 下批量创建多个 Host",
     "hostsListLabel": "Host 列表",
-    "hostsListPlaceholder": "@\nwww\napi,120",
     "hostsListHint": "每行一个 Host；可选每行 TTL：host,ttl。Zone 取自上方 Zone 字段。",
     "showBulkCreate": "展开",
     "hideBulkCreate": "收起",
@@ -388,7 +367,6 @@
     "enableSchedulerHint": "同时请确保在 [task_registry] 中启用了对应的计划任务。",
     "forceUpdate": "强制更新",
     "forceUpdateHint": "开启后，下次执行将强制写入 DNS 记录（即使 IP 未变化）。",
-    "webhookTitle": "Webhook",
     "webhookJson": "Webhook 字段",
     "webhookJsonPlaceholder": "添加 key/value 字段",
     "webhookJsonHint": "主要用于 callback 厂商以及作为额外字段合并到回调请求体。",
@@ -414,12 +392,7 @@
     "forceRenewCompleted": "强制续签检查完成。续签={{renewed}}",
     "caProviders": {
       "letsencrypt": "Let's Encrypt（生产）",
-      "letsencrypt-staging": "Let's Encrypt（测试）",
-      "zerossl": "ZeroSSL"
-    },
-    "challengeTypes": {
-      "dns01": "DNS-01",
-      "http01": "HTTP-01"
+      "letsencrypt-staging": "Let's Encrypt（测试）"
     },
     "basicInfo": "基本信息",
     "networkConfig": "网络配置",
@@ -441,8 +414,6 @@
     "bashCommand": "Shell 命令",
     "zerosslEab": "ZeroSSL EAB 账户",
     "remark": "备注名称",
-    "eabKid": "EAB Kid",
-    "eabHmac": "EAB HMAC Key",
     "exportPath": "导出路径",
     "certIdentityDesc": "证书身份识别",
     "contactInfoDesc": "ACME 账号联系信息",
@@ -471,12 +442,9 @@
     "sourceShellCommand": "Shell 命令",
     "sourceInheritLast": "沿用上次",
     "credentialJson": "凭据",
-    "configJson": "配置",
-    "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
-    "providerZerossl": "ZeroSSL"
+    "configJson": "配置"
   },
   "ddns": {
-    "title": "DDNS",
     "subtitle": "配置厂商、IPv4/IPv6 记录、地址探测与 Webhook",
     "loading": "正在加载 DDNS 配置...",
     "defaultConfigName": "新建 DDNS 配置",
@@ -514,8 +482,6 @@
     "commandPlaceholder": "用于探测 IP 的 Shell 命令",
     "domainsPlaceholder": "每行一个域名，支持 子域:根域 格式",
     "ipv6RegexPlaceholder": "IPv6 正则或 @N（如 @1）",
-    "webhookTitle": "Webhook",
-    "webhookUrlPlaceholder": "Webhook URL",
     "webhookBodyPlaceholder": "Webhook 请求体模板",
     "webhookHeadersPlaceholder": "每行一个 Header，格式: Key: Value",
     "webhookTest": "测试 Webhook",
@@ -539,23 +505,18 @@
     "domainHintManual": "手动解析: www:example.com",
     "saveConfirmTitle": "保存 DDNS 配置",
     "saveConfirmMsg": "保存将替换当前配置组下的记录，是否继续？",
-    "ttlLabel": "TTL",
     "secretPlaceholder": "密钥",
     "ipv6SupportYes": "是",
     "ipv6SupportNo": "否",
     "providers": {
       "alidns": "阿里云",
-      "cloudflare": "Cloudflare",
       "tencentcloud": "腾讯云",
-      "dnspod": "DNSPod",
-      "callback": "自定义回调",
-      "vercel": "Vercel"
+      "callback": "自定义回调"
     },
     "webhookExamples": {
       "serverchan": "Server酱",
       "dingtalk": "钉钉",
-      "feishu": "飞书",
-      "discord": "Discord"
+      "feishu": "飞书"
     },
     "ttlOptions": {
       "auto": "自动",
@@ -607,10 +568,6 @@
       "domains": "域名列表",
       "dnsProvider": "DNS 厂商",
       "providerSelectPlaceholder": "请选择 DNS 厂商",
-      "providerGroupNative": "Native Providers",
-      "providerGroupGeneric": "Generic Providers",
-      "providerGroupOther": "Other Providers",
-      "httpWebroot": "HTTP-01 Webroot",
       "homeDir": "ACME 工作目录",
       "useProviderTemplate": "载入模板",
       "providerNotFound": "未匹配到该 DNS 厂商描述，仍可手动配置",
@@ -622,19 +579,8 @@
       "showRawJson": "显示 JSON",
       "hideRawJson": "隐藏 JSON",
       "dnsConfigBasic": "DNS 基础参数",
-      "zone": "Zone",
-      "ttl": "TTL",
-      "apiToken": "API Token",
-      "zoneId": "Zone ID",
       "dnsConfigCredential": "DNS 凭据参数",
-      "providerId": "Provider ID",
-      "providerSecret": "Provider Secret",
-      "providerExt": "Provider Ext",
-      "customParams": "Custom Params",
-      "zerosslEab": "ZeroSSL EAB",
       "zerosslEabHint": "留空时将尝试使用账号邮箱自动获取 EAB 凭据",
-      "zerosslEabKid": "EAB Kid",
-      "zerosslEabHmacKey": "EAB Hmac Key",
       "advancedRenewal": "高级续签设置",
       "caDirectoryUrl": "CA 目录 URL (覆盖默认)",
       "renewJitterMaxSec": "自动续签随机抖动 (秒)",
@@ -884,10 +830,6 @@
     "noteHint": "说明对应于配置键和各段落。",
     "license": {
       "title": "授权管理",
-      "technical": {
-        "hwId": "HW ID",
-        "auxId": "AUX ID"
-      },
       "featureCatalog": {
         "free": {
           "title": "免费版",
@@ -925,17 +867,13 @@
         "defaultPool": "默认存储池",
         "name": "名称",
         "driver": "后端类型",
-        "root": "Root",
         "enabled": "启用",
         "options": "高级选项"
       },
       "drivers": {
         "fs": "本地文件系统 (fs)",
         "s3": "S3 兼容 (s3)",
-        "webdav": "WebDAV (webdav)",
-        "memory": "内存 (memory, Dev)",
-        "android_saf": "Android SAF (android_saf)",
-        "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+        "memory": "内存 (memory, Dev)"
       },
       "connectors": {
         "title": "连接器列表",
@@ -954,8 +892,6 @@
         "hint": "可选：按 role_id 指定 pool_name 与 default_quota（字节）。若留空，将使用 default_pool。",
         "empty": "当前没有策略（policies = []）。",
         "policy": "策略",
-        "roleId": "Role ID",
-        "poolName": "Pool",
         "defaultQuota": "默认配额（字节）"
       },
       "actions": {
@@ -966,18 +902,6 @@
         "pickDirectory": "选择目录",
         "resetLocal": "重置为本地存储默认值",
         "apply": "写入配置"
-      },
-      "placeholders": {
-        "optionKey": "key",
-        "optionValue": "value",
-        "root": {
-          "fs": "{APPDATADIR}/vfs",
-          "s3": "/ (root prefix)",
-          "webdav": "/",
-          "memory": "/",
-          "android_saf": "content://...",
-          "ios_scoped_fs": "bookmark_b64:<BASE64>"
-        }
       },
       "hints": {
         "root": {
@@ -1036,12 +960,9 @@
         "user": "用户名",
         "password": "密码",
         "databaseName": "数据库名",
-        "postgresDsn": "PostgreSQL DSN",
         "sqlitePath": "SQLite 路径",
-        "sqliteDsn": "SQLite DSN",
         "cacheType": "缓存类型",
         "useTls": "使用 TLS",
-        "redisUrl": "Redis URL",
         "licenseStatus": "授权状态",
         "maxUsers": "最大用户配额",
         "hwFingerprint": "硬件指纹",
@@ -1057,15 +978,8 @@
         "captchaExpiresInSeconds": "验证码过期时间（秒）"
       },
       "options": {
-        "postgres": "PostgreSQL",
-        "sqlite": "SQLite",
         "enabled": "已启用",
         "disabled": "已禁用",
-        "cacheValkey": "VALKEY",
-        "cacheRedis": "REDIS",
-        "cacheKeydb": "KEYDB",
-        "cacheDashmap": "DASHMAP",
-        "cacheDatabase": "DATABASE",
         "licenseAuthorized": "已正式授权",
         "licenseUnauthorized": "未授权 / 免费版"
       },
@@ -1079,7 +993,6 @@
       "advancedActions": {
         "intro": "高阶配置请在管理员配置界面中统一管理。这里提供快捷入口。",
         "licensePlaceholder": "授权管理 (预留占位)",
-        "licensePlaceholderHint": "License management entry is reserved for future implementation.",
         "openAdminConfig": "打开管理员配置界面",
         "changeAdminPassword": "修改管理员密码"
       },
@@ -1193,25 +1106,17 @@
     "nickname": "昵称",
     "nicknamePlaceholder": "显示名称",
     "email": "电子邮箱",
-    "emailPlaceholder": "email@example.com",
     "phone": "手机号码",
-    "phonePlaceholder": "+86...",
-    "phoneExtraPlaceholder": "+86 138...",
     "role": "系统角色",
     "storageVfs": "存储与 VFS",
     "homeDir": "主目录路径 (Base Dir)",
-    "homeDirPlaceholder": "/physical/path/to/data",
     "quota": "存储配额",
     "quotaPlaceholder": "0 为无限制",
     "pool": "存储池 (Pool Name)",
-    "poolPlaceholder": "default",
     "s3Credentials": "S3 访问凭据",
-    "s3AccessKey": "S3 Access Key",
-    "s3SecretKey": "S3 Secret Key",
     "s3AccessKeyPlaceholder": "输入 Access Key",
     "s3SecretKeyPlaceholder": "输入 Secret Key",
     "s3KeysHint": "* 管理员可手动设置或重置 S3 密钥，留空则禁用该用户的 S3 访问",
-    "passwordPlaceholder": "••••••••",
     "unlimited": "无限制",
     "sftpPass": "SFTP 密码认证",
     "sftpPassDesc": "允许使用用户名密码登录 SFTP 协议",
