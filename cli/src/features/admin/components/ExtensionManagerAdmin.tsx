@@ -10,6 +10,7 @@ import { storageHub } from '@fileuni/shared';
 import { ToolPanel } from './extensions/ToolPanel.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Puzzle, Cpu } from 'lucide-react';
+import { AdminCard, AdminLoadingState, AdminPage } from './admin-ui';
 import {
   fetchLatestToolInfoApi,
   fetchServicesApi,
@@ -209,15 +210,24 @@ export const ExtensionManagerAdmin = () => {
   };
 
 
-  if (loading) return <div className="py-10 text-sm font-semibold opacity-70">{t('admin.extensions.loading')}</div>;
+  if (loading) {
+    return (
+      <AdminPage withBottomPadding={false} className="pb-10 sm:pb-20">
+        <AdminLoadingState label={t('admin.extensions.loading')} />
+      </AdminPage>
+    );
+  }
 
   const currentState = toolStates[extPage] || { version: '', downloadUrl: '', binPath: '', proxy: '' };
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const description = currentTool ? (lang === 'en' ? currentTool.description_en : currentTool.description_zh) : '';
 
   return (
-    <div className="space-y-4 sm:space-y-6 pb-10 sm:pb-20">
-      <div className="rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] border border-border bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 sm:p-5 md:p-6 shadow-sm">
+    <AdminPage withBottomPadding={false} className="space-y-4 sm:space-y-6 pb-10 sm:pb-20">
+      <AdminCard
+        variant="shadcn"
+        className="rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 sm:p-5 md:p-6 shadow-sm"
+      >
         <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3 sm:gap-4 group">
             <div className="flex h-10 w-10 sm:h-11 sm:w-11 md:h-12 md:w-12 items-center justify-center rounded-xl sm:rounded-[1.25rem] md:rounded-2xl bg-primary/20 text-primary group-hover:scale-110 transition-transform duration-500 shadow-inner">
@@ -233,9 +243,12 @@ export const ExtensionManagerAdmin = () => {
             <span className="font-mono text-xs sm:text-sm uppercase font-black tracking-widest">{capabilities?.runtime_os || 'linux'} / {capabilities?.runtime_arch || 'x86_64'}</span>
           </Badge>
         </div>
-      </div>
+      </AdminCard>
 
-      <div className="p-1.5 sm:p-2 bg-white/[0.03] rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] border border-white/5 flex gap-1.5 sm:gap-2 flex-wrap justify-center sm:justify-start shadow-xl md:shadow-2xl backdrop-blur-sm mx-0 sm:mx-1">
+      <AdminCard
+        variant="glass"
+        className="p-1.5 sm:p-2 rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] flex gap-1.5 sm:gap-2 flex-wrap justify-center sm:justify-start shadow-xl md:shadow-2xl backdrop-blur-sm mx-0 sm:mx-1"
+      >
         {extItems.map((item) => (
           <Button 
             key={item.key} 
@@ -253,7 +266,7 @@ export const ExtensionManagerAdmin = () => {
             )}
           </Button>
         ))}
-      </div>
+      </AdminCard>
 
       <ToolPanel
         tool={extPage}
@@ -305,6 +318,6 @@ export const ExtensionManagerAdmin = () => {
         onRestart={() => controlService(extPage, 'restart')}
       />
 
-    </div>
+    </AdminPage>
   );
 };
