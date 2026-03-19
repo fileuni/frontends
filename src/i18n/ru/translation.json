@@ -1,0 +1,113 @@
+{
+  "common": {
+    "brandName": "FileUni",
+    "logoAlt": "Логотип FileUni",
+    "menu": "Меню",
+    "login": "Войти",
+    "register": "Регистрация",
+    "logout": "Выйти",
+    "confirm": "Подтвердить",
+    "cancel": "Отмена",
+    "retry": "Повторить",
+    "processing": "Обработка...",
+    "language": "Язык",
+    "theme": "Тема",
+    "back": "Назад",
+    "backToLogin": "Назад ко входу"
+  },
+  "nav": {
+    "backToPublic": "Главная",
+    "dashboard": "Панель",
+    "filemanager": "Файлы",
+    "adminPanel": "Админ-панель",
+    "activeWorkspace": "Активное рабочее пространство",
+    "userList": "Пользователи",
+    "maintenance": "Обслуживание",
+    "settings": "Настройки",
+    "about": "О проекте",
+    "domainDdns": "Домен и DDNS",
+    "domainSsl": "Домен и SSL"
+  },
+  "launcher": {
+    "switch_language": "Сменить язык",
+    "toggle_theme": "Переключить тему"
+  },
+  "about": {
+    "open": "О FileUni",
+    "title": "О FileUni",
+    "subtitle": "Просмотреть текущую версию и официальные ресурсы.",
+    "links": {
+      "website": "Сайт",
+      "docs": "Документация"
+    },
+    "updateSectionTitle": "Обновления",
+    "checkUpdates": "Проверить обновления",
+    "checking": "Проверка...",
+    "upToDate": "Эта версия уже актуальна",
+    "updateAvailable": "Доступно обновление: {{version}}"
+  },
+  "auth": {
+    "switchUser": "Сменить пользователя",
+    "captcha": "Captcha",
+    "captchaRequired": "Требуется captcha"
+  },
+  "pages": {
+    "index": { "title": "Главная" },
+    "tos": { "title": "Условия" },
+    "privacy": { "title": "Конфиденциальность" },
+    "filemanager": { "title": "Файловый менеджер" },
+    "user": {
+      "welcome": { "title": "Панель" },
+      "profile": { "title": "Профиль" },
+      "security": { "title": "Безопасность" },
+      "sessions": { "title": "Сессии" },
+      "cache": { "title": "Кэш" },
+      "shares": { "title": "Общий доступ" }
+    },
+    "admin": {
+      "users": { "title": "Пользователи" },
+      "userCreate": { "title": "Создать пользователя" },
+      "userEdit": { "title": "Редактировать пользователя" },
+      "settings": { "title": "Настройки" },
+      "fs": { "title": "Файловая система" }
+    }
+  },
+  "forgotPassword": {
+    "accountRecovery": "Восстановление аккаунта",
+    "verifyIdentity": "Подтвердите личность",
+    "findAccount": "Найти аккаунт",
+    "adminRecovery": "Руководство по восстановлению администратора",
+    "chooseVerification": "Выберите проверку",
+    "securityQuestion": "Секретный вопрос",
+    "verifyWithAnswer": "Проверить по ответу",
+    "emailCode": "Код из письма",
+    "sentTo": "Отправлено на",
+    "protectingAccount": "Защита аккаунта ({{method}})",
+    "secretAnswerPlaceholder": "Секретный ответ",
+    "codePlaceholder": "Код",
+    "resend": "Отправить снова",
+    "confirmIdentity": "Подтвердить личность",
+    "createNewPassword": "Создать новый пароль",
+    "newPassword": "Новый пароль",
+    "repeatPassword": "Повторите пароль",
+    "updatePassword": "Обновить пароль",
+    "codeSent": "Код отправлен",
+    "resetSuccess": "Пароль обновлён"
+  },
+  "themes": {
+    "light": "Светлая",
+    "dark": "Тёмная",
+    "auto": "Авто",
+    "system": "Система"
+  },
+  "languages": {
+    "zh": "Китайский",
+    "en": "Английский",
+    "es": "Испанский",
+    "de": "Немецкий",
+    "fr": "Французский",
+    "ru": "Русский",
+    "ja": "Японский",
+    "auto": "Авто"
+  }
+}

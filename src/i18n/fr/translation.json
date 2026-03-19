@@ -1,0 +1,113 @@
+{
+  "common": {
+    "brandName": "FileUni",
+    "logoAlt": "Logo FileUni",
+    "menu": "Menu",
+    "login": "Connexion",
+    "register": "Inscription",
+    "logout": "Déconnexion",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "retry": "Réessayer",
+    "processing": "Traitement...",
+    "language": "Langue",
+    "theme": "Thème",
+    "back": "Retour",
+    "backToLogin": "Retour à la connexion"
+  },
+  "nav": {
+    "backToPublic": "Accueil",
+    "dashboard": "Tableau de bord",
+    "filemanager": "Fichiers",
+    "adminPanel": "Admin",
+    "activeWorkspace": "Espace actif",
+    "userList": "Utilisateurs",
+    "maintenance": "Maintenance",
+    "settings": "Paramètres",
+    "about": "À propos",
+    "domainDdns": "Domaine et DDNS",
+    "domainSsl": "Domaine et SSL"
+  },
+  "launcher": {
+    "switch_language": "Changer de langue",
+    "toggle_theme": "Changer de thème"
+  },
+  "about": {
+    "open": "À propos de FileUni",
+    "title": "À propos de FileUni",
+    "subtitle": "Voir la version actuelle et les ressources officielles.",
+    "links": {
+      "website": "Site web",
+      "docs": "Documentation"
+    },
+    "updateSectionTitle": "Mises à jour",
+    "checkUpdates": "Vérifier les mises à jour",
+    "checking": "Vérification...",
+    "upToDate": "Cette instance est déjà à jour",
+    "updateAvailable": "Mise à jour disponible : {{version}}"
+  },
+  "auth": {
+    "switchUser": "Changer d'utilisateur",
+    "captcha": "Captcha",
+    "captchaRequired": "Captcha requis"
+  },
+  "pages": {
+    "index": { "title": "Accueil" },
+    "tos": { "title": "Conditions" },
+    "privacy": { "title": "Confidentialité" },
+    "filemanager": { "title": "Gestionnaire de fichiers" },
+    "user": {
+      "welcome": { "title": "Tableau de bord" },
+      "profile": { "title": "Profil" },
+      "security": { "title": "Sécurité" },
+      "sessions": { "title": "Sessions" },
+      "cache": { "title": "Cache" },
+      "shares": { "title": "Partages" }
+    },
+    "admin": {
+      "users": { "title": "Utilisateurs" },
+      "userCreate": { "title": "Créer un utilisateur" },
+      "userEdit": { "title": "Modifier un utilisateur" },
+      "settings": { "title": "Paramètres" },
+      "fs": { "title": "Système de fichiers" }
+    }
+  },
+  "forgotPassword": {
+    "accountRecovery": "Récupération de compte",
+    "verifyIdentity": "Vérifier votre identité",
+    "findAccount": "Trouver le compte",
+    "adminRecovery": "Guide de récupération admin",
+    "chooseVerification": "Choisir une vérification",
+    "securityQuestion": "Question de sécurité",
+    "verifyWithAnswer": "Vérifier avec la réponse",
+    "emailCode": "Code e-mail",
+    "sentTo": "Envoyé à",
+    "protectingAccount": "Protection du compte ({{method}})",
+    "secretAnswerPlaceholder": "Réponse secrète",
+    "codePlaceholder": "Code",
+    "resend": "Renvoyer",
+    "confirmIdentity": "Confirmer l'identité",
+    "createNewPassword": "Créer un nouveau mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "repeatPassword": "Répéter le mot de passe",
+    "updatePassword": "Mettre à jour le mot de passe",
+    "codeSent": "Code envoyé",
+    "resetSuccess": "Mot de passe mis à jour"
+  },
+  "themes": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "auto": "Auto",
+    "system": "Système"
+  },
+  "languages": {
+    "zh": "Chinois",
+    "en": "Anglais",
+    "es": "Espagnol",
+    "de": "Allemand",
+    "fr": "Français",
+    "ru": "Russe",
+    "ja": "Japonais",
+    "auto": "Auto"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "common": {
+    "brandName": "FileUni",
+    "logoAlt": "FileUni ロゴ",
+    "menu": "メニュー",
+    "login": "ログイン",
+    "register": "登録",
+    "logout": "ログアウト",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "retry": "再試行",
+    "processing": "処理中...",
+    "language": "言語",
+    "theme": "テーマ",
+    "back": "戻る",
+    "backToLogin": "ログインに戻る"
+  },
+  "nav": {
+    "backToPublic": "ホーム",
+    "dashboard": "ダッシュボード",
+    "filemanager": "ファイル",
+    "adminPanel": "管理パネル",
+    "activeWorkspace": "アクティブなワークスペース",
+    "userList": "ユーザー",
+    "maintenance": "メンテナンス",
+    "settings": "設定",
+    "about": "FileUni について",
+    "domainDdns": "ドメインとDDNS",
+    "domainSsl": "ドメインとSSL"
+  },
+  "launcher": {
+    "switch_language": "言語を切り替える",
+    "toggle_theme": "テーマを切り替える"
+  },
+  "about": {
+    "open": "FileUni について",
+    "title": "FileUni について",
+    "subtitle": "現在のバージョンと公式リソースを表示します。",
+    "links": {
+      "website": "Webサイト",
+      "docs": "ドキュメント"
+    },
+    "updateSectionTitle": "アップデート",
+    "checkUpdates": "更新を確認",
+    "checking": "確認中...",
+    "upToDate": "このインスタンスは最新です",
+    "updateAvailable": "更新があります: {{version}}"
+  },
+  "auth": {
+    "switchUser": "ユーザーを切り替える",
+    "captcha": "Captcha",
+    "captchaRequired": "Captcha が必要です"
+  },
+  "pages": {
+    "index": { "title": "ホーム" },
+    "tos": { "title": "利用規約" },
+    "privacy": { "title": "プライバシー" },
+    "filemanager": { "title": "ファイルマネージャー" },
+    "user": {
+      "welcome": { "title": "ダッシュボード" },
+      "profile": { "title": "プロフィール" },
+      "security": { "title": "セキュリティ" },
+      "sessions": { "title": "セッション" },
+      "cache": { "title": "キャッシュ" },
+      "shares": { "title": "共有" }
+    },
+    "admin": {
+      "users": { "title": "ユーザー" },
+      "userCreate": { "title": "ユーザー作成" },
+      "userEdit": { "title": "ユーザー編集" },
+      "settings": { "title": "設定" },
+      "fs": { "title": "ファイルシステム" }
+    }
+  },
+  "forgotPassword": {
+    "accountRecovery": "アカウント復旧",
+    "verifyIdentity": "本人確認",
+    "findAccount": "アカウントを探す",
+    "adminRecovery": "管理者復旧ガイド",
+    "chooseVerification": "確認方法を選択",
+    "securityQuestion": "セキュリティ質問",
+    "verifyWithAnswer": "回答で確認",
+    "emailCode": "メールコード",
+    "sentTo": "送信先",
+    "protectingAccount": "アカウントを保護中 ({{method}})",
+    "secretAnswerPlaceholder": "秘密の回答",
+    "codePlaceholder": "コード",
+    "resend": "再送",
+    "confirmIdentity": "本人確認",
+    "createNewPassword": "新しいパスワードを作成",
+    "newPassword": "新しいパスワード",
+    "repeatPassword": "パスワードを再入力",
+    "updatePassword": "パスワードを更新",
+    "codeSent": "コードを送信しました",
+    "resetSuccess": "パスワードを更新しました"
+  },
+  "themes": {
+    "light": "ライト",
+    "dark": "ダーク",
+    "auto": "自動",
+    "system": "システム"
+  },
+  "languages": {
+    "zh": "中国語",
+    "en": "英語",
+    "es": "スペイン語",
+    "de": "ドイツ語",
+    "fr": "フランス語",
+    "ru": "ロシア語",
+    "ja": "日本語",
+    "auto": "自動"
+  }
+}
