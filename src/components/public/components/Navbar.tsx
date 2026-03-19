@@ -77,13 +77,28 @@ export const Navbar = () => {
   const updateGuideBaseUrl = language === 'en' ? 'https://fileuni.com/update' : 'https://fileuni.com/zh-cn/update';
 
   const currentI18nLang = (i18next.language || 'en').split('-')[0].toLowerCase();
-  const resolvedLang: Language = currentI18nLang === 'zh' ? 'zh' : currentI18nLang === 'es' ? 'es' : 'en';
+  const BASE_LANG_TO_LANGUAGE: Record<string, Language> = {
+    en: 'en',
+    zh: 'zh',
+    es: 'es',
+    de: 'de',
+    fr: 'fr',
+    ru: 'ru',
+    ja: 'ja',
+  };
+  const resolvedLang: Language = BASE_LANG_TO_LANGUAGE[currentI18nLang] ?? 'en';
   const langValueForUi: Language = language === 'auto' ? resolvedLang : language;
-  const langFlag = langValueForUi === 'zh'
-    ? String.fromCodePoint(0x1F1E8, 0x1F1F3)
-    : langValueForUi === 'es'
-      ? String.fromCodePoint(0x1F1EA, 0x1F1F8)
-      : String.fromCodePoint(0x1F1EC, 0x1F1E7);
+  const LANGUAGE_TO_FLAG: Record<Language, string> = {
+    auto: String.fromCodePoint(0x1F310),
+    en: String.fromCodePoint(0x1F1EC, 0x1F1E7),
+    zh: String.fromCodePoint(0x1F1E8, 0x1F1F3),
+    es: String.fromCodePoint(0x1F1EA, 0x1F1F8),
+    de: String.fromCodePoint(0x1F1E9, 0x1F1EA),
+    fr: String.fromCodePoint(0x1F1EB, 0x1F1F7),
+    ru: String.fromCodePoint(0x1F1F7, 0x1F1FA),
+    ja: String.fromCodePoint(0x1F1EF, 0x1F1F5),
+  };
+  const langFlag = LANGUAGE_TO_FLAG[langValueForUi] ?? LANGUAGE_TO_FLAG.en;
 
   const toggleTheme = () => {
     setTheme(isDark ? 'light' : 'dark');
@@ -217,56 +232,38 @@ export const Navbar = () => {
               {isLangMenuOpen && (
                 <div
                   className={cn(
-                    "absolute right-0 mt-2 w-44 rounded-2xl border shadow-2xl overflow-hidden",
+                    "absolute right-0 mt-2 w-56 rounded-2xl border shadow-2xl overflow-hidden",
                     isDark ? "bg-zinc-950 border-white/10" : "bg-white border-gray-200",
                   )}
                 >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLanguage('zh');
-                      setIsLangMenuOpen(false);
-                    }}
-                    className={cn(
-                      "w-full text-left px-4 py-3 text-sm font-black transition-colors",
-                      langValueForUi === 'zh'
-                        ? (isDark ? "bg-white/10" : "bg-gray-100")
-                        : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50"),
-                    )}
-                  >
-                    🇨🇳中文
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLanguage('en');
-                      setIsLangMenuOpen(false);
-                    }}
-                    className={cn(
-                      "w-full text-left px-4 py-3 text-sm font-black transition-colors",
-                      langValueForUi === 'en'
-                        ? (isDark ? "bg-white/10" : "bg-gray-100")
-                        : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50"),
-                    )}
-                  >
-                    🇬🇧English
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLanguage('es');
-                      setIsLangMenuOpen(false);
-                    }}
-                    className={cn(
-                      "w-full text-left px-4 py-3 text-sm font-black transition-colors",
-                      langValueForUi === 'es'
-                        ? (isDark ? "bg-white/10" : "bg-gray-100")
-                        : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50"),
-                    )}
-                  >
-                    🇪🇸Español
-                  </button>
+                  {(
+                    [
+                      { id: 'zh', label: '🇨🇳 中文' },
+                      { id: 'en', label: '🇬🇧 English' },
+                      { id: 'es', label: '🇪🇸 Español' },
+                      { id: 'de', label: '🇩🇪 Deutsch' },
+                      { id: 'fr', label: '🇫🇷 Français' },
+                      { id: 'ru', label: '🇷🇺 Русский' },
+                      { id: 'ja', label: '🇯🇵 日本語' },
+                    ] as { id: Language; label: string }[]
+                  ).map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        setLanguage(opt.id);
+                        setIsLangMenuOpen(false);
+                      }}
+                      className={cn(
+                        "w-full text-left px-4 py-3 text-sm font-black transition-colors whitespace-nowrap",
+                        langValueForUi === opt.id
+                          ? (isDark ? "bg-white/10" : "bg-gray-100")
+                          : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50"),
+                      )}
+                    >
+                      <span className="block truncate">{opt.label}</span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -359,12 +356,12 @@ export const Navbar = () => {
                   {navItems.map(item => {
                     const content = (
                       <>
-                        <item.icon size={18} />
-                        {item.name}
+                        <item.icon size={18} className="shrink-0" />
+                        <span className="min-w-0 truncate">{item.name}</span>
                       </>
                     );
                     const commonClass = cn(
-                      "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-black transition-all w-full text-left",
+                      "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-black transition-all w-full text-left min-w-0",
                       item.active 
                         ? "bg-primary text-white shadow-lg shadow-primary/20" 
                         : cn("opacity-60 hover:opacity-100", isDark ? "hover:bg-white/5" : "hover:bg-gray-100"),
@@ -410,20 +407,20 @@ export const Navbar = () => {
 
                 <div>
                   <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.language')}</p>
-                  <div className="grid grid-cols-3 gap-2 p-1">
-                    {(['auto', 'zh', 'en'] as Language[]).map((lang) => (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
+                    {(['auto', 'zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'] as Language[]).map((lang) => (
                       <button 
                         key={lang}
                         onClick={() => setLanguage(lang)}
                         className={cn(
-                          "px-3 py-2.5 rounded-xl text-sm font-black transition-all flex flex-col items-center gap-1",
+                          "px-2 py-2.5 rounded-xl text-xs font-black transition-all flex flex-col items-center gap-1 min-w-0",
                           language === lang 
                             ? "bg-primary text-white shadow-md shadow-primary/20" 
                             : cn("opacity-40 hover:opacity-100", isDark ? "hover:bg-white/5" : "hover:bg-gray-100")
                         )}
                       >
                         {lang === 'auto' && <Laptop size={18} />}
-                        <span>{t(`languages.${lang}`)}</span>
+                        <span className="truncate w-full text-center">{t(`languages.${lang}`)}</span>
                       </button>
                     ))}
                   </div>

@@ -2,13 +2,21 @@ import i18next from '@/lib/i18n';
 
 const DOCS_ORIGIN = 'https://docs.fileuni.com';
 
-type DocsLocalePrefix = '' | '/zh-cn' | '/es';
+type DocsLocalePrefix = '' | '/zh-cn' | '/es' | '/de' | '/fr' | '/ru' | '/ja';
 
 const resolveDocsLocalePrefix = (lang: string | undefined): DocsLocalePrefix => {
   const raw = (lang || '').toLowerCase();
-  if (raw === 'zh' || raw.startsWith('zh-')) return '/zh-cn';
-  if (raw === 'es' || raw.startsWith('es-')) return '/es';
-  return '';
+  const base = raw.split('-')[0] || '';
+
+  const map: Record<string, DocsLocalePrefix> = {
+    zh: '/zh-cn',
+    es: '/es',
+    de: '/de',
+    fr: '/fr',
+    ru: '/ru',
+    ja: '/ja',
+  };
+  return map[base] ?? '';
 };
 
 const normalizePath = (path: string): string => {
