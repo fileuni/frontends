@@ -31,6 +31,7 @@ import {
   type CertRunLogItem,
   type CertPreflightResult,
   type CertTestDns01Result,
+  type CertPlanResponse,
   type CertificateItem,
   type CertRunAllCheckResponse,
   type ZeroSslAccountItem,
@@ -63,6 +64,7 @@ import { DdnsCheckModal } from './domain/modals/DdnsCheckModal';
 import { DdnsInspectModal } from './domain/modals/DdnsInspectModal';
 import { DdnsPlanModal } from './domain/modals/DdnsPlanModal';
 import { CertCheckModal } from './domain/modals/CertCheckModal';
+import { CertPlanModal } from './domain/modals/CertPlanModal';
 import { RowActionsModal } from './domain/modals/RowActionsModal';
 
 interface DomainAcmeDdnsAdminProps {
@@ -136,6 +138,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const [certCheckOpen, setCertCheckOpen] = useState(false);
   const [certCheckLoading, setCertCheckLoading] = useState(false);
   const [certCheckResult, setCertCheckResult] = useState<CertPreflightResult | null>(null);
+
+  const [certPlanOpen, setCertPlanOpen] = useState(false);
+  const [certPlanLoading, setCertPlanLoading] = useState(false);
+  const [certPlanData, setCertPlanData] = useState<CertPlanResponse | null>(null);
 
   const [certDns01TestRunning, setCertDns01TestRunning] = useState(false);
 
@@ -377,6 +383,24 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       addToast(handleApiError(error, t), 'error');
     } finally {
       setCertCheckLoading(false);
+    }
+  };
+
+  const loadCertPlan = async (openModal: boolean) => {
+    if (certPlanLoading) return;
+    setCertPlanLoading(true);
+    try {
+      const data = await extractData<CertPlanResponse>(
+        client.POST('/api/v1/admin/domain-acme-ddns/certs/plan', {
+          body: { force_update: false },
+        }),
+      );
+      setCertPlanData(data);
+      if (openModal) setCertPlanOpen(true);
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setCertPlanLoading(false);
     }
   };
 
@@ -937,6 +961,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     return account?.provider_key;
   }, [providers, ddnsDraft.provider_account_id]);
 
+  const selectedDdnsProviderAccount = useMemo(() => {
+    return providers.find((p) => p.id === ddnsDraft.provider_account_id) || null;
+  }, [providers, ddnsDraft.provider_account_id]);
+
   const cardsData = isDdns ? ddnsEntries : certificates;
 
   const renderCards = () => {
@@ -1151,6 +1179,19 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           )}
           {!isDdns && viewEnabled && (
             <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  await loadCertPlan(true);
+                }}
+                disabled={loading || certPlanLoading}
+                className="h-12 px-4 rounded-xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm transition-all font-bold text-foreground"
+                title={t('admin.domain.sslPlan') || 'Plan'}
+              >
+                <Activity size={16} className={cn('mr-2 opacity-70 text-indigo-600 dark:text-indigo-400', certPlanLoading && 'animate-spin')} />
+                <span>{t('admin.domain.sslPlan') || 'Plan'}</span>
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
@@ -1433,6 +1474,22 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
         onRunNow={runSsl}
       />
 
+      <CertPlanModal
+        isOpen={certPlanOpen}
+        loading={certPlanLoading}
+        data={certPlanData}
+        onClose={() => setCertPlanOpen(false)}
+        onRefresh={async () => {
+          await loadCertPlan(false);
+        }}
+        onRun={runSsl}
+        onOpenLogs={(id) => {
+          const cert = certificates.find((x) => x.id === id) || null;
+          if (cert) openCertLogs(cert);
+          else addToast(t('common.noData') || 'No data', 'info');
+        }}
+      />
+
       {isDdns && (
         <Pagination
           current={ddnsPage}
@@ -1510,13 +1567,48 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                  </div>
                  <div className="space-y-2">
                    <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.panelProvider')}</label>
-                  <div className="flex gap-2">
-                    <select className={selectBase} style={selectStyle} value={ddnsDraft.provider_account_id} onChange={(e) => setDdnsDraft({ ...ddnsDraft, provider_account_id: e.target.value })}>
-                      <option value="">{ddnsProviders.length === 0 ? t('admin.domain.noProviders') : t('admin.domain.ddnsProviderPlaceholder')}</option>
-                      {ddnsProviders.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.provider_key})</option>)}
-                    </select>
-                    <Button type="button" variant="outline" onClick={() => setProviderModalOpen(true)} className="h-11 w-11 p-0 border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm text-foreground"><Plus size={18}/></Button>
-                 </div>
+                   <div className="flex gap-2">
+                     <select className={selectBase} style={selectStyle} value={ddnsDraft.provider_account_id} onChange={(e) => setDdnsDraft({ ...ddnsDraft, provider_account_id: e.target.value })}>
+                       <option value="">{ddnsProviders.length === 0 ? t('admin.domain.noProviders') : t('admin.domain.ddnsProviderPlaceholder')}</option>
+                       {ddnsProviders.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.provider_key})</option>)}
+                     </select>
+                     <Button type="button" variant="outline" onClick={() => setProviderModalOpen(true)} className="h-11 w-11 p-0 border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 hover:bg-zinc-50 dark:hover:bg-white/10 shadow-sm text-foreground"><Plus size={18}/></Button>
+                  </div>
+
+                  {selectedDdnsProviderAccount && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] font-black uppercase tracking-widest opacity-70">
+                      {selectedDdnsProviderAccount.enabled === false && (
+                        <Badge variant="outline" className="h-6 px-2 rounded-lg opacity-70">
+                          {t('common.disabled') || 'disabled'}
+                        </Badge>
+                      )}
+                      {selectedDdnsProviderAccount.has_credential === false && (
+                        <Badge variant="outline" className="h-6 px-2 rounded-lg bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400">
+                          {t('admin.domain.noCredentialBadge') || 'NO SECRET'}
+                        </Badge>
+                      )}
+                      {selectedDdnsProviderAccount.has_credential && selectedDdnsProviderAccount.auth_ok === true && (
+                        <Badge variant="outline" className="h-6 px-2 rounded-lg bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400">
+                          {t('admin.domain.credOkBadge') || 'CRED OK'}
+                        </Badge>
+                      )}
+                      {selectedDdnsProviderAccount.has_credential && selectedDdnsProviderAccount.auth_ok === false && (
+                        <Badge variant="outline" className="h-6 px-2 rounded-lg bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400">
+                          {t('admin.domain.credErrorBadge') || 'CRED ERROR'}
+                        </Badge>
+                      )}
+                      {selectedDdnsProviderAccount.auth_test_status && (
+                        <Badge variant="outline" className="h-6 px-2 rounded-lg">
+                          {selectedDdnsProviderAccount.auth_test_status}
+                        </Badge>
+                      )}
+                      {selectedDdnsProviderAccount.auth_error && (
+                        <span className="text-[12px] font-bold opacity-60 truncate" title={selectedDdnsProviderAccount.auth_error}>
+                          {selectedDdnsProviderAccount.auth_error}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5">

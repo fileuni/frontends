@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -22,7 +22,17 @@ interface CertificateFormProps {
   onChangeDnsConfig: (json: string) => void;
   providerAccountId?: string;
   onChangeProviderAccountId: (id: string) => void;
-  providers: { id: string; name: string; provider_key: string }[];
+  providers: Array<{
+    id: string;
+    name: string;
+    provider_key: string;
+    enabled?: boolean;
+    has_credential?: boolean;
+    auth_ok?: boolean;
+    auth_error?: string | null;
+    auth_test_status?: string | null;
+    auth_test_message?: string | null;
+  }>;
   zeroSslAccounts: { id: string; name: string }[];
   exportPath?: string;
   onChangeExportPath: (path: string) => void;
@@ -73,6 +83,16 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
   const [domains, setDomains] = useState<string[]>([]);
   const [dnsConfig, setDnsConfig] = useState<Record<string, unknown>>({});
   const [newDomain, setNewDomain] = useState('');
+
+  const hasWildcard = useMemo(() => {
+    return (domains || []).some((d) => typeof d === 'string' && d.trim().startsWith('*.'));
+  }, [domains]);
+
+  const selectedProvider = useMemo(() => {
+    const id = (providerAccountId || '').trim();
+    if (!id) return null;
+    return providers.find((p) => p.id === id) || null;
+  }, [providers, providerAccountId]);
 
   const getConfigValue = (key: string): string => {
     const value = dnsConfig[key];
@@ -220,6 +240,41 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
                 </Button>
               </div>
 
+              {selectedProvider && (
+                <div className="flex flex-wrap items-center gap-2 text-[12px] font-black uppercase tracking-widest opacity-70">
+                  {selectedProvider.enabled === false && (
+                    <Badge variant="outline" className="h-6 px-2 rounded-lg opacity-70">
+                      {t('common.disabled') || 'disabled'}
+                    </Badge>
+                  )}
+                  {selectedProvider.has_credential === false && (
+                    <Badge variant="outline" className="h-6 px-2 rounded-lg bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400">
+                      {t('admin.domain.noCredentialBadge') || 'NO SECRET'}
+                    </Badge>
+                  )}
+                  {selectedProvider.has_credential && selectedProvider.auth_ok === true && (
+                    <Badge variant="outline" className="h-6 px-2 rounded-lg bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400">
+                      {t('admin.domain.credOkBadge') || 'CRED OK'}
+                    </Badge>
+                  )}
+                  {selectedProvider.has_credential && selectedProvider.auth_ok === false && (
+                    <Badge variant="outline" className="h-6 px-2 rounded-lg bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400">
+                      {t('admin.domain.credErrorBadge') || 'CRED ERROR'}
+                    </Badge>
+                  )}
+                  {selectedProvider.auth_test_status && (
+                    <Badge variant="outline" className="h-6 px-2 rounded-lg">
+                      {selectedProvider.auth_test_status}
+                    </Badge>
+                  )}
+                  {selectedProvider.auth_error && (
+                    <span className="text-[12px] font-bold opacity-60 truncate" title={selectedProvider.auth_error}>
+                      {selectedProvider.auth_error}
+                    </span>
+                  )}
+                </div>
+              )}
+
               <div className="pt-2 space-y-2">
                 <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.zoneLabel') || 'Managed Zone'}</label>
                 <div className="flex gap-2">
@@ -250,6 +305,11 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
             <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
               <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.httpWebroot')}</label>
               <Input value={getConfigValue('webroot') || getConfigValue('http_webroot')} onChange={(e) => updateDnsConfig('webroot', e.target.value)} placeholder={t('admin.domain.certHttpWebrootInputPlaceholder')} className={controlBase} />
+              {hasWildcard && (
+                <div className="mt-2 p-3 rounded-xl bg-red-500/5 border border-red-500/20 text-[14px] font-bold text-red-700 dark:text-red-400">
+                  wildcard requires DNS-01 (HTTP-01 cannot validate wildcard)
+                </div>
+              )}
             </div>
           )}
         </div>

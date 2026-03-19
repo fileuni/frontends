@@ -30,14 +30,78 @@ export const DdnsPlanModal = ({
   onOpenLogs: (id: string) => void;
 }) => {
   const { t } = useTranslation();
-  const [onlyNeedUpdate, setOnlyNeedUpdate] = useState(true);
+  const [filter, setFilter] = useState<'needed' | 'all' | 'failed' | 'skipped'>('needed');
+  const [query, setQuery] = useState('');
+  const [maxConcurrency, setMaxConcurrency] = useState(3);
   const [runAllRunning, setRunAllRunning] = useState(false);
 
   const items = useMemo(() => {
     const list = data?.items || [];
-    if (!onlyNeedUpdate) return list;
-    return list.filter((it) => it.action === 'update' || it.need_update_ipv4 || it.need_update_ipv6);
-  }, [data, onlyNeedUpdate]);
+    const q = query.trim().toLowerCase();
+    return list
+      .filter((it) => {
+        if (filter === 'all') return true;
+        if (filter === 'failed') return it.action === 'failed';
+        if (filter === 'skipped') return it.action === 'skipped';
+        // needed
+        return it.action === 'update' || it.need_update_ipv4 || it.need_update_ipv6;
+      })
+      .filter((it) => {
+        if (!q) return true;
+        const text = `${it.name} ${it.fqdn} ${it.provider_key}`.toLowerCase();
+        return text.includes(q);
+      });
+  }, [data, filter, query]);
+
+  const runWithThrottle = async (targets: DdnsPlanItem[]) => {
+    const max = Math.max(1, Math.min(8, Number(maxConcurrency) || 1));
+
+    const pending = [...targets];
+    const inflight: Array<Promise<void>> = [];
+    const inflightByProvider = new Map<string, number>();
+
+    const startOne = (it: DdnsPlanItem) => {
+      const pk = it.provider_key || 'unknown';
+      inflightByProvider.set(pk, (inflightByProvider.get(pk) || 0) + 1);
+      const p = onRun(it.id)
+        .catch(() => {
+          // errors are already toasted by caller; keep batch running
+        })
+        .finally(() => {
+          const n = (inflightByProvider.get(pk) || 1) - 1;
+          if (n <= 0) inflightByProvider.delete(pk);
+          else inflightByProvider.set(pk, n);
+        });
+      inflight.push(p);
+      p.finally(() => {
+        const idx = inflight.indexOf(p);
+        if (idx >= 0) inflight.splice(idx, 1);
+      });
+    };
+
+    while (pending.length > 0 || inflight.length > 0) {
+      let started = false;
+
+      for (let i = 0; i < pending.length && inflight.length < max; ) {
+        const it = pending[i];
+        const pk = it.provider_key || 'unknown';
+        const providerBusy = (inflightByProvider.get(pk) || 0) >= 1;
+        if (!providerBusy) {
+          pending.splice(i, 1);
+          startOne(it);
+          started = true;
+        } else {
+          i += 1;
+        }
+      }
+
+      if (!started) {
+        if (inflight.length === 0) break;
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.race(inflight);
+      }
+    }
+  };
 
   const runAllNeeded = async () => {
     if (!data || runAllRunning) return;
@@ -46,11 +110,7 @@ export const DdnsPlanModal = ({
       const targets = (data.items || []).filter(
         (it) => it.action === 'update' || it.need_update_ipv4 || it.need_update_ipv6,
       );
-      for (const it of targets) {
-        // run sequentially to avoid provider burst
-        // eslint-disable-next-line no-await-in-loop
-        await onRun(it.id);
-      }
+      await runWithThrottle(targets);
     } finally {
       setRunAllRunning(false);
     }
@@ -72,13 +132,49 @@ export const DdnsPlanModal = ({
               )}
             </div>
             <div className="flex flex-wrap items-center justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setOnlyNeedUpdate((v) => !v)}
-                className="h-11 px-5 rounded-2xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 font-bold"
-              >
-                {onlyNeedUpdate ? (t('admin.domain.showAll') || 'Show All') : (t('admin.domain.onlyNeedUpdate') || 'Only Need Update')}
-              </Button>
+              <div className="flex items-center gap-2">
+                <div className="text-[12px] font-black uppercase tracking-widest opacity-50">
+                  {t('admin.domain.filter') || 'Filter'}
+                </div>
+                <select
+                  className="h-11 rounded-2xl border border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 text-sm font-bold"
+                  value={filter}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setFilter(
+                      v === 'all' ? 'all' : v === 'failed' ? 'failed' : v === 'skipped' ? 'skipped' : 'needed',
+                    );
+                  }}
+                >
+                  <option value="needed">{t('admin.domain.onlyNeedUpdate') || 'Only Need Update'}</option>
+                  <option value="failed">{t('admin.domain.failedOnly') || 'Failed Only'}</option>
+                  <option value="skipped">{t('admin.domain.skippedOnly') || 'Skipped Only'}</option>
+                  <option value="all">{t('admin.domain.showAll') || 'Show All'}</option>
+                </select>
+              </div>
+
+              <input
+                className="h-11 w-[220px] rounded-2xl border border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 text-sm font-bold outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t('admin.domain.searchPlan') || 'Search name/fqdn/provider'}
+              />
+
+              <div className="flex items-center gap-2">
+                <div className="text-[12px] font-black uppercase tracking-widest opacity-50">
+                  {t('admin.domain.concurrency') || 'Concurrency'}
+                </div>
+                <select
+                  className="h-11 rounded-2xl border border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 text-sm font-bold"
+                  value={maxConcurrency}
+                  onChange={(e) => setMaxConcurrency(Number(e.target.value) || 1)}
+                >
+                  {[1, 2, 3, 4, 6, 8].map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+              </div>
+
               <Button
                 variant="outline"
                 onClick={async () => {

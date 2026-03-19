@@ -222,6 +222,30 @@ export interface CertRunAllCheckResponse {
   results: Array<{ id: string; status: string }>;
 }
 
+export interface CertPlanPayload {
+  force_update?: boolean;
+}
+
+export interface CertPlanItem {
+  id: string;
+  name: string;
+  enabled: boolean;
+  auto_renew: boolean;
+  ca_provider: string;
+  challenge_type: string;
+  expires_at?: string | null;
+  due_at?: string | null;
+  action: 'renew' | 'skipped' | string;
+  reason: string;
+}
+
+export interface CertPlanResponse {
+  total: number;
+  need_renew: number;
+  skipped: number;
+  items: CertPlanItem[];
+}
+
 export interface ZeroSslAccountItem {
   id: string;
   name: string;
