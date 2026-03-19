@@ -9,7 +9,7 @@ import { client, extractData, handleApiError } from '@/lib/api.ts';
 import { isPhoneInputValid, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 
 import { useToastStore } from '@fileuni/shared';
-import { DashboardCard, DashboardSectionHeader } from './dashboard-ui';
+import { DashboardSection, DashboardLoading } from './dashboard-ui';
 
 import type { components } from '@/types/api.ts';
 
@@ -142,12 +142,12 @@ export const ProfileView = () => {
     setForm({ ...form, other_phones: form.other_phones.filter((_, i) => i !== index) });
   };
 
-  if (loading) return <div className="h-64 flex items-center justify-center animate-pulse opacity-50 font-black uppercase tracking-widest">{t('profile.loading')}</div>;
+  if (loading) return <DashboardLoading label={t('profile.loading')} className="animate-pulse" />;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
       <div className="lg:col-span-2 space-y-8">
-        <DashboardCard variant="glass" className="p-8 md:p-12">
+        <DashboardSection variant="glass" className="p-8 md:p-12">
           <form onSubmit={handleSave} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -219,19 +219,20 @@ export const ProfileView = () => {
               </Button>
             </div>
           </form>
-        </DashboardCard>
+        </DashboardSection>
       </div>
 
       <div className="space-y-6">
-        <DashboardCard variant="glass" className="p-8 overflow-hidden relative">
+        <DashboardSection
+          variant="glass"
+          className="p-8 overflow-hidden relative"
+          title={t('profile.readonlyIdentity')}
+          titleClassName="text-sm uppercase tracking-widest opacity-30"
+          headerClassName="mb-6"
+        >
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
             <Mail size={120} />
           </div>
-          <DashboardSectionHeader
-            title={t('profile.readonlyIdentity')}
-            titleClassName="text-sm uppercase tracking-widest opacity-30"
-            className="mb-6"
-          />
           <div className="space-y-6">
             <div className="space-y-1">
               <span className="text-sm font-bold opacity-40 uppercase">{t('profile.primaryEmail')}</span>
@@ -253,7 +254,7 @@ export const ProfileView = () => {
               {t('profile.verifiedNote')}
             </p>
           </div>
-        </DashboardCard>
+        </DashboardSection>
       </div>
     </div>
   );
