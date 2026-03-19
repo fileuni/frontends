@@ -10,7 +10,7 @@ const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="zh">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -27,7 +27,8 @@ const { title } = Astro.props;
 				}
 				return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 			})();
-			document.documentElement.classList.toggle('dark', theme === 'dark');
+			document.documentElement.classList.remove('light', 'dark');
+			document.documentElement.classList.add(theme);
 
 			// Language Detection
 			const lang = (() => {
@@ -36,15 +37,21 @@ const { title } = Astro.props;
 					if (state) {
 						const parsed = JSON.parse(state);
 						const value = parsed?.state?.language;
-						if (value === 'zh' || value === 'en') return value;
-						if (value === 'auto') {
-							return (navigator.language.split('-')[0] === 'zh') ? 'zh' : 'en';
-						}
+					if (value === 'zh' || value === 'en' || value === 'es') return value;
+					if (value === 'auto') {
+						const base = (navigator.language.split('-')[0] || 'en').toLowerCase();
+						if (base === 'zh') return 'zh';
+						if (base === 'es') return 'es';
+						return 'en';
 					}
+				}
 				} catch (e) {}
 				const saved = localStorage.getItem('fileuni-language-raw');
 				if (saved) return saved;
-				return navigator.language.split('-')[0] || 'en';
+				const base = (navigator.language.split('-')[0] || 'en').toLowerCase();
+				if (base === 'zh') return 'zh';
+				if (base === 'es') return 'es';
+				return 'en';
 			})();
 			document.documentElement.lang = lang;
 		</script>

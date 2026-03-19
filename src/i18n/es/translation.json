@@ -1,0 +1,101 @@
+{
+  "common": {
+    "brandName": "FileUni",
+    "logoAlt": "Logo de FileUni",
+    "menu": "Menú",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "logout": "Cerrar sesión",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "retry": "Reintentar",
+    "processing": "Procesando...",
+    "language": "Idioma",
+    "theme": "Tema",
+    "back": "Atrás",
+    "backToLogin": "Volver a iniciar sesión"
+  },
+  "nav": {
+    "backToPublic": "Inicio",
+    "dashboard": "Consola",
+    "filemanager": "Archivos",
+    "adminPanel": "Panel de admin",
+    "activeWorkspace": "Espacio activo",
+    "userList": "Usuarios",
+    "maintenance": "Mantenimiento",
+    "settings": "Configuración",
+    "about": "Acerca de",
+    "domainDdns": "Dominio y DDNS",
+    "domainSsl": "Dominio y SSL"
+  },
+  "launcher": {
+    "switch_language": "Cambiar idioma",
+    "toggle_theme": "Cambiar tema"
+  },
+  "about": {
+    "open": "Acerca de FileUni",
+    "title": "Acerca de FileUni",
+    "subtitle": "Ver la versión actual y recursos oficiales.",
+    "links": {
+      "website": "Sitio web",
+      "docs": "Documentación"
+    },
+    "updateSectionTitle": "Actualizaciones",
+    "checkUpdates": "Buscar actualizaciones",
+    "checking": "Comprobando...",
+    "upToDate": "Esta instancia ya está actualizada",
+    "updateAvailable": "Actualización disponible: {{version}}"
+  },
+  "auth": {
+    "switchUser": "Cambiar usuario",
+    "captcha": "Captcha",
+    "captchaRequired": "Se requiere captcha"
+  },
+  "chat": {
+    "title": "Chat",
+    "pageTitle": "Chat"
+  },
+  "pages": {
+    "index": { "title": "Inicio" },
+    "tos": { "title": "Términos" },
+    "privacy": { "title": "Privacidad" },
+    "filemanager": { "title": "Administrador de archivos" },
+    "user": {
+      "welcome": { "title": "Consola" },
+      "profile": { "title": "Perfil" },
+      "security": { "title": "Seguridad" },
+      "sessions": { "title": "Sesiones" },
+      "cache": { "title": "Caché" },
+      "shares": { "title": "Compartidos" }
+    },
+    "admin": {
+      "users": { "title": "Usuarios" },
+      "userCreate": { "title": "Crear usuario" },
+      "userEdit": { "title": "Editar usuario" },
+      "settings": { "title": "Configuración" },
+      "fs": { "title": "Sistema de archivos" }
+    }
+  },
+  "forgotPassword": {
+    "accountRecovery": "Recuperación de cuenta",
+    "verifyIdentity": "Verifica tu identidad",
+    "findAccount": "Buscar cuenta",
+    "adminRecovery": "Guía para recuperar admin",
+    "chooseVerification": "Elige un método de verificación",
+    "securityQuestion": "Pregunta de seguridad",
+    "verifyWithAnswer": "Verificar con respuesta",
+    "emailCode": "Código por correo",
+    "sentTo": "Enviado a",
+    "protectingAccount": "Protegiendo tu cuenta ({{method}})",
+    "secretAnswerPlaceholder": "Respuesta secreta",
+    "codePlaceholder": "Código",
+    "resend": "Reenviar",
+    "confirmIdentity": "Confirmar identidad",
+    "createNewPassword": "Crear nueva contraseña",
+    "newPassword": "Nueva contraseña",
+    "repeatPassword": "Repite la contraseña",
+    "updatePassword": "Actualizar contraseña",
+    "codeSent": "Código enviado",
+    "resetSuccess": "Contraseña actualizada"
+  }
+}
