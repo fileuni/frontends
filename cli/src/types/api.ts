@@ -52,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/domain-acme-ddns/certs/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plan_certs"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/domain-acme-ddns/certs/run-all-check": {
         parameters: {
             query?: never;
@@ -79,6 +95,22 @@ export interface paths {
         put: operations["update_cert"];
         post?: never;
         delete: operations["delete_cert"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/certs/{id}/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["check_cert_now"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -148,6 +180,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/domain-acme-ddns/certs/{id}/test-dns01": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_cert_dns01"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/domain-acme-ddns/ddns/entries": {
         parameters: {
             query?: never;
@@ -180,6 +228,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["check_ddns_entry_now"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/inspect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["inspect_ddns_entry_now"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/logs": {
         parameters: {
             query?: never;
@@ -206,6 +286,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["run_ddns_entry_now"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/ddns/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plan_ddns"];
         delete?: never;
         options?: never;
         head?: never;
@@ -255,6 +351,38 @@ export interface paths {
         put: operations["update_provider_account"];
         post?: never;
         delete: operations["delete_provider_account"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-auth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_provider_auth"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-dns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_provider_dns"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3337,8 +3465,51 @@ export interface components {
             require_captcha: boolean;
             risk_level: components["schemas"]["RiskLevel"];
         };
+        CertPlanItem: {
+            action: string;
+            auto_renew: boolean;
+            ca_provider: string;
+            challenge_type: string;
+            /** Format: date-time */
+            due_at?: string | null;
+            enabled: boolean;
+            /** Format: date-time */
+            expires_at?: string | null;
+            id: string;
+            name: string;
+            reason: string;
+        };
+        CertPlanPayload: {
+            force_update?: boolean;
+        };
+        CertPlanResponse: {
+            items: components["schemas"]["CertPlanItem"][];
+            /** Format: int64 */
+            need_renew: number;
+            /** Format: int64 */
+            skipped: number;
+            /** Format: int64 */
+            total: number;
+        };
+        CertPreflightItem: {
+            key: string;
+            message: string;
+            status: string;
+        };
+        CertPreflightResult: {
+            cert_id: string;
+            items: components["schemas"]["CertPreflightItem"][];
+            name: string;
+            overall_status: string;
+        };
         CertRunAllCheckPayload: {
             force_update?: boolean;
+        };
+        CertTestDns01Result: {
+            fqdn: string;
+            message: string;
+            observed: boolean;
+            status: string;
         };
         CertificateAssetItem: {
             domains_json: string;
@@ -3459,6 +3630,48 @@ export interface components {
             device_name?: string | null;
             user_agent?: string | null;
         };
+        DdnsCheckResult: {
+            desired_ipv4?: string | null;
+            desired_ipv6?: string | null;
+            dns_error_ipv4?: string | null;
+            dns_error_ipv6?: string | null;
+            dns_ipv4: string[];
+            dns_ipv6: string[];
+            dns_mismatch_ipv4: boolean;
+            dns_mismatch_ipv6: boolean;
+            dns_used_server?: string | null;
+            fqdn: string;
+            id: string;
+            ip_changed_ipv4: boolean;
+            ip_changed_ipv6: boolean;
+            ipv4_enabled: boolean;
+            ipv6_enabled: boolean;
+            need_update_ipv4: boolean;
+            need_update_ipv6: boolean;
+        };
+        DdnsEntryInspectResult: {
+            detect_error_v4?: string | null;
+            detect_error_v6?: string | null;
+            detected_ipv4?: string | null;
+            detected_ipv6?: string | null;
+            dns_error_v4?: string | null;
+            dns_error_v6?: string | null;
+            dns_ipv4: string[];
+            dns_ipv6: string[];
+            dns_used_server?: string | null;
+            fqdn: string;
+            id: string;
+            ipv4_enabled: boolean;
+            ipv6_enabled: boolean;
+            last_error?: string | null;
+            last_ipv4?: string | null;
+            last_ipv6?: string | null;
+            /** Format: date-time */
+            last_run_at?: string | null;
+            last_status?: string | null;
+            need_update_v4: boolean;
+            need_update_v6: boolean;
+        };
         DdnsEntryPayload: {
             enabled: boolean;
             force_update: boolean;
@@ -3475,6 +3688,56 @@ export interface components {
             ttl: number;
             webhook_json: string;
             zone: string;
+        };
+        DdnsPlanItem: {
+            action: string;
+            credential_error?: string | null;
+            credential_ok: boolean;
+            desired_ipv4?: string | null;
+            desired_ipv6?: string | null;
+            detect_error_v4?: string | null;
+            detect_error_v6?: string | null;
+            dns_error_ipv4?: string | null;
+            dns_error_ipv6?: string | null;
+            dns_ipv4: string[];
+            dns_ipv6: string[];
+            dns_mismatch_ipv4: boolean;
+            dns_mismatch_ipv6: boolean;
+            dns_used_server?: string | null;
+            enabled: boolean;
+            fqdn: string;
+            has_credential: boolean;
+            id: string;
+            ip_changed_ipv4: boolean;
+            ip_changed_ipv6: boolean;
+            name: string;
+            need_update_ipv4: boolean;
+            need_update_ipv6: boolean;
+            provider_account_id: string;
+            provider_enabled: boolean;
+            provider_key: string;
+            reasons: string[];
+        };
+        DdnsPlanPayload: {
+            ids?: string[] | null;
+            /** Format: int32 */
+            limit?: number | null;
+        };
+        DdnsPlanRequest: {
+            ids?: string[] | null;
+            /** Format: int32 */
+            limit?: number | null;
+        };
+        DdnsPlanResponse: {
+            /** Format: int64 */
+            failed: number;
+            items: components["schemas"]["DdnsPlanItem"][];
+            /** Format: int64 */
+            need_update: number;
+            /** Format: int64 */
+            skipped: number;
+            /** Format: int64 */
+            total: number;
         };
         DdnsRunResult: {
             id: string;
@@ -3901,12 +4164,38 @@ export interface components {
             name: string;
             provider_key: string;
         };
+        ProviderField: {
+            field_type: components["schemas"]["ProviderFieldType"];
+            helper?: string | null;
+            key: string;
+            label: string;
+            placeholder?: string | null;
+            required: boolean;
+        };
+        /** @enum {string} */
+        ProviderFieldType: "text" | "password";
         ProviderProfile: {
+            config_fields?: components["schemas"]["ProviderField"][] | null;
+            credential_fields?: components["schemas"]["ProviderField"][] | null;
             key: string;
             name: string;
             supports_acme_dns01: boolean;
             supports_ddns: boolean;
             vendor_type: components["schemas"]["ProviderVendorType"];
+        };
+        ProviderTestAuthResult: {
+            message: string;
+            status: string;
+        };
+        ProviderTestDnsPayload: {
+            host?: string | null;
+            zone: string;
+        };
+        ProviderTestDnsResult: {
+            fqdn: string;
+            message: string;
+            observed: boolean;
+            status: string;
         };
         /** @enum {string} */
         ProviderVendorType: "domain" | "ddns_only";
@@ -4583,6 +4872,20 @@ export interface operations {
         };
         responses: never;
     };
+    plan_certs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CertPlanPayload"];
+            };
+        };
+        responses: never;
+    };
     run_certs_check_now: {
         parameters: {
             query?: never;
@@ -4614,6 +4917,18 @@ export interface operations {
         responses: never;
     };
     delete_cert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    check_cert_now: {
         parameters: {
             query?: never;
             header?: never;
@@ -4662,6 +4977,18 @@ export interface operations {
         responses: never;
     };
     run_cert_now: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    test_cert_dns01: {
         parameters: {
             query?: never;
             header?: never;
@@ -4725,6 +5052,30 @@ export interface operations {
         requestBody?: never;
         responses: never;
     };
+    check_ddns_entry_now: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    inspect_ddns_entry_now: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
     list_ddns_entry_logs: {
         parameters: {
             query?: never;
@@ -4747,6 +5098,20 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: never;
+    };
+    plan_ddns: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DdnsPlanRequest"];
+            };
+        };
         responses: never;
     };
     run_ddns_all_now: {
@@ -4809,6 +5174,34 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: never;
+    };
+    test_provider_auth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    test_provider_dns: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderTestDnsPayload"];
+            };
+        };
         responses: never;
     };
     list_provider_profiles: {

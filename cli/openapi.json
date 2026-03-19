@@ -6,7 +6,7 @@
     "license": {
       "name": ""
     },
-    "version": "0.0.4-alpha.9"
+    "version": "0.0.4-alpha.10"
   },
   "paths": {
     "/api/v1/admin/domain-acme-ddns/assets/certs": {
@@ -60,6 +60,30 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CertificatePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain-acme-ddns/certs/plan": {
+      "post": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "plan_certs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CertPlanPayload"
               }
             }
           },
@@ -135,6 +159,30 @@
           "DomainAcmeDdns"
         ],
         "operationId": "delete_cert",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain-acme-ddns/certs/{id}/check": {
+      "post": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "check_cert_now",
         "parameters": [
           {
             "name": "id",
@@ -249,6 +297,30 @@
         ]
       }
     },
+    "/api/v1/admin/domain-acme-ddns/certs/{id}/test-dns01": {
+      "post": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "test_cert_dns01",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
     "/api/v1/admin/domain-acme-ddns/ddns/entries": {
       "get": {
         "tags": [
@@ -341,6 +413,54 @@
         ]
       }
     },
+    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/check": {
+      "post": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "check_ddns_entry_now",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/inspect": {
+      "post": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "inspect_ddns_entry_now",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
     "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/logs": {
       "get": {
         "tags": [
@@ -381,6 +501,30 @@
             }
           }
         ],
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain-acme-ddns/ddns/plan": {
+      "post": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "plan_ddns",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DdnsPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {},
         "security": [
           {
@@ -487,6 +631,64 @@
             }
           }
         ],
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-auth": {
+      "post": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "test_provider_auth",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-dns": {
+      "post": {
+        "tags": [
+          "DomainAcmeDdns"
+        ],
+        "operationId": "test_provider_dns",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderTestDnsPayload"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {},
         "security": [
           {
@@ -9737,11 +9939,172 @@
           }
         }
       },
+      "CertPlanItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "enabled",
+          "auto_renew",
+          "ca_provider",
+          "challenge_type",
+          "action",
+          "reason"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "auto_renew": {
+            "type": "boolean"
+          },
+          "ca_provider": {
+            "type": "string"
+          },
+          "challenge_type": {
+            "type": "string"
+          },
+          "due_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "CertPlanPayload": {
+        "type": "object",
+        "properties": {
+          "force_update": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CertPlanResponse": {
+        "type": "object",
+        "required": [
+          "total",
+          "need_renew",
+          "skipped",
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CertPlanItem"
+            }
+          },
+          "need_renew": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "CertPreflightItem": {
+        "type": "object",
+        "required": [
+          "key",
+          "status",
+          "message"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "CertPreflightResult": {
+        "type": "object",
+        "required": [
+          "cert_id",
+          "name",
+          "overall_status",
+          "items"
+        ],
+        "properties": {
+          "cert_id": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CertPreflightItem"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "overall_status": {
+            "type": "string"
+          }
+        }
+      },
       "CertRunAllCheckPayload": {
         "type": "object",
         "properties": {
           "force_update": {
             "type": "boolean"
+          }
+        }
+      },
+      "CertTestDns01Result": {
+        "type": "object",
+        "required": [
+          "fqdn",
+          "status",
+          "message",
+          "observed"
+        ],
+        "properties": {
+          "fqdn": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "observed": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
           }
         }
       },
@@ -10181,6 +10544,215 @@
           }
         }
       },
+      "DdnsCheckResult": {
+        "type": "object",
+        "required": [
+          "id",
+          "fqdn",
+          "ipv4_enabled",
+          "ipv6_enabled",
+          "dns_ipv4",
+          "dns_ipv6",
+          "ip_changed_ipv4",
+          "ip_changed_ipv6",
+          "dns_mismatch_ipv4",
+          "dns_mismatch_ipv6",
+          "need_update_ipv4",
+          "need_update_ipv6"
+        ],
+        "properties": {
+          "desired_ipv4": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "desired_ipv6": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dns_error_ipv4": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dns_error_ipv6": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dns_ipv4": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dns_ipv6": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dns_mismatch_ipv4": {
+            "type": "boolean"
+          },
+          "dns_mismatch_ipv6": {
+            "type": "boolean"
+          },
+          "dns_used_server": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fqdn": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "ip_changed_ipv4": {
+            "type": "boolean"
+          },
+          "ip_changed_ipv6": {
+            "type": "boolean"
+          },
+          "ipv4_enabled": {
+            "type": "boolean"
+          },
+          "ipv6_enabled": {
+            "type": "boolean"
+          },
+          "need_update_ipv4": {
+            "type": "boolean"
+          },
+          "need_update_ipv6": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DdnsEntryInspectResult": {
+        "type": "object",
+        "required": [
+          "id",
+          "fqdn",
+          "ipv4_enabled",
+          "ipv6_enabled",
+          "dns_ipv4",
+          "dns_ipv6",
+          "need_update_v4",
+          "need_update_v6"
+        ],
+        "properties": {
+          "detect_error_v4": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "detect_error_v6": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "detected_ipv4": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "detected_ipv6": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dns_error_v4": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dns_error_v6": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dns_ipv4": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dns_ipv6": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dns_used_server": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fqdn": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "ipv4_enabled": {
+            "type": "boolean"
+          },
+          "ipv6_enabled": {
+            "type": "boolean"
+          },
+          "last_error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_ipv4": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_ipv6": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_run_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "last_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "need_update_v4": {
+            "type": "boolean"
+          },
+          "need_update_v6": {
+            "type": "boolean"
+          }
+        }
+      },
       "DdnsEntryPayload": {
         "type": "object",
         "required": [
@@ -10242,6 +10814,228 @@
           },
           "zone": {
             "type": "string"
+          }
+        }
+      },
+      "DdnsPlanItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "fqdn",
+          "enabled",
+          "provider_account_id",
+          "provider_key",
+          "provider_enabled",
+          "has_credential",
+          "credential_ok",
+          "dns_ipv4",
+          "dns_ipv6",
+          "ip_changed_ipv4",
+          "ip_changed_ipv6",
+          "dns_mismatch_ipv4",
+          "dns_mismatch_ipv6",
+          "need_update_ipv4",
+          "need_update_ipv6",
+          "action",
+          "reasons"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "credential_error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "credential_ok": {
+            "type": "boolean"
+          },
+          "desired_ipv4": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "desired_ipv6": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "detect_error_v4": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "detect_error_v6": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dns_error_ipv4": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dns_error_ipv6": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dns_ipv4": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dns_ipv6": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dns_mismatch_ipv4": {
+            "type": "boolean"
+          },
+          "dns_mismatch_ipv6": {
+            "type": "boolean"
+          },
+          "dns_used_server": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "fqdn": {
+            "type": "string"
+          },
+          "has_credential": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "ip_changed_ipv4": {
+            "type": "boolean"
+          },
+          "ip_changed_ipv6": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "need_update_ipv4": {
+            "type": "boolean"
+          },
+          "need_update_ipv6": {
+            "type": "boolean"
+          },
+          "provider_account_id": {
+            "type": "string"
+          },
+          "provider_enabled": {
+            "type": "boolean"
+          },
+          "provider_key": {
+            "type": "string"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DdnsPlanPayload": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "limit": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "DdnsPlanRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "limit": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "DdnsPlanResponse": {
+        "type": "object",
+        "required": [
+          "total",
+          "need_update",
+          "failed",
+          "skipped",
+          "items"
+        ],
+        "properties": {
+          "failed": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DdnsPlanItem"
+            }
+          },
+          "need_update": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
           }
         }
       },
@@ -11742,6 +12536,48 @@
           }
         }
       },
+      "ProviderField": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "required",
+          "field_type"
+        ],
+        "properties": {
+          "field_type": {
+            "$ref": "#/components/schemas/ProviderFieldType"
+          },
+          "helper": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "placeholder": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ProviderFieldType": {
+        "type": "string",
+        "enum": [
+          "text",
+          "password"
+        ]
+      },
       "ProviderProfile": {
         "type": "object",
         "required": [
@@ -11752,6 +12588,24 @@
           "supports_ddns"
         ],
         "properties": {
+          "config_fields": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ProviderField"
+            }
+          },
+          "credential_fields": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ProviderField"
+            }
+          },
           "key": {
             "type": "string"
           },
@@ -11766,6 +12620,61 @@
           },
           "vendor_type": {
             "$ref": "#/components/schemas/ProviderVendorType"
+          }
+        }
+      },
+      "ProviderTestAuthResult": {
+        "type": "object",
+        "required": [
+          "status",
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "ProviderTestDnsPayload": {
+        "type": "object",
+        "required": [
+          "zone"
+        ],
+        "properties": {
+          "host": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "zone": {
+            "type": "string"
+          }
+        }
+      },
+      "ProviderTestDnsResult": {
+        "type": "object",
+        "required": [
+          "fqdn",
+          "status",
+          "message",
+          "observed"
+        ],
+        "properties": {
+          "fqdn": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "observed": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
           }
         }
       },
