@@ -259,7 +259,7 @@ export const LoginView = () => {
         <>
           <div className="text-center mb-10">
               <div className="inline-flex items-center justify-center mb-4">
-                <img src="/ui/favicon.svg" alt={t('common.logoAlt')} width={64} height={64} className="shadow-lg" />
+                <img src="/favicon.svg" alt={t('common.logoAlt')} width={64} height={64} className="shadow-lg" />
               </div>
               <h1 className={cn("text-3xl font-black tracking-tight mb-1", isDark ? "text-white" : "text-gray-900")}>
                 {t("common.login")}

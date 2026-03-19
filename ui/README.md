@@ -1,24 +1,28 @@
-# frontends/cli - CLI WebUI
+# frontends/ui - Unified UI (WebUI + Tauri Launcher)
 
-Bun + Astro 5 + React 19 + Tailwind CSS 4 + shadcn/ui, SSG embedded in Rust binary.
+Bun + Astro 5 + React 19 + Tailwind CSS 4 + shadcn/ui.
 
 ## Special Characteristics
 
-- Fully static (SSG), no SSR support
-- Embedded in Rust binary via `rust_embed::RustEmbed` macro
-- Served at `/ui` path, API type-synced from backend OpenAPI
+- Single static dist used by both:
+  - Server WebUI served at `/ui` (embedded via `rust_embed::RustEmbed`)
+  - Tauri GUI launcher (WebView loads the same dist)
+- Entry routing is decided at runtime (Web vs Tauri) in `src/RootApp.tsx`
+- API types are generated from backend OpenAPI
 
 ## Key Paths
 
 | Path | Description |
 |------|-------------|
-| `src/lib/storageHub.ts` | Unified cache manager entry (LocalStorage + IndexedDB) |
-| `src/lib/api.ts` | Type-safe API client via `openapi-fetch` |
-| `src/layouts/Layout.astro` | First-screen theme/language preload |
+| `src/RootApp.tsx` | Single entry that switches between WebUI and Tauri launcher |
+| `src/launcher/Launcher.tsx` | Tauri launcher UI (IPC via `@tauri-apps/api`) |
+| `src/lib/api.ts` | Type-safe API client via `openapi-fetch` (Web runtime) |
+| `openapi.json` | Backend OpenAPI snapshot for type generation |
+| `openapi-config-set.json` | Setup-wizard (config-set) OpenAPI snapshot |
 
 ## Technical Constraints
 
-- Cache: All business cache MUST go through `storageHub.ts`; direct browser cache API calls prohibited
+- Rendering: SSG only; SSR not supported
 - Types: Run `bun run gen-api` after backend API changes; manual type definitions forbidden
 - i18n: Missing keys fallback to English, then display `[key_name]`
-- Account Isolation: Cache keys must be isolated by `userId` (e.g., `chat_*_${userId}`)
+- Tauri Isolation: Keep Tauri-only imports under `src/launcher/` to avoid shipping native APIs to browsers

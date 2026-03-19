@@ -6,15 +6,14 @@ Bun + Astro 5 + React 19 + Tailwind CSS 4 + shadcn/ui frontend modules.
 
 | Module | Description |
 |--------|-------------|
-| `cli/` | CLI WebUI, SSG embedded in Rust binary, served via `/ui` |
-| `gui/` | Tauri GUI Launcher, runs in Tauri WebView |
-| `shared/` | Common components, stores, utilities for both cli and gui |
+| `ui/` | Unified WebUI + Tauri launcher, single static dist, served via `/ui` and loaded in Tauri WebView |
+| `shared/` | Common components, stores, utilities for both WebUI and launcher |
 
 ## Key Files
 
 | File | Description |
 |------|-------------|
-| `cli/openapi.json` | Project API definition (OpenAPI spec). Critical for frontend integration. Run `bun run gen-api` to generate TypeScript types from this file. |
+| `ui/openapi.json` | Project API definition (OpenAPI spec). Critical for frontend integration. Run `bun run gen-api` to generate TypeScript types from this file. |
 
 ## Key Constraints
 

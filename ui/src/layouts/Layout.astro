@@ -13,8 +13,9 @@ const { title } = Astro.props;
 <html lang="zh">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/ui/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="theme-color" content="#0082c9" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<script is:inline>
@@ -30,6 +31,17 @@ const { title } = Astro.props;
 
 			// Language Detection
 			const lang = (() => {
+				try {
+					const state = localStorage.getItem('fileuni-language');
+					if (state) {
+						const parsed = JSON.parse(state);
+						const value = parsed?.state?.language;
+						if (value === 'zh' || value === 'en') return value;
+						if (value === 'auto') {
+							return (navigator.language.split('-')[0] === 'zh') ? 'zh' : 'en';
+						}
+					}
+				} catch (e) {}
 				const saved = localStorage.getItem('fileuni-language-raw');
 				if (saved) return saved;
 				return navigator.language.split('-')[0] || 'en';

@@ -33,10 +33,10 @@ import {
   type ServiceInstallLevel,
   useEscapeToCloseTopLayer,
 } from '@fileuni/shared';
-import { useConfigStore } from '../stores/config';
+import { useConfigStore } from './stores/config';
 import '../lib/i18n';
 import ConfigSelector from './ConfigSelector';
-import { isTauriRuntime, safeInvoke, safeListen } from '../lib/tauri';
+import { isTauriRuntime, safeInvoke, safeListen } from './tauri';
 
 // OS info interface
 interface OSInfo {
@@ -364,7 +364,7 @@ export default function Launcher() {
   useEffect(() => {
     if (!isTauriRuntime()) {
       setStatus('Unknown');
-      return;
+      return () => {};
     }
 
     let cancelled = false;

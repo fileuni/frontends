@@ -151,7 +151,7 @@ export const Navbar = () => {
       )}>
         {/* Brand */}
         <a href={`${base}mod=public&page=index`} className="flex items-center gap-3 group shrink-0">
-          <img src="/ui/favicon.svg" alt={t('common.logoAlt')} width={36} height={36} className="shadow-lg rounded-xl" />
+						<img src="/favicon.svg" alt={t('common.logoAlt')} width={36} height={36} className="shadow-lg rounded-xl" />
           <span className={cn("font-black text-lg tracking-tight hidden sm:block", isDark ? "text-white" : "text-gray-900")}>{t('common.brandName')}</span>
         </a>
 

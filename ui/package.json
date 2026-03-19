@@ -1,9 +1,10 @@
 {
-  "name": "frontend-astro",
+  "name": "fileuni-ui",
   "type": "module",
   "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
+    "dev:tauri": "astro dev --host 0.0.0.0 --port 1420 --strictPort",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
@@ -24,6 +25,8 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-virtual": "^3.13.18",
+    "@tauri-apps/api": "2.10.1",
+    "@tauri-apps/plugin-dialog": "^2.0.0",
     "@tiptap/core": "3.20.0",
     "@tiptap/extension-code-block-lowlight": "3.20.0",
     "@tiptap/extension-image": "3.20.0",

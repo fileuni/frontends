@@ -2,8 +2,7 @@
   "name": "fileuni-frontends",
   "private": true,
   "workspaces": [
-    "cli",
-    "gui",
+    "ui",
     "shared"
   ],
   "overrides": {

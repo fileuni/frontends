@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 
 // https://astro.build/config
 export default defineConfig({
-  base: '/ui',
   output: 'static',
   build: {
     format: 'file',
@@ -13,6 +12,10 @@ export default defineConfig({
   integrations: [react()],
   vite: {
     server: {
+      // Avoid stale module cache in Tauri WebView dev mode.
+      headers: {
+        'Cache-Control': 'no-store',
+      },
       proxy: {
         '/api': {
           target: 'http://127.0.0.1:19000',
@@ -21,8 +24,8 @@ export default defineConfig({
         }
       }
     },
-    // 依然保留对 latex.js 的支持
     optimizeDeps: {
+      exclude: ['@fileuni/shared'],
       include: ['libphonenumber-js/max'],
       esbuildOptions: {
         loader: {

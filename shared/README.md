@@ -1,6 +1,6 @@
 # frontends/shared - Common Frontend Module
 
-Shared components, stores, and utilities for `cli/` and `gui/`.
+Shared components, stores, and utilities for `ui/` (WebUI + Tauri launcher).
 
 ## Key Paths
 
@@ -14,5 +14,5 @@ Shared components, stores, and utilities for `cli/` and `gui/`.
 ## Technical Constraints
 
 - Platform-Agnostic: Components must not hardcode Tauri or backend paths; inject via props/callbacks
-- Single Source: `cli/` and `gui/` MUST import from `@fileuni/shared`, not internal paths
-- No Duplication: Do not create duplicate stores in cli/gui for theme/language/toast
+- Single Source: `ui/` MUST import from `@fileuni/shared`, not internal paths
+- No Duplication: Do not create duplicate stores for theme/language/toast

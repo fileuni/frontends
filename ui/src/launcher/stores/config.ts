@@ -10,24 +10,24 @@ interface ConfigState {
 }
 
 export const useConfigStore = create<ConfigState>()(
-  persist(
+  persist<ConfigState>(
     (set) => ({
       configDir: null,
       appDataDir: null,
       hasSelectedRuntimeDirs: false,
-      setRuntimeDirs: (configDir: string, appDataDir: string) => set({
-        configDir,
-        appDataDir,
-        hasSelectedRuntimeDirs: true
-      }),
-      clearRuntimeDirs: () => set({
-        configDir: null,
-        appDataDir: null,
-        hasSelectedRuntimeDirs: false
-      }),
+      setRuntimeDirs: (configDir: string, appDataDir: string) =>
+        set({
+          configDir,
+          appDataDir,
+          hasSelectedRuntimeDirs: true,
+        }),
+      clearRuntimeDirs: () =>
+        set({
+          configDir: null,
+          appDataDir: null,
+          hasSelectedRuntimeDirs: false,
+        }),
     }),
-    {
-      name: 'fileuni-config-storage',
-    }
+    { name: 'fileuni-config-storage' }
   )
 );
