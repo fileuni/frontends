@@ -9,6 +9,7 @@ import { client, extractData, handleApiError } from '@/lib/api.ts';
 import { isPhoneInputValid, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 
 import { useToastStore } from '@fileuni/shared';
+import { DashboardCard, DashboardSectionHeader } from './dashboard-ui';
 
 import type { components } from '@/types/api.ts';
 
@@ -146,7 +147,7 @@ export const ProfileView = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
       <div className="lg:col-span-2 space-y-8">
-        <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-xl">
+        <DashboardCard variant="glass" className="p-8 md:p-12">
           <form onSubmit={handleSave} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -218,15 +219,19 @@ export const ProfileView = () => {
               </Button>
             </div>
           </form>
-        </div>
+        </DashboardCard>
       </div>
 
       <div className="space-y-6">
-        <div className="bg-white/[0.03] border border-white/5 rounded-[2.5rem] p-8 shadow-xl overflow-hidden relative">
+        <DashboardCard variant="glass" className="p-8 overflow-hidden relative">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
             <Mail size={120} />
           </div>
-          <h3 className="text-sm font-black uppercase tracking-widest opacity-30 mb-6">{t('profile.readonlyIdentity')}</h3>
+          <DashboardSectionHeader
+            title={t('profile.readonlyIdentity')}
+            titleClassName="text-sm uppercase tracking-widest opacity-30"
+            className="mb-6"
+          />
           <div className="space-y-6">
             <div className="space-y-1">
               <span className="text-sm font-bold opacity-40 uppercase">{t('profile.primaryEmail')}</span>
@@ -248,7 +253,7 @@ export const ProfileView = () => {
               {t('profile.verifiedNote')}
             </p>
           </div>
-        </div>
+        </DashboardCard>
       </div>
     </div>
   );

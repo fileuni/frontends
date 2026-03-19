@@ -125,8 +125,14 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
 
   const isArchive = (file: FileInfo | null) => {
     if (!file || file.is_dir) return false;
-    const archives = ['.zip', '.7z', '.rar', '.tar.gz', '.gz', '.tar', '.bz2', '.xz'];
     const lowerName = file.name.toLowerCase();
+
+    // Strict UI rule: if 7z is not enabled, do not offer archive actions for .7z files.
+    if (lowerName.endsWith('.7z')) {
+      return capabilities?.has_7z === true;
+    }
+
+    const archives = ['.zip', '.rar', '.tar.gz', '.gz', '.tar', '.bz2', '.xz'];
     return archives.some(ext => lowerName.endsWith(ext));
   };
 

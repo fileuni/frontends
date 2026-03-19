@@ -19,6 +19,7 @@ import { TexPreviewAndEditor } from './TexPreviewAndEditor.tsx';
 import { LargeFileWarning } from './LargeFileWarning.tsx';
 import { OpenWithMenu } from './OpenWithMenu.tsx';
 import { Button } from '@/components/ui/Button.tsx';
+import { useToastStore } from '@fileuni/shared';
 
 // Lazy load PdfPreview to avoid SSR build errors
 const PdfPreview = React.lazy(() => import('./PdfPreview.tsx').then(m => ({ default: m.PdfPreview })));
@@ -53,6 +54,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const { capabilities } = useConfigStore();
+  const { addToast } = useToastStore();
   const { settings, fetchSettings } = useUserFileSettingsStore();
   const lastThumbPathRef = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -182,7 +184,35 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
         const token = await getFileDownloadToken(activePath);
         if (canceled) return;
         const url = `${BASE_URL}/api/v1/file/thumbnail?file_download_token=${encodeURIComponent(token)}`;
-        await fetch(url, { method: 'GET' });
+        const res = await fetch(url, { method: 'GET' });
+        if (!res.ok) {
+          // Friendly runtime hint: dependencies might be missing/unavailable.
+          const contentType = res.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            try {
+              const json = (await res.json()) as Record<string, unknown>;
+              const code = String(json.code || json.error_code || '');
+              const msg = String(json.msg || json.message || '');
+              const lowered = msg.toLowerCase();
+              const looksLikeDependency =
+                lowered.includes('failed to start') ||
+                lowered.includes('not configured') ||
+                lowered.includes('no such file') ||
+                lowered.includes('cannot find') ||
+                lowered.includes('executable');
+
+              // Only toast for actionable errors; non-support errors are expected and already fallback to icon.
+              if (looksLikeDependency || code === 'THUMBNAIL_GENERATION_FAILED') {
+                addToast(
+                  (t('filemanager.thumbnail.dependencyFailed') || 'Thumbnail generation unavailable') + (msg ? `: ${msg}` : ''),
+                  'warning'
+                );
+              }
+            } catch {
+              // ignore json parse errors
+            }
+          }
+        }
       } catch (e) {
         console.warn('Thumbnail warmup failed', e);
       }
@@ -190,7 +220,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
 
     triggerThumbnail();
     return () => { canceled = true; };
-  }, [data, capabilities?.thumbnail?.enabled, settings]);
+  }, [data, capabilities?.thumbnail?.enabled, settings, addToast, t]);
 
   if (loading) return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/80 backdrop-blur-md">
