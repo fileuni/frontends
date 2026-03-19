@@ -1,156 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
-import { Input } from '@/components/ui/Input.tsx';
-import { Modal } from '@/components/ui/Modal.tsx';
-import { Switch } from '@/components/ui/Switch.tsx';
 import { client, extractData, handleApiError } from '@/lib/api.ts';
 import { useToastStore } from '@fileuni/shared';
-import { Globe, Plus, RefreshCw, ShieldCheck, Trash2, Pencil, Save, Server, Network } from 'lucide-react';
-import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
-
-type RouteMode = 'static' | 'proxy';
-
-interface SiteBinding {
-  listen_ip: string;
-  listen_port: number;
-  hostnames: string[];
-  is_default: boolean;
-}
-
-interface SitePayload {
-  name: string;
-  enabled: boolean;
-  bindings: SiteBinding[];
-  tls_enabled: boolean;
-  tls_acme_cert_id?: string;
-  tls_cert_path?: string;
-  tls_key_path?: string;
-  route_mode: RouteMode;
-  static_root?: string;
-  proxy_upstream?: string;
-  proxy_tls_insecure_skip_verify: boolean;
-}
-
-interface SiteView extends SitePayload {
-  id: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface SiteDraft {
-  id?: string;
-  name: string;
-  enabled: boolean;
-  bindings: SiteBinding[];
-  tls_enabled: boolean;
-  tls_acme_cert_id: string;
-  tls_cert_path: string;
-  tls_key_path: string;
-  route_mode: RouteMode;
-  static_root: string;
-  proxy_upstream: string;
-  proxy_tls_insecure_skip_verify: boolean;
-}
-
-const defaultBinding = (): SiteBinding => ({
-  listen_ip: '0.0.0.0',
-  listen_port: 80,
-  hostnames: ['example.com'],
-  is_default: false,
-});
-
-const defaultDraft = (): SiteDraft => ({
-  name: 'new-site',
-  enabled: true,
-  bindings: [defaultBinding()],
-  tls_enabled: false,
-  tls_acme_cert_id: '',
-  tls_cert_path: '',
-  tls_key_path: '',
-  route_mode: 'static',
-  static_root: './dist/site',
-  proxy_upstream: 'http://127.0.0.1:8080',
-  proxy_tls_insecure_skip_verify: false,
-});
-
-const toDraft = (site: SiteView): SiteDraft => ({
-  id: site.id,
-  name: site.name,
-  enabled: site.enabled,
-  bindings: site.bindings.length > 0 ? site.bindings.map((item) => ({ ...item })) : [defaultBinding()],
-  tls_enabled: site.tls_enabled,
-  tls_acme_cert_id: site.tls_acme_cert_id || '',
-  tls_cert_path: site.tls_cert_path || '',
-  tls_key_path: site.tls_key_path || '',
-  route_mode: site.route_mode,
-  static_root: site.static_root || '',
-  proxy_upstream: site.proxy_upstream || '',
-  proxy_tls_insecure_skip_verify: site.proxy_tls_insecure_skip_verify ?? false,
-});
-
-const normalizeHostnames = (raw: string): string[] => {
-  const out = raw
-    .split(',')
-    .map((item) => item.trim().toLowerCase())
-    .filter((item) => item.length > 0);
-  return Array.from(new Set(out));
-};
-
-const listenerKey = (item: SiteBinding, tlsEnabled: boolean): string => `${item.listen_ip}:${item.listen_port}:${tlsEnabled ? 'tls' : 'plain'}`;
-
-const hasHostOverlap = (left: string[], right: string[]): boolean => {
-  for (const lhs of left) {
-    for (const rhs of right) {
-      if (lhs === rhs || lhs === '*' || rhs === '*') {
-        return true;
-      }
-    }
-  }
-  return false;
-};
-
-interface ListenerDiagnostic {
-  listenerKey: string;
-  currentBindings: SiteBinding[];
-  remoteBindings: Array<{ site: string; binding: SiteBinding }>;
-  errors: string[];
-}
-
-interface DomainCertAssetView {
-  id: string;
-  name: string;
-  domains_json?: string | null;
-  expires_at?: string | null;
-  status?: string | null;
-}
-
-interface DomainAssetView {
-  fqdn: string;
-  status?: string | null;
-}
-
-const toPayload = (draft: SiteDraft): SitePayload => ({
-  name: draft.name.trim(),
-  enabled: draft.enabled,
-  bindings: draft.bindings.map((item) => ({
-    listen_ip: item.listen_ip.trim(),
-    listen_port: Number(item.listen_port),
-    hostnames: item.hostnames,
-    is_default: item.is_default,
-  })),
-  tls_enabled: draft.tls_enabled,
-  tls_acme_cert_id: draft.tls_acme_cert_id.trim() || undefined,
-  tls_cert_path: draft.tls_cert_path.trim() || undefined,
-  tls_key_path: draft.tls_key_path.trim() || undefined,
-  route_mode: draft.route_mode,
-  static_root: draft.route_mode === 'static' ? (draft.static_root.trim() || undefined) : undefined,
-  proxy_upstream: draft.route_mode === 'proxy' ? (draft.proxy_upstream.trim() || undefined) : undefined,
-  proxy_tls_insecure_skip_verify:
-    draft.route_mode === 'proxy' && draft.proxy_upstream.trim().startsWith('https://')
-      ? draft.proxy_tls_insecure_skip_verify
-      : false,
-});
+import { Globe, Plus, RefreshCw } from 'lucide-react';
+import { AdminHero, AdminPage } from './admin-ui';
+import {
+  defaultBinding,
+  defaultDraft,
+  hasHostOverlap,
+  listenerKey,
+  toDraft,
+  toPayload,
+  WebSiteModal,
+  WebSitesTable,
+  WebStatsGrid,
+  type DomainAssetView,
+  type DomainCertAssetView,
+  type ListenerDiagnostic,
+  type SiteBinding,
+  type SiteDraft,
+  type SiteView,
+} from './web';
 
 export const WebAdmin: React.FC = () => {
   const { t } = useTranslation();
@@ -518,376 +389,71 @@ export const WebAdmin: React.FC = () => {
 
   return (
     <AdminPage className="space-y-6">
-      <AdminCard
-        variant="shadcn"
-        className="rounded-[2rem] bg-gradient-to-r from-cyan-500/10 via-sky-500/5 to-transparent p-6"
-      >
-        <AdminPageHeader
-          icon={<Globe size={24} />}
-          iconClassName="bg-cyan-500/20 text-cyan-600"
-          title={t('admin.web.title')}
-          subtitle={t('admin.web.subtitle')}
-          actions={
-            <>
-              <Button type="button" variant="outline" onClick={reloadRuntime}>
-                <RefreshCw size={16} className="mr-2" />
-                {t('admin.web.reload')}
-              </Button>
-              <Button type="button" onClick={openCreateModal}>
-                <Plus size={16} className="mr-2" />
-                {t('admin.web.newSite')}
-              </Button>
-            </>
-          }
-        />
-      </AdminCard>
+      <AdminHero
+        icon={<Globe size={24} />}
+        iconClassName="bg-cyan-500/20 text-cyan-600"
+        title={t('admin.web.title')}
+        subtitle={t('admin.web.subtitle')}
+        className="bg-gradient-to-r from-cyan-500/10 via-sky-500/5 to-transparent"
+        actions={
+          <>
+            <Button type="button" variant="outline" onClick={reloadRuntime}>
+              <RefreshCw size={16} className="mr-2" />
+              {t('admin.web.reload')}
+            </Button>
+            <Button type="button" onClick={openCreateModal}>
+              <Plus size={16} className="mr-2" />
+              {t('admin.web.newSite')}
+            </Button>
+          </>
+        }
+      />
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <AdminCard variant="shadcn" className="rounded-2xl p-4">
-          <p className="text-sm font-bold uppercase tracking-wider opacity-50">{t('admin.web.stats.total')}</p>
-          <p className="mt-2 text-2xl font-black">{totals.all}</p>
-        </AdminCard>
-        <AdminCard variant="shadcn" className="rounded-2xl p-4">
-          <p className="text-sm font-bold uppercase tracking-wider opacity-50">{t('admin.web.stats.enabled')}</p>
-          <p className="mt-2 text-2xl font-black text-emerald-600">{totals.enabled}</p>
-        </AdminCard>
-        <AdminCard variant="shadcn" className="rounded-2xl p-4">
-          <p className="text-sm font-bold uppercase tracking-wider opacity-50">{t('admin.web.stats.tls')}</p>
-          <p className="mt-2 text-2xl font-black text-sky-600">{totals.tls}</p>
-        </AdminCard>
-        <AdminCard variant="shadcn" className="rounded-2xl p-4">
-          <p className="text-sm font-bold uppercase tracking-wider opacity-50">{t('admin.web.stats.proxy')}</p>
-          <p className="mt-2 text-2xl font-black text-sky-600">{totals.proxy}</p>
-        </AdminCard>
-      </div>
+      <WebStatsGrid
+        items={[
+          {
+            label: t('admin.web.stats.total'),
+            value: totals.all,
+          },
+          {
+            label: t('admin.web.stats.enabled'),
+            value: totals.enabled,
+            valueClassName: 'text-emerald-600',
+          },
+          {
+            label: t('admin.web.stats.tls'),
+            value: totals.tls,
+            valueClassName: 'text-sky-600',
+          },
+          {
+            label: t('admin.web.stats.proxy'),
+            value: totals.proxy,
+            valueClassName: 'text-sky-600',
+          },
+        ]}
+      />
 
-      <AdminCard variant="shadcn" className="rounded-[1.5rem] overflow-hidden">
-        <div className="grid grid-cols-12 gap-2 px-4 py-3 text-sm font-black uppercase tracking-wider opacity-60 border-b border-border">
-          <div className="col-span-3">{t('admin.web.table.site')}</div>
-          <div className="col-span-2">{t('admin.web.table.bindings')}</div>
-          <div className="col-span-2">{t('admin.web.table.hostnames')}</div>
-          <div className="col-span-1">{t('admin.web.table.mode')}</div>
-          <div className="col-span-1">TLS</div>
-          <div className="col-span-1">{t('admin.web.table.status')}</div>
-          <div className="col-span-2 text-right">{t('admin.web.table.actions')}</div>
-        </div>
+      <WebSitesTable loading={loading} sites={sites} t={t} onEdit={openEditModal} onDelete={deleteSite} />
 
-        {loading ? (
-          <div className="p-10 text-center text-sm opacity-60">{t('common.loading')}</div>
-        ) : sites.length === 0 ? (
-          <div className="p-10 text-center text-sm opacity-60">{t('admin.web.empty')}</div>
-        ) : (
-          <div className="divide-y divide-border">
-            {sites.map((site) => (
-              <div key={site.id} className="grid grid-cols-12 gap-2 px-4 py-4 items-center text-sm">
-                <div className="col-span-3 min-w-0">
-                  <div className="font-bold truncate">{site.name}</div>
-                  <div className="text-sm opacity-60 truncate">{site.id}</div>
-                </div>
-                <div className="col-span-2">
-                  <div className="flex items-center gap-1 text-sm opacity-70">
-                    <Network size={18} /> {site.bindings.length} {t('admin.web.table.bindings')}
-                  </div>
-                  <div className="flex items-center gap-1 text-sm opacity-70">
-                    <Server size={18} /> {site.bindings.map((item) => item.listen_port).join(', ')}
-                  </div>
-                </div>
-                <div className="col-span-2">
-                  <div className="text-sm opacity-80 truncate">{site.bindings.flatMap((item) => item.hostnames).slice(0, 4).join(', ')}</div>
-                </div>
-                <div className="col-span-1">
-                  <span className="rounded-full border border-border px-2 py-1 text-sm font-bold uppercase">{site.route_mode}</span>
-                </div>
-                <div className="col-span-1">
-                  {site.tls_enabled ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-600 text-sm font-bold"><ShieldCheck size={18} />{t('common.on')}</span>
-                  ) : (
-                    <span className="text-sm opacity-50">{t('common.off')}</span>
-                  )}
-                </div>
-                <div className="col-span-1">
-                  <span
-                    className={`rounded-full px-2 py-1 text-sm font-bold ${site.enabled ? 'bg-emerald-500/15 text-emerald-600' : 'bg-zinc-500/15 text-zinc-500'}`}
-                  >
-                    {site.enabled ? t('common.enabled') : t('common.disabled')}
-                  </span>
-                </div>
-                <div className="col-span-2 flex justify-end gap-2">
-                  <Button type="button" variant="outline" size="sm" onClick={() => openEditModal(site)}>
-                    <Pencil size={18} className="mr-1" />
-                    {t('common.edit')}
-                  </Button>
-                  <Button type="button" variant="destructive" size="sm" onClick={() => deleteSite(site)}>
-                    <Trash2 size={18} className="mr-1" />
-                    {t('common.delete')}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </AdminCard>
-
-      <Modal
+      <WebSiteModal
         isOpen={isModalOpen}
+        draft={draft}
+        saving={saving}
+        testing={testing}
+        canToggleProxyTlsInsecure={canToggleProxyTlsInsecure}
+        domainAssets={domainAssets}
+        domainCertAssets={domainCertAssets}
+        listenerDiagnostics={listenerDiagnostics}
+        draftWarnings={draftWarnings}
+        t={t}
         onClose={() => setIsModalOpen(false)}
-        title={draft.id ? t('admin.web.editSite') : t('admin.web.newSite')}
-        maxWidth="max-w-5xl"
-      >
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.siteName')}</label>
-              <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder={t('admin.web.form.siteNamePlaceholder')} />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.routeMode')}</label>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  variant={draft.route_mode === 'static' ? 'primary' : 'outline'}
-                  onClick={() => setDraft({ ...draft, route_mode: 'static', proxy_tls_insecure_skip_verify: false })}
-                  className="h-12"
-                >
-                  {t('admin.web.form.static')}
-                </Button>
-                <Button
-                  type="button"
-                  variant={draft.route_mode === 'proxy' ? 'primary' : 'outline'}
-                  onClick={() => setDraft({ ...draft, route_mode: 'proxy' })}
-                  className="h-12"
-                >
-                  {t('admin.web.form.proxy')}
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-border p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.enabled')}</span>
-                <Switch checked={draft.enabled} onChange={(v) => setDraft({ ...draft, enabled: v })} />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.tls')}</span>
-                <Switch checked={draft.tls_enabled} onChange={(v) => setDraft({ ...draft, tls_enabled: v })} />
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-border p-4 space-y-3">
-              {draft.route_mode === 'static' ? (
-                <>
-                  <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.staticRoot')}</label>
-                  <Input value={draft.static_root} onChange={(e) => setDraft({ ...draft, static_root: e.target.value })} placeholder={t('admin.web.form.staticRootPlaceholder')} />
-                </>
-              ) : (
-                <>
-                  <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.proxyUpstream')}</label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={draft.proxy_upstream}
-                      onChange={(e) => setDraft({ ...draft, proxy_upstream: e.target.value })}
-                      placeholder={t('admin.web.form.proxyUpstreamPlaceholder')}
-                      className="flex-1"
-                    />
-                    <Button type="button" variant="outline" onClick={testConnection} disabled={testing}>
-                      {testing ? <RefreshCw size={18} className="animate-spin" /> : <Network size={18} />}
-                    </Button>
-                  </div>
-                  <div className="rounded-xl border border-border p-3 mt-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.proxyTlsInsecure')}</span>
-                      <Switch
-                        checked={draft.proxy_tls_insecure_skip_verify}
-                        disabled={!canToggleProxyTlsInsecure}
-                        onChange={(v) => setDraft({ ...draft, proxy_tls_insecure_skip_verify: v })}
-                      />
-                    </div>
-                    {!canToggleProxyTlsInsecure && (
-                      <p className="text-sm opacity-60 mt-2">{t('admin.web.form.proxyTlsInsecureHint')}</p>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-border p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-black uppercase tracking-wider">{t('admin.web.form.bindings')}</h3>
-              <Button type="button" variant="outline" size="sm" onClick={addBinding}>
-                <Plus size={18} className="mr-1" /> {t('admin.web.form.addBinding')}
-              </Button>
-            </div>
-
-            <div className="space-y-3">
-              {draft.bindings.map((binding, index) => (
-                <div key={`binding-${index}`} className="grid grid-cols-12 gap-2 rounded-xl border border-border p-3">
-                  <div className="col-span-12 md:col-span-3 space-y-1">
-                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.ip')}</label>
-                    <Input
-                      value={binding.listen_ip}
-                      onChange={(e) => updateBinding(index, { listen_ip: e.target.value })}
-                      placeholder={t('admin.web.form.ipPlaceholder')}
-                    />
-                  </div>
-                  <div className="col-span-12 md:col-span-2 space-y-1">
-                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.port')}</label>
-                    <Input
-                      value={String(binding.listen_port)}
-                      onChange={(e) => {
-                        const v = Number(e.target.value);
-                        updateBinding(index, { listen_port: Number.isFinite(v) ? v : 0 });
-                      }}
-                      placeholder={t('admin.web.form.portPlaceholder')}
-                    />
-                  </div>
-                  <div className="col-span-12 md:col-span-5 space-y-1">
-                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.hostnames')}</label>
-                    <Input
-                      value={binding.hostnames.join(', ')}
-                      onChange={(e) => updateBinding(index, { hostnames: normalizeHostnames(e.target.value) })}
-                      placeholder={t('admin.web.form.hostnamesPlaceholder')}
-                      list="web-domain-asset-suggestions"
-                    />
-                    <p className="text-sm opacity-60">{t('admin.web.form.hostnameSuggestionHint')}</p>
-                  </div>
-                  <div className="col-span-8 md:col-span-1 space-y-1">
-                    <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.default')}</label>
-                    <div className="h-12 flex items-center">
-                      <Switch checked={binding.is_default} onChange={(v) => updateBinding(index, { is_default: v })} />
-                    </div>
-                  </div>
-                  <div className="col-span-4 md:col-span-1 flex items-end justify-end">
-                    <Button type="button" variant="destructive" size="sm" onClick={() => removeBinding(index)}>
-                      <Trash2 size={18} />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {domainAssets.length > 0 && (
-              <datalist id="web-domain-asset-suggestions">
-                {domainAssets.map((item) => (
-                  <option key={item.fqdn} value={item.fqdn} />
-                ))}
-              </datalist>
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-border p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-black uppercase tracking-wider">{t('admin.web.diagnostics.title')}</h3>
-              <span className="text-sm font-bold opacity-60">{t('admin.web.diagnostics.listenerCount', { count: listenerDiagnostics.length })}</span>
-            </div>
-            <p className="text-sm opacity-70">{t('admin.web.diagnostics.desc')}</p>
-            <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-              {listenerDiagnostics.map((diag) => (
-                <div
-                  key={diag.listenerKey}
-                  className={`rounded-xl border p-3 ${
-                    diag.errors.length > 0 ? 'border-amber-500/50 bg-amber-500/10' : 'border-emerald-500/30 bg-emerald-500/10'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-black">{diag.listenerKey}</span>
-                    <span className={`text-sm font-bold uppercase ${diag.errors.length > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
-                      {diag.errors.length > 0 ? t('admin.web.diagnostics.conflict') : t('admin.web.diagnostics.clean')}
-                    </span>
-                  </div>
-                  <div className="mt-2 text-sm opacity-80">
-                    <div>
-                      {t('admin.web.diagnostics.current')}: {diag.currentBindings.map((item) => item.hostnames.join('|')).join(' ; ')}
-                    </div>
-                    {diag.remoteBindings.length > 0 && (
-                      <div className="mt-1">
-                        {t('admin.web.diagnostics.remote')}:{' '}
-                        {diag.remoteBindings
-                          .map((item) => `${item.site}[${item.binding.hostnames.join('|')}]`)
-                          .join(' ; ')}
-                      </div>
-                    )}
-                  </div>
-                  {diag.errors.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {diag.errors.map((msg) => (
-                        <p key={msg} className="text-sm text-amber-800">
-                          {msg}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {draftWarnings.length > 0 && (
-            <div className="rounded-xl border border-amber-400/40 bg-amber-500/10 p-3">
-              <p className="text-sm font-black uppercase tracking-wider text-amber-700">{t('admin.web.warnings.title')}</p>
-              <div className="mt-2 space-y-1">
-                {draftWarnings.map((item) => (
-                  <p key={item} className="text-sm text-amber-800">
-                    {item}
-                  </p>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {draft.tls_enabled && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.tlsAcmeCert')}</label>
-                <select
-                  className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm"
-                  value={draft.tls_acme_cert_id}
-                  onChange={(e) => setDraft({ ...draft, tls_acme_cert_id: e.target.value })}
-                >
-                  <option value="">{t('admin.web.form.tlsAcmeCertNone')}</option>
-                  {domainCertAssets.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {`${item.name} (${item.id})`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.tlsCertPath')}</label>
-                  <Input
-                    value={draft.tls_cert_path}
-                    onChange={(e) => setDraft({ ...draft, tls_cert_path: e.target.value })}
-                    placeholder={t('admin.web.form.tlsCertPathPlaceholder')}
-                    disabled={Boolean(draft.tls_acme_cert_id.trim())}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.tlsKeyPath')}</label>
-                  <Input
-                    value={draft.tls_key_path}
-                    onChange={(e) => setDraft({ ...draft, tls_key_path: e.target.value })}
-                    placeholder={t('admin.web.form.tlsKeyPathPlaceholder')}
-                    disabled={Boolean(draft.tls_acme_cert_id.trim())}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-              {t('common.cancel')}
-            </Button>
-            <Button type="button" onClick={saveSite} disabled={saving}>
-              {saving ? <RefreshCw size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />}
-              {t('common.save')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        onSave={saveSite}
+        onTestConnection={testConnection}
+        onAddBinding={addBinding}
+        onRemoveBinding={removeBinding}
+        onUpdateBinding={updateBinding}
+        setDraft={setDraft}
+      />
     </AdminPage>
   );
 };
