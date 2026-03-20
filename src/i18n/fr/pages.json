@@ -63,7 +63,7 @@
     "web": {
       "title": "Gestion des sites Web",
       "layoutTitle": "Gestion multi-sites",
-      "tls": "TLS"
+       "tls": "TLS securise"
     },
     "tasks": {
       "title": "Moniteur de tâches",
@@ -118,7 +118,7 @@
       "layoutTitle": "Modifier le profil"
     },
     "sessions": {
-      "title": "Sessions",
+       "title": "Sessions actives",
       "layoutTitle": "Sessions actives"
     },
     "security": {
@@ -135,11 +135,11 @@
   },
   "colors": {
     "red": "Rouge",
-    "orange": "Orange",
+     "orange": "Orange vif",
     "yellow": "Jaune",
     "green": "Vert",
     "blue": "Bleu",
-    "indigo": "Cyan",
+     "indigo": "Bleu cyan",
     "purple": "Bleu profond"
   },
   "publicShare": {
