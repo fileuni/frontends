@@ -53,9 +53,9 @@
     "enableDirectDesc": "Позволяет обойти страницу предпросмотра и получить прямой доступ к контенту",
     "writePermissionsLabel": "Права записи для каталога",
     "writePermissionsDesc": "READ всегда включен. Параметры ниже по умолчанию выключены: UPLOAD может создавать только новые файлы; UPDATE может только перезаписывать существующие; DEL может удалять записи в этом общем каталоге.",
-    "permissionUpload": "UPLOAD",
-    "permissionUpdateNoCreate": "UPDATE (NO CREATE)",
-    "permissionDelete": "DEL",
+    "permissionUpload": "ЗАГРУЗКА",
+    "permissionUpdateNoCreate": "ОБНОВЛЕНИЕ (БЕЗ СОЗДАНИЯ)",
+    "permissionDelete": "УДАЛЕНИЕ",
     "unlimited": "Без ограничений",
     "expire1Day": "1 день",
     "expire7Days": "7 дней",
@@ -88,12 +88,12 @@
     "qrDesc": "Сканируйте, чтобы получить полную информацию",
     "done": "Готово",
     "copyFormat": {
-      "title": "[FileUni Share]",
+      "title": "[Общий доступ FileUni]",
       "file": "Файл",
       "link": "Ссылка",
       "password": "Пароль",
       "existingPassword": "(Текущий пароль)",
-      "directTitle": "[Direct File Info]",
+      "directTitle": "[Информация о прямом файле]",
       "url": "Прямой URL",
       "user": "Пользователь auth",
       "pass": "Пароль auth"
@@ -106,7 +106,7 @@
     "preset24h": "24ч",
     "preset7d": "7д",
     "preset30d": "30д",
-    "presetForever": "∞"
+    "presetForever": "Без срока"
   },
   "previewModal": {
     "viewer": "Просмотр",
@@ -122,7 +122,7 @@
     "noAppsFound": "Приложения не найдены"
   },
   "officeLite": {
-    "name": "Office Lite",
+    "name": "Легкий Office",
     "openTitle": "Открыть Office файл",
     "openHint": "Выберите способ открытия документа.",
     "externalViewerHint": "Для внешних просмотрщиков URL файла должен быть доступен публично.",
@@ -152,27 +152,27 @@
     "cdnReset": "Сбросить"
   },
   "texPreview": {
-    "subtitle": "LaTeX",
+    "subtitle": "Просмотр LaTeX",
     "render": "Собрать",
     "rendering": "Сборка",
     "noPreview": "Предпросмотра нет",
     "disabled": "Предпросмотр отключен",
     "mode": {
-      "latexmk": "Latexmk",
-      "latexjs": "Latex.js",
-      "monaco": "Monaco"
+      "latexmk": "Сборка Latexmk",
+      "latexjs": "Рендер Latex.js",
+      "monaco": "Редактор Monaco"
     }
   },
   "archive": {
     "compressTitle": "Сжать",
     "decompressTitle": "Извлечь",
     "archiveName": "Имя архива",
-    "archiveNamePlaceholder": "archive",
+    "archiveNamePlaceholder": "архив",
     "batchNameHint": "Имя результата пакетного сжатия генерируется сервером.",
     "format": "Формат",
     "level": "Уровень (0-9)",
     "targetPath": "Путь назначения",
-    "targetPathPlaceholder": "/",
+    "targetPathPlaceholder": "/ (целевой путь)",
     "targetPathHint": "Выберите каталог назначения. Он должен начинаться с '/'.",
     "overwrite": "Перезаписывать существующие",
     "overwriteHint": "Если выключено, существующие файлы будут сохранены.",
@@ -238,11 +238,11 @@
     "types": {
       "image": "Изображения",
       "video": "Видео",
-      "pdf": "PDF",
-      "office": "Office",
+      "pdf": "PDF-документы",
+      "office": "Office-документы",
       "text": "Текст",
-      "markdown": "Markdown",
-      "tex": "LaTeX"
+      "markdown": "Markdown-документ",
+      "tex": "LaTeX-документ"
     },
     "confirmClearDir": "Очистить миниатюры в этой папке?",
     "confirmClearAll": "Очистить все миниатюры?",
@@ -293,7 +293,7 @@
     "saveAndReload": "Сохранить и перезагрузить",
     "reset": "Сбросить",
     "cdnSaved": "Настройки CDN сохранены. Обновите страницу для применения.",
-    "markdownEngine": "Markdown",
+    "markdownEngine": "Движок Markdown",
     "autoSaveFailed": "Автосохранение не удалось"
   },
   "messages": {

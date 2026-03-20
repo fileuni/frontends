@@ -18,7 +18,7 @@
   "gridView": "Vue grille",
   "listView": "Vue liste",
   "virtualScroll": "Défilement virtuel",
-  "pagination": "Pagination",
+  "pagination": "Navigation par pages",
   "emptyFolder": "Ce dossier est vide",
   "sort": {
     "name": "Nom",
@@ -116,13 +116,13 @@
     "notSupported": "Aperçu non pris en charge",
     "fetching": "RÉCUPÉRATION DU CONTENU...",
     "saveSuccess": "Enregistré avec succès",
-    "playlist": "Playlist",
+    "playlist": "Liste de lecture",
     "openWith": "Ouvrir avec",
     "downloadFile": "Télécharger le fichier",
     "noAppsFound": "Aucune application trouvée"
   },
   "officeLite": {
-    "name": "Office Lite",
+    "name": "Office leger",
     "openTitle": "Ouvrir un fichier Office",
     "openHint": "Choisissez une méthode pour ouvrir ce document.",
     "externalViewerHint": "Les visionneuses externes exigent que l'URL du fichier soit accessible publiquement.",
@@ -152,27 +152,27 @@
     "cdnReset": "Réinitialiser"
   },
   "texPreview": {
-    "subtitle": "LaTeX",
+    "subtitle": "Apercu LaTeX",
     "render": "Rendre",
     "rendering": "Rendu en cours",
     "noPreview": "Aucun aperçu",
     "disabled": "Aperçu désactivé",
     "mode": {
-      "latexmk": "Latexmk",
-      "latexjs": "Latex.js",
-      "monaco": "Monaco"
+      "latexmk": "Compilation Latexmk",
+      "latexjs": "Rendu Latex.js",
+      "monaco": "Editeur Monaco"
     }
   },
   "archive": {
     "compressTitle": "Compresser",
     "decompressTitle": "Extraire",
     "archiveName": "Nom de l'archive",
-    "archiveNamePlaceholder": "archive",
+    "archiveNamePlaceholder": "archive-fichier",
     "batchNameHint": "Le nom de sortie du lot est généré par le serveur.",
-    "format": "Format",
+    "format": "Format d'archive",
     "level": "Niveau (0-9)",
     "targetPath": "Chemin cible",
-    "targetPathPlaceholder": "/",
+    "targetPathPlaceholder": "/ (chemin cible)",
     "targetPathHint": "Choisissez le dossier de destination. Il doit commencer par '/'.",
     "overwrite": "Écraser l'existant",
     "overwriteHint": "Désactivé : les fichiers existants seront conservés.",
@@ -236,13 +236,13 @@
     "settingsDesc": "Activer ou désactiver les miniatures par type de fichier.",
     "noTypes": "Aucun type de miniature disponible.",
     "types": {
-      "image": "Images",
+      "image": "Fichiers image",
       "video": "Vidéos",
-      "pdf": "PDF",
-      "office": "Office",
+      "pdf": "Documents PDF",
+      "office": "Documents Office",
       "text": "Texte",
-      "markdown": "Markdown",
-      "tex": "LaTeX"
+      "markdown": "Document Markdown",
+      "tex": "Document LaTeX"
     },
     "confirmClearDir": "Effacer les miniatures dans ce dossier ?",
     "confirmClearAll": "Effacer toutes les miniatures ?",
@@ -436,11 +436,11 @@
     "pictureInPicture": "Image dans l'image",
     "fullscreen": "Plein écran",
     "exitFullscreen": "Quitter le plein écran",
-    "playlist": "Playlist",
+    "playlist": "Liste de lecture",
     "previous": "Précédent",
     "next": "Suivant",
     "play": "Lecture",
-    "pause": "Pause",
+    "pause": "Mettre en pause",
     "mute": "Muet",
     "unmute": "Son",
     "nowPlaying": "En cours de lecture",
