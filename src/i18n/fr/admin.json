@@ -663,42 +663,468 @@
     }
   },
   "audit": {
+    "title": "Journaux d'audit",
+    "fetchError": "Échec de récupération des journaux d'audit",
+    "userIdPlaceholder": "ID utilisateur",
+    "actionPlaceholder": "Action",
+    "allTypes": "Tous les types",
+    "allStatus": "Tous les statuts",
+    "noLogsFound": "Aucun journal trouvé",
+    "eventsTotal": "{{count}} événements au total",
     "table": {
       "time": "Heure",
+      "user": "Utilisateur",
+      "type": "Type",
+      "action": "Action",
+      "details": "Détails",
       "status": "Statut"
-    }
+    },
+    "statusSuccess": "SUCCÈS",
+    "statusFail": "ÉCHEC",
+    "statusStart": "DÉBUT",
+    "typeFile": "FICHIER",
+    "typeUser": "UTILISATEUR",
+    "typeSystem": "SYSTÈME",
+    "typeSecurity": "SÉCURITÉ",
+    "typeFinancial": "FINANCE"
   },
   "users": {
+    "title": "Gestion des utilisateurs",
+    "addUser": "Ajouter un utilisateur",
+    "searchPlaceholder": "Rechercher par nom d'utilisateur, email ou UUID...",
     "table": {
+      "user": "Utilisateur",
+      "role": "Rôle",
       "status": "Statut",
+      "created": "Créé le",
       "actions": "Actions"
     },
+    "roles": {
+      "admin": "Admin",
+      "user": "Utilisateur"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "banned": "Banni",
+      "deleted": "Supprimé"
+    },
+    "showDeleted": "Afficher les supprimés",
+    "noUsers": "Aucun utilisateur correspondant",
+    "fetchError": "Échec de récupération des utilisateurs",
+    "deleteSuccess": "Utilisateur supprimé logiquement",
+    "restoreSuccess": "Utilisateur restauré",
+    "resetPwdSuccess": "Mot de passe réinitialisé avec succès",
     "restore": "Restaurer",
+    "resetPassword": "Réinitialiser le mot de passe",
     "edit": "Modifier",
     "delete": "Supprimer",
-    "confirmPassword": "Confirmer le mot de passe"
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "resetPwdConfirm": "Êtes-vous sûr de vouloir réinitialiser le mot de passe de {{username}} ?",
+    "deleteUser": "Supprimer l'utilisateur",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer l'utilisateur {{username}} ?",
+    "deleteWarning": "Attention : l'utilisateur sera supprimé logiquement. Les données restent présentes, mais la connexion sera désactivée. Vous pourrez restaurer l'utilisateur plus tard.",
+    "confirmDelete": "Confirmer la suppression",
+    "deleteAdminWarning": "Attention : vous tentez de supprimer un administrateur système. Cela peut entraîner une perte d'accès à la gestion ou des risques système."
+  },
+  "fs": {
+    "title": "Système de fichiers",
+    "subtitle": "Statistiques de stockage et maintenance",
+    "statusRecovering": "RÉCUPÉRATION",
+    "storage_stats": "Statistiques de stockage",
+    "cluster_storage": "Stockage utilisé du cluster",
+    "usage_efficiency": "Utilisation du quota",
+    "total_users": "Utilisateurs totaux",
+    "active_maintenance": "Maintenance active",
+    "storage_types": "Types de stockage",
+    "engine_distribution": "Distribution des moteurs",
+    "global_ops": "Opérations globales",
+    "global_ops_desc": "Attention : ces actions affectent l'ensemble du cluster et ne doivent être exécutées que pendant des fenêtres de maintenance.",
+    "sync_index": "Synchroniser l'index global",
+    "sync_success": "Tâche de synchronisation de l'index global démarrée",
+    "sync_user_index": "Synchroniser l'index utilisateur",
+    "sync_user_index_desc": "Déclenche la synchronisation d'index pour un utilisateur spécifique (exécute sync_index sur la racine utilisateur '/').",
+    "user_id_placeholder": "ID utilisateur (UUID)",
+    "user_id_required": "L'ID utilisateur est requis",
+    "sync_user_success": "Synchronisation d'index démarrée pour l'utilisateur {{user_id}} (task_id={{task_id}})",
+    "rebuild_user_index": "Reconstruire l'index utilisateur",
+    "rebuild_user_index_desc": "La reconstruction profonde parcourt récursivement les dossiers et exécute sync_index, en verrouillant l'utilisateur cible (les écritures échoueront). Plus lent, mais corrige les incohérences d'index profondes.",
+    "rebuild_user_confirm": "Reconstruire l'index de l'utilisateur {{user_id}} ? L'utilisateur sera temporairement verrouillé.",
+    "rebuild_user_success": "Reconstruction d'index démarrée pour l'utilisateur {{user_id}} (task_id={{task_id}})",
+    "emergency_control": "Contrôle d'urgence du hub",
+    "emergency_desc": "Attention : ces actions contournent les contrôles de sécurité VFS normaux et peuvent entraîner des incohérences de données.",
+    "force_unlock": "Déverrouillage global forcé",
+    "unlock_confirm": "Voulez-vous vraiment forcer le déverrouillage ? Cela peut interrompre des tâches de maintenance en cours.",
+    "unlock_success": "Commande de déverrouillage forcé envoyée",
+    "locked_users": "Utilisateurs verrouillés (en récupération WAL)",
+    "system_status": "État du système",
+    "no_locked_users": "Aucun utilisateur verrouillé actuellement",
+    "maintenance_status_unavailable": "État de maintenance indisponible (erreur API ou permissions insuffisantes)"
+  },
+  "blacklist": {
+    "title": "Centre de garde d'accès",
+    "totalEntries": "Contraintes de sécurité actives",
+    "tabBlacklist": "Liste noire (refus)",
+    "tabHighRisk": "Surveillance des risques (challenge)",
+    "addEntry": "Ajouter une contrainte",
+    "noEntries": "Aucune contrainte d'accès active",
+    "blacklisted": "Accès refusé",
+    "highRisk": "Risque élevé",
+    "addTitle": "Ajouter une contrainte de sécurité",
+    "confirmAdd": "Appliquer la contrainte",
+    "addSuccess": "Contrainte de sécurité appliquée",
+    "removeSuccess": "Contrainte supprimée",
+    "stats": {
+      "ipConstraints": "Contraintes IP",
+      "userBlocks": "Blocages utilisateur",
+      "expiringSoon": "Expiration proche"
+    },
+    "guard": {
+      "blacklist": "Liste noire (refuser l'accès)",
+      "highRisk": "Risque élevé (contrôles supplémentaires)"
+    },
+    "subjectType": {
+      "ip": "Adresse IP",
+      "userId": "ID utilisateur (UUID)",
+      "clientId": "ID client (empreinte)"
+    },
+    "form": {
+      "guardLevel": "Niveau de garde",
+      "subjectType": "Type de cible",
+      "identifierValue": "Valeur d'identifiant",
+      "identifierPlaceholder": "ex. 192.168.1.1 ou user-uuid",
+      "reason": "Raison / Note",
+      "reasonPlaceholder": "Pourquoi est-ce bloqué ?",
+      "expiration": "Expiration (optionnel)",
+      "permanentHint": "Laisser vide pour une contrainte permanente"
+    },
+    "table": {
+      "type": "Type de cible",
+      "value": "Identifiant (IP/UID/CID)",
+      "status": "Niveau",
+      "reason": "Raison / Note",
+      "expires": "Expire le",
+      "actions": "Actions"
+    }
+  },
+  "settings": {
+    "title": "Paramètres système",
+    "save_config": "Enregistrer la configuration",
+    "sensitive": "Sensible",
+    "accessing": "Accès aux données système...",
+    "noData": "Aucune donnée disponible pour cette section",
+    "globalSettings": "Paramètres globaux",
+    "navNote": "La modification des paramètres système prend effet immédiatement pour la configuration runtime, mais certains moteurs cœur peuvent nécessiter un redémarrage.",
+    "quotaTitle": "Quota système et droits",
+    "paramManagement": "Gestion des paramètres de {{module}}",
+    "hardwareId": "ID matériel",
+    "matched": "CORRESPOND",
+    "notFound": "INTROUVABLE",
+    "enabledFeatures": "Fonctionnalités activées",
+    "configNote": "Note de configuration",
+    "licenseNote": "Les clés de licence sont liées à l'empreinte matérielle de ce serveur. Tout changement matériel important peut nécessiter une nouvelle clé.",
+    "generalNote": "Les changements de paramètres cœur peuvent nécessiter un redémarrage pour prendre pleinement effet. Validez toujours la structure TOML avant modification directe.",
+    "tabs": {
+      "server": "Serveur",
+      "database": "Base de données",
+      "vfs": "Hub de stockage",
+      "security": "Sécurité",
+      "log": "Journaux",
+      "license": "Licence"
+    },
+    "generate": "Générer une clé aléatoire"
   },
   "config": {
+    "title": "Éditeur de configuration",
+    "loading": "Chargement de la configuration...",
     "save": "Enregistrer",
+    "saveAndReload": "Enregistrer et recharger",
+    "testContent": "Tester le contenu",
+    "saveSuccess": "Configuration enregistrée",
+    "test": "Tester",
+    "testSuccess": "Test de configuration réussi",
+    "testFailed": "Le test de configuration a échoué",
+    "reload": "Recharger la configuration",
+    "reloadSuccess": "Configuration rechargée",
+    "reloadFailed": "Échec du rechargement de la configuration",
+    "reset": "Réinitialiser avec le modèle d'exemple",
+    "resetNotice": "Modèle chargé. Vérifiez puis enregistrez pour appliquer les changements.",
+    "resetUnavailable": "Modèle embarqué indisponible",
+    "resetHintTitle": "Rappel de réinitialisation",
+    "resetHint": "La réinitialisation remplace le contenu de l'éditeur par le modèle embarqué. Modifiez puis enregistrez avant rechargement.",
+    "restartNotice": "Certains paramètres nécessitent un redémarrage du serveur pour être pleinement appliqués.",
+    "thumbnail": {
+      "title": "Paramètres des miniatures",
+      "subtitle": "Configurez les outils externes de miniatures et la stratégie de seek vidéo. Si un type est activé mais l'outil absent, le système refusera de démarrer.",
+      "apply": "Appliquer les paramètres de miniatures",
+      "applied": "Paramètres de miniatures appliqués",
+      "applyFailed": "Échec d'application des paramètres de miniatures",
+      "loadFailed": "Configuration des miniatures indisponible",
+      "videoSeekSeconds": "Secondes de seek vidéo",
+      "videoSeekRatio": "Ratio de seek vidéo",
+      "videoSeekHint": "Si un ratio est défini, il est prioritaire (0.0 < ratio <= 1.0)."
+    },
+    "unsaved": "Non enregistré",
+    "saved": "Enregistré",
+    "pendingChanges": "Modifications en attente",
+    "noPendingChanges": "Aucune modification en attente",
+    "diffSummary": "Résumé des différences",
+    "changedLines": "Modifiées",
+    "addedLines": "Ajoutées",
+    "removedLines": "Supprimées",
+    "shortcuts": {
+      "title": "Raccourcis rapides",
+      "subtitle": "Outils et paramètres courants"
+    },
+    "pathUnavailable": "Chemin de configuration indisponible",
+    "quickNotes": "Notes rapides",
+    "example": "exemple",
+    "noteEmpty": "Aucune note disponible pour la clé actuelle.",
+    "noteHint": "Les notes correspondent aux clés et sections de configuration.",
     "license": {
+      "title": "Gestion des licences",
+      "technical": {
+        "hwId": "HW ID",
+        "auxId": "AUX ID"
+      },
       "featureCatalog": {
+        "free": {
+          "title": "Gratuit",
+          "desc": "Fonctionnalités de base pour un usage personnel ou léger."
+        },
+        "premium": {
+          "title": "Premium",
+          "desc": "Déverrouille des fonctionnalités avancées et des limites plus élevées."
+        },
         "storage": {
-          "title": "Stockage"
+          "title": "Stockage",
+          "desc": "Améliorations liées au stockage et contrôles de politiques."
         }
       }
     },
     "storage": {
+      "title": "Pools et backends de stockage",
+      "subtitle": "Éditeur visuel de configuration de stockage vfs_storage_hub",
+      "views": {
+        "main": "Stockage principal",
+        "advanced": "Avancé"
+      },
+      "main": {
+        "hint": "Édition rapide du stockage principal",
+        "openAdvanced": "Ouvrir avancé",
+        "desc": "Cette vue n'édite que le connecteur principal du pool par défaut. Utilisez Avancé pour gérer pools/connecteurs/politiques.",
+        "noPrimaryConnector": "Le pool par défaut n'a pas de primary_connector configuré. Sélectionnez-en un d'abord, ou corrigez en mode avancé."
+      },
+      "tabs": {
+        "pools": "Pools",
+        "connectors": "Connecteurs",
+        "policies": "Politiques"
+      },
       "fields": {
-        "name": "Nom"
+        "defaultPool": "Pool par défaut",
+        "name": "Nom",
+        "driver": "Driver",
+        "root": "Racine",
+        "enabled": "Activé",
+        "options": "Options avancées"
+      },
+      "drivers": {
+        "fs": "Système de fichiers local (fs)",
+        "s3": "Compatible S3 (s3)",
+        "webdav": "WebDAV (webdav)",
+        "memory": "Mémoire (memory, Dev)",
+        "android_saf": "Android SAF (android_saf)",
+        "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+      },
+      "connectors": {
+        "title": "Liste des connecteurs",
+        "connector": "Connecteur",
+        "commonOptions": "Options communes"
+      },
+      "pools": {
+        "title": "Liste des pools",
+        "pool": "Pool",
+        "primary": "Connecteur principal",
+        "backup": "Connecteur de secours",
+        "writeCache": "Cache d'écriture"
+      },
+      "policies": {
+        "title": "Politiques de stockage",
+        "hint": "Optionnel : mapper role_id vers pool_name et default_quota (bytes). Si vide, default_pool est utilisé.",
+        "empty": "Aucune politique actuellement (policies = []).",
+        "policy": "Politique",
+        "roleId": "ID rôle",
+        "poolName": "Pool",
+        "defaultQuota": "Quota par défaut (bytes)"
+      },
+      "actions": {
+        "addConnector": "Ajouter un connecteur",
+        "addPool": "Ajouter un pool",
+        "addPolicy": "Ajouter une politique",
+        "addOption": "Ajouter une option",
+        "pickDirectory": "Choisir un répertoire",
+        "resetLocal": "Réinitialiser avec les valeurs locales par défaut",
+        "apply": "Écrire dans la configuration"
+      },
+      "placeholders": {
+        "optionKey": "clé",
+        "optionValue": "valeur",
+        "root": {
+          "fs": "{APPDATADIR}/vfs",
+          "s3": "/ (préfixe racine)",
+          "webdav": "/",
+          "memory": "/",
+          "android_saf": "content://...",
+          "ios_scoped_fs": "bookmark_b64:<BASE64>"
+        }
+      },
+      "hints": {
+        "root": {
+          "fs": "Chemin de répertoire local. Sur mobile, il doit être dans la sandbox APPDATADIR.",
+          "s3": "Préfixe racine S3.",
+          "webdav": "Chemin racine WebDAV.",
+          "memory": "La racine du backend mémoire sert uniquement à satisfaire la validation de config.",
+          "android_saf": "Tree URI accordé par Android SAF (content://...).",
+          "ios_scoped_fs": "Bookmark iOS security-scoped ; doit commencer par bookmark_b64:."
+        }
+      },
+      "validation": {
+        "title": "Validation échouée",
+        "minimumOneConnector": "Au moins 1 connecteur est requis",
+        "minimumOnePool": "Au moins 1 pool est requis",
+        "errors": {
+          "parseRoot": "La racine TOML doit être un objet",
+          "parseFailed": "Échec du parsing de config : {{message}}",
+          "atLeastOneConnector": "Au moins 1 connecteur est requis",
+          "connectorNamesUnique": "Les noms de connecteurs doivent être uniques",
+          "connectorNameRequired": "connectors[{{index}}].name est requis",
+          "connectorDriverRequired": "connectors[{{index}}].driver est requis",
+          "connectorRootRequired": "connectors[{{index}}].root est requis",
+          "atLeastOnePool": "Au moins 1 pool est requis",
+          "poolNamesUnique": "Les noms de pools doivent être uniques",
+          "poolNameRequired": "pools[{{index}}].name est requis",
+          "poolPrimaryRequired": "pools[{{index}}].primary_connector est requis",
+          "poolPrimaryUnknown": "pools[{{index}}].primary_connector référence un connecteur inconnu '{{name}}'",
+          "poolBackupUnknown": "pools[{{index}}].backup_connector référence un connecteur inconnu '{{name}}'",
+          "defaultPoolRequired": "default_pool est requis",
+          "defaultPoolNotFound": "default_pool '{{name}}' doit correspondre à un nom de pool existant",
+          "policyRoleRequired": "policies[{{index}}].role_id est requis",
+          "policyPoolRequired": "policies[{{index}}].pool_name est requis",
+          "policyPoolUnknown": "policies[{{index}}].pool_name référence un pool inconnu '{{name}}'",
+          "policyQuotaInvalid": "policies[{{index}}].default_quota doit être un nombre >= 0"
+        }
       }
     },
     "quickWizard": {
+      "title": "Assistant de configuration rapide",
+      "subtitle": "Formulaire convivial synchronisé avec l'éditeur de configuration de la page.",
+      "parseErrorTitle": "Le TOML actuel ne peut pas être parsé en mode convivial.",
+      "parseErrorHint": "Veuillez corriger le TOML dans l'éditeur de configuration de la page, puis rouvrir cet assistant.",
+      "steps": {
+        "performance": "Optimisation des performances",
+        "database": "Base de données",
+        "cache": "Cache",
+        "advanced": "Avancé commun",
+        "other": "Autre configuration"
+      },
       "fields": {
-        "password": "Mot de passe"
+        "dbType": "Type de BD",
+        "healthTimeoutSeconds": "Timeout santé (secondes)",
+        "host": "Hôte",
+        "port": "Port",
+        "user": "Utilisateur",
+        "password": "Mot de passe",
+        "databaseName": "Nom de base",
+        "postgresDsn": "DSN PostgreSQL",
+        "sqlitePath": "Chemin SQLite",
+        "sqliteDsn": "DSN SQLite",
+        "cacheType": "Type de cache",
+        "useTls": "Utiliser TLS",
+        "redisUrl": "URL Redis",
+        "licenseStatus": "Statut de licence",
+        "maxUsers": "Quota utilisateurs",
+        "hwFingerprint": "Empreinte matérielle",
+        "licenseKey": "Clé de licence",
+        "licenseInputPlaceholder": "Collez ici votre clé de licence Base64...",
+        "expiresAt": "Expire le",
+        "features": "Fonctionnalités activées",
+        "licenseHint": "Obtenez votre clé de licence sur le site officiel. Le code appareil est utilisé pour la liaison matérielle.",
+        "enableRegistration": "Activer l'inscription",
+        "plusEnabled": "Plus activé",
+        "plusCaptureLogs": "Plus capture les logs",
+        "captchaCodeLength": "Longueur du code captcha",
+        "captchaExpiresInSeconds": "Expiration du captcha (secondes)"
+      },
+      "options": {
+        "postgres": "PostgreSQL",
+        "sqlite": "SQLite",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "cacheValkey": "VALKEY",
+        "cacheRedis": "REDIS",
+        "cacheKeydb": "KEYDB",
+        "cacheDashmap": "DASHMAP",
+        "cacheDatabase": "DATABASE",
+        "licenseAuthorized": "Autorisé",
+        "licenseUnauthorized": "Non autorisé / Édition gratuite"
       },
       "actions": {
-        "next": "Suivant"
+        "previous": "Précédent",
+        "next": "Suivant",
+        "done": "Voir le fichier de configuration complet",
+        "applyLicense": "Vérifier la licence",
+        "setAdminPassword": "Définir le mot de passe admin"
+      },
+      "advancedActions": {
+        "intro": "Les paramètres avancés sont gérés dans l'espace de configuration admin. Utilisez ces actions rapides.",
+        "licensePlaceholder": "Gestion de licence (placeholder)",
+        "licensePlaceholderHint": "L'entrée de gestion de licence est réservée pour une implémentation future.",
+        "openAdminConfig": "Ouvrir l'espace de configuration admin",
+        "changeAdminPassword": "Changer le mot de passe admin"
+      },
+      "otherActions": {
+        "intro": "Les actions de configuration supplémentaires vivent ici, comme la gestion de licence et la configuration des pools/backend de stockage."
       }
     }
+  },
+  "edit": {
+    "identity": "Informations d'identité",
+    "fullName": "Nom complet",
+    "fullNamePlaceholder": "Nom complet",
+    "nickname": "Surnom",
+    "nicknamePlaceholder": "Surnom",
+    "email": "Adresse email",
+    "emailPlaceholder": "email@example.com",
+    "phone": "Téléphone",
+    "phonePlaceholder": "+86...",
+    "phoneExtraPlaceholder": "+86 138...",
+    "role": "Rôle système",
+    "storageVfs": "Stockage et VFS",
+    "homeDir": "Répertoire home (répertoire de base)",
+    "homeDirPlaceholder": "/physical/path/to/data",
+    "quota": "Quota de stockage",
+    "quotaPlaceholder": "0 pour illimité",
+    "pool": "Pool de stockage (nom du pool)",
+    "poolPlaceholder": "default",
+    "s3Credentials": "Identifiants S3",
+    "s3AccessKey": "S3 Access Key",
+    "s3SecretKey": "S3 Secret Key",
+    "s3AccessKeyPlaceholder": "Saisir Access Key",
+    "s3SecretKeyPlaceholder": "Saisir Secret Key",
+    "s3KeysHint": "* L'administrateur peut définir ou réinitialiser manuellement les clés S3. Les laisser vides désactive l'accès S3 pour cet utilisateur.",
+    "passwordPlaceholder": "••••••••",
+    "unlimited": "Illimité",
+    "sftpPass": "Authentification SFTP par mot de passe",
+    "sftpPassDesc": "Autoriser la connexion SFTP avec mot de passe",
+    "saveChanges": "Enregistrer les modifications",
+    "usageStats": "Statistiques d'utilisation",
+    "occupied": "Espace occupé",
+    "quotaUsage": "Utilisation du quota",
+    "criticalActions": "Actions critiques",
+    "forceReset": "Forcer la réinitialisation du mot de passe",
+    "softDelete": "Suppression logique du compte",
+    "accessing": "Accès aux informations utilisateur...",
+    "recalibrateSuccess": "Utilisation du stockage recalibrée"
   }
 }

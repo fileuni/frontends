@@ -836,26 +836,295 @@
     "generate": "Generar clave aleatoria"
   },
   "config": {
+    "title": "Editor de configuración",
+    "loading": "Cargando configuración...",
     "save": "Guardar",
+    "saveAndReload": "Guardar y recargar",
+    "testContent": "Probar contenido",
+    "saveSuccess": "Configuración guardada",
+    "test": "Probar",
+    "testSuccess": "Prueba de configuración superada",
+    "testFailed": "La prueba de configuración falló",
+    "reload": "Recargar configuración",
+    "reloadSuccess": "Configuración recargada",
+    "reloadFailed": "No se pudo recargar la configuración",
+    "reset": "Restablecer a plantilla de ejemplo",
+    "resetNotice": "Plantilla cargada. Revise y guarde para aplicar cambios.",
+    "resetUnavailable": "Plantilla embebida no disponible",
+    "resetHintTitle": "Recordatorio de restablecimiento",
+    "resetHint": "Restablecer reemplaza el contenido del editor con la plantilla embebida. Modifique y guarde antes de recargar.",
+    "restartNotice": "Algunos ajustes requieren reiniciar el servidor para aplicarse completamente.",
+    "thumbnail": {
+      "title": "Ajustes de miniaturas",
+      "subtitle": "Configure herramientas externas de miniaturas y estrategia de seek de video. Si un tipo está habilitado pero la herramienta no existe, el sistema no arrancará.",
+      "apply": "Aplicar ajustes de miniaturas",
+      "applied": "Ajustes de miniaturas aplicados",
+      "applyFailed": "No se pudieron aplicar los ajustes de miniaturas",
+      "loadFailed": "Configuración de miniaturas no disponible",
+      "videoSeekSeconds": "Segundos de seek de video",
+      "videoSeekRatio": "Ratio de seek de video",
+      "videoSeekHint": "Si se define el ratio, tiene prioridad (0.0 < ratio <= 1.0)."
+    },
+    "unsaved": "Sin guardar",
+    "saved": "Guardado",
+    "pendingChanges": "Cambios pendientes",
+    "noPendingChanges": "Sin cambios pendientes",
+    "diffSummary": "Resumen de diferencias",
+    "changedLines": "Modificadas",
+    "addedLines": "Añadidas",
+    "removedLines": "Eliminadas",
+    "shortcuts": {
+      "title": "Atajos rápidos",
+      "subtitle": "Herramientas y ajustes comunes"
+    },
+    "pathUnavailable": "Ruta de configuración no disponible",
+    "quickNotes": "Notas rápidas",
+    "example": "ejemplo",
+    "noteEmpty": "No hay nota disponible para la clave actual.",
+    "noteHint": "Las notas se asignan a claves y secciones de configuración.",
     "license": {
+      "title": "Gestión de licencias",
+      "technical": {
+        "hwId": "HW ID",
+        "auxId": "AUX ID"
+      },
       "featureCatalog": {
+        "free": {
+          "title": "Gratis",
+          "desc": "Funciones básicas para uso personal o ligero."
+        },
+        "premium": {
+          "title": "Premium",
+          "desc": "Desbloquea funciones avanzadas y límites más altos."
+        },
         "storage": {
-          "title": "Almacenamiento"
+          "title": "Almacenamiento",
+          "desc": "Mejoras relacionadas con almacenamiento y controles de política."
         }
       }
     },
     "storage": {
+      "title": "Pools y backends de almacenamiento",
+      "subtitle": "Editor visual para configuración de almacenamiento de vfs_storage_hub",
+      "views": {
+        "main": "Almacenamiento principal",
+        "advanced": "Avanzado"
+      },
+      "main": {
+        "hint": "Edición rápida para el almacenamiento principal",
+        "openAdvanced": "Abrir avanzado",
+        "desc": "Esta vista solo edita el conector principal del pool por defecto. Use Avanzado para gestionar pools/conectores/políticas.",
+        "noPrimaryConnector": "El pool por defecto no tiene primary_connector configurado. Seleccione uno primero o corríjalo en modo avanzado."
+      },
+      "tabs": {
+        "pools": "Pools",
+        "connectors": "Conectores",
+        "policies": "Políticas"
+      },
       "fields": {
-        "name": "Nombre"
+        "defaultPool": "Pool por defecto",
+        "name": "Nombre",
+        "driver": "Driver",
+        "root": "Raíz",
+        "enabled": "Habilitado",
+        "options": "Opciones avanzadas"
+      },
+      "drivers": {
+        "fs": "Sistema de archivos local (fs)",
+        "s3": "Compatible con S3 (s3)",
+        "webdav": "WebDAV (webdav)",
+        "memory": "Memoria (memory, Dev)",
+        "android_saf": "Android SAF (android_saf)",
+        "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+      },
+      "connectors": {
+        "title": "Lista de conectores",
+        "connector": "Conector",
+        "commonOptions": "Opciones comunes"
+      },
+      "pools": {
+        "title": "Lista de pools",
+        "pool": "Pool",
+        "primary": "Conector principal",
+        "backup": "Conector de respaldo",
+        "writeCache": "Caché de escritura"
+      },
+      "policies": {
+        "title": "Políticas de almacenamiento",
+        "hint": "Opcional: mapear role_id a pool_name y default_quota (bytes). Si está vacío, se usa default_pool.",
+        "empty": "No hay políticas actualmente (policies = []).",
+        "policy": "Política",
+        "roleId": "ID de rol",
+        "poolName": "Pool",
+        "defaultQuota": "Cuota por defecto (bytes)"
+      },
+      "actions": {
+        "addConnector": "Añadir conector",
+        "addPool": "Añadir pool",
+        "addPolicy": "Añadir política",
+        "addOption": "Añadir opción",
+        "pickDirectory": "Elegir directorio",
+        "resetLocal": "Restablecer a valores locales por defecto",
+        "apply": "Escribir en configuración"
+      },
+      "placeholders": {
+        "optionKey": "clave",
+        "optionValue": "valor",
+        "root": {
+          "fs": "{APPDATADIR}/vfs",
+          "s3": "/ (prefijo raíz)",
+          "webdav": "/",
+          "memory": "/",
+          "android_saf": "content://...",
+          "ios_scoped_fs": "bookmark_b64:<BASE64>"
+        }
+      },
+      "hints": {
+        "root": {
+          "fs": "Ruta de directorio local. En móvil, debe estar dentro del sandbox APPDATADIR.",
+          "s3": "Prefijo raíz de S3.",
+          "webdav": "Ruta raíz de WebDAV.",
+          "memory": "La raíz del backend memory solo se usa para cumplir validación de config.",
+          "android_saf": "Tree URI concedido por Android SAF (content://...).",
+          "ios_scoped_fs": "Bookmark de seguridad de iOS; debe empezar por bookmark_b64:."
+        }
+      },
+      "validation": {
+        "title": "Validación fallida",
+        "minimumOneConnector": "Se requiere al menos 1 conector",
+        "minimumOnePool": "Se requiere al menos 1 pool",
+        "errors": {
+          "parseRoot": "La raíz TOML debe ser un objeto",
+          "parseFailed": "Error al parsear config: {{message}}",
+          "atLeastOneConnector": "Se requiere al menos 1 conector",
+          "connectorNamesUnique": "Los nombres de conectores deben ser únicos",
+          "connectorNameRequired": "connectors[{{index}}].name es obligatorio",
+          "connectorDriverRequired": "connectors[{{index}}].driver es obligatorio",
+          "connectorRootRequired": "connectors[{{index}}].root es obligatorio",
+          "atLeastOnePool": "Se requiere al menos 1 pool",
+          "poolNamesUnique": "Los nombres de pools deben ser únicos",
+          "poolNameRequired": "pools[{{index}}].name es obligatorio",
+          "poolPrimaryRequired": "pools[{{index}}].primary_connector es obligatorio",
+          "poolPrimaryUnknown": "pools[{{index}}].primary_connector referencia un conector desconocido '{{name}}'",
+          "poolBackupUnknown": "pools[{{index}}].backup_connector referencia un conector desconocido '{{name}}'",
+          "defaultPoolRequired": "default_pool es obligatorio",
+          "defaultPoolNotFound": "default_pool '{{name}}' debe coincidir con un nombre de pool existente",
+          "policyRoleRequired": "policies[{{index}}].role_id es obligatorio",
+          "policyPoolRequired": "policies[{{index}}].pool_name es obligatorio",
+          "policyPoolUnknown": "policies[{{index}}].pool_name referencia un pool desconocido '{{name}}'",
+          "policyQuotaInvalid": "policies[{{index}}].default_quota debe ser un número >= 0"
+        }
       }
     },
     "quickWizard": {
+      "title": "Asistente rápido de configuración",
+      "subtitle": "Formulario amigable sincronizado con el editor de configuración de la página.",
+      "parseErrorTitle": "El TOML actual no puede parsearse en modo amigable.",
+      "parseErrorHint": "Corrija el TOML en el editor de configuración de la página y vuelva a abrir este asistente.",
+      "steps": {
+        "performance": "Optimización de rendimiento",
+        "database": "Base de datos",
+        "cache": "Caché",
+        "advanced": "Avanzado común",
+        "other": "Otra configuración"
+      },
       "fields": {
-        "password": "Contraseña"
+        "dbType": "Tipo de BD",
+        "healthTimeoutSeconds": "Tiempo de espera de salud (segundos)",
+        "host": "Host",
+        "port": "Puerto",
+        "user": "Usuario",
+        "password": "Contraseña",
+        "databaseName": "Nombre de base de datos",
+        "postgresDsn": "DSN de PostgreSQL",
+        "sqlitePath": "Ruta de SQLite",
+        "sqliteDsn": "DSN de SQLite",
+        "cacheType": "Tipo de caché",
+        "useTls": "Usar TLS",
+        "redisUrl": "URL de Redis",
+        "licenseStatus": "Estado de licencia",
+        "maxUsers": "Cuota de usuarios",
+        "hwFingerprint": "Huella de hardware",
+        "licenseKey": "Clave de licencia",
+        "licenseInputPlaceholder": "Pegue aquí su clave de licencia Base64...",
+        "expiresAt": "Caduca el",
+        "features": "Funciones habilitadas",
+        "licenseHint": "Obtenga su clave de licencia en el sitio oficial. El código del dispositivo se usa para vinculación de hardware.",
+        "enableRegistration": "Habilitar registro",
+        "plusEnabled": "Plus habilitado",
+        "plusCaptureLogs": "Plus captura logs",
+        "captchaCodeLength": "Longitud del código captcha",
+        "captchaExpiresInSeconds": "Expiración del captcha (segundos)"
+      },
+      "options": {
+        "postgres": "PostgreSQL",
+        "sqlite": "SQLite",
+        "enabled": "Habilitado",
+        "disabled": "Deshabilitado",
+        "cacheValkey": "VALKEY",
+        "cacheRedis": "REDIS",
+        "cacheKeydb": "KEYDB",
+        "cacheDashmap": "DASHMAP",
+        "cacheDatabase": "DATABASE",
+        "licenseAuthorized": "Autorizado",
+        "licenseUnauthorized": "No autorizado / Edición gratuita"
       },
       "actions": {
-        "next": "Siguiente"
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "done": "Ver archivo de configuración completo",
+        "applyLicense": "Comprobar licencia",
+        "setAdminPassword": "Establecer contraseña de admin"
+      },
+      "advancedActions": {
+        "intro": "Los ajustes avanzados se gestionan en el espacio de configuración admin. Use estas acciones rápidas.",
+        "licensePlaceholder": "Gestión de licencia (placeholder)",
+        "licensePlaceholderHint": "La entrada de gestión de licencia está reservada para implementación futura.",
+        "openAdminConfig": "Abrir espacio de configuración admin",
+        "changeAdminPassword": "Cambiar contraseña de admin"
+      },
+      "otherActions": {
+        "intro": "Aquí viven acciones de configuración extra, como gestión de licencias y configuración de pools/backend de almacenamiento."
       }
     }
+  },
+  "edit": {
+    "identity": "Información de identidad",
+    "fullName": "Nombre completo",
+    "fullNamePlaceholder": "Nombre completo",
+    "nickname": "Apodo",
+    "nicknamePlaceholder": "Apodo",
+    "email": "Dirección de correo",
+    "emailPlaceholder": "email@example.com",
+    "phone": "Teléfono",
+    "phonePlaceholder": "+86...",
+    "phoneExtraPlaceholder": "+86 138...",
+    "role": "Rol del sistema",
+    "storageVfs": "Almacenamiento y VFS",
+    "homeDir": "Directorio home (directorio base)",
+    "homeDirPlaceholder": "/physical/path/to/data",
+    "quota": "Cuota de almacenamiento",
+    "quotaPlaceholder": "0 para ilimitado",
+    "pool": "Pool de almacenamiento (nombre del pool)",
+    "poolPlaceholder": "default",
+    "s3Credentials": "Credenciales S3",
+    "s3AccessKey": "S3 Access Key",
+    "s3SecretKey": "S3 Secret Key",
+    "s3AccessKeyPlaceholder": "Introduzca Access Key",
+    "s3SecretKeyPlaceholder": "Introduzca Secret Key",
+    "s3KeysHint": "* El administrador puede establecer o restablecer manualmente las claves S3. Si se dejan vacías, se deshabilita el acceso S3 para este usuario.",
+    "passwordPlaceholder": "••••••••",
+    "unlimited": "Ilimitado",
+    "sftpPass": "Autenticación por contraseña SFTP",
+    "sftpPassDesc": "Permitir iniciar sesión en SFTP con contraseña",
+    "saveChanges": "Guardar cambios",
+    "usageStats": "Estadísticas de uso",
+    "occupied": "Espacio ocupado",
+    "quotaUsage": "Uso de cuota",
+    "criticalActions": "Acciones críticas",
+    "forceReset": "Forzar restablecimiento de contraseña",
+    "softDelete": "Eliminación lógica de cuenta",
+    "accessing": "Accediendo a información de usuario...",
+    "recalibrateSuccess": "Uso de almacenamiento recalibrado"
   }
 }

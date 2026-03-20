@@ -663,47 +663,348 @@
     }
   },
   "audit": {
+    "title": "監査ログ",
+    "fetchError": "監査ログの取得に失敗しました",
+    "userIdPlaceholder": "ユーザー ID",
+    "actionPlaceholder": "アクション",
+    "allTypes": "すべてのタイプ",
+    "allStatus": "すべてのステータス",
+    "noLogsFound": "ログが見つかりません",
+    "eventsTotal": "合計 {{count}} 件のイベント",
     "table": {
       "time": "時刻",
+      "user": "ユーザー",
+      "type": "タイプ",
+      "action": "アクション",
+      "details": "詳細",
       "status": "ステータス"
-    }
+    },
+    "statusSuccess": "SUCCESS",
+    "statusFail": "FAIL",
+    "statusStart": "START",
+    "typeFile": "FILE",
+    "typeUser": "USER",
+    "typeSystem": "SYSTEM",
+    "typeSecurity": "SECURITY",
+    "typeFinancial": "FINANCIAL"
   },
   "users": {
+    "title": "ユーザー管理",
+    "addUser": "ユーザーを追加",
+    "searchPlaceholder": "ユーザー名、email、UUID で検索...",
     "table": {
+      "user": "ユーザー",
+      "role": "ロール",
       "status": "ステータス",
+      "created": "作成日時",
       "actions": "アクション"
     },
+    "roles": {
+      "admin": "管理者",
+      "user": "ユーザー"
+    },
+    "status": {
+      "active": "有効",
+      "inactive": "無効",
+      "banned": "凍結",
+      "deleted": "削除済み"
+    },
+    "showDeleted": "削除済みを表示",
+    "noUsers": "一致するユーザーが見つかりません",
+    "fetchError": "ユーザーの取得に失敗しました",
+    "deleteSuccess": "ユーザーをソフト削除しました",
+    "restoreSuccess": "ユーザーを復元しました",
+    "resetPwdSuccess": "パスワードをリセットしました",
     "restore": "復元",
+    "resetPassword": "パスワードをリセット",
     "edit": "編集",
     "delete": "削除",
-    "confirmPassword": "パスワード確認"
+    "newPassword": "新しいパスワード",
+    "confirmPassword": "パスワード確認",
+    "resetPwdConfirm": "{{username}} のパスワードをリセットしますか?",
+    "deleteUser": "ユーザーを削除",
+    "deleteConfirm": "ユーザー {{username}} を削除しますか?",
+    "deleteWarning": "警告: ユーザーはソフト削除されます。データは残りますがログインは無効になります。後で復元できます。",
+    "confirmDelete": "削除を確認",
+    "deleteAdminWarning": "警告: システム管理者を削除しようとしています。管理アクセスの喪失やシステムリスクにつながる可能性があります。"
+  },
+  "fs": {
+    "title": "ファイルシステム",
+    "subtitle": "ストレージ統計とメンテナンス",
+    "statusRecovering": "RECOVERING",
+    "storage_stats": "ストレージ統計",
+    "cluster_storage": "クラスター使用ストレージ",
+    "usage_efficiency": "クォータ使用率",
+    "total_users": "総ユーザー数",
+    "active_maintenance": "アクティブなメンテナンス",
+    "storage_types": "ストレージタイプ",
+    "engine_distribution": "エンジン分布",
+    "global_ops": "グローバル操作",
+    "global_ops_desc": "注意: これらの操作はクラスター全体に影響します。メンテナンス時間帯のみ実行してください。",
+    "sync_index": "グローバルインデックスを同期",
+    "sync_success": "グローバルインデックス同期タスクを開始しました",
+    "sync_user_index": "ユーザーインデックスを同期",
+    "sync_user_index_desc": "特定ユーザーのインデックス同期を実行します（ユーザールート '/' で sync_index を実行）。",
+    "user_id_placeholder": "ユーザー ID (UUID)",
+    "user_id_required": "ユーザー ID は必須です",
+    "sync_user_success": "ユーザー {{user_id}} のインデックス同期を開始しました (task_id={{task_id}})",
+    "rebuild_user_index": "ユーザーインデックスを再構築",
+    "rebuild_user_index_desc": "ディープ再構築はディレクトリを再帰走査して sync_index を実行し、対象ユーザーをロックします（書き込みは失敗）。遅いですが、深いインデックス不整合を修正できます。",
+    "rebuild_user_confirm": "ユーザー {{user_id}} のインデックスを再構築しますか? ユーザーは一時的にロックされます。",
+    "rebuild_user_success": "ユーザー {{user_id}} のインデックス再構築を開始しました (task_id={{task_id}})",
+    "emergency_control": "緊急ハブ制御",
+    "emergency_desc": "注意: これらの操作は通常の VFS 安全チェックをバイパスし、データ不整合を引き起こす可能性があります。",
+    "force_unlock": "グローバル強制アンロック",
+    "unlock_confirm": "強制アンロックを実行しますか? 進行中のメンテナンスタスクが中断される可能性があります。",
+    "unlock_success": "強制アンロックコマンドを送信しました",
+    "locked_users": "ロック中のユーザー（WAL 復旧中）",
+    "system_status": "システム状態",
+    "no_locked_users": "現在ロックされているユーザーはいません",
+    "maintenance_status_unavailable": "メンテナンス状態を取得できません（API エラーまたは権限不足）"
   },
   "blacklist": {
+    "title": "アクセスガードハブ",
+    "totalEntries": "有効なセキュリティ制約",
+    "tabBlacklist": "ブラックリスト（拒否）",
+    "tabHighRisk": "リスク監視（チャレンジ）",
+    "addEntry": "制約を追加",
+    "noEntries": "有効なアクセス制約はありません",
+    "blacklisted": "アクセス拒否",
+    "highRisk": "高リスク",
+    "addTitle": "セキュリティ制約を追加",
+    "confirmAdd": "制約を適用",
+    "addSuccess": "セキュリティ制約を適用しました",
+    "removeSuccess": "制約を削除しました",
+    "stats": {
+      "ipConstraints": "IP 制約",
+      "userBlocks": "ユーザーブロック",
+      "expiringSoon": "まもなく期限切れ"
+    },
+    "guard": {
+      "blacklist": "ブラックリスト（アクセス拒否）",
+      "highRisk": "高リスク（追加チェック）"
+    },
+    "subjectType": {
+      "ip": "IP アドレス",
+      "userId": "ユーザー ID (UUID)",
+      "clientId": "クライアント ID（フィンガープリント）"
+    },
+    "form": {
+      "guardLevel": "ガードレベル",
+      "subjectType": "対象タイプ",
+      "identifierValue": "識別子の値",
+      "identifierPlaceholder": "例: 192.168.1.1 または user-uuid",
+      "reason": "理由 / メモ",
+      "reasonPlaceholder": "なぜブロックしますか?",
+      "expiration": "有効期限（任意）",
+      "permanentHint": "永続制約にする場合は空欄のまま"
+    },
     "table": {
+      "type": "対象タイプ",
+      "value": "識別子 (IP/UID/CID)",
+      "status": "レベル",
+      "reason": "理由 / メモ",
+      "expires": "有効期限",
       "actions": "アクション"
     }
   },
+  "settings": {
+    "title": "システム設定",
+    "save_config": "設定を保存",
+    "sensitive": "機密",
+    "accessing": "システムデータにアクセス中...",
+    "noData": "このセクションに利用可能なデータがありません",
+    "globalSettings": "グローバル設定",
+    "navNote": "システムパラメータの変更は runtime config に即時反映されますが、一部のコアエンジンは再起動が必要な場合があります。",
+    "quotaTitle": "システムクォータと権限",
+    "paramManagement": "{{module}} パラメータ管理",
+    "hardwareId": "ハードウェア ID",
+    "matched": "一致",
+    "notFound": "未検出",
+    "enabledFeatures": "有効機能",
+    "configNote": "設定メモ",
+    "licenseNote": "ライセンスキーはこのサーバーのハードウェアフィンガープリントに紐づきます。主要ハードウェアの変更時は新しいキーが必要になる場合があります。",
+    "generalNote": "コアエンジンの設定変更は完全反映のため再起動が必要な場合があります。直接編集前に TOML 構造を必ず検証してください。",
+    "tabs": {
+      "server": "サーバー",
+      "database": "データベース",
+      "vfs": "ストレージハブ",
+      "security": "セキュリティ",
+      "log": "ログ",
+      "license": "ライセンス"
+    },
+    "generate": "ランダムキーを生成"
+  },
   "config": {
+    "title": "設定エディター",
+    "loading": "設定を読み込み中...",
     "save": "保存",
+    "saveAndReload": "保存して再読み込み",
+    "testContent": "内容をテスト",
+    "saveSuccess": "設定を保存しました",
+    "test": "テスト",
+    "testSuccess": "設定テストに成功しました",
+    "testFailed": "設定テストに失敗しました",
+    "reload": "ReloadConfig",
+    "reloadSuccess": "設定を再読み込みしました",
+    "reloadFailed": "設定の再読み込みに失敗しました",
+    "reset": "サンプルテンプレートにリセット",
+    "resetNotice": "テンプレートを読み込みました。確認して保存すると変更が適用されます。",
+    "resetUnavailable": "埋め込みテンプレートは利用できません",
+    "resetHintTitle": "リセットの注意",
+    "resetHint": "リセットするとエディター内容は埋め込みテンプレートに置き換わります。再読み込み前に編集して保存してください。",
+    "restartNotice": "一部の設定は完全適用のためサーバー再起動が必要です。",
+    "thumbnail": {
+      "title": "サムネイル設定",
+      "subtitle": "サムネイル外部ツールと動画シーク戦略を設定します。タイプを有効化してもツールが無い場合、システムは起動しません。",
+      "apply": "サムネイル設定を適用",
+      "applied": "サムネイル設定を適用しました",
+      "applyFailed": "サムネイル設定の適用に失敗しました",
+      "loadFailed": "サムネイル設定を読み込めません",
+      "videoSeekSeconds": "動画シーク秒数",
+      "videoSeekRatio": "動画シーク比率",
+      "videoSeekHint": "比率が設定されている場合は優先されます (0.0 < ratio <= 1.0)。"
+    },
+    "unsaved": "未保存",
+    "saved": "保存済み",
+    "pendingChanges": "未反映の変更",
+    "noPendingChanges": "未反映の変更はありません",
+    "diffSummary": "差分サマリー",
+    "changedLines": "変更",
+    "addedLines": "追加",
+    "removedLines": "削除",
+    "shortcuts": {
+      "title": "クイックショートカット",
+      "subtitle": "よく使うツールと設定"
+    },
+    "pathUnavailable": "設定パスを取得できません",
+    "quickNotes": "クイックノート",
+    "example": "example",
+    "noteEmpty": "現在のキーに対応するノートはありません。",
+    "noteHint": "ノートは設定キーとセクションに対応します。",
     "license": {
+      "title": "ライセンス管理",
+      "technical": {
+        "hwId": "HW ID",
+        "auxId": "AUX ID"
+      },
       "featureCatalog": {
+        "free": {
+          "title": "Free",
+          "desc": "個人または軽負荷利用向けの基本機能。"
+        },
+        "premium": {
+          "title": "Premium",
+          "desc": "高度な機能と上位制限を解放します。"
+        },
         "storage": {
-          "title": "ストレージ"
+          "title": "ストレージ",
+          "desc": "ストレージ関連の拡張とポリシー制御。"
         }
       }
     },
     "storage": {
+      "title": "ストレージプールとバックエンド",
+      "subtitle": "vfs_storage_hub ストレージ設定のビジュアルエディター",
+      "views": {
+        "main": "メインストレージ",
+        "advanced": "詳細"
+      },
+      "tabs": {
+        "pools": "プール",
+        "connectors": "コネクタ",
+        "policies": "ポリシー"
+      },
       "fields": {
-        "name": "名前"
+        "defaultPool": "デフォルトプール",
+        "name": "名前",
+        "driver": "ドライバー",
+        "root": "ルート",
+        "enabled": "有効",
+        "options": "詳細オプション"
+      },
+      "actions": {
+        "addConnector": "コネクタを追加",
+        "addPool": "プールを追加",
+        "addPolicy": "ポリシーを追加",
+        "addOption": "オプションを追加",
+        "pickDirectory": "ディレクトリを選択",
+        "apply": "設定へ書き込む"
       }
     },
     "quickWizard": {
+      "title": "クイック設定ウィザード",
+      "subtitle": "使いやすいフォームはページの設定エディターと同期されます。",
+      "steps": {
+        "performance": "パフォーマンス最適化",
+        "database": "データベース",
+        "cache": "キャッシュ",
+        "advanced": "共通詳細設定",
+        "other": "その他設定"
+      },
       "fields": {
-        "password": "パスワード"
+        "dbType": "DB タイプ",
+        "host": "ホスト",
+        "port": "ポート",
+        "user": "ユーザー",
+        "password": "パスワード",
+        "databaseName": "データベース名",
+        "cacheType": "キャッシュタイプ",
+        "useTls": "TLS を使用",
+        "redisUrl": "Redis URL",
+        "licenseKey": "ライセンスキー",
+        "enableRegistration": "登録を有効化"
+      },
+      "options": {
+        "postgres": "PostgreSQL",
+        "sqlite": "SQLite",
+        "enabled": "有効",
+        "disabled": "無効"
       },
       "actions": {
-        "next": "次へ"
+        "previous": "前へ",
+        "next": "次へ",
+        "done": "完全な設定ファイルを表示"
       }
     }
+  },
+  "edit": {
+    "identity": "本人情報",
+    "fullName": "氏名",
+    "fullNamePlaceholder": "氏名",
+    "nickname": "ニックネーム",
+    "nicknamePlaceholder": "ニックネーム",
+    "email": "メールアドレス",
+    "emailPlaceholder": "email@example.com",
+    "phone": "電話番号",
+    "phonePlaceholder": "+86...",
+    "phoneExtraPlaceholder": "+86 138...",
+    "role": "システムロール",
+    "storageVfs": "ストレージと VFS",
+    "homeDir": "ホームディレクトリ（ベースディレクトリ）",
+    "homeDirPlaceholder": "/physical/path/to/data",
+    "quota": "ストレージクォータ",
+    "quotaPlaceholder": "0 は無制限",
+    "pool": "ストレージプール（プール名）",
+    "poolPlaceholder": "default",
+    "s3Credentials": "S3 認証情報",
+    "s3AccessKey": "S3 Access Key",
+    "s3SecretKey": "S3 Secret Key",
+    "s3AccessKeyPlaceholder": "Access Key を入力",
+    "s3SecretKeyPlaceholder": "Secret Key を入力",
+    "s3KeysHint": "* 管理者は S3 キーを手動設定/リセットできます。空欄の場合、このユーザーの S3 アクセスは無効になります。",
+    "passwordPlaceholder": "••••••••",
+    "unlimited": "無制限",
+    "sftpPass": "SFTP パスワード認証",
+    "sftpPassDesc": "パスワードで SFTP ログインを許可",
+    "saveChanges": "変更を保存",
+    "usageStats": "使用状況",
+    "occupied": "使用済み容量",
+    "quotaUsage": "クォータ使用率",
+    "criticalActions": "重要操作",
+    "forceReset": "パスワードを強制リセット",
+    "softDelete": "アカウントをソフト削除",
+    "accessing": "ユーザー情報にアクセス中...",
+    "recalibrateSuccess": "ストレージ使用量を再計算しました"
   }
 }
