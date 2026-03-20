@@ -23,7 +23,7 @@
     "title": "Seleccione el perfil de rendimiento",
     "subtitle": "Elija un punto de partida según su hardware. Podrá personalizarlo todo en el siguiente paso.",
     "low": {
-      "name": "Eco / IoT",
+      "name": "Economico / IoT",
       "desc": "Ideal para Raspberry Pi o VPS de 1GB. SQLite ligero y caché en memoria."
     },
     "medium": {
@@ -44,7 +44,7 @@
     "rawToml": "Vista previa de configuración (TOML)",
     "useTls": "Usar conexión segura (TLS/SSL)",
     "dbType": "Tipo de base de datos",
-    "host": "Host",
+    "host": "Servidor",
     "port": "Puerto",
     "username": "Usuario",
     "password": "Contraseña",

@@ -7,7 +7,7 @@
     "step": "Étape",
     "profile": "Profil",
     "database": "Base de données",
-    "cache": "Cache",
+    "cache": "Memoire cache",
     "advanced": "Réglages",
     "config": "Revue",
     "admin": "Admin",
@@ -27,11 +27,11 @@
       "desc": "Parfait pour Raspberry Pi ou VPS 1GB. SQLite léger et cache en mémoire."
     },
     "medium": {
-      "name": "Standard",
+      "name": "Profil standard",
       "desc": "Réglage équilibré pour NAS domestique. Gestion des métadonnées fiable et efficace."
     },
     "high": {
-      "name": "Performance",
+      "name": "Profil performance",
       "desc": "Niveau production. Idéal avec PostgreSQL et Redis pour de gros clusters de fichiers."
     }
   },
@@ -45,7 +45,7 @@
     "useTls": "Utiliser une connexion sécurisée (TLS/SSL)",
     "dbType": "Type de base de données",
     "host": "Hôte",
-    "port": "Port",
+    "port": "Port reseau",
     "username": "Nom d'utilisateur",
     "password": "Mot de passe",
     "dbName": "Nom de la base",
