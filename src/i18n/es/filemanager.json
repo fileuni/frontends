@@ -53,9 +53,9 @@
     "enableDirectDesc": "Permite omitir la página de vista previa y acceder al contenido directamente",
     "writePermissionsLabel": "Permisos de escritura del directorio",
     "writePermissionsDesc": "READ siempre está habilitado. Las opciones siguientes están desactivadas por defecto: UPLOAD solo puede crear archivos nuevos; UPDATE solo puede sobrescribir archivos existentes; DEL puede eliminar entradas en este directorio compartido.",
-    "permissionUpload": "UPLOAD",
-    "permissionUpdateNoCreate": "UPDATE (NO CREATE)",
-    "permissionDelete": "DEL",
+    "permissionUpload": "SUBIR",
+    "permissionUpdateNoCreate": "ACTUALIZAR (SIN CREAR)",
+    "permissionDelete": "ELIM",
     "unlimited": "Ilimitado",
     "expire1Day": "1 día",
     "expire7Days": "7 días",
@@ -103,10 +103,10 @@
     "shareUrlLabel": "URL de compartición",
     "accessPasswordLabel": "Contraseña de acceso",
     "protected": "Protegido",
-    "preset24h": "24h",
-    "preset7d": "7D",
-    "preset30d": "30D",
-    "presetForever": "∞"
+    "preset24h": "24 h",
+    "preset7d": "7 dias",
+    "preset30d": "30 dias",
+    "presetForever": "Sin caducidad"
   },
   "previewModal": {
     "viewer": "Visor",
@@ -172,7 +172,7 @@
     "format": "Formato",
     "level": "Nivel (0-9)",
     "targetPath": "Ruta de destino",
-    "targetPathPlaceholder": "/",
+    "targetPathPlaceholder": "/ (ruta destino)",
     "targetPathHint": "Elija el directorio de destino. Debe comenzar con '/'.",
     "overwrite": "Sobrescribir existentes",
     "overwriteHint": "Si se deshabilita, se conservarán los archivos existentes.",
@@ -238,11 +238,11 @@
     "types": {
       "image": "Imágenes",
       "video": "Vídeos",
-      "pdf": "PDF",
-      "office": "Office",
+      "pdf": "Documentos PDF",
+      "office": "Documentos Office",
       "text": "Texto",
-      "markdown": "Markdown",
-      "tex": "LaTeX"
+      "markdown": "Documento Markdown",
+      "tex": "Documento LaTeX"
     },
     "confirmClearDir": "¿Borrar miniaturas en esta carpeta?",
     "confirmClearAll": "¿Borrar todas las miniaturas?",
@@ -293,7 +293,7 @@
     "saveAndReload": "Guardar y recargar",
     "reset": "Restablecer",
     "cdnSaved": "Configuración de CDN guardada. Actualice para aplicar.",
-    "markdownEngine": "Markdown",
+    "markdownEngine": "Motor Markdown",
     "autoSaveFailed": "Falló el guardado automático"
   },
   "messages": {
@@ -379,7 +379,7 @@
     "progress": "Progreso",
     "success": "Éxito",
     "failed": "Fallida",
-    "total": "Total",
+    "total": "Total de elementos",
     "totalSize": "Tamaño total",
     "failedItems": "Elementos fallidos",
     "showDetails": "Mostrar detalles",
