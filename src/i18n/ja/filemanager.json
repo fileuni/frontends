@@ -238,11 +238,11 @@
     "types": {
       "image": "画像",
       "video": "動画",
-      "pdf": "PDF",
-      "office": "Office",
+      "pdf": "PDF ドキュメント",
+      "office": "Office ドキュメント",
       "text": "テキスト",
-      "markdown": "Markdown",
-      "tex": "LaTeX"
+      "markdown": "Markdown ドキュメント",
+      "tex": "LaTeX ドキュメント"
     },
     "confirmClearDir": "このフォルダのサムネイルをクリアしますか？",
     "confirmClearAll": "すべてのサムネイルをクリアしますか？",

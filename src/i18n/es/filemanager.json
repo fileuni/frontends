@@ -122,7 +122,7 @@
     "noAppsFound": "No se encontraron aplicaciones"
   },
   "officeLite": {
-    "name": "Office Lite",
+    "name": "Oficina ligera",
     "openTitle": "Abrir archivo de Office",
     "openHint": "Elija un método para abrir este documento.",
     "externalViewerHint": "Los visores externos requieren que la URL sea accesible públicamente.",
@@ -152,15 +152,15 @@
     "cdnReset": "Restablecer"
   },
   "texPreview": {
-    "subtitle": "LaTeX",
+    "subtitle": "Vista LaTeX",
     "render": "Renderizar",
     "rendering": "Renderizando",
     "noPreview": "Aún no hay vista previa",
     "disabled": "Vista previa deshabilitada",
     "mode": {
-      "latexmk": "Latexmk",
-      "latexjs": "Latex.js",
-      "monaco": "Monaco"
+      "latexmk": "Compilacion Latexmk",
+      "latexjs": "Render Latex.js",
+      "monaco": "Editor Monaco"
     }
   },
   "archive": {
