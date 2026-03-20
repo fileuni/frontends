@@ -181,6 +181,8 @@ interface PerformanceTuningPlan {
   fileIndexMaxFilesPerRefresh: number;
   fileIndexMaxFilesPerRefreshLowMemory: number;
   fileIndexMaxFilesPerRefreshThroughput: number;
+  fileIndexAdminConsistencyBatchSize: number;
+  fileIndexRefreshTimeout: number;
   readCache: {
     backend: 'memory' | 'local_dir';
     capacityBytes: number;
@@ -721,6 +723,14 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
       : preset.tier === 'low'
         ? 1024
         : 512;
+  const fileIndexAdminConsistencyBatchSize = Math.min(1000, Math.max(50, Math.floor(fileIndexMaxFilesPerRefresh / 4)));
+  const fileIndexRefreshTimeout = preset.tier === 'good'
+    ? (isHeavyProfile ? 900 : 600)
+    : preset.tier === 'medium'
+      ? 480
+      : preset.tier === 'low'
+        ? 360
+        : 300;
   const readCache = preset.tier === 'good'
     ? {
         backend: 'memory' as const,
@@ -840,6 +850,8 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
     fileIndexMaxFilesPerRefresh,
     fileIndexMaxFilesPerRefreshLowMemory,
     fileIndexMaxFilesPerRefreshThroughput,
+    fileIndexAdminConsistencyBatchSize,
+    fileIndexRefreshTimeout,
     readCache,
     writeCache,
     compressionConcurrency,
@@ -1349,6 +1361,8 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     fileIndex.max_files_per_refresh = tuningPlan.fileIndexMaxFilesPerRefresh;
     fileIndex.max_files_per_refresh_low_memory = tuningPlan.fileIndexMaxFilesPerRefreshLowMemory;
     fileIndex.max_files_per_refresh_throughput = tuningPlan.fileIndexMaxFilesPerRefreshThroughput;
+    fileIndex.admin_consistency_check_batch_size = tuningPlan.fileIndexAdminConsistencyBatchSize;
+    fileIndex.refresh_timeout = tuningPlan.fileIndexRefreshTimeout;
 
     const taskRegistry = ensureRecord(next, 'task_registry');
     const bloomWarmup = ensureRecord(taskRegistry, 'bloom_filter_warmup');
@@ -1621,6 +1635,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('vfs_storage_hub.file_index.max_files_per_refresh', previewTuningPlan.fileIndexMaxFilesPerRefresh);
     pushItem('vfs_storage_hub.file_index.max_files_per_refresh_low_memory', previewTuningPlan.fileIndexMaxFilesPerRefreshLowMemory);
     pushItem('vfs_storage_hub.file_index.max_files_per_refresh_throughput', previewTuningPlan.fileIndexMaxFilesPerRefreshThroughput);
+    pushItem('vfs_storage_hub.file_index.admin_consistency_check_batch_size', previewTuningPlan.fileIndexAdminConsistencyBatchSize);
+    pushItem('vfs_storage_hub.file_index.refresh_timeout', previewTuningPlan.fileIndexRefreshTimeout);
     pushItem('vfs_storage_hub.read_cache.enable', false);
     pushItem('vfs_storage_hub.read_cache.backend', previewTuningPlan.readCache.backend);
     pushItem('vfs_storage_hub.read_cache.capacity_bytes', previewTuningPlan.readCache.capacityBytes);
