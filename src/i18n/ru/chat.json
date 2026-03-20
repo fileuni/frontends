@@ -12,8 +12,8 @@
   "encryptionKey": "Ключ шифрования",
   "transportBackend": "Транспорт",
   "transport": {
-    "ws": "WebSocket",
-    "mqttProxy": "MQTT Proxy",
+    "ws": "Канал WebSocket",
+    "mqttProxy": "MQTT-прокси",
     "mqttExternal": "Внешний MQTT"
   },
   "topicPrefix": "Префикс топика",

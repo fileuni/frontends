@@ -1,7 +1,7 @@
 {
-  "title": "Chat",
-  "pageTitle": "Chat",
-  "tabTitle": "Chat",
+  "title": "Messagerie",
+  "pageTitle": "Messagerie",
+  "tabTitle": "Messagerie",
   "openFull": "Ouvrir le chat complet",
   "openFloating": "Ouvrir en fenêtre flottante",
   "targetPlaceholder": "ID cible (utilisateur ou invité)",
@@ -12,7 +12,7 @@
   "encryptionKey": "Clé de chiffrement",
   "transportBackend": "Backend de transport",
   "transport": {
-    "ws": "WebSocket",
+    "ws": "Canal WebSocket",
     "mqttProxy": "Proxy MQTT",
     "mqttExternal": "MQTT externe"
   },
@@ -37,8 +37,8 @@
   "p2pTransport": "Transport P2P",
   "multiBackend": "Backend multi-protocole",
   "disabled": "Chat désactivé",
-  "conversations": "Conversations",
-  "chats": "Chats",
+  "conversations": "Discussions",
+  "chats": "Salons",
   "profile": "Profil",
   "send": "Envoyer",
   "nicknameOptional": "Optionnel",
@@ -81,7 +81,7 @@
   "me": "Moi",
   "group": "Groupe",
   "defaultWelcome": "Commencez à discuter ici...",
-  "directMode": "Direct",
+  "directMode": "Privé",
   "selectTarget": "Sélectionnez un contact",
   "nickname": "Votre pseudo",
   "identifying": "Identification et connexion...",
@@ -159,7 +159,7 @@
   "rate_limit_exceeded": "Limite de débit dépassée. Veuillez patienter.",
   "message_too_large": "Message trop volumineux (max {{size}} octets).",
   "tabs": {
-    "chats": "Chats",
+    "chats": "Salons",
     "invites": "Invitations",
     "groups": "Groupes",
     "settings": "Paramètres",

@@ -12,7 +12,7 @@
   "encryptionKey": "暗号化キー",
   "transportBackend": "トランスポート",
   "transport": {
-    "ws": "WebSocket",
+    "ws": "WebSocket チャネル",
     "mqttProxy": "MQTT プロキシ",
     "mqttExternal": "外部 MQTT"
   },
