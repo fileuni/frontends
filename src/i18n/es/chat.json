@@ -1,7 +1,7 @@
 {
-  "title": "Chat",
-  "pageTitle": "Chat",
-  "tabTitle": "Chat",
+  "title": "Mensajería",
+  "pageTitle": "Mensajería",
+  "tabTitle": "Mensajería",
   "openFull": "Abrir chat completo",
   "openFloating": "Abrir flotante",
   "targetPlaceholder": "ID de destino (usuario o invitado)",
@@ -12,7 +12,7 @@
   "encryptionKey": "Clave de cifrado",
   "transportBackend": "Backend de transporte",
   "transport": {
-    "ws": "WebSocket",
+    "ws": "Canal WebSocket",
     "mqttProxy": "Proxy MQTT",
     "mqttExternal": "MQTT externo"
   },
@@ -38,7 +38,7 @@
   "multiBackend": "Backend multiprotocolo",
   "disabled": "Chat deshabilitado",
   "conversations": "Conversaciones",
-  "chats": "Chats",
+  "chats": "Conversaciones",
   "profile": "Perfil",
   "send": "Enviar",
   "nicknameOptional": "Opcional",
@@ -159,7 +159,7 @@
   "rate_limit_exceeded": "Se excedió el límite de velocidad. Espere un momento.",
   "message_too_large": "El contenido del mensaje es demasiado grande (máx. {{size}} bytes).",
   "tabs": {
-    "chats": "Chats",
+    "chats": "Conversaciones",
     "invites": "Invitaciones",
     "groups": "Grupos",
     "settings": "Ajustes",
