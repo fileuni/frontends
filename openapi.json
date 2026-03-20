@@ -15800,7 +15800,8 @@
         "type": "object",
         "required": [
           "issue",
-          "diagnostics"
+          "diagnostics",
+          "recommended_actions"
         ],
         "properties": {
           "diagnostics": {
@@ -15811,6 +15812,12 @@
           },
           "issue": {
             "$ref": "#/components/schemas/WalIssueEntryResponse"
+          },
+          "recommended_actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WalRecommendedActionResponse"
+            }
           }
         }
       },
@@ -16189,6 +16196,28 @@
             ],
             "format": "int64",
             "minimum": 0
+          }
+        }
+      },
+      "WalRecommendedActionResponse": {
+        "type": "object",
+        "required": [
+          "action",
+          "reason_code",
+          "signals"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "reason_code": {
+            "type": "string"
+          },
+          "signals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

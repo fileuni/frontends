@@ -4968,6 +4968,7 @@ export interface components {
         WalIssueDiagnosticsResponse: {
             diagnostics: components["schemas"]["WalPathDiagnosticResponse"][];
             issue: components["schemas"]["WalIssueEntryResponse"];
+            recommended_actions: components["schemas"]["WalRecommendedActionResponse"][];
         };
         WalIssueEntryResponse: {
             completed_at?: string | null;
@@ -5063,6 +5064,11 @@ export interface components {
             path: string;
             /** Format: int64 */
             size?: number | null;
+        };
+        WalRecommendedActionResponse: {
+            action: string;
+            reason_code: string;
+            signals: string[];
         };
         WopiHostResponse: {
             /**
