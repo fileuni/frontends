@@ -148,7 +148,7 @@
   "web": {
     "title": "Gestion des sites Web",
     "subtitle": "Un site unique prend en charge plusieurs domaines, IP et ports",
-    "tls": "TLS",
+    "tls": "TLS securise",
     "newSite": "Nouveau site",
     "editSite": "Modifier le site",
     "reload": "Recharger l'exécution",
@@ -164,12 +164,12 @@
       "proxy": "Sites proxy"
     },
     "table": {
-      "site": "Site",
-      "bindings": "Binding",
+      "site": "Site web",
+      "bindings": "Liaisons",
       "hostnames": "Hostnames",
       "mode": "Mode",
       "status": "Statut",
-      "actions": "Actions"
+      "actions": "Operations"
     },
     "form": {
       "siteName": "Nom du site",
@@ -226,7 +226,7 @@
     "diagnostics": {
       "title": "Diagnostics des listeners",
       "desc": "Le matching type Nginx sélectionne d'abord l'endpoint du listener, puis fait correspondre Host. Ce panneau montre les conflits actuels et inter-sites par groupe de listeners.",
-      "listenerCount": "Listeners {{count}}",
+      "listenerCount": "Ecoutes {{count}}",
       "current": "Site courant",
       "remote": "Autres sites",
       "conflict": "Conflit",
@@ -357,8 +357,8 @@
     "showBulkCreate": "Afficher",
     "hideBulkCreate": "Masquer",
     "ddnsSavedRunNowConfirm": "Enregistré avec succès. Exécuter une fois maintenant ?",
-    "ddnsLogs": "Logs",
-    "certLogs": "Logs",
+    "ddnsLogs": "Journaux DDNS",
+    "certLogs": "Journaux certificat",
     "certExpiresAt": "Expire",
     "ddnsLimitReached": "Limite d'entrées DDNS atteinte (max=100)",
     "dnsDiagHint": "Le diagnostic DNS utilise les serveurs DoH configurés dans domain_acme_ddns.dns_servers. S'ils sont inaccessibles, ajoutez plusieurs endpoints DoH ou vérifiez proxy/réseau.",
@@ -388,7 +388,7 @@
     "enableSchedulerHint": "Assurez-vous aussi que la tâche planifiée associée est activée dans [task_registry].",
     "forceUpdate": "Forcer la mise à jour",
     "forceUpdateHint": "Si activé, la prochaine exécution fera un upsert des enregistrements même si l'IP n'a pas changé.",
-    "webhookTitle": "Webhook",
+    "webhookTitle": "Webhook de notification",
     "webhookJson": "Champs du webhook",
     "webhookJsonPlaceholder": "Ajouter des champs clé/valeur",
     "webhookJsonHint": "Principalement utilisé par le fournisseur callback et fusionné comme champs supplémentaires dans la charge utile callback.",
@@ -476,7 +476,7 @@
     "providerZerossl": "ZeroSSL"
   },
   "ddns": {
-    "title": "DDNS",
+    "title": "DNS dynamique (DDNS)",
     "subtitle": "Configurer le fournisseur, les enregistrements IPv4/IPv6, la détection de source et le webhook",
     "loading": "Chargement des configurations DDNS...",
     "defaultConfigName": "Nouvelle config DDNS",
@@ -514,7 +514,7 @@
     "commandPlaceholder": "Commande shell pour détecter l'IP",
     "domainsPlaceholder": "Un domaine par ligne, supporte le format sous:zone",
     "ipv6RegexPlaceholder": "Regex IPv6 ou @N (p. ex. @1)",
-    "webhookTitle": "Webhook",
+    "webhookTitle": "Webhook de notification",
     "webhookUrlPlaceholder": "URL du webhook",
     "webhookBodyPlaceholder": "Modèle du corps de requête du webhook",
     "webhookHeadersPlaceholder": "Un en-tête par ligne, format : Key: Value",
@@ -539,8 +539,8 @@
     "domainHintManual": "Analyse manuelle : www:example.com",
     "saveConfirmTitle": "Enregistrer la configuration DDNS",
     "saveConfirmMsg": "L'enregistrement remplacera les enregistrements du groupe courant. Continuer ?",
-    "ttlLabel": "TTL",
-    "secretPlaceholder": "Secret",
+    "ttlLabel": "TTL (secondes)",
+    "secretPlaceholder": "Cle secrete",
     "ipv6SupportYes": "oui",
     "ipv6SupportNo": "non",
     "providers": {
@@ -595,7 +595,7 @@
       "domains": "Domaines",
       "expiresAt": "Expire le",
       "status": "Statut",
-      "actions": "Actions"
+      "actions": "Operations"
     },
     "form": {
       "name": "Nom du certificat",
@@ -697,7 +697,7 @@
       "role": "Rôle",
       "status": "Statut",
       "created": "Créé le",
-      "actions": "Actions"
+      "actions": "Operations"
     },
     "roles": {
       "admin": "Admin",
@@ -805,7 +805,7 @@
       "status": "Niveau",
       "reason": "Raison / Note",
       "expires": "Expire le",
-      "actions": "Actions"
+      "actions": "Operations"
     }
   },
   "settings": {
@@ -1024,7 +1024,7 @@
       "steps": {
         "performance": "Optimisation des performances",
         "database": "Base de données",
-        "cache": "Cache",
+        "cache": "Memoire cache",
         "advanced": "Avancé commun",
         "other": "Autre configuration"
       },
@@ -1032,7 +1032,7 @@
         "dbType": "Type de BD",
         "healthTimeoutSeconds": "Timeout santé (secondes)",
         "host": "Hôte",
-        "port": "Port",
+        "port": "Port reseau",
         "user": "Utilisateur",
         "password": "Mot de passe",
         "databaseName": "Nom de base",
@@ -1092,7 +1092,7 @@
         "allocatorRecommendationOthers": "Recommandation allocator ({{os}}) : mimalloc",
         "maxConnections": "Maximum {{count}} connexions",
         "recommendedSettings": "Aperçu d'optimisation des performances",
-        "featureCompression": "Compression",
+        "featureCompression": "Compression des donnees",
         "featureSftp": "Service SFTP",
         "featureFtp": "Service FTP",
         "featureWebdav": "Service WebDAV",
@@ -1111,7 +1111,7 @@
           "groupStats": "Statistiques des groupes de modules",
           "groups": {
             "database": "Base de données",
-            "cache": "Cache",
+            "cache": "Memoire cache",
             "middleware": "Middleware de limitation de débit",
             "captcha": "Pré-chauffage captcha",
             "allocator": "Allocator mémoire",
@@ -1206,7 +1206,7 @@
     "pool": "Pool de stockage (nom du pool)",
     "poolPlaceholder": "default",
     "s3Credentials": "Identifiants S3",
-    "s3AccessKey": "S3 Access Key",
+    "s3AccessKey": "Cle d'acces S3",
     "s3SecretKey": "S3 Secret Key",
     "s3AccessKeyPlaceholder": "Saisir Access Key",
     "s3SecretKeyPlaceholder": "Saisir Secret Key",

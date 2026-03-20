@@ -148,7 +148,7 @@
   "web": {
     "title": "Gestión de sitios web",
     "subtitle": "Un sitio admite múltiples dominios, IPs y puertos",
-    "tls": "TLS",
+    "tls": "TLS seguro",
     "newSite": "Nuevo sitio",
     "editSite": "Editar sitio",
     "reload": "Recargar entorno",
@@ -166,7 +166,7 @@
     "table": {
       "site": "Sitio",
       "bindings": "Enlace",
-      "hostnames": "Hostnames",
+      "hostnames": "Dominios",
       "mode": "Modo",
       "status": "Estado",
       "actions": "Acciones"
@@ -183,7 +183,7 @@
       "proxyUpstream": "Upstream",
       "proxyTlsInsecure": "Ignorar errores de certificado TLS del upstream",
       "proxyTlsInsecureHint": "Solo disponible cuando el upstream empieza con https://",
-      "hostnames": "Hostnames",
+      "hostnames": "Dominios",
       "listenIps": "IPs de escucha",
       "listenPorts": "Puertos de escucha",
       "tlsAcmeCert": "Certificado ACME",
@@ -192,7 +192,7 @@
       "tlsKeyPath": "Ruta de la clave TLS",
       "proxyHeaders": "Encabezados de solicitud personalizados (JSON)",
       "proxyHeadersHint": "Encabezados HTTP adicionales enviados al upstream; debe ser un objeto JSON",
-      "ip": "IP",
+      "ip": "Direccion IP",
       "port": "Puerto",
       "default": "Predeterminado",
       "hostnameSuggestionHint": "Use dominios gestionados por DDNS como sugerencias de hostname.",
@@ -226,7 +226,7 @@
     "diagnostics": {
       "title": "Diagnóstico de listeners",
       "desc": "La coincidencia estilo Nginx primero selecciona el endpoint del listener y luego compara Host. Este panel muestra conflictos actuales y entre sitios por grupo de listener.",
-      "listenerCount": "Listeners {{count}}",
+      "listenerCount": "Escuchas {{count}}",
       "current": "Sitio actual",
       "remote": "Otros sitios",
       "conflict": "Conflicto",
@@ -302,7 +302,7 @@
     "noDdnsEntries": "No hay entradas DDNS",
     "ddnsTitle": "DDNS",
     "acmeTitle": "Certificados",
-    "sslPlan": "Plan",
+    "sslPlan": "Planificacion",
     "sslPlanDesc": "Vista previa de renovaciones planificadas y diagnósticos.",
     "onlyNeedRenew": "Solo necesita renovar",
     "acmeAutoRenewHint": "Regla de renovación automática: la comprobación del programador (diaria por defecto) y la comprobación manual renuevan los certificados cuyos días restantes son menores que el umbral configurado. La actualización forzada ignora los días restantes.",
@@ -367,7 +367,7 @@
     "ddnsRunAllCompleted": "Ejecución DDNS (todas) completada",
     "ddnsRunNow": "Ejecutar ahora",
     "ddnsInspect": "Inspeccionar",
-    "ddnsPlan": "Plan",
+    "ddnsPlan": "Planificacion",
     "ddnsPlanDesc": "Vista previa de actualizaciones planificadas y diagnósticos.",
     "filter": "Filtrar",
     "failedOnly": "Solo fallidos",
@@ -388,7 +388,7 @@
     "enableSchedulerHint": "Asegúrese también de que el trabajo programado relacionado esté habilitado en [task_registry].",
     "forceUpdate": "Forzar actualización",
     "forceUpdateHint": "Cuando está habilitado, la próxima ejecución hará upsert de registros incluso si la IP no ha cambiado.",
-    "webhookTitle": "Webhook",
+    "webhookTitle": "Webhook de notificacion",
     "webhookJson": "Campos del webhook",
     "webhookJsonPlaceholder": "Añadir campos clave/valor",
     "webhookJsonHint": "Se usa principalmente por el proveedor callback y se fusiona como campos extra en la carga útil del callback.",
@@ -476,7 +476,7 @@
     "providerZerossl": "ZeroSSL"
   },
   "ddns": {
-    "title": "DDNS",
+    "title": "DNS dinamico (DDNS)",
     "subtitle": "Configure proveedor, registros IPv4/IPv6, detección de origen y webhook",
     "loading": "Cargando configuraciones DDNS...",
     "defaultConfigName": "Nueva configuración DDNS",
@@ -514,7 +514,7 @@
     "commandPlaceholder": "Comando de shell para detectar IP",
     "domainsPlaceholder": "Un dominio por línea, admite formato sub:zona",
     "ipv6RegexPlaceholder": "Regex IPv6 o @N (p. ej., @1)",
-    "webhookTitle": "Webhook",
+    "webhookTitle": "Webhook de notificacion",
     "webhookUrlPlaceholder": "URL del webhook",
     "webhookBodyPlaceholder": "Plantilla del cuerpo de la solicitud del webhook",
     "webhookHeadersPlaceholder": "Un encabezado por línea, formato: Key: Value",
@@ -539,7 +539,7 @@
     "domainHintManual": "Análisis manual: www:example.com",
     "saveConfirmTitle": "Guardar configuración DDNS",
     "saveConfirmMsg": "Guardar reemplazará los registros en el grupo de configuración actual. ¿Continuar?",
-    "ttlLabel": "TTL",
+    "ttlLabel": "TTL (segundos)",
     "secretPlaceholder": "Secreto",
     "ipv6SupportYes": "sí",
     "ipv6SupportNo": "no",
@@ -700,7 +700,7 @@
       "actions": "Acciones"
     },
     "roles": {
-      "admin": "Admin",
+      "admin": "Administrador",
       "user": "Usuario"
     },
     "status": {
@@ -917,14 +917,14 @@
         "noPrimaryConnector": "El pool por defecto no tiene primary_connector configurado. Seleccione uno primero o corríjalo en modo avanzado."
       },
       "tabs": {
-        "pools": "Pools",
+        "pools": "Grupos de almacenamiento",
         "connectors": "Conectores",
         "policies": "Políticas"
       },
       "fields": {
         "defaultPool": "Pool por defecto",
         "name": "Nombre",
-        "driver": "Driver",
+        "driver": "Controlador",
         "root": "Raíz",
         "enabled": "Habilitado",
         "options": "Opciones avanzadas"
@@ -944,7 +944,7 @@
       },
       "pools": {
         "title": "Lista de pools",
-        "pool": "Pool",
+        "pool": "Grupo",
         "primary": "Conector principal",
         "backup": "Conector de respaldo",
         "writeCache": "Caché de escritura"
@@ -955,7 +955,7 @@
         "empty": "No hay políticas actualmente (policies = []).",
         "policy": "Política",
         "roleId": "ID de rol",
-        "poolName": "Pool",
+        "poolName": "Grupo",
         "defaultQuota": "Cuota por defecto (bytes)"
       },
       "actions": {
@@ -1031,7 +1031,7 @@
       "fields": {
         "dbType": "Tipo de BD",
         "healthTimeoutSeconds": "Tiempo de espera de salud (segundos)",
-        "host": "Host",
+        "host": "Servidor",
         "port": "Puerto",
         "user": "Usuario",
         "password": "Contraseña",
@@ -1206,8 +1206,8 @@
     "pool": "Pool de almacenamiento (nombre del pool)",
     "poolPlaceholder": "default",
     "s3Credentials": "Credenciales S3",
-    "s3AccessKey": "S3 Access Key",
-    "s3SecretKey": "S3 Secret Key",
+    "s3AccessKey": "Clave de acceso S3",
+    "s3SecretKey": "Clave secreta S3",
     "s3AccessKeyPlaceholder": "Introduzca Access Key",
     "s3SecretKeyPlaceholder": "Introduzca Secret Key",
     "s3KeysHint": "* El administrador puede establecer o restablecer manualmente las claves S3. Si se dejan vacías, se deshabilita el acceso S3 para este usuario.",
