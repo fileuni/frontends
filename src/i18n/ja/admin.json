@@ -910,6 +910,12 @@
         "main": "メインストレージ",
         "advanced": "詳細"
       },
+      "main": {
+        "hint": "プライマリストレージのクイック編集",
+        "openAdvanced": "詳細を開く",
+        "desc": "このビューでは default pool の primary connector のみ編集します。プール/コネクタ/ポリシーの管理は詳細モードを使用してください。",
+        "noPrimaryConnector": "default pool に primary_connector が設定されていません。先に選択するか、詳細モードで修正してください。"
+      },
       "tabs": {
         "pools": "プール",
         "connectors": "コネクタ",
@@ -923,18 +929,98 @@
         "enabled": "有効",
         "options": "詳細オプション"
       },
+      "drivers": {
+        "fs": "ローカルファイルシステム (fs)",
+        "s3": "S3 互換 (s3)",
+        "webdav": "WebDAV (webdav)",
+        "memory": "メモリ (memory, Dev)",
+        "android_saf": "Android SAF (android_saf)",
+        "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+      },
+      "connectors": {
+        "title": "コネクタ一覧",
+        "connector": "コネクタ",
+        "commonOptions": "共通オプション"
+      },
+      "pools": {
+        "title": "プール一覧",
+        "pool": "プール",
+        "primary": "プライマリコネクタ",
+        "backup": "バックアップコネクタ",
+        "writeCache": "書き込みキャッシュ"
+      },
+      "policies": {
+        "title": "ストレージポリシー",
+        "hint": "任意: role_id を pool_name と default_quota (bytes) にマップします。空の場合は default_pool を使用します。",
+        "empty": "現在ポリシーはありません (policies = [])。",
+        "policy": "ポリシー",
+        "roleId": "ロール ID",
+        "poolName": "プール",
+        "defaultQuota": "デフォルトクォータ (bytes)"
+      },
       "actions": {
         "addConnector": "コネクタを追加",
         "addPool": "プールを追加",
         "addPolicy": "ポリシーを追加",
         "addOption": "オプションを追加",
         "pickDirectory": "ディレクトリを選択",
+        "resetLocal": "ローカルストレージ既定値にリセット",
         "apply": "設定へ書き込む"
+      },
+      "placeholders": {
+        "optionKey": "キー",
+        "optionValue": "値",
+        "root": {
+          "fs": "{APPDATADIR}/vfs",
+          "s3": "/ (ルートプレフィックス)",
+          "webdav": "/",
+          "memory": "/",
+          "android_saf": "content://...",
+          "ios_scoped_fs": "bookmark_b64:<BASE64>"
+        }
+      },
+      "hints": {
+        "root": {
+          "fs": "ローカルディレクトリパス。モバイルでは APPDATADIR サンドボックス配下である必要があります。",
+          "s3": "S3 ルートプレフィックス。",
+          "webdav": "WebDAV ルートパス。",
+          "memory": "memory backend の root は config バリデーションを満たすためにのみ使用されます。",
+          "android_saf": "Android SAF で許可された Tree URI (content://...)。",
+          "ios_scoped_fs": "iOS security-scoped bookmark。bookmark_b64: で始まる必要があります。"
+        }
+      },
+      "validation": {
+        "title": "バリデーション失敗",
+        "minimumOneConnector": "少なくとも 1 つのコネクタが必要です",
+        "minimumOnePool": "少なくとも 1 つのプールが必要です",
+        "errors": {
+          "parseRoot": "TOML の root はオブジェクトである必要があります",
+          "parseFailed": "config の解析に失敗しました: {{message}}",
+          "atLeastOneConnector": "少なくとも 1 つのコネクタが必要です",
+          "connectorNamesUnique": "コネクタ名は一意である必要があります",
+          "connectorNameRequired": "connectors[{{index}}].name は必須です",
+          "connectorDriverRequired": "connectors[{{index}}].driver は必須です",
+          "connectorRootRequired": "connectors[{{index}}].root は必須です",
+          "atLeastOnePool": "少なくとも 1 つのプールが必要です",
+          "poolNamesUnique": "プール名は一意である必要があります",
+          "poolNameRequired": "pools[{{index}}].name は必須です",
+          "poolPrimaryRequired": "pools[{{index}}].primary_connector は必須です",
+          "poolPrimaryUnknown": "pools[{{index}}].primary_connector は不明なコネクタ '{{name}}' を参照しています",
+          "poolBackupUnknown": "pools[{{index}}].backup_connector は不明なコネクタ '{{name}}' を参照しています",
+          "defaultPoolRequired": "default_pool は必須です",
+          "defaultPoolNotFound": "default_pool '{{name}}' は既存のプール名と一致する必要があります",
+          "policyRoleRequired": "policies[{{index}}].role_id は必須です",
+          "policyPoolRequired": "policies[{{index}}].pool_name は必須です",
+          "policyPoolUnknown": "policies[{{index}}].pool_name は不明なプール '{{name}}' を参照しています",
+          "policyQuotaInvalid": "policies[{{index}}].default_quota は 0 以上の数値である必要があります"
+        }
       }
     },
     "quickWizard": {
       "title": "クイック設定ウィザード",
       "subtitle": "使いやすいフォームはページの設定エディターと同期されます。",
+      "parseErrorTitle": "現在の TOML はフレンドリーモードで解析できません。",
+      "parseErrorHint": "ページの設定エディターで TOML を修正してから、このウィザードを再度開いてください。",
       "steps": {
         "performance": "パフォーマンス最適化",
         "database": "データベース",
@@ -944,27 +1030,61 @@
       },
       "fields": {
         "dbType": "DB タイプ",
+        "healthTimeoutSeconds": "Health タイムアウト (秒)",
         "host": "ホスト",
         "port": "ポート",
         "user": "ユーザー",
         "password": "パスワード",
         "databaseName": "データベース名",
+        "postgresDsn": "PostgreSQL DSN",
+        "sqlitePath": "SQLite パス",
+        "sqliteDsn": "SQLite DSN",
         "cacheType": "キャッシュタイプ",
         "useTls": "TLS を使用",
         "redisUrl": "Redis URL",
+        "licenseStatus": "ライセンス状態",
+        "maxUsers": "ユーザークォータ",
+        "hwFingerprint": "ハードウェアフィンガープリント",
         "licenseKey": "ライセンスキー",
-        "enableRegistration": "登録を有効化"
+        "licenseInputPlaceholder": "Base64 ライセンスキーをここに貼り付け...",
+        "expiresAt": "有効期限",
+        "features": "有効機能",
+        "licenseHint": "ライセンスキーは公式サイトから取得してください。デバイスコードはハードウェアバインディングに使用されます。",
+        "enableRegistration": "登録を有効化",
+        "plusEnabled": "Plus 有効",
+        "plusCaptureLogs": "Plus ログ収集",
+        "captchaCodeLength": "Captcha コード長",
+        "captchaExpiresInSeconds": "Captcha 有効期限 (秒)"
       },
       "options": {
         "postgres": "PostgreSQL",
         "sqlite": "SQLite",
         "enabled": "有効",
-        "disabled": "無効"
+        "disabled": "無効",
+        "cacheValkey": "VALKEY",
+        "cacheRedis": "REDIS",
+        "cacheKeydb": "KEYDB",
+        "cacheDashmap": "DASHMAP",
+        "cacheDatabase": "DATABASE",
+        "licenseAuthorized": "認証済み",
+        "licenseUnauthorized": "未認証 / 無料版"
       },
       "actions": {
         "previous": "前へ",
         "next": "次へ",
-        "done": "完全な設定ファイルを表示"
+        "done": "完全な設定ファイルを表示",
+        "applyLicense": "ライセンスを確認",
+        "setAdminPassword": "管理者パスワードを設定"
+      },
+      "advancedActions": {
+        "intro": "高度な設定は admin config ワークスペースで管理されます。これらのクイックアクションを使用してください。",
+        "licensePlaceholder": "ライセンス管理 (placeholder)",
+        "licensePlaceholderHint": "ライセンス管理エントリは将来実装用に予約されています。",
+        "openAdminConfig": "Admin Config ワークスペースを開く",
+        "changeAdminPassword": "管理者パスワードを変更"
+      },
+      "otherActions": {
+        "intro": "ライセンス管理やストレージプール/backend 設定などの追加設定アクションはここにあります。"
       }
     }
   },

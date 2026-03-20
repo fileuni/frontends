@@ -910,6 +910,12 @@
         "main": "Основное хранилище",
         "advanced": "Расширенное"
       },
+      "main": {
+        "hint": "Быстрое редактирование основного хранилища",
+        "openAdvanced": "Открыть расширенное",
+        "desc": "Этот режим редактирует только основной коннектор пула по умолчанию. Для управления пулами/коннекторами/политиками используйте расширенный режим.",
+        "noPrimaryConnector": "В пуле по умолчанию не настроен primary_connector. Сначала выберите его или исправьте в расширенном режиме."
+      },
       "tabs": {
         "pools": "Пулы",
         "connectors": "Коннекторы",
@@ -923,18 +929,98 @@
         "enabled": "Включено",
         "options": "Расширенные параметры"
       },
+      "drivers": {
+        "fs": "Локальная файловая система (fs)",
+        "s3": "Совместимый с S3 (s3)",
+        "webdav": "WebDAV (webdav)",
+        "memory": "Память (memory, Dev)",
+        "android_saf": "Android SAF (android_saf)",
+        "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+      },
+      "connectors": {
+        "title": "Список коннекторов",
+        "connector": "Коннектор",
+        "commonOptions": "Общие параметры"
+      },
+      "pools": {
+        "title": "Список пулов",
+        "pool": "Пул",
+        "primary": "Основной коннектор",
+        "backup": "Резервный коннектор",
+        "writeCache": "Кэш записи"
+      },
+      "policies": {
+        "title": "Политики хранения",
+        "hint": "Опционально: сопоставление role_id с pool_name и default_quota (байты). Если пусто, используется default_pool.",
+        "empty": "Политики отсутствуют (policies = []).",
+        "policy": "Политика",
+        "roleId": "ID роли",
+        "poolName": "Пул",
+        "defaultQuota": "Квота по умолчанию (байты)"
+      },
       "actions": {
         "addConnector": "Добавить коннектор",
         "addPool": "Добавить пул",
         "addPolicy": "Добавить политику",
         "addOption": "Добавить опцию",
         "pickDirectory": "Выбрать директорию",
+        "resetLocal": "Сбросить к локальным значениям по умолчанию",
         "apply": "Записать в конфиг"
+      },
+      "placeholders": {
+        "optionKey": "ключ",
+        "optionValue": "значение",
+        "root": {
+          "fs": "{APPDATADIR}/vfs",
+          "s3": "/ (корневой префикс)",
+          "webdav": "/",
+          "memory": "/",
+          "android_saf": "content://...",
+          "ios_scoped_fs": "bookmark_b64:<BASE64>"
+        }
+      },
+      "hints": {
+        "root": {
+          "fs": "Путь локальной директории. На мобильных устройствах должен находиться в песочнице APPDATADIR.",
+          "s3": "Корневой префикс S3.",
+          "webdav": "Корневой путь WebDAV.",
+          "memory": "Корень backend memory используется только для прохождения валидации config.",
+          "android_saf": "Tree URI, выданный Android SAF (content://...).",
+          "ios_scoped_fs": "iOS security-scoped bookmark; должен начинаться с bookmark_b64:."
+        }
+      },
+      "validation": {
+        "title": "Ошибка валидации",
+        "minimumOneConnector": "Требуется как минимум 1 коннектор",
+        "minimumOnePool": "Требуется как минимум 1 пул",
+        "errors": {
+          "parseRoot": "Корень TOML должен быть объектом",
+          "parseFailed": "Не удалось распарсить config: {{message}}",
+          "atLeastOneConnector": "Требуется как минимум 1 коннектор",
+          "connectorNamesUnique": "Имена коннекторов должны быть уникальны",
+          "connectorNameRequired": "connectors[{{index}}].name обязателен",
+          "connectorDriverRequired": "connectors[{{index}}].driver обязателен",
+          "connectorRootRequired": "connectors[{{index}}].root обязателен",
+          "atLeastOnePool": "Требуется как минимум 1 пул",
+          "poolNamesUnique": "Имена пулов должны быть уникальны",
+          "poolNameRequired": "pools[{{index}}].name обязателен",
+          "poolPrimaryRequired": "pools[{{index}}].primary_connector обязателен",
+          "poolPrimaryUnknown": "pools[{{index}}].primary_connector ссылается на неизвестный коннектор '{{name}}'",
+          "poolBackupUnknown": "pools[{{index}}].backup_connector ссылается на неизвестный коннектор '{{name}}'",
+          "defaultPoolRequired": "default_pool обязателен",
+          "defaultPoolNotFound": "default_pool '{{name}}' должен совпадать с существующим именем пула",
+          "policyRoleRequired": "policies[{{index}}].role_id обязателен",
+          "policyPoolRequired": "policies[{{index}}].pool_name обязателен",
+          "policyPoolUnknown": "policies[{{index}}].pool_name ссылается на неизвестный пул '{{name}}'",
+          "policyQuotaInvalid": "policies[{{index}}].default_quota должен быть числом >= 0"
+        }
       }
     },
     "quickWizard": {
       "title": "Быстрый мастер конфигурации",
       "subtitle": "Удобная форма синхронизируется с редактором конфигурации на странице.",
+      "parseErrorTitle": "Текущий TOML не может быть разобран в удобном режиме.",
+      "parseErrorHint": "Исправьте TOML в редакторе конфигурации страницы, затем снова откройте мастер.",
       "steps": {
         "performance": "Оптимизация производительности",
         "database": "База данных",
@@ -944,27 +1030,61 @@
       },
       "fields": {
         "dbType": "Тип БД",
+        "healthTimeoutSeconds": "Таймаут health (секунды)",
         "host": "Хост",
         "port": "Порт",
         "user": "Пользователь",
         "password": "Пароль",
         "databaseName": "Имя базы",
+        "postgresDsn": "PostgreSQL DSN",
+        "sqlitePath": "Путь SQLite",
+        "sqliteDsn": "SQLite DSN",
         "cacheType": "Тип кэша",
         "useTls": "Использовать TLS",
         "redisUrl": "URL Redis",
+        "licenseStatus": "Статус лицензии",
+        "maxUsers": "Квота пользователей",
+        "hwFingerprint": "Аппаратный отпечаток",
         "licenseKey": "Лицензионный ключ",
-        "enableRegistration": "Разрешить регистрацию"
+        "licenseInputPlaceholder": "Вставьте сюда ваш Base64 лицензионный ключ...",
+        "expiresAt": "Истекает",
+        "features": "Включенные функции",
+        "licenseHint": "Получите лицензионный ключ на официальном сайте. Код устройства используется для привязки к оборудованию.",
+        "enableRegistration": "Разрешить регистрацию",
+        "plusEnabled": "Plus включен",
+        "plusCaptureLogs": "Plus захватывает логи",
+        "captchaCodeLength": "Длина captcha-кода",
+        "captchaExpiresInSeconds": "Срок действия captcha (секунды)"
       },
       "options": {
         "postgres": "PostgreSQL",
         "sqlite": "SQLite",
         "enabled": "Включено",
-        "disabled": "Выключено"
+        "disabled": "Выключено",
+        "cacheValkey": "VALKEY",
+        "cacheRedis": "REDIS",
+        "cacheKeydb": "KEYDB",
+        "cacheDashmap": "DASHMAP",
+        "cacheDatabase": "DATABASE",
+        "licenseAuthorized": "Авторизовано",
+        "licenseUnauthorized": "Не авторизовано / Бесплатная редакция"
       },
       "actions": {
         "previous": "Назад",
         "next": "Далее",
-        "done": "Просмотреть полный файл конфигурации"
+        "done": "Просмотреть полный файл конфигурации",
+        "applyLicense": "Проверить лицензию",
+        "setAdminPassword": "Установить пароль администратора"
+      },
+      "advancedActions": {
+        "intro": "Расширенные настройки управляются в рабочем пространстве admin config. Используйте эти быстрые действия.",
+        "licensePlaceholder": "Управление лицензией (placeholder)",
+        "licensePlaceholderHint": "Пункт управления лицензией зарезервирован для будущей реализации.",
+        "openAdminConfig": "Открыть рабочее пространство admin config",
+        "changeAdminPassword": "Сменить пароль администратора"
+      },
+      "otherActions": {
+        "intro": "Здесь находятся дополнительные действия конфигурации, например управление лицензией и настройка пулов/backend хранилища."
       }
     }
   },
