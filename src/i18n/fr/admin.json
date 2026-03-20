@@ -17,7 +17,7 @@
     "serviceControl": "Gestion du service",
     "toolActions": "Actions de l'outil",
     "taskKindHint": "Cet outil est de type tâche : généralement planifiée par le système ou exécutée manuellement, et non comme service persistant.",
-    "version": "Version",
+    "version": "Version du plugin",
     "binPath": "Chemin du binaire",
     "installDir": "Répertoire d'installation",
     "downloadTemplate": "Modèle d'URL de téléchargement",
@@ -113,7 +113,7 @@
     "no_scheduled_jobs": "Aucun job planifié trouvé (vérifiez la configuration)",
     "async_tasks": "Tâches actives et historique",
     "all_status": "Tous les statuts",
-    "type": "Type",
+    "type": "Type de tâche",
     "user": "Utilisateur",
     "progress": "Progression",
     "status": {
@@ -166,8 +166,8 @@
     "table": {
       "site": "Site web",
       "bindings": "Liaisons",
-      "hostnames": "Hostnames",
-      "mode": "Mode",
+      "hostnames": "Noms d'hôte",
+      "mode": "Mode de service",
       "status": "Statut",
       "actions": "Operations"
     },
@@ -183,7 +183,7 @@
       "proxyUpstream": "Upstream",
       "proxyTlsInsecure": "Ignorer les erreurs de certificat TLS upstream",
       "proxyTlsInsecureHint": "Disponible uniquement lorsque l'upstream commence par https://",
-      "hostnames": "Hostnames",
+      "hostnames": "Noms d'hôte",
       "listenIps": "IPs d'écoute",
       "listenPorts": "Ports d'écoute",
       "tlsAcmeCert": "Certificat ACME",
@@ -192,8 +192,8 @@
       "tlsKeyPath": "Chemin de la clé TLS",
       "proxyHeaders": "En-têtes de requête personnalisés (JSON)",
       "proxyHeadersHint": "En-têtes HTTP supplémentaires envoyés à l'upstream ; doit être un objet JSON",
-      "ip": "IP",
-      "port": "Port",
+      "ip": "Adresse IP",
+      "port": "Port reseau",
       "default": "Par défaut",
       "hostnameSuggestionHint": "Utilisez les domaines DDNS comme suggestions de hostname.",
       "siteNamePlaceholder": "site-name",
@@ -237,7 +237,7 @@
     "title": "Automatisation des domaines",
     "certRunNow": "Exécuter maintenant",
     "panelProvider": "Comptes fournisseur",
-    "panelDdns": "DNS dynamique",
+    "panelDdns": "DDNS",
     "panelAcme": "Certificats",
     "panelWeb": "Réutilisation Web",
     "statsProviderProfiles": "Profils fournisseur",
@@ -300,9 +300,9 @@
     "ddnsInterfacePlaceholder": "eth0 ou wlan0",
     "ddnsCommandPlaceholder": "curl -s https://api.ipify.org",
     "noDdnsEntries": "Aucune entrée DDNS",
-    "ddnsTitle": "DNS dynamique",
+    "ddnsTitle": "DDNS",
     "acmeTitle": "Certificats",
-    "sslPlan": "Plan",
+    "sslPlan": "Planification SSL",
     "sslPlanDesc": "Aperçu des renouvellements planifiés et diagnostics.",
     "onlyNeedRenew": "Seulement à renouveler",
     "acmeAutoRenewHint": "Règle de renouvellement automatique : la vérification du planificateur (quotidienne par défaut) et la vérification manuelle renouvellent les certificats dont les jours restants sont inférieurs au seuil configuré. La mise à jour forcée ignore les jours restants.",
@@ -367,7 +367,7 @@
     "ddnsRunAllCompleted": "Exécution DDNS (tout) terminée",
     "ddnsRunNow": "Exécuter maintenant",
     "ddnsInspect": "Inspecter",
-    "ddnsPlan": "Plan",
+    "ddnsPlan": "Planification DDNS",
     "ddnsPlanDesc": "Aperçu des mises à jour planifiées et diagnostics.",
     "filter": "Filtrer",
     "failedOnly": "Échecs uniquement",
@@ -466,14 +466,14 @@
     "ipv6Config": "Configuration IPv6",
     "multiUrlHint": "Prend en charge plusieurs URL séparées par virgule ou point-virgule, essayées séquentiellement",
     "proxyBadge": "Proxy actif",
-    "sourceInterface": "Interface reseau",
+    "sourceInterface": "Interface réseau",
     "sourceStaticIp": "IP statique",
     "sourceShellCommand": "Commande shell",
     "sourceInheritLast": "Hériter du dernier",
     "credentialJson": "Identifiants",
     "configJson": "Configuration",
     "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
-    "providerZerossl": "Fournisseur ZeroSSL"
+    "providerZerossl": "ZeroSSL"
   },
   "ddns": {
     "title": "DNS dynamique (DDNS)",
@@ -548,7 +548,7 @@
       "cloudflare": "Cloudflare",
       "tencentcloud": "Tencent Cloud",
       "dnspod": "DNSPod",
-      "callback": "Rappel",
+      "callback": "Callback",
       "vercel": "Vercel"
     },
     "webhookExamples": {
@@ -666,7 +666,7 @@
     "title": "Journaux d'audit",
     "fetchError": "Échec de récupération des journaux d'audit",
     "userIdPlaceholder": "ID utilisateur",
-    "actionPlaceholder": "Action",
+    "actionPlaceholder": "Action d'audit",
     "allTypes": "Tous les types",
     "allStatus": "Tous les statuts",
     "noLogsFound": "Aucun journal trouvé",
@@ -674,8 +674,8 @@
     "table": {
       "time": "Heure",
       "user": "Utilisateur",
-      "type": "Type",
-      "action": "Action",
+      "type": "Type d'evenement",
+      "action": "Action detectee",
       "details": "Détails",
       "status": "Statut"
     },
@@ -700,7 +700,7 @@
       "actions": "Operations"
     },
     "roles": {
-      "admin": "Admin",
+      "admin": "Administrateur",
       "user": "Utilisateur"
     },
     "status": {
@@ -917,14 +917,14 @@
         "noPrimaryConnector": "Le pool par défaut n'a pas de primary_connector configuré. Sélectionnez-en un d'abord, ou corrigez en mode avancé."
       },
       "tabs": {
-        "pools": "Pools",
+        "pools": "Groupes de stockage",
         "connectors": "Connecteurs",
         "policies": "Politiques"
       },
       "fields": {
         "defaultPool": "Pool par défaut",
         "name": "Nom",
-        "driver": "Driver",
+        "driver": "Pilote",
         "root": "Racine",
         "enabled": "Activé",
         "options": "Options avancées"
@@ -944,7 +944,7 @@
       },
       "pools": {
         "title": "Liste des pools",
-        "pool": "Pool",
+        "pool": "Groupe",
         "primary": "Connecteur principal",
         "backup": "Connecteur de secours",
         "writeCache": "Cache d'écriture"
@@ -955,7 +955,7 @@
         "empty": "Aucune politique actuellement (policies = []).",
         "policy": "Politique",
         "roleId": "ID rôle",
-        "poolName": "Pool",
+        "poolName": "Groupe",
         "defaultQuota": "Quota par défaut (bytes)"
       },
       "actions": {
@@ -1193,18 +1193,18 @@
     "nickname": "Surnom",
     "nicknamePlaceholder": "Surnom",
     "email": "Adresse email",
-    "emailPlaceholder": "email@example.com",
+    "emailPlaceholder": "courriel@exemple.com",
     "phone": "Téléphone",
-    "phonePlaceholder": "+86...",
+    "phonePlaceholder": "+33...",
     "phoneExtraPlaceholder": "+86 138...",
     "role": "Rôle système",
     "storageVfs": "Stockage et VFS",
     "homeDir": "Répertoire home (répertoire de base)",
-    "homeDirPlaceholder": "/physical/path/to/data",
+    "homeDirPlaceholder": "/chemin/physique/vers/donnees",
     "quota": "Quota de stockage",
     "quotaPlaceholder": "0 pour illimité",
     "pool": "Pool de stockage (nom du pool)",
-    "poolPlaceholder": "default",
+    "poolPlaceholder": "par-defaut",
     "s3Credentials": "Identifiants S3",
     "s3AccessKey": "Cle d'acces S3",
     "s3SecretKey": "Cle secrete S3",
