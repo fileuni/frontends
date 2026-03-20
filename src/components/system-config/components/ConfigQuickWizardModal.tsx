@@ -178,6 +178,23 @@ interface PerformanceTuningPlan {
   fileIndexMaxConcurrentRefresh: number;
   fileIndexMaxConcurrentRefreshLowMemory: number;
   fileIndexMaxConcurrentRefreshThroughput: number;
+  fileIndexMaxFilesPerRefresh: number;
+  fileIndexMaxFilesPerRefreshLowMemory: number;
+  fileIndexMaxFilesPerRefreshThroughput: number;
+  readCache: {
+    backend: 'memory' | 'local_dir';
+    capacityBytes: number;
+    maxFileSizeBytes: number;
+    ttlSecs: number;
+  };
+  writeCache: {
+    backend: 'memory' | 'local_dir';
+    capacityBytes: number;
+    maxFileSizeBytes: number;
+    flushConcurrency: number;
+    flushIntervalMs: number;
+    flushDeadlineSecs: number;
+  };
   compressionConcurrency: number;
   compressionConcurrencyLowMemory: number;
   compressionConcurrencyThroughput: number;
@@ -685,6 +702,87 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
     : preset.tier === 'medium'
       ? 5
       : 3;
+  const fileIndexMaxFilesPerRefresh = preset.tier === 'good'
+    ? (isHeavyProfile ? 4096 : 2048)
+    : preset.tier === 'medium'
+      ? (isHeavyProfile ? 1536 : 1024)
+      : preset.tier === 'low'
+        ? 512
+        : 256;
+  const fileIndexMaxFilesPerRefreshLowMemory = preset.tier === 'good'
+    ? 512
+    : preset.tier === 'medium'
+      ? 384
+      : 256;
+  const fileIndexMaxFilesPerRefreshThroughput = preset.tier === 'good'
+    ? (isHeavyProfile ? 8192 : 4096)
+    : preset.tier === 'medium'
+      ? (isHeavyProfile ? 3072 : 2048)
+      : preset.tier === 'low'
+        ? 1024
+        : 512;
+  const readCache = preset.tier === 'good'
+    ? {
+        backend: 'memory' as const,
+        capacityBytes: isHeavyProfile ? 512 * 1024 * 1024 : 256 * 1024 * 1024,
+        maxFileSizeBytes: isHeavyProfile ? 8 * 1024 * 1024 : 4 * 1024 * 1024,
+        ttlSecs: isHeavyProfile ? 3600 : 2400,
+      }
+    : preset.tier === 'medium'
+      ? {
+          backend: 'memory' as const,
+          capacityBytes: isHeavyProfile ? 96 * 1024 * 1024 : 128 * 1024 * 1024,
+          maxFileSizeBytes: isHeavyProfile ? 1024 * 1024 : 2 * 1024 * 1024,
+          ttlSecs: isHeavyProfile ? 1200 : 1800,
+        }
+      : preset.tier === 'low'
+        ? {
+            backend: 'local_dir' as const,
+            capacityBytes: 32 * 1024 * 1024,
+            maxFileSizeBytes: 512 * 1024,
+            ttlSecs: 900,
+          }
+        : {
+            backend: 'local_dir' as const,
+            capacityBytes: 8 * 1024 * 1024,
+            maxFileSizeBytes: 128 * 1024,
+            ttlSecs: 300,
+          };
+  const writeCache = preset.tier === 'good'
+    ? {
+        backend: 'local_dir' as const,
+        capacityBytes: isHeavyProfile ? 512 * 1024 * 1024 : 256 * 1024 * 1024,
+        maxFileSizeBytes: isHeavyProfile ? 1024 * 1024 : 512 * 1024,
+        flushConcurrency: isHeavyProfile ? 4 : 3,
+        flushIntervalMs: isHeavyProfile ? 10 : 20,
+        flushDeadlineSecs: isHeavyProfile ? 600 : 480,
+      }
+    : preset.tier === 'medium'
+      ? {
+          backend: 'local_dir' as const,
+          capacityBytes: isHeavyProfile ? 128 * 1024 * 1024 : 96 * 1024 * 1024,
+          maxFileSizeBytes: 256 * 1024,
+          flushConcurrency: 2,
+          flushIntervalMs: isHeavyProfile ? 20 : 30,
+          flushDeadlineSecs: 360,
+        }
+      : preset.tier === 'low'
+        ? {
+            backend: 'local_dir' as const,
+            capacityBytes: 32 * 1024 * 1024,
+            maxFileSizeBytes: 128 * 1024,
+            flushConcurrency: 1,
+            flushIntervalMs: 50,
+            flushDeadlineSecs: 240,
+          }
+        : {
+            backend: 'local_dir' as const,
+            capacityBytes: 8 * 1024 * 1024,
+            maxFileSizeBytes: 64 * 1024,
+            flushConcurrency: 1,
+            flushIntervalMs: 80,
+            flushDeadlineSecs: 180,
+          };
 
   const domainRequestTimeoutSec = preset.tier === 'good' ? (isHeavyProfile ? 8 : 12) : preset.tier === 'medium' ? 15 : 20;
   const domainWebhookTimeoutSec = preset.tier === 'good' ? (isHeavyProfile ? 8 : 10) : preset.tier === 'medium' ? 12 : 15;
@@ -739,6 +837,11 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
     fileIndexMaxConcurrentRefresh,
     fileIndexMaxConcurrentRefreshLowMemory,
     fileIndexMaxConcurrentRefreshThroughput,
+    fileIndexMaxFilesPerRefresh,
+    fileIndexMaxFilesPerRefreshLowMemory,
+    fileIndexMaxFilesPerRefreshThroughput,
+    readCache,
+    writeCache,
     compressionConcurrency,
     compressionConcurrencyLowMemory,
     compressionConcurrencyThroughput,
@@ -1205,26 +1308,26 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     vfsHub.enable_s3 = effectiveFeatures.s3;
     ensureVfsLocalStorageDefaults(vfsHub);
     const readCache = ensureRecord(vfsHub, 'read_cache');
-    readCache.enable ??= false;
-    readCache.backend ??= 'memory';
-    readCache.local_dir ??= '{APPDATADIR}/cache/vfs-read';
-    readCache.capacity_bytes ??= 268435456;
-    readCache.max_file_size_bytes ??= 1048576;
-    readCache.cache_thumbnail_paths ??= false;
-    readCache.skip_extensions ??= [];
-    readCache.ttl_secs ??= 1800;
+    readCache.enable = false;
+    readCache.backend = tuningPlan.readCache.backend;
+    readCache.local_dir = '{APPDATADIR}/cache/vfs-read';
+    readCache.capacity_bytes = tuningPlan.readCache.capacityBytes;
+    readCache.max_file_size_bytes = tuningPlan.readCache.maxFileSizeBytes;
+    readCache.cache_thumbnail_paths = false;
+    readCache.skip_extensions = [];
+    readCache.ttl_secs = tuningPlan.readCache.ttlSecs;
     const writeCache = ensureRecord(vfsHub, 'write_cache');
-    writeCache.enable ??= false;
-    writeCache.backend ??= 'memory';
-    writeCache.local_dir ??= '{APPDATADIR}/cache/vfs-write';
-    writeCache.capacity_bytes ??= 268435456;
-    writeCache.max_file_size_bytes ??= 262144;
-    writeCache.cache_thumbnail_paths ??= false;
-    writeCache.skip_extensions ??= [];
-    writeCache.flush_concurrency ??= 2;
-    writeCache.flush_interval_ms ??= 20;
-    writeCache.flush_deadline_secs ??= 300;
-    writeCache.abnormal_spill_dir ??= '{APPDATADIR}/cache/vfs-write-abnormal';
+    writeCache.enable = false;
+    writeCache.backend = tuningPlan.writeCache.backend;
+    writeCache.local_dir = '{APPDATADIR}/cache/vfs-write';
+    writeCache.capacity_bytes = tuningPlan.writeCache.capacityBytes;
+    writeCache.max_file_size_bytes = tuningPlan.writeCache.maxFileSizeBytes;
+    writeCache.cache_thumbnail_paths = false;
+    writeCache.skip_extensions = [];
+    writeCache.flush_concurrency = tuningPlan.writeCache.flushConcurrency;
+    writeCache.flush_interval_ms = tuningPlan.writeCache.flushIntervalMs;
+    writeCache.flush_deadline_secs = tuningPlan.writeCache.flushDeadlineSecs;
+    writeCache.abnormal_spill_dir = '{APPDATADIR}/cache/vfs-write-abnormal';
 
     const fileCompress = ensureRecord(vfsHub, 'file_compress');
     fileCompress.enable = effectiveFeatures.compression;
@@ -1243,6 +1346,9 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     fileIndex.max_concurrent_refresh = tuningPlan.fileIndexMaxConcurrentRefresh;
     fileIndex.max_concurrent_refresh_low_memory = tuningPlan.fileIndexMaxConcurrentRefreshLowMemory;
     fileIndex.max_concurrent_refresh_throughput = tuningPlan.fileIndexMaxConcurrentRefreshThroughput;
+    fileIndex.max_files_per_refresh = tuningPlan.fileIndexMaxFilesPerRefresh;
+    fileIndex.max_files_per_refresh_low_memory = tuningPlan.fileIndexMaxFilesPerRefreshLowMemory;
+    fileIndex.max_files_per_refresh_throughput = tuningPlan.fileIndexMaxFilesPerRefreshThroughput;
 
     const taskRegistry = ensureRecord(next, 'task_registry');
     const bloomWarmup = ensureRecord(taskRegistry, 'bloom_filter_warmup');
@@ -1512,6 +1618,21 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('vfs_storage_hub.file_index.max_concurrent_refresh', previewTuningPlan.fileIndexMaxConcurrentRefresh);
     pushItem('vfs_storage_hub.file_index.max_concurrent_refresh_low_memory', previewTuningPlan.fileIndexMaxConcurrentRefreshLowMemory);
     pushItem('vfs_storage_hub.file_index.max_concurrent_refresh_throughput', previewTuningPlan.fileIndexMaxConcurrentRefreshThroughput);
+    pushItem('vfs_storage_hub.file_index.max_files_per_refresh', previewTuningPlan.fileIndexMaxFilesPerRefresh);
+    pushItem('vfs_storage_hub.file_index.max_files_per_refresh_low_memory', previewTuningPlan.fileIndexMaxFilesPerRefreshLowMemory);
+    pushItem('vfs_storage_hub.file_index.max_files_per_refresh_throughput', previewTuningPlan.fileIndexMaxFilesPerRefreshThroughput);
+    pushItem('vfs_storage_hub.read_cache.enable', false);
+    pushItem('vfs_storage_hub.read_cache.backend', previewTuningPlan.readCache.backend);
+    pushItem('vfs_storage_hub.read_cache.capacity_bytes', previewTuningPlan.readCache.capacityBytes);
+    pushItem('vfs_storage_hub.read_cache.max_file_size_bytes', previewTuningPlan.readCache.maxFileSizeBytes);
+    pushItem('vfs_storage_hub.read_cache.ttl_secs', previewTuningPlan.readCache.ttlSecs);
+    pushItem('vfs_storage_hub.write_cache.enable', false);
+    pushItem('vfs_storage_hub.write_cache.backend', previewTuningPlan.writeCache.backend);
+    pushItem('vfs_storage_hub.write_cache.capacity_bytes', previewTuningPlan.writeCache.capacityBytes);
+    pushItem('vfs_storage_hub.write_cache.max_file_size_bytes', previewTuningPlan.writeCache.maxFileSizeBytes);
+    pushItem('vfs_storage_hub.write_cache.flush_concurrency', previewTuningPlan.writeCache.flushConcurrency);
+    pushItem('vfs_storage_hub.write_cache.flush_interval_ms', previewTuningPlan.writeCache.flushIntervalMs);
+    pushItem('vfs_storage_hub.write_cache.flush_deadline_secs', previewTuningPlan.writeCache.flushDeadlineSecs);
 
     pushItem('task_registry.bloom_filter_warmup.enabled', currentPreset.features.bloomWarmup);
     pushItem('task_registry.bloom_filter_warmup.cron_expression', previewTuningPlan.scheduler.maintenanceCron);
