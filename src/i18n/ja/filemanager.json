@@ -53,9 +53,9 @@
     "enableDirectDesc": "プレビューページを経由せずに直接アクセスできるようにします",
     "writePermissionsLabel": "ディレクトリ書き込み権限",
     "writePermissionsDesc": "READ は常に有効です。以下のオプションは既定で無効です: UPLOAD は新規ファイルのみ作成可能; UPDATE は既存ファイルの上書きのみ; DEL はこの共有ディレクトリ内のエントリを削除できます。",
-    "permissionUpload": "UPLOAD",
-    "permissionUpdateNoCreate": "UPDATE (NO CREATE)",
-    "permissionDelete": "DEL",
+    "permissionUpload": "アップロード",
+    "permissionUpdateNoCreate": "更新 (作成なし)",
+    "permissionDelete": "削除",
     "unlimited": "無制限",
     "expire1Day": "1日",
     "expire7Days": "7日",
@@ -88,12 +88,12 @@
     "qrDesc": "スキャンして共有情報を取得",
     "done": "完了",
     "copyFormat": {
-      "title": "[FileUni Share]",
+      "title": "[FileUni 共有]",
       "file": "ファイル",
       "link": "共有リンク",
       "password": "パスワード",
       "existingPassword": "(既存のパスワード)",
-      "directTitle": "[Direct File Info]",
+      "directTitle": "[直接ファイル情報]",
       "url": "直接 URL",
       "user": "認証ユーザー",
       "pass": "認証パス"
@@ -103,10 +103,10 @@
     "shareUrlLabel": "共有 URL",
     "accessPasswordLabel": "アクセスパスワード",
     "protected": "保護あり",
-    "preset24h": "24h",
-    "preset7d": "7D",
-    "preset30d": "30D",
-    "presetForever": "∞"
+    "preset24h": "24時間",
+    "preset7d": "7日",
+    "preset30d": "30日",
+    "presetForever": "無期限"
   },
   "previewModal": {
     "viewer": "ビューア",
@@ -122,7 +122,7 @@
     "noAppsFound": "アプリが見つかりません"
   },
   "officeLite": {
-    "name": "Office Lite",
+    "name": "Office ライト",
     "openTitle": "Office ファイルを開く",
     "openHint": "このドキュメントを開く方法を選択してください。",
     "externalViewerHint": "外部ビューアは、ファイル URL が公開アクセス可能である必要があります。",
@@ -152,27 +152,27 @@
     "cdnReset": "リセット"
   },
   "texPreview": {
-    "subtitle": "LaTeX",
+    "subtitle": "LaTeX プレビュー",
     "render": "レンダリング",
     "rendering": "レンダリング中",
     "noPreview": "プレビューなし",
     "disabled": "プレビュー無効",
     "mode": {
-      "latexmk": "Latexmk",
-      "latexjs": "Latex.js",
-      "monaco": "Monaco"
+      "latexmk": "Latexmk ビルド",
+      "latexjs": "Latex.js レンダラ",
+      "monaco": "Monaco エディタ"
     }
   },
   "archive": {
     "compressTitle": "圧縮",
     "decompressTitle": "展開",
     "archiveName": "アーカイブ名",
-    "archiveNamePlaceholder": "archive",
+    "archiveNamePlaceholder": "アーカイブ",
     "batchNameHint": "バッチ圧縮の出力名はサーバーが生成します。",
     "format": "形式",
     "level": "レベル (0-9)",
     "targetPath": "出力先パス",
-    "targetPathPlaceholder": "/",
+    "targetPathPlaceholder": "/ (保存先パス)",
     "targetPathHint": "出力先ディレクトリを選択してください。'/' で始まる必要があります。",
     "overwrite": "上書き",
     "overwriteHint": "無効にすると既存ファイルは保持されます。",
@@ -289,11 +289,11 @@
     "loadingEngine": "レンダリングエンジンを読み込み中...",
     "connectingCdn": "CDN に接続中...",
     "configTitle": "エディタ設定",
-    "cdnUrlLabel": "Vditor CDN URL",
+    "cdnUrlLabel": "Vditor CDN URL アドレス",
     "saveAndReload": "保存して再読込",
     "reset": "リセット",
     "cdnSaved": "CDN 設定を保存しました。更新して適用してください。",
-    "markdownEngine": "Markdown",
+    "markdownEngine": "Markdown エンジン",
     "autoSaveFailed": "自動保存に失敗しました"
   },
   "messages": {
