@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import path from 'node:path';
 
 // Convenience wrapper around sync-i18n behavior.
