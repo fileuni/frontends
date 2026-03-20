@@ -1,11 +1,16 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, HardDrive, Key, Settings2, Shield, WandSparkles } from 'lucide-react';
+import { AlertTriangle, FileArchive, HardDrive, ImagePlus, Key, Settings2, Shield, WandSparkles } from 'lucide-react';
 import { ConfigEditorPanel } from './ConfigEditorPanel';
 import { AdminPasswordPanel } from './AdminPasswordPanel';
 import { ConfigQuickWizardModal, type ConfigQuickWizardModalProps, type FriendlyStep } from './ConfigQuickWizardModal';
 import { LicenseManagementModal } from './LicenseManagementModal';
 import { VfsStorageConfigModal } from './VfsStorageConfigModal';
+import {
+  CompressionDependencyConfigModal,
+  ThumbnailDependencyConfigModal,
+  type ExternalToolDiagnosisResponse,
+} from './ExternalDependencyConfigModal';
 import type { ConfigError, ConfigNoteEntry, EditorJumpPosition } from './ConfigRawEditor';
 import { deepClone, ensureRecord, isRecord } from '@/lib/configObject';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
@@ -83,6 +88,7 @@ export interface SystemConfigWorkbenchProps {
   adminPasswordLabel?: string;
   adminPasswordPanelProps?: Partial<import('./AdminPasswordPanel').AdminPasswordPanelProps>;
   onPickStorageDirectory?: import('./VfsStorageConfigModal').VfsStorageConfigModalProps['onPickDirectory'];
+  onDiagnoseExternalTools?: (configuredValues: Record<string, string>) => Promise<ExternalToolDiagnosisResponse>;
 }
 
 export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
@@ -114,6 +120,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   adminPasswordLabel,
   adminPasswordPanelProps,
   onPickStorageDirectory,
+  onDiagnoseExternalTools,
 }) => {
   const { t } = useTranslation();
   const [isQuickWizardOpen, setIsQuickWizardOpen] = useState(false);
@@ -121,6 +128,8 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const [isAdminPasswordOpen, setIsAdminPasswordOpen] = useState(false);
   const [isLicenseOpen, setIsLicenseOpen] = useState(false);
   const [isStorageOpen, setIsStorageOpen] = useState(false);
+  const [isThumbnailToolsOpen, setIsThumbnailToolsOpen] = useState(false);
+  const [isCompressionToolsOpen, setIsCompressionToolsOpen] = useState(false);
   const [jumpTo, setJumpTo] = useState<EditorJumpPosition | null>(null);
   const resolvedTheme = useResolvedTheme();
 
@@ -138,19 +147,41 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const openAdminPassword = useCallback(() => {
     setIsLicenseOpen(false);
     setIsStorageOpen(false);
+    setIsThumbnailToolsOpen(false);
+    setIsCompressionToolsOpen(false);
     setIsAdminPasswordOpen(true);
   }, []);
 
   const openLicenseManagement = useCallback(() => {
     setIsAdminPasswordOpen(false);
     setIsStorageOpen(false);
+    setIsThumbnailToolsOpen(false);
+    setIsCompressionToolsOpen(false);
     setIsLicenseOpen(true);
   }, []);
 
   const openStorageConfig = useCallback(() => {
     setIsAdminPasswordOpen(false);
     setIsLicenseOpen(false);
+    setIsThumbnailToolsOpen(false);
+    setIsCompressionToolsOpen(false);
     setIsStorageOpen(true);
+  }, []);
+
+  const openThumbnailTools = useCallback(() => {
+    setIsAdminPasswordOpen(false);
+    setIsLicenseOpen(false);
+    setIsStorageOpen(false);
+    setIsCompressionToolsOpen(false);
+    setIsThumbnailToolsOpen(true);
+  }, []);
+
+  const openCompressionTools = useCallback(() => {
+    setIsAdminPasswordOpen(false);
+    setIsLicenseOpen(false);
+    setIsStorageOpen(false);
+    setIsThumbnailToolsOpen(false);
+    setIsCompressionToolsOpen(true);
   }, []);
 
   if (loading) {
@@ -273,9 +304,33 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
             isDark ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10" : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50"
           )}
           onClick={openStorageConfig}
+          >
+            <HardDrive size={18} className={isDark ? "text-slate-200" : "text-slate-700"} />
+            {t('admin.config.storage.title')}
+          </button>
+
+        <button
+          type="button"
+          className={cn(
+            "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+            isDark ? "border-fuchsia-400/25 bg-fuchsia-500/10 text-fuchsia-100 hover:bg-fuchsia-500/15" : "border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100"
+          )}
+          onClick={openThumbnailTools}
         >
-          <HardDrive size={18} className={isDark ? "text-slate-200" : "text-slate-700"} />
-          {t('admin.config.storage.title')}
+          <ImagePlus size={18} className={isDark ? "text-fuchsia-300" : "text-fuchsia-700"} />
+          {t('admin.config.thumbnail.title', { defaultValue: 'Thumbnail Tools' })}
+        </button>
+
+        <button
+          type="button"
+          className={cn(
+            "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+            isDark ? "border-orange-400/25 bg-orange-500/10 text-orange-100 hover:bg-orange-500/15" : "border-orange-300 bg-orange-50 text-orange-900 hover:bg-orange-100"
+          )}
+          onClick={openCompressionTools}
+        >
+          <FileArchive size={18} className={isDark ? "text-orange-300" : "text-orange-700"} />
+          {t('admin.config.compression.title', { defaultValue: 'Online Compression' })}
         </button>
       </div>
     </div>
@@ -537,6 +592,26 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         onContentChange={(nextContent) => {
           onChange(nextContent);
         }}
+      />
+
+      <ThumbnailDependencyConfigModal
+        isOpen={isThumbnailToolsOpen}
+        onClose={() => setIsThumbnailToolsOpen(false)}
+        tomlAdapter={tomlAdapter}
+        content={content}
+        onContentChange={onChange}
+        runtimeOs={runtimeOs}
+        onDiagnoseExternalTools={onDiagnoseExternalTools}
+      />
+
+      <CompressionDependencyConfigModal
+        isOpen={isCompressionToolsOpen}
+        onClose={() => setIsCompressionToolsOpen(false)}
+        tomlAdapter={tomlAdapter}
+        content={content}
+        onContentChange={onChange}
+        runtimeOs={runtimeOs}
+        onDiagnoseExternalTools={onDiagnoseExternalTools}
       />
     </div>
   );
