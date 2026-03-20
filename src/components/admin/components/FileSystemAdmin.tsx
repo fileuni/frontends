@@ -118,6 +118,13 @@ type WalPathDiagnostic = {
 type WalIssueDiagnosticsResponse = {
   issue: WalIssueEntry;
   diagnostics: WalPathDiagnostic[];
+  recommended_actions: WalRecommendedAction[];
+};
+
+type WalRecommendedAction = {
+  action: string;
+  reason_code: string;
+  signals: string[];
 };
 
 const WAL_OPERATION_OPTIONS = [
@@ -202,7 +209,12 @@ const isWalPathDiagnostic = (value: unknown): value is WalPathDiagnostic => {
 
 const isWalIssueDiagnosticsResponse = (value: unknown): value is WalIssueDiagnosticsResponse => {
   if (!isRecord(value)) return false;
-  return isWalIssueEntry(value.issue) && Array.isArray(value.diagnostics) && value.diagnostics.every(isWalPathDiagnostic);
+  return (
+    isWalIssueEntry(value.issue) &&
+    Array.isArray(value.diagnostics) &&
+    value.diagnostics.every(isWalPathDiagnostic) &&
+    Array.isArray(value.recommended_actions)
+  );
 };
 
 const summarizeWalOperation = (raw: string) => {
@@ -251,6 +263,18 @@ const saveBlob = (blob: Blob, filename: string) => {
   anchor.click();
   window.URL.revokeObjectURL(url);
   document.body.removeChild(anchor);
+};
+
+const translateWalAction = (t: (key: string) => string, action: string) => {
+  const key = `admin.fs.wal_action_${action}`;
+  const value = t(key);
+  return value === key ? action : value;
+};
+
+const translateWalReason = (t: (key: string) => string, reason: string) => {
+  const key = `admin.fs.wal_reason_${reason}`;
+  const value = t(key);
+  return value === key ? reason : value;
 };
 
 export const FileSystemAdmin = () => {
@@ -912,6 +936,29 @@ export const FileSystemAdmin = () => {
                   <Button variant="ghost" className="h-10 px-4" onClick={() => setWalDiagnostics(null)}>
                     {t('common.close')}
                   </Button>
+                </div>
+
+                <div className="rounded-[1.75rem] border border-white/8 bg-black/20 p-5 space-y-3">
+                  <p className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_recommended_actions')}</p>
+                  <div className="space-y-3">
+                    {walDiagnostics.recommended_actions.map((action) => (
+                      <div key={`${action.action}-${action.reason_code}`} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant={action.action === 'no_action_required' ? 'success' : action.action.includes('inspect') || action.action.includes('manual') ? 'warning' : 'ghost'}>
+                            {translateWalAction(t, action.action)}
+                          </Badge>
+                          <span className="text-sm opacity-70">{translateWalReason(t, action.reason_code)}</span>
+                        </div>
+                        {action.signals.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {action.signals.map((signal) => (
+                              <Badge key={signal} variant="ghost">{signal}</Badge>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
