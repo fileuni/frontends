@@ -1315,6 +1315,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/file/admin/file-manager/wal/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["export_wal_records"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/file/admin/file-manager/wal/issues": {
         parameters: {
             query?: never;
@@ -1325,6 +1341,38 @@ export interface paths {
         get: operations["list_wal_issues"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/admin/file-manager/wal/mark-handled-batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mark_wal_issue_handled_batch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/admin/file-manager/wal/replay-batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["replay_wal_issue_batch"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1342,6 +1390,54 @@ export interface paths {
         put?: never;
         /** Force terminate all tasks & WAL recovery and resume operations */
         post: operations["terminate_wal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/admin/file-manager/wal/{id}/diagnostics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["diagnose_wal_issue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/admin/file-manager/wal/{id}/mark-handled": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mark_wal_issue_handled"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/admin/file-manager/wal/{id}/replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["replay_wal_issue"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4841,6 +4937,38 @@ export interface components {
             success: boolean;
             user_id?: string | null;
         };
+        WalIssueActionResponse: {
+            failure_reason?: string | null;
+            /** Format: int64 */
+            id: number;
+            status: string;
+        };
+        WalIssueBatchActionItemResponse: {
+            error?: string | null;
+            failure_reason?: string | null;
+            /** Format: int64 */
+            id: number;
+            status?: string | null;
+            success: boolean;
+        };
+        WalIssueBatchActionResponse: {
+            failed: number;
+            items: components["schemas"]["WalIssueBatchActionItemResponse"][];
+            succeeded: number;
+            total: number;
+        };
+        WalIssueBatchMarkHandledRequest: {
+            ids: number[];
+            /** @example Reviewed and repaired manually */
+            note?: string | null;
+        };
+        WalIssueBatchReplayRequest: {
+            ids: number[];
+        };
+        WalIssueDiagnosticsResponse: {
+            diagnostics: components["schemas"]["WalPathDiagnosticResponse"][];
+            issue: components["schemas"]["WalIssueEntryResponse"];
+        };
         WalIssueEntryResponse: {
             completed_at?: string | null;
             created_at: string;
@@ -4852,6 +4980,89 @@ export interface components {
             status: string;
             updated_at: string;
             user_id: string;
+        };
+        WalIssueExportResponse: {
+            exported_at: string;
+            items: components["schemas"]["WalIssueEntryResponse"][];
+            operation_type?: string | null;
+            scope: string;
+            status: string;
+            total: number;
+            updated_from?: string | null;
+            updated_to?: string | null;
+            user_id?: string | null;
+        };
+        WalIssueListQuery: {
+            /** @example MOVE_TO_TRASH */
+            operation_type?: string | null;
+            /**
+             * Format: int64
+             * @example 1
+             */
+            page?: number | null;
+            /**
+             * Format: int64
+             * @example 20
+             */
+            page_size?: number | null;
+            /** @example issues */
+            scope?: string | null;
+            /** @example all */
+            status?: string | null;
+            /** @example 2026-03-20T10:00:00Z */
+            updated_from?: string | null;
+            /** @example 2026-03-20T18:00:00Z */
+            updated_to?: string | null;
+            /** @example user-uuid */
+            user_id?: string | null;
+        };
+        WalIssueListResponse: {
+            items: components["schemas"]["WalIssueEntryResponse"][];
+            operation_type?: string | null;
+            /** Format: int64 */
+            page: number;
+            /** Format: int64 */
+            page_size: number;
+            scope: string;
+            status: string;
+            /** Format: int64 */
+            total: number;
+            updated_from?: string | null;
+            updated_to?: string | null;
+            user_id?: string | null;
+        };
+        WalIssueMarkHandledRequest: {
+            /** @example Reviewed and repaired manually */
+            note?: string | null;
+        };
+        WalPathDiagnosticResponse: {
+            index: components["schemas"]["WalPathIndexStateResponse"];
+            logical_path: string;
+            mismatch_flags: string[];
+            physical: components["schemas"]["WalPathPhysicalStateResponse"];
+            physical_path: string;
+            role: string;
+        };
+        WalPathIndexStateResponse: {
+            backend_key?: string | null;
+            backend_type?: string | null;
+            exists: boolean;
+            is_dir?: boolean | null;
+            original_path?: string | null;
+            path: string;
+            /** Format: int64 */
+            size?: number | null;
+            storage_id?: string | null;
+            trashed_at?: string | null;
+        };
+        WalPathPhysicalStateResponse: {
+            error?: string | null;
+            exists: boolean;
+            is_dir?: boolean | null;
+            modified_at?: string | null;
+            path: string;
+            /** Format: int64 */
+            size?: number | null;
         };
         WopiHostResponse: {
             /**
@@ -7213,9 +7424,59 @@ export interface operations {
             };
         };
     };
+    export_wal_records: {
+        parameters: {
+            query?: {
+                page?: number | null;
+                page_size?: number | null;
+                scope?: string | null;
+                status?: string | null;
+                user_id?: string | null;
+                operation_type?: string | null;
+                updated_from?: string | null;
+                updated_to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Export filtered WAL rows as JSON */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     list_wal_issues: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number | null;
+                page_size?: number | null;
+                scope?: string | null;
+                status?: string | null;
+                user_id?: string | null;
+                operation_type?: string | null;
+                updated_from?: string | null;
+                updated_to?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -7230,6 +7491,96 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Resp"];
                 };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mark_wal_issue_handled_batch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WalIssueBatchMarkHandledRequest"];
+            };
+        };
+        responses: {
+            /** @description WAL issue batch marked handled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    replay_wal_issue_batch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WalIssueBatchReplayRequest"];
+            };
+        };
+        responses: {
+            /** @description WAL issue batch replay finished */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unauthorized */
             401: {
@@ -7267,6 +7618,142 @@ export interface operations {
             };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    diagnose_wal_issue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description WAL log ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description WAL diagnostics */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description WAL issue not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mark_wal_issue_handled: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description WAL log ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WalIssueMarkHandledRequest"];
+            };
+        };
+        responses: {
+            /** @description WAL issue marked handled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description WAL issue not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    replay_wal_issue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description WAL log ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description WAL issue replayed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description WAL issue not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
