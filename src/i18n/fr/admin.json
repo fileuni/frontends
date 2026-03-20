@@ -1085,6 +1085,104 @@
       },
       "otherActions": {
         "intro": "Les actions de configuration supplémentaires vivent ici, comme la gestion de licence et la configuration des pools/backend de stockage."
+      },
+      "performance": {
+        "intro": "Sélectionnez les paramètres recommandés selon votre matériel. Ce sont des suggestions - vous pouvez ajuster manuellement tous les paramètres dans les étapes suivantes.",
+        "allocatorRecommendationLinux": "Recommandation allocator ({{os}}) : jemalloc",
+        "allocatorRecommendationOthers": "Recommandation allocator ({{os}}) : mimalloc",
+        "maxConnections": "Maximum {{count}} connexions",
+        "recommendedSettings": "Aperçu d'optimisation des performances",
+        "featureCompression": "Compression",
+        "featureSftp": "Service SFTP",
+        "featureFtp": "Service FTP",
+        "featureWebdav": "Service WebDAV",
+        "featureS3": "Service S3",
+        "featureBloomWarmup": "Pré-chauffage Bloom",
+        "featureChat": "Fonction Chat",
+        "featureEmail": "Service email",
+        "preview": {
+          "simpleHint": "Cette section montre les résultats clés. Dépliez les détails pour inspecter chaque clé de config exacte.",
+          "viewDetails": "Voir les clés de config détaillées",
+          "hideDetails": "Masquer les clés de config détaillées",
+          "configKeyChanges": "Changements complets de configuration",
+          "totalChanges": "{{count}} éléments",
+          "path": "Chemin de config",
+          "value": "Valeur suggérée",
+          "groupStats": "Statistiques des groupes de modules",
+          "groups": {
+            "database": "Base de données",
+            "cache": "Cache",
+            "middleware": "Middleware de limitation de débit",
+            "captcha": "Pré-chauffage captcha",
+            "allocator": "Allocator mémoire",
+            "vfs": "Stockage VFS",
+            "scheduler": "Planificateur de tâches",
+            "sftp": "Service SFTP",
+            "ftp": "Service FTP",
+            "s3": "Service S3",
+            "chat": "Module Chat",
+            "email": "Module Email",
+            "other": "Autres"
+          },
+          "dbPool": "Pool BD (min-max)",
+          "cacheMemory": "Budget mémoire du cache",
+          "ipRateLimit": "Limite IP (req/fenêtre)",
+          "clientRateLimit": "Limite client (req/fenêtre)",
+          "userRateLimit": "Limite utilisateur (req/fenêtre)",
+          "bruteForceLockout": "Verrouillage brute-force",
+          "captchaPreheatMode": "Stratégie de pré-chauffage captcha",
+          "captchaPreheatPool": "Taille du pool de pré-chauffage captcha",
+          "captchaGenConcurrency": "Concurrence génération captcha (graphique/total)",
+          "captchaPoolCheckInterval": "Intervalle de vérification du pool captcha",
+          "criticalCron": "Planification des tâches critiques",
+          "maintenanceCron": "Planification de maintenance",
+          "lowPriorityCron": "Planification basse priorité",
+          "vfsConcurrency": "Concurrence batch VFS",
+          "compressionConcurrency": "Concurrence des workers de compression",
+          "sftpMaxConnections": "Connexions max SFTP",
+          "ftpMaxConnections": "Connexions max FTP",
+          "s3MaxConnections": "Connexions max S3"
+        },
+        "tiers": {
+          "extremeLow": "Performance extrêmement faible (ref : <=64MB RAM)",
+          "low": "Faible performance (ref : 64-256MB RAM)",
+          "medium": "Performance moyenne (ref : 256MB-1GB RAM)",
+          "good": "Bonne performance (ref : >1GB RAM)"
+        },
+        "descriptions": {
+          "extremeLow": "Pour routeurs legacy et appareils embarqués aux ressources matérielles extrêmement limitées. Fonctions cœur et WebDAV uniquement.",
+          "low": "Pour appareils d'entrée de gamme et petites passerelles IoT aux ressources limitées. Gestion de fichiers basique et WebDAV.",
+          "medium": "Pour serveurs domestiques et NAS aux ressources modérées. SQLite + cache base de données recommandé.",
+          "good": "Pour serveurs et NAS haute performance avec ressources matérielles suffisantes. Choisissez un profil de charge pour optimiser davantage."
+        },
+        "loadProfile": {
+          "title": "Sélection du profil de charge",
+          "desc": "Choisissez un profil de charge selon l'usage attendu. Le mode charge élevée suggère de désactiver les fonctions non cœur pour la stabilité.",
+          "light": "Mode charge légère",
+          "lightDesc": "Plus de fonctionnalités activées, adapté à un usage personnel ou petite équipe",
+          "heavy": "Mode charge élevée",
+          "heavyDesc": "Désactivation conseillée des fonctions non cœur, adapté aux scénarios de forte concurrence"
+        },
+        "preheatMode": {
+          "title": "Stratégie de pré-chauffage captcha",
+          "desc": "Équilibre l'usage mémoire du pool captcha et le débit de génération en rafale. Cette stratégie ajuste automatiquement le pool et la concurrence.",
+          "options": {
+            "memory": "Priorité mémoire",
+            "balanced": "Équilibré",
+            "throughput": "Priorité débit"
+          },
+          "descs": {
+            "memory": "Réduire pool et concurrence de pré-chauffage pour diminuer l'usage mémoire",
+            "balanced": "Équilibrer usage mémoire et vitesse de réponse",
+            "throughput": "Augmenter pool et concurrence pour absorber les pics de trafic"
+          }
+        },
+        "performanceTips": {
+          "title": "Conseils d'optimisation des performances",
+          "raid": "Envisagez des matrices RAID pour améliorer les E/S disque et la redondance des données",
+          "pgsql": "Ajustez les paramètres PostgreSQL (shared_buffers, work_mem, effective_cache_size) selon les ressources matérielles",
+          "memory": "Ce module fournit des suggestions d'optimisation de base ; les scénarios complexes nécessitent un réglage au niveau système"
+        }
       }
     }
   },

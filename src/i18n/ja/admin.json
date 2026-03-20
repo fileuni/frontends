@@ -1085,6 +1085,104 @@
       },
       "otherActions": {
         "intro": "ライセンス管理やストレージプール/backend 設定などの追加設定アクションはここにあります。"
+      },
+      "performance": {
+        "intro": "ハードウェアに基づく推奨設定を選択してください。これは提案値であり、以降の手順で全パラメータを手動調整できます。",
+        "allocatorRecommendationLinux": "allocator 推奨 ({{os}}): jemalloc",
+        "allocatorRecommendationOthers": "allocator 推奨 ({{os}}): mimalloc",
+        "maxConnections": "最大 {{count}} 接続",
+        "recommendedSettings": "パフォーマンス最適化プレビュー",
+        "featureCompression": "圧縮",
+        "featureSftp": "SFTP サービス",
+        "featureFtp": "FTP サービス",
+        "featureWebdav": "WebDAV サービス",
+        "featureS3": "S3 サービス",
+        "featureBloomWarmup": "Bloom ウォームアップ",
+        "featureChat": "チャット機能",
+        "featureEmail": "Email サービス",
+        "preview": {
+          "simpleHint": "このセクションは主要な結果を示します。詳細を展開すると正確な設定キーを確認できます。",
+          "viewDetails": "詳細設定キーを表示",
+          "hideDetails": "詳細設定キーを非表示",
+          "configKeyChanges": "設定変更の全体",
+          "totalChanges": "{{count}} 項目",
+          "path": "設定パス",
+          "value": "推奨値",
+          "groupStats": "モジュールグループ統計",
+          "groups": {
+            "database": "データベース",
+            "cache": "キャッシュ",
+            "middleware": "レート制限 Middleware",
+            "captcha": "Captcha ウォームアップ",
+            "allocator": "メモリ allocator",
+            "vfs": "VFS ストレージ",
+            "scheduler": "タスクスケジューラ",
+            "sftp": "SFTP サービス",
+            "ftp": "FTP サービス",
+            "s3": "S3 サービス",
+            "chat": "チャットモジュール",
+            "email": "Email モジュール",
+            "other": "その他"
+          },
+          "dbPool": "DB プール (min-max)",
+          "cacheMemory": "キャッシュメモリ予算",
+          "ipRateLimit": "IP レート制限 (req/window)",
+          "clientRateLimit": "クライアント制限 (req/window)",
+          "userRateLimit": "ユーザー制限 (req/window)",
+          "bruteForceLockout": "ブルートフォースロックアウト",
+          "captchaPreheatMode": "Captcha ウォームアップ戦略",
+          "captchaPreheatPool": "Captcha ウォームアッププールサイズ",
+          "captchaGenConcurrency": "Captcha 生成並列度 (graphic/total)",
+          "captchaPoolCheckInterval": "Captcha プール確認間隔",
+          "criticalCron": "重要タスクスケジュール",
+          "maintenanceCron": "メンテナンスタスクスケジュール",
+          "lowPriorityCron": "低優先タスクスケジュール",
+          "vfsConcurrency": "VFS バッチ並列度",
+          "compressionConcurrency": "圧縮 worker 並列度",
+          "sftpMaxConnections": "SFTP 最大接続数",
+          "ftpMaxConnections": "FTP 最大接続数",
+          "s3MaxConnections": "S3 最大接続数"
+        },
+        "tiers": {
+          "extremeLow": "超低性能 (ref: <=64MB RAM)",
+          "low": "低性能 (ref: 64-256MB RAM)",
+          "medium": "中性能 (ref: 256MB-1GB RAM)",
+          "good": "高性能 (ref: >1GB RAM)"
+        },
+        "descriptions": {
+          "extremeLow": "旧式ルーターや極端にリソースが少ない組み込み機器向け。コア機能と WebDAV のみ。",
+          "low": "低性能デバイスや小型 IoT ゲートウェイ向け。基本的なファイル管理と WebDAV。",
+          "medium": "ホームサーバーや中程度のリソースを持つ NAS 向け。SQLite + DB キャッシュ推奨。",
+          "good": "十分なリソースを持つサーバー/高性能 NAS 向け。さらに最適化するため負荷プロファイルを選択。"
+        },
+        "loadProfile": {
+          "title": "負荷プロファイル選択",
+          "desc": "想定利用に応じて負荷プロファイルを選択します。高負荷モードでは安定性のため非コア機能の無効化を推奨します。",
+          "light": "軽負荷モード",
+          "lightDesc": "より多くの機能を有効化。個人利用や小規模チーム向け",
+          "heavy": "高負荷モード",
+          "heavyDesc": "非コア機能の無効化を推奨。高並列シナリオ向け"
+        },
+        "preheatMode": {
+          "title": "Captcha ウォームアップ戦略",
+          "desc": "captcha プールのメモリ使用量とピーク時の生成スループットのバランスを取ります。この戦略はプールと並列度を自動調整します。",
+          "options": {
+            "memory": "メモリ優先",
+            "balanced": "バランス",
+            "throughput": "スループット優先"
+          },
+          "descs": {
+            "memory": "ウォームアッププールと並列度を下げてメモリ使用量を削減",
+            "balanced": "メモリ使用量と応答速度をバランス",
+            "throughput": "プールと並列度を上げてトラフィック急増を吸収"
+          }
+        },
+        "performanceTips": {
+          "title": "パフォーマンス最適化のヒント",
+          "raid": "ディスク I/O 性能とデータ冗長性向上のため RAID アレイを検討してください",
+          "pgsql": "ハードウェアに合わせて PostgreSQL パラメータ (shared_buffers, work_mem, effective_cache_size) を調整してください",
+          "memory": "このモジュールは基本的な最適化提案を提供します。複雑なシナリオではシステムレベルの調整が必要です"
+        }
       }
     }
   },
