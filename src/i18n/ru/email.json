@@ -127,7 +127,7 @@
   "securityNone": "Нет",
   "securitySslTls": "SSL/TLS (pryamoe shifrovanie)",
   "securityStartTls": "STARTTLS (perehod na TLS)",
-  "passwordPlaceholder": "parol",
+  "passwordPlaceholder": "••••••••",
   "keepEmptyToNotChange": "Оставьте пустым, чтобы не менять",
   "exportAccounts": "Экспорт конфигурации почты",
   "exportDescription": "Экспортируйте все почтовые аккаунты в зашифрованный файл резервной копии, защищенный паролем.",

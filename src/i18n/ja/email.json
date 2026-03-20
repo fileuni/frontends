@@ -127,7 +127,7 @@
   "securityNone": "なし",
   "securitySslTls": "SSL/TLS (直接暗号化)",
   "securityStartTls": "STARTTLS (TLS へ昇格)",
-  "passwordPlaceholder": "パスワードを入力",
+  "passwordPlaceholder": "••••••••",
   "keepEmptyToNotChange": "変更しない場合は空のまま",
   "exportAccounts": "メール設定をエクスポート",
   "exportDescription": "すべてのメールアカウント設定を、パスワード保護された暗号化バックアップとしてエクスポートします。",

@@ -127,7 +127,7 @@
   "securityNone": "Ninguno",
   "securitySslTls": "SSL/TLS (cifrado directo)",
   "securityStartTls": "STARTTLS (actualizar cifrado)",
-  "passwordPlaceholder": "contrasena",
+  "passwordPlaceholder": "••••••••",
   "keepEmptyToNotChange": "Deje vacío para no cambiar",
   "exportAccounts": "Exportar configuración de correo",
   "exportDescription": "Exporte todas las cuentas de correo como una copia de seguridad cifrada protegida con contraseña.",

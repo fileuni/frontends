@@ -127,7 +127,7 @@
   "securityNone": "Aucun",
   "securitySslTls": "SSL/TLS (chiffrement direct)",
   "securityStartTls": "STARTTLS (mise a niveau TLS)",
-  "passwordPlaceholder": "mot-de-passe",
+  "passwordPlaceholder": "••••••••",
   "keepEmptyToNotChange": "Laissez vide pour ne pas changer",
   "exportAccounts": "Exporter la configuration e-mail",
   "exportDescription": "Exportez toutes les configurations de comptes e-mail dans un fichier de sauvegarde chiffré protégé par mot de passe.",
