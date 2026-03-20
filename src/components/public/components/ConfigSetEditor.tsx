@@ -7,6 +7,7 @@ import type { components as ConfigSetComponents } from '@/types/config_set_api.t
 import type { ConfigError, ConfigNoteEntry } from '@/components/system-config/components/ConfigRawEditor';
 import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
 import { ConfigWorkbenchShell } from '@/components/system-config/components/ConfigWorkbenchShell';
+import type { ExternalToolDiagnosisResponse } from '@/components/system-config/components/ExternalDependencyConfigModal';
 import { useToastStore } from '@/stores/toast';
 import { useThemeStore, type Theme } from '@/stores/theme';
 import { useLanguageStore, type Language } from '@/stores/language';
@@ -298,6 +299,14 @@ export const ConfigSetEditor: React.FC = () => {
     }
   };
 
+  const handleDiagnoseExternalTools = useCallback(async (configuredValues: Record<string, string>): Promise<ExternalToolDiagnosisResponse> => {
+    return extractData<ExternalToolDiagnosisResponse>(
+      client.POST('/api/v1/config-set/external-tools/diagnose', {
+        body: { configured_values: configuredValues },
+      }),
+    );
+  }, []);
+
   const toggleTheme = () => {
     const themes: Theme[] = ['light', 'dark', 'system'];
     const currentIndex = themes.indexOf(theme);
@@ -434,6 +443,7 @@ export const ConfigSetEditor: React.FC = () => {
           restartNotice={t('admin.config.restartNotice')}
           quickWizardEnabled={true}
           runtimeOs={runtimeOs}
+          onDiagnoseExternalTools={handleDiagnoseExternalTools}
           quickWizardLicense={{
             isValid: Boolean(licenseStatus?.is_valid),
             msg: licenseStatus?.msg,

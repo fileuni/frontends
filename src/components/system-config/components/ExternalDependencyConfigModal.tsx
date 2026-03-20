@@ -54,6 +54,13 @@ type CompressionDraft = {
   exe7zPath: string;
 };
 
+type ToolInputDescriptor = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+};
+
 const DEFAULT_THUMBNAIL_DRAFT: ThumbnailDraft = {
   vipsPath: 'vips',
   imagemagickPath: 'convert',
@@ -355,6 +362,12 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
   }, [content, isOpen, tomlAdapter]);
 
   const toolItems = useMemo(() => diagnosis?.tools.filter((item) => item.group === 'thumbnail') ?? [], [diagnosis]);
+  const toolInputs: ToolInputDescriptor[] = [
+    { label: 'libvips', value: draft.vipsPath, onChange: (value) => setDraft((state) => ({ ...state, vipsPath: value })), placeholder: 'vips' },
+    { label: 'ImageMagick', value: draft.imagemagickPath, onChange: (value) => setDraft((state) => ({ ...state, imagemagickPath: value })), placeholder: 'convert or magick' },
+    { label: 'FFmpeg', value: draft.ffmpegPath, onChange: (value) => setDraft((state) => ({ ...state, ffmpegPath: value })), placeholder: 'ffmpeg' },
+    { label: 'LibreOffice', value: draft.libreofficePath, onChange: (value) => setDraft((state) => ({ ...state, libreofficePath: value })), placeholder: 'soffice' },
+  ];
 
   const handleDiagnose = async () => {
     if (!onDiagnoseExternalTools || diagnosing) return;
@@ -460,22 +473,17 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className={cn('rounded-2xl border p-4 space-y-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-slate-50')}>
-          {[
-            ['libvips', draft.vipsPath, (value: string) => setDraft((state) => ({ ...state, vipsPath: value })), 'vips'],
-            ['ImageMagick', draft.imagemagickPath, (value: string) => setDraft((state) => ({ ...state, imagemagickPath: value })), 'convert or magick'],
-            ['FFmpeg', draft.ffmpegPath, (value: string) => setDraft((state) => ({ ...state, ffmpegPath: value })), 'ffmpeg'],
-            ['LibreOffice', draft.libreofficePath, (value: string) => setDraft((state) => ({ ...state, libreofficePath: value })), 'soffice'],
-          ].map(([label, value, onValueChange, placeholder]) => (
-            <div key={label}>
-              <label className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>{label}</label>
+          {toolInputs.map((input) => (
+            <div key={input.label}>
+              <label className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>{input.label}</label>
               <input
-                value={value as string}
-                onChange={(event) => (onValueChange as (value: string) => void)(event.target.value)}
+                value={input.value}
+                onChange={(event) => input.onChange(event.target.value)}
                 className={cn(
                   'mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono',
                   isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                 )}
-                placeholder={placeholder as string}
+                placeholder={input.placeholder}
               />
             </div>
           ))}
