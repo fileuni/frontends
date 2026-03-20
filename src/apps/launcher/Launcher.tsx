@@ -18,6 +18,7 @@ import { useLanguageStore, type Language } from '@/stores/language';
 import type { ConfigError, ConfigNoteEntry } from '@/components/system-config/components/ConfigRawEditor';
 import { ConfigWorkbenchShell } from '@/components/system-config/components/ConfigWorkbenchShell';
 import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
+import type { ExternalToolDiagnosisResponse } from '@/components/system-config/components/ExternalDependencyConfigModal';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { LogViewer, type LogEntry } from '@/apps/launcher/components/LogViewer';
 import { QuickActionsPanel } from '@/apps/launcher/components/QuickActionsPanel';
@@ -517,6 +518,12 @@ export default function Launcher() {
     setConfigBusy(false);
   };
 
+  const handleDiagnoseExternalTools = async (configuredValues: Record<string, string>): Promise<ExternalToolDiagnosisResponse> => {
+    return safeInvoke<ExternalToolDiagnosisResponse>('diagnose_external_tools', {
+      payload: { configured_values: configuredValues },
+    });
+  };
+
   useEffect(() => {
     let unlistenServiceAction: (() => void) | null = null;
     let unlistenLogs: (() => void) | null = null;
@@ -945,6 +952,8 @@ export default function Launcher() {
                   reloadSummaryLevel={configSummaryLevel}
                   restartNotice={t('setup.admin.finalConfirmDesc')}
                   quickWizardEnabled={true}
+                  runtimeOs={osInfo?.os_type}
+                  onDiagnoseExternalTools={handleDiagnoseExternalTools}
                   {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
                   quickWizardLicense={{
                     isValid: Boolean(licenseStatus?.is_valid),
@@ -1340,6 +1349,8 @@ export default function Launcher() {
               showCancel={false}
               reloadSummary={configSummary}
               reloadSummaryLevel={configSummaryLevel}
+              runtimeOs={osInfo?.os_type}
+              onDiagnoseExternalTools={handleDiagnoseExternalTools}
               onResetAdminPassword={handleResetAdminPassword}
               isResettingAdminPassword={resettingAdminPassword}
               {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
