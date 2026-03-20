@@ -1204,6 +1204,23 @@ const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommende
     vfsHub.enable_ftp = effectiveFeatures.ftp;
     vfsHub.enable_s3 = effectiveFeatures.s3;
     ensureVfsLocalStorageDefaults(vfsHub);
+    const readCache = ensureRecord(vfsHub, 'read_cache');
+    readCache.enable ??= false;
+    readCache.backend ??= 'memory';
+    readCache.local_dir ??= '{APPDATADIR}/cache/vfs-read';
+    readCache.capacity_bytes ??= 268435456;
+    readCache.max_file_size_bytes ??= 1048576;
+    readCache.ttl_secs ??= 1800;
+    const writeCache = ensureRecord(vfsHub, 'write_cache');
+    writeCache.enable ??= false;
+    writeCache.backend ??= 'memory';
+    writeCache.local_dir ??= '{APPDATADIR}/cache/vfs-write';
+    writeCache.capacity_bytes ??= 268435456;
+    writeCache.max_file_size_bytes ??= 262144;
+    writeCache.flush_concurrency ??= 2;
+    writeCache.flush_interval_ms ??= 20;
+    writeCache.flush_deadline_secs ??= 300;
+    writeCache.abnormal_spill_dir ??= '{APPDATADIR}/cache/vfs-write-abnormal';
 
     const fileCompress = ensureRecord(vfsHub, 'file_compress');
     fileCompress.enable = effectiveFeatures.compression;
