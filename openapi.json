@@ -3120,6 +3120,37 @@
         ]
       }
     },
+    "/api/v1/file/admin/file-manager/wal/issues": {
+      "get": {
+        "tags": [
+          "Admin: FileManager"
+        ],
+        "operationId": "list_wal_issues",
+        "responses": {
+          "200": {
+            "description": "Active WAL issue entries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
     "/api/v1/file/admin/file-manager/wal/terminate": {
       "post": {
         "tags": [
@@ -15192,6 +15223,54 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "WalIssueEntryResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "operation_type",
+          "operation_data",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "failure_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "operation_data": {
+            "type": "string"
+          },
+          "operation_type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
           }
         }
       },

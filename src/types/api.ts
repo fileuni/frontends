@@ -1315,6 +1315,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/file/admin/file-manager/wal/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_wal_issues"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/file/admin/file-manager/wal/terminate": {
         parameters: {
             query?: never;
@@ -4825,6 +4841,18 @@ export interface components {
             success: boolean;
             user_id?: string | null;
         };
+        WalIssueEntryResponse: {
+            completed_at?: string | null;
+            created_at: string;
+            failure_reason?: string | null;
+            /** Format: int64 */
+            id: number;
+            operation_data: string;
+            operation_type: string;
+            status: string;
+            updated_at: string;
+            user_id: string;
+        };
         WopiHostResponse: {
             /**
              * @example [
@@ -7182,6 +7210,40 @@ export interface operations {
                      */
                     "application/json": components["schemas"]["Resp"];
                 };
+            };
+        };
+    };
+    list_wal_issues: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Active WAL issue entries */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
