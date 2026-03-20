@@ -25,7 +25,7 @@
   "viewReleasePage": "Voir la page de publication",
   "currentChannelBadge": "Canal actuel",
   "channels": {
-    "stable": "Stable",
+    "stable": "Canal stable",
     "prerelease": "Pré-version"
   },
   "state": {
@@ -34,7 +34,7 @@
   },
   "links": {
     "website": "Page d'accueil du projet",
-    "docs": "Documentation",
+    "docs": "Docs produit",
     "repository": "Dépôt"
   }
 }
