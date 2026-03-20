@@ -277,7 +277,7 @@
     "wildcardRequiresDns01": "Wildcard требует DNS-01 (HTTP-01 не может валидировать wildcard)",
     "saveProviderFirst": "Сначала сохраните провайдера",
     "zoneRequired": "Зона обязательна",
-    "authOkBadge": "AUTH ПРОЙДЕНА",
+    "authOkBadge": "AUTH OK",
     "authErrorBadge": "AUTH ERROR",
     "credOkBadge": "CRED OK",
     "credErrorBadge": "CRED ERROR",

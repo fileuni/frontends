@@ -277,7 +277,7 @@
     "wildcardRequiresDns01": "Les jokers nécessitent DNS-01 (HTTP-01 ne peut pas valider les jokers)",
     "saveProviderFirst": "Enregistrez d'abord le fournisseur",
     "zoneRequired": "La zone est requise",
-    "authOkBadge": "AUTH OK FR",
+    "authOkBadge": "AUTH OK",
     "authErrorBadge": "AUTH ERROR",
     "credOkBadge": "CRED OK",
     "credErrorBadge": "CRED ERROR",

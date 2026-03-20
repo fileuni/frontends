@@ -277,7 +277,7 @@
     "wildcardRequiresDns01": "ワイルドカードには DNS-01 が必要です（HTTP-01 はワイルドカードを検証できません）",
     "saveProviderFirst": "先にプロバイダーを保存してください",
     "zoneRequired": "ゾーンは必須です",
-    "authOkBadge": "AUTH 認証成功",
+    "authOkBadge": "AUTH OK",
     "authErrorBadge": "AUTH ERROR",
     "credOkBadge": "CRED OK",
     "credErrorBadge": "CRED ERROR",
