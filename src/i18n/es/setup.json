@@ -1,9 +1,147 @@
 {
+  "wizard": {
+    "title": "Inicialización de FileUni",
+    "subtitle": "Configure su sistema de gestión de archivos de alto rendimiento"
+  },
+  "steps": {
+    "step": "Paso",
+    "profile": "Perfil",
+    "database": "Base de datos",
+    "cache": "Caché",
+    "advanced": "Ajustes",
+    "config": "Revisión",
+    "admin": "Admin",
+    "final": "Completar",
+    "review": "Revisión"
+  },
+  "locked": {
+    "title": "Modo de configuración bloqueado",
+    "howToUnlockFile": "Para desbloquear, cree este archivo de indicador en la raíz del proyecto:",
+    "howToUnlockArg": "O reinicie el servicio con este argumento:"
+  },
+  "profile": {
+    "title": "Seleccione el perfil de rendimiento",
+    "subtitle": "Elija un punto de partida según su hardware. Podrá personalizarlo todo en el siguiente paso.",
+    "low": {
+      "name": "Eco / IoT",
+      "desc": "Ideal para Raspberry Pi o VPS de 1GB. SQLite ligero y caché en memoria."
+    },
+    "medium": {
+      "name": "Estándar",
+      "desc": "Configuración equilibrada para NAS doméstico. Manejo de metadatos fiable y eficiente."
+    },
+    "high": {
+      "name": "Rendimiento",
+      "desc": "Grado producción. Mejor con PostgreSQL y Redis para clústeres masivos de archivos."
+    }
+  },
   "config": {
+    "title": "Configuración del entorno",
+    "subtitle": "Configure su base de datos y caché. Las cadenas DSN se construirán automáticamente.",
+    "changeProfile": "Cambiar perfil",
+    "dbDsn": "DSN de base de datos",
+    "dsnNote": "Nota: los cambios manuales del DSN reemplazarán los valores del formulario.",
+    "rawToml": "Vista previa de configuración (TOML)",
+    "useTls": "Usar conexión segura (TLS/SSL)",
+    "dbType": "Tipo de base de datos",
+    "host": "Host",
+    "port": "Puerto",
     "username": "Usuario",
     "password": "Contraseña",
+    "dbName": "Nombre de base de datos",
+    "dbPath": "Ruta del archivo SQLite",
+    "kvUsername": "Nombre de usuario de Redis",
+    "kvType": "Backend de caché",
+    "kvRedisHint": "Backends compatibles con Redis (Redis/KeyDB/Valkey)",
+    "kvDashmapHint": "Nota: la caché en memoria es volátil y se borra al reiniciar.",
+    "kvSqlHint": "Nota: reutilizará la base de datos principal para el almacenamiento de caché.",
+    "versionWarning": {
+      "keydb": "Se requiere KeyDB 6.3.4+",
+      "redis": "Se requiere Redis 7.4.0+",
+      "valkey": "Se requiere Valkey 9.0.0+"
+    },
     "advanced": {
-      "userCenterTitle": "Centro de usuario"
+      "toggle": "Ajustes expertos (base de datos, pool, rendimiento del sistema)",
+      "userCenterTitle": "Centro de usuario",
+      "enableReg": "Habilitar registro",
+      "plusTitle": "Sistema de plugins Plus",
+      "plusEnabled": "Habilitar sistema de plugins",
+      "plusCaptureLogs": "Capturar logs de plugins",
+      "captchaTitle": "Configuración de captcha",
+      "captchaLength": "Longitud del código",
+      "captchaExpires": "Expira en (s)",
+      "captchaSecret": "Clave secreta de captcha",
+      "captchaMaxFailures": "Máx. reintentos / fallos",
+      "captchaCooldown": "Enfriamiento tras fallo (s)",
+      "captchaGlobalLimit": "Límite global por hora",
+      "captchaCacheSize": "Tamaño del pool pre-generado",
+      "captchaConcurrency": "Concurrencia de generación en segundo plano",
+      "accessTokenSecret": "Secreto de token de acceso (JWT)",
+      "refreshTokenSecret": "Secreto de token de actualización (JWT)",
+      "genSecret": "Generar secreto de 64 caracteres",
+      "poolTitle": "Pool y comprobación de salud",
+      "maxConn": "Conexiones máximas",
+      "minConn": "Conexiones mínimas",
+      "connectTimeout": "Tiempo de conexión (s)",
+      "idleTimeout": "Tiempo de inactividad (s)",
+      "maxLifetime": "Vida máxima (s)",
+      "healthCheck": "Tiempo de comprobación de salud (s)",
+      "pgTitle": "Ajuste del motor PostgreSQL",
+      "statementTimeout": "Tiempo de sentencia (s)",
+      "lockTimeout": "Tiempo de bloqueo (ms)",
+      "poolSizeLimit": "Habilitar límite de tamaño del pool",
+      "tcpKeepalive": "Ajuste del motor SQLite (Pragmas)",
+      "walMode": "Habilitar modo WAL (escritura de alto rendimiento)",
+      "busyTimeout": "Espera ocupada (ms)",
+      "cacheSize": "Tamaño de caché (KB, neg=RAM abs)",
+      "tempStore": "Almacén temporal (0=Def, 1=Archivo, 2=RAM)",
+      "mmapSize": "Tamaño mmap (bytes, 0=Off)",
+      "pageSize": "Tamaño de página (bytes)",
+      "syncLevel": "Nivel de sync (0=OFF, 1=NORM, 2=FULL)",
+      "sharedCache": "Habilitar caché compartida (shared_cache)"
     }
+  },
+  "admin": {
+    "title": "Crear super administrador",
+    "subtitle": "Esta cuenta tendrá control total sobre el sistema.",
+    "username": "Usuario admin",
+    "password": "Contraseña segura",
+    "suggestPassword": "Generar contraseña aleatoria",
+    "generate_password": "Generar contraseña aleatoria",
+    "pendingHint": "Se aplica tras el último aplicar",
+    "resetRuleHint": "Regla: si existe un admin, restablecer la contraseña del primer admin; si no existe, crear un admin con usuario admin.",
+    "resetSuccessWithUser": "Contraseña de admin aplicada. Usuario admin actual: {{username}}",
+    "finalConfirm": "Confirmación final",
+    "finalConfirmDesc": "Al hacer clic se guardará la configuración del sistema y se asegurará que la cuenta admin esté lista. Si las tablas o el administrador ya existen, el sistema solo realizará la sincronización necesaria.",
+    "finish": "Aplicar configuración",
+    "changePassword": "Establecer contraseña de admin",
+    "passwordHintTitle": "Se requiere contraseña de admin para finalizar",
+    "passwordHintDesc": "Establezca o actualice la contraseña de admin para aplicar la configuración. Puede hacerlo en cualquier momento.",
+    "passwordHintAction": "Establecer contraseña de admin"
+  },
+  "final": {
+    "title": "¡Todo está listo!",
+    "subtitle": "El administrador {{user}} tiene acceso total.",
+    "adminCreatedDefault": "Se creó el administrador {{user}}. Contraseña predeterminada: {{password}}.",
+    "adminCreatedWithPassword": "Se creó el administrador {{user}}. Contraseña: {{password}}.",
+    "adminReset": "Se actualizó la contraseña del administrador {{user}}: {{password}}.",
+    "adminExisting": "Se detectó un administrador existente {{user}}. Contraseña sin cambios.",
+    "nextSteps": "Siguientes pasos:",
+    "step1": "Inicie sesión con su cuenta de administrador.",
+    "step2": "Edite y guarde la configuración en línea en la consola de administración.",
+    "step3": "Haga clic en confirmar para volver al lanzador y continuar el flujo normal.",
+    "reload": "Volver al lanzador",
+    "docs": "Ver documentación"
+  },
+  "logs": {
+    "title": "Registro de despliegue en tiempo real",
+    "selectingProfile": "Aplicando perfil: {{profile}}...",
+    "templateLoadFailed": "Falló la carga de la plantilla: {{error}}",
+    "testingDb": "Probando conexión a base de datos...",
+    "dbError": "Error de BD",
+    "dbSuccess": "¡Conexión a base de datos exitosa!",
+    "applyingConfig": "Aplicando configuración y sincronizando el esquema...",
+    "setupFailed": "El despliegue falló",
+    "setupSuccess": "Configuración completada. Confirme para continuar el flujo normal."
   }
 }

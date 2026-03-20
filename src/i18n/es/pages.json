@@ -5,12 +5,97 @@
   "privacy": {
     "title": "Política de privacidad"
   },
+  "forgotPassword": {
+    "title": "Olvidé mi contraseña"
+  },
+  "share": {
+    "title": "Compartir archivos"
+  },
   "admin": {
     "userCreate": {
+      "title": "Crear usuario",
+      "layoutTitle": "Provisionamiento de identidad",
+      "provisionIdentity": "Aprovisionar identidad",
+      "manualAccountCreation": "Creación manual de cuenta",
       "username": "Usuario",
+      "usernamePlaceholder": "Identificador único",
+      "fullName": "Nombre completo",
+      "fullNamePlaceholder": "Nombre para mostrar",
+      "initialPassword": "Contraseña inicial",
+      "passwordPlaceholder": "Mín. 6 caracteres",
       "confirmPassword": "Confirmar contraseña",
-      "status": "Estado"
+      "confirmPasswordPlaceholder": "Repita la contraseña",
+      "role": "Rol",
+      "regularUser": "Usuario normal",
+      "systemAdministrator": "Administrador del sistema",
+      "status": "Estado",
+      "active": "Activa",
+      "inactive": "Inactiva",
+      "banned": "Bloqueada",
+      "email": "Correo",
+      "emailPlaceholder": "Correo opcional",
+      "phone": "Teléfono",
+      "phonePlaceholder": "Número opcional",
+      "createUser": "Crear usuario",
+      "createSuccess": "Usuario creado correctamente"
+    },
+    "userEdit": {
+      "title": "Editar usuario",
+      "layoutTitle": "Editar información de identidad"
+    },
+    "settings": {
+      "title": "Ajustes del sistema",
+      "layoutTitle": "Ajustes principales de ejecución"
+    },
+    "permissions": {
+      "title": "Gestión de permisos",
+      "layoutTitle": "Lista de control de acceso",
+      "inherit": "Heredar",
+      "allow": "Permitir",
+      "deny": "Denegar"
+    },
+    "fs": {
+      "title": "Gestión del sistema de archivos",
+      "layoutTitle": "Infraestructura del sistema de archivos",
+      "hybridStorage": "Híbrido",
+      "statusRecovering": "RECUPERANDO"
+    },
+    "web": {
+      "title": "Gestión de sitios web",
+      "layoutTitle": "Gestión multisite",
+      "tls": "TLS"
+    },
+    "tasks": {
+      "title": "Monitor de tareas",
+      "layoutTitle": "Tareas en segundo plano y monitorización del planificador"
+    },
+    "users": {
+      "title": "Usuarios",
+      "layoutTitle": "Gestión de identidades"
     }
+  },
+  "admin_fs": {
+    "storage_stats": "Estadísticas de almacenamiento",
+    "cluster_storage": "Almacenamiento del clúster",
+    "usage_efficiency": "Eficiencia de uso",
+    "active_maintenance": "Mantenimiento activo",
+    "storage_types": "Tipos de almacenamiento",
+    "engine_distribution": "Distribución del motor",
+    "global_ops": "Operaciones globales",
+    "global_ops_desc": "Precaución: estas acciones afectan a todo el clúster y solo deben realizarse durante ventanas de mantenimiento.",
+    "sync_index": "Sincronizar índice global",
+    "emergency_control": "Control de emergencia del hub",
+    "emergency_desc": "Precaución: estas acciones omiten comprobaciones de seguridad normales de VFS y pueden provocar inconsistencias de datos.",
+    "force_unlock": "Forzar desbloqueo global",
+    "locked_users": "Usuarios bloqueados (en recuperación WAL)",
+    "system_status": "Estado del sistema"
+  },
+  "admin_perms": {
+    "protocol_control": "Control de acceso por protocolo",
+    "authorized": "Autorizado",
+    "filter_placeholder": "Filtrar usuarios autorizados...",
+    "s3_credentials": "Credenciales S3",
+    "ssh_key": "Clave pública activa"
   },
   "register": {
     "title": "Registrarse"
@@ -18,15 +103,66 @@
   "login": {
     "title": "Iniciar sesión"
   },
+  "filemanager": {
+    "title": "Gestión de archivos"
+  },
+  "index": {
+    "title": "FileUni - Sistema modular de alto rendimiento"
+  },
   "user": {
     "welcome": {
       "title": "Panel de control"
+    },
+    "profile": {
+      "title": "Perfil",
+      "layoutTitle": "Editar perfil"
+    },
+    "sessions": {
+      "title": "Sesiones",
+      "layoutTitle": "Sesiones activas"
+    },
+    "security": {
+      "title": "Seguridad",
+      "layoutTitle": "Control de seguridad"
+    },
+    "cache": {
+      "title": "Gestor de caché",
+      "layoutTitle": "Gestor de caché"
+    },
+    "shares": {
+      "title": "Mis compartidos"
     }
   },
+  "colors": {
+    "red": "Rojo",
+    "orange": "Naranja",
+    "yellow": "Amarillo",
+    "green": "Verde",
+    "blue": "Azul",
+    "indigo": "Cian",
+    "purple": "Azul profundo"
+  },
   "publicShare": {
+    "verifying": "Verificando enlace de compartición...",
+    "accessDenied": "Acceso denegado",
+    "linkExpired": "Este enlace de compartición ha expirado o alcanzó su límite de descargas.",
+    "tryAgain": "Reintentar",
+    "encryptedTitle": "Compartición cifrada",
+    "passwordRequiredDesc": "Este contenido requiere una contraseña para desbloquearse.",
+    "enterPassword": "Introduzca la contraseña...",
+    "unlockBtn": "Desbloquear contenido",
+    "views": "Vistas",
     "status": "Estado",
+    "active": "Activa",
+    "downloadNow": "Descargar ahora",
+    "previewOnline": "Vista previa en línea",
+    "expiresSoon": "Caduca pronto",
     "file": "Archivo",
     "folder": "Carpeta",
-    "emptyFolder": "Esta carpeta está vacía"
+    "qrMobileAccess": "Acceso móvil",
+    "qrScanDesc": "Escanee para abrir esta compartición en su teléfono",
+    "qrBackToInfo": "Volver a información",
+    "emptyFolder": "Esta carpeta está vacía",
+    "previewNotAvailable": "Vista previa no disponible"
   }
 }

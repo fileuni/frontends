@@ -5,12 +5,97 @@
   "privacy": {
     "title": "プライバシーポリシー"
   },
+  "forgotPassword": {
+    "title": "パスワードをお忘れですか"
+  },
+  "share": {
+    "title": "ファイル共有"
+  },
   "admin": {
     "userCreate": {
+      "title": "ユーザー作成",
+      "layoutTitle": "本人情報の作成",
+      "provisionIdentity": "本人情報を作成",
+      "manualAccountCreation": "手動アカウント作成",
       "username": "ユーザー名",
+      "usernamePlaceholder": "一意の識別子",
+      "fullName": "氏名",
+      "fullNamePlaceholder": "表示名",
+      "initialPassword": "初期パスワード",
+      "passwordPlaceholder": "最小 6 文字",
       "confirmPassword": "パスワード確認",
-      "status": "ステータス"
+      "confirmPasswordPlaceholder": "パスワードを再入力",
+      "role": "ロール",
+      "regularUser": "一般ユーザー",
+      "systemAdministrator": "システム管理者",
+      "status": "ステータス",
+      "active": "有効",
+      "inactive": "無効",
+      "banned": "凍結",
+      "email": "メール",
+      "emailPlaceholder": "任意のメール",
+      "phone": "電話",
+      "phonePlaceholder": "任意の電話番号",
+      "createUser": "ユーザーを作成",
+      "createSuccess": "ユーザーを作成しました"
+    },
+    "userEdit": {
+      "title": "ユーザー編集",
+      "layoutTitle": "本人情報を編集"
+    },
+    "settings": {
+      "title": "システム設定",
+      "layoutTitle": "コア実行設定"
+    },
+    "permissions": {
+      "title": "権限管理",
+      "layoutTitle": "アクセス制御リスト",
+      "inherit": "継承",
+      "allow": "許可",
+      "deny": "拒否"
+    },
+    "fs": {
+      "title": "ファイルシステム管理",
+      "layoutTitle": "ファイルシステム基盤",
+      "hybridStorage": "ハイブリッド",
+      "statusRecovering": "復旧中"
+    },
+    "web": {
+      "title": "Webサイト管理",
+      "layoutTitle": "マルチサイト管理",
+      "tls": "TLS"
+    },
+    "tasks": {
+      "title": "タスク監視",
+      "layoutTitle": "バックグラウンドタスクとスケジューラー監視"
+    },
+    "users": {
+      "title": "ユーザー",
+      "layoutTitle": "本人情報管理"
     }
+  },
+  "admin_fs": {
+    "storage_stats": "ストレージ統計",
+    "cluster_storage": "クラスターストレージ",
+    "usage_efficiency": "使用効率",
+    "active_maintenance": "アクティブメンテナンス",
+    "storage_types": "ストレージ種別",
+    "engine_distribution": "エンジン分布",
+    "global_ops": "グローバル操作",
+    "global_ops_desc": "注意: これらの操作はクラスター全体に影響し、メンテナンス時間内にのみ実行してください。",
+    "sync_index": "グローバルインデックスを同期",
+    "emergency_control": "緊急ハブ制御",
+    "emergency_desc": "注意: これらの操作は通常の VFS 安全チェックを回避し、データ不整合につながる可能性があります。",
+    "force_unlock": "グローバル強制アンロック",
+    "locked_users": "ロック中のユーザー (WAL 復旧中)",
+    "system_status": "システム状態"
+  },
+  "admin_perms": {
+    "protocol_control": "プロトコルアクセス制御",
+    "authorized": "許可済み",
+    "filter_placeholder": "許可済みユーザーを絞り込み...",
+    "s3_credentials": "S3 資格情報",
+    "ssh_key": "有効な公開鍵"
   },
   "register": {
     "title": "登録"
@@ -18,15 +103,66 @@
   "login": {
     "title": "ログイン"
   },
+  "filemanager": {
+    "title": "ファイル管理"
+  },
+  "index": {
+    "title": "FileUni - 高性能モジュラーシステム"
+  },
   "user": {
     "welcome": {
       "title": "ダッシュボード"
+    },
+    "profile": {
+      "title": "プロフィール",
+      "layoutTitle": "プロフィール編集"
+    },
+    "sessions": {
+      "title": "セッション",
+      "layoutTitle": "アクティブセッション"
+    },
+    "security": {
+      "title": "セキュリティ",
+      "layoutTitle": "セキュリティ制御"
+    },
+    "cache": {
+      "title": "キャッシュ管理",
+      "layoutTitle": "キャッシュ管理"
+    },
+    "shares": {
+      "title": "共有一覧"
     }
   },
+  "colors": {
+    "red": "赤",
+    "orange": "オレンジ",
+    "yellow": "黄",
+    "green": "緑",
+    "blue": "青",
+    "indigo": "シアン",
+    "purple": "ディープブルー"
+  },
   "publicShare": {
+    "verifying": "共有リンクを確認しています...",
+    "accessDenied": "アクセス拒否",
+    "linkExpired": "この共有リンクは期限切れか、ダウンロード上限に達しました。",
+    "tryAgain": "再試行",
+    "encryptedTitle": "暗号化された共有",
+    "passwordRequiredDesc": "このコンテンツはパスワードが必要です。",
+    "enterPassword": "パスワードを入力...",
+    "unlockBtn": "コンテンツを解除",
+    "views": "閲覧数",
     "status": "ステータス",
+    "active": "有効",
+    "downloadNow": "今すぐダウンロード",
+    "previewOnline": "オンラインプレビュー",
+    "expiresSoon": "まもなく期限切れ",
     "file": "ファイル",
     "folder": "フォルダ",
-    "emptyFolder": "このフォルダは空です"
+    "qrMobileAccess": "モバイルアクセス",
+    "qrScanDesc": "スキャンしてスマホで開く",
+    "qrBackToInfo": "情報に戻る",
+    "emptyFolder": "このフォルダは空です",
+    "previewNotAvailable": "プレビューできません"
   }
 }

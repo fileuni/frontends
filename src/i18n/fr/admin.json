@@ -1,15 +1,236 @@
 {
+  "loading": "Chargement...",
   "extensions": {
-    "projectHomepage": "Page d'accueil du projet"
+    "title": "Gestionnaire d'extensions",
+    "subtitle": "Infrastructure d'extensions et de plugins",
+    "loading": "Chargement des extensions...",
+    "catalogLoading": "Synchronisation du catalogue depuis le cloud...",
+    "catalogLoadFailed": "Échec du chargement du catalogue d'extensions",
+    "fetchLatestBtn": "Récupérer la dernière",
+    "fetchLatestSuccess": "Informations de la dernière version récupérées depuis GitHub",
+    "runtimeHint": "Runtime : {{os}} / {{arch}} ({{bits}}-bit)",
+    "projectHomepage": "Page d'accueil du projet",
+    "configSection": "Installation et configuration",
+    "operationSection": "Opérations et contrôle",
+    "installOrUpdate": "Installer / mettre à jour le binaire",
+    "installFirstHint": "Veuillez d'abord installer cet outil pour déverrouiller le panneau d'opérations",
+    "serviceControl": "Gestion du service",
+    "toolActions": "Actions de l'outil",
+    "taskKindHint": "Cet outil est de type tâche : généralement planifiée par le système ou exécutée manuellement, et non comme service persistant.",
+    "version": "Version",
+    "binPath": "Chemin du binaire",
+    "installDir": "Répertoire d'installation",
+    "downloadTemplate": "Modèle d'URL de téléchargement",
+    "githubProxy": "Proxy GitHub",
+    "customDownloadUrl": "URL de téléchargement personnalisée (override)",
+    "downloadNow": "Télécharger et installer {{tool}}",
+    "downloadSuccess": "{{tool}} installé avec succès",
+    "downloadUrlMissing": "URL de téléchargement manquante",
+    "serviceStart": "Démarrer le service",
+    "serviceStop": "Arrêter le service",
+    "serviceRestart": "Redémarrer",
+    "serviceRunning": "Service en cours",
+    "serviceStopped": "Service arrêté",
+    "followStart": "Démarrer avec le système",
+    "serviceActionSuccess": "Action de service envoyée",
+    "status": {
+      "installed": "Installé",
+      "notInstalled": "Non installé"
+    },
+    "placeholders": {
+      "version": "ex. v1.2.3",
+      "binPath": "Répertoire de stockage du binaire",
+      "downloadTemplate": "Variables : {version} {os} {arch}",
+      "githubProxy": "ex. https://ghproxy.com/",
+      "customDownloadUrl": "Saisissez le lien direct de téléchargement"
+    },
+    "openlist": {
+      "dataPathLabel": "Chemin de stockage des données",
+      "resetAdmin": "Réinitialiser le mot de passe admin",
+      "resetAdminSuccess": "Mot de passe admin réinitialisé avec succès"
+    },
+    "rclone": {
+      "configPathLabel": "Chemin du fichier de configuration",
+      "mountCommandLabel": "Modèle de commande de montage",
+      "unmountCommandLabel": "Commande de démontage",
+      "copyMount": "Copier la commande de montage",
+      "copyMountSuccess": "Commande de montage copiée dans le presse-papiers"
+    },
+    "kopia": {
+      "title": "Gestion de Kopia",
+      "download": "Télécharger Kopia"
+    },
+    "fetchLatestTitle": "Configuration automatique",
+    "fetchLatestHint": "Récupérer la dernière version depuis GitHub",
+    "clickSettingsToInstall": "Cliquez sur paramètres pour installer",
+    "installBtn": "Installer l'outil",
+    "updateBtn": "Mettre à jour l'outil",
+    "running": "En cours",
+    "stopped": "Arrêté",
+    "homepage": "Accueil",
+    "pidLabel": "PID",
+    "management": "Gestion",
+    "versionPlaceholder": "ex. v1.2.3",
+    "downloadUrlPlaceholder": "Saisissez l'URL directe de téléchargement",
+    "archiveKindPlaceholder": "ex. tar.gz",
+    "downloadTemplatePlaceholder": "Variables : {version} {os} {arch}",
+    "githubMirrorPlaceholder": "ex. https://ghproxy.com/",
+    "binPathPlaceholder": "Chemin du fichier binaire",
+    "targetOsPlaceholder": "OS cible, ex. linux",
+    "targetArchPlaceholder": "Arch cible, ex. amd64",
+    "commandArgsPlaceholder": "Arguments de commande",
+    "exitCode": "Code de sortie",
+    "stdout": "Stdout",
+    "stderr": "Stderr"
+  },
+  "saveSuccess": "Configuration enregistrée avec succès",
+  "saveError": "Échec de l'enregistrement de la configuration",
+  "backup": {
+    "title": "Sauvegarde système",
+    "exportTitle": "Exporter la sauvegarde",
+    "exportDesc": "Téléchargez une sauvegarde complète incluant les enregistrements de base (Utilisateurs, Rôles, Logs) et les fichiers de configuration. Les index de fichiers sont exclus par défaut pour réduire la taille.",
+    "exportBtn": "Télécharger .tar.gz",
+    "importTitle": "Importer / restaurer",
+    "importDesc": "Restaurer le système depuis un fichier .tar.gz exporté précédemment.",
+    "importWarning": "Attention : les données existantes seront écrasées !",
+    "importBtn": "Téléverser et restaurer",
+    "confirmTitle": "Importer une sauvegarde système",
+    "confirmMsg": "ATTENTION : ceci écrasera les données actuelles de la base et les fichiers de configuration. Cette action est irréversible. Continuer ?",
+    "confirmBtn": "Oui, restaurer",
+    "exportSuccess": "Sauvegarde téléchargée avec succès",
+    "importSuccess": "Système restauré avec succès. Veuillez redémarrer le serveur si la configuration a changé.",
+    "localTitle": "Sauvegarde sur disque local",
+    "localDesc": "Enregistrer une sauvegarde complète directement sur le disque local du serveur. Recommandé pour de grandes bases ou une maintenance courante.",
+    "localBtn": "Lancer la sauvegarde locale",
+    "localSuccess": "Sauvegarde locale terminée : {{path}}",
+    "largeDbWarning": "Important : si une table dépasse 100 000 enregistrements ou si la sauvegarde est très volumineuse, utilisez des outils professionnels (pg_dump, sqlite3 backup) pour assurer la stabilité.",
+    "criticalAction": "Action critique"
   },
   "tasks": {
+    "title": "Moniteur de tâches",
+    "subtitle": "Tâches en arrière-plan et jobs planifiés",
+    "scheduled_jobs": "Tâches de maintenance planifiées",
+    "no_scheduled_jobs": "Aucun job planifié trouvé (vérifiez la configuration)",
+    "async_tasks": "Tâches actives et historique",
+    "all_status": "Tous les statuts",
+    "type": "Type",
+    "user": "Utilisateur",
+    "progress": "Progression",
     "status": {
-      "success": "Succès"
-    }
+      "pending": "En attente",
+      "running": "En cours",
+      "success": "Succès",
+      "failed": "Échec"
+    },
+    "time": "Créé le",
+    "no_tasks": "Aucune tâche trouvée",
+    "cancel_confirm": "Êtes-vous sûr de vouloir annuler cette tâche ?",
+    "cancel_success": "Commande d'annulation envoyée"
+  },
+  "permissions": {
+    "inherit": "Hériter",
+    "allow": "Autoriser",
+    "deny": "Refuser"
+  },
+  "perms": {
+    "no_role": "Sélectionnez un rôle",
+    "title": "Gouvernance d'accès",
+    "subtitle": "Gestion sécurité et permissions",
+    "protocol_control": "Contrôle d'accès par protocole",
+    "authorized": "Autorisé",
+    "filter_placeholder": "Filtrer les utilisateurs autorisés...",
+    "s3_credentials": "Identifiants S3",
+    "ssh_key": "Clé publique active",
+    "not_set": "Non défini",
+    "manage": "Gérer les permissions",
+    "edit_user": "Éditer les permissions"
   },
   "web": {
+    "title": "Gestion des sites Web",
+    "subtitle": "Un site unique prend en charge plusieurs domaines, IP et ports",
+    "tls": "TLS",
+    "newSite": "Nouveau site",
+    "editSite": "Modifier le site",
+    "reload": "Recharger l'exécution",
+    "empty": "Aucune configuration de site",
+    "saveSuccess": "Configuration du site enregistrée",
+    "deleteSuccess": "Configuration du site supprimée",
+    "reloadSuccess": "Runtime Web rechargé",
+    "deleteConfirm": "Supprimer le site {{name}} ?",
+    "stats": {
+      "total": "Total des sites",
+      "enabled": "Activés",
+      "tls": "Sites TLS",
+      "proxy": "Sites proxy"
+    },
     "table": {
-      "status": "Statut"
+      "site": "Site",
+      "bindings": "Binding",
+      "hostnames": "Hostnames",
+      "mode": "Mode",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "form": {
+      "siteName": "Nom du site",
+      "routeMode": "Mode de routage",
+      "static": "Fichiers statiques",
+      "proxy": "Proxy inverse",
+      "enabled": "Site activé",
+      "bindings": "Règles de binding",
+      "addBinding": "Ajouter un binding",
+      "staticRoot": "Racine statique",
+      "proxyUpstream": "Upstream",
+      "proxyTlsInsecure": "Ignorer les erreurs de certificat TLS upstream",
+      "proxyTlsInsecureHint": "Disponible uniquement lorsque l'upstream commence par https://",
+      "hostnames": "Hostnames",
+      "listenIps": "IPs d'écoute",
+      "listenPorts": "Ports d'écoute",
+      "tlsAcmeCert": "Certificat ACME",
+      "tlsAcmeCertNone": "Ne pas utiliser de certificat ACME (chemins manuels)",
+      "tlsCertPath": "Chemin du cert TLS",
+      "tlsKeyPath": "Chemin de la clé TLS",
+      "proxyHeaders": "En-têtes de requête personnalisés (JSON)",
+      "proxyHeadersHint": "En-têtes HTTP supplémentaires envoyés à l'upstream ; doit être un objet JSON",
+      "ip": "IP",
+      "port": "Port",
+      "default": "Par défaut",
+      "hostnameSuggestionHint": "Utilisez les domaines DDNS comme suggestions de hostname.",
+      "siteNamePlaceholder": "site-name",
+      "staticRootPlaceholder": "/var/www/site",
+      "proxyUpstreamPlaceholder": "http://127.0.0.1:8080",
+      "ipPlaceholder": "0.0.0.0",
+      "portPlaceholder": "80",
+      "hostnamesPlaceholder": "example.com, *.example.com",
+      "tlsCertPathPlaceholder": "/etc/ssl/site.crt",
+      "tlsKeyPathPlaceholder": "/etc/ssl/site.key"
+    },
+    "validation": {
+      "nameRequired": "Le nom du site est requis",
+      "bindingsRequired": "Au moins une règle de binding est requise",
+      "listenIpsRequired": "Au moins une IP d'écoute est requise",
+      "listenPortsRequired": "Au moins un port d'écoute est requis",
+      "hostnamesRequired": "Au moins un hostname est requis",
+      "tlsFilesRequired": "Les chemins du cert et de la clé TLS sont requis lorsque TLS est activé",
+      "staticRootRequired": "La racine statique est requise en mode statique",
+      "proxyUpstreamRequired": "L'upstream est requis en mode proxy"
+    },
+    "warnings": {
+      "title": "Avertissement de conflit",
+      "confirmSave": "Conflits potentiels détectés. Enregistrer quand même ?",
+      "duplicateHostInSite": "Binding de hostname dupliqué dans le site courant : {{key}} -> {{host}}",
+      "multiDefaultInListener": "Plusieurs bindings par défaut dans le même groupe de listeners : {{key}}",
+      "defaultConflict": "Conflit de binding par défaut avec un autre site : {{site}} ({{key}})",
+      "hostnameConflict": "Conflit de hostname avec un autre site : {{site}} ({{key}})"
+    },
+    "diagnostics": {
+      "title": "Diagnostics des listeners",
+      "desc": "Le matching type Nginx sélectionne d'abord l'endpoint du listener, puis fait correspondre Host. Ce panneau montre les conflits actuels et inter-sites par groupe de listeners.",
+      "listenerCount": "Listeners {{count}}",
+      "current": "Site courant",
+      "remote": "Autres sites",
+      "conflict": "Conflit",
+      "clean": "OK"
     }
   },
   "domain": {
@@ -33,7 +254,8 @@
     "refresh": "Actualiser",
     "table": {
       "name": "Nom",
-      "status": "Statut"
+      "status": "Statut",
+      "actions": "Actions"
     }
   },
   "audit": {
@@ -44,7 +266,8 @@
   },
   "users": {
     "table": {
-      "status": "Statut"
+      "status": "Statut",
+      "actions": "Actions"
     },
     "restore": "Restaurer",
     "edit": "Modifier",

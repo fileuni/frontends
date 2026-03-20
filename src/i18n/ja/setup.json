@@ -1,9 +1,147 @@
 {
+  "wizard": {
+    "title": "FileUni 初期化",
+    "subtitle": "高性能ファイル管理システムを設定します"
+  },
+  "steps": {
+    "step": "ステップ",
+    "profile": "プロファイル",
+    "database": "データベース",
+    "cache": "キャッシュ",
+    "advanced": "調整",
+    "config": "確認",
+    "admin": "管理者",
+    "final": "完了",
+    "review": "確認"
+  },
+  "locked": {
+    "title": "セットアップモードがロックされています",
+    "howToUnlockFile": "解除するには、プロジェクトルートに次のフラグファイルを作成してください：",
+    "howToUnlockArg": "または、次の引数でサービスを再起動してください："
+  },
+  "profile": {
+    "title": "パフォーマンスプロファイルを選択",
+    "subtitle": "ハードウェアに合わせた開始設定を選択してください。次のステップですべてカスタマイズできます。",
+    "low": {
+      "name": "エコ / IoT",
+      "desc": "Raspberry Pi や 1GB VPS に最適。軽量 SQLite とメモリキャッシュ。"
+    },
+    "medium": {
+      "name": "標準",
+      "desc": "家庭用 NAS 向けのバランス設定。信頼性と効率的なメタデータ処理。"
+    },
+    "high": {
+      "name": "高性能",
+      "desc": "本番向け。大規模クラスターでは PostgreSQL と Redis が最適。"
+    }
+  },
   "config": {
+    "title": "環境設定",
+    "subtitle": "データベースとキャッシュを設定します。DSN は自動的に構築されます。",
+    "changeProfile": "プロファイルを変更",
+    "dbDsn": "データベース DSN",
+    "dsnNote": "注: DSN を手動で編集するとフォーム値が上書きされます。",
+    "rawToml": "設定プレビュー (TOML)",
+    "useTls": "安全な接続を使用 (TLS/SSL)",
+    "dbType": "データベース種類",
+    "host": "ホスト",
+    "port": "ポート",
     "username": "ユーザー名",
     "password": "パスワード",
+    "dbName": "データベース名",
+    "dbPath": "SQLite ファイルパス",
+    "kvUsername": "Redis ユーザー名",
+    "kvType": "キャッシュバックエンド",
+    "kvRedisHint": "Redis 互換バックエンド (Redis/KeyDB/Valkey)",
+    "kvDashmapHint": "注: メモリキャッシュは揮発性で、再起動で消去されます。",
+    "kvSqlHint": "注: キャッシュ保存にプライマリ DB を再利用します。",
+    "versionWarning": {
+      "keydb": "KeyDB 6.3.4+ が必要",
+      "redis": "Redis 7.4.0+ が必要",
+      "valkey": "Valkey 9.0.0+ が必要"
+    },
     "advanced": {
-      "userCenterTitle": "ユーザーセンター"
+      "toggle": "エキスパート設定 (DB / Pool / システム性能)",
+      "userCenterTitle": "ユーザーセンター",
+      "enableReg": "登録を有効化",
+      "plusTitle": "Plus プラグインシステム",
+      "plusEnabled": "プラグインシステムを有効化",
+      "plusCaptureLogs": "プラグインログを収集",
+      "captchaTitle": "Captcha 設定",
+      "captchaLength": "コード長",
+      "captchaExpires": "有効期限 (秒)",
+      "captchaSecret": "Captcha シークレットキー",
+      "captchaMaxFailures": "最大リトライ / 失敗回数",
+      "captchaCooldown": "失敗後クールダウン (秒)",
+      "captchaGlobalLimit": "全体の時間あたり上限",
+      "captchaCacheSize": "事前生成プールサイズ",
+      "captchaConcurrency": "バックグラウンド生成並列数",
+      "accessTokenSecret": "アクセストークンシークレット (JWT)",
+      "refreshTokenSecret": "リフレッシュトークンシークレット (JWT)",
+      "genSecret": "64 文字のシークレットを生成",
+      "poolTitle": "プールとヘルスチェック",
+      "maxConn": "最大接続数",
+      "minConn": "最小接続数",
+      "connectTimeout": "接続タイムアウト (秒)",
+      "idleTimeout": "アイドルタイムアウト (秒)",
+      "maxLifetime": "最大寿命 (秒)",
+      "healthCheck": "ヘルスチェックタイムアウト (秒)",
+      "pgTitle": "PostgreSQL エンジン調整",
+      "statementTimeout": "ステートメントタイムアウト (秒)",
+      "lockTimeout": "ロックタイムアウト (ms)",
+      "poolSizeLimit": "プールサイズ上限を有効化",
+      "tcpKeepalive": "SQLite エンジン調整 (Pragmas)",
+      "walMode": "WAL モードを有効化 (高性能書き込み)",
+      "busyTimeout": "Busy timeout (ms)",
+      "cacheSize": "キャッシュサイズ (KB, neg=RAM abs)",
+      "tempStore": "一時ストア (0=Def, 1=File, 2=RAM)",
+      "mmapSize": "mmap サイズ (Bytes, 0=Off)",
+      "pageSize": "ページサイズ (Bytes)",
+      "syncLevel": "同期レベル (0=OFF, 1=NORM, 2=FULL)",
+      "sharedCache": "共有キャッシュを有効化 (shared_cache)"
     }
+  },
+  "admin": {
+    "title": "スーパー管理者を作成",
+    "subtitle": "このアカウントはシステムを完全に制御できます。",
+    "username": "管理者ユーザー名",
+    "password": "安全なパスワード",
+    "suggestPassword": "ランダムパスワードを生成",
+    "generate_password": "ランダムパスワードを生成",
+    "pendingHint": "最終適用後に反映されます",
+    "resetRuleHint": "ルール: 管理者が存在する場合は最初の管理者パスワードをリセット。存在しない場合は admin を作成します。",
+    "resetSuccessWithUser": "管理者パスワードを適用しました。現在の管理者: {{username}}",
+    "finalConfirm": "最終確認",
+    "finalConfirmDesc": "クリックするとシステム設定が保存され、管理者アカウントの準備が整います。テーブルや管理者が既に存在する場合は必要な同期のみを行います。",
+    "finish": "設定を適用",
+    "changePassword": "管理者パスワードを設定",
+    "passwordHintTitle": "セットアップ完了には管理者パスワードが必要です",
+    "passwordHintDesc": "設定を適用するために管理者パスワードを設定または更新してください。いつでも実行できます。",
+    "passwordHintAction": "管理者パスワードを設定"
+  },
+  "final": {
+    "title": "準備完了です！",
+    "subtitle": "管理者 {{user}} にフルアクセスを付与しました。",
+    "adminCreatedDefault": "管理者 {{user}} を作成しました。既定パスワード: {{password}}。",
+    "adminCreatedWithPassword": "管理者 {{user}} を作成しました。パスワード: {{password}}。",
+    "adminReset": "管理者 {{user}} のパスワードを更新しました: {{password}}。",
+    "adminExisting": "既存の管理者 {{user}} を検出しました。パスワードは変更されません。",
+    "nextSteps": "次に行うこと:",
+    "step1": "管理者アカウントでサインインします。",
+    "step2": "管理コンソールで設定を編集して保存します。",
+    "step3": "確認をクリックしてランチャーに戻り、通常フローを続行します。",
+    "reload": "ランチャーに戻る",
+    "docs": "ドキュメントを見る"
+  },
+  "logs": {
+    "title": "リアルタイム デプロイログ",
+    "selectingProfile": "プロファイルを適用中: {{profile}}...",
+    "templateLoadFailed": "テンプレートの読み込みに失敗: {{error}}",
+    "testingDb": "DB 接続をテスト中...",
+    "dbError": "DB エラー",
+    "dbSuccess": "DB 接続に成功しました！",
+    "applyingConfig": "設定を適用し、DB スキーマを同期中...",
+    "setupFailed": "デプロイに失敗しました",
+    "setupSuccess": "セットアップが完了しました。確認して通常フローを続行してください。"
   }
 }
