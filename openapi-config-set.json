@@ -259,6 +259,46 @@
         }
       }
     },
+    "/api/v1/config-set/external-tools/diagnose": {
+      "post": {
+        "tags": [
+          "config-set"
+        ],
+        "operationId": "diagnose_external_tools",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExternalToolDiagnoseReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Diagnose external desktop tools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/config-set/finish": {
       "post": {
         "tags": [
@@ -656,6 +696,138 @@
         "properties": {
           "connection_string": {
             "type": "string"
+          }
+        }
+      },
+      "ExternalToolDiagnoseReq": {
+        "type": "object",
+        "required": [
+          "configured_values"
+        ],
+        "properties": {
+          "configured_values": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ExternalToolDiagnoseResponse": {
+        "type": "object",
+        "required": [
+          "runtime_os",
+          "supported",
+          "is_mobile_platform",
+          "tools"
+        ],
+        "properties": {
+          "is_mobile_platform": {
+            "type": "boolean"
+          },
+          "runtime_os": {
+            "type": "string"
+          },
+          "supported": {
+            "type": "boolean"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalToolDiagnosticItem"
+            }
+          }
+        }
+      },
+      "ExternalToolDiagnosticItem": {
+        "type": "object",
+        "required": [
+          "tool_id",
+          "group",
+          "display_name",
+          "config_key",
+          "status_code",
+          "supported",
+          "available",
+          "current_value_works",
+          "suggestion_source",
+          "candidates",
+          "warnings",
+          "message",
+          "recommendation"
+        ],
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "config_key": {
+            "type": "string"
+          },
+          "current_value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "current_value_works": {
+            "type": "boolean"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "group": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "recommendation": {
+            "type": "string"
+          },
+          "resolved_path": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status_code": {
+            "type": "string"
+          },
+          "suggested_value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "suggestion_source": {
+            "type": "string"
+          },
+          "supported": {
+            "type": "boolean"
+          },
+          "tool_id": {
+            "type": "string"
+          },
+          "version_line": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

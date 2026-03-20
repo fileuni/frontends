@@ -84,6 +84,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/config-set/external-tools/diagnose": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["diagnose_external_tools"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/config-set/finish": {
         parameters: {
             query?: never;
@@ -242,6 +258,36 @@ export interface components {
         };
         DbCheckRequest: {
             connection_string: string;
+        };
+        ExternalToolDiagnoseReq: {
+            configured_values: {
+                [key: string]: string;
+            };
+        };
+        ExternalToolDiagnoseResponse: {
+            is_mobile_platform: boolean;
+            runtime_os: string;
+            supported: boolean;
+            tools: components["schemas"]["ExternalToolDiagnosticItem"][];
+        };
+        ExternalToolDiagnosticItem: {
+            available: boolean;
+            candidates: string[];
+            config_key: string;
+            current_value?: string | null;
+            current_value_works: boolean;
+            display_name: string;
+            group: string;
+            message: string;
+            recommendation: string;
+            resolved_path?: string | null;
+            status_code: string;
+            suggested_value?: string | null;
+            suggestion_source: string;
+            supported: boolean;
+            tool_id: string;
+            version_line?: string | null;
+            warnings: string[];
         };
         KvCheckRequest: {
             connection_string: string;
@@ -462,6 +508,39 @@ export interface operations {
             };
             /** @description Configuration test failed */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    diagnose_external_tools: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExternalToolDiagnoseReq"];
+            };
+        };
+        responses: {
+            /** @description Diagnose external desktop tools */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
