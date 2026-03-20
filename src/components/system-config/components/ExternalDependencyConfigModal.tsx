@@ -17,14 +17,17 @@ export type ExternalToolDiagnosisItem = {
   group: string;
   display_name: string;
   config_key: string;
+  status_code: string;
   supported: boolean;
   available: boolean;
   current_value?: string | null;
   current_value_works: boolean;
   resolved_path?: string | null;
   suggested_value?: string | null;
+  version_line?: string | null;
   suggestion_source: string;
   candidates: string[];
+  warnings: string[];
   message: string;
   recommendation: string;
 };
@@ -55,10 +58,10 @@ type CompressionDraft = {
 };
 
 type ToolInputDescriptor = {
-  label: string;
+  labelKey: string;
   value: string;
   onChange: (value: string) => void;
-  placeholder: string;
+  placeholderKey: string;
 };
 
 const DEFAULT_THUMBNAIL_DRAFT: ThumbnailDraft = {
@@ -259,9 +262,23 @@ type ToolCardProps = {
 };
 
 const ToolCard: React.FC<ToolCardProps> = ({ item }) => {
+  const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
   const isDark = resolvedTheme === 'dark';
-  const ok = item.available;
+  const badgeClass = item.status_code === 'ok'
+    ? (isDark ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' : 'border-emerald-300 bg-emerald-50 text-emerald-700')
+    : item.status_code === 'ok_with_warning'
+      ? (isDark ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-amber-300 bg-amber-50 text-amber-700')
+      : (isDark ? 'border-rose-400/30 bg-rose-500/10 text-rose-200' : 'border-rose-300 bg-rose-50 text-rose-700');
+  const statusLabel = item.status_code === 'ok'
+    ? t('admin.config.externalTools.status.ok')
+    : item.status_code === 'ok_with_warning'
+      ? t('admin.config.externalTools.status.warning')
+      : item.status_code === 'configured_invalid'
+        ? t('admin.config.externalTools.status.configuredInvalid')
+        : item.status_code === 'unsupported'
+          ? t('admin.config.externalTools.status.unsupported')
+          : t('admin.config.externalTools.status.missing');
 
   return (
     <div className={cn(
@@ -277,11 +294,9 @@ const ToolCard: React.FC<ToolCardProps> = ({ item }) => {
         </div>
         <span className={cn(
           'shrink-0 rounded-full border px-2.5 py-1 text-xs font-black uppercase tracking-wide',
-          ok
-            ? (isDark ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' : 'border-emerald-300 bg-emerald-50 text-emerald-700')
-            : (isDark ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-amber-300 bg-amber-50 text-amber-700'),
+          badgeClass,
         )}>
-          {ok ? 'OK' : 'Missing'}
+          {statusLabel}
         </span>
       </div>
 
@@ -291,18 +306,25 @@ const ToolCard: React.FC<ToolCardProps> = ({ item }) => {
 
       <div className="grid grid-cols-1 gap-2 text-xs">
         <div className={cn('rounded-lg border px-3 py-2', isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50')}>
-          <div className={cn('font-black uppercase tracking-wide mb-1', isDark ? 'text-slate-400' : 'text-slate-500')}>Current</div>
+          <div className={cn('font-black uppercase tracking-wide mb-1', isDark ? 'text-slate-400' : 'text-slate-500')}>{t('admin.config.externalTools.card.current')}</div>
           <div className="font-mono break-all">{item.current_value?.trim() ? item.current_value : '-'}</div>
         </div>
         <div className={cn('rounded-lg border px-3 py-2', isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50')}>
-          <div className={cn('font-black uppercase tracking-wide mb-1', isDark ? 'text-slate-400' : 'text-slate-500')}>Detected</div>
+          <div className={cn('font-black uppercase tracking-wide mb-1', isDark ? 'text-slate-400' : 'text-slate-500')}>{t('admin.config.externalTools.card.detected')}</div>
           <div className="font-mono break-all">{item.resolved_path?.trim() ? item.resolved_path : '-'}</div>
         </div>
       </div>
 
+      {item.version_line && (
+        <div className={cn('rounded-lg border px-3 py-2 text-xs', isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50')}>
+          <div className={cn('font-black uppercase tracking-wide mb-1', isDark ? 'text-slate-400' : 'text-slate-500')}>{t('admin.config.externalTools.card.version')}</div>
+          <div className="font-mono break-all">{item.version_line}</div>
+        </div>
+      )}
+
       {item.candidates.length > 0 && (
         <div>
-          <div className={cn('text-[11px] font-black uppercase tracking-wide mb-2', isDark ? 'text-slate-400' : 'text-slate-500')}>Candidates</div>
+          <div className={cn('text-[11px] font-black uppercase tracking-wide mb-2', isDark ? 'text-slate-400' : 'text-slate-500')}>{t('admin.config.externalTools.card.candidates')}</div>
           <div className="flex flex-wrap gap-2">
             {item.candidates.slice(0, 4).map((candidate) => (
               <span
@@ -316,6 +338,13 @@ const ToolCard: React.FC<ToolCardProps> = ({ item }) => {
               </span>
             ))}
           </div>
+        </div>
+      )}
+
+      {item.warnings.length > 0 && (
+        <div className={cn('rounded-lg border px-3 py-2 text-xs leading-6', isDark ? 'border-amber-500/20 bg-amber-500/10 text-amber-100' : 'border-amber-200 bg-amber-50 text-amber-900')}>
+          <div className="font-black uppercase tracking-wide mb-1">{t('admin.config.externalTools.card.warnings')}</div>
+          <div>{item.warnings.join(' ')}</div>
         </div>
       )}
 
@@ -363,10 +392,10 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
 
   const toolItems = useMemo(() => diagnosis?.tools.filter((item) => item.group === 'thumbnail') ?? [], [diagnosis]);
   const toolInputs: ToolInputDescriptor[] = [
-    { label: 'libvips', value: draft.vipsPath, onChange: (value) => setDraft((state) => ({ ...state, vipsPath: value })), placeholder: 'vips' },
-    { label: 'ImageMagick', value: draft.imagemagickPath, onChange: (value) => setDraft((state) => ({ ...state, imagemagickPath: value })), placeholder: 'convert or magick' },
-    { label: 'FFmpeg', value: draft.ffmpegPath, onChange: (value) => setDraft((state) => ({ ...state, ffmpegPath: value })), placeholder: 'ffmpeg' },
-    { label: 'LibreOffice', value: draft.libreofficePath, onChange: (value) => setDraft((state) => ({ ...state, libreofficePath: value })), placeholder: 'soffice' },
+    { labelKey: 'admin.config.externalTools.labels.vips', value: draft.vipsPath, onChange: (value) => setDraft((state) => ({ ...state, vipsPath: value })), placeholderKey: 'admin.config.externalTools.placeholders.vips' },
+    { labelKey: 'admin.config.externalTools.labels.imagemagick', value: draft.imagemagickPath, onChange: (value) => setDraft((state) => ({ ...state, imagemagickPath: value })), placeholderKey: 'admin.config.externalTools.placeholders.imagemagick' },
+    { labelKey: 'admin.config.externalTools.labels.ffmpeg', value: draft.ffmpegPath, onChange: (value) => setDraft((state) => ({ ...state, ffmpegPath: value })), placeholderKey: 'admin.config.externalTools.placeholders.ffmpeg' },
+    { labelKey: 'admin.config.externalTools.labels.libreoffice', value: draft.libreofficePath, onChange: (value) => setDraft((state) => ({ ...state, libreofficePath: value })), placeholderKey: 'admin.config.externalTools.placeholders.libreoffice' },
   ];
 
   const handleDiagnose = async () => {
@@ -376,7 +405,7 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
       const data = await onDiagnoseExternalTools(buildThumbnailConfiguredValues(draft));
       setDiagnosis(data);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Diagnosis failed';
+      const message = error instanceof Error ? error.message : t('admin.config.externalTools.messages.diagnoseFailed');
       addToast(message, 'error');
     } finally {
       setDiagnosing(false);
@@ -385,7 +414,7 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
 
   const handleAutofill = () => {
     if (!diagnosis?.supported) {
-      addToast(t('admin.config.externalTools.mobileDisabled', { defaultValue: 'External desktop tools are not supported on Android or iOS.' }), 'warning');
+      addToast(t('admin.config.externalTools.mobileDisabled'), 'warning');
       return;
     }
     const next = { ...draft };
@@ -413,8 +442,8 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
     setDraft(next);
     addToast(
       changed > 0
-        ? t('admin.config.externalTools.autofillSuccess', { defaultValue: 'Detected paths have been filled into the form.' })
-        : t('admin.config.externalTools.autofillNoChange', { defaultValue: 'No detected path was available to autofill.' }),
+        ? t('admin.config.externalTools.autofillSuccess')
+        : t('admin.config.externalTools.autofillNoChange'),
       changed > 0 ? 'success' : 'info',
     );
   };
@@ -423,10 +452,10 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
     try {
       const nextContent = applyThumbnailDraft(content, tomlAdapter, draft);
       onContentChange(nextContent);
-      addToast(t('admin.config.thumbnail.applied', { defaultValue: 'Thumbnail draft has been written into the editor.' }), 'success');
+      addToast(t('admin.config.thumbnail.applied'), 'success');
       onClose();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to write thumbnail config';
+      const message = error instanceof Error ? error.message : t('admin.config.externalTools.messages.writeFailed');
       addToast(message, 'error');
     }
   };
@@ -435,8 +464,8 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
     <ModalShell
       isOpen={isOpen}
       onClose={onClose}
-      title={t('admin.config.thumbnail.title', { defaultValue: 'Thumbnail Tools' })}
-      subtitle={t('admin.config.thumbnail.subtitle', { defaultValue: 'Manage desktop thumbnail executables and video capture strategy without editing TOML by hand.' })}
+      title={t('admin.config.thumbnail.title')}
+      subtitle={t('admin.config.thumbnail.subtitle')}
       footer={(
         <>
           <button
@@ -447,14 +476,14 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
               isDark ? 'border-white/15 text-slate-300 hover:bg-white/10' : 'border-slate-300 text-slate-700 hover:bg-slate-100',
             )}
           >
-            {t('common.cancel', { defaultValue: 'Cancel' })}
+            {t('common.cancel')}
           </button>
           <button
             type="button"
             onClick={handleApply}
             className="h-10 px-4 rounded-xl bg-primary text-white text-sm font-black hover:opacity-90"
           >
-            {t('common.confirm', { defaultValue: 'Confirm' })}
+            {t('common.confirm')}
           </button>
         </>
       )}
@@ -466,7 +495,7 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
         )}>
           <AlertTriangle size={18} className="mt-0.5 shrink-0" />
           <div className="text-sm leading-6 font-semibold">
-            {t('admin.config.externalTools.mobileDisabled', { defaultValue: 'Android and iOS do not support FFmpeg, ImageMagick, LibreOffice, libvips, or 7-Zip as external desktop binaries. Keep these related features disabled in mobile app deployments.' })}
+            {t('admin.config.externalTools.mobileDisabled')}
           </div>
         </div>
       )}
@@ -474,8 +503,8 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className={cn('rounded-2xl border p-4 space-y-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-slate-50')}>
           {toolInputs.map((input) => (
-            <div key={input.label}>
-              <label className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>{input.label}</label>
+            <div key={input.labelKey}>
+              <label className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>{t(input.labelKey)}</label>
               <input
                 value={input.value}
                 onChange={(event) => input.onChange(event.target.value)}
@@ -483,7 +512,7 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
                   'mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono',
                   isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
                 )}
-                placeholder={input.placeholder}
+                placeholder={t(input.placeholderKey)}
               />
             </div>
           ))}
@@ -492,7 +521,7 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
         <div className={cn('rounded-2xl border p-4 space-y-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-slate-50')}>
           <div>
             <label className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>
-              {t('admin.config.thumbnail.videoSeekSeconds', { defaultValue: 'Video Seek Seconds' })}
+              {t('admin.config.thumbnail.videoSeekSeconds')}
             </label>
             <input
               value={draft.videoSeekSeconds}
@@ -507,7 +536,7 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
           </div>
           <div>
             <label className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>
-              {t('admin.config.thumbnail.videoSeekRatio', { defaultValue: 'Video Seek Ratio' })}
+              {t('admin.config.thumbnail.videoSeekRatio')}
             </label>
             <input
               value={draft.videoSeekRatio}
@@ -520,11 +549,11 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
               placeholder="0.3"
             />
             <div className={cn('mt-2 text-xs leading-6', isDark ? 'text-slate-400' : 'text-slate-600')}>
-              {t('admin.config.thumbnail.videoSeekHint', { defaultValue: 'If ratio is set, it overrides seek seconds. Recommended default is 0.3 so thumbnails avoid black opening frames.' })}
+              {t('admin.config.thumbnail.videoSeekHint')}
             </div>
           </div>
           <div className={cn('rounded-xl border p-3 text-sm leading-6', isDark ? 'border-cyan-500/20 bg-cyan-500/10 text-cyan-100' : 'border-cyan-200 bg-cyan-50 text-cyan-900')}>
-            {t('admin.config.thumbnail.helper', { defaultValue: 'Run diagnosis after editing the paths. The result explains whether each executable really starts, not just whether the file exists.' })}
+            {t('admin.config.thumbnail.helper')}
           </div>
           <div className="flex flex-wrap gap-2">
             <button
@@ -537,7 +566,7 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
               )}
             >
               {diagnosing ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-              {t('admin.config.externalTools.diagnose', { defaultValue: 'Diagnose' })}
+              {t('admin.config.externalTools.diagnose')}
             </button>
             <button
               type="button"
@@ -549,7 +578,7 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
               )}
             >
               <Sparkles size={16} />
-              {t('admin.config.externalTools.autofill', { defaultValue: 'Auto Fill' })}
+              {t('admin.config.externalTools.autofill')}
             </button>
           </div>
         </div>
@@ -611,7 +640,7 @@ export const CompressionDependencyConfigModal: React.FC<CompressionDependencyCon
       const data = await onDiagnoseExternalTools(buildCompressionConfiguredValues(draft));
       setDiagnosis(data);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Diagnosis failed';
+      const message = error instanceof Error ? error.message : t('admin.config.externalTools.messages.diagnoseFailed');
       addToast(message, 'error');
     } finally {
       setDiagnosing(false);
@@ -621,21 +650,21 @@ export const CompressionDependencyConfigModal: React.FC<CompressionDependencyCon
   const handleAutofill = () => {
     const suggested = toolItem?.suggested_value?.trim();
     if (!suggested) {
-      addToast(t('admin.config.externalTools.autofillNoChange', { defaultValue: 'No detected path was available to autofill.' }), 'info');
+      addToast(t('admin.config.externalTools.autofillNoChange'), 'info');
       return;
     }
     setDraft((state) => ({ ...state, exe7zPath: suggested }));
-    addToast(t('admin.config.externalTools.autofillSuccess', { defaultValue: 'Detected paths have been filled into the form.' }), 'success');
+    addToast(t('admin.config.externalTools.autofillSuccess'), 'success');
   };
 
   const handleApply = () => {
     try {
       const nextContent = applyCompressionDraft(content, tomlAdapter, draft);
       onContentChange(nextContent);
-      addToast(t('admin.config.compression.applied', { defaultValue: 'Compression draft has been written into the editor.' }), 'success');
+      addToast(t('admin.config.compression.applied'), 'success');
       onClose();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to write compression config';
+      const message = error instanceof Error ? error.message : t('admin.config.externalTools.messages.writeFailed');
       addToast(message, 'error');
     }
   };
@@ -644,8 +673,8 @@ export const CompressionDependencyConfigModal: React.FC<CompressionDependencyCon
     <ModalShell
       isOpen={isOpen}
       onClose={onClose}
-      title={t('admin.config.compression.title', { defaultValue: 'Online Compression' })}
-      subtitle={t('admin.config.compression.subtitle', { defaultValue: 'Configure the 7-Zip dependency used for archive formats, extraction, and archive browsing.' })}
+      title={t('admin.config.compression.title')}
+      subtitle={t('admin.config.compression.subtitle')}
       footer={(
         <>
           <button
@@ -656,14 +685,14 @@ export const CompressionDependencyConfigModal: React.FC<CompressionDependencyCon
               isDark ? 'border-white/15 text-slate-300 hover:bg-white/10' : 'border-slate-300 text-slate-700 hover:bg-slate-100',
             )}
           >
-            {t('common.cancel', { defaultValue: 'Cancel' })}
+            {t('common.cancel')}
           </button>
           <button
             type="button"
             onClick={handleApply}
             className="h-10 px-4 rounded-xl bg-primary text-white text-sm font-black hover:opacity-90"
           >
-            {t('common.confirm', { defaultValue: 'Confirm' })}
+            {t('common.confirm')}
           </button>
         </>
       )}
@@ -675,7 +704,7 @@ export const CompressionDependencyConfigModal: React.FC<CompressionDependencyCon
         )}>
           <AlertTriangle size={18} className="mt-0.5 shrink-0" />
           <div className="text-sm leading-6 font-semibold">
-            {t('admin.config.externalTools.mobileDisabled', { defaultValue: 'Android and iOS do not support FFmpeg, ImageMagick, LibreOffice, libvips, or 7-Zip as external desktop binaries. Keep these related features disabled in mobile app deployments.' })}
+            {t('admin.config.externalTools.mobileDisabled')}
           </div>
         </div>
       )}
@@ -691,10 +720,10 @@ export const CompressionDependencyConfigModal: React.FC<CompressionDependencyCon
             />
             <div>
               <div className="text-sm font-black uppercase tracking-wide">
-                {t('admin.config.compression.enable', { defaultValue: 'Enable Online Compression' })}
+                {t('admin.config.compression.enable')}
               </div>
               <div className={cn('text-sm mt-1 leading-6', isDark ? 'text-slate-400' : 'text-slate-600')}>
-                {t('admin.config.compression.enableHint', { defaultValue: 'When enabled, FileUni can create archives, extract more formats, and browse supported archives. Without 7-Zip, support falls back to native ZIP/TAR only.' })}
+                {t('admin.config.compression.enableHint')}
               </div>
             </div>
           </label>
@@ -723,7 +752,7 @@ export const CompressionDependencyConfigModal: React.FC<CompressionDependencyCon
               )}
             >
               {diagnosing ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-              {t('admin.config.externalTools.diagnose', { defaultValue: 'Diagnose' })}
+              {t('admin.config.externalTools.diagnose')}
             </button>
             <button
               type="button"
@@ -735,7 +764,7 @@ export const CompressionDependencyConfigModal: React.FC<CompressionDependencyCon
               )}
             >
               <Sparkles size={16} />
-              {t('admin.config.externalTools.autofill', { defaultValue: 'Auto Fill' })}
+              {t('admin.config.externalTools.autofill')}
             </button>
           </div>
         </div>
@@ -744,14 +773,14 @@ export const CompressionDependencyConfigModal: React.FC<CompressionDependencyCon
           <div className={cn('rounded-xl border p-4 flex items-start gap-3', isDark ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-100' : 'border-indigo-200 bg-indigo-50 text-indigo-900')}>
             <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
             <div className="text-sm leading-6">
-              {t('admin.config.compression.helper', { defaultValue: 'Recommended flow: keep online compression enabled on desktop deployments, run diagnosis, autofill the detected 7-Zip path, then Save & Reload in the main editor.' })}
+              {t('admin.config.compression.helper')}
             </div>
           </div>
           {!draft.enabled && (
             <div className={cn('rounded-xl border p-4 flex items-start gap-3', isDark ? 'border-amber-500/20 bg-amber-500/10 text-amber-100' : 'border-amber-200 bg-amber-50 text-amber-900')}>
               <AlertTriangle size={18} className="mt-0.5 shrink-0" />
               <div className="text-sm leading-6">
-                {t('admin.config.compression.disabledHint', { defaultValue: 'Compression is currently disabled in the draft. Users will not see the archive actions until you enable it and save the config.' })}
+                {t('admin.config.compression.disabledHint')}
               </div>
             </div>
           )}

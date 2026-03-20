@@ -801,15 +801,62 @@
     "resetHint": "重置将用内置模板替换编辑器内容。在重载前请修改并保存。",
     "restartNotice": "少数配置项需要重启服务器才能完全生效。",
     "thumbnail": {
-      "title": "缩略图设置",
-      "subtitle": "配置缩略图外部工具路径与视频截帧策略。若启用相关类型但外部程序不可用，系统将禁止带病启动。",
+      "title": "缩略图工具",
+      "subtitle": "配置缩略图外部工具路径与视频截帧策略，无需手写 TOML。若启用相关类型但外部程序不可用，系统将禁止带病启动。",
       "apply": "应用缩略图设置",
       "applied": "缩略图设置已应用",
       "applyFailed": "缩略图设置应用失败",
       "loadFailed": "缩略图配置不可用",
       "videoSeekSeconds": "视频截帧秒数",
       "videoSeekRatio": "视频截帧比例",
-      "videoSeekHint": "填写比例时将优先按视频时长 * 比例计算截帧点；范围为 (0.0, 1.0]。"
+      "videoSeekHint": "填写比例时将优先按视频时长 * 比例计算截帧点；推荐默认值为 0.3，可尽量避开视频开头黑帧。",
+      "helper": "修改路径后请先执行诊断。系统会真正启动命令并检查返回结果，而不只是检查文件是否存在。"
+    },
+    "compression": {
+      "title": "在线压缩",
+      "subtitle": "配置 7-Zip 依赖，用于压缩、解压、归档浏览等增强能力。",
+      "applied": "在线压缩设置已写入编辑器",
+      "enable": "启用在线压缩",
+      "enableHint": "启用后可创建压缩包、解压更多格式并浏览归档内容。若缺少 7-Zip，则只能回退到原生 ZIP/TAR 支持。",
+      "helper": "建议流程：在桌面部署中保持启用，先执行诊断，再自动填写检测到的 7-Zip 路径，最后回到主编辑器执行保存与重载。",
+      "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
+    },
+    "externalTools": {
+      "diagnose": "诊断",
+      "autofill": "自动填写",
+      "autofillSuccess": "已将检测到的路径自动填写到表单中。",
+      "autofillNoChange": "没有可用于自动填写的检测结果。",
+      "mobileDisabled": "Android 与 iOS 不支持 FFmpeg、ImageMagick、LibreOffice、libvips、7-Zip 这类桌面外部二进制。移动端部署请保持相关功能禁用。",
+      "status": {
+        "ok": "正常",
+        "warning": "需复查",
+        "missing": "未找到",
+        "configuredInvalid": "配置无效",
+        "unsupported": "不支持"
+      },
+      "labels": {
+        "vips": "libvips",
+        "imagemagick": "ImageMagick",
+        "ffmpeg": "FFmpeg",
+        "libreoffice": "LibreOffice"
+      },
+      "placeholders": {
+        "vips": "vips",
+        "imagemagick": "convert 或 magick",
+        "ffmpeg": "ffmpeg",
+        "libreoffice": "soffice"
+      },
+      "messages": {
+        "diagnoseFailed": "外部依赖诊断失败",
+        "writeFailed": "写入外部依赖配置失败"
+      },
+      "card": {
+        "current": "当前值",
+        "detected": "检测结果",
+        "version": "版本信息",
+        "candidates": "候选路径",
+        "warnings": "运维提示"
+      }
     },
     "unsaved": "未保存",
     "saved": "已保存",

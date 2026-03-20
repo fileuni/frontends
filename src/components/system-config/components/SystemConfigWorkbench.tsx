@@ -318,7 +318,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           onClick={openThumbnailTools}
         >
           <ImagePlus size={18} className={isDark ? "text-fuchsia-300" : "text-fuchsia-700"} />
-          {t('admin.config.thumbnail.title', { defaultValue: 'Thumbnail Tools' })}
+          {t('admin.config.thumbnail.title')}
         </button>
 
         <button
@@ -330,7 +330,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           onClick={openCompressionTools}
         >
           <FileArchive size={18} className={isDark ? "text-orange-300" : "text-orange-700"} />
-          {t('admin.config.compression.title', { defaultValue: 'Online Compression' })}
+          {t('admin.config.compression.title')}
         </button>
       </div>
     </div>

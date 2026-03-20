@@ -855,15 +855,62 @@
     "resetHint": "Reset replaces editor content with the embedded template. Modify and save before reload.",
     "restartNotice": "Some settings require a server restart to take full effect.",
     "thumbnail": {
-      "title": "Thumbnail Settings",
-      "subtitle": "Configure thumbnail external tools and video seek strategy. If a type is enabled but the tool is unavailable, the system will refuse to start.",
+      "title": "Thumbnail Tools",
+      "subtitle": "Configure desktop thumbnail executables and video seek strategy without editing TOML by hand. If required tools are unavailable, startup validation will block unhealthy deployment.",
       "apply": "Apply Thumbnail Settings",
       "applied": "Thumbnail settings applied",
       "applyFailed": "Failed to apply thumbnail settings",
       "loadFailed": "Thumbnail config unavailable",
       "videoSeekSeconds": "Video Seek Seconds",
       "videoSeekRatio": "Video Seek Ratio",
-      "videoSeekHint": "If ratio is set, it takes precedence (0.0 < ratio <= 1.0)."
+      "videoSeekHint": "If ratio is set, it overrides seek seconds. A default like 0.3 usually avoids black opening frames.",
+      "helper": "Run diagnosis after editing the paths. The check actually starts the command and inspects the response, instead of only checking whether a file exists."
+    },
+    "compression": {
+      "title": "Online Compression",
+      "subtitle": "Configure the 7-Zip dependency used for compression, extraction, archive browsing, and related enhancements.",
+      "applied": "Online compression settings written into the editor",
+      "enable": "Enable Online Compression",
+      "enableHint": "When enabled, FileUni can create archives, extract more formats, and browse supported archives. Without 7-Zip, support falls back to native ZIP/TAR only.",
+      "helper": "Recommended flow: keep online compression enabled on desktop deployments, run diagnosis, autofill the detected 7-Zip path, then return to the main editor and save or reload.",
+      "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
+    },
+    "externalTools": {
+      "diagnose": "Diagnose",
+      "autofill": "Auto Fill",
+      "autofillSuccess": "Detected paths have been filled into the form.",
+      "autofillNoChange": "No detected path was available to autofill.",
+      "mobileDisabled": "Android and iOS do not support FFmpeg, ImageMagick, LibreOffice, libvips, or 7-Zip as external desktop binaries. Keep these related features disabled on mobile deployments.",
+      "status": {
+        "ok": "OK",
+        "warning": "Review",
+        "missing": "Missing",
+        "configuredInvalid": "Invalid Config",
+        "unsupported": "Unsupported"
+      },
+      "labels": {
+        "vips": "libvips",
+        "imagemagick": "ImageMagick",
+        "ffmpeg": "FFmpeg",
+        "libreoffice": "LibreOffice"
+      },
+      "placeholders": {
+        "vips": "vips",
+        "imagemagick": "convert or magick",
+        "ffmpeg": "ffmpeg",
+        "libreoffice": "soffice"
+      },
+      "messages": {
+        "diagnoseFailed": "External dependency diagnosis failed",
+        "writeFailed": "Failed to write external dependency configuration"
+      },
+      "card": {
+        "current": "Current",
+        "detected": "Detected",
+        "version": "Version",
+        "candidates": "Candidates",
+        "warnings": "Operational Notes"
+      }
     },
     "unsaved": "Unsaved",
     "saved": "Saved",
