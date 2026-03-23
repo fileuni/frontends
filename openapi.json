@@ -3020,6 +3020,37 @@
         }
       }
     },
+    "/api/v1/file/admin/file-manager/performance/vfs-snapshot": {
+      "get": {
+        "tags": [
+          "Admin: FileManager"
+        ],
+        "operationId": "get_vfs_performance_snapshot",
+        "responses": {
+          "200": {
+            "description": "VFS performance snapshot retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resp"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
     "/api/v1/file/admin/file-manager/task/{id}/continue": {
       "post": {
         "tags": [
@@ -15671,6 +15702,133 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "VfsPerformanceSnapshotResponse": {
+        "type": "object",
+        "required": [
+          "read_cache_hits",
+          "read_cache_misses",
+          "read_cache_puts",
+          "read_cache_put_bytes",
+          "write_cache_enqueues",
+          "write_cache_bypasses",
+          "write_cache_pending_reads",
+          "write_cache_flush_success",
+          "write_cache_flush_failures",
+          "write_cache_abnormal_spills",
+          "index_sync_spawned",
+          "index_sync_skipped_debounce",
+          "index_sync_skipped_inflight",
+          "index_sync_completed",
+          "index_sync_failed",
+          "index_sync_rows",
+          "index_sync_chunks",
+          "quota_sync_scheduled",
+          "quota_sync_success",
+          "quota_sync_failed"
+        ],
+        "properties": {
+          "index_sync_chunks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "index_sync_completed": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "index_sync_failed": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "index_sync_rows": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "index_sync_skipped_debounce": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "index_sync_skipped_inflight": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "index_sync_spawned": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "quota_sync_failed": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "quota_sync_scheduled": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "quota_sync_success": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "read_cache_hits": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "read_cache_misses": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "read_cache_put_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "read_cache_puts": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "write_cache_abnormal_spills": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "write_cache_bypasses": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "write_cache_enqueues": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "write_cache_flush_failures": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "write_cache_flush_success": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "write_cache_pending_reads": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
           }
         }
       },

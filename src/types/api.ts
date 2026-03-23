@@ -1291,6 +1291,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/file/admin/file-manager/performance/vfs-snapshot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_vfs_performance_snapshot"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/file/admin/file-manager/task/{id}/continue": {
         parameters: {
             query?: never;
@@ -4937,6 +4953,48 @@ export interface components {
             success: boolean;
             user_id?: string | null;
         };
+        VfsPerformanceSnapshotResponse: {
+            /** Format: int64 */
+            index_sync_chunks: number;
+            /** Format: int64 */
+            index_sync_completed: number;
+            /** Format: int64 */
+            index_sync_failed: number;
+            /** Format: int64 */
+            index_sync_rows: number;
+            /** Format: int64 */
+            index_sync_skipped_debounce: number;
+            /** Format: int64 */
+            index_sync_skipped_inflight: number;
+            /** Format: int64 */
+            index_sync_spawned: number;
+            /** Format: int64 */
+            quota_sync_failed: number;
+            /** Format: int64 */
+            quota_sync_scheduled: number;
+            /** Format: int64 */
+            quota_sync_success: number;
+            /** Format: int64 */
+            read_cache_hits: number;
+            /** Format: int64 */
+            read_cache_misses: number;
+            /** Format: int64 */
+            read_cache_put_bytes: number;
+            /** Format: int64 */
+            read_cache_puts: number;
+            /** Format: int64 */
+            write_cache_abnormal_spills: number;
+            /** Format: int64 */
+            write_cache_bypasses: number;
+            /** Format: int64 */
+            write_cache_enqueues: number;
+            /** Format: int64 */
+            write_cache_flush_failures: number;
+            /** Format: int64 */
+            write_cache_flush_success: number;
+            /** Format: int64 */
+            write_cache_pending_reads: number;
+        };
         WalIssueActionResponse: {
             failure_reason?: string | null;
             /** Format: int64 */
@@ -7334,6 +7392,40 @@ export interface operations {
             };
             /** @description Message not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_vfs_performance_snapshot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description VFS performance snapshot retrieved successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };
