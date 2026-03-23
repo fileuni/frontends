@@ -1062,7 +1062,7 @@
     },
     "quickWizard": {
       "title": "快速配置向导",
-      "subtitle": "按步骤完成常用设置，适合非技术用户快速上手。",
+      "subtitle": "按步骤完成常用设置，快速完成系统初始化。",
       "parseErrorTitle": "当前配置暂时无法在简化向导中展示。",
       "parseErrorHint": "请先在配置编辑器中修复格式后再回来，现有配置不会丢失。",
       "steps": {
@@ -1124,13 +1124,13 @@
         "setAdminPassword": "设置管理员密码"
       },
       "advancedActions": {
-        "intro": "高阶配置请在管理员配置界面中统一管理。这里提供快捷入口。",
-        "licensePlaceholder": "授权管理 (预留占位)",
+        "intro": "如需调整更多设置，可前往管理员配置界面继续操作。",
+        "licensePlaceholder": "授权管理",
         "openAdminConfig": "打开管理员配置界面",
         "changeAdminPassword": "修改管理员密码"
       },
       "otherActions": {
-        "intro": "这里提供一些附加配置入口，例如授权管理与存储池/后端配置。"
+        "intro": "这里提供附加设置入口，例如授权管理与存储配置。"
       },
       "performance": {
         "intro": "根据您的硬件环境选择推荐配置。此为建议值，您可以在后续步骤中手动调整各项参数。",

@@ -125,7 +125,7 @@
     },
     "quickWizard": {
       "title": "Schneller Konfigurationsassistent",
-      "subtitle": "Schrittweise Einrichtung der wichtigsten Optionen, einfacher fuer nicht-technische Nutzer.",
+      "subtitle": "Schrittweise Einrichtung der wichtigsten Optionen, um die Erstkonfiguration schnell abzuschliessen.",
       "fields": {
         "dbType": "DB-Typ",
         "user": "Benutzer",

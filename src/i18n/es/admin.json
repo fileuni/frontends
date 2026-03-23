@@ -1018,7 +1018,7 @@
     },
     "quickWizard": {
       "title": "Asistente rápido de configuración",
-      "subtitle": "Configuración paso a paso de opciones comunes, más amigable para usuarios no técnicos.",
+      "subtitle": "Configuración paso a paso de opciones comunes para completar la configuración inicial rápidamente.",
       "parseErrorTitle": "El TOML actual no puede parsearse en modo amigable.",
       "parseErrorHint": "Corrija el TOML en el editor de configuración de la página y vuelva a abrir este asistente.",
       "steps": {
@@ -1083,9 +1083,9 @@
         "setAdminPassword": "Establecer contraseña de admin"
       },
       "advancedActions": {
-        "intro": "Los ajustes avanzados se gestionan en el espacio de configuración admin. Use estas acciones rápidas.",
-        "licensePlaceholder": "Gestión de licencia (placeholder)",
-        "licensePlaceholderHint": "La entrada de gestión de licencia está reservada para implementación futura.",
+        "intro": "Para más ajustes, continúe en la página de configuración de administración con estas acciones rápidas.",
+        "licensePlaceholder": "Gestión de licencia",
+        "licensePlaceholderHint": "Abra la gestión de licencia para revisar el estado actual y la clave.",
         "openAdminConfig": "Abrir espacio de configuración admin",
         "changeAdminPassword": "Cambiar contraseña de admin"
       },

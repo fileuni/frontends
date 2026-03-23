@@ -1138,7 +1138,7 @@
     },
     "quickWizard": {
       "title": "Quick Config Wizard",
-      "subtitle": "Step-by-step setup for common options, friendlier for non-technical users.",
+      "subtitle": "Step-by-step setup for common options to finish initial configuration quickly.",
       "parseErrorTitle": "The current config cannot be shown in simplified wizard mode yet.",
       "parseErrorHint": "Please fix the format in the config editor first, then come back. Your existing config stays intact.",
       "steps": {
@@ -1203,9 +1203,9 @@
         "setAdminPassword": "Set Admin Password"
       },
       "advancedActions": {
-        "intro": "Advanced settings are managed in the admin config workspace. Use these quick actions.",
-        "licensePlaceholder": "License Management (Placeholder)",
-        "licensePlaceholderHint": "License management entry is reserved for future implementation.",
+        "intro": "For more settings, continue on the admin settings page with these quick actions.",
+        "licensePlaceholder": "License Management",
+        "licensePlaceholderHint": "Open license management to review your current status and key.",
         "openAdminConfig": "Open Admin Config Workspace",
         "changeAdminPassword": "Change Admin Password"
       },

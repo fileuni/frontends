@@ -1018,7 +1018,7 @@
     },
     "quickWizard": {
       "title": "クイック設定ウィザード",
-      "subtitle": "よく使う項目を段階的に設定でき、非技術ユーザーにもやさしい構成です。",
+      "subtitle": "よく使う項目を順番に設定し、初期設定をすばやく完了できます。",
       "parseErrorTitle": "現在の TOML はフレンドリーモードで解析できません。",
       "parseErrorHint": "ページの設定エディターで TOML を修正してから、このウィザードを再度開いてください。",
       "steps": {
@@ -1083,10 +1083,10 @@
         "setAdminPassword": "管理者パスワードを設定"
       },
       "advancedActions": {
-        "intro": "高度な設定は admin config ワークスペースで管理されます。これらのクイックアクションを使用してください。",
-        "licensePlaceholder": "ライセンス管理 (placeholder)",
-        "licensePlaceholderHint": "ライセンス管理エントリは将来実装用に予約されています。",
-        "openAdminConfig": "Admin Config ワークスペースを開く",
+        "intro": "さらに設定を調整する場合は、管理設定ページで次のクイック操作を利用してください。",
+        "licensePlaceholder": "ライセンス管理",
+        "licensePlaceholderHint": "ライセンス管理で現在の状態とキーを確認できます。",
+        "openAdminConfig": "管理設定ページを開く",
         "changeAdminPassword": "管理者パスワードを変更"
       },
       "otherActions": {
