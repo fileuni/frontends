@@ -1018,7 +1018,7 @@
     },
     "quickWizard": {
       "title": "Быстрый мастер конфигурации",
-      "subtitle": "Удобная форма синхронизируется с редактором конфигурации на странице.",
+      "subtitle": "Пошаговая настройка основных параметров, более дружелюбная для нетехнических пользователей.",
       "parseErrorTitle": "Текущий TOML не может быть разобран в удобном режиме.",
       "parseErrorHint": "Исправьте TOML в редакторе конфигурации страницы, затем снова откройте мастер.",
       "steps": {
@@ -1056,15 +1056,21 @@
         "captchaCodeLength": "Длина captcha-кода",
         "captchaExpiresInSeconds": "Срок действия captcha (секунды)"
       },
+      "hints": {
+        "sqliteSingleNode": "Подходит для легкого домашнего и персонального развертывания.",
+        "sqlitePathOnly": "Здесь достаточно указать путь к файлу базы данных. Строка подключения формируется автоматически.",
+        "cacheDashmapLightweight": "Подходит для легких сценариев использования.",
+        "cacheNoExternalConnection": "В этом режиме кэша не нужен адрес внешнего сервера кэша."
+      },
       "options": {
         "postgres": "PostgreSQL",
-        "sqlite": "SQLite",
+        "sqlite": "Локальная база данных",
         "enabled": "Включено",
         "disabled": "Выключено",
         "cacheValkey": "VALKEY",
         "cacheRedis": "REDIS",
         "cacheKeydb": "KEYDB",
-        "cacheDashmap": "DASHMAP",
+        "cacheDashmap": "Кэш в памяти",
         "cacheDatabase": "DATABASE",
         "licenseAuthorized": "Авторизовано",
         "licenseUnauthorized": "Не авторизовано / Бесплатная редакция"

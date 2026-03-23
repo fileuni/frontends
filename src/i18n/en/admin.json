@@ -1138,9 +1138,9 @@
     },
     "quickWizard": {
       "title": "Quick Config Wizard",
-      "subtitle": "Friendly form stays synchronized with the page-level config editor.",
-      "parseErrorTitle": "Current TOML cannot be parsed in friendly mode.",
-      "parseErrorHint": "Please fix TOML in the page-level config editor, then reopen this wizard.",
+      "subtitle": "Step-by-step setup for common options, friendlier for non-technical users.",
+      "parseErrorTitle": "The current config cannot be shown in simplified wizard mode yet.",
+      "parseErrorHint": "Please fix the format in the config editor first, then come back. Your existing config stays intact.",
       "steps": {
         "performance": "Performance Optimization",
         "database": "Database",
@@ -1176,15 +1176,21 @@
         "captchaCodeLength": "Captcha Code Length",
         "captchaExpiresInSeconds": "Captcha Expires In (seconds)"
       },
+      "hints": {
+        "sqliteSingleNode": "Best for home and personal lightweight deployment.",
+        "sqlitePathOnly": "Only the database file path is needed here. The connection string is handled automatically.",
+        "cacheDashmapLightweight": "Best for lightweight users.",
+        "cacheNoExternalConnection": "This cache mode does not require an external cache server address."
+      },
       "options": {
         "postgres": "PostgreSQL",
-        "sqlite": "SQLite",
+        "sqlite": "Single-Node Database",
         "enabled": "Enabled",
         "disabled": "Disabled",
         "cacheValkey": "VALKEY",
         "cacheRedis": "REDIS",
         "cacheKeydb": "KEYDB",
-        "cacheDashmap": "DASHMAP",
+        "cacheDashmap": "In-Memory Cache",
         "cacheDatabase": "DATABASE",
         "licenseAuthorized": "Authorized",
         "licenseUnauthorized": "Unauthorized / Free Edition"

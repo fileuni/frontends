@@ -1062,9 +1062,9 @@
     },
     "quickWizard": {
       "title": "快速配置向导",
-      "subtitle": "用户友好表单会与页面中的配置编辑器实时联动。",
-      "parseErrorTitle": "当前 TOML 无法在友好模式下解析。",
-      "parseErrorHint": "请先在页面配置编辑器中修复 TOML，然后重新打开向导。",
+      "subtitle": "按步骤完成常用设置，适合非技术用户快速上手。",
+      "parseErrorTitle": "当前配置暂时无法在简化向导中展示。",
+      "parseErrorHint": "请先在配置编辑器中修复格式后再回来，现有配置不会丢失。",
       "steps": {
         "performance": "性能优化",
         "database": "数据库",
@@ -1097,9 +1097,22 @@
         "captchaCodeLength": "验证码长度",
         "captchaExpiresInSeconds": "验证码过期时间（秒）"
       },
+      "hints": {
+        "sqliteSingleNode": "适合家庭和个人轻量化部署。",
+        "sqlitePathOnly": "只需填写数据库文件路径，系统会自动处理连接串。",
+        "cacheDashmapLightweight": "适合轻量级用户。",
+        "cacheNoExternalConnection": "该缓存模式无需填写外部缓存服务器地址。"
+      },
       "options": {
+        "postgres": "PostgreSQL",
+        "sqlite": "单机数据库",
         "enabled": "已启用",
         "disabled": "已禁用",
+        "cacheValkey": "VALKEY",
+        "cacheRedis": "REDIS",
+        "cacheKeydb": "KEYDB",
+        "cacheDashmap": "纯内存缓存",
+        "cacheDatabase": "数据库缓存",
         "licenseAuthorized": "已正式授权",
         "licenseUnauthorized": "未授权 / 免费版"
       },

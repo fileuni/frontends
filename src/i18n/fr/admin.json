@@ -1018,7 +1018,7 @@
     },
     "quickWizard": {
       "title": "Assistant de configuration rapide",
-      "subtitle": "Formulaire convivial synchronisé avec l'éditeur de configuration de la page.",
+      "subtitle": "Configuration pas à pas des options courantes, plus conviviale pour les utilisateurs non techniques.",
       "parseErrorTitle": "Le TOML actuel ne peut pas être parsé en mode convivial.",
       "parseErrorHint": "Veuillez corriger le TOML dans l'éditeur de configuration de la page, puis rouvrir cet assistant.",
       "steps": {
@@ -1056,15 +1056,21 @@
         "captchaCodeLength": "Longueur du code captcha",
         "captchaExpiresInSeconds": "Expiration du captcha (secondes)"
       },
+      "hints": {
+        "sqliteSingleNode": "Convient aux déploiements légers pour la maison et un usage personnel.",
+        "sqlitePathOnly": "Ici, seul le chemin du fichier de base est nécessaire. La chaîne de connexion est gérée automatiquement.",
+        "cacheDashmapLightweight": "Convient aux utilisateurs légers.",
+        "cacheNoExternalConnection": "Ce mode de cache ne nécessite pas d'adresse de serveur de cache externe."
+      },
       "options": {
         "postgres": "PostgreSQL",
-        "sqlite": "SQLite",
+        "sqlite": "Base locale",
         "enabled": "Activé",
         "disabled": "Désactivé",
         "cacheValkey": "VALKEY",
         "cacheRedis": "REDIS",
         "cacheKeydb": "KEYDB",
-        "cacheDashmap": "DASHMAP",
+        "cacheDashmap": "Cache mémoire",
         "cacheDatabase": "DATABASE",
         "licenseAuthorized": "Autorisé",
         "licenseUnauthorized": "Non autorisé / Édition gratuite"

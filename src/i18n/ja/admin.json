@@ -1018,7 +1018,7 @@
     },
     "quickWizard": {
       "title": "クイック設定ウィザード",
-      "subtitle": "使いやすいフォームはページの設定エディターと同期されます。",
+      "subtitle": "よく使う項目を段階的に設定でき、非技術ユーザーにもやさしい構成です。",
       "parseErrorTitle": "現在の TOML はフレンドリーモードで解析できません。",
       "parseErrorHint": "ページの設定エディターで TOML を修正してから、このウィザードを再度開いてください。",
       "steps": {
@@ -1056,15 +1056,21 @@
         "captchaCodeLength": "Captcha コード長",
         "captchaExpiresInSeconds": "Captcha 有効期限 (秒)"
       },
+      "hints": {
+        "sqliteSingleNode": "家庭・個人向けの軽量デプロイに適しています。",
+        "sqlitePathOnly": "ここでは DB ファイルのパスだけ指定すれば十分です。接続文字列は自動処理されます。",
+        "cacheDashmapLightweight": "軽量ユーザーに適しています。",
+        "cacheNoExternalConnection": "このキャッシュモードでは外部キャッシュサーバーの設定は不要です。"
+      },
       "options": {
         "postgres": "PostgreSQL",
-        "sqlite": "SQLite",
+        "sqlite": "単機データベース",
         "enabled": "有効",
         "disabled": "無効",
         "cacheValkey": "VALKEY",
         "cacheRedis": "REDIS",
         "cacheKeydb": "KEYDB",
-        "cacheDashmap": "DASHMAP",
+        "cacheDashmap": "メモリ内キャッシュ",
         "cacheDatabase": "DATABASE",
         "licenseAuthorized": "認証済み",
         "licenseUnauthorized": "未認証 / 無料版"

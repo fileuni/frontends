@@ -1929,6 +1929,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   }, [isOpen]);
 
   const currentStepIndex = friendlySteps.indexOf(friendlyStep);
+  const isRedisLikeCache = draft.cacheType === 'valkey' || draft.cacheType === 'redis' || draft.cacheType === 'keydb';
+  const isDashmapCache = draft.cacheType === 'dashmap';
 
   const syncDraft = useCallback((updater: (prev: FriendlyDraft) => FriendlyDraft) => {
     const updated = updater(draftRef.current);
@@ -2354,6 +2356,9 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         {t('admin.config.quickWizard.options.sqlite')}
                       </button>
                     </div>
+                    {draft.databaseType === 'sqlite' && (
+                      <p className={cn("mt-2 text-sm", isDark ? "text-emerald-200/90" : "text-emerald-700")}>{t('admin.config.quickWizard.hints.sqliteSingleNode')}</p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -2510,24 +2515,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           }}
                         />
                       </label>
-                      <label className={cn("text-sm font-black", isDark ? "text-slate-300" : "text-slate-700")}>
-                        {t('admin.config.quickWizard.fields.sqliteDsn')}
-                        <input
-                          className={cn(
-                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono focus:outline-none focus:ring-2",
-                            isDark ? "border-cyan-400/30 bg-black/40 text-cyan-200 focus:ring-cyan-500/30" : "border-cyan-300 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20"
-                          )}
-                          value={draft.sqliteDsn}
-                          onChange={(event) => {
-                            const sqliteDsn = event.target.value;
-                            syncDraft((prev) => ({
-                              ...prev,
-                              sqliteDsn,
-                              sqlitePath: parseSqlitePath(sqliteDsn),
-                            }));
-                          }}
-                        />
-                      </label>
+                      <p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-600")}>{t('admin.config.quickWizard.hints.sqlitePathOnly')}</p>
                     </div>
                   )}
                 </section>
@@ -2565,30 +2553,36 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           </button>
                         ))}
                       </div>
+                      {isDashmapCache && (
+                        <p className={cn("mt-2 text-sm", isDark ? "text-emerald-200/90" : "text-emerald-700")}>{t('admin.config.quickWizard.hints.cacheDashmapLightweight')}</p>
+                      )}
                     </div>
-                    <label className={cn("text-sm font-black", isDark ? "text-slate-300" : "text-slate-700")}>
-                      {t('admin.config.quickWizard.fields.useTls')}
-                      <button
-                        type="button"
-                        className={cn(
-                          'mt-1 h-10 w-full rounded-lg border font-black transition-all shadow-sm',
-                          draft.cacheUseTls
-                            ? (isDark ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-200' : 'bg-emerald-500 text-white border-emerald-600')
-                            : (isDark ? 'bg-black/30 border-white/15 text-slate-200' : 'bg-white border-slate-300 text-slate-900 shadow-sm'),
-                        )}
-                        onClick={() => {
-                          syncDraft((prev) => {
-                            const next = { ...prev, cacheUseTls: !prev.cacheUseTls };
-                            next.cacheRedisUrl = buildRedisUrl(next);
-                            return next;
-                          });
-                        }}
-                      >
-                        {draft.cacheUseTls ? t('admin.config.quickWizard.options.enabled') : t('admin.config.quickWizard.options.disabled')}
-                      </button>
-                    </label>
+                    {isRedisLikeCache && (
+                      <label className={cn("text-sm font-black", isDark ? "text-slate-300" : "text-slate-700")}>
+                        {t('admin.config.quickWizard.fields.useTls')}
+                        <button
+                          type="button"
+                          className={cn(
+                            'mt-1 h-10 w-full rounded-lg border font-black transition-all shadow-sm',
+                            draft.cacheUseTls
+                              ? (isDark ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-200' : 'bg-emerald-500 text-white border-emerald-600')
+                              : (isDark ? 'bg-black/30 border-white/15 text-slate-200' : 'bg-white border-slate-300 text-slate-900 shadow-sm'),
+                          )}
+                          onClick={() => {
+                            syncDraft((prev) => {
+                              const next = { ...prev, cacheUseTls: !prev.cacheUseTls };
+                              next.cacheRedisUrl = buildRedisUrl(next);
+                              return next;
+                            });
+                          }}
+                        >
+                          {draft.cacheUseTls ? t('admin.config.quickWizard.options.enabled') : t('admin.config.quickWizard.options.disabled')}
+                        </button>
+                      </label>
+                    )}
                   </div>
-                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {isRedisLikeCache ? (
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <label className={cn("text-sm font-black", isDark ? "text-slate-300" : "text-slate-700")}>
                       {t('admin.config.quickWizard.fields.host')}
                       <input
@@ -2682,10 +2676,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                             cachePass: fields.cachePass,
                             cacheUseTls: fields.cacheUseTls,
                           }));
-                        }}
-                      />
-                    </label>
-                  </div>
+                          }}
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <p className={cn("mt-3 text-sm", isDark ? "text-slate-400" : "text-slate-600")}>{t('admin.config.quickWizard.hints.cacheNoExternalConnection')}</p>
+                  )}
                 </section>
               )}
 

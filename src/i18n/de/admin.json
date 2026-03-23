@@ -124,12 +124,34 @@
       }
     },
     "quickWizard": {
+      "title": "Schneller Konfigurationsassistent",
+      "subtitle": "Schrittweise Einrichtung der wichtigsten Optionen, einfacher fuer nicht-technische Nutzer.",
       "fields": {
+        "dbType": "DB-Typ",
         "user": "Benutzer",
         "password": "Passwort",
-        "expiresAt": "Läuft ab am"
+        "expiresAt": "Läuft ab am",
+        "cacheType": "Cache-Typ",
+        "sqlitePath": "SQLite-Pfad",
+        "useTls": "TLS verwenden",
+        "host": "Host",
+        "port": "Port",
+        "redisUrl": "Redis-URL"
+      },
+      "hints": {
+        "sqliteSingleNode": "Geeignet fuer leichte Deployments zu Hause und fuer Einzelpersonen.",
+        "sqlitePathOnly": "Hier reicht der Pfad zur Datenbankdatei. Die Verbindungszeichenfolge wird automatisch erzeugt.",
+        "cacheDashmapLightweight": "Geeignet fuer leichte Nutzung.",
+        "cacheNoExternalConnection": "Dieser Cache-Modus benoetigt keine externe Cache-Server-Adresse."
       },
       "options": {
+        "postgres": "PostgreSQL",
+        "sqlite": "Lokale Datenbank",
+        "cacheValkey": "VALKEY",
+        "cacheRedis": "REDIS",
+        "cacheKeydb": "KEYDB",
+        "cacheDashmap": "In-Memory-Cache",
+        "cacheDatabase": "Datenbank-Cache",
         "enabled": "Aktiviert",
         "disabled": "Deaktiviert"
       },
