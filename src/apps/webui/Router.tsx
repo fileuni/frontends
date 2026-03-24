@@ -11,6 +11,7 @@ import { FileSidebar } from '@/components/file-manager/components/FileSidebar';
 // Dynamic import public components
 const WelcomeView = lazy(() => import('@/components/public/components/WelcomeView').then(m => ({ default: m.WelcomeView })));
 const LoginView = lazy(() => import('@/components/public/components/LoginView').then(m => ({ default: m.LoginView })));
+const NextcloudLoginView = lazy(() => import('@/components/public/components/NextcloudLoginView').then(m => ({ default: m.NextcloudLoginView })));
 const RegisterView = lazy(() => import('@/components/public/components/RegisterView').then(m => ({ default: m.RegisterView })));
 const ForgotPasswordView = lazy(() => import('@/components/public/components/ForgotPasswordView').then(m => ({ default: m.ForgotPasswordView })));
 const AccountsView = lazy(() => import('@/components/public/components/AccountsView').then(m => ({ default: m.AccountsView })));
@@ -112,6 +113,7 @@ const PageRenderer: React.FC<{
     switch (page) {
       case 'index': return <WelcomeView />;
       case 'login': return <LoginView />;
+      case 'nextcloud-login': return <NextcloudLoginView />;
       case 'register': return <RegisterView />;
       case 'forgot-password': return <ForgotPasswordView />;
       case 'accounts': return <AccountsView />;
