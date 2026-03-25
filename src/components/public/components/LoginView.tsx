@@ -9,6 +9,7 @@ import { Modal } from "@/components/ui/Modal.tsx";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
 import { PublicCenteredCard } from "./public-ui/PublicCenteredCard.tsx";
+import { SavedAccountsShortcut, normalizeLoginIdentifierInput } from './login-shared';
 import { FormField } from "@/components/common/FormField.tsx";
 import { IconInput } from "@/components/common/IconInput.tsx";
 import { PasswordInput } from "@/components/common/PasswordInput.tsx";
@@ -16,7 +17,6 @@ import {
   User,
   Lock,
   ArrowRight,
-  ChevronRight,
   Laptop,
   Smartphone,
   Tablet,
@@ -25,10 +25,8 @@ import {
   Clock,
   Globe,
   AlertTriangle,
-  Users,
 } from "lucide-react";
 import { client, extractData, isApiError, postCaptchaPolicy } from "@/lib/api.ts";
-import { normalizeEmailInput, normalizePhoneInput } from "@/lib/contactNormalize.ts";
 import type { components } from "@/types/api.ts";
 
 import { CaptchaChallenge, type CaptchaPayload } from "@/components/common/CaptchaChallenge.tsx";
@@ -269,34 +267,13 @@ export const LoginView = () => {
               </p>
             </div>
 
-            {savedUsers.length > 0 && (
-              <div
-                className={cn(
-                  "mb-8 p-4 rounded-3xl border flex items-center justify-between group cursor-pointer transition-all",
-                  isDark ? "bg-primary/5 border-primary/10 hover:bg-primary/10" : "bg-primary/5 border-primary/20 hover:bg-primary/10"
-                )}
-                onClick={() => navigate({ mod: "user", page: "accounts" })}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                    <Users size={20} />
-                  </div>
-                  <div>
-                    <p className={cn("text-sm font-black leading-tight", isDark ? "text-white" : "text-gray-900")}>
-                      {t("auth.switchToExistingAccount")}
-                    </p>
-                    <p className="text-sm opacity-40 font-bold uppercase tracking-tighter">
-                      {t("auth.manageAccountsDescShort") ||
-                        "Select from logged in users"}
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight
-                  size={18}
-                  className="opacity-20 group-hover:opacity-100 transition-opacity"
-                />
-              </div>
-            )}
+            <SavedAccountsShortcut
+              count={savedUsers.length}
+              isDark={isDark}
+              title={t('auth.switchToExistingAccount')}
+              description={t('auth.manageAccountsDescShort') || 'Select from logged in users'}
+              onClick={() => navigate({ mod: 'user', page: 'accounts' })}
+            />
 
             <form onSubmit={handleLogin} className="space-y-6">
               <FormField
@@ -315,19 +292,7 @@ export const LoginView = () => {
                   icon={<User size={18} />}
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  onBlur={() => {
-                    const trimmed = identifier.trim();
-                    if (trimmed.includes("@")) {
-                      setIdentifier(normalizeEmailInput(trimmed));
-                    } else if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed)) {
-                      // UUID - keep as is
-                    } else {
-                      const normalized = normalizePhoneInput(trimmed);
-                      if (normalized.length > 5 && /^\+?\d+$/.test(normalized)) {
-                        setIdentifier(normalized);
-                      }
-                    }
-                  }}
+                  onBlur={() => setIdentifier(normalizeLoginIdentifierInput(identifier))}
                   placeholder={
                     capabilities?.enable_mobile_auth && capabilities?.enable_email_auth
                       ? t("auth.usernameEmailPhone")

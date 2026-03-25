@@ -10,6 +10,10 @@ import { PasswordInput } from '@/components/common/PasswordInput';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { useNavigationStore } from '@/stores/navigation';
+import { useAuthStore } from '@/stores/auth';
+import { SavedAccountsShortcut, normalizeLoginIdentifierInput } from './login-shared';
+
+const NEXTCLOUD_LOGIN_REMEMBER_KEY = 'fileuni-nextcloud-login-remember';
 
 type LoginSubmitResult = {
   redirect_url?: string;
@@ -28,7 +32,8 @@ const parseErrorMessage = async (response: Response, fallback: string) => {
 
 export const NextcloudLoginView: React.FC = () => {
   const { t } = useTranslation();
-  const { params } = useNavigationStore();
+  const { params, navigate } = useNavigationStore();
+  const { usersMap } = useAuthStore();
 
   const mode = params.mode === 'v2' ? 'v2' : 'legacy';
   const token = params.token || '';
@@ -38,6 +43,17 @@ export const NextcloudLoginView: React.FC = () => {
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState('');
   const [completed, setCompleted] = React.useState(false);
+  const [rememberMe, setRememberMe] = React.useState(true);
+
+  const savedUsers = React.useMemo(() => Object.values(usersMap), [usersMap]);
+
+  React.useEffect(() => {
+    const saved = window.localStorage.getItem(NEXTCLOUD_LOGIN_REMEMBER_KEY);
+    if (saved) {
+      setRememberMe(true);
+      setUsername(saved);
+    }
+  }, []);
 
   const submitUrl = React.useMemo(() => {
     if (mode === 'v2' && token) {
@@ -74,11 +90,21 @@ export const NextcloudLoginView: React.FC = () => {
           setError(t('auth.nextcloudLoginFailed'));
           return;
         }
+        if (rememberMe) {
+          window.localStorage.setItem(NEXTCLOUD_LOGIN_REMEMBER_KEY, username);
+        } else {
+          window.localStorage.removeItem(NEXTCLOUD_LOGIN_REMEMBER_KEY);
+        }
         window.location.href = result.redirect_url;
         return;
       }
 
       if (result.completed) {
+        if (rememberMe) {
+          window.localStorage.setItem(NEXTCLOUD_LOGIN_REMEMBER_KEY, username);
+        } else {
+          window.localStorage.removeItem(NEXTCLOUD_LOGIN_REMEMBER_KEY);
+        }
         setCompleted(true);
       } else {
         setError(t('auth.nextcloudLoginFailed'));
@@ -130,6 +156,14 @@ export const NextcloudLoginView: React.FC = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              <SavedAccountsShortcut
+                count={savedUsers.length}
+                isDark={isDark}
+                title={t('auth.switchToExistingAccount')}
+                description={t('auth.manageAccountsDescShort') || 'Select from logged in users'}
+                onClick={() => navigate({ mod: 'user', page: 'accounts' })}
+              />
+
               <div className={cn('rounded-[2rem] border p-4 flex items-start gap-3', isDark ? 'border-white/10 bg-white/5 text-white' : 'border-primary/10 bg-primary/5 text-gray-900')}>
                 <div className="mt-0.5 text-primary"><ShieldCheck size={18} /></div>
                 <div className="text-sm leading-6 font-medium opacity-80">
@@ -142,6 +176,7 @@ export const NextcloudLoginView: React.FC = () => {
                   icon={<User size={18} />}
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
+                  onBlur={() => setUsername(normalizeLoginIdentifierInput(username))}
                   placeholder={t('common.usernameRegister')}
                   autoComplete="username"
                   required
@@ -158,6 +193,21 @@ export const NextcloudLoginView: React.FC = () => {
                   required
                 />
               </FormField>
+
+              <label className="flex items-center gap-3 cursor-pointer group p-1 select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(event) => setRememberMe(event.target.checked)}
+                  className={cn(
+                    'w-4 h-4 rounded transition-all cursor-pointer',
+                    isDark ? 'border-white/10 bg-white/5 checked:bg-primary' : 'border-gray-300 bg-white checked:bg-primary',
+                  )}
+                />
+                <span className="text-sm font-bold opacity-60 leading-tight">
+                  {t('common.rememberMe')}
+                </span>
+              </label>
 
               <Button type="submit" size="lg" className="w-full h-14 rounded-[1.6rem] gap-2" disabled={submitting || (mode === 'v2' && !token)}>
                 <span>{submitting ? t('common.loading') : t('auth.nextcloudContinue')}</span>

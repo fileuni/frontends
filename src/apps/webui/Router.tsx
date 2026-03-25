@@ -5,13 +5,13 @@ import { useAuthStore } from '@/stores/auth';
 import { useAuthzStore } from '@/stores/authz';
 import { useConfigStore } from '@/stores/config';
 import { useTranslation } from 'react-i18next';
+import { renderNextcloudPublicPage } from './nextcloud-routes';
 import { DashboardLayout } from '@/components/user-center/components/DashboardLayout';
 import { FileSidebar } from '@/components/file-manager/components/FileSidebar';
 
 // Dynamic import public components
 const WelcomeView = lazy(() => import('@/components/public/components/WelcomeView').then(m => ({ default: m.WelcomeView })));
 const LoginView = lazy(() => import('@/components/public/components/LoginView').then(m => ({ default: m.LoginView })));
-const NextcloudLoginView = lazy(() => import('@/components/public/components/NextcloudLoginView').then(m => ({ default: m.NextcloudLoginView })));
 const RegisterView = lazy(() => import('@/components/public/components/RegisterView').then(m => ({ default: m.RegisterView })));
 const ForgotPasswordView = lazy(() => import('@/components/public/components/ForgotPasswordView').then(m => ({ default: m.ForgotPasswordView })));
 const AccountsView = lazy(() => import('@/components/public/components/AccountsView').then(m => ({ default: m.AccountsView })));
@@ -110,10 +110,11 @@ const PageRenderer: React.FC<{
 }> = ({ mod, page, params, t, hasPermission }) => {
   // Public module
   if (mod === 'public') {
+    const nextcloudPage = renderNextcloudPublicPage(page);
+    if (nextcloudPage) return nextcloudPage;
     switch (page) {
       case 'index': return <WelcomeView />;
       case 'login': return <LoginView />;
-      case 'nextcloud-login': return <NextcloudLoginView />;
       case 'register': return <RegisterView />;
       case 'forgot-password': return <ForgotPasswordView />;
       case 'accounts': return <AccountsView />;
