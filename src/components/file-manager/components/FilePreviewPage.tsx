@@ -25,8 +25,6 @@ import { useToastStore } from '@/stores/toast';
 const PdfPreview = React.lazy(() => import('./PdfPreview.tsx').then(m => ({ default: m.PdfPreview })));
 
 const FALLBACK_PREVIEW_LIMIT_MB = 10;
-const MARKDOWN_FRIENDLY_TEXT_EXTENSIONS = ['txt', 'md', 'markdown', 'org', 'note'];
-
 // Extension Map
 const TYPE_MAP = {
   IMAGE: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff', 'tif'],
@@ -238,11 +236,6 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
   );
 
   const activeFile = data.playlist[data.index];
-  const activeFilePathLower = activeFile.path.toLowerCase();
-  const activeFileExt = activeFilePathLower.split('.').pop() || '';
-  const shouldUseMarkdownSwitcherForText =
-    data.type === 'text' &&
-    (activeFilePathLower.startsWith('/notes/') || MARKDOWN_FRIENDLY_TEXT_EXTENSIONS.includes(activeFileExt));
   const isStreamable = ['video', 'audio'].includes(data.type);
   const limits = capabilities?.preview_size_limits;
   const resolveLimitMb = (value?: number, fallback = FALLBACK_PREVIEW_LIMIT_MB) => (value && value > 0 ? value : fallback);
@@ -288,7 +281,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
       {data.type === 'markdown' && (
         <div className="flex-1 flex flex-col overflow-hidden">
           {enableMarkdownVditor ? (
-            <MarkdownEditorSwitcher path={activeFile.path} cdnBase={jsdelivrBase} {...commonProps} />
+            <MarkdownEditorSwitcher path={activeFile.path} cdnBase={jsdelivrBase} contentMode="markdown" {...commonProps} />
           ) : (
             <TextPreviewAndEditor path={activeFile.path} {...commonProps} />
           )}
@@ -297,11 +290,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
       
       {data.type === 'text' && (
         <div className="flex-1 flex flex-col overflow-hidden">
-          {shouldUseMarkdownSwitcherForText ? (
-            <MarkdownEditorSwitcher path={activeFile.path} cdnBase={jsdelivrBase} defaultEditing={true} {...commonProps} />
-          ) : (
-            <TextPreviewAndEditor path={activeFile.path} isForced={isForced} {...commonProps} />
-          )}
+          <MarkdownEditorSwitcher path={activeFile.path} cdnBase={jsdelivrBase} defaultEditing={true} contentMode="plain" {...commonProps} />
         </div>
       )}
 

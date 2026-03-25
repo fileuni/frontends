@@ -31,6 +31,8 @@ interface Props {
   markdownPreview?: boolean;
   previewTransform?: (html: string) => string;
   preferMonaco?: boolean;
+  hideInternalEngineToggle?: boolean;
+  onEditorReady?: () => void;
 }
 
 // Extension to Monaco Language Map
@@ -70,6 +72,8 @@ export const TextPreviewAndEditor = ({
   markdownPreview = false,
   previewTransform,
   preferMonaco = true,
+  hideInternalEngineToggle = false,
+  onEditorReady,
 }: Props) => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -88,6 +92,7 @@ export const TextPreviewAndEditor = ({
   const loadedPathRef = useRef('');
   const savingRef = useRef(false);
   const lastAutoSaveErrorAtRef = useRef<number>(0);
+  const readyNotifiedRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
@@ -96,6 +101,7 @@ export const TextPreviewAndEditor = ({
   useEffect(() => {
     setIsEditing(defaultEditing);
     setForcePlainTextarea(!preferMonaco);
+    readyNotifiedRef.current = false;
   }, [defaultEditing, path, preferMonaco]);
   
   const fileName = propFileName || path.split('/').pop() || 'File';
@@ -141,6 +147,13 @@ export const TextPreviewAndEditor = ({
       canceled = true;
     };
   }, [fileName, loadContent, path]);
+
+  useEffect(() => {
+    if (!loading && !readyNotifiedRef.current) {
+      readyNotifiedRef.current = true;
+      onEditorReady?.();
+    }
+  }, [loading, onEditorReady]);
 
   const saveContent = async (reason: 'manual' | 'auto') => {
     if (savingRef.current) return;
@@ -233,7 +246,7 @@ export const TextPreviewAndEditor = ({
             <div className="flex items-center gap-3">
               {headerExtra}
 
-              {monacoAvailable && (
+              {monacoAvailable && !hideInternalEngineToggle && (
                 <Button
                   variant="outline"
                   className={cn(

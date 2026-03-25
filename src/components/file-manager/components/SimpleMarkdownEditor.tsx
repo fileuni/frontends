@@ -14,6 +14,7 @@ import { useToastStore } from '@/stores/toast';
 import { cn } from '@/lib/utils';
 import { FilePreviewHeader } from './FilePreviewHeader';
 import { MarkdownPreviewSurface } from './MarkdownPreviewSurface';
+import { PlainTextPreviewSurface } from './PlainTextPreviewSurface';
 import { useAutoSave } from '../hooks/useAutoSave';
 
 interface SaveResult {
@@ -35,6 +36,7 @@ interface Props {
   saveContentRequest?: (payload: { path: string; content: string }) => Promise<SaveResult | void>;
   onEditorReady?: () => void;
   previewTransform?: (html: string) => string;
+  contentMode?: 'markdown' | 'plain';
 }
 
 type LayoutMode = 'edit' | 'preview' | 'split';
@@ -125,6 +127,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
   saveContentRequest,
   onEditorReady,
   previewTransform,
+  contentMode = 'markdown',
 }) => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -284,7 +287,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
     return [
       history(),
       keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-      markdown(),
+      ...(contentMode === 'markdown' ? [markdown()] : []),
       EditorView.lineWrapping,
       syntaxHighlighting(isDark ? darkMarkdownHighlight : lightMarkdownHighlight),
       EditorView.theme({
@@ -326,7 +329,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         },
       }),
     ];
-  }, [isDark]);
+  }, [contentMode, isDark]);
 
   const handleAction = useCallback((action: () => void) => {
     const view = editorRef.current;
@@ -366,7 +369,9 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         path={path}
         fileName={fileName}
         isDark={isDark}
-        subtitle={subtitle || t('filemanager.editor.markdownEngine')}
+        subtitle={subtitle || (contentMode === 'markdown'
+          ? t('filemanager.editor.markdownEngine')
+          : (t('common.editorEngine.textarea') || 'Text'))}
         onClose={onClose}
         hideDownload={hideDownload}
         closeButtonClassName={closeButtonClassName}
@@ -447,26 +452,28 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         }
       />
 
-      <div className={cn(
-        'shrink-0 border-b px-3 py-2',
-        isDark ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-[#fcfbf7]',
-      )}>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {toolbarButtons.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              onClick={item.action}
-              className={cn(
-                'shrink-0 rounded-xl border px-2.5 py-2 text-[11px] sm:text-xs font-black uppercase transition-all',
-                isDark ? 'border-white/10 bg-white/5 hover:bg-white/10' : 'border-zinc-200 bg-white hover:bg-zinc-50',
-              )}
-            >
-              {item.label}
-            </button>
-          ))}
+      {contentMode === 'markdown' && (
+        <div className={cn(
+          'shrink-0 border-b px-3 py-2',
+          isDark ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-[#fcfbf7]',
+        )}>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {toolbarButtons.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={item.action}
+                className={cn(
+                  'shrink-0 rounded-xl border px-2.5 py-2 text-[11px] sm:text-xs font-black uppercase transition-all',
+                  isDark ? 'border-white/10 bg-white/5 hover:bg-white/10' : 'border-zinc-200 bg-white hover:bg-zinc-50',
+                )}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <main className={cn('flex-1 min-h-0 overflow-hidden grid', activeLayout === 'split' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1')}>
         {loading ? (
@@ -506,11 +513,15 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
 
             {activeLayout !== 'edit' && (
               <section className="h-full min-h-0 overflow-hidden">
-                <MarkdownPreviewSurface
-                  content={content}
-                  isDark={isDark}
-                  previewTransform={previewTransform}
-                />
+                {contentMode === 'markdown' ? (
+                  <MarkdownPreviewSurface
+                    content={content}
+                    isDark={isDark}
+                    previewTransform={previewTransform}
+                  />
+                ) : (
+                  <PlainTextPreviewSurface content={content} isDark={isDark} />
+                )}
               </section>
             )}
           </>

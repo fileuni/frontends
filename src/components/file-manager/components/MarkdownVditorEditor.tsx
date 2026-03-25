@@ -9,6 +9,7 @@ import { useToastStore } from '@/stores/toast';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
+import { PlainTextPreviewSurface } from './PlainTextPreviewSurface';
 
 type VditorOptions = ConstructorParameters<typeof Vditor>[1];
 type VditorUploadOptions = NonNullable<VditorOptions>["upload"];
@@ -34,6 +35,7 @@ interface Props {
   onEditorReady?: () => void;
   previewTransform?: (html: string) => string;
   uploadOptions?: VditorUploadOptions;
+  contentMode?: 'markdown' | 'plain';
 }
 
 const getVditorLang = (lang: string): "zh_CN" | "en_US" | "ja_JP" | "ko_KR" => {
@@ -67,6 +69,7 @@ export const MarkdownVditorEditor = ({
   onEditorReady,
   previewTransform,
   uploadOptions,
+  contentMode = 'markdown',
 }: Props) => {
   const { t, i18n } = useTranslation();
   const { addToast } = useToastStore();
@@ -145,7 +148,9 @@ export const MarkdownVditorEditor = ({
 
   const resolvedCdnBase = (cdnBase || 'https://cdn.jsdelivr.net').replace(/\/+$/, '');
   const currentCdn = `${resolvedCdnBase}/npm/vditor`;
-  const previewMode = !isEditing ? 'both' : isCompactLayout ? 'editor' : 'both';
+  const previewMode = contentMode === 'plain'
+    ? 'editor'
+    : (!isEditing ? 'both' : isCompactLayout ? 'editor' : 'both');
 
   useEffect(() => {
     if (!vditorRef.current || loading) return undefined;
@@ -169,7 +174,9 @@ export const MarkdownVditorEditor = ({
       lang: getVditorLang(i18n.language),
       cdn: currentCdn, 
       cache: { enable: false },
-      placeholder: t('filemanager.preview.markdownPlaceholder'),
+      placeholder: contentMode === 'markdown'
+        ? t('filemanager.preview.markdownPlaceholder')
+        : (t('filemanager.preview.textPlaceholder') || 'Write plain text here'),
       preview: {
         theme: { current: isDark ? 'dark' : 'light' },
         hljs: { style: isDark ? 'github-dark' : 'github', lineNumber: true },
@@ -192,7 +199,7 @@ export const MarkdownVditorEditor = ({
 
     return () => { vditor?.destroy(); };
     // Only reinitialize Vditor when editing state or theme changes
-  }, [loading, isEditing, isDark, currentCdn, i18n.language, previewMode, previewTransform, uploadOptions]);
+  }, [contentMode, loading, isEditing, isDark, currentCdn, i18n.language, previewMode, previewTransform, uploadOptions]);
 
   useEffect(() => {
     if (!loading && !isInitializing && !readyNotifiedRef.current) {
@@ -282,7 +289,9 @@ export const MarkdownVditorEditor = ({
         path={path}
         fileName={fileName}
         isDark={isDark}
-        subtitle={subtitle || t('filemanager.editor.markdownEngine')}
+        subtitle={subtitle || (contentMode === 'markdown'
+          ? t('filemanager.editor.markdownEngine')
+          : (t('common.editorEngine.textarea') || 'Text'))}
         onClose={onClose}
         hideDownload={hideDownload}
         closeButtonClassName={closeButtonClassName}
@@ -342,7 +351,11 @@ export const MarkdownVditorEditor = ({
             <p className="text-sm font-black uppercase tracking-widest opacity-40">{t('filemanager.editor.connectingCdn')}</p>
           </div>
         )}
-        <div ref={vditorRef} className={cn("w-full h-full overflow-hidden", !isEditing && "vditor-pure-preview")} />
+        {contentMode === 'plain' && !isEditing ? (
+          <PlainTextPreviewSurface content={content} isDark={isDark} />
+        ) : (
+          <div ref={vditorRef} className={cn("w-full h-full overflow-hidden", !isEditing && "vditor-pure-preview")} />
+        )}
       </main>
 
       <style>{`
