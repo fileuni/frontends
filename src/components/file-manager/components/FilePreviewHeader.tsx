@@ -14,6 +14,9 @@ interface FilePreviewHeaderProps {
   subtitle?: string;
   isDark?: boolean;
   onClose?: () => void;
+  onDownload?: () => Promise<void> | void;
+  hideDownload?: boolean;
+  closeButtonClassName?: string;
 }
 
 /**
@@ -28,7 +31,10 @@ export const FilePreviewHeader = ({
   icon,
   subtitle,
   isDark: propIsDark,
-  onClose
+  onClose,
+  onDownload,
+  hideDownload = false,
+  closeButtonClassName,
 }: FilePreviewHeaderProps) => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
@@ -37,6 +43,10 @@ export const FilePreviewHeader = ({
   const isDark = propIsDark ?? (theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches));
 
   const handleDownload = async () => {
+    if (onDownload) {
+      await onDownload();
+      return;
+    }
     try {
       const data = await extractData<{ token: string }>(client.GET('/api/v1/file/get-file-download-token', { 
         params: { query: { path } } 
@@ -103,19 +113,21 @@ export const FilePreviewHeader = ({
         {extra && <div className={cn("w-px h-6", isDark ? "bg-white/10" : "bg-gray-200")} />}
         
         <div className="flex items-center gap-2">
-          <button 
-            onClick={handleDownload}
-            disabled={loading}
-            title={t('common.download')}
-            className={cn(
-              "p-2.5 rounded-xl transition-all border",
-              isDark 
-                ? "bg-white/5 border-white/10 text-primary hover:bg-white/10 shadow-lg shadow-black/20" 
-                : "bg-gray-100 border-gray-200 text-primary hover:bg-gray-200 shadow-sm"
-            )}
-          >
-            {loading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-          </button>
+          {!hideDownload && (
+            <button 
+              onClick={() => { void handleDownload(); }}
+              disabled={loading}
+              title={t('common.download')}
+              className={cn(
+                "p-2.5 rounded-xl transition-all border",
+                isDark 
+                  ? "bg-white/5 border-white/10 text-primary hover:bg-white/10 shadow-lg shadow-black/20" 
+                  : "bg-gray-100 border-gray-200 text-primary hover:bg-gray-200 shadow-sm"
+              )}
+            >
+              {loading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+            </button>
+          )}
 
           <button 
             onClick={defaultOnClose}
@@ -124,7 +136,8 @@ export const FilePreviewHeader = ({
               "p-2.5 rounded-xl transition-all border",
               isDark 
                 ? "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white" 
-                : "bg-red-50 border-red-100 text-red-600 hover:bg-red-500 hover:text-white"
+                : "bg-red-50 border-red-100 text-red-600 hover:bg-red-500 hover:text-white",
+              closeButtonClassName
             )}
           >
             <X size={18} />

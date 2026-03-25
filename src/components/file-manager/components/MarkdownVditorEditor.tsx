@@ -10,12 +10,30 @@ import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
 
+type VditorOptions = ConstructorParameters<typeof Vditor>[1];
+type VditorUploadOptions = NonNullable<VditorOptions>["upload"];
+
+interface SaveResult {
+  path?: string;
+  fileName?: string;
+}
+
 interface Props {
   path: string;
   isDark?: boolean;
   headerExtra?: React.ReactNode;
   onClose?: () => void;
   cdnBase?: string;
+  fileName?: string;
+  subtitle?: string;
+  hideDownload?: boolean;
+  closeButtonClassName?: string;
+  defaultEditing?: boolean;
+  loadContent?: (path: string) => Promise<string>;
+  saveContentRequest?: (payload: { path: string; content: string }) => Promise<SaveResult | void>;
+  onEditorReady?: () => void;
+  previewTransform?: (html: string) => string;
+  uploadOptions?: VditorUploadOptions;
 }
 
 const getVditorLang = (lang: string): "zh_CN" | "en_US" | "ja_JP" | "ko_KR" => {
@@ -28,6 +46,7 @@ const AUTO_SAVE_TICK_MS = 5_000;
 const AUTO_SAVE_IDLE_MS = 1_500;
 const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
 const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
+const MOBILE_SPLIT_BREAKPOINT = '(max-width: 960px)';
 
 /**
  * Markdown Editor and Previewer (Vditor powered)
@@ -37,7 +56,17 @@ export const MarkdownVditorEditor = ({
   isDark = false,
   headerExtra,
   onClose,
-  cdnBase
+  cdnBase,
+  fileName,
+  subtitle,
+  hideDownload = false,
+  closeButtonClassName,
+  defaultEditing = false,
+  loadContent,
+  saveContentRequest,
+  onEditorReady,
+  previewTransform,
+  uploadOptions,
 }: Props) => {
   const { t, i18n } = useTranslation();
   const { addToast } = useToastStore();
@@ -47,7 +76,10 @@ export const MarkdownVditorEditor = ({
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(defaultEditing);
+  const [isCompactLayout, setIsCompactLayout] = useState(
+    typeof window !== 'undefined' && window.matchMedia(MOBILE_SPLIT_BREAKPOINT).matches,
+  );
 
   const lastSavedContentRef = useRef('');
   const lastSavedAtRef = useRef<number>(0);
@@ -55,10 +87,21 @@ export const MarkdownVditorEditor = ({
   const loadedPathRef = useRef('');
   const savingRef = useRef(false);
   const lastAutoSaveErrorAtRef = useRef<number>(0);
+  const readyNotifiedRef = useRef(false);
 
   useEffect(() => {
-    setIsEditing(false);
-  }, [path]);
+    setIsEditing(defaultEditing);
+    readyNotifiedRef.current = false;
+  }, [path, defaultEditing]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const media = window.matchMedia(MOBILE_SPLIT_BREAKPOINT);
+    const update = () => setIsCompactLayout(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     let canceled = false;
@@ -66,19 +109,23 @@ export const MarkdownVditorEditor = ({
       setLoading(true);
       setIsInitializing(true);
       try {
-        const token = await getFileDownloadToken(path);
+        const next = loadContent
+          ? await loadContent(path)
+          : await (async () => {
+              const token = await getFileDownloadToken(path);
+              if (canceled) return '';
+              const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
+              const res = await fetch(url);
+              return await res.text();
+            })();
         if (canceled) return;
-        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
-        const res = await fetch(url);
-        const text = await res.text();
-        if (canceled) return;
-        const next = text || '';
-        setContent(next);
-        lastSavedContentRef.current = next;
+        const normalized = next || '';
+        setContent(normalized);
+        lastSavedContentRef.current = normalized;
         lastSavedAtRef.current = Date.now();
         loadedPathRef.current = path;
         // If Vditor is already initialized, set value directly
-        if (vd) vd.setValue(next);
+        if (vd) vd.setValue(normalized);
       } catch (e) {
         if (!canceled) {
           console.error("Load failed:", e);
@@ -94,10 +141,11 @@ export const MarkdownVditorEditor = ({
     return () => {
       canceled = true;
     };
-  }, [path]);
+  }, [path, loadContent]);
 
   const resolvedCdnBase = (cdnBase || 'https://cdn.jsdelivr.net').replace(/\/+$/, '');
   const currentCdn = `${resolvedCdnBase}/npm/vditor`;
+  const previewMode = !isEditing ? 'both' : isCompactLayout ? 'editor' : 'both';
 
   useEffect(() => {
     if (!vditorRef.current || loading) return undefined;
@@ -127,7 +175,10 @@ export const MarkdownVditorEditor = ({
         hljs: { style: isDark ? 'github-dark' : 'github', lineNumber: true },
         math: { engine: 'KaTeX', inlineDigit: true },
         markdown: { toc: true, mark: true, footnotes: true },
+        mode: previewMode,
+        transform: (html: string) => previewTransform ? previewTransform(html) : html,
       },
+      upload: uploadOptions,
       toolbarConfig: { pin: true, hide: !isEditing },
       input: (val) => {
         setContent(val);
@@ -141,7 +192,14 @@ export const MarkdownVditorEditor = ({
 
     return () => { vditor?.destroy(); };
     // Only reinitialize Vditor when editing state or theme changes
-  }, [loading, isEditing, isDark, currentCdn, i18n.language]);
+  }, [loading, isEditing, isDark, currentCdn, i18n.language, previewMode, previewTransform, uploadOptions]);
+
+  useEffect(() => {
+    if (!loading && !isInitializing && !readyNotifiedRef.current) {
+      readyNotifiedRef.current = true;
+      onEditorReady?.();
+    }
+  }, [loading, isInitializing, onEditorReady]);
 
   const saveContent = async (reason: 'manual' | 'auto') => {
     if (savingRef.current) return;
@@ -160,18 +218,27 @@ export const MarkdownVditorEditor = ({
     savingRef.current = true;
     setSaving(true);
     try {
-      const { data, error } = await client.PUT('/api/v1/file/content', {
-        body: { path, content: snapshot, is_base64: false }
-      });
+      let result: SaveResult | void;
+      if (saveContentRequest) {
+        result = await saveContentRequest({ path, content: snapshot });
+      } else {
+        const { data, error } = await client.PUT('/api/v1/file/content', {
+          body: { path, content: snapshot, is_base64: false }
+        });
 
-      if (error) {
-        const errObj = error as Record<string, unknown>;
-        throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
+        if (error) {
+          const errObj = error as Record<string, unknown>;
+          throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
+        }
+        if (!data?.success) {
+          const msgRaw = data?.msg;
+          const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
+          throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
+        }
       }
-      if (!data?.success) {
-        const msgRaw = data?.msg;
-        const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
-        throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
+
+      if (result && result.path && result.path !== loadedPathRef.current) {
+        loadedPathRef.current = result.path;
       }
 
       lastSavedContentRef.current = snapshot;
@@ -213,9 +280,12 @@ export const MarkdownVditorEditor = ({
     <div className={cn("h-screen w-screen flex flex-col overflow-hidden", isDark ? "dark bg-[#09090b] text-white" : "bg-white text-zinc-900")}>
       <FilePreviewHeader 
         path={path}
+        fileName={fileName}
         isDark={isDark}
-        subtitle={t('filemanager.editor.markdownEngine')}
+        subtitle={subtitle || t('filemanager.editor.markdownEngine')}
         onClose={onClose}
+        hideDownload={hideDownload}
+        closeButtonClassName={closeButtonClassName}
         extra={
           <div className="flex items-center gap-3">
             {headerExtra}
