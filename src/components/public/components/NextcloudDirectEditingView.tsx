@@ -5,7 +5,7 @@ import { BASE_URL } from '@/lib/api';
 import { useToastStore } from '@/stores/toast';
 import { useNavigationStore } from '@/stores/navigation';
 import { useThemeStore } from '@/stores/theme';
-import { MarkdownVditorEditor } from '@/components/file-manager/components/MarkdownVditorEditor';
+import { MarkdownEditorSwitcher } from '@/components/file-manager/components/MarkdownEditorSwitcher';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
@@ -56,6 +56,10 @@ export const NextcloudDirectEditingView: React.FC = () => {
   useEffect(() => {
     loadedRef.current = false;
   }, [token]);
+
+  useEffect(() => {
+    notifyLoaded();
+  }, [notifyLoaded]);
 
   useEffect(() => {
     let cancelled = false;
@@ -226,7 +230,7 @@ export const NextcloudDirectEditingView: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[260]">
-      <MarkdownVditorEditor
+      <MarkdownEditorSwitcher
         path={state.note_path}
         fileName={state.title}
         subtitle={t('filemanager.editor.markdownEngine') || 'Markdown Engine'}

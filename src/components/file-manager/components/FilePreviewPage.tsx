@@ -11,7 +11,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ImagePreview } from './ImagePreview.tsx';
-import { MarkdownVditorEditor } from './MarkdownVditorEditor.tsx';
+import { MarkdownEditorSwitcher } from './MarkdownEditorSwitcher.tsx';
 import { VideoPlayer } from './VideoPlayer.tsx';
 import { AudioPreview } from './AudioPreview.tsx';
 import { TextPreviewAndEditor } from './TextPreviewAndEditor.tsx';
@@ -282,7 +282,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
       {data.type === 'markdown' && (
         <div className="flex-1 flex flex-col overflow-hidden">
           {enableMarkdownVditor ? (
-            <MarkdownVditorEditor path={activeFile.path} cdnBase={jsdelivrBase} {...commonProps} />
+            <MarkdownEditorSwitcher path={activeFile.path} cdnBase={jsdelivrBase} {...commonProps} />
           ) : (
             <TextPreviewAndEditor path={activeFile.path} {...commonProps} />
           )}

@@ -12,6 +12,7 @@ import { useToastStore } from '@/stores/toast';
 import { cn } from '@/lib/utils.ts';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
+import { MarkdownPreviewSurface } from './MarkdownPreviewSurface';
 
 interface Props {
   path: string;
@@ -19,6 +20,17 @@ interface Props {
   isForced?: boolean;
   headerExtra?: React.ReactNode;
   onClose?: () => void;
+  fileName?: string;
+  subtitle?: string;
+  hideDownload?: boolean;
+  closeButtonClassName?: string;
+  defaultEditing?: boolean;
+  loadContent?: (path: string) => Promise<string>;
+  saveContentRequest?: (payload: { path: string; content: string }) => Promise<{ path?: string; fileName?: string } | void>;
+  languageOverride?: string;
+  markdownPreview?: boolean;
+  previewTransform?: (html: string) => string;
+  preferMonaco?: boolean;
 }
 
 // Extension to Monaco Language Map
@@ -42,16 +54,32 @@ const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 /**
  * Common Text Preview and Editor (Monaco powered).
  */
-export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Props) => {
+export const TextPreviewAndEditor = ({
+  path,
+  isDark,
+  headerExtra,
+  onClose,
+  fileName: propFileName,
+  subtitle,
+  hideDownload = false,
+  closeButtonClassName,
+  defaultEditing = false,
+  loadContent,
+  saveContentRequest,
+  languageOverride,
+  markdownPreview = false,
+  previewTransform,
+  preferMonaco = true,
+}: Props) => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
 
   const [mounted, setMounted] = useState(typeof window !== 'undefined');
-  const [forcePlainTextarea, setForcePlainTextarea] = useState(false);
+  const [forcePlainTextarea, setForcePlainTextarea] = useState(!preferMonaco);
   
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(defaultEditing);
   const [saving, setSaving] = useState(false);
 
   const lastSavedContentRef = useRef('');
@@ -66,12 +94,13 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
   }, []);
 
   useEffect(() => {
-    setIsEditing(false);
-  }, [path]);
+    setIsEditing(defaultEditing);
+    setForcePlainTextarea(!preferMonaco);
+  }, [defaultEditing, path, preferMonaco]);
   
-  const fileName = path.split('/').pop() || 'File';
+  const fileName = propFileName || path.split('/').pop() || 'File';
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
-  const language = LANGUAGE_MAP[ext] || 'plaintext';
+  const language = languageOverride || LANGUAGE_MAP[ext] || 'plaintext';
 
   const monacoAvailable = mounted && isMonacoSupported();
   const useMonaco = monacoAvailable && !forcePlainTextarea;
@@ -80,12 +109,16 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
     let canceled = false;
     const fetchContent = async () => {
       setLoading(true);
-      try {
-        const token = await getFileDownloadToken(path);
-        if (canceled) return;
-        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
-        const res = await fetch(url);
-        const text = await res.text();
+        try {
+        const text = loadContent
+          ? await loadContent(path)
+          : await (async () => {
+              const token = await getFileDownloadToken(path);
+              if (canceled) return '';
+              const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
+              const res = await fetch(url);
+              return await res.text();
+            })();
         if (canceled) return;
         const next = text || '';
         setContent(next);
@@ -107,7 +140,7 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
     return () => {
       canceled = true;
     };
-  }, [path]);
+  }, [fileName, loadContent, path]);
 
   const saveContent = async (reason: 'manual' | 'auto') => {
     if (savingRef.current) return;
@@ -126,19 +159,28 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
     savingRef.current = true;
     setSaving(true);
     try {
-      const { data, error } = await client.PUT('/api/v1/file/content', {
-        body: { path, content: snapshot, is_base64: false }
-      });
+      let result: { path?: string; fileName?: string } | void;
+      if (saveContentRequest) {
+        result = await saveContentRequest({ path, content: snapshot });
+      } else {
+        const { data, error } = await client.PUT('/api/v1/file/content', {
+          body: { path, content: snapshot, is_base64: false }
+        });
 
-      if (error) {
-        const errObj = error as Record<string, unknown>;
-        throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
+        if (error) {
+          const errObj = error as Record<string, unknown>;
+          throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
+        }
+
+        if (!data?.success) {
+          const msgRaw = data?.msg;
+          const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
+          throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
+        }
       }
 
-      if (!data?.success) {
-        const msgRaw = data?.msg;
-        const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
-        throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
+      if (result && result.path) {
+        loadedPathRef.current = result.path;
       }
 
       lastSavedContentRef.current = snapshot;
@@ -181,9 +223,12 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
     <div className={cn("h-screen w-screen flex flex-col overflow-hidden", isDark ? "dark bg-[#09090b] text-white" : "bg-white text-zinc-900")}>
         <FilePreviewHeader 
         path={path}
+        fileName={fileName}
         isDark={isDark}
-        subtitle={language}
+        subtitle={subtitle || language}
         onClose={onClose}
+        hideDownload={hideDownload}
+        closeButtonClassName={closeButtonClassName}
           extra={
             <div className="flex items-center gap-3">
               {headerExtra}
@@ -256,7 +301,13 @@ export const TextPreviewAndEditor = ({ path, isDark, headerExtra, onClose }: Pro
             <p className="text-sm font-black uppercase tracking-[0.3em]">Opening {fileName}...</p>
           </div>
         ) : (
-          useMonaco ? (
+          markdownPreview && !isEditing ? (
+            <MarkdownPreviewSurface
+              content={content}
+              isDark={isDark}
+              previewTransform={previewTransform}
+            />
+          ) : useMonaco ? (
             <MonacoEditor
               height="100%"
               language={language}
