@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MonacoEditor } from '@/components/editors/MonacoEditor';
-import { isMonacoSupported } from '@/lib/monaco';
+import { isMonacoSupported, useMonacoReady } from '@/lib/monaco';
 import { client, BASE_URL } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { 
@@ -109,7 +109,10 @@ export const TextPreviewAndEditor = ({
   const language = languageOverride || LANGUAGE_MAP[ext] || 'plaintext';
 
   const monacoAvailable = mounted && isMonacoSupported();
-  const useMonaco = monacoAvailable && !forcePlainTextarea;
+  const prefersMonacoEngine = monacoAvailable && !forcePlainTextarea;
+  const monacoStatus = useMonacoReady({ enabled: prefersMonacoEngine });
+  const useMonaco = prefersMonacoEngine && monacoStatus === 'ready';
+  const showMonacoLoading = prefersMonacoEngine && monacoStatus === 'pending';
 
   useEffect(() => {
     let canceled = false;
@@ -320,6 +323,13 @@ export const TextPreviewAndEditor = ({
               isDark={isDark}
               previewTransform={previewTransform}
             />
+          ) : showMonacoLoading ? (
+            <div className="h-full flex flex-col items-center justify-center gap-4 opacity-60">
+              <Loader2 className="animate-spin text-primary" size={36} />
+              <p className="text-sm font-black uppercase tracking-[0.24em]">
+                {t('filemanager.editor.loadingEditor') || 'Initializing editor...'}
+              </p>
+            </div>
           ) : useMonaco ? (
             <MonacoEditor
               height="100%"

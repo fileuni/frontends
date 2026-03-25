@@ -49,6 +49,15 @@ const AUTO_SAVE_IDLE_MS = 1_500;
 const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
 const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 const MOBILE_SPLIT_BREAKPOINT = '(max-width: 960px)';
+const LOCAL_VDITOR_BASE = `${import.meta.env.BASE_URL}vendor/vditor`.replace(/\/$/, '');
+
+const getPreferredVditorBase = () => {
+  if (typeof window === 'undefined') {
+    return LOCAL_VDITOR_BASE;
+  }
+
+  return new URL(LOCAL_VDITOR_BASE, window.location.origin).toString().replace(/\/+$/, '');
+};
 
 /**
  * Markdown Editor and Previewer (Vditor powered)
@@ -58,7 +67,6 @@ export const MarkdownVditorEditor = ({
   isDark = false,
   headerExtra,
   onClose,
-  cdnBase,
   fileName,
   subtitle,
   hideDownload = false,
@@ -146,8 +154,7 @@ export const MarkdownVditorEditor = ({
     };
   }, [path, loadContent]);
 
-  const resolvedCdnBase = (cdnBase || 'https://cdn.jsdelivr.net').replace(/\/+$/, '');
-  const currentCdn = `${resolvedCdnBase}/npm/vditor`;
+  const resolvedCdnBase = getPreferredVditorBase();
   const previewMode = contentMode === 'plain'
     ? 'editor'
     : (!isEditing ? 'both' : isCompactLayout ? 'editor' : 'both');
@@ -156,15 +163,20 @@ export const MarkdownVditorEditor = ({
     if (!vditorRef.current || loading) return undefined;
 
     const linkId = 'vditor-css-link';
-    if (!document.getElementById(linkId)) {
+    const cssHref = `${resolvedCdnBase}/dist/index.css`;
+    const currentLink = document.getElementById(linkId) as HTMLLinkElement | null;
+
+    if (currentLink) {
+      currentLink.href = cssHref;
+    } else {
       const link = document.createElement('link');
       link.id = linkId;
       link.rel = 'stylesheet';
-      link.href = `${currentCdn}/dist/index.css`;
+      link.href = cssHref;
       document.head.appendChild(link);
     }
 
-    const vditor = new Vditor(vditorRef.current, {
+    const vditorOptions: ConstructorParameters<typeof Vditor>[1] = {
       height: '100%',
       width: '100%',
       value: content, // Use loaded content at initialization
@@ -172,7 +184,7 @@ export const MarkdownVditorEditor = ({
       theme: isDark ? 'dark' : 'classic',
       icon: 'material',
       lang: getVditorLang(i18n.language),
-      cdn: currentCdn, 
+       cdn: resolvedCdnBase,
       cache: { enable: false },
       placeholder: contentMode === 'markdown'
         ? t('filemanager.preview.markdownPlaceholder')
@@ -185,7 +197,6 @@ export const MarkdownVditorEditor = ({
         mode: previewMode,
         transform: (html: string) => previewTransform ? previewTransform(html) : html,
       },
-      upload: uploadOptions,
       toolbarConfig: { pin: true, hide: !isEditing },
       input: (val) => {
         setContent(val);
@@ -195,11 +206,17 @@ export const MarkdownVditorEditor = ({
         setVd(vditor);
         setIsInitializing(false);
       }
-    });
+    };
+
+    if (uploadOptions) {
+      vditorOptions.upload = uploadOptions;
+    }
+
+    const vditor = new Vditor(vditorRef.current, vditorOptions);
 
     return () => { vditor?.destroy(); };
     // Only reinitialize Vditor when editing state or theme changes
-  }, [contentMode, loading, isEditing, isDark, currentCdn, i18n.language, previewMode, previewTransform, uploadOptions]);
+  }, [contentMode, loading, isEditing, isDark, i18n.language, previewMode, previewTransform, resolvedCdnBase, uploadOptions]);
 
   useEffect(() => {
     if (!loading && !isInitializing && !readyNotifiedRef.current) {
