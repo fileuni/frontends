@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
+import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { markdown } from '@codemirror/lang-markdown';
 import { keymap } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
+import { tags } from '@lezer/highlight';
 import { useTranslation } from 'react-i18next';
 import { Edit3, Eye, LayoutPanelLeft, Loader2, Save } from 'lucide-react';
 import { BASE_URL, client } from '@/lib/api';
@@ -42,6 +44,28 @@ const AUTO_SAVE_IDLE_MS = 1_500;
 const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
 const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 const MOBILE_BREAKPOINT = '(max-width: 960px)';
+
+const darkMarkdownHighlight = HighlightStyle.define([
+  { tag: [tags.heading], color: '#fbbf24', fontWeight: '700' },
+  { tag: [tags.strong], color: '#fde68a', fontWeight: '700' },
+  { tag: [tags.emphasis], color: '#fdba74', fontStyle: 'italic' },
+  { tag: [tags.link, tags.url], color: '#7dd3fc', textDecoration: 'underline' },
+  { tag: [tags.quote], color: '#c4b5fd', fontStyle: 'italic' },
+  { tag: [tags.list], color: '#fca5a5' },
+  { tag: [tags.monospace, tags.processingInstruction], color: '#86efac' },
+  { tag: [tags.literal, tags.string], color: '#a5f3fc' },
+]);
+
+const lightMarkdownHighlight = HighlightStyle.define([
+  { tag: [tags.heading], color: '#b45309', fontWeight: '700' },
+  { tag: [tags.strong], color: '#92400e', fontWeight: '700' },
+  { tag: [tags.emphasis], color: '#c2410c', fontStyle: 'italic' },
+  { tag: [tags.link, tags.url], color: '#1d4ed8', textDecoration: 'underline' },
+  { tag: [tags.quote], color: '#7c3aed', fontStyle: 'italic' },
+  { tag: [tags.list], color: '#dc2626' },
+  { tag: [tags.monospace, tags.processingInstruction], color: '#047857' },
+  { tag: [tags.literal, tags.string], color: '#0369a1' },
+]);
 
 const wrapSelection = (
   view: EditorView,
@@ -262,12 +286,16 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
       keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
       markdown(),
       EditorView.lineWrapping,
+      syntaxHighlighting(isDark ? darkMarkdownHighlight : lightMarkdownHighlight),
       EditorView.theme({
         '&': {
           height: '100%',
           fontSize: '15px',
           backgroundColor: isDark ? '#09090b' : '#ffffff',
           color: isDark ? '#fafaf9' : '#18181b',
+        },
+        '.cm-editor': {
+          backgroundColor: isDark ? '#09090b' : '#ffffff',
         },
         '.cm-scroller': {
           fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
@@ -276,6 +304,9 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         '.cm-content': {
           minHeight: '100%',
           caretColor: isDark ? '#fbbf24' : '#b45309',
+        },
+        '.cm-cursor, .cm-dropCursor': {
+          borderLeftColor: isDark ? '#fbbf24' : '#b45309',
         },
         '.cm-gutters': {
           backgroundColor: isDark ? '#09090b' : '#ffffff',
@@ -287,6 +318,11 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         },
         '.cm-selectionBackground, &.cm-focused .cm-selectionBackground': {
           backgroundColor: isDark ? 'rgba(251, 191, 36, 0.24)' : 'rgba(251, 191, 36, 0.26)',
+        },
+        '.cm-panels, .cm-tooltip, .cm-tooltip-autocomplete': {
+          backgroundColor: isDark ? '#18181b' : '#ffffff',
+          color: isDark ? '#fafaf9' : '#18181b',
+          borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(24,24,27,0.08)',
         },
       }),
     ];
