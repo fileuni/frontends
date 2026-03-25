@@ -42,16 +42,24 @@ const getDefaultEngine = (): MarkdownEngine => {
 export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
   const [engine, setEngine] = useState<MarkdownEngine>(getDefaultEngine);
   const [monacoAvailable, setMonacoAvailable] = useState(false);
+  const [isCompactLayout, setIsCompactLayout] = useState(
+    typeof window !== 'undefined' && window.matchMedia(MOBILE_BREAKPOINT).matches,
+  );
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return undefined;
     setMonacoAvailable(isMonacoSupported());
+    const media = window.matchMedia(MOBILE_BREAKPOINT);
+    const update = () => setIsCompactLayout(media.matches);
+    update();
+    media.addEventListener('change', update);
     const stored = window.localStorage.getItem(ENGINE_STORAGE_KEY) as MarkdownEngine | null;
     if (stored === 'simple' || stored === 'vditor' || stored === 'monaco') {
       setEngine(stored);
-      return;
+    } else {
+      setEngine(getDefaultEngine());
     }
-    setEngine(getDefaultEngine());
+    return () => media.removeEventListener('change', update);
   }, []);
 
   const handleEngineChange = (next: MarkdownEngine) => {
@@ -62,41 +70,62 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
   };
 
   const engineExtra = useMemo(() => (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 items-center gap-2">
       {props.headerExtra}
-      <div className={cn(
-        'flex items-center gap-1 rounded-2xl border p-1',
-        props.isDark ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-white/80',
-      )}>
-        <Button
-          variant={engine === 'simple' ? 'primary' : 'ghost'}
-          size="sm"
-          className="h-9 px-3 rounded-xl text-xs uppercase"
-          onClick={() => handleEngineChange('simple')}
-        >
-          Simple MD
-        </Button>
-        <Button
-          variant={engine === 'vditor' ? 'primary' : 'ghost'}
-          size="sm"
-          className="h-9 px-3 rounded-xl text-xs uppercase"
-          onClick={() => handleEngineChange('vditor')}
-        >
-          Vditor
-        </Button>
-        {monacoAvailable && (
+      {isCompactLayout ? (
+        <label className={cn(
+          'flex h-10 min-w-0 items-center rounded-2xl border px-3 text-xs font-black uppercase tracking-[0.1em]',
+          props.isDark ? 'border-white/10 bg-white/5 text-white/70' : 'border-zinc-200 bg-white/85 text-zinc-600',
+        )}>
+          <select
+            value={engine}
+            onChange={(event) => handleEngineChange(event.target.value as MarkdownEngine)}
+            className={cn(
+              'min-w-0 bg-transparent text-xs font-black uppercase outline-none pr-4',
+              props.isDark ? 'text-white' : 'text-zinc-900',
+            )}
+            aria-label="Markdown editor engine"
+          >
+            <option value="simple">Simple MD</option>
+            <option value="vditor">Vditor</option>
+            {monacoAvailable && <option value="monaco">Monaco</option>}
+          </select>
+        </label>
+      ) : (
+        <div className={cn(
+          'flex items-center gap-1 rounded-2xl border p-1',
+          props.isDark ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-white/80',
+        )}>
           <Button
-            variant={engine === 'monaco' ? 'primary' : 'ghost'}
+            variant={engine === 'simple' ? 'primary' : 'ghost'}
             size="sm"
             className="h-9 px-3 rounded-xl text-xs uppercase"
-            onClick={() => handleEngineChange('monaco')}
+            onClick={() => handleEngineChange('simple')}
           >
-            Monaco
+            Simple MD
           </Button>
-        )}
-      </div>
+          <Button
+            variant={engine === 'vditor' ? 'primary' : 'ghost'}
+            size="sm"
+            className="h-9 px-3 rounded-xl text-xs uppercase"
+            onClick={() => handleEngineChange('vditor')}
+          >
+            Vditor
+          </Button>
+          {monacoAvailable && (
+            <Button
+              variant={engine === 'monaco' ? 'primary' : 'ghost'}
+              size="sm"
+              className="h-9 px-3 rounded-xl text-xs uppercase"
+              onClick={() => handleEngineChange('monaco')}
+            >
+              Monaco
+            </Button>
+          )}
+        </div>
+      )}
     </div>
-  ), [engine, monacoAvailable, props.headerExtra, props.isDark]);
+  ), [engine, isCompactLayout, monacoAvailable, props.headerExtra, props.isDark]);
 
   if (engine === 'simple') {
     return <SimpleMarkdownEditor {...props} headerExtra={engineExtra} />;

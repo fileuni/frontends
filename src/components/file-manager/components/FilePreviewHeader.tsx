@@ -81,11 +81,11 @@ export const FilePreviewHeader = ({
 
   return (
     <header className={cn(
-      "h-16 shrink-0 border-b flex items-center justify-between px-6 z-50 transition-all duration-300",
+      "shrink-0 border-b flex flex-col gap-3 px-3 py-3 sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-0 z-50 transition-all duration-300",
       isDark ? "bg-zinc-950 text-white border-white/5" : "bg-white text-zinc-900 border-gray-200 shadow-sm"
     )}>
       {/* Left Info */}
-      <div className="flex items-center gap-4 min-w-0">
+      <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
         <div className={cn(
           "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-transform hover:rotate-6",
           isDark ? "bg-white/5 text-primary" : "bg-primary/10 text-primary shadow-inner"
@@ -104,15 +104,15 @@ export const FilePreviewHeader = ({
       </div>
       
       {/* Right Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-start gap-2 sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-3">
         {/* Extra buttons (Edit, Save, etc.) - No broad text overrides here */}
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 overflow-x-auto sm:flex-initial sm:overflow-visible">
           {extra}
         </div>
         
-        {extra && <div className={cn("w-px h-6", isDark ? "bg-white/10" : "bg-gray-200")} />}
+        {extra && <div className={cn("hidden sm:block w-px h-6", isDark ? "bg-white/10" : "bg-gray-200")} />}
         
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {!hideDownload && (
             <button 
               onClick={() => { void handleDownload(); }}

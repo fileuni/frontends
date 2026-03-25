@@ -30,6 +30,9 @@ export const NextcloudDirectEditingView: React.FC = () => {
   const [state, setState] = useState<DirectEditingState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCompactLayout, setIsCompactLayout] = useState(
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 960px)').matches,
+  );
   const loadedRef = useRef(false);
   const initialContentRef = useRef('');
 
@@ -56,6 +59,15 @@ export const NextcloudDirectEditingView: React.FC = () => {
   useEffect(() => {
     loadedRef.current = false;
   }, [token]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const media = window.matchMedia('(max-width: 960px)');
+    const update = () => setIsCompactLayout(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     notifyLoaded();
@@ -242,11 +254,15 @@ export const NextcloudDirectEditingView: React.FC = () => {
         headerExtra={state.can_share ? (
           <Button
             variant="outline"
-            className="h-10 rounded-xl px-4 font-black uppercase"
+            className={cn(
+              'h-10 rounded-xl font-black uppercase',
+              isCompactLayout ? 'w-10 px-0 justify-center' : 'px-4',
+            )}
             onClick={handleShare}
+            title={t('common.share') || 'Share'}
           >
-            <Share2 size={16} className="mr-2" />
-            {t('common.share') || 'Share'}
+            <Share2 size={16} className={cn(!isCompactLayout && 'mr-2')} />
+            {!isCompactLayout && (t('common.share') || 'Share')}
           </Button>
         ) : undefined}
         loadContent={loadContent}
@@ -255,7 +271,10 @@ export const NextcloudDirectEditingView: React.FC = () => {
         previewTransform={previewTransform}
         uploadOptions={uploadOptions}
       />
-      <div className="pointer-events-none fixed bottom-5 left-5 z-[261] rounded-2xl border border-border/60 bg-background/85 px-4 py-3 text-xs shadow-xl backdrop-blur-md">
+      <div className={cn(
+        'pointer-events-none fixed z-[261] rounded-2xl border border-border/60 bg-background/85 px-4 py-3 text-xs shadow-xl backdrop-blur-md',
+        isCompactLayout ? 'hidden' : 'bottom-5 left-5',
+      )}>
         <div className="flex items-center gap-2 font-black uppercase tracking-[0.18em] opacity-60">
           <Link2 size={14} />
           {state.notes_path}

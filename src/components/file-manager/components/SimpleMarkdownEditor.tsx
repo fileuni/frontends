@@ -361,7 +361,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
   ];
 
   return (
-    <div className={cn('h-screen w-screen flex flex-col overflow-hidden', isDark ? 'bg-[#09090b] text-white' : 'bg-white text-zinc-900')}>
+    <div className={cn('h-[100dvh] min-h-[100dvh] w-screen flex flex-col overflow-hidden', isDark ? 'bg-[#09090b] text-white' : 'bg-white text-zinc-900')}>
       <FilePreviewHeader
         path={path}
         fileName={fileName}
@@ -376,7 +376,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
 
             {!loading && (
               <div className={cn(
-                'flex items-center p-1 rounded-2xl border',
+                'flex items-center p-1 rounded-2xl border overflow-x-auto',
                 isDark ? 'bg-white/5 border-white/10' : 'bg-zinc-100 border-zinc-200',
               )}>
                 <button
@@ -385,13 +385,14 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                     setLayoutMode('preview');
                   }}
                   className={cn(
-                    'px-4 h-9 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2',
+                    'px-3 h-9 rounded-xl text-xs sm:text-sm font-black uppercase transition-all flex items-center gap-2 shrink-0',
                     !isEditing && activeLayout === 'preview'
                       ? (isDark ? 'bg-white/10 text-white' : 'bg-white text-zinc-900 shadow')
                       : 'opacity-50 hover:opacity-100',
                   )}
+                  title={t('filemanager.actions.preview')}
                 >
-                  <Eye size={16} /> {t('filemanager.actions.preview')}
+                  <Eye size={16} /> {!isCompactLayout && t('filemanager.actions.preview')}
                 </button>
                 <button
                   onClick={() => {
@@ -399,13 +400,14 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                     setLayoutMode('edit');
                   }}
                   className={cn(
-                    'px-4 h-9 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2',
+                    'px-3 h-9 rounded-xl text-xs sm:text-sm font-black uppercase transition-all flex items-center gap-2 shrink-0',
                     isEditing && activeLayout === 'edit'
                       ? 'bg-amber-500 text-zinc-950 shadow'
                       : 'opacity-50 hover:opacity-100',
                   )}
+                  title={t('filemanager.preview.edit')}
                 >
-                  <Edit3 size={16} /> {t('filemanager.preview.edit')}
+                  <Edit3 size={16} /> {!isCompactLayout && t('filemanager.preview.edit')}
                 </button>
                 {canSplit && (
                   <button
@@ -414,7 +416,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                       setLayoutMode('split');
                     }}
                     className={cn(
-                      'px-4 h-9 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2',
+                      'px-3 h-9 rounded-xl text-xs sm:text-sm font-black uppercase transition-all flex items-center gap-2 shrink-0',
                       activeLayout === 'split'
                         ? (isDark ? 'bg-white/10 text-white' : 'bg-white text-zinc-900 shadow')
                         : 'opacity-50 hover:opacity-100',
@@ -429,12 +431,16 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
             {isEditing && (
               <Button
                 variant="primary"
-                className="h-10 px-6 rounded-xl text-sm font-black uppercase"
+                className={cn(
+                  'h-10 rounded-xl text-sm font-black uppercase shrink-0',
+                  isCompactLayout ? 'w-10 px-0 justify-center' : 'px-6',
+                )}
                 onClick={() => { void saveContent('manual'); }}
                 disabled={saving || loading}
+                title={t('common.save')}
               >
-                {saving ? <Loader2 size={18} className="animate-spin mr-2" /> : <Save size={18} className="mr-2" />}
-                {t('common.save')}
+                {saving ? <Loader2 size={18} className={cn('animate-spin', !isCompactLayout && 'mr-2')} /> : <Save size={18} className={cn(!isCompactLayout && 'mr-2')} />}
+                {!isCompactLayout && t('common.save')}
               </Button>
             )}
           </div>
@@ -452,7 +458,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
               type="button"
               onClick={item.action}
               className={cn(
-                'shrink-0 rounded-xl border px-3 py-2 text-xs font-black uppercase transition-all',
+                'shrink-0 rounded-xl border px-2.5 py-2 text-[11px] sm:text-xs font-black uppercase transition-all',
                 isDark ? 'border-white/10 bg-white/5 hover:bg-white/10' : 'border-zinc-200 bg-white hover:bg-zinc-50',
               )}
             >
@@ -462,7 +468,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         </div>
       </div>
 
-      <main className={cn('flex-1 min-h-0', activeLayout === 'split' ? 'grid md:grid-cols-2' : 'block')}>
+      <main className={cn('flex-1 min-h-0 overflow-hidden grid', activeLayout === 'split' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1')}>
         {loading ? (
           <div className="h-full flex flex-col items-center justify-center gap-4 opacity-50">
             <Loader2 className="animate-spin text-primary" size={40} />
@@ -471,10 +477,11 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         ) : (
           <>
             {activeLayout !== 'preview' && (
-              <section className={cn('h-full min-h-0', activeLayout === 'split' && (isDark ? 'border-r border-white/10' : 'border-r border-zinc-200'))}>
+              <section className={cn('h-full min-h-0 overflow-hidden', activeLayout === 'split' && (isDark ? 'border-r border-white/10' : 'border-r border-zinc-200'))}>
                 <CodeMirror
                   value={content}
                   height="100%"
+                  theme={isDark ? 'dark' : 'light'}
                   basicSetup={{
                     lineNumbers: true,
                     foldGutter: false,
@@ -489,12 +496,16 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                     setContent(value);
                     lastEditAtRef.current = Date.now();
                   }}
+                  className={cn(
+                    'h-full',
+                    isDark ? 'bg-[#09090b] text-zinc-100' : 'bg-white text-zinc-900',
+                  )}
                 />
               </section>
             )}
 
             {activeLayout !== 'edit' && (
-              <section className="h-full min-h-0">
+              <section className="h-full min-h-0 overflow-hidden">
                 <MarkdownPreviewSurface
                   content={content}
                   isDark={isDark}
