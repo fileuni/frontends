@@ -21,6 +21,8 @@ interface ConfigEditorPanelProps {
   showCancel?: boolean;
   actionsPrefix?: React.ReactNode;
   isDark?: boolean;
+  editorVisible?: boolean;
+  collapsedContent?: React.ReactNode;
 }
 
 export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
@@ -42,6 +44,8 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
   showCancel = true,
   actionsPrefix,
   isDark = true,
+  editorVisible = true,
+  collapsedContent,
 }) => {
   return (
     <div className="flex flex-col gap-3 sm:gap-4 min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]">
@@ -67,6 +71,7 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
         <div className="flex items-center gap-2 shrink-0 justify-end flex-wrap">
           {actionsPrefix}
           <button
+            type="button"
             onClick={onTest}
             disabled={loading}
             className={cn(
@@ -79,6 +84,7 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
             {testLabel}
           </button>
           <button
+            type="button"
             onClick={onSave}
             disabled={loading || saveDisabled}
             className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-primary hover:opacity-90 text-white text-sm sm:text-sm font-black uppercase tracking-wide shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
@@ -87,6 +93,7 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
           </button>
           {showCancel && (
             <button
+              type="button"
               onClick={onCancel}
               disabled={loading}
               className={cn(
@@ -108,15 +115,21 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
           ? "bg-black/5 border-slate-800/50" 
           : "bg-slate-100 border-slate-300 shadow-inner"
       )}>
-        <ConfigRawEditor
-          content={content}
-          onChange={onChange}
-          notes={notes}
-          errors={errors}
-          jumpTo={jumpTo}
-          height="100%"
-          isDark={isDark}
-        />
+        {editorVisible ? (
+          <ConfigRawEditor
+            content={content}
+            onChange={onChange}
+            notes={notes}
+            errors={errors}
+            jumpTo={jumpTo}
+            height="100%"
+            isDark={isDark}
+          />
+        ) : (
+          <div className="h-full min-h-[280px] p-4 sm:p-6 lg:p-8">
+            {collapsedContent}
+          </div>
+        )}
       </div>
     </div>
   );

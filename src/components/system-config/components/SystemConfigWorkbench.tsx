@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FileArchive, HardDrive, ImagePlus, Key, Settings2, Shield, WandSparkles } from 'lucide-react';
 import { ConfigEditorPanel } from './ConfigEditorPanel';
@@ -137,6 +137,9 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const [isThumbnailToolsOpen, setIsThumbnailToolsOpen] = useState(false);
   const [isCompressionToolsOpen, setIsCompressionToolsOpen] = useState(false);
   const [jumpTo, setJumpTo] = useState<EditorJumpPosition | null>(null);
+  const [showRawEditor, setShowRawEditor] = useState(!setupMode);
+  const [showSetupAdvancedActions, setShowSetupAdvancedActions] = useState(false);
+  const [hasAutoOpenedSetupWizard, setHasAutoOpenedSetupWizard] = useState(false);
   const resolvedTheme = useResolvedTheme();
 
   const isDark = resolvedTheme === 'dark';
@@ -144,6 +147,27 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const isDirty = content !== savedContent;
   const pendingDiffStats = useMemo(() => calculateLineDiffStats(savedContent, content), [savedContent, content]);
   const isSaveDisabled = !forceEnableSave && !allowSaveWithoutChanges && !isDirty;
+
+  useEffect(() => {
+    if (!setupMode) {
+      setShowRawEditor(true);
+      setShowSetupAdvancedActions(false);
+      setHasAutoOpenedSetupWizard(false);
+      return;
+    }
+
+    if (!loading && quickWizardEnabled && !hasAutoOpenedSetupWizard) {
+      setQuickWizardInitialStep('performance');
+      setIsQuickWizardOpen(true);
+      setHasAutoOpenedSetupWizard(true);
+    }
+  }, [hasAutoOpenedSetupWizard, loading, quickWizardEnabled, setupMode]);
+
+  useEffect(() => {
+    if (setupMode && validationErrors.length > 0) {
+      setShowRawEditor(true);
+    }
+  }, [setupMode, validationErrors.length]);
 
   const openQuickWizardAt = useCallback((step: FriendlyStep) => {
     setQuickWizardInitialStep(step);
@@ -215,7 +239,22 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           onClick={() => setIsQuickWizardOpen(true)}
         >
           <WandSparkles size={18} className="text-primary" />
-          {t('admin.config.quickWizard.title')}
+          {setupMode ? t('setup.editor.quickWizard') : t('admin.config.quickWizard.title')}
+        </button>
+      )}
+      {setupMode && (
+        <button
+          type="button"
+          className={cn(
+            "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border font-black uppercase tracking-wide transition-all inline-flex items-center gap-1.5 shadow-sm",
+            isDark
+              ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10"
+              : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50"
+          )}
+          onClick={() => setShowRawEditor((prev) => !prev)}
+        >
+          <Settings2 size={18} className={isDark ? 'text-slate-200' : 'text-slate-700'} />
+          {showRawEditor ? t('setup.editor.hideAdvanced') : t('setup.editor.showAdvanced')}
         </button>
       )}
     </div>
@@ -289,7 +328,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {quickWizardLicense && (
+        {!setupMode && quickWizardLicense && (
           <button
             type="button"
             className={cn(
@@ -303,6 +342,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
+        {!setupMode && (
         <button
           type="button"
           className={cn(
@@ -314,7 +354,9 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
             <HardDrive size={18} className={isDark ? "text-slate-200" : "text-slate-700"} />
             {t('admin.config.storage.title')}
           </button>
+        )}
 
+        {!setupMode && (
         <button
           type="button"
           className={cn(
@@ -326,7 +368,9 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           <ImagePlus size={18} className={isDark ? "text-fuchsia-300" : "text-fuchsia-700"} />
           {t('admin.config.thumbnail.title')}
         </button>
+        )}
 
+        {!setupMode && (
         <button
           type="button"
           className={cn(
@@ -338,7 +382,92 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           <FileArchive size={18} className={isDark ? "text-orange-300" : "text-orange-700"} />
           {t('admin.config.compression.title')}
         </button>
+        )}
       </div>
+
+      {setupMode && (
+        <div className={cn(
+          'mt-3 rounded-xl border p-3',
+          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-white'
+        )}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className={cn('text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                {t('setup.editor.moreActionsTitle')}
+              </div>
+              <div className={cn('text-sm leading-6', isDark ? 'text-slate-400' : 'text-slate-600')}>
+                {t('setup.editor.moreActionsDesc')}
+              </div>
+            </div>
+            <button
+              type="button"
+              className={cn(
+                'h-10 rounded-lg border px-4 text-sm font-black transition-all shrink-0',
+                isDark
+                  ? 'border-white/15 bg-white/5 text-slate-300 hover:bg-white/10'
+                  : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50'
+              )}
+              onClick={() => setShowSetupAdvancedActions((prev) => !prev)}
+            >
+              {showSetupAdvancedActions ? t('setup.editor.hideMoreActions') : t('setup.editor.showMoreActions')}
+            </button>
+          </div>
+
+          {showSetupAdvancedActions && (
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {quickWizardLicense && (
+                <button
+                  type="button"
+                  className={cn(
+                    "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+                    isDark ? "border-amber-500/30 bg-amber-500/10 text-amber-200 hover:bg-amber-500/15" : "border-amber-500/30 bg-amber-50 text-amber-900 hover:bg-amber-100"
+                  )}
+                  onClick={openLicenseManagement}
+                >
+                  <Key size={18} className={isDark ? "text-amber-400" : "text-amber-600"} />
+                  {t('admin.config.license.title')}
+                </button>
+              )}
+
+              <button
+                type="button"
+                className={cn(
+                  "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+                  isDark ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10" : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50"
+                )}
+                onClick={openStorageConfig}
+              >
+                <HardDrive size={18} className={isDark ? "text-slate-200" : "text-slate-700"} />
+                {t('admin.config.storage.title')}
+              </button>
+
+              <button
+                type="button"
+                className={cn(
+                  "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+                  isDark ? "border-fuchsia-400/25 bg-fuchsia-500/10 text-fuchsia-100 hover:bg-fuchsia-500/15" : "border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100"
+                )}
+                onClick={openThumbnailTools}
+              >
+                <ImagePlus size={18} className={isDark ? "text-fuchsia-300" : "text-fuchsia-700"} />
+                {t('admin.config.thumbnail.title')}
+              </button>
+
+              <button
+                type="button"
+                className={cn(
+                  "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+                  isDark ? "border-orange-400/25 bg-orange-500/10 text-orange-100 hover:bg-orange-500/15" : "border-orange-300 bg-orange-50 text-orange-900 hover:bg-orange-100"
+                )}
+                onClick={openCompressionTools}
+              >
+                <FileArchive size={18} className={isDark ? "text-orange-300" : "text-orange-700"} />
+                {t('admin.config.compression.title')}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -375,12 +504,12 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
             )}
           </div>
           <div className="max-h-48 sm:max-h-64 overflow-y-auto custom-scrollbar pr-2 flex flex-col gap-2 sm:gap-2.5">
-            {validationErrors.map((err, index) => {
+            {validationErrors.map((err) => {
               const canJump = typeof err.line === 'number' && err.line > 0;
               return (
                 <button
                   type="button"
-                  key={`${index}-${err.message}`}
+                  key={`${err.key ?? 'unknown'}:${err.line ?? 0}:${err.column ?? 0}:${err.message}`}
                   title={canJump ? `Jump to line ${err.line}` : undefined}
                   onClick={() => {
                     if (!canJump) return;
@@ -510,6 +639,45 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         showCancel={showCancel}
         isDark={isDark}
         actionsPrefix={quickWizardEnabled ? actionButtons : undefined}
+        editorVisible={showRawEditor}
+        collapsedContent={setupMode ? (
+          <div className="h-full flex flex-col items-center justify-center text-center gap-4 sm:gap-5">
+            <div className={cn(
+              'max-w-2xl rounded-2xl border p-5 sm:p-6',
+              isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-white'
+            )}>
+              <div className={cn('text-base sm:text-lg font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                {t('setup.editor.rawHiddenTitle')}
+              </div>
+              <p className={cn('mt-2 text-sm sm:text-base leading-7', isDark ? 'text-slate-400' : 'text-slate-600')}>
+                {t('setup.editor.rawHiddenDesc')}
+              </p>
+              <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
+                {quickWizardEnabled && (
+                  <button
+                    type="button"
+                    className="h-10 rounded-lg border border-primary/30 bg-primary/10 px-4 text-sm font-black text-primary transition-all hover:bg-primary/15"
+                    onClick={() => openQuickWizardAt('performance')}
+                  >
+                    {t('setup.editor.backToWizard')}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className={cn(
+                    'h-10 rounded-lg border px-4 text-sm font-black transition-all',
+                    isDark
+                      ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10'
+                      : 'border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100'
+                  )}
+                  onClick={() => setShowRawEditor(true)}
+                >
+                  {t('setup.editor.showAdvanced')}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : undefined}
       />
 
       {reloadSummary && (
