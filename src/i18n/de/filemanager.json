@@ -428,5 +428,14 @@
     "qrBackToInfo": "Zurück zur Info",
     "emptyFolder": "Dieser Ordner ist leer",
     "previewNotAvailable": "Vorschau nicht verfügbar"
+  },
+  "colors": {
+    "red": "Rot",
+    "orange": "Orange",
+    "yellow": "Gelb",
+    "green": "Grün",
+    "blue": "Blau",
+    "cyan": "Cyan",
+    "deep blue": "Dunkelblau"
   }
 }

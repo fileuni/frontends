@@ -488,5 +488,14 @@
     "qrBackToInfo": "Назад",
     "emptyFolder": "Эта папка пуста",
     "previewNotAvailable": "Предпросмотр недоступен"
+  },
+  "colors": {
+    "red": "Красный",
+    "orange": "Оранжевый",
+    "yellow": "Желтый",
+    "green": "Зеленый",
+    "blue": "Синий",
+    "cyan": "Голубой",
+    "deep blue": "Темно-синий"
   }
 }

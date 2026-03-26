@@ -488,5 +488,14 @@
     "qrBackToInfo": "戻る",
     "emptyFolder": "このフォルダは空です",
     "previewNotAvailable": "プレビューできません"
+  },
+  "colors": {
+    "red": "赤",
+    "orange": "オレンジ",
+    "yellow": "黄",
+    "green": "緑",
+    "blue": "青",
+    "cyan": "シアン",
+    "deep blue": "深青"
   }
 }

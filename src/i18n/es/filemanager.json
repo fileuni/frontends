@@ -488,5 +488,14 @@
     "qrBackToInfo": "Volver a información",
     "emptyFolder": "Esta carpeta está vacía",
     "previewNotAvailable": "Vista previa no disponible"
+  },
+  "colors": {
+    "red": "Rojo",
+    "orange": "Naranja",
+    "yellow": "Amarillo",
+    "green": "Verde",
+    "blue": "Azul",
+    "cyan": "Cian",
+    "deep blue": "Azul oscuro"
   }
 }

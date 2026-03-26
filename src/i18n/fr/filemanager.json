@@ -488,5 +488,14 @@
     "qrBackToInfo": "Retour aux infos",
     "emptyFolder": "Ce dossier est vide",
     "previewNotAvailable": "Aperçu indisponible"
+  },
+  "colors": {
+    "red": "Rouge",
+    "orange": "Orange",
+    "yellow": "Jaune",
+    "green": "Vert",
+    "blue": "Bleu",
+    "cyan": "Cyan",
+    "deep blue": "Bleu foncé"
   }
 }

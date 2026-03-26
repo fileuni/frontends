@@ -488,5 +488,14 @@
     "qrBackToInfo": "Back to Info",
     "emptyFolder": "This folder is empty",
     "previewNotAvailable": "Preview Not Available"
+  },
+  "colors": {
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "cyan": "Cyan",
+    "deep blue": "Deep Blue"
   }
 }

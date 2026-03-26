@@ -474,5 +474,14 @@
     "qrBackToInfo": "返回信息",
     "emptyFolder": "此文件夹为空",
     "previewNotAvailable": "无法预览"
+  },
+  "colors": {
+    "red": "红色",
+    "orange": "橙色",
+    "yellow": "黄色",
+    "green": "绿色",
+    "blue": "蓝色",
+    "cyan": "青色",
+    "deep blue": "深蓝"
   }
 }
