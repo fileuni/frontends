@@ -1470,6 +1470,7 @@ export interface ConfigQuickWizardModalProps {
   onOpenAdminPassword?: () => void;
   onOpenLicenseManagement?: () => void;
   onOpenStorageConfig?: () => void;
+  setupMode?: boolean;
 }
 
 export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
@@ -1483,12 +1484,14 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   onOpenAdminPassword,
   onOpenLicenseManagement,
   onOpenStorageConfig,
+  setupMode = false,
 }) => {
   const { t } = useTranslation();
   const [friendlyStep, setFriendlyStep] = useState<FriendlyStep>('performance');
   const [parseError, setParseError] = useState<string | null>(null);
   const [draft, setDraft] = useState<FriendlyDraft>(defaultDraft);
   const [showDetailedPreview, setShowDetailedPreview] = useState(false);
+  const [showSetupAdvanced, setShowSetupAdvanced] = useState(false);
   const resolvedTheme = useResolvedTheme();
 
   const draftRef = useRef<FriendlyDraft>(defaultDraft);
@@ -1497,6 +1500,11 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   const lastObservedContentRef = useRef(content);
 
   const isDark = resolvedTheme === 'dark';
+  const showTechnicalChoices = !setupMode || showSetupAdvanced;
+  const isExternalDatabase = draft.databaseType === 'postgres';
+  const isRedisLikeCache = draft.cacheType === 'valkey' || draft.cacheType === 'redis' || draft.cacheType === 'keydb';
+  const isDashmapCache = draft.cacheType === 'dashmap';
+  const canInspectTechnicalPreview = !setupMode || showSetupAdvanced;
 
   useEscapeToCloseTopLayer({
     active: isOpen,
@@ -1891,6 +1899,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       isInternalSyncRef.current = false;
       lastObservedContentRef.current = content;
       setShowDetailedPreview(false);
+      setShowSetupAdvanced(false);
       return;
     }
 
@@ -1929,8 +1938,6 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   }, [isOpen]);
 
   const currentStepIndex = friendlySteps.indexOf(friendlyStep);
-  const isRedisLikeCache = draft.cacheType === 'valkey' || draft.cacheType === 'redis' || draft.cacheType === 'keydb';
-  const isDashmapCache = draft.cacheType === 'dashmap';
 
   const syncDraft = useCallback((updater: (prev: FriendlyDraft) => FriendlyDraft) => {
     const updated = updater(draftRef.current);
@@ -1948,6 +1955,74 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     onContentChange(nextContent);
     setParseError(null);
   }, [allocatorRecommendation.policy, onContentChange, parsed.value, tomlAdapter]);
+
+  const databaseLabelFor = useCallback((databaseType: DatabaseType) => {
+    if (showTechnicalChoices) {
+      return databaseType === 'sqlite'
+        ? t('admin.config.quickWizard.options.sqlite')
+        : t('admin.config.quickWizard.options.postgres');
+    }
+    return databaseType === 'sqlite'
+      ? t('admin.config.quickWizard.setupLabels.localDatabase')
+      : t('admin.config.quickWizard.setupLabels.externalDatabase');
+  }, [showTechnicalChoices, t]);
+
+  const cacheLabelFor = useCallback((cacheType: string) => {
+    if (showTechnicalChoices) {
+      const labelKeyMap: Record<string, string> = {
+        valkey: 'admin.config.quickWizard.options.cacheValkey',
+        redis: 'admin.config.quickWizard.options.cacheRedis',
+        keydb: 'admin.config.quickWizard.options.cacheKeydb',
+        dashmap: 'admin.config.quickWizard.options.cacheDashmap',
+        database: 'admin.config.quickWizard.options.cacheDatabase',
+      };
+      return t(labelKeyMap[cacheType] || 'admin.config.quickWizard.options.cacheDashmap');
+    }
+    if (cacheType === 'dashmap') {
+      return t('admin.config.quickWizard.setupLabels.builtInCache');
+    }
+    if (cacheType === 'database') {
+      return t('admin.config.quickWizard.setupLabels.databaseCache');
+    }
+    return t('admin.config.quickWizard.setupLabels.externalCache');
+  }, [showTechnicalChoices, t]);
+
+  const renderSetupAdvancedToggle = useCallback(() => {
+    if (!setupMode) {
+      return null;
+    }
+    return (
+      <div className={cn(
+        'mb-3 rounded-xl border px-3 py-3 sm:px-4',
+        isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50'
+      )}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className={cn('text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
+              {t('admin.config.quickWizard.setupAdvanced.title')}
+            </p>
+            <p className={cn('mt-1 text-sm leading-6', isDark ? 'text-slate-400' : 'text-slate-600')}>
+              {t('admin.config.quickWizard.setupAdvanced.desc')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowSetupAdvanced((prev) => !prev)}
+            className={cn(
+              'h-10 rounded-lg border px-4 text-sm font-black transition-all shrink-0',
+              isDark
+                ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10'
+                : 'border-slate-300 bg-white text-slate-800 hover:bg-slate-50 shadow-sm'
+            )}
+          >
+            {t(showSetupAdvanced
+              ? 'admin.config.quickWizard.setupAdvanced.hide'
+              : 'admin.config.quickWizard.setupAdvanced.show')}
+          </button>
+        </div>
+      </div>
+    );
+  }, [isDark, setupMode, showSetupAdvanced, t]);
 
   if (!isOpen) {
     return null;
@@ -2022,6 +2097,21 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
 
           {!parseError && (
             <div className="space-y-4">
+              {setupMode && (
+                <div className={cn(
+                  "rounded-xl border p-3 sm:p-4",
+                  isDark ? "border-emerald-500/30 bg-emerald-500/10" : "border-emerald-200 bg-emerald-50"
+                )}>
+                  <div className="flex items-start gap-3">
+                    <Shield size={18} className={isDark ? "text-emerald-300" : "text-emerald-600"} />
+                    <div className="space-y-1.5">
+                      <p className={cn("text-sm font-black", isDark ? "text-emerald-100" : "text-emerald-900")}>{t('admin.config.quickWizard.setupHintTitle')}</p>
+                      <p className={cn("text-sm leading-6", isDark ? "text-emerald-200/85" : "text-emerald-800")}>{t('admin.config.quickWizard.setupHintDesc')}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className={cn(
                 "rounded-xl border p-2 sm:p-3",
                 isDark ? "border-white/10 bg-white/[0.02]" : "border-slate-300 bg-slate-100 shadow-inner"
@@ -2060,17 +2150,19 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                     <h4 className="text-sm sm:text-sm font-black uppercase tracking-wide">{t('admin.config.quickWizard.steps.performance')}</h4>
                   </div>
                   <p className={cn("text-sm sm:text-sm mb-4", isDark ? "text-slate-400" : "text-slate-800 font-black")}>{t('admin.config.quickWizard.performance.intro')}</p>
-                  <div className={cn(
-                    "mb-4 rounded-lg border px-3 py-2 text-sm font-black",
-                    isDark ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-200" : "border-cyan-200 bg-cyan-50 text-cyan-800"
-                  )}>
-                    {t(
-                      allocatorRecommendation.policy === 'jemalloc'
-                        ? 'admin.config.quickWizard.performance.allocatorRecommendationLinux'
-                        : 'admin.config.quickWizard.performance.allocatorRecommendationOthers',
-                      { os: allocatorRecommendation.os }
-                    )}
-                  </div>
+                  {showTechnicalChoices && (
+                    <div className={cn(
+                      "mb-4 rounded-lg border px-3 py-2 text-sm font-black",
+                      isDark ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-200" : "border-cyan-200 bg-cyan-50 text-cyan-800"
+                    )}>
+                      {t(
+                        allocatorRecommendation.policy === 'jemalloc'
+                          ? 'admin.config.quickWizard.performance.allocatorRecommendationLinux'
+                          : 'admin.config.quickWizard.performance.allocatorRecommendationOthers',
+                        { os: allocatorRecommendation.os }
+                      )}
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {PERFORMANCE_PRESETS.map((preset) => (
@@ -2118,15 +2210,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                             "text-sm px-1.5 py-0.5 rounded border font-black",
                             isDark ? "bg-white/10 text-slate-300 border-transparent" : "bg-white text-slate-700 border-slate-200"
                           )}>
-                            {preset.recommendations.databaseType === 'sqlite'
-                              ? t('admin.config.quickWizard.options.sqlite')
-                              : t('admin.config.quickWizard.options.postgres')}
+                            {databaseLabelFor(preset.recommendations.databaseType)}
                           </span>
                           <span className={cn(
                             "text-sm px-1.5 py-0.5 rounded border font-black",
                             isDark ? "bg-white/10 text-slate-300 border-transparent" : "bg-white text-slate-700 border-slate-200"
                           )}>
-                            {t(`admin.config.quickWizard.options.cache${preset.recommendations.cacheType.charAt(0).toUpperCase()}${preset.recommendations.cacheType.slice(1)}`)}
+                            {cacheLabelFor(preset.recommendations.cacheType)}
                           </span>
                         </div>
                       </button>
@@ -2171,7 +2261,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                     </div>
                   )}
 
-                  {draft.performanceTier === 'good' && (
+                  {showTechnicalChoices && draft.performanceTier === 'good' && (
                     <div className={cn(
                       "mt-4 rounded-xl border p-3",
                       isDark ? "border-cyan-500/30 bg-cyan-500/5" : "border-cyan-200 bg-cyan-50"
@@ -2243,25 +2333,27 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                       ))}
                     </div>
                     
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className={cn("text-sm font-black uppercase opacity-40 shrink-0", isDark ? "text-white" : "text-slate-900")}>
-                        {t('admin.config.quickWizard.performance.preview.totalChanges', { count: previewConfigItems.length })}
+                    {canInspectTechnicalPreview && (
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className={cn("text-sm font-black uppercase opacity-40 shrink-0", isDark ? "text-white" : "text-slate-900")}>
+                          {t('admin.config.quickWizard.performance.preview.totalChanges', { count: previewConfigItems.length })}
+                        </div>
+                        <button
+                          type="button"
+                          className={cn(
+                            "h-8 px-3 rounded-lg border text-sm font-black transition-all shadow-sm shrink-0",
+                            isDark ? "border-white/15 bg-white/5 hover:bg-white/10 text-slate-300" : "border-slate-200 bg-white hover:bg-slate-50 text-slate-700"
+                          )}
+                          onClick={() => setShowDetailedPreview((prev) => !prev)}
+                        >
+                          {showDetailedPreview
+                            ? t('admin.config.quickWizard.performance.preview.hideDetails')
+                            : t('admin.config.quickWizard.performance.preview.viewDetails')}
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        className={cn(
-                          "h-8 px-3 rounded-lg border text-sm font-black transition-all shadow-sm shrink-0",
-                          isDark ? "border-white/15 bg-white/5 hover:bg-white/10 text-slate-300" : "border-slate-200 bg-white hover:bg-slate-50 text-slate-700"
-                        )}
-                        onClick={() => setShowDetailedPreview((prev) => !prev)}
-                      >
-                        {showDetailedPreview
-                          ? t('admin.config.quickWizard.performance.preview.hideDetails')
-                          : t('admin.config.quickWizard.performance.preview.viewDetails')}
-                      </button>
-                    </div>
+                    )}
 
-                    {showDetailedPreview && (
+                    {canInspectTechnicalPreview && showDetailedPreview && (
                       <div className={cn(
                         "grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3 mt-3 pt-3 border-t",
                         isDark ? "border-white/10" : "border-slate-200"
@@ -2328,6 +2420,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                     <h4 className="text-sm sm:text-sm font-black uppercase tracking-wide">{t('admin.config.quickWizard.steps.database')}</h4>
                   </div>
 
+                  {renderSetupAdvancedToggle()}
+
                   <div className="mb-3">
                     <div className={cn("text-sm font-black mb-2", isDark ? "text-slate-300" : "text-slate-700")}>{t('admin.config.quickWizard.fields.dbType')}</div>
                     <div className="flex gap-2">
@@ -2341,7 +2435,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                             : (isDark ? 'bg-black/30 border-white/15 text-slate-300 hover:bg-white/10' : 'bg-white border-slate-300 text-slate-900 hover:bg-slate-50 shadow-sm')
                         )}
                       >
-                        {t('admin.config.quickWizard.options.postgres')}
+                        {databaseLabelFor('postgres')}
                       </button>
                       <button
                         type="button"
@@ -2353,30 +2447,37 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                             : (isDark ? 'bg-black/30 border-white/15 text-slate-300 hover:bg-white/10' : 'bg-white border-slate-300 text-slate-900 hover:bg-slate-50 shadow-sm')
                         )}
                       >
-                        {t('admin.config.quickWizard.options.sqlite')}
+                        {databaseLabelFor('sqlite')}
                       </button>
                     </div>
                     {draft.databaseType === 'sqlite' && (
                       <p className={cn("mt-2 text-sm", isDark ? "text-emerald-200/90" : "text-emerald-700")}>{t('admin.config.quickWizard.hints.sqliteSingleNode')}</p>
                     )}
+                    {setupMode && isExternalDatabase && !showTechnicalChoices && (
+                      <p className={cn("mt-2 text-sm", isDark ? "text-slate-400" : "text-slate-600")}>
+                        {t('admin.config.quickWizard.setupHints.externalDatabase')}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <label className={cn("text-sm font-black", isDark ? "text-slate-300" : "text-slate-700")}>
-                      {t('admin.config.quickWizard.fields.healthTimeoutSeconds')}
-                      <input
-                        className={cn(
-                          "mt-1 w-full h-10 rounded-lg border px-3 text-sm transition-all focus:outline-none focus:ring-2",
-                          isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
-                        )}
-                        value={draft.dbHealthTimeoutSeconds}
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          syncDraft((prev) => ({ ...prev, dbHealthTimeoutSeconds: value }));
-                        }}
-                      />
-                    </label>
-                  </div>
+                  {showTechnicalChoices && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <label className={cn("text-sm font-black", isDark ? "text-slate-300" : "text-slate-700")}>
+                        {t('admin.config.quickWizard.fields.healthTimeoutSeconds')}
+                        <input
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm transition-all focus:outline-none focus:ring-2",
+                            isDark ? "border-white/15 bg-black/30 text-white focus:ring-cyan-500/30" : "border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm"
+                          )}
+                          value={draft.dbHealthTimeoutSeconds}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            syncDraft((prev) => ({ ...prev, dbHealthTimeoutSeconds: value }));
+                          }}
+                        />
+                      </label>
+                    </div>
+                  )}
 
                   {draft.databaseType === 'postgres' ? (
                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2471,29 +2572,31 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                           }}
                         />
                       </label>
-                      <label className={cn("text-sm font-black sm:col-span-2", isDark ? "text-slate-300" : "text-slate-700")}>
-                        {t('admin.config.quickWizard.fields.postgresDsn')}
-                        <input
-                          className={cn(
-                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono focus:outline-none focus:ring-2",
-                            isDark ? "border-cyan-400/30 bg-black/40 text-cyan-200 focus:ring-cyan-500/30" : "border-cyan-300 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20"
-                          )}
-                          value={draft.postgresDsn}
-                          onChange={(event) => {
-                            const postgresDsn = event.target.value;
-                            const parsedFields = parsePostgresDsn(postgresDsn);
-                            syncDraft((prev) => ({
-                              ...prev,
-                              postgresDsn,
-                              dbHost: parsedFields.dbHost,
-                              dbPort: parsedFields.dbPort,
-                              dbUser: parsedFields.dbUser,
-                              dbPass: parsedFields.dbPass,
-                              dbName: parsedFields.dbName,
-                            }));
-                          }}
-                        />
-                      </label>
+                      {showTechnicalChoices && (
+                        <label className={cn("text-sm font-black sm:col-span-2", isDark ? "text-slate-300" : "text-slate-700")}>
+                          {t('admin.config.quickWizard.fields.postgresDsn')}
+                          <input
+                            className={cn(
+                              "mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono focus:outline-none focus:ring-2",
+                              isDark ? "border-cyan-400/30 bg-black/40 text-cyan-200 focus:ring-cyan-500/30" : "border-cyan-300 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20"
+                            )}
+                            value={draft.postgresDsn}
+                            onChange={(event) => {
+                              const postgresDsn = event.target.value;
+                              const parsedFields = parsePostgresDsn(postgresDsn);
+                              syncDraft((prev) => ({
+                                ...prev,
+                                postgresDsn,
+                                dbHost: parsedFields.dbHost,
+                                dbPort: parsedFields.dbPort,
+                                dbUser: parsedFields.dbUser,
+                                dbPass: parsedFields.dbPass,
+                                dbName: parsedFields.dbName,
+                              }));
+                            }}
+                          />
+                        </label>
+                      )}
                     </div>
                   ) : (
                     <div className="mt-3 grid grid-cols-1 gap-3">
@@ -2527,24 +2630,39 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                   isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white"
                 )}>
                   <h4 className="text-sm sm:text-sm font-black uppercase tracking-wide mb-3">{t('admin.config.quickWizard.steps.cache')}</h4>
+                  {renderSetupAdvancedToggle()}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="md:col-span-2">
                       <div className={cn("text-sm font-black mb-2", isDark ? "text-slate-300" : "text-slate-700")}>{t('admin.config.quickWizard.fields.cacheType')}</div>
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                        {[
-                          { value: 'valkey', label: t('admin.config.quickWizard.options.cacheValkey') },
-                          { value: 'redis', label: t('admin.config.quickWizard.options.cacheRedis') },
-                          { value: 'keydb', label: t('admin.config.quickWizard.options.cacheKeydb') },
-                          { value: 'dashmap', label: t('admin.config.quickWizard.options.cacheDashmap') },
-                          { value: 'database', label: t('admin.config.quickWizard.options.cacheDatabase') },
-                        ].map((option) => (
+                      <div className={cn(
+                        'grid gap-2',
+                        showTechnicalChoices ? 'grid-cols-2 md:grid-cols-5' : 'grid-cols-1 sm:grid-cols-3'
+                      )}>
+                        {(showTechnicalChoices
+                          ? [
+                              { value: 'valkey', label: cacheLabelFor('valkey'), selected: draft.cacheType === 'valkey' },
+                              { value: 'redis', label: cacheLabelFor('redis'), selected: draft.cacheType === 'redis' },
+                              { value: 'keydb', label: cacheLabelFor('keydb'), selected: draft.cacheType === 'keydb' },
+                              { value: 'dashmap', label: cacheLabelFor('dashmap'), selected: draft.cacheType === 'dashmap' },
+                              { value: 'database', label: cacheLabelFor('database'), selected: draft.cacheType === 'database' },
+                            ]
+                          : [
+                              { value: 'dashmap', label: cacheLabelFor('dashmap'), selected: draft.cacheType === 'dashmap' },
+                              { value: 'database', label: cacheLabelFor('database'), selected: draft.cacheType === 'database' },
+                              { value: 'external', label: cacheLabelFor('valkey'), selected: isRedisLikeCache },
+                            ]).map((option) => (
                           <button
                             key={option.value}
                             type="button"
-                            onClick={() => syncDraft((prev) => ({ ...prev, cacheType: option.value }))}
+                            onClick={() => syncDraft((prev) => ({
+                              ...prev,
+                              cacheType: option.value === 'external'
+                                ? (prev.cacheType === 'redis' || prev.cacheType === 'keydb' || prev.cacheType === 'valkey' ? prev.cacheType : 'valkey')
+                                : option.value,
+                            }))}
                             className={cn(
                               'h-10 rounded-lg border text-sm font-black transition-all',
-                              draft.cacheType === option.value
+                              option.selected
                                 ? (isDark ? 'bg-cyan-500/20 border-cyan-400/40 text-cyan-200' : 'bg-cyan-500 text-white border-cyan-600 shadow-md')
                                 : (isDark ? 'bg-black/30 border-white/15 text-slate-300 hover:bg-white/10' : 'bg-white border-slate-300 text-slate-900 hover:bg-slate-50 shadow-sm')
                             )}
@@ -2555,6 +2673,11 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                       </div>
                       {isDashmapCache && (
                         <p className={cn("mt-2 text-sm", isDark ? "text-emerald-200/90" : "text-emerald-700")}>{t('admin.config.quickWizard.hints.cacheDashmapLightweight')}</p>
+                      )}
+                      {setupMode && isRedisLikeCache && !showTechnicalChoices && (
+                        <p className={cn("mt-2 text-sm", isDark ? "text-slate-400" : "text-slate-600")}>
+                          {t('admin.config.quickWizard.setupHints.externalCache')}
+                        </p>
                       )}
                     </div>
                     {isRedisLikeCache && (
@@ -2656,29 +2779,31 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         }}
                       />
                     </label>
-                    <label className={cn("text-sm font-black sm:col-span-2", isDark ? "text-slate-300" : "text-slate-700")}>
-                      {t('admin.config.quickWizard.fields.redisUrl')}
-                      <input
-                        className={cn(
-                          "mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono focus:outline-none focus:ring-2",
-                          isDark ? "border-cyan-400/30 bg-black/40 text-cyan-200 focus:ring-cyan-500/30" : "border-cyan-300 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20"
-                        )}
-                        value={draft.cacheRedisUrl}
-                        onChange={(event) => {
-                          const cacheRedisUrl = event.target.value;
-                          const fields = parseRedisUrl(cacheRedisUrl);
-                          syncDraft((prev) => ({
-                            ...prev,
-                            cacheRedisUrl,
-                            cacheHost: fields.cacheHost,
-                            cachePort: fields.cachePort,
-                            cacheUser: fields.cacheUser,
-                            cachePass: fields.cachePass,
-                            cacheUseTls: fields.cacheUseTls,
-                          }));
-                          }}
-                        />
+                    {showTechnicalChoices && (
+                      <label className={cn("text-sm font-black sm:col-span-2", isDark ? "text-slate-300" : "text-slate-700")}>
+                        {t('admin.config.quickWizard.fields.redisUrl')}
+                        <input
+                          className={cn(
+                            "mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono focus:outline-none focus:ring-2",
+                            isDark ? "border-cyan-400/30 bg-black/40 text-cyan-200 focus:ring-cyan-500/30" : "border-cyan-300 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20"
+                          )}
+                          value={draft.cacheRedisUrl}
+                          onChange={(event) => {
+                            const cacheRedisUrl = event.target.value;
+                            const fields = parseRedisUrl(cacheRedisUrl);
+                            syncDraft((prev) => ({
+                              ...prev,
+                              cacheRedisUrl,
+                              cacheHost: fields.cacheHost,
+                              cachePort: fields.cachePort,
+                              cacheUser: fields.cacheUser,
+                              cachePass: fields.cachePass,
+                              cacheUseTls: fields.cacheUseTls,
+                            }));
+                            }}
+                          />
                       </label>
+                    )}
                     </div>
                   ) : (
                     <p className={cn("mt-3 text-sm", isDark ? "text-slate-400" : "text-slate-600")}>{t('admin.config.quickWizard.hints.cacheNoExternalConnection')}</p>
@@ -2787,8 +2912,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                     className="h-10 px-8 rounded-lg border border-primary bg-primary text-white text-sm sm:text-sm font-black disabled:opacity-40 shadow-lg shadow-primary/20 transition-all hover:opacity-90"
                     onClick={onClose}
                   >
-                    {t('admin.config.quickWizard.actions.done')}
-                  </button>
+                      {t(setupMode ? 'admin.config.quickWizard.actions.doneSetup' : 'admin.config.quickWizard.actions.done')}
+                    </button>
                 </div>
               </div>
             </div>

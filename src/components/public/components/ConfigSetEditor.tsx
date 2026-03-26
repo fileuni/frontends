@@ -7,6 +7,7 @@ import type { components as ConfigSetComponents } from '@/types/config_set_api.t
 import type { ConfigError, ConfigNoteEntry } from '@/components/system-config/components/ConfigRawEditor';
 import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
 import { ConfigWorkbenchShell } from '@/components/system-config/components/ConfigWorkbenchShell';
+import { SetupOnboardingIntro } from '@/components/system-config/components/SetupOnboardingIntro';
 import type { ExternalToolDiagnosisResponse } from '@/components/system-config/components/ExternalDependencyConfigModal';
 import { useToastStore } from '@/stores/toast';
 import { useThemeStore, type Theme } from '@/stores/theme';
@@ -423,55 +424,61 @@ export const ConfigSetEditor: React.FC = () => {
         configPath={configPath}
         headerActions={headerActions}
       >
-        <SystemConfigWorkbench
-          tomlAdapter={toml}
-          loading={loading}
-          configPath={configPath}
-          content={content}
-          savedContent={savedContent}
-          notes={notes}
-          validationErrors={validationErrors}
-          busy={testing}
-          onChange={setContent}
-          onTest={handleTest}
-          onSave={handleApplyWithoutPassword}
-          onCancel={handleResetToSaved}
-          showCancel={false}
-          allowSaveWithoutChanges={true}
-          forceEnableSave={true}
-          onClearValidationErrors={() => setValidationErrors([])}
-          restartNotice={t('admin.config.restartNotice')}
-          quickWizardEnabled={true}
-          runtimeOs={runtimeOs}
-          onDiagnoseExternalTools={handleDiagnoseExternalTools}
-          quickWizardLicense={{
-            isValid: Boolean(licenseStatus?.is_valid),
-            msg: licenseStatus?.msg,
-            currentUsers: licenseStatus?.current_users ?? 0,
-            maxUsers: licenseStatus?.max_users ?? 0,
-            deviceCode: licenseStatus?.device_code ?? '',
-            hwId: licenseStatus?.hw_id,
-            auxId: licenseStatus?.aux_id,
-            expiresAt: licenseStatus?.expires_at ?? null,
-            features: licenseStatus?.features ?? [],
-            licenseKey,
-            saving: licenseSaving,
-            onLicenseKeyChange: setLicenseKey,
-            onApplyLicense: () => {
-              void applyLicenseKey();
-            },
-          }}
-          adminPasswordLabel={t('configSet.admin.changePassword')}
-          onResetAdminPassword={handleQuickWizardResetAdminPassword}
-          isResettingAdminPassword={resettingAdminPassword}
-          adminPasswordPanelProps={{
-            showWarning: false,
-            showSuccess: false,
-            showResetHint: false,
-            confirmLabel: t('configSet.admin.changePassword'),
-            pendingHint: t('configSet.admin.pendingHint'),
-          }}
-        />
+        <div className="space-y-4">
+          <SetupOnboardingIntro configPath={configPath} />
+          <SystemConfigWorkbench
+            tomlAdapter={toml}
+            loading={loading}
+            configPath={configPath}
+            content={content}
+            savedContent={savedContent}
+            notes={notes}
+            validationErrors={validationErrors}
+            busy={testing}
+            onChange={setContent}
+            onTest={handleTest}
+            onSave={handleApplyWithoutPassword}
+            onCancel={handleResetToSaved}
+            showCancel={false}
+            allowSaveWithoutChanges={true}
+            forceEnableSave={true}
+            setupMode={true}
+            editorTitle={t('setup.editor.title')}
+            testLabel={t('setup.editor.check')}
+            onClearValidationErrors={() => setValidationErrors([])}
+            restartNotice={t('setup.admin.finalConfirmDesc')}
+            quickWizardEnabled={true}
+            runtimeOs={runtimeOs}
+            onDiagnoseExternalTools={handleDiagnoseExternalTools}
+            quickWizardLicense={{
+              isValid: Boolean(licenseStatus?.is_valid),
+              msg: licenseStatus?.msg,
+              currentUsers: licenseStatus?.current_users ?? 0,
+              maxUsers: licenseStatus?.max_users ?? 0,
+              deviceCode: licenseStatus?.device_code ?? '',
+              hwId: licenseStatus?.hw_id,
+              auxId: licenseStatus?.aux_id,
+              expiresAt: licenseStatus?.expires_at ?? null,
+              features: licenseStatus?.features ?? [],
+              licenseKey,
+              saving: licenseSaving,
+              onLicenseKeyChange: setLicenseKey,
+              onApplyLicense: () => {
+                void applyLicenseKey();
+              },
+            }}
+            adminPasswordLabel={t('configSet.admin.changePassword')}
+            onResetAdminPassword={handleQuickWizardResetAdminPassword}
+            isResettingAdminPassword={resettingAdminPassword}
+            adminPasswordPanelProps={{
+              showWarning: false,
+              showSuccess: false,
+              showResetHint: false,
+              confirmLabel: t('configSet.admin.changePassword'),
+              pendingHint: t('configSet.admin.pendingHint'),
+            }}
+          />
+        </div>
       </ConfigWorkbenchShell>
     );
 };

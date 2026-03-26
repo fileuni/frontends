@@ -89,6 +89,9 @@ export interface SystemConfigWorkbenchProps {
   adminPasswordPanelProps?: Partial<import('./AdminPasswordPanel').AdminPasswordPanelProps>;
   onPickStorageDirectory?: import('./VfsStorageConfigModal').VfsStorageConfigModalProps['onPickDirectory'];
   onDiagnoseExternalTools?: (configuredValues: Record<string, string>) => Promise<ExternalToolDiagnosisResponse>;
+  setupMode?: boolean;
+  editorTitle?: string;
+  testLabel?: string;
 }
 
 export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
@@ -121,6 +124,9 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   adminPasswordPanelProps,
   onPickStorageDirectory,
   onDiagnoseExternalTools,
+  setupMode = false,
+  editorTitle,
+  testLabel,
 }) => {
   const { t } = useTranslation();
   const [isQuickWizardOpen, setIsQuickWizardOpen] = useState(false);
@@ -429,42 +435,44 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </div>
       )}
 
-      <div className={cn(
-        "mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3 transition-colors",
-        isDark ? "border-white/10 bg-black/20 shadow-none" : "border-slate-300 bg-slate-100/50 shadow-inner"
-      )}>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm sm:text-sm">
-          <span className={cn(
-            'rounded-lg border px-2 py-0.5 font-black uppercase tracking-wide',
-            isDirty 
-              ? (isDark ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-amber-500/40 bg-amber-100 text-amber-900') 
-              : (isDark ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' : 'border-emerald-500/40 bg-emerald-100 text-emerald-900'),
-          )}>
-            {isDirty ? t('admin.config.pendingChanges') : t('admin.config.noPendingChanges')}
-          </span>
-          <span className={cn("font-black uppercase tracking-widest", isDark ? "text-white opacity-30" : "text-slate-900 opacity-40")}>
-            {t('admin.config.diffSummary')}
-          </span>
-          <span className={cn(
-            "rounded border px-2 py-0.5 font-mono font-bold",
-            isDark ? "border-white/10 bg-white/5 text-slate-300" : "border-slate-200 bg-white text-slate-800"
-          )}>
-            {t('admin.config.changedLines')}: {pendingDiffStats.changed}
-          </span>
-          <span className={cn(
-            "rounded border px-2 py-0.5 font-mono font-bold",
-            isDark ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200" : "border-emerald-500/20 bg-emerald-50 text-emerald-800"
-          )}>
-            {t('admin.config.addedLines')}: {pendingDiffStats.added}
-          </span>
-          <span className={cn(
-            "rounded border px-2 py-0.5 font-mono font-bold",
-            isDark ? "border-red-400/20 bg-red-500/10 text-red-200" : "border-red-500/20 bg-red-50 text-red-800"
-          )}>
-            {t('admin.config.removedLines')}: {pendingDiffStats.removed}
-          </span>
+      {!setupMode && (
+        <div className={cn(
+          "mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3 transition-colors",
+          isDark ? "border-white/10 bg-black/20 shadow-none" : "border-slate-300 bg-slate-100/50 shadow-inner"
+        )}>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm sm:text-sm">
+            <span className={cn(
+              'rounded-lg border px-2 py-0.5 font-black uppercase tracking-wide',
+              isDirty 
+                ? (isDark ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-amber-500/40 bg-amber-100 text-amber-900') 
+                : (isDark ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' : 'border-emerald-500/40 bg-emerald-100 text-emerald-900'),
+            )}>
+              {isDirty ? t('admin.config.pendingChanges') : t('admin.config.noPendingChanges')}
+            </span>
+            <span className={cn("font-black uppercase tracking-widest", isDark ? "text-white opacity-30" : "text-slate-900 opacity-40")}>
+              {t('admin.config.diffSummary')}
+            </span>
+            <span className={cn(
+              "rounded border px-2 py-0.5 font-mono font-bold",
+              isDark ? "border-white/10 bg-white/5 text-slate-300" : "border-slate-200 bg-white text-slate-800"
+            )}>
+              {t('admin.config.changedLines')}: {pendingDiffStats.changed}
+            </span>
+            <span className={cn(
+              "rounded border px-2 py-0.5 font-mono font-bold",
+              isDark ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200" : "border-emerald-500/20 bg-emerald-50 text-emerald-800"
+            )}>
+              {t('admin.config.addedLines')}: {pendingDiffStats.added}
+            </span>
+            <span className={cn(
+              "rounded border px-2 py-0.5 font-mono font-bold",
+              isDark ? "border-red-400/20 bg-red-500/10 text-red-200" : "border-red-500/20 bg-red-50 text-red-800"
+            )}>
+              {t('admin.config.removedLines')}: {pendingDiffStats.removed}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {restartNotice && (
         <div className={cn(
@@ -495,8 +503,8 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         onTest={onTest}
         onSave={onSave}
         onCancel={onCancel || (() => {})}
-        title={t('admin.config.title')}
-        testLabel={t('admin.config.testContent')}
+        title={editorTitle || t('admin.config.title')}
+        testLabel={testLabel || t('admin.config.testContent')}
         saveLabel={saveLabel || t('admin.config.saveAndReload')}
         cancelLabel={t('common.cancel')}
         showCancel={showCancel}
@@ -528,6 +536,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           {...(onResetAdminPassword ? { onOpenAdminPassword: openAdminPassword } : {})}
           {...(quickWizardLicense ? { onOpenLicenseManagement: openLicenseManagement } : {})}
           onOpenStorageConfig={openStorageConfig}
+          setupMode={setupMode}
         />
       )}
 

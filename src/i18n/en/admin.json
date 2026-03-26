@@ -1137,31 +1137,33 @@
       }
     },
     "quickWizard": {
-      "title": "Quick Config Wizard",
-      "subtitle": "Step-by-step setup for common options to finish initial configuration quickly.",
-      "parseErrorTitle": "The current config cannot be shown in simplified wizard mode yet.",
-      "parseErrorHint": "Please fix the format in the config editor first, then come back. Your existing config stays intact.",
+      "title": "Quick Setup",
+      "subtitle": "Walk through the common choices used during first-time setup.",
+      "parseErrorTitle": "The current settings cannot be shown in simplified mode right now.",
+      "parseErrorHint": "You can still edit them below. Nothing will be lost.",
+      "setupHintTitle": "Recommended: keep the defaults if you're unsure",
+      "setupHintDesc": "The default setup already works well for most first-time installs, and you can change everything later.",
       "steps": {
-        "performance": "Performance Optimization",
-        "database": "Database",
-        "cache": "Cache",
+        "performance": "Usage Style",
+        "database": "Data Storage",
+        "cache": "Speed & Cache",
         "advanced": "Common Advanced",
-        "other": "Other Config"
+        "other": "More Options"
       },
       "fields": {
-        "dbType": "DB Type",
-        "healthTimeoutSeconds": "Health Timeout (seconds)",
+        "dbType": "How to save data",
+        "healthTimeoutSeconds": "Connection check timeout (seconds)",
         "host": "Host",
         "port": "Port",
-        "user": "User",
+        "user": "Username",
         "password": "Password",
-        "databaseName": "Database Name",
-        "postgresDsn": "PostgreSQL DSN",
-        "sqlitePath": "SQLite Path",
+        "databaseName": "Database name",
+        "postgresDsn": "Advanced connection string",
+        "sqlitePath": "Local database file",
         "sqliteDsn": "SQLite DSN",
-        "cacheType": "Cache Type",
-        "useTls": "Use TLS",
-        "redisUrl": "Redis URL",
+        "cacheType": "How FileUni speeds things up",
+        "useTls": "Use secure connection",
+        "redisUrl": "Advanced cache address",
         "licenseStatus": "License Status",
         "maxUsers": "User Quota",
         "hwFingerprint": "Hardware Fingerprint",
@@ -1177,30 +1179,48 @@
         "captchaExpiresInSeconds": "Captcha Expires In (seconds)"
       },
       "hints": {
-        "sqliteSingleNode": "Best for home and personal lightweight deployment.",
+        "sqliteSingleNode": "Recommended for first-time setup, personal use, and home devices.",
         "sqlitePathOnly": "Only the database file path is needed here. The connection string is handled automatically.",
-        "cacheDashmapLightweight": "Best for lightweight users.",
-        "cacheNoExternalConnection": "This cache mode does not require an external cache server address."
+        "cacheDashmapLightweight": "Recommended for first-time setup and light use. No extra service is required.",
+        "cacheNoExternalConnection": "This option does not need a separate cache service. Leaving it as-is is usually fine."
       },
       "options": {
-        "postgres": "PostgreSQL",
-        "sqlite": "Single-Node Database",
+        "postgres": "Use existing PostgreSQL",
+        "sqlite": "Save on this device (recommended)",
         "enabled": "Enabled",
         "disabled": "Disabled",
         "cacheValkey": "VALKEY",
         "cacheRedis": "REDIS",
         "cacheKeydb": "KEYDB",
-        "cacheDashmap": "In-Memory Cache",
-        "cacheDatabase": "DATABASE",
+        "cacheDashmap": "Built-in speed-up (recommended)",
+        "cacheDatabase": "Use the database",
         "licenseAuthorized": "Authorized",
         "licenseUnauthorized": "Unauthorized / Free Edition"
       },
       "actions": {
         "previous": "Previous",
         "next": "Next",
-        "done": "View Full Config File",
+        "done": "Back to settings",
+        "doneSetup": "Back to setup",
         "applyLicense": "Check License",
-        "setAdminPassword": "Set Admin Password"
+        "setAdminPassword": "Set Sign-In Password"
+      },
+      "setupAdvanced": {
+        "title": "Need a more advanced connection setup?",
+        "desc": "Open these advanced options only if you want to connect FileUni to an existing database or cache service.",
+        "show": "Show advanced options",
+        "hide": "Hide advanced options"
+      },
+      "setupLabels": {
+        "localDatabase": "Save on this device (recommended)",
+        "externalDatabase": "Use an existing database",
+        "builtInCache": "Built-in speed-up (recommended)",
+        "databaseCache": "Use the database",
+        "externalCache": "Use an existing cache service"
+      },
+      "setupHints": {
+        "externalDatabase": "If you already have a separate data service, just enter its address, port, and sign-in details here.",
+        "externalCache": "If you already have a separate cache service, just enter its address, port, and sign-in details here."
       },
       "advancedActions": {
         "intro": "For more settings, continue on the admin settings page with these quick actions.",
@@ -1210,14 +1230,14 @@
         "changeAdminPassword": "Change Admin Password"
       },
       "otherActions": {
-        "intro": "Extra configuration actions live here, such as license management and storage pool/backend setup."
+        "intro": "Extra setup actions live here, such as license, storage, and administrator password options."
       },
       "performance": {
-        "intro": "Select recommended settings based on your hardware. These are suggestions - you can manually adjust all parameters in subsequent steps.",
+        "intro": "If you are unsure, keeping the default choice is fine. These options simply tell FileUni what kind of device and usage style fits you best.",
         "allocatorRecommendationLinux": "Allocator recommendation ({{os}}): jemalloc",
         "allocatorRecommendationOthers": "Allocator recommendation ({{os}}): mimalloc",
         "maxConnections": "Max {{count}} connections",
-        "recommendedSettings": "Performance Optimization Preview",
+        "recommendedSettings": "What FileUni will set for you",
         "featureCompression": "Compression",
         "featureSftp": "SFTP Service",
         "featureFtp": "FTP Service",
@@ -1227,7 +1247,7 @@
         "featureChat": "Chat Feature",
         "featureEmail": "Email Service",
         "preview": {
-          "simpleHint": "This section shows key outcomes. Expand details to inspect each exact config key.",
+          "simpleHint": "This is a simple overview of what the selected plan will do. You do not need to understand every technical detail.",
           "viewDetails": "View Detailed Config Keys",
           "hideDetails": "Hide Detailed Config Keys",
           "configKeyChanges": "Complete Config Changes",
@@ -1270,24 +1290,24 @@
           "s3MaxConnections": "S3 Max Connections"
         },
         "tiers": {
-          "extremeLow": "Extreme Low Performance (ref: ≤64MB RAM)",
-          "low": "Low Performance (ref: 64-256MB RAM)",
-          "medium": "Medium Performance (ref: 256MB-1GB RAM)",
-          "good": "Good Performance (ref: >1GB RAM)"
+          "extremeLow": "Very low-end device",
+          "low": "Lightweight device",
+          "medium": "Home / personal use",
+          "good": "Shared use / server"
         },
         "descriptions": {
-          "extremeLow": "For legacy routers, embedded devices with extremely limited hardware resources. Core features and WebDAV only.",
-          "low": "For low-end devices, small IoT gateways with limited hardware resources. Basic file management and WebDAV.",
-          "medium": "For home servers, NAS devices with moderate hardware resources. SQLite + Database cache recommended.",
-          "good": "For servers, high-performance NAS with ample hardware resources. Choose load profile for further optimization."
+          "extremeLow": "For very limited older hardware. Only the most essential features stay enabled.",
+          "low": "For lightweight devices or test environments where lower resource usage matters most.",
+          "medium": "Best for most personal, home, and first-time setup scenarios.",
+          "good": "Best for shared access, always-on use, or devices with more available resources."
         },
         "loadProfile": {
-          "title": "Load Profile Selection",
-          "desc": "Choose a load profile based on expected usage. Heavy load mode suggests disabling non-core features for stability.",
-          "light": "Light Load Mode",
-          "lightDesc": "More features enabled, suitable for personal or small team use",
-          "heavy": "Heavy Load Mode",
-          "heavyDesc": "Non-core features suggested to be disabled, suitable for high concurrency scenarios"
+          "title": "How many people will use it",
+          "desc": "For personal use or a small group, the everyday option is usually enough.",
+          "light": "Everyday use",
+          "lightDesc": "Best for personal or small-team use",
+          "heavy": "Many people at once",
+          "heavyDesc": "Best when you expect more concurrent access"
         },
         "preheatMode": {
           "title": "Captcha Preheat Strategy",

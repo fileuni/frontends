@@ -18,6 +18,7 @@ import { useLanguageStore, type Language } from '@/stores/language';
 import type { ConfigError, ConfigNoteEntry } from '@/components/system-config/components/ConfigRawEditor';
 import { ConfigWorkbenchShell } from '@/components/system-config/components/ConfigWorkbenchShell';
 import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
+import { SetupOnboardingIntro } from '@/components/system-config/components/SetupOnboardingIntro';
 import type { ExternalToolDiagnosisResponse } from '@/components/system-config/components/ExternalDependencyConfigModal';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { LogViewer, type LogEntry } from '@/apps/launcher/components/LogViewer';
@@ -609,16 +610,17 @@ export default function Launcher() {
     }
   };
 
-  const handleStart = async () => {
+  const handleStart = async (): Promise<boolean> => {
     const ready = await ensureRuntimeConfigReady();
     if (!ready) {
-      return;
+      return false;
     }
     setLoading(true);
     try {
       await safeInvoke<string>('start_service');
       toast.success(t('launcher.messages.service_started'));
       await refreshStatus();
+      return true;
     } catch (e: unknown) {
       const message = extractErrorMessage(e);
       if (message.includes('Setup wizard has not been completed')) {
@@ -626,8 +628,10 @@ export default function Launcher() {
       } else {
         toast.error(message);
       }
+      return false;
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleStop = async () => {
@@ -705,8 +709,24 @@ export default function Launcher() {
   const handleOpenWebUI = async () => {
     try {
       await safeInvoke<void>('open_web_ui');
+      return true;
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
+      return false;
+    }
+  };
+
+  const handleOpenWebUiFromSetupCompleted = async () => {
+    let running = status === 'Running';
+    if (!running) {
+      running = await handleStart();
+    }
+    if (!running) {
+      return;
+    }
+    const opened = await handleOpenWebUI();
+    if (opened) {
+      await finishSetupAndReturnToLauncher();
     }
   };
 
@@ -913,17 +933,10 @@ export default function Launcher() {
 
           <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-8">
             <div className="max-w-6xl mx-auto space-y-4">
-              <div className="rounded-2xl border border-amber-300/50 bg-amber-50/90 dark:bg-amber-500/10 dark:border-amber-400/30 p-4 sm:p-5">
-                <p className="text-sm font-bold leading-6 text-amber-900 dark:text-amber-200">
-                  {t('forgotPassword.adminRecoveryHint')}
-                </p>
-                {setupStatus && (
-                  <div className="mt-3 space-y-1 text-xs font-mono text-amber-800 dark:text-amber-300 break-all">
-                    <div>{setupStatus.config_path}</div>
-                    <div>{setupStatus.install_lock_path}</div>
-                  </div>
-                )}
-              </div>
+              <SetupOnboardingIntro
+                configDir={setupStatus?.config_dir}
+                appDataDir={setupStatus?.app_data_dir}
+              />
 
               <ConfigWorkbenchShell
                 title={t('setup.wizard.title')}
@@ -946,6 +959,9 @@ export default function Launcher() {
                   onCancel={handleResetToSavedConfig}
                   allowSaveWithoutChanges={true}
                   forceEnableSave={true}
+                  setupMode={true}
+                  editorTitle={t('setup.editor.title')}
+                  testLabel={t('setup.editor.check')}
                   onClearValidationErrors={() => setConfigErrors([])}
                   showCancel={false}
                   reloadSummary={configSummary}
@@ -999,14 +1015,43 @@ export default function Launcher() {
                   <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
                     {setupFinalMessage || t('setup.final.subtitle', { user: setupAdminUsername })}
                   </p>
+                  <div className="mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-slate-700/60 dark:bg-slate-950/40">
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                      {t('setup.final.nextSteps')}
+                    </p>
+                    <div className="mt-3 space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
+                      {[1, 2, 3].map((i) => (
+                        <p key={i}>{i}. {t(`setup.final.step${i}`)}</p>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
-                  <button
-                    onClick={() => { void finishSetupAndReturnToLauncher(); }}
-                    className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all"
-                  >
-                    {t('common.confirm')}
-                  </button>
+                <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex flex-col gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
+                    <button
+                      onClick={() => { void handleStart(); }}
+                      disabled={loading || status === 'Running'}
+                      className="px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 transition-all"
+                    >
+                      {status === 'Running' ? t('setup.final.started') : t('setup.final.startNow')}
+                    </button>
+                    <button
+                      onClick={() => { void handleOpenWebUiFromSetupCompleted(); }}
+                      disabled={loading}
+                      className="px-5 py-2.5 rounded-xl text-sm font-bold border border-cyan-300 text-cyan-700 hover:bg-cyan-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-cyan-500/30 dark:text-cyan-200 dark:hover:bg-cyan-500/10 transition-all"
+                    >
+                      {t('setup.final.openWebUi')}
+                    </button>
+                    <button
+                      onClick={() => { void finishSetupAndReturnToLauncher(); }}
+                      className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all"
+                    >
+                      {t('setup.final.finishLater')}
+                    </button>
+                  </div>
+                  <p className="text-xs leading-5 text-slate-500 dark:text-slate-400 sm:text-right">
+                    {status === 'Running' ? t('setup.final.runningHint') : t('setup.final.openHint')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1279,11 +1324,26 @@ export default function Launcher() {
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5 space-y-4">
               <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-                {t('forgotPassword.adminRecoveryHint')}
+                {t('setup.guide.requiredPrompt')}
               </p>
-              {setupStatus?.install_lock_path && (
-                <div className="rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
-                  {setupStatus.install_lock_path}
+              {setupStatus && (
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                      {t('setup.guide.configDirLabel')}
+                    </div>
+                    <div className="mt-1 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
+                      {setupStatus.config_dir}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                      {t('setup.guide.appDataDirLabel')}
+                    </div>
+                    <div className="mt-1 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
+                      {setupStatus.app_data_dir}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

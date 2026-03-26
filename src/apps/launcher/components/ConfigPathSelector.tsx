@@ -167,9 +167,14 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             isDark ? "bg-amber-500/10 border-amber-500/20" : "bg-amber-50 border-amber-200"
           )}>
             <AlertTriangle className="text-amber-500 shrink-0 mt-0.5" size={18} />
-            <p className={cn("text-sm font-medium", isDark ? "text-amber-200" : "text-amber-800")}>
-              {t('config_selector.no_config_warning')}
-            </p>
+            <div className={cn("space-y-1", isDark ? "text-amber-200" : "text-amber-800")}>
+              <p className="text-sm font-semibold">
+                {t('config_selector.no_config_warning')}
+              </p>
+              <p className="text-sm leading-6 opacity-80">
+                {t('config_selector.default_hint')}
+              </p>
+            </div>
           </div>
 
           {error && (
@@ -186,6 +191,9 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             <label className={cn("text-xs font-black uppercase tracking-[0.1em]", isDark ? "text-slate-500" : "text-slate-400")}>
               {t('config_selector.config_path')}
             </label>
+            <p className={cn("text-sm leading-6", isDark ? "text-slate-400" : "text-slate-500")}>
+              {t('config_selector.config_path_desc')}
+            </p>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -213,6 +221,9 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             <label className={cn("text-xs font-black uppercase tracking-[0.1em]", isDark ? "text-slate-500" : "text-slate-400")}>
               {t('config_selector.app_data_path')}
             </label>
+            <p className={cn("text-sm leading-6", isDark ? "text-slate-400" : "text-slate-500")}>
+              {t('config_selector.app_data_path_desc')}
+            </p>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -235,10 +246,6 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
               </button>
             </div>
           </div>
-
-          <p className={cn("text-xs font-medium italic", isDark ? "text-slate-600" : "text-slate-400")}>
-            {t('config_selector.default_hint')}
-          </p>
 
           <div className="relative py-2">
             <div className="absolute inset-0 flex items-center">
@@ -265,6 +272,9 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
               <span className={cn("font-black uppercase tracking-wider block mb-2", isDark ? "text-slate-400" : "text-slate-600")}>
                 {t('config_selector.current_dir')}
               </span>
+              <span className={cn("block mb-2 text-xs leading-5", isDark ? "text-slate-500" : "text-slate-500")}>
+                {t('config_selector.current_dir_desc')}
+              </span>
               <span className={cn("block truncate mb-1", isDark ? "text-slate-500" : "text-slate-400")}>{currentPreset?.configDir ?? ''}</span>
               <span className={cn("block truncate", isDark ? "text-slate-500" : "text-slate-400")}>{currentPreset?.appDataDir ?? ''}</span>
             </button>
@@ -280,6 +290,9 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             >
               <span className={cn("font-black uppercase tracking-wider block mb-2", isDark ? "text-slate-400" : "text-slate-600")}>
                 {t('config_selector.default_dir')}
+              </span>
+              <span className={cn("block mb-2 text-xs leading-5", isDark ? "text-slate-500" : "text-slate-500")}>
+                {t('config_selector.default_dir_desc')}
               </span>
               <span className={cn("block truncate mb-1", isDark ? "text-slate-500" : "text-slate-400")}>{defaultPreset?.configDir ?? ''}</span>
               <span className={cn("block truncate", isDark ? "text-slate-500" : "text-slate-400")}>{defaultPreset?.appDataDir ?? ''}</span>
@@ -304,7 +317,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
           <button
             onClick={handleConfirm}
             disabled={isSubmitting}
-            className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-700 hover:from-blue-700 hover:to-cyan-800 text-white rounded-xl text-sm font-black uppercase tracking-widest shadow-xl shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-700 hover:from-blue-700 hover:to-cyan-800 text-white rounded-xl text-sm font-black shadow-xl shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {isSubmitting ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -1061,28 +1061,32 @@
       }
     },
     "quickWizard": {
-      "title": "快速配置向导",
-      "subtitle": "按步骤完成常用设置，快速完成系统初始化。",
-      "parseErrorTitle": "当前配置暂时无法在简化向导中展示。",
-      "parseErrorHint": "请先在配置编辑器中修复格式后再回来，现有配置不会丢失。",
+      "title": "快速设置",
+      "subtitle": "按步骤完成首次安装常用设置。",
+      "parseErrorTitle": "当前设置暂时无法用简化模式显示。",
+      "parseErrorHint": "您可以先在下方设置页里修改，现有内容不会丢失。",
+      "setupHintTitle": "推荐：拿不准就保持默认",
+      "setupHintDesc": "默认方案已经适合大多数首次安装场景，后续随时都能再改。",
       "steps": {
-        "performance": "性能优化",
-        "database": "数据库",
-        "cache": "缓存",
+        "performance": "使用场景",
+        "database": "数据保存",
+        "cache": "运行加速",
         "advanced": "常见高阶配置",
-        "other": "其他配置"
+        "other": "更多选项"
       },
       "fields": {
-        "dbType": "数据库类型",
-        "healthTimeoutSeconds": "健康检查超时（秒）",
-        "host": "主机",
+        "dbType": "数据保存方式",
+        "healthTimeoutSeconds": "连接检查等待时间（秒）",
+        "host": "地址",
         "port": "端口",
-        "user": "用户名",
+        "user": "账号",
         "password": "密码",
-        "databaseName": "数据库名",
-        "sqlitePath": "SQLite 路径",
-        "cacheType": "缓存类型",
-        "useTls": "使用 TLS",
+        "databaseName": "数据库名称",
+        "postgresDsn": "高级连接串",
+        "sqlitePath": "本机数据文件位置",
+        "cacheType": "加速方式",
+        "useTls": "使用安全连接",
+        "redisUrl": "高级缓存地址",
         "licenseStatus": "授权状态",
         "maxUsers": "最大用户配额",
         "hwFingerprint": "硬件指纹",
@@ -1098,30 +1102,48 @@
         "captchaExpiresInSeconds": "验证码过期时间（秒）"
       },
       "hints": {
-        "sqliteSingleNode": "适合家庭和个人轻量化部署。",
+        "sqliteSingleNode": "推荐给首次安装、个人使用和家庭设备。",
         "sqlitePathOnly": "只需填写数据库文件路径，系统会自动处理连接串。",
-        "cacheDashmapLightweight": "适合轻量级用户。",
-        "cacheNoExternalConnection": "该缓存模式无需填写外部缓存服务器地址。"
+        "cacheDashmapLightweight": "推荐给首次安装和轻量使用，无需额外服务。",
+        "cacheNoExternalConnection": "当前选项不需要额外安装缓存服务，保持默认即可。"
       },
       "options": {
-        "postgres": "PostgreSQL",
-        "sqlite": "单机数据库",
+        "postgres": "连接已有 PostgreSQL",
+        "sqlite": "本机保存（推荐）",
         "enabled": "已启用",
         "disabled": "已禁用",
-        "cacheValkey": "VALKEY",
-        "cacheRedis": "REDIS",
-        "cacheKeydb": "KEYDB",
-        "cacheDashmap": "纯内存缓存",
-        "cacheDatabase": "数据库缓存",
+        "cacheValkey": "Valkey",
+        "cacheRedis": "Redis",
+        "cacheKeydb": "KeyDB",
+        "cacheDashmap": "内置加速（推荐）",
+        "cacheDatabase": "跟随数据库",
         "licenseAuthorized": "已正式授权",
         "licenseUnauthorized": "未授权 / 免费版"
       },
       "actions": {
         "previous": "上一步",
         "next": "下一步",
-        "done": "查看完整配置文件",
+        "done": "返回设置页",
+        "doneSetup": "返回安装页面",
         "applyLicense": "检查授权",
-        "setAdminPassword": "设置管理员密码"
+        "setAdminPassword": "设置登录密码"
+      },
+      "setupAdvanced": {
+        "title": "需要更专业的连接方式？",
+        "desc": "只有在您确定要接入已有数据库或缓存服务时，才需要打开这些高级选项。",
+        "show": "显示高级选项",
+        "hide": "隐藏高级选项"
+      },
+      "setupLabels": {
+        "localDatabase": "保存在本机（推荐）",
+        "externalDatabase": "连接已有数据库",
+        "builtInCache": "内置加速（推荐）",
+        "databaseCache": "跟随数据库",
+        "externalCache": "连接已有缓存服务"
+      },
+      "setupHints": {
+        "externalDatabase": "如果您已经有独立的数据服务，请填写地址、端口和登录信息即可。",
+        "externalCache": "如果您已经有独立的缓存服务，请填写地址、端口和登录信息即可。"
       },
       "advancedActions": {
         "intro": "如需调整更多设置，可前往管理员配置界面继续操作。",
@@ -1130,14 +1152,14 @@
         "changeAdminPassword": "修改管理员密码"
       },
       "otherActions": {
-        "intro": "这里提供附加设置入口，例如授权管理与存储配置。"
+        "intro": "这里放了一些附加设置入口，例如授权、存储和管理员密码。"
       },
       "performance": {
-        "intro": "根据您的硬件环境选择推荐配置。此为建议值，您可以在后续步骤中手动调整各项参数。",
+        "intro": "如果拿不准，保持默认即可。下面这些方案只是告诉 FileUni 更适合哪一类设备和使用场景。",
         "allocatorRecommendationLinux": "内存分配器推荐（{{os}}）：jemalloc",
         "allocatorRecommendationOthers": "内存分配器推荐（{{os}}）：mimalloc",
         "maxConnections": "最大 {{count}} 连接",
-        "recommendedSettings": "性能优化预览",
+        "recommendedSettings": "本次会自动帮您完成",
         "featureCompression": "压缩解压",
         "featureSftp": "SFTP服务",
         "featureFtp": "FTP服务",
@@ -1147,7 +1169,7 @@
         "featureChat": "聊天功能",
         "featureEmail": "邮件代收",
         "preview": {
-          "simpleHint": "以下是关键结果摘要；若需精确到每个配置项，可展开详细视图。",
+          "simpleHint": "下面是这组方案的大致结果，您不需要理解每个技术细节。",
           "viewDetails": "查看详细配置项",
           "hideDetails": "收起详细配置项",
           "configKeyChanges": "完整配置项变化",
@@ -1190,24 +1212,24 @@
           "s3MaxConnections": "S3 最大连接数"
         },
         "tiers": {
-          "extremeLow": "极限低性能 (参考: ≤64MB 内存)",
-          "low": "低性能 (参考: 64-256MB 内存)",
-          "medium": "中等性能 (参考: 256MB-1GB 内存)",
-          "good": "性能良好 (参考: >1GB 内存)"
+          "extremeLow": "超低配设备",
+          "low": "轻量设备",
+          "medium": "家庭 / 个人",
+          "good": "多人使用 / 服务器"
         },
         "descriptions": {
-          "extremeLow": "适用于老旧路由器、嵌入式设备等极限低性能硬件。仅保留核心功能和 WebDAV。",
-          "low": "适用于低端设备、小型IoT网关等低性能硬件。保留基础文件管理和 WebDAV。",
-          "medium": "适用于普通家用服务器、NAS设备等中等性能硬件。使用 SQLite + Database 缓存。",
-          "good": "适用于服务器、高性能NAS等充足硬件资源环境。可选择负载模式进一步优化。"
+          "extremeLow": "适合非常有限的旧设备，只保留最核心的功能。",
+          "low": "适合轻量设备或测试环境，尽量降低资源占用。",
+          "medium": "适合大多数个人、家庭和首次安装场景。",
+          "good": "适合多人共享、持续运行或资源更充足的设备。"
         },
         "loadProfile": {
-          "title": "负载模式选择",
-          "desc": "根据预期使用场景选择负载模式，高负载模式建议禁用部分功能以保障核心服务稳定。",
-          "light": "轻量负载模式",
-          "lightDesc": "启用更多功能，适合个人或小团队使用",
-          "heavy": "高负载模式",
-          "heavyDesc": "建议禁用非核心功能，适合大量用户并发场景"
+          "title": "使用强度",
+          "desc": "如果只有自己或少量成员使用，选择日常使用即可。",
+          "light": "日常使用",
+          "lightDesc": "适合个人或小团队",
+          "heavy": "多人同时使用",
+          "heavyDesc": "适合需要更多并发访问的场景"
         },
         "preheatMode": {
           "title": "验证码预热策略",
