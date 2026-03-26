@@ -139,7 +139,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const [jumpTo, setJumpTo] = useState<EditorJumpPosition | null>(null);
   const [showRawEditor, setShowRawEditor] = useState(!setupMode);
   const [showSetupAdvancedActions, setShowSetupAdvancedActions] = useState(false);
-  const [hasAutoOpenedSetupWizard, setHasAutoOpenedSetupWizard] = useState(false);
   const resolvedTheme = useResolvedTheme();
 
   const isDark = resolvedTheme === 'dark';
@@ -152,16 +151,9 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
     if (!setupMode) {
       setShowRawEditor(true);
       setShowSetupAdvancedActions(false);
-      setHasAutoOpenedSetupWizard(false);
-      return;
+      setIsQuickWizardOpen(false);
     }
-
-    if (!loading && quickWizardEnabled && !hasAutoOpenedSetupWizard) {
-      setQuickWizardInitialStep('performance');
-      setIsQuickWizardOpen(true);
-      setHasAutoOpenedSetupWizard(true);
-    }
-  }, [hasAutoOpenedSetupWizard, loading, quickWizardEnabled, setupMode]);
+  }, [setupMode]);
 
   useEffect(() => {
     if (setupMode && validationErrors.length > 0) {
@@ -227,7 +219,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
 
   const actionButtons = (
     <div className="flex items-center gap-2 flex-wrap">
-      {quickWizardEnabled && (
+      {quickWizardEnabled && (!setupMode || showRawEditor) && (
         <button
           type="button"
           className={cn(
@@ -272,7 +264,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        {quickWizardEnabled && (
+        {quickWizardEnabled && !setupMode && (
           <button
             type="button"
             className={cn(
@@ -286,7 +278,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {quickWizardEnabled && (
+        {quickWizardEnabled && !setupMode && (
           <button
             type="button"
             className={cn(
@@ -300,7 +292,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {quickWizardEnabled && (
+        {quickWizardEnabled && !setupMode && (
           <button
             type="button"
             className={cn(
@@ -314,7 +306,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {onResetAdminPassword && (
+        {onResetAdminPassword && !setupMode && (
           <button
             type="button"
             className={cn(
@@ -618,7 +610,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </div>
       )}
 
-      {shortcuts}
+      {(!setupMode || showRawEditor) && shortcuts}
 
       <ConfigEditorPanel
         configPath={configPath || t('admin.config.pathUnavailable')}
@@ -641,9 +633,25 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         actionsPrefix={quickWizardEnabled ? actionButtons : undefined}
         editorVisible={showRawEditor}
         collapsedContent={setupMode ? (
-          <div className="h-full flex flex-col items-center justify-center text-center gap-4 sm:gap-5">
+          <div className="space-y-4">
+            {quickWizardEnabled && (
+              <ConfigQuickWizardModal
+                tomlAdapter={tomlAdapter}
+                isOpen={true}
+                onClose={() => {}}
+                content={content}
+                onContentChange={onChange}
+                runtimeOs={runtimeOs}
+                onOpenAdminPassword={onResetAdminPassword ? openAdminPassword : undefined}
+                onOpenLicenseManagement={quickWizardLicense ? openLicenseManagement : undefined}
+                onOpenStorageConfig={openStorageConfig}
+                setupMode={setupMode}
+                embedded={true}
+                showDoneAction={false}
+              />
+            )}
             <div className={cn(
-              'max-w-2xl rounded-2xl border p-5 sm:p-6',
+              'rounded-2xl border p-5 sm:p-6 text-center',
               isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-white'
             )}>
               <div className={cn('text-base sm:text-lg font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
@@ -653,15 +661,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                 {t('setup.editor.rawHiddenDesc')}
               </p>
               <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
-                {quickWizardEnabled && (
-                  <button
-                    type="button"
-                    className="h-10 rounded-lg border border-primary/30 bg-primary/10 px-4 text-sm font-black text-primary transition-all hover:bg-primary/15"
-                    onClick={() => openQuickWizardAt('performance')}
-                  >
-                    {t('setup.editor.backToWizard')}
-                  </button>
-                )}
                 <button
                   type="button"
                   className={cn(

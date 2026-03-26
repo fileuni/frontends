@@ -30,6 +30,7 @@
     "hideAdvanced": "Hide Advanced Settings",
     "rawHiddenTitle": "Most people do not need to edit the raw settings by hand",
     "rawHiddenDesc": "During first-time setup, the quick setup flow above is usually enough. Open advanced settings only if you need more detailed control.",
+    "finishHint": "After choosing the options above, click \"Finish Setup\" to continue.",
     "backToWizard": "Back to Quick Setup",
     "moreActionsTitle": "Other advanced entries",
     "moreActionsDesc": "License, storage, and external tool checks can usually wait until after setup is finished.",

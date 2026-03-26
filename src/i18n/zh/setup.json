@@ -30,6 +30,7 @@
     "hideAdvanced": "隐藏高级设置",
     "rawHiddenTitle": "大多数用户不需要手动修改原始设置",
     "rawHiddenDesc": "首次安装时，优先使用上方的快速设置即可。只有当您需要更细致的控制时，再展开高级设置。",
+    "finishHint": "完成上面的选择后，点击上方“完成安装”即可继续。",
     "backToWizard": "返回快速设置",
     "moreActionsTitle": "其他高级入口",
     "moreActionsDesc": "授权、存储和外部工具检查通常可以等安装完成后再处理。",

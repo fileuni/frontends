@@ -1471,6 +1471,8 @@ export interface ConfigQuickWizardModalProps {
   onOpenLicenseManagement?: () => void;
   onOpenStorageConfig?: () => void;
   setupMode?: boolean;
+  embedded?: boolean;
+  showDoneAction?: boolean;
 }
 
 export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
@@ -1485,6 +1487,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   onOpenLicenseManagement,
   onOpenStorageConfig,
   setupMode = false,
+  embedded = false,
+  showDoneAction = true,
 }) => {
   const { t } = useTranslation();
   const [friendlyStep, setFriendlyStep] = useState<FriendlyStep>('performance');
@@ -1507,7 +1511,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   const canInspectTechnicalPreview = !setupMode || showSetupAdvanced;
 
   useEscapeToCloseTopLayer({
-    active: isOpen,
+    active: isOpen && !embedded,
     enabled: true,
     onEscape: onClose,
   });
@@ -1545,13 +1549,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       },
       features: effectivePreset.features,
     };
-  }, [draft.performanceTier, draft.loadProfile]);
+  }, [draft]);
 
   const previewTuningPlan = useMemo(() => {
     const base = getPresetByTier(draft.performanceTier);
     const effectivePreset = resolveEffectivePreset(draft, base);
     return buildPerformanceTuningPlan(draft, effectivePreset);
-  }, [draft.databaseType, draft.loadProfile, draft.performanceTier, draft.captchaPreheatMode]);
+  }, [draft]);
 
   const previewConfigItems = useMemo<ConfigPreviewItem[]>(() => {
     const items: ConfigPreviewItem[] = [];
@@ -1715,7 +1719,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('log.enable_async', previewTuningPlan.logEnableAsync);
 
     return items;
-  }, [currentPreset.features, draft.cacheType, draft.databaseType, draft.performanceTier, previewTuningPlan]);
+  }, [currentPreset, draft, previewTuningPlan]);
 
   const previewGroupStats = useMemo<ConfigPreviewGroupStat[]>(() => {
     const groupLabelKeyMap: Record<string, string> = {
@@ -1927,7 +1931,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   }, [content, initializeFromParsed, initialStep, isOpen]);
 
   useEffect(() => {
-    if (!isOpen || typeof document === 'undefined') {
+    if (!isOpen || embedded || typeof document === 'undefined') {
       return undefined;
     }
     const previousOverflow = document.body.style.overflow;
@@ -1935,7 +1939,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [isOpen]);
+  }, [embedded, isOpen]);
 
   const currentStepIndex = friendlySteps.indexOf(friendlyStep);
 
@@ -2028,17 +2032,11 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     return null;
   }
 
-  const modalContent = (
-    <div className="fixed inset-0 z-[130] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
-      <div 
-        className={cn(
-          "absolute inset-0 backdrop-blur-2xl transition-all duration-300",
-          isDark ? "bg-black/95" : "bg-slate-900/80"
-        )} 
-        onClick={onClose} 
-      />
+  const panelContent = (
       <div className={cn(
-        "relative w-full max-w-6xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
+        embedded
+          ? "w-full rounded-2xl border shadow-xl overflow-hidden flex flex-col min-h-0"
+          : "relative w-full max-w-6xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
         isDark ? "border-white/10 bg-slate-950 text-slate-100 ring-1 ring-white/5" : "border-slate-300 bg-white text-slate-900"
       )}>
         <div className={cn(
@@ -2065,16 +2063,18 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                 {t('admin.config.quickWizard.actions.setAdminPassword')}
               </button>
             )}
-            <button 
-              type="button" 
-              onClick={onClose} 
-              className={cn(
-                "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
-                isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-slate-200 text-slate-600 hover:bg-slate-100"
-              )}
-            >
-              <X size={16} />
-            </button>
+            {!embedded && (
+              <button 
+                type="button" 
+                onClick={onClose} 
+                className={cn(
+                  "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
+                  isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-slate-200 text-slate-600 hover:bg-slate-100"
+                )}
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
         </div>
 
@@ -2907,19 +2907,46 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                       {t('admin.config.quickWizard.actions.next')}
                     </button>
                   )}
-                  <button
-                    type="button"
-                    className="h-10 px-8 rounded-lg border border-primary bg-primary text-white text-sm sm:text-sm font-black disabled:opacity-40 shadow-lg shadow-primary/20 transition-all hover:opacity-90"
-                    onClick={onClose}
-                  >
-                      {t(setupMode ? 'admin.config.quickWizard.actions.doneSetup' : 'admin.config.quickWizard.actions.done')}
-                    </button>
+                  {showDoneAction ? (
+                    <button
+                      type="button"
+                      className="h-10 px-8 rounded-lg border border-primary bg-primary text-white text-sm sm:text-sm font-black disabled:opacity-40 shadow-lg shadow-primary/20 transition-all hover:opacity-90"
+                      onClick={onClose}
+                    >
+                        {t(setupMode ? 'admin.config.quickWizard.actions.doneSetup' : 'admin.config.quickWizard.actions.done')}
+                      </button>
+                  ) : currentStepIndex >= friendlySteps.length - 1 ? (
+                    <div className={cn(
+                      'text-sm font-bold px-3',
+                      isDark ? 'text-slate-400' : 'text-slate-600'
+                    )}>
+                      {t('setup.editor.finishHint')}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
           )}
         </div>
       </div>
+  );
+
+  if (embedded) {
+    return panelContent;
+  }
+
+  const modalContent = (
+    <div className="fixed inset-0 z-[130] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
+      <button
+        type="button"
+        aria-label={t('common.close')}
+        className={cn(
+          "absolute inset-0 backdrop-blur-2xl transition-all duration-300",
+          isDark ? "bg-black/95" : "bg-slate-900/80"
+        )}
+        onClick={onClose}
+      />
+      {panelContent}
     </div>
   );
 
