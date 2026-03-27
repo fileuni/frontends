@@ -8,7 +8,7 @@
     "title": "Set up FileUni in three simple steps",
     "desc": "If this is your first time, keeping the default choices is usually the best option. FileUni starts with a beginner-friendly setup, and you can fine-tune everything later.",
     "card1Title": "Choose where things are saved",
-    "card1Desc": "Pick where FileUni should keep its settings and data.",
+    "card1Desc": "Pick the single runtime directory where FileUni should keep its settings and data.",
     "card2Title": "Create your sign-in password",
     "card2Desc": "Set a password for the administrator account you will use later.",
     "card3Title": "Finish and start using FileUni",
@@ -16,8 +16,7 @@
     "recommendedTitle": "Recommended for first-time users",
     "recommendedDesc": "If you are unsure, keep the current defaults. They are the easiest choice for personal use, home use, and quick trials.",
     "locationTitle": "Current install locations",
-    "configDirLabel": "Settings location",
-    "appDataDirLabel": "Data location",
+    "configDirLabel": "Runtime directory",
     "configPathLabel": "Current config file",
     "locationDesc": "This is only where FileUni will save things for you. You do not need to create any files by hand.",
     "requiredPrompt": "FileUni has not finished its first-time setup yet. Continue to open the setup wizard now. You can still change these settings later."

@@ -55,25 +55,20 @@ interface LicenseStatusPayload {
   features: string[];
 }
 
-interface RuntimeDirsInspection {
-  config_dir: string;
-  app_data_dir: string;
+interface RuntimeDirInspection {
+  runtime_dir: string;
   config_path: string;
   config_exists: boolean;
-  config_dir_exists: boolean;
-  app_data_dir_exists: boolean;
+  runtime_dir_exists: boolean;
 }
 
-interface RuntimeDirsPayload {
-  config_dir: string;
-  app_data_dir: string;
+interface RuntimeDirPayload {
+  runtime_dir: string;
 }
 
 interface RuntimeDirPresets {
-  current_config_dir: string;
-  current_app_data_dir: string;
-  default_config_dir: string;
-  default_app_data_dir: string;
+  current_runtime_dir: string;
+  default_runtime_dir: string;
 }
 
 type PickedDirectory = {
@@ -87,8 +82,7 @@ interface MissingConfigPromptState {
 }
 
 interface InstallationStatus {
-  config_dir: string;
-  app_data_dir: string;
+  runtime_dir: string;
   config_path: string;
   config_exists: boolean;
   install_lock_path: string;
@@ -107,7 +101,7 @@ export default function Launcher() {
   const { t } = useTranslation();
   const { theme, setTheme } = useThemeStore();
   const { language, setLanguage } = useLanguageStore();
-  const { configDir, appDataDir, setRuntimeDirs } = useConfigStore();
+  const { runtimeDir, setRuntimeDir } = useConfigStore();
 
   // Toast i18n
   const toastI18n = React.useMemo(() => ({
@@ -168,37 +162,28 @@ export default function Launcher() {
   const [aboutUpdateError, setAboutUpdateError] = useState<string | null>(null);
   const [isCheckingAboutUpdates, setIsCheckingAboutUpdates] = useState(false);
   const isServiceRunning = status === 'Running';
-  const displayedConfigDir = configDir ?? runtimeDirPresets?.default_config_dir ?? '...';
-  const displayedAppDataDir = appDataDir ?? runtimeDirPresets?.default_app_data_dir ?? '...';
+  const displayedRuntimeDir = runtimeDir ?? runtimeDirPresets?.default_runtime_dir ?? '...';
   const missingConfigPromptResolver = useRef<((accepted: boolean) => void) | null>(null);
 
-  const inspectRuntimeDirs = async (
-    nextConfigDir?: string | null,
-    nextAppDataDir?: string | null,
-  ) => {
-    return safeInvoke<RuntimeDirsInspection>('inspect_runtime_dirs', {
-      configDir: nextConfigDir ?? '',
-      appDataDir: nextAppDataDir ?? '',
+  const inspectRuntimeDir = async (nextRuntimeDir?: string | null) => {
+    return safeInvoke<RuntimeDirInspection>('inspect_runtime_dir', {
+      runtimeDir: nextRuntimeDir ?? '',
     });
   };
 
-  const bindRuntimeDirs = async (
-    nextConfigDir?: string | null,
-    nextAppDataDir?: string | null,
-  ) => {
-    const inspected = await inspectRuntimeDirs(nextConfigDir, nextAppDataDir);
-    await safeInvoke<void>('set_runtime_dirs', {
-      configDir: inspected.config_dir,
-      appDataDir: inspected.app_data_dir,
+  const bindRuntimeDir = async (nextRuntimeDir?: string | null) => {
+    const inspected = await inspectRuntimeDir(nextRuntimeDir);
+    await safeInvoke<void>('set_runtime_dir', {
+      runtimeDir: inspected.runtime_dir,
     });
-    setRuntimeDirs(inspected.config_dir, inspected.app_data_dir);
+    setRuntimeDir(inspected.runtime_dir);
     setConfigFilePath(inspected.config_path);
     return inspected;
   };
 
   const ensureRuntimeConfigReady = async () => {
     try {
-      const inspected = await bindRuntimeDirs(configDir, appDataDir);
+      const inspected = await bindRuntimeDir(runtimeDir);
       if (inspected.config_exists) {
         return inspected;
       }
@@ -216,7 +201,7 @@ export default function Launcher() {
       }
 
       // Config file must be created by the setup wizard apply flow.
-      await inspectInstallationState(inspected.config_dir, inspected.app_data_dir);
+      await inspectInstallationState(inspected.runtime_dir);
       return null;
     } catch (error) {
       toast.error(extractErrorMessage(error));
@@ -285,30 +270,23 @@ export default function Launcher() {
     }
   };
 
-  const inspectInstallationState = async (
-    nextConfigDir?: string | null,
-    nextAppDataDir?: string | null,
-  ) => {
-    const inspected = await inspectRuntimeDirs(nextConfigDir, nextAppDataDir);
+  const inspectInstallationState = async (nextRuntimeDir?: string | null) => {
+    const inspected = await inspectRuntimeDir(nextRuntimeDir);
     let status = await safeInvoke<InstallationStatus>('inspect_installation_status', {
-      configDir: inspected.config_dir,
-      appDataDir: inspected.app_data_dir,
+      runtimeDir: inspected.runtime_dir,
     });
 
     if (!status.config_exists) {
-      const ensured = await safeInvoke<RuntimeDirsInspection>('ensure_runtime_config', {
-        configDir: inspected.config_dir,
-        appDataDir: inspected.app_data_dir,
+      const ensured = await safeInvoke<RuntimeDirInspection>('ensure_runtime_config', {
+        runtimeDir: inspected.runtime_dir,
       });
-      await safeInvoke<void>('set_runtime_dirs', {
-        configDir: ensured.config_dir,
-        appDataDir: ensured.app_data_dir,
+      await safeInvoke<void>('set_runtime_dir', {
+        runtimeDir: ensured.runtime_dir,
       });
-      setRuntimeDirs(ensured.config_dir, ensured.app_data_dir);
+      setRuntimeDir(ensured.runtime_dir);
       setConfigFilePath(ensured.config_path);
       status = await safeInvoke<InstallationStatus>('inspect_installation_status', {
-        configDir: ensured.config_dir,
-        appDataDir: ensured.app_data_dir,
+        runtimeDir: ensured.runtime_dir,
       });
     } else {
       setConfigFilePath(status.config_path);
@@ -360,21 +338,21 @@ export default function Launcher() {
 
     let cancelled = false;
 
-    const loadRuntimeDirs = async (attempt: number) => {
+    const loadRuntimeDir = async (attempt: number) => {
       try {
-        const inspected = await bindRuntimeDirs(configDir, appDataDir);
-        await inspectInstallationState(inspected.config_dir, inspected.app_data_dir);
+        const inspected = await bindRuntimeDir(runtimeDir);
+        await inspectInstallationState(inspected.runtime_dir);
       } catch (error) {
         if (!cancelled && attempt < 5) {
           window.setTimeout(() => {
-            void loadRuntimeDirs(attempt + 1);
+            void loadRuntimeDir(attempt + 1);
           }, 300);
           return;
         }
         try {
-          const defaults = await safeInvoke<RuntimeDirsPayload>('get_default_runtime_dirs');
-          const inspected = await bindRuntimeDirs(defaults.config_dir, defaults.app_data_dir);
-          await inspectInstallationState(inspected.config_dir, inspected.app_data_dir);
+          const defaults = await safeInvoke<RuntimeDirPayload>('get_default_runtime_dir');
+          const inspected = await bindRuntimeDir(defaults.runtime_dir);
+          await inspectInstallationState(inspected.runtime_dir);
           return;
         } catch (fallbackError) {
           console.error(fallbackError);
@@ -383,12 +361,12 @@ export default function Launcher() {
       }
     };
 
-    void loadRuntimeDirs(0);
+    void loadRuntimeDir(0);
 
     return () => {
       cancelled = true;
     };
-  }, [configDir, appDataDir]);
+  }, [runtimeDir]);
 
   useEffect(() => {
     if (!isTauriRuntime()) {
@@ -414,10 +392,10 @@ export default function Launcher() {
     onEscape: () => closeMissingConfigPrompt(false),
   });
 
-  const handleRuntimeDirsSelected = async (nextConfigDir: string, nextAppDataDir: string) => {
+  const handleRuntimeDirSelected = async (nextRuntimeDir: string) => {
     try {
-      const inspected = await bindRuntimeDirs(nextConfigDir, nextAppDataDir);
-      await inspectInstallationState(inspected.config_dir, inspected.app_data_dir);
+      const inspected = await bindRuntimeDir(nextRuntimeDir);
+      await inspectInstallationState(inspected.runtime_dir);
       setShowConfigSelector(false);
       toast.success(t('launcher.messages.config_set_success'));
     } catch (e: unknown) {
@@ -732,7 +710,7 @@ export default function Launcher() {
 
   const handleOpenConfig = async () => {
     try {
-      await bindRuntimeDirs(configDir, appDataDir);
+      await bindRuntimeDir(runtimeDir);
       await safeInvoke<void>('open_config_dir');
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
@@ -815,7 +793,7 @@ export default function Launcher() {
   const enterSetupModeFromPrompt = async () => {
     setIsSetupRequiredPromptOpen(false);
     try {
-      await inspectInstallationState(configDir, appDataDir);
+      await inspectInstallationState(runtimeDir);
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
     }
@@ -825,7 +803,7 @@ export default function Launcher() {
     setIsSetupCompletedPromptOpen(false);
     setSetupRequired(false);
     try {
-      await inspectInstallationState(configDir, appDataDir);
+      await inspectInstallationState(runtimeDir);
       await refreshStatus();
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
@@ -934,8 +912,7 @@ export default function Launcher() {
           <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-8">
             <div className="max-w-6xl mx-auto space-y-4">
               <SetupOnboardingIntro
-                configDir={setupStatus?.config_dir}
-                appDataDir={setupStatus?.app_data_dir}
+                runtimeDir={setupStatus?.runtime_dir}
               />
 
               <ConfigWorkbenchShell
@@ -1185,17 +1162,13 @@ export default function Launcher() {
                           </div>
                           <div className="min-w-0 space-y-3">
                             <div className="text-sm font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">{t('launcher.runtime_paths')}</div>
-                            <div>
-                              <div className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1">{t('launcher.config_dir')}</div>
-                              <div className="text-sm font-mono text-slate-600 dark:text-slate-300 break-all">{displayedConfigDir}</div>
-                            </div>
-                            <div>
-                              <div className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1">{t('launcher.app_data_dir')}</div>
-                              <div className="text-sm font-mono text-slate-500 dark:text-slate-400 break-all">{displayedAppDataDir}</div>
+                            <div className="text-sm font-mono text-slate-600 dark:text-slate-300 break-all">
+                              {displayedRuntimeDir}
                             </div>
                           </div>
                         </div>
                         <button
+                          type="button"
                           onClick={() => {
                             if (isServiceRunning) {
                               toast.warning(t('launcher.messages.stop_service_before_dirs'));
@@ -1270,11 +1243,10 @@ export default function Launcher() {
       {/* Config Selector Modal */}
       <ConfigSelector
         isOpen={showConfigSelector}
-        onRuntimeDirsSelected={handleRuntimeDirsSelected}
+        onRuntimeDirSelected={handleRuntimeDirSelected}
         canClose={true}
         currentValue={{
-          configDir: displayedConfigDir === '...' ? '' : displayedConfigDir,
-          appDataDir: displayedAppDataDir === '...' ? '' : displayedAppDataDir,
+          runtimeDir: displayedRuntimeDir === '...' ? '' : displayedRuntimeDir,
         }}
         presets={runtimeDirPresets}
         onClose={() => setShowConfigSelector(false)}
@@ -1298,12 +1270,14 @@ export default function Launcher() {
             </div>
             <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
               <button
+                type="button"
                 onClick={() => closeMissingConfigPrompt(false)}
                 className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
               >
                 {t('launcher.runtime_config_missing_reject')}
               </button>
               <button
+                type="button"
                 onClick={() => closeMissingConfigPrompt(true)}
                 className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg shadow-blue-500/25 transition-all"
               >
@@ -1328,33 +1302,22 @@ export default function Launcher() {
               </p>
               {setupStatus && (
                 <div className="space-y-3">
-                  <div>
-                    <div className="text-xs font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                      {t('setup.guide.configDirLabel')}
-                    </div>
-                    <div className="mt-1 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
-                      {setupStatus.config_dir}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                      {t('setup.guide.appDataDirLabel')}
-                    </div>
-                    <div className="mt-1 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
-                      {setupStatus.app_data_dir}
-                    </div>
+                  <div className="mt-1 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
+                    {setupStatus.runtime_dir}
                   </div>
                 </div>
               )}
             </div>
             <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
               <button
+                type="button"
                 onClick={() => setIsSetupRequiredPromptOpen(false)}
                 className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
               >
                 {t('common.cancel')}
               </button>
               <button
+                type="button"
                 onClick={() => { void enterSetupModeFromPrompt(); }}
                 className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/25 transition-all"
               >

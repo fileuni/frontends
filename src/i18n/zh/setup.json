@@ -8,7 +8,7 @@
     "title": "三步完成 FileUni 安装",
     "desc": "如果您是第一次使用，保持默认选项通常就够了。FileUni 会先帮您准备最适合快速上手的设置，后续再慢慢调整也没问题。",
     "card1Title": "选择保存位置",
-    "card1Desc": "确认设置和数据保存到哪里。",
+    "card1Desc": "确认 FileUni 唯一的运行目录，配置和数据都会保存在这里。",
     "card2Title": "设置登录密码",
     "card2Desc": "为管理员账号设置一个您记得住的密码。",
     "card3Title": "完成并开始使用",
@@ -16,8 +16,7 @@
     "recommendedTitle": "推荐给第一次使用的您",
     "recommendedDesc": "如果拿不准，尽量保留当前默认值。默认方案更适合个人、家庭和快速体验。",
     "locationTitle": "当前安装位置",
-    "configDirLabel": "设置保存位置",
-    "appDataDirLabel": "文件数据位置",
+    "configDirLabel": "运行目录",
     "configPathLabel": "当前配置文件",
     "locationDesc": "这里只是告诉您安装内容会保存到哪里，不需要手动创建文件。",
     "requiredPrompt": "检测到 FileUni 还没有完成首次安装。继续后会直接打开安装向导，后续仍然可以随时修改这些设置。"

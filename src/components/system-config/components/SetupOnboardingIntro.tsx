@@ -5,14 +5,12 @@ import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { cn } from '@/lib/utils';
 
 interface SetupOnboardingIntroProps {
-  configDir?: string | null;
-  appDataDir?: string | null;
+  runtimeDir?: string | null;
   configPath?: string | null;
 }
 
 export const SetupOnboardingIntro: React.FC<SetupOnboardingIntroProps> = ({
-  configDir,
-  appDataDir,
+  runtimeDir,
   configPath,
 }) => {
   const { t } = useTranslation();
@@ -38,13 +36,10 @@ export const SetupOnboardingIntro: React.FC<SetupOnboardingIntroProps> = ({
   ];
 
   const locationRows = [
-    configDir?.trim()
-      ? { label: t('setup.guide.configDirLabel'), value: configDir }
+    runtimeDir?.trim()
+      ? { label: t('setup.guide.configDirLabel'), value: runtimeDir }
       : null,
-    appDataDir?.trim()
-      ? { label: t('setup.guide.appDataDirLabel'), value: appDataDir }
-      : null,
-    !configDir?.trim() && !appDataDir?.trim() && configPath?.trim()
+    !runtimeDir?.trim() && configPath?.trim()
       ? { label: t('setup.guide.configPathLabel'), value: configPath }
       : null,
   ].filter((item): item is { label: string; value: string } => Boolean(item));

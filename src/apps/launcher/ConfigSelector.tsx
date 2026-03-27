@@ -1,26 +1,24 @@
 import { open } from '@tauri-apps/plugin-dialog';
-import { ConfigPathSelector, type RuntimeDirsValue } from '@/apps/launcher/components/ConfigPathSelector';
+import { ConfigPathSelector, type RuntimeDirValue } from '@/apps/launcher/components/ConfigPathSelector';
 import { safeInvoke } from './tauri';
 
 interface RuntimeDirPresets {
-  current_config_dir: string;
-  current_app_data_dir: string;
-  default_config_dir: string;
-  default_app_data_dir: string;
+  current_runtime_dir: string;
+  default_runtime_dir: string;
 }
 
 interface ConfigSelectorProps {
   isOpen: boolean;
-  onRuntimeDirsSelected: (configDir: string, appDataDir: string) => void;
+  onRuntimeDirSelected: (runtimeDir: string) => void;
   onClose: () => void;
   canClose?: boolean;
-  currentValue?: RuntimeDirsValue;
+  currentValue?: RuntimeDirValue;
   presets: RuntimeDirPresets | null;
 }
 
 export default function ConfigSelector({
   isOpen,
-  onRuntimeDirsSelected,
+  onRuntimeDirSelected,
   onClose,
   canClose = true,
   currentValue,
@@ -39,15 +37,9 @@ export default function ConfigSelector({
       onClose={onClose}
       canClose={canClose}
       initialValue={currentValue}
-      currentPreset={presets ? {
-        configDir: presets.current_config_dir,
-        appDataDir: presets.current_app_data_dir,
-      } : undefined}
-      defaultPreset={presets ? {
-        configDir: presets.default_config_dir,
-        appDataDir: presets.default_app_data_dir,
-      } : undefined}
-      onBrowsePath={async (_target) => {
+      currentPreset={presets ? { runtimeDir: presets.current_runtime_dir } : undefined}
+      defaultPreset={presets ? { runtimeDir: presets.default_runtime_dir } : undefined}
+      onBrowsePath={async () => {
         await ensureNativeDialogReady();
         const selected = await open({
           directory: true,
@@ -57,9 +49,8 @@ export default function ConfigSelector({
       }}
       onValidatePath={async (value) => {
         try {
-          const valid = await safeInvoke<boolean>('validate_runtime_dirs', {
-            configDir: value.configDir,
-            appDataDir: value.appDataDir,
+          const valid = await safeInvoke<boolean>('validate_runtime_dir', {
+            runtimeDir: value.runtimeDir,
           });
           return { valid };
         } catch (errorValue: unknown) {
@@ -71,7 +62,7 @@ export default function ConfigSelector({
       }}
       onPreparePath={async () => undefined}
       onConfirmPath={async (value) => {
-        onRuntimeDirsSelected(value.configDir, value.appDataDir);
+        onRuntimeDirSelected(value.runtimeDir);
       }}
     />
   );

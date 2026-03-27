@@ -2,30 +2,26 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface ConfigState {
-  configDir: string | null;
-  appDataDir: string | null;
-  hasSelectedRuntimeDirs: boolean;
-  setRuntimeDirs: (configDir: string, appDataDir: string) => void;
-  clearRuntimeDirs: () => void;
+  runtimeDir: string | null;
+  hasSelectedRuntimeDir: boolean;
+  setRuntimeDir: (runtimeDir: string) => void;
+  clearRuntimeDir: () => void;
 }
 
 export const useConfigStore = create<ConfigState>()(
   persist<ConfigState>(
     (set) => ({
-      configDir: null,
-      appDataDir: null,
-      hasSelectedRuntimeDirs: false,
-      setRuntimeDirs: (configDir: string, appDataDir: string) =>
+      runtimeDir: null,
+      hasSelectedRuntimeDir: false,
+      setRuntimeDir: (runtimeDir: string) =>
         set({
-          configDir,
-          appDataDir,
-          hasSelectedRuntimeDirs: true,
+          runtimeDir,
+          hasSelectedRuntimeDir: true,
         }),
-      clearRuntimeDirs: () =>
+      clearRuntimeDir: () =>
         set({
-          configDir: null,
-          appDataDir: null,
-          hasSelectedRuntimeDirs: false,
+          runtimeDir: null,
+          hasSelectedRuntimeDir: false,
         }),
     }),
     { name: 'fileuni-config-storage' }
