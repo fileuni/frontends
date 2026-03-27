@@ -6,7 +6,7 @@
     "license": {
       "name": ""
     },
-    "version": "0.0.4"
+    "version": "0.0.5-alpha.4"
   },
   "paths": {
     "/api/v1/admin/domain-acme-ddns/assets/certs": {

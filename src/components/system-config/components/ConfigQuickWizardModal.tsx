@@ -1991,6 +1991,38 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     return t('admin.config.quickWizard.setupLabels.externalCache');
   }, [showTechnicalChoices, t]);
 
+  const setupOverviewItems = useMemo(() => {
+    const cacheHint = isRedisLikeCache
+      ? t('admin.config.quickWizard.setupHints.externalCache')
+      : draft.cacheType === 'database'
+        ? t('admin.config.quickWizard.hints.cacheNoExternalConnection')
+        : t('admin.config.quickWizard.hints.cacheDashmapLightweight');
+
+    return [
+      {
+        label: t('admin.config.quickWizard.steps.performance'),
+        value: t(currentPreset.labelKey),
+        hint: t(currentPreset.descKey),
+      },
+      {
+        label: t('admin.config.quickWizard.steps.database'),
+        value: databaseLabelFor(draft.databaseType),
+        hint: draft.databaseType === 'sqlite'
+          ? t('admin.config.quickWizard.hints.sqliteSingleNode')
+          : t('admin.config.quickWizard.setupHints.externalDatabase'),
+      },
+      {
+        label: t('admin.config.quickWizard.steps.cache'),
+        value: cacheLabelFor(draft.cacheType),
+        hint: cacheHint,
+      },
+    ];
+  }, [cacheLabelFor, currentPreset.descKey, currentPreset.labelKey, databaseLabelFor, draft.cacheType, draft.databaseType, isRedisLikeCache, t]);
+
+  const setupSummaryCards = useMemo(() => {
+    return previewSimpleCards.filter((card) => !('interactive' in card) || !card.interactive).slice(0, 8);
+  }, [previewSimpleCards]);
+
   const renderSetupAdvancedToggle = useCallback(() => {
     if (!setupMode) {
       return null;
@@ -2096,23 +2128,819 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
           )}
 
           {!parseError && (
-            <div className="space-y-4">
-              {setupMode && (
+            setupMode ? (
+              <div className="space-y-4">
                 <div className={cn(
-                  "rounded-xl border p-3 sm:p-4",
-                  isDark ? "border-emerald-500/30 bg-emerald-500/10" : "border-emerald-200 bg-emerald-50"
+                  'rounded-3xl border p-4 sm:p-5',
+                  isDark ? 'border-emerald-500/20 bg-emerald-500/10' : 'border-emerald-200 bg-emerald-50/90'
                 )}>
                   <div className="flex items-start gap-3">
-                    <Shield size={18} className={isDark ? "text-emerald-300" : "text-emerald-600"} />
+                    <Shield size={18} className={isDark ? 'text-emerald-300' : 'text-emerald-600'} />
                     <div className="space-y-1.5">
-                      <p className={cn("text-sm font-black", isDark ? "text-emerald-100" : "text-emerald-900")}>{t('admin.config.quickWizard.setupHintTitle')}</p>
-                      <p className={cn("text-sm leading-6", isDark ? "text-emerald-200/85" : "text-emerald-800")}>{t('admin.config.quickWizard.setupHintDesc')}</p>
+                      <p className={cn('text-sm font-black', isDark ? 'text-emerald-100' : 'text-emerald-900')}>
+                        {t('admin.config.quickWizard.setupHintTitle')}
+                      </p>
+                      <p className={cn('text-sm leading-6', isDark ? 'text-emerald-200/85' : 'text-emerald-800')}>
+                        {t('admin.config.quickWizard.setupHintDesc')}
+                      </p>
                     </div>
                   </div>
                 </div>
-              )}
 
-              <div className={cn(
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(19rem,0.88fr)]">
+                  <div className="space-y-4">
+                    <section className={cn(
+                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
+                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+                    )}>
+                      <div className="flex items-center gap-2">
+                        <Cpu size={18} className={isDark ? 'text-cyan-300' : 'text-cyan-700'} />
+                        <h4 className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                          {t('admin.config.quickWizard.steps.performance')}
+                        </h4>
+                      </div>
+                      <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                        {t('admin.config.quickWizard.performance.intro')}
+                      </p>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        {PERFORMANCE_PRESETS.map((preset) => {
+                          const selected = draft.performanceTier === preset.tier;
+                          return (
+                            <button
+                              key={preset.tier}
+                              type="button"
+                              onClick={() => {
+                                syncDraft((prev) => {
+                                  const isLowMem = preset.tier === 'extreme-low' || preset.tier === 'low';
+                                  const next = {
+                                    ...prev,
+                                    performanceTier: preset.tier,
+                                    databaseType: preset.recommendations.databaseType,
+                                    cacheType: preset.recommendations.cacheType,
+                                    loadProfile: (preset.tier === 'medium' || preset.tier === 'good') ? 'heavy' : prev.loadProfile,
+                                    captchaPreheatMode: isLowMem ? 'memory' : 'balanced' as CaptchaPreheatMode,
+                                  };
+                                  if (preset.recommendations.databaseType === 'sqlite') {
+                                    next.sqlitePath = '{APPDATADIR}/fileuni.db';
+                                    next.sqliteDsn = 'sqlite://{APPDATADIR}/fileuni.db';
+                                  }
+                                  return next;
+                                });
+                              }}
+                              className={cn(
+                                'rounded-2xl border p-4 text-left transition-all',
+                                selected
+                                  ? (isDark ? 'border-cyan-400/40 bg-cyan-500/10 ring-1 ring-cyan-400/20' : 'border-cyan-300 bg-cyan-50 ring-1 ring-cyan-100 shadow-sm')
+                                  : (isDark ? 'border-white/10 bg-black/20 hover:bg-white/5' : 'border-slate-200 bg-slate-50/80 hover:bg-slate-100')
+                              )}
+                            >
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className={cn(
+                                  'inline-flex h-2.5 w-2.5 rounded-full',
+                                  preset.tier === 'extreme-low' ? 'bg-rose-400' :
+                                  preset.tier === 'low' ? 'bg-amber-400' :
+                                  preset.tier === 'medium' ? 'bg-sky-400' : 'bg-emerald-400'
+                                )} />
+                                <span className={cn('text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                                  {t(preset.labelKey)}
+                                </span>
+                              </div>
+                              <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                                {t(preset.descKey)}
+                              </p>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                <span className={cn(
+                                  'rounded-full px-2.5 py-1 text-xs font-black',
+                                  isDark ? 'bg-white/10 text-slate-200' : 'bg-white text-slate-700'
+                                )}>
+                                  {databaseLabelFor(preset.recommendations.databaseType)}
+                                </span>
+                                <span className={cn(
+                                  'rounded-full px-2.5 py-1 text-xs font-black',
+                                  isDark ? 'bg-white/10 text-slate-200' : 'bg-white text-slate-700'
+                                )}>
+                                  {cacheLabelFor(preset.recommendations.cacheType)}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
+                        <div className={cn(
+                          'mt-4 rounded-2xl border p-4',
+                          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/80'
+                        )}>
+                          <div className={cn('text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                            {t('admin.config.quickWizard.performance.loadProfile.title')}
+                          </div>
+                          <p className={cn('mt-1 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                            {t('admin.config.quickWizard.performance.loadProfile.desc')}
+                          </p>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                            {(['light', 'heavy'] as LoadProfile[]).map((profile) => {
+                              const selected = draft.loadProfile === profile;
+                              return (
+                                <button
+                                  key={profile}
+                                  type="button"
+                                  onClick={() => syncDraft((prev) => ({ ...prev, loadProfile: profile }))}
+                                  className={cn(
+                                    'rounded-2xl border p-3 text-left transition-all',
+                                    selected
+                                      ? (isDark ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-100' : 'border-emerald-300 bg-emerald-50 text-emerald-900')
+                                      : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
+                                  )}
+                                >
+                                  <div className="text-sm font-black">
+                                    {t(`admin.config.quickWizard.performance.loadProfile.${profile}`)}
+                                  </div>
+                                  <div className={cn('mt-1 text-sm leading-6', selected ? (isDark ? 'text-emerald-100/80' : 'text-emerald-800') : (isDark ? 'text-slate-400' : 'text-slate-500'))}>
+                                    {t(`admin.config.quickWizard.performance.loadProfile.${profile}Desc`)}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </section>
+
+                    <section className={cn(
+                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
+                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+                    )}>
+                      <div className="flex items-center gap-2">
+                        <HardDrive size={18} className={isDark ? 'text-cyan-300' : 'text-cyan-700'} />
+                        <h4 className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                          {t('admin.config.quickWizard.steps.database')} / {t('admin.config.quickWizard.steps.cache')}
+                        </h4>
+                      </div>
+                      <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                        {t('admin.config.quickWizard.setupAdvanced.desc')}
+                      </p>
+
+                      <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                        <div className={cn(
+                          'rounded-2xl border p-4',
+                          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/80'
+                        )}>
+                          <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                            {t('admin.config.quickWizard.steps.database')}
+                          </div>
+                          <div className="mt-3 grid grid-cols-2 gap-2">
+                            {(['sqlite', 'postgres'] as DatabaseType[]).map((databaseType) => {
+                              const selected = draft.databaseType === databaseType;
+                              return (
+                                <button
+                                  key={databaseType}
+                                  type="button"
+                                  onClick={() => syncDraft((prev) => ({ ...prev, databaseType }))}
+                                  className={cn(
+                                    'rounded-2xl border px-3 py-3 text-sm font-black transition-all',
+                                    selected
+                                      ? (isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100' : 'border-cyan-300 bg-cyan-50 text-cyan-900')
+                                      : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
+                                  )}
+                                >
+                                  {databaseLabelFor(databaseType)}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {draft.databaseType === 'postgres' ? (
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                {t('admin.config.quickWizard.fields.host')}
+                                <input
+                                  className={cn(
+                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                  )}
+                                  value={draft.dbHost}
+                                  onChange={(event) => {
+                                    const dbHost = event.target.value;
+                                    syncDraft((prev) => {
+                                      const next = { ...prev, dbHost };
+                                      next.postgresDsn = buildPostgresDsn(next);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </label>
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                {t('admin.config.quickWizard.fields.port')}
+                                <input
+                                  className={cn(
+                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                  )}
+                                  value={draft.dbPort}
+                                  onChange={(event) => {
+                                    const dbPort = event.target.value;
+                                    syncDraft((prev) => {
+                                      const next = { ...prev, dbPort };
+                                      next.postgresDsn = buildPostgresDsn(next);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </label>
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                {t('admin.config.quickWizard.fields.user')}
+                                <input
+                                  className={cn(
+                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                  )}
+                                  value={draft.dbUser}
+                                  onChange={(event) => {
+                                    const dbUser = event.target.value;
+                                    syncDraft((prev) => {
+                                      const next = { ...prev, dbUser };
+                                      next.postgresDsn = buildPostgresDsn(next);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </label>
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                {t('admin.config.quickWizard.fields.password')}
+                                <input
+                                  type="password"
+                                  className={cn(
+                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                  )}
+                                  value={draft.dbPass}
+                                  onChange={(event) => {
+                                    const dbPass = event.target.value;
+                                    syncDraft((prev) => {
+                                      const next = { ...prev, dbPass };
+                                      next.postgresDsn = buildPostgresDsn(next);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </label>
+                              <label className={cn('text-sm font-black sm:col-span-2', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                {t('admin.config.quickWizard.fields.databaseName')}
+                                <input
+                                  className={cn(
+                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                  )}
+                                  value={draft.dbName}
+                                  onChange={(event) => {
+                                    const dbName = event.target.value;
+                                    syncDraft((prev) => {
+                                      const next = { ...prev, dbName };
+                                      next.postgresDsn = buildPostgresDsn(next);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </label>
+                            </div>
+                          ) : (
+                            <div className="mt-4 space-y-2">
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                {t('admin.config.quickWizard.fields.sqlitePath')}
+                                <input
+                                  className={cn(
+                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm font-mono focus:outline-none focus:ring-2',
+                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                  )}
+                                  value={draft.sqlitePath}
+                                  onChange={(event) => {
+                                    const sqlitePath = event.target.value;
+                                    syncDraft((prev) => {
+                                      const next = { ...prev, sqlitePath };
+                                      next.sqliteDsn = buildSqliteDsn(sqlitePath);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </label>
+                              <p className={cn('text-sm leading-6', isDark ? 'text-emerald-200/85' : 'text-emerald-700')}>
+                                {t('admin.config.quickWizard.hints.sqliteSingleNode')}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className={cn(
+                          'rounded-2xl border p-4',
+                          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/80'
+                        )}>
+                          <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                            {t('admin.config.quickWizard.steps.cache')}
+                          </div>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                            {[
+                              { value: 'dashmap', label: cacheLabelFor('dashmap'), selected: draft.cacheType === 'dashmap' },
+                              { value: 'database', label: cacheLabelFor('database'), selected: draft.cacheType === 'database' },
+                              { value: 'external', label: cacheLabelFor('valkey'), selected: isRedisLikeCache },
+                            ].map((option) => (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => syncDraft((prev) => ({
+                                  ...prev,
+                                  cacheType: option.value === 'external'
+                                    ? (prev.cacheType === 'redis' || prev.cacheType === 'keydb' || prev.cacheType === 'valkey' ? prev.cacheType : 'valkey')
+                                    : option.value,
+                                }))}
+                                className={cn(
+                                  'rounded-2xl border px-3 py-3 text-sm font-black transition-all',
+                                  option.selected
+                                    ? (isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100' : 'border-cyan-300 bg-cyan-50 text-cyan-900')
+                                    : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
+                                )}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+
+                          {isRedisLikeCache ? (
+                            <div className="mt-4 space-y-3">
+                              <div className="grid gap-3 sm:grid-cols-2">
+                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                  {t('admin.config.quickWizard.fields.host')}
+                                  <input
+                                    className={cn(
+                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                      isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                    )}
+                                    value={draft.cacheHost}
+                                    onChange={(event) => {
+                                      const cacheHost = event.target.value;
+                                      syncDraft((prev) => {
+                                        const next = { ...prev, cacheHost };
+                                        next.cacheRedisUrl = buildRedisUrl(next);
+                                        return next;
+                                      });
+                                    }}
+                                  />
+                                </label>
+                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                  {t('admin.config.quickWizard.fields.port')}
+                                  <input
+                                    className={cn(
+                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                      isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                    )}
+                                    value={draft.cachePort}
+                                    onChange={(event) => {
+                                      const cachePort = event.target.value;
+                                      syncDraft((prev) => {
+                                        const next = { ...prev, cachePort };
+                                        next.cacheRedisUrl = buildRedisUrl(next);
+                                        return next;
+                                      });
+                                    }}
+                                  />
+                                </label>
+                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                  {t('admin.config.quickWizard.fields.user')}
+                                  <input
+                                    className={cn(
+                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                      isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                    )}
+                                    value={draft.cacheUser}
+                                    onChange={(event) => {
+                                      const cacheUser = event.target.value;
+                                      syncDraft((prev) => {
+                                        const next = { ...prev, cacheUser };
+                                        next.cacheRedisUrl = buildRedisUrl(next);
+                                        return next;
+                                      });
+                                    }}
+                                  />
+                                </label>
+                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                  {t('admin.config.quickWizard.fields.password')}
+                                  <input
+                                    type="password"
+                                    className={cn(
+                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                      isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                    )}
+                                    value={draft.cachePass}
+                                    onChange={(event) => {
+                                      const cachePass = event.target.value;
+                                      syncDraft((prev) => {
+                                        const next = { ...prev, cachePass };
+                                        next.cacheRedisUrl = buildRedisUrl(next);
+                                        return next;
+                                      });
+                                    }}
+                                  />
+                                </label>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  syncDraft((prev) => {
+                                    const next = { ...prev, cacheUseTls: !prev.cacheUseTls };
+                                    next.cacheRedisUrl = buildRedisUrl(next);
+                                    return next;
+                                  });
+                                }}
+                                className={cn(
+                                  'inline-flex h-11 items-center rounded-2xl border px-4 text-sm font-black transition-all',
+                                  draft.cacheUseTls
+                                    ? (isDark ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-100' : 'border-emerald-300 bg-emerald-50 text-emerald-900')
+                                    : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
+                                )}
+                              >
+                                {t('admin.config.quickWizard.fields.useTls')}: {draft.cacheUseTls ? t('admin.config.quickWizard.options.enabled') : t('admin.config.quickWizard.options.disabled')}
+                              </button>
+                            </div>
+                          ) : (
+                            <p className={cn('mt-4 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                              {draft.cacheType === 'database'
+                                ? t('admin.config.quickWizard.hints.cacheNoExternalConnection')
+                                : t('admin.config.quickWizard.hints.cacheDashmapLightweight')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        {renderSetupAdvancedToggle()}
+                      </div>
+
+                      {showTechnicalChoices && (
+                        <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                          <div className={cn(
+                            'rounded-2xl border p-4',
+                            isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/70'
+                          )}>
+                            <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                              {t('admin.config.quickWizard.setupAdvanced.show')}
+                            </div>
+                            <div className="mt-3 space-y-3">
+                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                {t('admin.config.quickWizard.fields.healthTimeoutSeconds')}
+                                <input
+                                  className={cn(
+                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+                                  )}
+                                  value={draft.dbHealthTimeoutSeconds}
+                                  onChange={(event) => {
+                                    const value = event.target.value;
+                                    syncDraft((prev) => ({ ...prev, dbHealthTimeoutSeconds: value }));
+                                  }}
+                                />
+                              </label>
+
+                              {draft.databaseType === 'postgres' && (
+                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                  {t('admin.config.quickWizard.fields.postgresDsn')}
+                                  <input
+                                    className={cn(
+                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm font-mono focus:outline-none focus:ring-2',
+                                      isDark ? 'border-cyan-400/20 bg-black/30 text-cyan-100 focus:ring-cyan-500/30' : 'border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20'
+                                    )}
+                                    value={draft.postgresDsn}
+                                    onChange={(event) => {
+                                      const postgresDsn = event.target.value;
+                                      const parsedFields = parsePostgresDsn(postgresDsn);
+                                      syncDraft((prev) => ({
+                                        ...prev,
+                                        postgresDsn,
+                                        dbHost: parsedFields.dbHost,
+                                        dbPort: parsedFields.dbPort,
+                                        dbUser: parsedFields.dbUser,
+                                        dbPass: parsedFields.dbPass,
+                                        dbName: parsedFields.dbName,
+                                      }));
+                                    }}
+                                  />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className={cn(
+                            'rounded-2xl border p-4',
+                            isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/70'
+                          )}>
+                            <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                              {t('admin.config.quickWizard.steps.cache')}
+                            </div>
+                            <div className="mt-3 space-y-3">
+                              {isRedisLikeCache && (
+                                <>
+                                  <div className="grid gap-2 sm:grid-cols-3">
+                                    {(['valkey', 'redis', 'keydb'] as const).map((cacheType) => {
+                                      const selected = draft.cacheType === cacheType;
+                                      return (
+                                        <button
+                                          key={cacheType}
+                                          type="button"
+                                          onClick={() => syncDraft((prev) => ({ ...prev, cacheType }))}
+                                          className={cn(
+                                            'rounded-2xl border px-3 py-3 text-sm font-black transition-all',
+                                            selected
+                                              ? (isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100' : 'border-cyan-300 bg-cyan-50 text-cyan-900')
+                                              : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
+                                          )}
+                                        >
+                                          {cacheLabelFor(cacheType)}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+
+                                  <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                    {t('admin.config.quickWizard.fields.redisUrl')}
+                                    <input
+                                      className={cn(
+                                        'mt-1 h-11 w-full rounded-2xl border px-3 text-sm font-mono focus:outline-none focus:ring-2',
+                                        isDark ? 'border-cyan-400/20 bg-black/30 text-cyan-100 focus:ring-cyan-500/30' : 'border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20'
+                                      )}
+                                      value={draft.cacheRedisUrl}
+                                      onChange={(event) => {
+                                        const cacheRedisUrl = event.target.value;
+                                        const fields = parseRedisUrl(cacheRedisUrl);
+                                        syncDraft((prev) => ({
+                                          ...prev,
+                                          cacheRedisUrl,
+                                          cacheHost: fields.cacheHost,
+                                          cachePort: fields.cachePort,
+                                          cacheUser: fields.cacheUser,
+                                          cachePass: fields.cachePass,
+                                          cacheUseTls: fields.cacheUseTls,
+                                        }));
+                                      }}
+                                    />
+                                  </label>
+                                </>
+                              )}
+
+                              {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
+                                <div>
+                                  <div className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                    {t('admin.config.quickWizard.performance.preheatMode.title')}
+                                  </div>
+                                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                                    {(['memory', 'balanced', 'throughput'] as CaptchaPreheatMode[]).map((mode) => {
+                                      const selected = draft.captchaPreheatMode === mode;
+                                      return (
+                                        <button
+                                          key={mode}
+                                          type="button"
+                                          onClick={() => syncDraft((prev) => ({ ...prev, captchaPreheatMode: mode }))}
+                                          className={cn(
+                                            'rounded-2xl border px-3 py-3 text-sm font-black transition-all',
+                                            selected
+                                              ? (isDark ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-100' : 'border-emerald-300 bg-emerald-50 text-emerald-900')
+                                              : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
+                                          )}
+                                        >
+                                          {t(`admin.config.quickWizard.performance.preheatMode.options.${mode}`)}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </section>
+
+                    {(onOpenAdminPassword || onOpenLicenseManagement || onOpenStorageConfig) && (
+                      <section className={cn(
+                        'rounded-3xl border p-4 sm:p-5 shadow-sm',
+                        isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+                      )}>
+                        <div className="flex items-center gap-2">
+                          <Key size={18} className={isDark ? 'text-amber-300' : 'text-amber-600'} />
+                          <h4 className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                            {t('admin.config.quickWizard.steps.other')}
+                          </h4>
+                        </div>
+                        <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                          {t('admin.config.quickWizard.otherActions.intro')}
+                        </p>
+                        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                          {onOpenAdminPassword && (
+                            <button
+                              type="button"
+                              onClick={onOpenAdminPassword}
+                              className={cn(
+                                'h-11 rounded-2xl border px-4 text-sm font-black transition-all',
+                                isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20' : 'border-cyan-300 bg-cyan-50 text-cyan-900 hover:bg-cyan-100'
+                              )}
+                            >
+                              {t('admin.config.quickWizard.actions.setAdminPassword')}
+                            </button>
+                          )}
+                          {onOpenLicenseManagement && (
+                            <button
+                              type="button"
+                              onClick={onOpenLicenseManagement}
+                              className={cn(
+                                'h-11 rounded-2xl border px-4 text-sm font-black transition-all',
+                                isDark ? 'border-amber-400/35 bg-amber-500/10 text-amber-100 hover:bg-amber-500/20' : 'border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100'
+                              )}
+                            >
+                              {t('admin.config.license.title')}
+                            </button>
+                          )}
+                          {onOpenStorageConfig && (
+                            <button
+                              type="button"
+                              onClick={onOpenStorageConfig}
+                              className={cn(
+                                'h-11 rounded-2xl border px-4 text-sm font-black transition-all',
+                                isDark ? 'border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10' : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100'
+                              )}
+                            >
+                              {t('admin.config.storage.title')}
+                            </button>
+                          )}
+                        </div>
+                      </section>
+                    )}
+                  </div>
+
+                  <aside className="space-y-4">
+                    <section className={cn(
+                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
+                      isDark ? 'border-cyan-500/20 bg-cyan-500/10' : 'border-cyan-200 bg-cyan-50/80'
+                    )}>
+                      <div className="flex items-center gap-2">
+                        <Wand2 size={18} className={isDark ? 'text-cyan-200' : 'text-cyan-700'} />
+                        <div className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-cyan-100' : 'text-cyan-900')}>
+                          {t('admin.config.quickWizard.performance.recommendedSettings')}
+                        </div>
+                      </div>
+                      <div className="mt-4 space-y-3">
+                        {setupOverviewItems.map((item) => (
+                          <div
+                            key={`${item.label}:${item.value}`}
+                            className={cn(
+                              'rounded-2xl border px-4 py-3',
+                              isDark ? 'border-white/10 bg-black/20' : 'border-white/70 bg-white/90'
+                            )}
+                          >
+                            <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                              {item.label}
+                            </div>
+                            <div className={cn('mt-1 text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                              {item.value}
+                            </div>
+                            <p className={cn('mt-1 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                              {item.hint}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section className={cn(
+                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
+                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+                    )}>
+                      <div className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                        {t('admin.config.quickWizard.performance.preview.simpleHint')}
+                      </div>
+                      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+                        {setupSummaryCards.map((card) => {
+                          const isEnabled = 'enabled' in card ? card.enabled : undefined;
+                          return (
+                            <div
+                              key={`${card.label}:${card.value}`}
+                              className={cn(
+                                'rounded-2xl border px-4 py-3',
+                                isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/80'
+                              )}
+                            >
+                              <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-500' : 'text-slate-500')}>
+                                {card.label}
+                              </div>
+                              <div className={cn(
+                                'mt-1 text-sm font-black',
+                                isEnabled === undefined
+                                  ? (isDark ? 'text-slate-100' : 'text-slate-900')
+                                  : isEnabled
+                                    ? (isDark ? 'text-emerald-300' : 'text-emerald-700')
+                                    : (isDark ? 'text-rose-300' : 'text-rose-700')
+                              )}>
+                                {card.value}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    <section className={cn(
+                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
+                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+                    )}>
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <div className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                            {t('admin.config.quickWizard.performance.preview.totalChanges', { count: previewConfigItems.length })}
+                          </div>
+                          <p className={cn('mt-1 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                            {t('admin.config.quickWizard.performance.preview.groupStats')}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowDetailedPreview((prev) => !prev)}
+                          className={cn(
+                            'rounded-2xl border px-3 py-2 text-sm font-black transition-all',
+                            isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                          )}
+                        >
+                          {showDetailedPreview
+                            ? t('admin.config.quickWizard.performance.preview.hideDetails')
+                            : t('admin.config.quickWizard.performance.preview.viewDetails')}
+                        </button>
+                      </div>
+
+                      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+                        {previewGroupStats.slice(0, 6).map((group) => (
+                          <div
+                            key={`${group.key}:${group.count}`}
+                            className={cn(
+                              'flex items-center justify-between rounded-2xl border px-4 py-3',
+                              isDark ? 'border-white/10 bg-black/20 text-slate-200' : 'border-slate-200 bg-slate-50/80 text-slate-700'
+                            )}
+                          >
+                            <span className="text-sm font-black">{t(group.labelKey)}</span>
+                            <span className={cn('text-sm font-black', isDark ? 'text-cyan-300' : 'text-cyan-700')}>{group.count}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {showDetailedPreview && (
+                        <div className={cn(
+                          'mt-4 max-h-80 overflow-auto rounded-2xl border',
+                          isDark ? 'border-white/10 bg-black/30' : 'border-slate-200 bg-slate-50/60'
+                        )}>
+                          <div className={cn(
+                            'grid grid-cols-[1fr_auto] gap-3 border-b px-4 py-3 text-xs font-black uppercase tracking-[0.18em]',
+                            isDark ? 'border-white/10 text-slate-400' : 'border-slate-200 text-slate-500'
+                          )}>
+                            <span>{t('admin.config.quickWizard.performance.preview.path')}</span>
+                            <span>{t('admin.config.quickWizard.performance.preview.value')}</span>
+                          </div>
+                          {previewConfigItems.map((item) => (
+                            <div
+                              key={`${item.path}:${item.value}`}
+                              className={cn(
+                                'grid grid-cols-[1fr_auto] gap-3 border-b px-4 py-2.5 text-sm last:border-b-0',
+                                isDark ? 'border-white/10 text-slate-200' : 'border-slate-200 text-slate-700'
+                              )}
+                            >
+                              <span className="break-all font-mono">{item.path}</span>
+                              <span className={cn('font-mono font-black', isDark ? 'text-cyan-300' : 'text-cyan-700')}>{item.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  </aside>
+                </div>
+
+                <div className={cn(
+                  'rounded-3xl border px-4 py-3 sm:px-5',
+                  isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+                )}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className={cn('text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                      {showDoneAction ? t('setup.admin.finalConfirmDesc') : t('setup.editor.finishHint')}
+                    </p>
+                    {showDoneAction && (
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="inline-flex h-11 items-center justify-center rounded-2xl border border-primary bg-primary px-5 text-sm font-black text-white shadow-lg shadow-primary/20 transition-all hover:opacity-90"
+                      >
+                        {t('admin.config.quickWizard.actions.doneSetup')}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className={cn(
                 "rounded-xl border p-2 sm:p-3",
                 isDark ? "border-white/10 bg-white/[0.02]" : "border-slate-300 bg-slate-100 shadow-inner"
               )}>
@@ -2926,6 +3754,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                 </div>
               </div>
             </div>
+            )
           )}
         </div>
       </div>

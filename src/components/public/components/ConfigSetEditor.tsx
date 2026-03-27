@@ -8,12 +8,13 @@ import type { ConfigError, ConfigNoteEntry } from '@/components/system-config/co
 import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
 import { ConfigWorkbenchShell } from '@/components/system-config/components/ConfigWorkbenchShell';
 import { SetupOnboardingIntro } from '@/components/system-config/components/SetupOnboardingIntro';
+import { SetupSurfaceControls } from '@/components/system-config/components/SetupSurfaceControls';
 import type { ExternalToolDiagnosisResponse } from '@/components/system-config/components/ExternalDependencyConfigModal';
 import { useToastStore } from '@/stores/toast';
-import { useThemeStore, type Theme } from '@/stores/theme';
-import { useLanguageStore, type Language } from '@/stores/language';
+import { useThemeStore } from '@/stores/theme';
+import { useLanguageStore } from '@/stores/language';
 import { client, extractData, handleApiError } from '@/lib/api';
-import { CheckCircle, ShieldAlert, Languages, Sun, Moon, Monitor } from 'lucide-react';
+import { CheckCircle, ShieldAlert } from 'lucide-react';
 
 type ConfigSetStatusResponse = ConfigSetComponents['schemas']['ConfigSetStatusResponse'];
 type ConfigTemplateResponse = ConfigSetComponents['schemas']['ConfigTemplateResponse'];
@@ -308,41 +309,14 @@ export const ConfigSetEditor: React.FC = () => {
     );
   }, []);
 
-  const toggleTheme = () => {
-    const themes: Theme[] = ['light', 'dark', 'system'];
-    const currentIndex = themes.indexOf(theme);
-    const next = themes[(currentIndex + 1) % themes.length] ?? 'light';
-    setTheme(next);
-  };
-
-  const toggleLanguage = () => {
-    const langs: Language[] = ['zh', 'en'];
-    const currentLanguage: Language = language === 'auto' ? 'zh' : language;
-    const currentIndex = langs.indexOf(currentLanguage);
-    const next = langs[(currentIndex + 1) % langs.length] ?? 'zh';
-    setLanguage(next);
-  };
-
-  const ThemeIcon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor;
   const headerActions = (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={toggleLanguage}
-        className="h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 border-slate-200 dark:border-white/15 hover:bg-slate-100 dark:hover:bg-white/10"
-        title={t('launcher.switch_language')}
-      >
-        <Languages size={16} />
-      </button>
-      <button
-        type="button"
-        onClick={toggleTheme}
-        className="h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 border-slate-200 dark:border-white/15 hover:bg-slate-100 dark:hover:bg-white/10"
-        title={t('launcher.toggle_theme')}
-      >
-        <ThemeIcon size={16} />
-      </button>
-    </div>
+    <SetupSurfaceControls
+      language={language}
+      onLanguageChange={setLanguage}
+      theme={theme}
+      onThemeChange={setTheme}
+      compact={true}
+    />
   );
 
   const finalMessage =

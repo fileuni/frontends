@@ -2,10 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as toml from 'smol-toml';
 import {
-  Sun,
-  Moon,
-  Monitor,
-  Languages,
   Zap,
   FileText,
   Info,
@@ -13,12 +9,13 @@ import {
 import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo } from '@/components/modals/AboutModal';
 import { ToastContainer, ToastI18nContext } from '@/components/ui/Toast';
 import { toast } from '@/stores/toast';
-import { useThemeStore, applyTheme, type Theme } from '@/stores/theme';
-import { useLanguageStore, type Language } from '@/stores/language';
+import { useThemeStore, applyTheme } from '@/stores/theme';
+import { useLanguageStore } from '@/stores/language';
 import type { ConfigError, ConfigNoteEntry } from '@/components/system-config/components/ConfigRawEditor';
 import { ConfigWorkbenchShell } from '@/components/system-config/components/ConfigWorkbenchShell';
 import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
 import { SetupOnboardingIntro } from '@/components/system-config/components/SetupOnboardingIntro';
+import { SetupSurfaceControls } from '@/components/system-config/components/SetupSurfaceControls';
 import type { ExternalToolDiagnosisResponse } from '@/components/system-config/components/ExternalDependencyConfigModal';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { LogViewer, type LogEntry } from '@/apps/launcher/components/LogViewer';
@@ -835,21 +832,6 @@ export default function Launcher() {
     }
   };
 
-  const toggleTheme = () => {
-    const themes: Theme[] = ['light', 'dark', 'system'];
-    const currentIndex = themes.indexOf(theme);
-    const next = themes[(currentIndex + 1) % themes.length] ?? 'light';
-    setTheme(next);
-  };
-
-  const toggleLanguage = () => {
-    const langs: Language[] = ['zh', 'en'];
-    const currentLanguage: Language = language === 'auto' ? 'zh' : language;
-    const currentIndex = langs.indexOf(currentLanguage);
-    const next = langs[(currentIndex + 1) % langs.length] ?? 'zh';
-    setLanguage(next);
-  };
-
   const getStatusText = () => {
     switch (status) {
       case 'Running': return t('launcher.status.running');
@@ -891,22 +873,12 @@ export default function Launcher() {
                 {t('setup.wizard.subtitle')}
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={toggleLanguage}
-                className="p-3 rounded-2xl bg-slate-100/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all border border-slate-200/50 dark:border-slate-700/50"
-                title={t('launcher.switch_language')}
-              >
-                <Languages size={20} />
-              </button>
-              <button
-                onClick={toggleTheme}
-                className="p-3 rounded-2xl bg-slate-100/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all border border-slate-200/50 dark:border-slate-700/50"
-                title={t('launcher.toggle_theme')}
-              >
-                {theme === 'light' ? <Sun size={20} /> : theme === 'dark' ? <Moon size={20} /> : <Monitor size={20} />}
-              </button>
-            </div>
+            <SetupSurfaceControls
+              language={language}
+              onLanguageChange={setLanguage}
+              theme={theme}
+              onThemeChange={setTheme}
+            />
           </div>
 
           <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-8">
@@ -1081,21 +1053,15 @@ export default function Launcher() {
               </div>
             )}
 
-            <button 
-              onClick={toggleLanguage}
-              className="p-3 rounded-2xl bg-slate-100/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all border border-slate-200/50 dark:border-slate-700/50 hover:shadow-lg hover:scale-105 active:scale-95"
-              title={t('launcher.switch_language')}
-            >
-              <Languages size={20} />
-            </button>
-            <button 
-              onClick={toggleTheme}
-              className="p-3 rounded-2xl bg-slate-100/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all border border-slate-200/50 dark:border-slate-700/50 hover:shadow-lg hover:scale-105 active:scale-95"
-              title={t('launcher.toggle_theme')}
-            >
-              {theme === 'light' ? <Sun size={20} /> : theme === 'dark' ? <Moon size={20} /> : <Monitor size={20} />}
-            </button>
+            <SetupSurfaceControls
+              language={language}
+              onLanguageChange={setLanguage}
+              theme={theme}
+              onThemeChange={setTheme}
+              compact={true}
+            />
             <button
+              type="button"
               onClick={() => setIsAboutOpen(true)}
               className="p-3 rounded-2xl bg-slate-100/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all border border-slate-200/50 dark:border-slate-700/50 hover:shadow-lg hover:scale-105 active:scale-95"
               title={t('about.open')}
