@@ -1017,10 +1017,10 @@
       }
     },
     "quickWizard": {
-      "title": "Asistente rápido de configuración",
+      "title": "Ajustes rapidos",
       "subtitle": "Configuración paso a paso de opciones comunes para completar la configuración inicial rápidamente.",
       "parseErrorTitle": "El TOML actual no puede parsearse en modo amigable.",
-      "parseErrorHint": "Corrija el TOML en el editor de configuración de la página y vuelva a abrir este asistente.",
+      "parseErrorHint": "Corrija el TOML en el editor de configuracion de la pagina y vuelva a abrir los ajustes rapidos.",
       "steps": {
         "performance": "Optimización de rendimiento",
         "database": "Base de datos",

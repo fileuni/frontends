@@ -107,7 +107,7 @@ const OptionPairsEditor = memo(({
 
 OptionPairsEditor.displayName = 'OptionPairsEditor';
 
-const ConnectorOptionFields = memo(({
+export const ConnectorOptionFields = memo(({
   connector,
   isDark,
   onChangeOption,
@@ -187,6 +187,7 @@ export const ConnectorCard = memo(({
   connector,
   index,
   isDark,
+  showDeleteButton = true,
   allowDelete,
   canPickRoot,
   isPickingRoot,
@@ -198,6 +199,7 @@ export const ConnectorCard = memo(({
   connector: ConnectorDraft;
   index: number;
   isDark: boolean;
+  showDeleteButton?: boolean;
   allowDelete: boolean;
   canPickRoot: boolean;
   isPickingRoot: boolean;
@@ -222,16 +224,18 @@ export const ConnectorCard = memo(({
             {t(`admin.config.storage.drivers.${connector.driver}`)}
           </div>
         </div>
-        <button
-          type="button"
-          className={dangerButtonClassName(isDark)}
-          onClick={() => onRemoveConnector(connector.id)}
-          disabled={!allowDelete}
-          title={!allowDelete ? t('admin.config.storage.validation.minimumOneConnector') : undefined}
-        >
-          <Trash2 size={16} />
-          {t('common.delete')}
-        </button>
+        {showDeleteButton && (
+          <button
+            type="button"
+            className={dangerButtonClassName(isDark)}
+            onClick={() => onRemoveConnector(connector.id)}
+            disabled={!allowDelete}
+            title={!allowDelete ? t('admin.config.storage.validation.minimumOneConnector') : undefined}
+          >
+            <Trash2 size={16} />
+            {t('common.delete')}
+          </button>
+        )}
       </div>
 
       <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">

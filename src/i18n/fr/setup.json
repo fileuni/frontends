@@ -1,7 +1,7 @@
 {
   "wizard": {
-    "title": "Initialisation de FileUni",
-    "subtitle": "Configurez votre système de gestion de fichiers haute performance"
+    "title": "Centre de parametres FileUni",
+    "subtitle": "Terminez les parametres initiaux pour commencer"
   },
   "steps": {
     "step": "Étape",
@@ -15,9 +15,9 @@
     "review": "Revue"
   },
   "locked": {
-    "title": "Mode d'installation verrouillé",
-    "howToUnlockFile": "Pour déverrouiller, créez ce fichier indicateur à la racine du projet :",
-    "howToUnlockArg": "Ou redémarrez le service avec cet argument :"
+    "title": "Centre de parametres indisponible",
+    "howToUnlockFile": "Supprimez `{runtime-dir}/install.lock`, puis redemarrez FileUni :",
+    "howToUnlockArg": "Le centre de parametres s'ouvre automatiquement lorsque `install.lock` est absent."
   },
   "profile": {
     "title": "Choisir le profil de performance",

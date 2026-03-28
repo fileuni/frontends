@@ -1017,10 +1017,10 @@
       }
     },
     "quickWizard": {
-      "title": "Assistant de configuration rapide",
+      "title": "Parametres rapides",
       "subtitle": "Configuration pas a pas des options courantes pour terminer rapidement la configuration initiale.",
       "parseErrorTitle": "Le TOML actuel ne peut pas être parsé en mode convivial.",
-      "parseErrorHint": "Veuillez corriger le TOML dans l'éditeur de configuration de la page, puis rouvrir cet assistant.",
+      "parseErrorHint": "Corrigez le TOML dans l'editeur de configuration de la page, puis rouvrez les parametres rapides.",
       "steps": {
         "performance": "Optimisation des performances",
         "database": "Base de données",

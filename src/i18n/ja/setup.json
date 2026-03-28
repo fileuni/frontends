@@ -1,7 +1,7 @@
 {
   "wizard": {
-    "title": "FileUni 初期化",
-    "subtitle": "高性能ファイル管理システムを設定します"
+    "title": "FileUni 設定センター",
+    "subtitle": "初回設定を完了して使い始めましょう"
   },
   "steps": {
     "step": "ステップ",
@@ -15,9 +15,9 @@
     "review": "確認"
   },
   "locked": {
-    "title": "セットアップモードがロックされています",
-    "howToUnlockFile": "解除するには、プロジェクトルートに次のフラグファイルを作成してください：",
-    "howToUnlockArg": "または、次の引数でサービスを再起動してください："
+    "title": "設定センターを開けません",
+    "howToUnlockFile": "`{runtime-dir}/install.lock` を削除してから FileUni を再起動してください：",
+    "howToUnlockArg": "`install.lock` がない場合は設定センターが自動的に開きます。"
   },
   "profile": {
     "title": "パフォーマンスプロファイルを選択",

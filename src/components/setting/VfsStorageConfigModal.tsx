@@ -9,7 +9,7 @@ import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { deepClone, ensureRecord, isRecord, type ConfigObject } from '@/lib/configObject';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { Button } from '@/components/ui/Button';
-import { ConnectorCard, PolicyCard, PoolCard } from './VfsStorageDraftCards';
+import { ConnectorCard, ConnectorOptionFields, PolicyCard, PoolCard } from './VfsStorageDraftCards';
 
 type TomlAdapter = {
   parse: (source: string) => unknown;
@@ -1156,7 +1156,16 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                     <div className="md:col-span-2" />
                   </div>
 
-                  {renderConnectorOptionFields(mainConnector, (updater) => updateConnector(mainConnector.id, updater))}
+                  <ConnectorOptionFields
+                    connector={mainConnector}
+                    isDark={isDark}
+                    onChangeOption={(key, value) => {
+                      updateConnector(mainConnector.id, (prev) => ({
+                        ...prev,
+                        options: upsertOption(prev.options, key, value),
+                      }));
+                    }}
+                  />
                 </div>
               )}
             </div>

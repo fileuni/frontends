@@ -13,7 +13,7 @@
   "CONFIG_TEMPLATE_UNAVAILABLE": "Configuration template provider is unavailable",
   "CONFIG_RELOAD_FAILED": "Failed to reload configuration",
   "MISSING_REQUIRED_CONFIG": "Missing required configuration",
-  "SETUP_SECURITY_VIOLATION": "Setup security validation failed",
+  "SETUP_SECURITY_VIOLATION": "Configuration security validation failed",
   "DATABASE_CONNECTION_FAILED": "Database connection failed",
   "KV_CONNECTION_FAILED": "KV storage connection failed",
   "MULTIPART_PARSE_FAILED": "Failed to parse multipart upload data",

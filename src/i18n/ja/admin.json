@@ -1017,10 +1017,10 @@
       }
     },
     "quickWizard": {
-      "title": "クイック設定ウィザード",
+      "title": "クイック設定",
       "subtitle": "よく使う項目を順番に設定し、初期設定をすばやく完了できます。",
       "parseErrorTitle": "現在の TOML はフレンドリーモードで解析できません。",
-      "parseErrorHint": "ページの設定エディターで TOML を修正してから、このウィザードを再度開いてください。",
+      "parseErrorHint": "ページの設定エディターで TOML を修正してから、クイック設定を再度開いてください。",
       "steps": {
         "performance": "パフォーマンス最適化",
         "database": "データベース",

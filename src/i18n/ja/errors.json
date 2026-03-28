@@ -13,7 +13,7 @@
   "CONFIG_TEMPLATE_UNAVAILABLE": "設定テンプレートプロバイダーが利用できません",
   "CONFIG_RELOAD_FAILED": "設定のリロードに失敗しました",
   "MISSING_REQUIRED_CONFIG": "必須の設定が不足しています",
-  "SETUP_SECURITY_VIOLATION": "セットアップのセキュリティ検証に失敗しました",
+  "SETUP_SECURITY_VIOLATION": "設定のセキュリティ検証に失敗しました",
   "DATABASE_CONNECTION_FAILED": "データベース接続に失敗しました",
   "KV_CONNECTION_FAILED": "KV ストレージへの接続に失敗しました",
   "MULTIPART_PARSE_FAILED": "multipart アップロードデータの解析に失敗しました",

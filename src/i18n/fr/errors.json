@@ -13,7 +13,7 @@
   "CONFIG_TEMPLATE_UNAVAILABLE": "Le fournisseur de modèle de configuration est indisponible",
   "CONFIG_RELOAD_FAILED": "Échec du rechargement de la configuration",
   "MISSING_REQUIRED_CONFIG": "Configuration requise manquante",
-  "SETUP_SECURITY_VIOLATION": "Échec de la validation de sécurité de l'assistant",
+  "SETUP_SECURITY_VIOLATION": "Echec de la validation de securite de la configuration",
   "DATABASE_CONNECTION_FAILED": "Échec de la connexion à la base de données",
   "KV_CONNECTION_FAILED": "Échec de la connexion au stockage KV",
   "MULTIPART_PARSE_FAILED": "Échec de l'analyse des données multipart",

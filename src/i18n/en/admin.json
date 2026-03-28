@@ -1176,12 +1176,12 @@
       }
     },
     "quickWizard": {
-      "title": "Quick Setup",
-      "subtitle": "Walk through the common choices used during first-time setup.",
+      "title": "Quick Settings",
+      "subtitle": "Walk through the common choices used during the initial settings.",
       "parseErrorTitle": "The current settings cannot be shown in simplified mode right now.",
       "parseErrorHint": "You can still edit them below. Nothing will be lost.",
       "setupHintTitle": "Recommended: keep the defaults if you're unsure",
-      "setupHintDesc": "The default setup already works well for most first-time installs, and you can change everything later.",
+      "setupHintDesc": "The default settings already work well for most first-time installs, and you can change everything later.",
       "steps": {
         "performance": "Usage Style",
         "database": "Data Storage",

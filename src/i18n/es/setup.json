@@ -1,7 +1,7 @@
 {
   "wizard": {
-    "title": "Inicialización de FileUni",
-    "subtitle": "Configure su sistema de gestión de archivos de alto rendimiento"
+    "title": "Centro de configuracion de FileUni",
+    "subtitle": "Complete los ajustes iniciales para empezar"
   },
   "steps": {
     "step": "Paso",
@@ -15,9 +15,9 @@
     "review": "Revisión"
   },
   "locked": {
-    "title": "Modo de configuración bloqueado",
-    "howToUnlockFile": "Para desbloquear, cree este archivo de indicador en la raíz del proyecto:",
-    "howToUnlockArg": "O reinicie el servicio con este argumento:"
+    "title": "Centro de configuracion no disponible",
+    "howToUnlockFile": "Elimine `{runtime-dir}/install.lock` y reinicie FileUni:",
+    "howToUnlockArg": "El centro de configuracion se abre automaticamente cuando falta `install.lock`."
   },
   "profile": {
     "title": "Seleccione el perfil de rendimiento",

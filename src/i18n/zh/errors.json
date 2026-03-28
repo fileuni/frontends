@@ -13,7 +13,7 @@
   "CONFIG_TEMPLATE_UNAVAILABLE": "配置模板提供器不可用",
   "CONFIG_RELOAD_FAILED": "配置重载失败",
   "MISSING_REQUIRED_CONFIG": "缺少必填配置项",
-  "SETUP_SECURITY_VIOLATION": "初始化阶段安全校验失败",
+  "SETUP_SECURITY_VIOLATION": "配置安全校验失败",
   "DATABASE_CONNECTION_FAILED": "数据库连接失败",
   "KV_CONNECTION_FAILED": "键值存储连接失败",
   "MULTIPART_PARSE_FAILED": "上传数据解析失败",

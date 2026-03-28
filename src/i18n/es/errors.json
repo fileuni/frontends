@@ -13,7 +13,7 @@
   "CONFIG_TEMPLATE_UNAVAILABLE": "El proveedor de plantilla de configuración no está disponible",
   "CONFIG_RELOAD_FAILED": "No se pudo recargar la configuración",
   "MISSING_REQUIRED_CONFIG": "Falta configuración requerida",
-  "SETUP_SECURITY_VIOLATION": "Falló la validación de seguridad del asistente",
+  "SETUP_SECURITY_VIOLATION": "Fallo la validacion de seguridad de la configuracion",
   "DATABASE_CONNECTION_FAILED": "Falló la conexión a la base de datos",
   "KV_CONNECTION_FAILED": "Falló la conexión al almacenamiento KV",
   "MULTIPART_PARSE_FAILED": "No se pudo analizar la carga multipart",
