@@ -19,7 +19,7 @@ This project builds a single static dist that is used by:
 | `src/i18n/` | i18n resources (`en/`, `zh/`) |
 | `public/` | Static assets copied into dist |
 | `openapi.json` | Local backend OpenAPI snapshot for type generation (ignored by git) |
-| `openapi-config-set.json` | Local setup-wizard OpenAPI snapshot for type generation (ignored by git) |
+| `openapi-config-set.json` | Local settings-center OpenAPI snapshot for type generation (ignored by git) |
 
 ## Commands
 

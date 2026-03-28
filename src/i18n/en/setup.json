@@ -1,11 +1,11 @@
 {
   "wizard": {
-    "title": "Welcome to FileUni Setup",
-    "subtitle": "Follow a few simple steps to get started"
+    "title": "Welcome to FileUni Settings Center",
+    "subtitle": "Finish the first-time settings to get started"
   },
   "guide": {
-    "badge": "First-Time Setup",
-    "title": "Set up FileUni in three simple steps",
+    "badge": "First-Time Settings",
+    "title": "Finish first-time settings in three simple steps",
     "desc": "If this is your first time, keeping the default choices is usually the best option. FileUni starts with a beginner-friendly setup, and you can fine-tune everything later.",
     "card1Title": "Choose where things are saved",
     "card1Desc": "Pick the single runtime directory where FileUni should keep its settings and data.",
@@ -16,7 +16,7 @@
     "card2Action": "Set password",
     "card2Hint": "Set the admin sign-in password.",
     "card3Title": "Finish and start using FileUni",
-    "card3Desc": "When setup is done, return to the launcher and start FileUni.",
+    "card3Desc": "When the initial settings are done, return to the launcher and start FileUni.",
     "card3Action": "Apply",
     "card3Hint": "Save your settings and continue.",
     "recommendedTitle": "Recommended for first-time users",
@@ -27,20 +27,20 @@
     "locationDesc": "This is only where FileUni will save things for you. You do not need to create any files by hand.",
     "commonActionsTitle": "Common settings",
     "openAction": "Open this item",
-    "requiredPrompt": "FileUni has not finished first-time setup yet. Continue now?"
+    "requiredPrompt": "FileUni has not finished the initial settings yet. Open Settings Center now?"
   },
   "editor": {
-    "title": "Setup Settings",
+    "title": "Settings Center",
     "check": "Check Settings",
-    "quickWizard": "Continue Quick Setup",
+    "quickWizard": "Continue Quick Settings",
     "showAdvanced": "Show Advanced Settings",
     "hideAdvanced": "Hide Advanced Settings",
     "visualMode": "Visual Editor",
     "sourceMode": "Text Editor",
     "rawHiddenTitle": "Edit the config text only if you need more control",
     "rawHiddenDesc": "During first-time setup, the quick setup flow above is usually enough. Open advanced settings only if you need more detailed control.",
-    "finishHint": "Confirm to finish setup.",
-    "backToWizard": "Back to Quick Setup",
+    "finishHint": "Confirm to finish the initial settings.",
+    "backToWizard": "Back to Quick Settings",
     "moreActionsTitle": "Other advanced entries",
     "moreActionsDesc": "License, storage, and external tool checks can usually wait until after setup is finished.",
     "showMoreActions": "Show more advanced entries",
@@ -63,9 +63,9 @@
     "review": "Review"
   },
   "locked": {
-    "title": "Setup Mode Locked",
-    "howToUnlockFile": "To unlock, create this flag file in the project root:",
-    "howToUnlockArg": "Or restart the service with this argument:"
+    "title": "Settings Center Unavailable",
+    "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
+    "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
   },
   "profile": {
     "title": "Select Performance Profile",
@@ -84,7 +84,7 @@
     }
   },
   "config": {
-    "title": "Environment Setup",
+    "title": "Environment Settings",
     "subtitle": "Configure your database and cache. DSN strings will be built automatically.",
     "changeProfile": "Change Profile",
     "dbDsn": "Database DSN",
@@ -233,19 +233,19 @@
     "password": "Secure Password",
     "suggestPassword": "Generate Random Password",
     "generate_password": "Generate Random Password",
-    "pendingHint": "Applies when setup is finished",
+    "pendingHint": "Applies when the initial settings are finished",
     "resetRuleHint": "If no administrator exists yet, apply will create an admin user named admin. If an administrator already exists, apply will reset the first administrator password to the password entered here.",
     "resetSuccessWithUser": "Admin password applied. Current admin username: {{username}}",
-    "finalConfirm": "Ready to finish setup",
-    "finalConfirmDesc": "Confirm to save your settings and finish setup. You can adjust more options later.",
-    "finish": "Finish Setup",
+    "finalConfirm": "Ready to finish settings",
+    "finalConfirmDesc": "Confirm to save your settings and finish the initial settings. You can adjust more options later.",
+    "finish": "Finish Settings",
     "changePassword": "Admin Settings",
     "passwordHintTitle": "Set the administrator sign-in password before finishing",
     "passwordHintDesc": "You will use this password the first time you sign in to the admin console.",
     "passwordHintAction": "Set Sign-In Password"
   },
   "final": {
-    "title": "Setup complete",
+    "title": "Settings complete",
     "subtitle": "Administrator account {{user}} is ready.",
     "adminCreatedDefault": "Created administrator {{user}} with the temporary password {{password}}. Please change it after your first sign-in.",
     "adminCreatedWithPassword": "Created administrator {{user}} with the password {{password}}.",
@@ -273,6 +273,6 @@
     "dbSuccess": "Database connection success!",
     "applyingConfig": "Applying configuration and syncing DB schema...",
     "setupFailed": "Deployment failed",
-    "setupSuccess": "Setup complete. Confirm to continue."
+    "setupSuccess": "Settings complete. Confirm to continue."
   }
 }

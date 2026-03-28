@@ -1,7 +1,7 @@
 {
   "wizard": {
-    "title": "FileUni Initialization",
-    "subtitle": "Finish system setup"
+    "title": "FileUni Settings Center",
+    "subtitle": "Finish the initial system settings"
   },
   "steps": {
     "step": "Step",
@@ -15,9 +15,9 @@
     "review": "Review"
   },
   "locked": {
-    "title": "Setup Mode Locked",
-    "howToUnlockFile": "To unlock, create this flag file in the project root:",
-    "howToUnlockArg": "Or restart the service with this argument:"
+    "title": "Settings Center Unavailable",
+    "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
+    "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
   },
   "profile": {
     "title": "Select Performance Profile",
@@ -36,7 +36,7 @@
     }
   },
   "config": {
-    "title": "Environment Setup",
+    "title": "Environment Settings",
     "subtitle": "Configure your database and cache. DSN strings will be built automatically.",
     "changeProfile": "Change Profile",
     "dbDsn": "Database DSN",
@@ -108,8 +108,8 @@
     "username": "Admin Username",
     "password": "Secure Password",
     "suggestPassword": "Generate Random Password",
-    "finalConfirm": "Final Confirmation",
-    "finalConfirmDesc": "Confirm to save your settings and finish setup.",
+    "finalConfirm": "Final Settings Review",
+    "finalConfirmDesc": "Confirm to save your settings and finish the initial system settings.",
     "finish": "Apply Configuration",
     "changePassword": "Set Admin Password",
     "pendingHint": "Takes effect after final apply",
@@ -118,7 +118,7 @@
     "passwordHintAction": "Set Admin Password"
   },
   "final": {
-    "title": "Everything is ready!",
+    "title": "System settings complete",
     "subtitle": "Administrator {{user}} has been granted full access.",
     "adminCreatedDefault": "Created administrator {{user}}. Default password: {{password}}.",
     "adminCreatedWithPassword": "Created administrator {{user}}. Password: {{password}}.",
@@ -140,7 +140,7 @@
     "dbSuccess": "Database connection success!",
     "applyingConfig": "Applying configuration and syncing DB schema...",
     "setupFailed": "Deployment failed",
-    "setupSuccess": "Setup complete. Confirm to return home.",
+    "setupSuccess": "System settings complete. Confirm to return home.",
     "failed": "Failed",
     "success": "Success"
   }

@@ -1,7 +1,7 @@
 {
   "wizard": {
-    "title": "系统初始化向导",
-    "subtitle": "完成系统初始化"
+    "title": "系统设置中心",
+    "subtitle": "完成首次系统设置"
   },
   "steps": {
     "step": "步骤",
@@ -15,9 +15,9 @@
     "review": "配置复核"
   },
   "locked": {
-    "title": "引导模式已锁定",
-    "howToUnlockFile": "如需解锁，请在项目根目录创建标志文件：",
-    "howToUnlockArg": "或者使用命令行参数重启："
+    "title": "设置中心暂不可用",
+    "howToUnlockFile": "删除 `{runtime-dir}/install.lock` 后重启 FileUni：",
+    "howToUnlockArg": "缺少 `install.lock` 时会自动打开设置中心。"
   },
   "profile": {
     "title": "选择性能画像",
@@ -36,7 +36,7 @@
     }
   },
   "config": {
-    "title": "系统环境配置",
+    "title": "系统环境设置",
     "subtitle": "配置您的数据库与缓存后端，系统将自动生成 DSN 连接串",
     "changeProfile": "重新选择画像",
     "dbDsn": "数据库连接串 (DSN)",
@@ -107,8 +107,8 @@
     "username": "管理员用户名",
     "password": "安全密码",
     "suggestPassword": "生成随机强密码",
-    "finalConfirm": "最后确认初始化",
-    "finalConfirmDesc": "确认后将保存当前设置并完成初始化。",
+    "finalConfirm": "最后确认设置",
+    "finalConfirmDesc": "确认后将保存当前设置并完成首次系统设置。",
     "finish": "开始应用配置",
     "changePassword": "设置管理员密码",
     "pendingHint": "最终应用后生效",
@@ -117,7 +117,7 @@
     "passwordHintAction": "设置管理员密码"
   },
   "final": {
-    "title": "初始化成功！",
+    "title": "系统设置完成",
     "subtitle": "管理员账号 {{user}} 已成功授权。",
     "adminCreatedDefault": "已新建管理员 {{user}}，初始密码为 {{password}}。",
     "adminCreatedWithPassword": "已新建管理员 {{user}}，密码为 {{password}}。",
@@ -139,7 +139,7 @@
     "dbSuccess": "数据库连接测试成功！",
     "applyingConfig": "正在应用配置并同步数据库表结构...",
     "setupFailed": "部署失败",
-    "setupSuccess": "初始化完成，请确认后返回首页。",
+    "setupSuccess": "系统设置已完成，请确认后返回首页。",
     "failed": "失败",
     "success": "成功"
   }
