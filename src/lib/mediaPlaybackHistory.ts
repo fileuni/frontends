@@ -110,6 +110,14 @@ export const removeMediaPlaybackRecord = (path: string) => {
   writeRecords(readRecords().filter((record) => record.path !== path));
 };
 
+export const clearMediaPlaybackRecords = (kind?: MediaPlaybackKind) => {
+  if (!kind) {
+    writeRecords([]);
+    return;
+  }
+  writeRecords(readRecords().filter((record) => record.kind !== kind));
+};
+
 export const resolveMediaResumePosition = (path: string, duration?: number) => {
   const record = getMediaPlaybackRecord(path);
   if (!record || record.completed) return 0;

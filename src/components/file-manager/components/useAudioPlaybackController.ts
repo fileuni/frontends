@@ -154,6 +154,14 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
   const lastVolumeRef = useRef(0.82);
   const restoredPathRef = useRef<string | null>(null);
   const lastPersistedSecondRef = useRef(-1);
+  const latestSnapshotRef = useRef<{
+    file: FileInfo | null;
+    currentTime: number;
+    duration: number;
+    title: string;
+    artist: string;
+    album?: string;
+  }>({ file: null, currentTime: 0, duration: 0, title: 'Audio', artist: 'FileUni' });
 
   const safeInitialIndex = clamp(initialIndex, 0, Math.max(playlist.length - 1, 0));
   const [currentIndex, setCurrentIndex] = useState(safeInitialIndex);
@@ -630,21 +638,33 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
   }, [activeFile, currentTime, isPlaying, persistPlaybackRecord]);
 
   useEffect(() => {
+    latestSnapshotRef.current = {
+      file: activeFile,
+      currentTime,
+      duration,
+      title: display.title,
+      artist: display.artist,
+      album: display.album,
+    };
+  }, [activeFile, currentTime, display.album, display.artist, display.title, duration]);
+
+  useEffect(() => {
     return () => {
-      if (activeFile && currentTime > 0) {
+      const latest = latestSnapshotRef.current;
+      if (latest.file && latest.currentTime > 0) {
         upsertMediaPlaybackRecord({
-          path: activeFile.path,
-          name: activeFile.name,
+          path: latest.file.path,
+          name: latest.file.name,
           kind: 'audio',
-          title: display.title,
-          subtitle: display.artist,
-          album: display.album,
-          position: currentTime,
-          duration,
+          title: latest.title,
+          subtitle: latest.artist,
+          album: latest.album,
+          position: latest.currentTime,
+          duration: latest.duration,
         });
       }
     };
-  }, [activeFile, currentTime, display.album, display.artist, display.title, duration]);
+  }, []);
 
   return {
     activeFile,

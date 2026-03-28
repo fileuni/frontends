@@ -445,6 +445,9 @@
     "unmute": "Son",
     "nowPlaying": "En cours de lecture",
     "queue": "File ({{count}})",
+    "recentlyPlayed": "Lecture récente",
+    "historyEmpty": "Aucun historique de lecture",
+    "resumeFrom": "Reprendre à",
     "audioEngine": "Lecteur audio professionnel",
     "videoEngine": "Moteur vidéo professionnel",
     "pdfEngine": "Moteur PDF natif"

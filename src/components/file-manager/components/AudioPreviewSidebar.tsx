@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type React from 'react';
 import type { FileInfo } from '../types/index.ts';
 import type { MediaPlaybackRecord } from '@/lib/mediaPlaybackHistory.ts';
-import { ListMusic, Loader2, Mic2, Pause } from 'lucide-react';
+import { ListMusic, Loader2, Mic2, Pause, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import { formatTime, getBaseName, type LyricsState } from './audioPreviewShared.ts';
 
@@ -15,6 +15,9 @@ interface AudioPreviewSidebarProps {
   isPlaying: boolean;
   lyricsState: LyricsState;
   onLyricSeek: (time: number) => void;
+  onClearRecentHistory: () => void;
+  onOpenRecentRecord: (path: string) => void;
+  onRemoveRecentRecord: (path: string) => void;
   onTrackSelect: (index: number) => void;
   playlist: FileInfo[];
   recentRecords: MediaPlaybackRecord[];
@@ -30,6 +33,9 @@ export const AudioPreviewSidebar = ({
   isPlaying,
   lyricsState,
   onLyricSeek,
+  onClearRecentHistory,
+  onOpenRecentRecord,
+  onRemoveRecentRecord,
   onTrackSelect,
   playlist,
   recentRecords,
@@ -156,17 +162,39 @@ export const AudioPreviewSidebar = ({
             <p className="text-sm font-black uppercase tracking-[0.28em]">{t('filemanager.player.recentlyPlayed')}</p>
             <p className={cn('text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{recentRecords.length > 0 ? t('filemanager.player.queue', { count: recentRecords.length }) : t('filemanager.player.historyEmpty')}</p>
           </div>
+          {recentRecords.length > 0 && (
+            <button
+              type="button"
+              onClick={onClearRecentHistory}
+              className={cn('inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors', isDark ? 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900')}
+              title={t('common.clear')}
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
         </div>
 
         <div className="custom-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
           {recentRecords.length === 0 && <p className={cn('px-2 py-8 text-center text-sm font-bold', isDark ? 'text-white/50' : 'text-slate-500')}>{t('filemanager.player.historyEmpty')}</p>}
           {recentRecords.map((record) => (
             <div key={record.path} className={cn('rounded-2xl border px-3 py-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-slate-50/80')}>
-              <p className="truncate text-sm font-bold">{record.title || record.name}</p>
-              <p className={cn('mt-1 truncate text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{record.subtitle || record.name}</p>
-              <div className={cn('mt-2 flex items-center justify-between text-xs font-mono', isDark ? 'text-white/35' : 'text-slate-400')}>
-                <span>{`${t('filemanager.player.resumeFrom')} ${formatTime(record.completed ? 0 : record.position)}`}</span>
-                <span>{record.progressPercent}%</span>
+              <div className="flex items-start gap-3">
+                <button type="button" onClick={() => onOpenRecentRecord(record.path)} className="min-w-0 flex-1 text-left">
+                  <p className="truncate text-sm font-bold">{record.title || record.name}</p>
+                  <p className={cn('mt-1 truncate text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{record.subtitle || record.name}</p>
+                  <div className={cn('mt-2 flex items-center justify-between text-xs font-mono', isDark ? 'text-white/35' : 'text-slate-400')}>
+                    <span>{`${t('filemanager.player.resumeFrom')} ${formatTime(record.completed ? 0 : record.position)}`}</span>
+                    <span>{record.progressPercent}%</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onRemoveRecentRecord(record.path)}
+                  className={cn('mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors', isDark ? 'text-white/45 hover:bg-white/10 hover:text-white' : 'text-slate-400 hover:bg-slate-200 hover:text-slate-700')}
+                  title={t('common.delete')}
+                >
+                  <Trash2 size={15} />
+                </button>
               </div>
             </div>
           ))}

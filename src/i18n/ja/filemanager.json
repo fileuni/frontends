@@ -445,6 +445,9 @@
     "unmute": "ミュート解除",
     "nowPlaying": "再生中",
     "queue": "キュー ({{count}})",
+    "recentlyPlayed": "最近再生した項目",
+    "historyEmpty": "再生履歴はまだありません",
+    "resumeFrom": "続きから再生",
     "audioEngine": "プロ向けオーディオプレーヤー",
     "videoEngine": "プロ向けビデオエンジン",
     "pdfEngine": "ネイティブ PDF エンジン"

@@ -486,6 +486,9 @@
     "unmute": "取消静音",
     "nowPlaying": "正在播放",
     "queue": "播放列表 ({{count}})",
+    "recentlyPlayed": "最近播放",
+    "historyEmpty": "还没有播放记录",
+    "resumeFrom": "上次播放到",
     "audioEngine": "专业音频播放器",
     "videoEngine": "专业视频引擎",
     "pdfEngine": "原生 PDF 引擎"

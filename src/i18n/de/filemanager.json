@@ -387,6 +387,9 @@
     "unmute": "Ton einschalten",
     "nowPlaying": "Jetzt läuft",
     "queue": "Warteschlange ({{count}})",
+    "recentlyPlayed": "Zuletzt abgespielt",
+    "historyEmpty": "Noch kein Wiedergabeverlauf",
+    "resumeFrom": "Fortsetzen ab",
     "audioEngine": "Professioneller Audio-Player",
     "videoEngine": "Professionelle Video-Engine",
     "pdfEngine": "Native PDF-Engine"

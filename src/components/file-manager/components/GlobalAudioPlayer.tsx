@@ -12,6 +12,7 @@ import {
   Play,
   SkipBack,
   SkipForward,
+  Trash2,
   Volume2,
   VolumeX,
   X,
@@ -19,7 +20,7 @@ import {
 import { cn } from '@/lib/utils.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { useTranslation } from 'react-i18next';
-import { useMediaPlaybackHistory } from '@/lib/mediaPlaybackHistory.ts';
+import { clearMediaPlaybackRecords, removeMediaPlaybackRecord, useMediaPlaybackHistory } from '@/lib/mediaPlaybackHistory.ts';
 import { formatTime } from './audioPreviewShared.ts';
 import { useAudioPlaybackController } from './useAudioPlaybackController.ts';
 
@@ -69,6 +70,19 @@ export const GlobalAudioPlayer = () => {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
     params.set('preview_path', currentTrack.path);
+    window.location.hash = params.toString();
+    close();
+  };
+
+  const handleOpenRecentRecord = (path: string) => {
+    const nextIndex = playlist.findIndex((track) => track.path === path);
+    if (nextIndex >= 0) {
+      controller.selectTrack(nextIndex);
+      return;
+    }
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    params.set('preview_path', path);
     window.location.hash = params.toString();
     close();
   };
@@ -234,13 +248,27 @@ export const GlobalAudioPlayer = () => {
               ) : (
                 <div className="custom-scrollbar max-h-52 space-y-2 overflow-y-auto p-3">
                   {recentRecords.length === 0 && <p className={cn('px-2 py-8 text-center text-sm font-bold', isDark ? 'text-white/55' : 'text-slate-500')}>{t('filemanager.player.historyEmpty')}</p>}
+                  {recentRecords.length > 0 && (
+                    <div className="flex justify-end pb-1">
+                      <Button variant="ghost" size="sm" className="h-8 rounded-full px-3 text-xs" onClick={() => clearMediaPlaybackRecords('audio')}>
+                        {t('common.clear')}
+                      </Button>
+                    </div>
+                  )}
                   {recentRecords.map((record) => (
                     <div key={record.path} className={cn('rounded-2xl border px-3 py-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white/70')}>
-                      <p className="truncate text-sm font-bold">{record.title || record.name}</p>
-                      <p className={cn('mt-1 truncate text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{record.subtitle || record.name}</p>
-                      <div className={cn('mt-2 flex items-center justify-between text-xs font-mono', isDark ? 'text-white/35' : 'text-slate-400')}>
-                        <span>{`${t('filemanager.player.resumeFrom')} ${formatTime(record.position)}`}</span>
-                        <span>{record.progressPercent}%</span>
+                      <div className="flex items-start gap-3">
+                        <button type="button" onClick={() => handleOpenRecentRecord(record.path)} className="min-w-0 flex-1 text-left">
+                          <p className="truncate text-sm font-bold">{record.title || record.name}</p>
+                          <p className={cn('mt-1 truncate text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{record.subtitle || record.name}</p>
+                          <div className={cn('mt-2 flex items-center justify-between text-xs font-mono', isDark ? 'text-white/35' : 'text-slate-400')}>
+                            <span>{`${t('filemanager.player.resumeFrom')} ${formatTime(record.position)}`}</span>
+                            <span>{record.progressPercent}%</span>
+                          </div>
+                        </button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0" onClick={() => removeMediaPlaybackRecord(record.path)} title={t('common.delete')}>
+                          <Trash2 size={14} />
+                        </Button>
                       </div>
                     </div>
                   ))}

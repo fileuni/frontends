@@ -4,7 +4,7 @@ import { Music4 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
-import { useMediaPlaybackHistory } from '@/lib/mediaPlaybackHistory.ts';
+import { clearMediaPlaybackRecords, removeMediaPlaybackRecord, useMediaPlaybackHistory } from '@/lib/mediaPlaybackHistory.ts';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { AudioPreviewMainPanel } from './AudioPreviewMainPanel.tsx';
 import { AudioPreviewSidebar } from './AudioPreviewSidebar.tsx';
@@ -31,6 +31,18 @@ export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, 
   const recentRecords = useMediaPlaybackHistory('audio')
     .filter((record) => record.path !== controller.activeFile?.path)
     .slice(0, 6);
+
+  const openRecentRecord = (path: string) => {
+    const nextIndex = playlist.findIndex((track) => track.path === path);
+    if (nextIndex >= 0) {
+      controller.selectTrack(nextIndex);
+      return;
+    }
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    params.set('preview_path', path);
+    window.location.hash = params.toString();
+  };
 
   useEffect(() => {
     if (controller.activeLyricIndex < 0) return;
@@ -116,7 +128,10 @@ export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, 
             isDark={isDark}
             isPlaying={controller.isPlaying}
             lyricsState={controller.lyricsState}
+            onClearRecentHistory={() => clearMediaPlaybackRecords('audio')}
             onLyricSeek={controller.jumpToLyric}
+            onOpenRecentRecord={openRecentRecord}
+            onRemoveRecentRecord={removeMediaPlaybackRecord}
             onTrackSelect={controller.selectTrack}
             playlist={playlist}
             recentRecords={recentRecords}

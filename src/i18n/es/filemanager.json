@@ -445,6 +445,9 @@
     "unmute": "Activar sonido",
     "nowPlaying": "Reproduciendo",
     "queue": "Cola ({{count}})",
+    "recentlyPlayed": "Reproducido recientemente",
+    "historyEmpty": "Todavía no hay historial de reproducción",
+    "resumeFrom": "Continuar desde",
     "audioEngine": "Reproductor de audio profesional",
     "videoEngine": "Motor de vídeo profesional",
     "pdfEngine": "Motor PDF nativo"
