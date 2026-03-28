@@ -1,6 +1,6 @@
 {
   "setup": {
-    "wizard": {
+    "center": {
       "title": "Welcome to FileUni Settings Center",
       "subtitle": "Finish the first-time settings to get started"
     },

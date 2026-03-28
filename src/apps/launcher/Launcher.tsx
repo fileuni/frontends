@@ -1420,7 +1420,7 @@ export function Launcher() {
           <div className="w-full max-w-lg rounded-3xl border border-amber-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
             <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
               <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
-                {t('setup.wizard.title')}
+                {t('setup.center.title')}
               </h2>
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5 space-y-4">
