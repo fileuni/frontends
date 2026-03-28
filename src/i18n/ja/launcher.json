@@ -14,7 +14,7 @@
   "external_config": "外部で設定を編集",
   "refresh": "更新",
   "help": "ヘルプ",
-  "setup_wizard": "セットアップウィザード",
+  "setup_wizard": "設定センター",
   "exit_setup": "セットアップを終了",
   "nixos_detected": "NixOS を検出",
   "nixos_desc": "NixOS では、Nix 設定でサービスを管理することを推奨します。",
