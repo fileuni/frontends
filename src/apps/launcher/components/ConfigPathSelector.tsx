@@ -136,7 +136,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
   return (
     <div
       className={cn(
-        'fixed inset-0 backdrop-blur-2xl flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in duration-300',
+        'fixed inset-0 backdrop-blur-2xl flex items-center justify-center z-[220] p-2 sm:p-4 animate-in fade-in duration-300',
         isDark ? 'bg-black/95' : 'bg-slate-900/80'
       )}
       role="dialog"

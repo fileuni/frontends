@@ -47,6 +47,7 @@
   "config_file_path": "Ruta del archivo de configuración",
   "change_config": "Cambiar configuración",
   "modify_runtime_dirs": "Modificar directorio de ejecución",
+  "runtime_dir_change_hint": "Para cambiar esta ubicación, inicie FileUni con --runtime-dir o use --service-workdir al instalar el servicio.",
   "runtime_paths": "Directorio de ejecución",
   "runtime_config_missing_title": "Falta el archivo de configuración",
   "runtime_config_missing_prompt": "No se encontró un archivo de configuración en {{path}}. ¿Crearlo ahora y continuar?",

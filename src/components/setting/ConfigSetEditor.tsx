@@ -8,12 +8,13 @@ import type { ConfigError, ConfigNoteEntry } from '@/components/setting/ConfigRa
 import { ConfigWorkbenchShell } from '@/components/setting/ConfigWorkbenchShell';
 import { SettingWorkbenchSurface } from '@/components/setting/SettingWorkbenchSurface';
 import { SettingSurfaceControls } from '@/components/setting/SettingSurfaceControls';
+import { ConfigPathActionButton } from '@/components/setting/ConfigPathActionButton';
 import type { ExternalToolDiagnosisResponse } from '@/components/setting/ExternalDependencyConfigModal';
 import { buildSettingCommonActions } from '@/components/setting/SettingCommonActions';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useToastStore } from '@/stores/toast';
 import { client, extractData, handleApiError } from '@/lib/api';
-import { CheckCircle, Pencil, ShieldAlert } from 'lucide-react';
+import { CheckCircle, ShieldAlert } from 'lucide-react';
 
 type ConfigSetStatusResponse = ConfigSetComponents['schemas']['ConfigSetStatusResponse'];
 type ConfigTemplateResponse = ConfigSetComponents['schemas']['ConfigTemplateResponse'];
@@ -348,6 +349,13 @@ export const ConfigSetEditor: React.FC = () => {
             ? t('configSet.final.adminExisting', { user: adminUsername })
             : '');
 
+  const handleConfigPathAction = () => {
+    void addToast(
+      t('launcher.runtime_dir_change_hint'),
+      { type: 'info', duration: 'long' },
+    );
+  };
+
   const settingActions = buildSettingCommonActions({
     t,
     isDark,
@@ -402,6 +410,7 @@ export const ConfigSetEditor: React.FC = () => {
       <ConfigWorkbenchShell
         title={t('admin.config.title')}
         configPath={configPath}
+        configPathAction={<ConfigPathActionButton onClick={handleConfigPathAction} label={t('setup.guide.card1Action')} />}
         headerActions={headerActions}
       >
         <div className="max-w-2xl mx-auto p-6 sm:p-8 bg-card border-2 border-emerald-500/20 rounded-3xl sm:rounded-[2.5rem] text-center shadow-2xl">
@@ -439,19 +448,7 @@ export const ConfigSetEditor: React.FC = () => {
     <SettingWorkbenchSurface
       title={t('admin.config.title')}
       configPath={configPath}
-      configPathAction={
-        <button
-          type="button"
-          onClick={() => {
-            void addToast('CLI/Web: restart FileUni with --runtime-dir <path> to change the runtime directory.', { type: 'info', duration: 'long' });
-          }}
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-300 bg-cyan-50 text-cyan-900 shadow-sm transition-all hover:bg-cyan-100 dark:border-cyan-400/30 dark:bg-cyan-500/10 dark:text-cyan-100 dark:hover:bg-cyan-500/20"
-          aria-label={t('setup.guide.card1Action')}
-          title={t('setup.guide.card1Action')}
-        >
-          <Pencil size={16} />
-        </button>
-      }
+      configPathAction={<ConfigPathActionButton onClick={handleConfigPathAction} label={t('setup.guide.card1Action')} />}
       headerExtras={headerActions}
       settingActions={settingActions}
       testAction={{

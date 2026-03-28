@@ -9,6 +9,7 @@ import type {
   ConfigNoteEntry as SharedConfigNoteEntry,
 } from '@/components/setting/ConfigRawEditor';
 import { SettingWorkbenchSurface } from '@/components/setting/SettingWorkbenchSurface';
+import { ConfigPathActionButton } from '@/components/setting/ConfigPathActionButton';
 import { buildSettingCommonActions } from '@/components/setting/SettingCommonActions';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useToastStore } from '@/stores/toast';
@@ -386,11 +387,19 @@ export const SystemConfigAdmin = () => {
     },
   });
 
+  const handleConfigPathAction = () => {
+    void addToast(
+      t('launcher.runtime_dir_change_hint'),
+      { type: 'info', duration: 'long' },
+    );
+  };
+
   return (
     <AdminPage>
       <SettingWorkbenchSurface
         title={t('admin.config.title')}
         configPath={configPath}
+        configPathAction={<ConfigPathActionButton onClick={handleConfigPathAction} label={t('setup.guide.card1Action')} />}
         settingActions={settingActions}
         testAction={{
           label: t('setup.editor.check'),

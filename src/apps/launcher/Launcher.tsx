@@ -5,7 +5,6 @@ import {
   Zap,
   FileText,
   Info,
-  Pencil,
 } from 'lucide-react';
 import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo } from '@/components/modals/AboutModal';
 import { ToastContainer, ToastI18nContext } from '@/components/ui/Toast';
@@ -15,6 +14,7 @@ import { useLanguageStore } from '@/stores/language';
 import type { ConfigError, ConfigNoteEntry } from '@/components/setting/ConfigRawEditor';
 import { SettingWorkbenchSurface } from '@/components/setting/SettingWorkbenchSurface';
 import { SettingSurfaceControls } from '@/components/setting/SettingSurfaceControls';
+import { ConfigPathActionButton } from '@/components/setting/ConfigPathActionButton';
 import type { ExternalToolDiagnosisResponse } from '@/components/setting/ExternalDependencyConfigModal';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
@@ -216,6 +216,11 @@ export function Launcher() {
       const payload = await safeInvoke<LicenseStatusPayload>('get_license_status');
       setLicenseStatus(payload);
     } catch (error: unknown) {
+      const message = extractErrorMessage(error);
+      if (message.includes('RUNTIME_INIT_REQUIRED') || message.includes('missing config file')) {
+        setLicenseStatus(null);
+        return;
+      }
       console.error('Failed to load license status:', error);
     }
   };
@@ -395,6 +400,7 @@ export function Launcher() {
     try {
       const inspected = await bindRuntimeDir(nextRuntimeDir);
       await inspectInstallationState(inspected.runtime_dir);
+      setIsEditingConfig(false);
       setShowConfigSelector(false);
       toast.success(t('launcher.messages.config_set_success'));
     } catch (e: unknown) {
@@ -936,17 +942,7 @@ export function Launcher() {
               <SettingWorkbenchSurface
                 title={t('admin.config.title')}
                 configPath={configFilePath}
-                configPathAction={
-                  <button
-                    type="button"
-                    onClick={() => { void handleSetupRuntimeAction(); }}
-                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-300 bg-cyan-50 text-cyan-900 shadow-sm transition-all hover:bg-cyan-100 dark:border-cyan-400/30 dark:bg-cyan-500/10 dark:text-cyan-100 dark:hover:bg-cyan-500/20"
-                    aria-label={t('setup.guide.card1Action')}
-                    title={t('setup.guide.card1Action')}
-                  >
-                    <Pencil size={16} />
-                  </button>
-                }
+                configPathAction={<ConfigPathActionButton onClick={() => { void handleSetupRuntimeAction(); }} label={t('launcher.modify_runtime_dirs')} />}
                 headerExtras={<SettingSurfaceControls compact={true} />}
                 settingActions={settingActions}
                 testAction={{
@@ -1351,6 +1347,7 @@ export function Launcher() {
           <SettingWorkbenchSurface
             title={t('launcher.edit_config')}
             configPath={configFilePath}
+            configPathAction={<ConfigPathActionButton onClick={() => { void handleSetupRuntimeAction(); }} label={t('launcher.modify_runtime_dirs')} />}
             headerExtras={<SettingSurfaceControls compact={true} />}
             onClose={handleCloseConfigEditor}
             closeAriaLabel={t('common.close')}

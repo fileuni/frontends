@@ -13,6 +13,7 @@
     "password_mismatch": "Passwörter stimmen nicht überein"
   },
   "save_config": "Speichern",
+  "runtime_dir_change_hint": "Um diesen Speicherort zu ändern, starten Sie FileUni mit --runtime-dir oder verwenden Sie --service-workdir bei der Dienstinstallation.",
   "confirm_password": "Passwort bestätigen",
   "install_level_user": "Benutzer"
 }

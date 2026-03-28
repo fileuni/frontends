@@ -47,6 +47,7 @@
   "config_file_path": "設定ファイルのパス",
   "change_config": "設定を変更",
   "modify_runtime_dirs": "ランタイムディレクトリを変更",
+  "runtime_dir_change_hint": "この場所を変更するには、FileUni を --runtime-dir 付きで起動するか、サービスのインストール時に --service-workdir を使用してください。",
   "runtime_paths": "実行ディレクトリ",
   "runtime_config_missing_title": "設定ファイルがありません",
   "runtime_config_missing_prompt": "{{path}} に設定ファイルが見つかりません。今すぐ作成して続行しますか？",
