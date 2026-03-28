@@ -90,7 +90,7 @@ export interface SystemConfigWorkbenchProps {
   adminPasswordPanelProps?: Partial<import('./AdminPasswordPanel').AdminPasswordPanelProps>;
   onPickStorageDirectory?: import('./VfsStorageConfigModal').VfsStorageConfigModalProps['onPickDirectory'];
   onDiagnoseExternalTools?: (configuredValues: Record<string, string>) => Promise<ExternalToolDiagnosisResponse>;
-  setupMode?: boolean;
+  settingsCenterMode?: boolean;
   editorTitle?: string;
   testLabel?: string;
   onSetupActionsReady?: (actions: SetupActionHandles) => void;
@@ -140,7 +140,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   adminPasswordPanelProps,
   onPickStorageDirectory,
   onDiagnoseExternalTools,
-  setupMode = false,
+  settingsCenterMode = false,
   editorTitle,
   testLabel,
   onSetupActionsReady,
@@ -159,7 +159,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const [isThumbnailToolsOpen, setIsThumbnailToolsOpen] = useState(false);
   const [isCompressionToolsOpen, setIsCompressionToolsOpen] = useState(false);
   const [jumpTo, setJumpTo] = useState<EditorJumpPosition | null>(null);
-  const [showRawEditor, setShowRawEditor] = useState(!setupMode);
+  const [showRawEditor, setShowRawEditor] = useState(!settingsCenterMode);
   const [showSetupAdvancedActions, setShowSetupAdvancedActions] = useState(false);
   const resolvedTheme = useResolvedTheme();
 
@@ -171,32 +171,32 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const isSaveDisabled = !forceEnableSave && !allowSaveWithoutChanges && !isDirty;
 
   useEffect(() => {
-    if (!setupMode) {
+    if (!settingsCenterMode) {
       setShowRawEditor(true);
       setShowSetupAdvancedActions(false);
       setIsQuickWizardOpen(false);
     }
-  }, [setupMode]);
+  }, [settingsCenterMode]);
 
   useEffect(() => {
-    if (setupMode && validationErrors.length > 0) {
+    if (settingsCenterMode && validationErrors.length > 0) {
       setShowRawEditor(true);
     }
-  }, [setupMode, validationErrors.length]);
+  }, [settingsCenterMode, validationErrors.length]);
 
   useEffect(() => {
-    if (!setupMode || !setupViewMode) {
+    if (!settingsCenterMode || !setupViewMode) {
       return;
     }
     setShowRawEditor(setupViewMode === 'raw');
-  }, [setupMode, setupViewMode]);
+  }, [settingsCenterMode, setupViewMode]);
 
   useEffect(() => {
-    if (!setupMode) {
+    if (!settingsCenterMode) {
       return;
     }
     onSetupViewChange?.(showRawEditor ? 'raw' : 'visual');
-  }, [onSetupViewChange, setupMode, showRawEditor]);
+  }, [onSetupViewChange, settingsCenterMode, showRawEditor]);
 
   const openQuickWizardAt = useCallback((step: FriendlyStep) => {
     setQuickWizardInitialStep(step);
@@ -275,7 +275,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
 
   const actionButtons = (
     <div className="flex items-center gap-2 flex-wrap">
-      {quickWizardEnabled && (!setupMode || showRawEditor) && (
+      {quickWizardEnabled && (!settingsCenterMode || showRawEditor) && (
         <button
           type="button"
           className={cn(
@@ -287,7 +287,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           onClick={() => setIsQuickWizardOpen(true)}
         >
           <WandSparkles size={18} className="text-primary" />
-          {setupMode ? t('setup.editor.quickWizard') : t('admin.config.quickWizard.title')}
+          {settingsCenterMode ? t('setup.editor.quickWizard') : t('admin.config.quickWizard.title')}
         </button>
       )}
     </div>
@@ -305,7 +305,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        {quickWizardEnabled && !setupMode && (
+        {quickWizardEnabled && !settingsCenterMode && (
           <button
             type="button"
             className={cn(
@@ -319,7 +319,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {quickWizardEnabled && !setupMode && (
+        {quickWizardEnabled && !settingsCenterMode && (
           <button
             type="button"
             className={cn(
@@ -333,7 +333,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {quickWizardEnabled && !setupMode && (
+        {quickWizardEnabled && !settingsCenterMode && (
           <button
             type="button"
             className={cn(
@@ -347,7 +347,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {onResetAdminPassword && !setupMode && (
+        {onResetAdminPassword && !settingsCenterMode && (
           <button
             type="button"
             className={cn(
@@ -361,7 +361,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {!setupMode && quickWizardLicense && (
+        {!settingsCenterMode && quickWizardLicense && (
           <button
             type="button"
             className={cn(
@@ -375,7 +375,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {!setupMode && (
+        {!settingsCenterMode && (
         <button
           type="button"
           className={cn(
@@ -389,7 +389,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           </button>
         )}
 
-        {!setupMode && (
+        {!settingsCenterMode && (
         <button
           type="button"
           className={cn(
@@ -403,7 +403,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </button>
         )}
 
-        {!setupMode && (
+        {!settingsCenterMode && (
         <button
           type="button"
           className={cn(
@@ -418,7 +418,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         )}
       </div>
 
-      {setupMode && (
+      {settingsCenterMode && (
         <div className={cn(
           'mt-3 rounded-xl border p-3',
           isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-white'
@@ -597,7 +597,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </div>
       )}
 
-      {!setupMode && (
+      {!settingsCenterMode && (
         <div className={cn(
           "mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3 transition-colors",
           isDark ? "border-white/10 bg-black/20 shadow-none" : "border-slate-300 bg-slate-100/50 shadow-inner"
@@ -651,10 +651,10 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </div>
       )}
 
-      {!setupMode && !hideShortcuts && shortcuts}
+      {!settingsCenterMode && !hideShortcuts && shortcuts}
 
       <ConfigEditorPanel
-        configPath={hideEditorPath ? undefined : (setupMode ? undefined : (configPath || t('admin.config.pathUnavailable')))}
+        configPath={hideEditorPath ? undefined : (settingsCenterMode ? undefined : (configPath || t('admin.config.pathUnavailable')))}
         content={content}
         notes={notes}
         errors={validationErrors}
@@ -673,9 +673,9 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         isDark={isDark}
         actionsPrefix={quickWizardEnabled ? actionButtons : undefined}
         editorVisible={showRawEditor}
-        hideToolbarWhenCollapsed={setupMode}
+        hideToolbarWhenCollapsed={settingsCenterMode}
         showToolbar={!hideEditorToolbar}
-        collapsedContent={setupMode ? (
+        collapsedContent={settingsCenterMode ? (
           <div className="space-y-4">
             {quickWizardEnabled && (
               <ConfigQuickWizardModal
@@ -689,7 +689,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                 onOpenAdminPassword={onResetAdminPassword ? openAdminPassword : undefined}
                 onOpenLicenseManagement={quickWizardLicense ? openLicenseManagement : undefined}
                 onOpenStorageConfig={openStorageConfig}
-                setupMode={setupMode}
+                settingsCenterMode={settingsCenterMode}
                 embedded={true}
                 showDoneAction={false}
               />
@@ -723,7 +723,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           {...(onResetAdminPassword ? { onOpenAdminPassword: openAdminPassword } : {})}
           {...(quickWizardLicense ? { onOpenLicenseManagement: openLicenseManagement } : {})}
           onOpenStorageConfig={openStorageConfig}
-          setupMode={setupMode}
+          settingsCenterMode={settingsCenterMode}
         />
       )}
 

@@ -1443,7 +1443,7 @@ export interface ConfigQuickWizardModalProps {
   onOpenAdminPassword?: () => void;
   onOpenLicenseManagement?: () => void;
   onOpenStorageConfig?: () => void;
-  setupMode?: boolean;
+  settingsCenterMode?: boolean;
   embedded?: boolean;
   showDoneAction?: boolean;
 }
@@ -1460,7 +1460,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   onOpenAdminPassword,
   onOpenLicenseManagement,
   onOpenStorageConfig,
-  setupMode = false,
+  settingsCenterMode = false,
   embedded = false,
   showDoneAction = true,
 }) => {
@@ -1538,11 +1538,11 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     debounceMs: 220,
   });
   const previewDraft = useDeferredValue(draft);
-  const showTechnicalChoices = !setupMode || showSetupAdvanced;
+  const showTechnicalChoices = !settingsCenterMode || showSetupAdvanced;
   const isExternalDatabase = draft.databaseType === 'postgres';
   const isRedisLikeCache = draft.cacheType === 'valkey' || draft.cacheType === 'redis' || draft.cacheType === 'keydb';
   const isDashmapCache = draft.cacheType === 'dashmap';
-  const canInspectTechnicalPreview = !setupMode || showSetupAdvanced;
+  const canInspectTechnicalPreview = !settingsCenterMode || showSetupAdvanced;
   const previewIsRedisLikeCache = previewDraft.cacheType === 'valkey' || previewDraft.cacheType === 'redis' || previewDraft.cacheType === 'keydb';
 
   const currentPreset = useMemo(() => {
@@ -2000,7 +2000,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   }, [previewSimpleCards]);
 
   const renderSetupAdvancedToggle = useCallback(() => {
-    if (!setupMode) {
+    if (!settingsCenterMode) {
       return null;
     }
     return (
@@ -2034,7 +2034,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
         </div>
       </div>
     );
-  }, [isDark, setupMode, showSetupAdvanced, t]);
+  }, [isDark, settingsCenterMode, showSetupAdvanced, t]);
 
   const setupPanelClassName = cn(
     'rounded-3xl border p-4 sm:p-5 shadow-sm',
@@ -2060,7 +2060,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
   );
 
-  const setupModeContent = (
+  const settingsCenterModeContent = (
     <div className="space-y-4 sm:space-y-5">
       <section className={cn(
         'rounded-3xl border p-4 sm:p-5',
@@ -2589,8 +2589,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
           )}
 
           {!parseError && (
-            setupMode ? (
-              setupModeContent
+            settingsCenterMode ? (
+              settingsCenterModeContent
             ) : (
               <div className="space-y-4">
                 <div className={cn(
@@ -2930,7 +2930,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                     {draft.databaseType === 'sqlite' && (
                       <p className={cn("mt-2 text-sm", isDark ? "text-emerald-200/90" : "text-emerald-700")}>{t('admin.config.quickWizard.hints.sqliteSingleNode')}</p>
                     )}
-                    {setupMode && isExternalDatabase && !showTechnicalChoices && (
+                    {settingsCenterMode && isExternalDatabase && !showTechnicalChoices && (
                       <p className={cn("mt-2 text-sm", isDark ? "text-slate-400" : "text-slate-600")}>
                         {t('admin.config.quickWizard.setupHints.externalDatabase')}
                       </p>
@@ -3151,7 +3151,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                       {isDashmapCache && (
                         <p className={cn("mt-2 text-sm", isDark ? "text-emerald-200/90" : "text-emerald-700")}>{t('admin.config.quickWizard.hints.cacheDashmapLightweight')}</p>
                       )}
-                      {setupMode && isRedisLikeCache && !showTechnicalChoices && (
+                      {settingsCenterMode && isRedisLikeCache && !showTechnicalChoices && (
                         <p className={cn("mt-2 text-sm", isDark ? "text-slate-400" : "text-slate-600")}>
                           {t('admin.config.quickWizard.setupHints.externalCache')}
                         </p>
@@ -3390,7 +3390,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                       className="h-10 px-8 rounded-lg border border-primary bg-primary text-white text-sm sm:text-sm font-black disabled:opacity-40 shadow-lg shadow-primary/20 transition-all hover:opacity-90"
                       onClick={onClose}
                     >
-                        {t(setupMode ? 'admin.config.quickWizard.actions.doneSetup' : 'admin.config.quickWizard.actions.done')}
+                        {t(settingsCenterMode ? 'admin.config.quickWizard.actions.doneSetup' : 'admin.config.quickWizard.actions.done')}
                       </button>
                   ) : currentStepIndex >= friendlySteps.length - 1 ? (
                     <div className={cn(

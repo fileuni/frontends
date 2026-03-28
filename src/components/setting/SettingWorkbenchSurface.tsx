@@ -24,7 +24,7 @@ interface SettingWorkbenchSurfaceProps {
   settingActions: SettingActionItem[];
   testAction: HeaderAction;
   primaryAction: HeaderAction;
-  workbenchProps: Omit<SystemConfigWorkbenchProps, 'setupMode' | 'quickWizardEnabled' | 'hideShortcuts' | 'hideEditorToolbar' | 'hideEditorPath' | 'setupViewMode' | 'onSetupViewChange'>;
+  workbenchProps: Omit<SystemConfigWorkbenchProps, 'settingsCenterMode' | 'quickWizardEnabled' | 'hideShortcuts' | 'hideEditorToolbar' | 'hideEditorPath' | 'setupViewMode' | 'onSetupViewChange'>;
 }
 
 export const SettingWorkbenchSurface: React.FC<SettingWorkbenchSurfaceProps> = ({
@@ -106,7 +106,7 @@ export const SettingWorkbenchSurface: React.FC<SettingWorkbenchSurfaceProps> = (
         <SystemConfigWorkbench
           {...workbenchProps}
           quickWizardEnabled={false}
-          setupMode={false}
+          settingsCenterMode={false}
           setupViewMode={viewMode}
           onSetupViewChange={(mode) => setViewMode(mode)}
           hideShortcuts={true}

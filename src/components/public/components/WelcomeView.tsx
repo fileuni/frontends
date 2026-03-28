@@ -23,7 +23,7 @@ export const WelcomeView = () => {
   const resolvedTheme = useResolvedTheme();
   const { isLoggedIn, usersMap, _hasHydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
-  const [setupMode, setSetupMode] = useState(false);
+  const [settingsCenterMode, setSetupMode] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const savedUsers = Object.values(usersMap);
@@ -58,7 +58,7 @@ export const WelcomeView = () => {
       </div>
     );
 
-  if (setupMode) {
+  if (settingsCenterMode) {
     return (
       <div className="min-h-screen bg-background px-2 py-2 sm:px-4 sm:py-4">
         <ConfigSetEditor />

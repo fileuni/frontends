@@ -36,8 +36,8 @@ export const App: React.FC = () => {
   const { currentUserId, isLoggedIn } = useAuthStore();
   const { capabilities, fetchCapabilities } = useConfigStore();
   const { fetchEntitlements, clear: clearEntitlements, hasPermission } = useAuthzStore();
-  const isSetupMode = capabilities?.is_config_set_mode === true;
-  const canInitFeatures = Boolean(capabilities) && !isSetupMode;
+  const isSettingsCenterMode = capabilities?.is_config_set_mode === true;
+  const canInitFeatures = Boolean(capabilities) && !isSettingsCenterMode;
 
   React.useEffect(() => {
     void fetchCapabilities();

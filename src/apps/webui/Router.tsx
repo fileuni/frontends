@@ -61,7 +61,7 @@ export const AppRouter: React.FC = () => {
   const { t } = useTranslation();
   const { hasPermission } = useAuthzStore();
   const { capabilities } = useConfigStore();
-  const isSetupMode = capabilities?.is_config_set_mode === true;
+  const isSettingsCenterMode = capabilities?.is_config_set_mode === true;
 
   const mod = params.mod || 'public';
   const page = params.page || 'index';
@@ -73,7 +73,7 @@ export const AppRouter: React.FC = () => {
     </div>
   );
 
-  if (isSetupMode) {
+  if (isSettingsCenterMode) {
     return (
       <Suspense fallback={fallback}>
         <WelcomeView />
