@@ -112,8 +112,8 @@ export const parseThumbnailDraft = (content: string, tomlAdapter: TomlAdapter): 
     const parsed = tomlAdapter.parse(content);
     if (!isRecord(parsed)) return DEFAULT_THUMBNAIL_DRAFT;
     const root = parsed;
-    const fileManagerApi = isRecord(root.file_manager_api) ? root.file_manager_api : {};
-    const thumbnail = isRecord(fileManagerApi.thumbnail) ? fileManagerApi.thumbnail : {};
+    const vfsStorageHub = isRecord(root.vfs_storage_hub) ? root.vfs_storage_hub : {};
+    const thumbnail = isRecord(vfsStorageHub.thumbnail) ? vfsStorageHub.thumbnail : {};
     const image = isRecord(thumbnail.image) ? thumbnail.image : {};
     const tools = isRecord(thumbnail.tools) ? thumbnail.tools : {};
     const video = isRecord(thumbnail.video) ? thumbnail.video : {};
@@ -154,10 +154,10 @@ export const parseCompressionDraft = (content: string, tomlAdapter: TomlAdapter)
 };
 
 const buildThumbnailConfiguredValues = (draft: ThumbnailDraft): Record<string, string> => ({
-  'file_manager_api.thumbnail.tools.vips_path': draft.vipsPath.trim(),
-  'file_manager_api.thumbnail.tools.imagemagick_path': draft.imagemagickPath.trim(),
-  'file_manager_api.thumbnail.tools.ffmpeg_path': draft.ffmpegPath.trim(),
-  'file_manager_api.thumbnail.tools.libreoffice_path': draft.libreofficePath.trim(),
+  'vfs_storage_hub.thumbnail.tools.vips_path': draft.vipsPath.trim(),
+  'vfs_storage_hub.thumbnail.tools.imagemagick_path': draft.imagemagickPath.trim(),
+  'vfs_storage_hub.thumbnail.tools.ffmpeg_path': draft.ffmpegPath.trim(),
+  'vfs_storage_hub.thumbnail.tools.libreoffice_path': draft.libreofficePath.trim(),
 });
 
 const buildCompressionConfiguredValues = (draft: CompressionDraft): Record<string, string> => ({
@@ -173,8 +173,8 @@ export const applyThumbnailDraft = (content: string, tomlAdapter: TomlAdapter, d
     throw new Error('TOML root must be an object');
   }
   const next = deepClone(parsed);
-  const fileManagerApi = ensureRecord(next, 'file_manager_api');
-  const thumbnail = ensureRecord(fileManagerApi, 'thumbnail');
+  const vfsStorageHub = ensureRecord(next, 'vfs_storage_hub');
+  const thumbnail = ensureRecord(vfsStorageHub, 'thumbnail');
   const image = ensureRecord(thumbnail, 'image');
   const tools = ensureRecord(thumbnail, 'tools');
   const video = ensureRecord(thumbnail, 'video');
