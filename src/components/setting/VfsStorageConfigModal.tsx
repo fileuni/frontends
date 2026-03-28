@@ -70,37 +70,16 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     null,
   );
   const isDark = resolvedTheme === "dark";
+  const hasDirectoryPicker = Boolean(onPickDirectory);
 
   const [tab, setTab] = useState<ActiveTab>("pools");
   const [view, setView] = useState<ViewMode>("main");
-  const [connectors, setConnectors] = useState<ConnectorDraft[]>([]);
-  const [pools, setPools] = useState<PoolDraft[]>([]);
-  const [defaultPool, setDefaultPool] = useState("");
-  const [policies, setPolicies] = useState<PolicyDraft[]>([]);
-  const [cacheSection, setCacheSection] = useState<CacheSectionDraft>({
-    readEnable: false,
-    readBackend: "memory",
-    readLocalDir: "{RUNTIMEDIR}/cache/vfs-read",
-    readCapacityBytes: "134217728",
-    readMaxFileSizeBytes: "2097152",
-    readTtlSecs: "1800",
-    writeEnable: false,
-    writeBackend: "local_dir",
-    writeLocalDir: "{RUNTIMEDIR}/cache/vfs-write",
-    writeCapacityBytes: "100663296",
-    writeMaxFileSizeBytes: "262144",
-    writeFlushConcurrency: "2",
-    writeFlushIntervalMs: "30",
-    writeFlushDeadlineSecs: "360",
-  });
-  const [archiveSection, setArchiveSection] = useState<ArchiveSectionDraft>({
-    enable: false,
-    exe7zipPath: "7z",
-    defaultCompressionFormat: "zip",
-    maxConcurrency: "2",
-    maxCpuThreads: "2",
-    timeoutSecs: "300",
-  });
+  const [connectors, setConnectors] = useState<ConnectorDraft[]>(() => buildDefaultVfsStorageState().connectors);
+  const [pools, setPools] = useState<PoolDraft[]>(() => buildDefaultVfsStorageState().pools);
+  const [defaultPool, setDefaultPool] = useState(() => buildDefaultVfsStorageState().defaultPool);
+  const [policies, setPolicies] = useState<PolicyDraft[]>(() => buildDefaultVfsStorageState().policies);
+  const [cacheSection, setCacheSection] = useState<CacheSectionDraft>(() => buildDefaultVfsStorageState().cacheSection);
+  const [archiveSection, setArchiveSection] = useState<ArchiveSectionDraft>(() => buildDefaultVfsStorageState().archiveSection);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
@@ -113,73 +92,13 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
     setValidationErrors([]);
-    const parsed = parseVfsDraftFromContent(content, tomlAdapter);
+    const parsed = parseVfsStorageDraftFromContent(content, tomlAdapter);
     setConnectors(parsed.connectors);
     setPools(parsed.pools);
     setDefaultPool(parsed.defaultPool);
     setPolicies(parsed.policies);
-    try {
-      const root = tomlAdapter.parse(content);
-      if (isRecord(root)) {
-        const hub = isRecord(root.vfs_storage_hub) ? root.vfs_storage_hub : {};
-        const readCache = isRecord(hub.read_cache) ? hub.read_cache : {};
-        const writeCache = isRecord(hub.write_cache) ? hub.write_cache : {};
-        const fileCompress = isRecord(hub.file_compress)
-          ? hub.file_compress
-          : {};
-        setCacheSection({
-          readEnable:
-            typeof readCache.enable === "boolean" ? readCache.enable : false,
-          readBackend:
-            readCache.backend === "local_dir" ? "local_dir" : "memory",
-          readLocalDir:
-            typeof readCache.local_dir === "string"
-              ? readCache.local_dir
-              : "{RUNTIMEDIR}/cache/vfs-read",
-          readCapacityBytes: String(readCache.capacity_bytes ?? 134217728),
-          readMaxFileSizeBytes: String(
-            readCache.max_file_size_bytes ?? 2097152,
-          ),
-          readTtlSecs: String(readCache.ttl_secs ?? 1800),
-          writeEnable:
-            typeof writeCache.enable === "boolean" ? writeCache.enable : false,
-          writeBackend:
-            writeCache.backend === "memory" ? "memory" : "local_dir",
-          writeLocalDir:
-            typeof writeCache.local_dir === "string"
-              ? writeCache.local_dir
-              : "{RUNTIMEDIR}/cache/vfs-write",
-          writeCapacityBytes: String(writeCache.capacity_bytes ?? 100663296),
-          writeMaxFileSizeBytes: String(
-            writeCache.max_file_size_bytes ?? 262144,
-          ),
-          writeFlushConcurrency: String(writeCache.flush_concurrency ?? 2),
-          writeFlushIntervalMs: String(writeCache.flush_interval_ms ?? 30),
-          writeFlushDeadlineSecs: String(writeCache.flush_deadline_secs ?? 360),
-        });
-        setArchiveSection({
-          enable:
-            typeof fileCompress.enable === "boolean"
-              ? fileCompress.enable
-              : false,
-          exe7zipPath:
-            typeof fileCompress.exe_7zip_path === "string"
-              ? fileCompress.exe_7zip_path
-              : "7z",
-          defaultCompressionFormat:
-            typeof fileCompress.default_compression_format === "string"
-              ? fileCompress.default_compression_format
-              : "zip",
-          maxConcurrency: String(
-            fileCompress.process_manager_max_concurrency ?? 2,
-          ),
-          maxCpuThreads: String(fileCompress.max_cpu_threads ?? 2),
-          timeoutSecs: String(fileCompress.timeout_secs ?? 300),
-        });
-      }
-    } catch {
-      // ignore
-    }
+    setCacheSection(parsed.cacheSection);
+    setArchiveSection(parsed.archiveSection);
     setError(parsed.error);
     setView("main");
     setTab("pools");
@@ -216,7 +135,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     [t],
   );
 
-  const applyToConfig = () => {
+  const applyToConfig = useCallback(() => {
     setValidationErrors([]);
     if (error) {
       setValidationErrors([
@@ -226,108 +145,63 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       ]);
       return;
     }
-    const errs = validateDraft(t, connectors, pools, defaultPool, policies);
+    const errs = validateVfsDraft(t, {
+      connectors,
+      pools,
+      defaultPool,
+      policies,
+    });
     if (errs.length > 0) {
       setValidationErrors(errs);
       return;
     }
 
-    const parsed = tomlAdapter.parse(content);
-    if (!isRecord(parsed)) {
+    const result = applyVfsDraftToContent({
+      content,
+      tomlAdapter,
+      connectors,
+      pools,
+      defaultPool,
+      policies,
+      cacheSection,
+      archiveSection,
+    });
+    if (!result.ok) {
       setValidationErrors([
-        t("admin.config.storage.validation.errors.parseRoot"),
+        result.reason === "parse_root"
+          ? t("admin.config.storage.validation.errors.parseRoot")
+          : t("admin.config.storage.validation.errors.parseFailed", {
+              message: result.message,
+            }),
       ]);
       return;
     }
-    const nextConfig = deepClone(parsed);
-    const vfsHub = ensureRecord(nextConfig, "vfs_storage_hub");
 
-    vfsHub.connectors = connectors.map((c) => ({
-      name: c.name.trim(),
-      driver: c.driver,
-      root: c.root.trim(),
-      enable: c.enable,
-      options: kvToOptions(c.options),
-    }));
-
-    vfsHub.pools = pools.map((p) => {
-      const base: ConfigObject = {
-        name: p.name.trim(),
-        primary_connector: p.primary_connector.trim(),
-        enable_write_cache: p.enable_write_cache,
-        enable: p.enable,
-        options: kvToOptions(p.options),
-      };
-      if (p.backup_connector.trim().length > 0) {
-        base.backup_connector = p.backup_connector.trim();
-      }
-      return base;
-    });
-
-    vfsHub.default_pool = defaultPool.trim();
-    vfsHub.policies = policies.map((policy) => ({
-      role_id: policy.role_id.trim(),
-      pool_name: policy.pool_name.trim(),
-      default_quota: Number.parseInt(policy.default_quota.trim(), 10),
-      max_private_mounts: Number.parseInt(policy.max_private_mounts.trim(), 10),
-      min_mount_sync_interval_minutes: Number.parseInt(
-        policy.min_mount_sync_interval_minutes.trim(),
-        10,
-      ),
-      max_mount_sync_timeout_secs: Number.parseInt(
-        policy.max_mount_sync_timeout_secs.trim(),
-        10,
-      ),
-    }));
-
-    const readCache = ensureRecord(vfsHub, "read_cache");
-    readCache.enable = cacheSection.readEnable;
-    readCache.backend = cacheSection.readBackend;
-    readCache.local_dir = cacheSection.readLocalDir;
-    readCache.capacity_bytes =
-      Number.parseInt(cacheSection.readCapacityBytes, 10) || 134217728;
-    readCache.max_file_size_bytes =
-      Number.parseInt(cacheSection.readMaxFileSizeBytes, 10) || 2097152;
-    readCache.ttl_secs = Number.parseInt(cacheSection.readTtlSecs, 10) || 1800;
-
-    const writeCache = ensureRecord(vfsHub, "write_cache");
-    writeCache.enable = cacheSection.writeEnable;
-    writeCache.backend = cacheSection.writeBackend;
-    writeCache.local_dir = cacheSection.writeLocalDir;
-    writeCache.capacity_bytes =
-      Number.parseInt(cacheSection.writeCapacityBytes, 10) || 100663296;
-    writeCache.max_file_size_bytes =
-      Number.parseInt(cacheSection.writeMaxFileSizeBytes, 10) || 262144;
-    writeCache.flush_concurrency =
-      Number.parseInt(cacheSection.writeFlushConcurrency, 10) || 2;
-    writeCache.flush_interval_ms =
-      Number.parseInt(cacheSection.writeFlushIntervalMs, 10) || 30;
-    writeCache.flush_deadline_secs =
-      Number.parseInt(cacheSection.writeFlushDeadlineSecs, 10) || 360;
-
-    const fileCompress = ensureRecord(vfsHub, "file_compress");
-    fileCompress.enable = archiveSection.enable;
-    fileCompress.exe_7zip_path = archiveSection.exe7zipPath;
-    fileCompress.default_compression_format =
-      archiveSection.defaultCompressionFormat;
-    fileCompress.process_manager_max_concurrency =
-      Number.parseInt(archiveSection.maxConcurrency, 10) || 2;
-    fileCompress.max_cpu_threads =
-      Number.parseInt(archiveSection.maxCpuThreads, 10) || 2;
-    fileCompress.timeout_secs =
-      Number.parseInt(archiveSection.timeoutSecs, 10) || 300;
-
-    const nextContent = tomlAdapter.stringify(nextConfig);
-    onContentChange(nextContent);
+    onContentChange(result.content);
     onClose();
-  };
+  }, [
+    archiveSection,
+    cacheSection,
+    connectors,
+    content,
+    defaultPool,
+    error,
+    onClose,
+    onContentChange,
+    policies,
+    pools,
+    t,
+    tomlAdapter,
+  ]);
 
   const resetToLocalDefaults = useCallback(() => {
-    const defaults = buildLocalDefaults();
+    const defaults = buildDefaultVfsStorageState();
     setConnectors(defaults.connectors);
     setPools(defaults.pools);
     setDefaultPool(defaults.defaultPool);
     setPolicies(defaults.policies);
+    setCacheSection(defaults.cacheSection);
+    setArchiveSection(defaults.archiveSection);
     setValidationErrors([]);
     setError(null);
     setTab("pools");
@@ -395,17 +269,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       index += 1;
       name = `${baseName}-${index}`;
     }
-    setConnectors((prev) => [
-      ...prev,
-      {
-        id: makeId("connector"),
-        name,
-        driver: "fs",
-        root: "{RUNTIMEDIR}/vfs",
-        enable: true,
-        options: [],
-      },
-    ]);
+    setConnectors((prev) => [...prev, createConnectorDraft(name)]);
   }, [connectorNames]);
 
   const updatePool = useCallback(
@@ -472,18 +336,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       name = `${baseName}-${index}`;
     }
     const defaultConnector = connectorNames[0] ?? "local-fs";
-    setPools((prev) => [
-      ...prev,
-      {
-        id: makeId("pool"),
-        name,
-        primary_connector: defaultConnector,
-        backup_connector: "",
-        enable_write_cache: false,
-        enable: true,
-        options: [],
-      },
-    ]);
+    setPools((prev) => [...prev, createPoolDraft(name, defaultConnector)]);
     if (!defaultPool.trim()) {
       setDefaultPool(name);
     }
@@ -491,18 +344,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
 
   const addPolicy = useCallback(() => {
     const fallbackPool = defaultPool.trim() || poolNames[0] || "default-pool";
-    setPolicies((prev) => [
-      ...prev,
-      {
-        id: makeId("policy"),
-        role_id: "0",
-        pool_name: fallbackPool,
-        default_quota: "0",
-        max_private_mounts: "0",
-        min_mount_sync_interval_minutes: "5",
-        max_mount_sync_timeout_secs: "900",
-      },
-    ]);
+    setPolicies((prev) => [...prev, createPolicyDraft(fallbackPool)]);
   }, [defaultPool, poolNames]);
 
   const removePolicy = useCallback((id: string) => {
@@ -514,34 +356,6 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       setPolicies((prev) => prev.map((p) => (p.id === id ? updater(p) : p)));
     },
     [],
-  );
-
-  const isVfsDriver = useCallback((value: string): value is VfsDriver => {
-    return (
-      value === "fs" ||
-      value === "s3" ||
-      value === "webdav" ||
-      value === "dropbox" ||
-      value === "onedrive" ||
-      value === "gdrive" ||
-      value === "memory" ||
-      value === "android_saf" ||
-      value === "ios_scoped_fs"
-    );
-  }, []);
-
-  const canPickRootForDriver = useCallback(
-    (driver: VfsDriver): boolean => {
-      if (!onPickDirectory) {
-        return false;
-      }
-      return (
-        driver === "fs" ||
-        driver === "android_saf" ||
-        driver === "ios_scoped_fs"
-      );
-    },
-    [onPickDirectory],
   );
 
   const pickConnectorRoot = useCallback(
@@ -569,7 +383,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
         setPickingConnectorId(null);
       }
     },
-    [isVfsDriver, onPickDirectory, updateConnector],
+    [onPickDirectory, updateConnector],
   );
 
   if (mode === "modal" && !isOpen) return null;
@@ -981,7 +795,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                             }))
                           }
                         />
-                        {canPickRootForDriver(mainConnector.driver) && (
+                        {canPickRootForDriver(mainConnector.driver, hasDirectoryPicker) && (
                           <button
                             type="button"
                             className={cn(
@@ -1154,7 +968,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                       index={index}
                       isDark={isDark}
                       allowDelete={connectors.length > 1}
-                      canPickRoot={canPickRootForDriver(connector.driver)}
+                      canPickRoot={canPickRootForDriver(connector.driver, hasDirectoryPicker)}
                       isPickingRoot={pickingConnectorId === connector.id}
                       onRenameConnector={renameConnector}
                       onUpdateConnector={updateConnector}
