@@ -6,12 +6,6 @@ import { useTranslation } from "react-i18next";
 import { Database, HardDrive, Layers, Plus, Settings2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
-import {
-  deepClone,
-  ensureRecord,
-  isRecord,
-  type ConfigObject,
-} from "@/lib/configObject";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { Button } from "@/components/ui/Button";
 import {
@@ -20,98 +14,29 @@ import {
   PolicyCard,
   PoolCard,
 } from "./VfsStorageDraftCards";
-import { upsertOption } from "./vfsStorageDraftShared";
-
-type TomlAdapter = {
-  parse: (source: string) => unknown;
-  stringify: (value: unknown) => string;
-};
-
-type VfsDriver =
-  | "fs"
-  | "s3"
-  | "webdav"
-  | "dropbox"
-  | "onedrive"
-  | "gdrive"
-  | "memory"
-  | "android_saf"
-  | "ios_scoped_fs";
-
-type RemoteConnectorDriver =
-  | "s3"
-  | "webdav"
-  | "dropbox"
-  | "onedrive"
-  | "gdrive";
-
-type ConnectorOptionField = {
-  key: string;
-  secret?: boolean;
-  fullWidth?: boolean;
-};
-
-type KvPair = {
-  key: string;
-  value: string;
-};
-
-type ConnectorDraft = {
-  id: string;
-  name: string;
-  driver: VfsDriver;
-  root: string;
-  enable: boolean;
-  options: KvPair[];
-};
-
-type PoolDraft = {
-  id: string;
-  name: string;
-  primary_connector: string;
-  backup_connector: string;
-  enable_write_cache: boolean;
-  enable: boolean;
-  options: KvPair[];
-};
-
-type PolicyDraft = {
-  id: string;
-  role_id: string;
-  pool_name: string;
-  default_quota: string;
-  max_private_mounts: string;
-  min_mount_sync_interval_minutes: string;
-  max_mount_sync_timeout_secs: string;
-};
-
-type CacheSectionDraft = {
-  readEnable: boolean;
-  readBackend: "memory" | "local_dir";
-  readLocalDir: string;
-  readCapacityBytes: string;
-  readMaxFileSizeBytes: string;
-  readTtlSecs: string;
-  writeEnable: boolean;
-  writeBackend: "memory" | "local_dir";
-  writeLocalDir: string;
-  writeCapacityBytes: string;
-  writeMaxFileSizeBytes: string;
-  writeFlushConcurrency: string;
-  writeFlushIntervalMs: string;
-  writeFlushDeadlineSecs: string;
-};
-
-type ArchiveSectionDraft = {
-  enable: boolean;
-  exe7zipPath: string;
-  defaultCompressionFormat: string;
-  maxConcurrency: string;
-  maxCpuThreads: string;
-  timeoutSecs: string;
-};
-
-type ActiveTab = "pools" | "connectors" | "policies";
+import {
+  type ActiveTab,
+  type ArchiveSectionDraft,
+  type CacheSectionDraft,
+  type ConnectorDraft,
+  type PolicyDraft,
+  type PoolDraft,
+  type TomlAdapter,
+  type VfsDriver,
+  normalizeOptionsForDriver,
+  upsertOption,
+} from "./vfsStorageDraftShared";
+import {
+  applyVfsDraftToContent,
+  buildDefaultVfsStorageState,
+  canPickRootForDriver,
+  createConnectorDraft,
+  createPolicyDraft,
+  createPoolDraft,
+  isVfsDriver,
+  parseVfsStorageDraftFromContent,
+  validateVfsDraft,
+} from "./vfsStorageDraftModel";
 
 type ViewMode = "main" | "advanced";
 
