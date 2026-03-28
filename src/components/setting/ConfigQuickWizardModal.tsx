@@ -7,13 +7,13 @@ import { deepClone, ensureRecord, isRecord, type ConfigObject } from '@/lib/conf
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 
-type DatabaseType = 'postgres' | 'sqlite';
+export type DatabaseType = 'postgres' | 'sqlite';
 export type FriendlyStep = 'performance' | 'database' | 'cache' | 'other';
-type PerformanceTier = 'extreme-low' | 'low' | 'medium' | 'good';
-type LoadProfile = 'light' | 'heavy';
-type CaptchaPreheatMode = 'memory' | 'balanced' | 'throughput';
+export type PerformanceTier = 'extreme-low' | 'low' | 'medium' | 'good';
+export type LoadProfile = 'light' | 'heavy';
+export type CaptchaPreheatMode = 'memory' | 'balanced' | 'throughput';
 
-interface FriendlyDraft {
+export interface FriendlyDraft {
   performanceTier: PerformanceTier;
   loadProfile: LoadProfile;
   captchaPreheatMode: CaptchaPreheatMode;
@@ -43,7 +43,7 @@ interface FriendlyDraft {
   allocatorProfile: 'low_memory' | 'balanced' | 'throughput';
 }
 
-const defaultDraft: FriendlyDraft = {
+export const defaultDraft: FriendlyDraft = {
   performanceTier: 'good',
   loadProfile: 'heavy',
   captchaPreheatMode: 'balanced',
@@ -960,7 +960,7 @@ const toBooleanValue = (value: unknown, fallback: boolean): boolean => {
   return typeof value === 'boolean' ? value : fallback;
 };
 
-const parsePostgresDsn = (dsn: string): Pick<FriendlyDraft, 'dbHost' | 'dbPort' | 'dbUser' | 'dbPass' | 'dbName'> => {
+export const parsePostgresDsn = (dsn: string): Pick<FriendlyDraft, 'dbHost' | 'dbPort' | 'dbUser' | 'dbPass' | 'dbName'> => {
   const match = dsn.match(/^postgres:\/\/(?:([^:\/?#@]*)(?::([^@\/?#]*))?@)?([^:\/?#]+)?(?::(\d+))?\/([^?#]+)$/i);
   if (!match) {
     return {
@@ -980,7 +980,7 @@ const parsePostgresDsn = (dsn: string): Pick<FriendlyDraft, 'dbHost' | 'dbPort' 
   };
 };
 
-const buildPostgresDsn = (draft: FriendlyDraft): string => {
+export const buildPostgresDsn = (draft: FriendlyDraft): string => {
   const dbUser = nonEmptyString(draft.dbUser, defaultDraft.dbUser);
   const dbPass = nonEmptyString(draft.dbPass, defaultDraft.dbPass);
   const dbHost = nonEmptyString(draft.dbHost, defaultDraft.dbHost);
@@ -992,7 +992,7 @@ const buildPostgresDsn = (draft: FriendlyDraft): string => {
   return `postgres://${auth}${dbHost}:${dbPort}/${encodeURIComponent(dbName)}`;
 };
 
-const parseSqlitePath = (dsn: string): string => {
+export const parseSqlitePath = (dsn: string): string => {
   if (dsn.startsWith('sqlite://')) {
     return dsn.slice('sqlite://'.length) || defaultDraft.sqlitePath;
   }
@@ -1002,12 +1002,12 @@ const parseSqlitePath = (dsn: string): string => {
   return defaultDraft.sqlitePath;
 };
 
-const buildSqliteDsn = (path: string): string => {
+export const buildSqliteDsn = (path: string): string => {
   const sqlitePath = nonEmptyString(path, defaultDraft.sqlitePath);
   return `sqlite://${sqlitePath}`;
 };
 
-const parseRedisUrl = (url: string): Pick<FriendlyDraft, 'cacheHost' | 'cachePort' | 'cacheUser' | 'cachePass' | 'cacheUseTls'> => {
+export const parseRedisUrl = (url: string): Pick<FriendlyDraft, 'cacheHost' | 'cachePort' | 'cacheUser' | 'cachePass' | 'cacheUseTls'> => {
   const match = url.match(/^(rediss?):\/\/(?:([^:\/?#@]*)(?::([^@\/?#]*))?@)?([^:\/?#]+)?(?::(\d+))?/i);
   if (!match) {
     return {
@@ -1040,7 +1040,7 @@ const getPresetByTier = (tier: PerformanceTier): PerformancePreset => {
   throw new Error('PERFORMANCE_PRESETS must contain at least one item');
 };
 
-const buildRedisUrl = (draft: FriendlyDraft): string => {
+export const buildRedisUrl = (draft: FriendlyDraft): string => {
   const scheme = draft.cacheUseTls ? 'rediss' : 'redis';
   const cacheHost = nonEmptyString(draft.cacheHost, defaultDraft.cacheHost);
   const cachePort = nonEmptyString(draft.cachePort, defaultDraft.cachePort);
@@ -1076,7 +1076,7 @@ const inferClientRuntimeOs = (): 'linux' | 'windows' | 'macos' | 'freebsd' | 'un
   return 'unknown';
 };
 
-const recommendedAllocatorPolicyForRuntime = (runtimeOs?: string): FriendlyDraft['allocatorPolicy'] => {
+export const recommendedAllocatorPolicyForRuntime = (runtimeOs?: string): FriendlyDraft['allocatorPolicy'] => {
   const normalized = normalizeRuntimeOs(runtimeOs);
   if (normalized === 'linux') {
     return 'jemalloc';
@@ -1088,7 +1088,7 @@ const recommendedAllocatorPolicyForRuntime = (runtimeOs?: string): FriendlyDraft
   return inferred === 'linux' ? 'jemalloc' : 'mimalloc';
 };
 
-const parseConfig = (
+export const parseConfig = (
   content: string,
   parseToml: (source: string) => unknown,
 ): { value: ConfigObject | null; error: string | null } => {
@@ -1103,7 +1103,7 @@ const parseConfig = (
   }
 };
 
-const buildDraftFromConfig = (config: ConfigObject, fallbackPolicy: FriendlyDraft['allocatorPolicy']): FriendlyDraft => {
+export const buildDraftFromConfig = (config: ConfigObject, fallbackPolicy: FriendlyDraft['allocatorPolicy']): FriendlyDraft => {
   const database = isRecord(config.database) ? config.database : {};
   const postgresConfig = isRecord(database.postgres_config) ? database.postgres_config : {};
   const sqliteConfig = isRecord(database.sqlite_config) ? database.sqlite_config : {};
@@ -1178,7 +1178,7 @@ const buildDraftFromConfig = (config: ConfigObject, fallbackPolicy: FriendlyDraf
   };
 };
 
-const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommendedPolicy: FriendlyDraft['allocatorPolicy']): ConfigObject => {
+export const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, recommendedPolicy: FriendlyDraft['allocatorPolicy']): ConfigObject => {
   const next = deepClone(base);
   const database = ensureRecord(next, 'database');
   const postgresConfig = ensureRecord(database, 'postgres_config');
@@ -2060,6 +2060,501 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     );
   }, [isDark, setupMode, showSetupAdvanced, t]);
 
+  const setupPanelClassName = cn(
+    'rounded-3xl border p-4 sm:p-5 shadow-sm',
+    isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+  );
+
+  const setupSubPanelClassName = cn(
+    'rounded-2xl border p-4',
+    isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/80'
+  );
+
+  const setupInputClassName = cn(
+    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
+    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
+  );
+
+  const setupChoiceClassName = (selected: boolean, accent: 'cyan' | 'emerald' = 'cyan') => cn(
+    'rounded-2xl border px-3 py-3 text-left text-sm font-black transition-all',
+    selected
+      ? accent === 'emerald'
+        ? (isDark ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-100' : 'border-emerald-300 bg-emerald-50 text-emerald-900')
+        : (isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100' : 'border-cyan-300 bg-cyan-50 text-cyan-900')
+      : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
+  );
+
+  const setupModeContent = (
+    <div className="space-y-4 sm:space-y-5">
+      <section className={cn(
+        'rounded-3xl border p-4 sm:p-5',
+        isDark ? 'border-emerald-500/20 bg-emerald-500/10' : 'border-emerald-200 bg-emerald-50/90'
+      )}>
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
+            <p className={cn('text-sm font-black', isDark ? 'text-emerald-100' : 'text-emerald-900')}>
+              {t('admin.config.quickWizard.setupHintTitle')}
+            </p>
+            <p className={cn('mt-1 text-sm leading-6', isDark ? 'text-emerald-200/85' : 'text-emerald-800')}>
+              {t('admin.config.quickWizard.setupHintDesc')}
+            </p>
+          </div>
+          {onOpenAdminPassword && (
+            <button
+              type="button"
+              onClick={onOpenAdminPassword}
+              className={cn(
+                'inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border px-4 text-sm font-black transition-all',
+                isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20' : 'border-cyan-300 bg-cyan-50 text-cyan-900 hover:bg-cyan-100'
+              )}
+            >
+              {t('admin.config.quickWizard.actions.setAdminPassword')}
+            </button>
+          )}
+        </div>
+      </section>
+
+      <section id="setup-section-performance" className={setupPanelClassName}>
+        <div className="flex items-center gap-2">
+          <Cpu size={18} className={isDark ? 'text-cyan-300' : 'text-cyan-700'} />
+          <h4 className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
+            {t('admin.config.quickWizard.steps.performance')}
+          </h4>
+        </div>
+        <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+          {t('admin.config.quickWizard.performance.intro')}
+        </p>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {PERFORMANCE_PRESETS.map((preset) => {
+            const selected = draft.performanceTier === preset.tier;
+            return (
+              <button
+                key={preset.tier}
+                type="button"
+                onClick={() => {
+                  syncDraft((prev) => {
+                    const isLowMem = preset.tier === 'extreme-low' || preset.tier === 'low';
+                    const next = {
+                      ...prev,
+                      performanceTier: preset.tier,
+                      databaseType: preset.recommendations.databaseType,
+                      cacheType: preset.recommendations.cacheType,
+                      loadProfile: (preset.tier === 'medium' || preset.tier === 'good') ? 'heavy' : prev.loadProfile,
+                      captchaPreheatMode: isLowMem ? 'memory' : 'balanced' as CaptchaPreheatMode,
+                    };
+                    if (preset.recommendations.databaseType === 'sqlite') {
+                      next.sqlitePath = '{APPDATADIR}/fileuni.db';
+                      next.sqliteDsn = 'sqlite://{APPDATADIR}/fileuni.db';
+                    }
+                    return next;
+                  });
+                }}
+                className={setupChoiceClassName(selected)}
+              >
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    'inline-flex h-2.5 w-2.5 rounded-full',
+                    preset.tier === 'extreme-low' ? 'bg-rose-400' :
+                    preset.tier === 'low' ? 'bg-amber-400' :
+                    preset.tier === 'medium' ? 'bg-sky-400' : 'bg-emerald-400'
+                  )} />
+                  <span>{t(preset.labelKey)}</span>
+                </div>
+                <p className={cn('mt-2 text-sm leading-6 font-medium', selected ? '' : isDark ? 'text-slate-300' : 'text-slate-600')}>
+                  {t(preset.descKey)}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+
+        {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
+          <div className={cn('mt-4 grid gap-2 md:grid-cols-2', setupSubPanelClassName)}>
+            {(['light', 'heavy'] as LoadProfile[]).map((profile) => (
+              <button
+                key={profile}
+                type="button"
+                onClick={() => syncDraft((prev) => ({ ...prev, loadProfile: profile }))}
+                className={setupChoiceClassName(draft.loadProfile === profile, 'emerald')}
+              >
+                <div>{t(`admin.config.quickWizard.performance.loadProfile.${profile}`)}</div>
+                <div className={cn('mt-1 text-sm leading-6 font-medium', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                  {t(`admin.config.quickWizard.performance.loadProfile.${profile}Desc`)}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section id="setup-section-storage" className={setupPanelClassName}>
+        <div className="flex items-center gap-2">
+          <HardDrive size={18} className={isDark ? 'text-cyan-300' : 'text-cyan-700'} />
+          <h4 className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
+            {t('admin.config.quickWizard.steps.database')} / {t('admin.config.quickWizard.steps.cache')}
+          </h4>
+        </div>
+
+        <div className="mt-4 grid gap-4 xl:grid-cols-2">
+          <div className={setupSubPanelClassName}>
+            <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+              {t('admin.config.quickWizard.steps.database')}
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {(['sqlite', 'postgres'] as DatabaseType[]).map((databaseType) => (
+                <button
+                  key={databaseType}
+                  type="button"
+                  onClick={() => syncDraft((prev) => ({ ...prev, databaseType }))}
+                  className={setupChoiceClassName(draft.databaseType === databaseType)}
+                >
+                  {databaseLabelFor(databaseType)}
+                </button>
+              ))}
+            </div>
+
+            {draft.databaseType === 'postgres' ? (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.host')}
+                  <input className={setupInputClassName} value={draft.dbHost} onChange={(event) => {
+                    const dbHost = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, dbHost };
+                      next.postgresDsn = buildPostgresDsn(next);
+                      return next;
+                    });
+                  }} />
+                </label>
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.port')}
+                  <input className={setupInputClassName} value={draft.dbPort} onChange={(event) => {
+                    const dbPort = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, dbPort };
+                      next.postgresDsn = buildPostgresDsn(next);
+                      return next;
+                    });
+                  }} />
+                </label>
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.user')}
+                  <input className={setupInputClassName} value={draft.dbUser} onChange={(event) => {
+                    const dbUser = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, dbUser };
+                      next.postgresDsn = buildPostgresDsn(next);
+                      return next;
+                    });
+                  }} />
+                </label>
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.password')}
+                  <input type="password" className={setupInputClassName} value={draft.dbPass} onChange={(event) => {
+                    const dbPass = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, dbPass };
+                      next.postgresDsn = buildPostgresDsn(next);
+                      return next;
+                    });
+                  }} />
+                </label>
+                <label className={cn('text-sm font-black sm:col-span-2', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.databaseName')}
+                  <input className={setupInputClassName} value={draft.dbName} onChange={(event) => {
+                    const dbName = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, dbName };
+                      next.postgresDsn = buildPostgresDsn(next);
+                      return next;
+                    });
+                  }} />
+                </label>
+              </div>
+            ) : (
+              <div className="mt-4">
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.sqlitePath')}
+                  <input className={setupInputClassName} value={draft.sqlitePath} onChange={(event) => {
+                    const sqlitePath = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, sqlitePath };
+                      next.sqliteDsn = buildSqliteDsn(sqlitePath);
+                      return next;
+                    });
+                  }} />
+                </label>
+                <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-emerald-200/85' : 'text-emerald-700')}>
+                  {t('admin.config.quickWizard.hints.sqliteSingleNode')}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className={setupSubPanelClassName}>
+            <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+              {t('admin.config.quickWizard.steps.cache')}
+            </div>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              {[
+                { value: 'dashmap', label: cacheLabelFor('dashmap'), selected: draft.cacheType === 'dashmap' },
+                { value: 'database', label: cacheLabelFor('database'), selected: draft.cacheType === 'database' },
+                { value: 'external', label: cacheLabelFor('valkey'), selected: isRedisLikeCache },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => syncDraft((prev) => ({
+                    ...prev,
+                    cacheType: option.value === 'external'
+                      ? (prev.cacheType === 'redis' || prev.cacheType === 'keydb' || prev.cacheType === 'valkey' ? prev.cacheType : 'valkey')
+                      : option.value,
+                  }))}
+                  className={setupChoiceClassName(option.selected)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+
+            {isRedisLikeCache ? (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.host')}
+                  <input className={setupInputClassName} value={draft.cacheHost} onChange={(event) => {
+                    const cacheHost = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, cacheHost };
+                      next.cacheRedisUrl = buildRedisUrl(next);
+                      return next;
+                    });
+                  }} />
+                </label>
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.port')}
+                  <input className={setupInputClassName} value={draft.cachePort} onChange={(event) => {
+                    const cachePort = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, cachePort };
+                      next.cacheRedisUrl = buildRedisUrl(next);
+                      return next;
+                    });
+                  }} />
+                </label>
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.user')}
+                  <input className={setupInputClassName} value={draft.cacheUser} onChange={(event) => {
+                    const cacheUser = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, cacheUser };
+                      next.cacheRedisUrl = buildRedisUrl(next);
+                      return next;
+                    });
+                  }} />
+                </label>
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.password')}
+                  <input type="password" className={setupInputClassName} value={draft.cachePass} onChange={(event) => {
+                    const cachePass = event.target.value;
+                    syncDraft((prev) => {
+                      const next = { ...prev, cachePass };
+                      next.cacheRedisUrl = buildRedisUrl(next);
+                      return next;
+                    });
+                  }} />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    syncDraft((prev) => {
+                      const next = { ...prev, cacheUseTls: !prev.cacheUseTls };
+                      next.cacheRedisUrl = buildRedisUrl(next);
+                      return next;
+                    });
+                  }}
+                  className={cn('sm:col-span-2', setupChoiceClassName(draft.cacheUseTls, 'emerald'))}
+                >
+                  {t('admin.config.quickWizard.fields.useTls')}: {draft.cacheUseTls ? t('admin.config.quickWizard.options.enabled') : t('admin.config.quickWizard.options.disabled')}
+                </button>
+              </div>
+            ) : (
+              <p className={cn('mt-4 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                {draft.cacheType === 'database'
+                  ? t('admin.config.quickWizard.hints.cacheNoExternalConnection')
+                  : t('admin.config.quickWizard.hints.cacheDashmapLightweight')}
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section id="setup-section-recommendation" className={setupPanelClassName}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0 lg:max-w-xl">
+            <div className="flex items-center gap-2">
+              <Wand2 size={18} className={isDark ? 'text-cyan-300' : 'text-cyan-700'} />
+              <h4 className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                {t('admin.config.quickWizard.performance.recommendedSettings')}
+              </h4>
+            </div>
+            <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+              {t('admin.config.quickWizard.performance.preview.simpleHint')}
+            </p>
+          </div>
+          {renderSetupAdvancedToggle()}
+        </div>
+
+        <div className="mt-4 grid gap-2 md:grid-cols-3">
+          {setupOverviewItems.map((item) => (
+            <div key={`${item.label}:${item.value}`} className={setupSubPanelClassName}>
+              <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-500' : 'text-slate-500')}>
+                {item.label}
+              </div>
+              <div className={cn('mt-1 text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                {item.value}
+              </div>
+              <p className={cn('mt-1 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+                {item.hint}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {setupSummaryCards.map((card) => {
+            const isEnabled = 'enabled' in card ? card.enabled : undefined;
+            return (
+              <div key={`${card.label}:${card.value}`} className={setupSubPanelClassName}>
+                <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-500' : 'text-slate-500')}>
+                  {card.label}
+                </div>
+                <div className={cn(
+                  'mt-1 text-sm font-black',
+                  isEnabled === undefined
+                    ? (isDark ? 'text-slate-100' : 'text-slate-900')
+                    : isEnabled
+                      ? (isDark ? 'text-emerald-300' : 'text-emerald-700')
+                      : (isDark ? 'text-rose-300' : 'text-rose-700')
+                )}>
+                  {card.value}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {showSetupAdvanced && (
+          <div className="mt-4 grid gap-4 xl:grid-cols-2">
+            <div className={setupSubPanelClassName}>
+              <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-500' : 'text-slate-500')}>
+                {t('admin.config.quickWizard.setupAdvanced.show')}
+              </div>
+              <div className="mt-3 space-y-3">
+                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                  {t('admin.config.quickWizard.fields.healthTimeoutSeconds')}
+                  <input className={setupInputClassName} value={draft.dbHealthTimeoutSeconds} onChange={(event) => {
+                    const value = event.target.value;
+                    syncDraft((prev) => ({ ...prev, dbHealthTimeoutSeconds: value }));
+                  }} />
+                </label>
+                {draft.databaseType === 'postgres' && (
+                  <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                    {t('admin.config.quickWizard.fields.postgresDsn')}
+                    <input className={cn(setupInputClassName, 'font-mono')} value={draft.postgresDsn} onChange={(event) => {
+                      const postgresDsn = event.target.value;
+                      const parsedFields = parsePostgresDsn(postgresDsn);
+                      syncDraft((prev) => ({
+                        ...prev,
+                        postgresDsn,
+                        dbHost: parsedFields.dbHost,
+                        dbPort: parsedFields.dbPort,
+                        dbUser: parsedFields.dbUser,
+                        dbPass: parsedFields.dbPass,
+                        dbName: parsedFields.dbName,
+                      }));
+                    }} />
+                  </label>
+                )}
+                {isRedisLikeCache && (
+                  <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                    {t('admin.config.quickWizard.fields.redisUrl')}
+                    <input className={cn(setupInputClassName, 'font-mono')} value={draft.cacheRedisUrl} onChange={(event) => {
+                      const cacheRedisUrl = event.target.value;
+                      const fields = parseRedisUrl(cacheRedisUrl);
+                      syncDraft((prev) => ({
+                        ...prev,
+                        cacheRedisUrl,
+                        cacheHost: fields.cacheHost,
+                        cachePort: fields.cachePort,
+                        cacheUser: fields.cacheUser,
+                        cachePass: fields.cachePass,
+                        cacheUseTls: fields.cacheUseTls,
+                      }));
+                    }} />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            <div className={setupSubPanelClassName}>
+              <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-500' : 'text-slate-500')}>
+                {t('admin.config.quickWizard.steps.other')}
+              </div>
+              {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {(['memory', 'balanced', 'throughput'] as CaptchaPreheatMode[]).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => syncDraft((prev) => ({ ...prev, captchaPreheatMode: mode }))}
+                      className={setupChoiceClassName(draft.captchaPreheatMode === mode, 'emerald')}
+                    >
+                      {t(`admin.config.quickWizard.performance.preheatMode.options.${mode}`)}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {onOpenLicenseManagement && (
+                  <button type="button" onClick={onOpenLicenseManagement} className={setupChoiceClassName(false)}>
+                    {t('admin.config.license.title')}
+                  </button>
+                )}
+                {onOpenStorageConfig && (
+                  <button type="button" onClick={onOpenStorageConfig} className={setupChoiceClassName(false)}>
+                    {t('admin.config.storage.title')}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {showDoneAction && (
+        <section className={cn(
+          'rounded-3xl border px-4 py-3 sm:px-5',
+          isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+        )}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className={cn('text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
+              {t('setup.admin.finalConfirmDesc')}
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-primary bg-primary px-5 text-sm font-black text-white shadow-lg shadow-primary/20 transition-all hover:opacity-90"
+            >
+              {t('admin.config.quickWizard.actions.doneSetup')}
+            </button>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+
   if (!isOpen) {
     return null;
   }
@@ -2067,38 +2562,40 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   const panelContent = (
       <div className={cn(
         embedded
-          ? "w-full rounded-2xl border shadow-xl overflow-hidden flex flex-col min-h-0"
+          ? 'w-full min-h-0'
           : "relative w-full max-w-6xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
-        isDark ? "border-white/10 bg-slate-950 text-slate-100 ring-1 ring-white/5" : "border-slate-300 bg-white text-slate-900"
+        embedded
+          ? 'text-inherit'
+          : isDark ? 'border-white/10 bg-slate-950 text-slate-100 ring-1 ring-white/5' : 'border-slate-300 bg-white text-slate-900'
       )}>
-        <div className={cn(
-          "flex items-center justify-between gap-2 border-b px-3 py-4 sm:px-6 shrink-0",
-          isDark ? "border-white/10 bg-slate-900/50" : "border-slate-200 bg-slate-50/50"
-        )}>
-          <div className="min-w-0">
-            <h3 className="text-sm sm:text-base font-black uppercase tracking-widest truncate">{t('admin.config.quickWizard.title')}</h3>
-            <p className={cn("text-[10px] sm:text-xs font-bold uppercase tracking-[0.1em] mt-1", isDark ? "text-slate-500" : "text-slate-400")}>{t('admin.config.quickWizard.subtitle')}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            {onOpenAdminPassword && (
+        {!embedded && (
+          <div className={cn(
+            "flex items-center justify-between gap-2 border-b px-3 py-4 sm:px-6 shrink-0",
+            isDark ? "border-white/10 bg-slate-900/50" : "border-slate-200 bg-slate-50/50"
+          )}>
+            <div className="min-w-0">
+              <h3 className="text-sm sm:text-base font-black uppercase tracking-widest truncate">{t('admin.config.quickWizard.title')}</h3>
+              <p className={cn("text-[10px] sm:text-xs font-bold uppercase tracking-[0.1em] mt-1", isDark ? "text-slate-500" : "text-slate-400")}>{t('admin.config.quickWizard.subtitle')}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {onOpenAdminPassword && (
+                <button
+                  type="button"
+                  onClick={onOpenAdminPassword}
+                  className={cn(
+                    "h-8 px-3 rounded-lg border text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 transition-all",
+                    isDark
+                      ? "border-cyan-400/40 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20"
+                      : "border-cyan-500/50 bg-cyan-50 text-cyan-900 hover:bg-cyan-100"
+                  )}
+                >
+                  <Shield size={14} />
+                  {t('admin.config.quickWizard.actions.setAdminPassword')}
+                </button>
+              )}
               <button
                 type="button"
-                onClick={onOpenAdminPassword}
-                className={cn(
-                  "h-8 px-3 rounded-lg border text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 transition-all",
-                  isDark
-                    ? "border-cyan-400/40 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20"
-                    : "border-cyan-500/50 bg-cyan-50 text-cyan-900 hover:bg-cyan-100"
-                )}
-              >
-                <Shield size={14} />
-                {t('admin.config.quickWizard.actions.setAdminPassword')}
-              </button>
-            )}
-            {!embedded && (
-              <button 
-                type="button" 
-                onClick={onClose} 
+                onClick={onClose}
                 className={cn(
                   "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
                   isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-slate-200 text-slate-600 hover:bg-slate-100"
@@ -2106,11 +2603,15 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
               >
                 <X size={16} />
               </button>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5 space-y-4 custom-scrollbar">
+        <div className={cn(
+          embedded
+            ? 'space-y-4'
+            : 'flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5 space-y-4 custom-scrollbar'
+        )}>
           {parseError && (
             <div className={cn(
               "rounded-xl border p-3 sm:p-4",
@@ -2129,815 +2630,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
 
           {!parseError && (
             setupMode ? (
-              <div className="space-y-4">
-                <div className={cn(
-                  'rounded-3xl border p-4 sm:p-5',
-                  isDark ? 'border-emerald-500/20 bg-emerald-500/10' : 'border-emerald-200 bg-emerald-50/90'
-                )}>
-                  <div className="flex items-start gap-3">
-                    <Shield size={18} className={isDark ? 'text-emerald-300' : 'text-emerald-600'} />
-                    <div className="space-y-1.5">
-                      <p className={cn('text-sm font-black', isDark ? 'text-emerald-100' : 'text-emerald-900')}>
-                        {t('admin.config.quickWizard.setupHintTitle')}
-                      </p>
-                      <p className={cn('text-sm leading-6', isDark ? 'text-emerald-200/85' : 'text-emerald-800')}>
-                        {t('admin.config.quickWizard.setupHintDesc')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(19rem,0.88fr)]">
-                  <div className="space-y-4">
-                    <section className={cn(
-                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
-                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
-                    )}>
-                      <div className="flex items-center gap-2">
-                        <Cpu size={18} className={isDark ? 'text-cyan-300' : 'text-cyan-700'} />
-                        <h4 className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                          {t('admin.config.quickWizard.steps.performance')}
-                        </h4>
-                      </div>
-                      <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                        {t('admin.config.quickWizard.performance.intro')}
-                      </p>
-
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        {PERFORMANCE_PRESETS.map((preset) => {
-                          const selected = draft.performanceTier === preset.tier;
-                          return (
-                            <button
-                              key={preset.tier}
-                              type="button"
-                              onClick={() => {
-                                syncDraft((prev) => {
-                                  const isLowMem = preset.tier === 'extreme-low' || preset.tier === 'low';
-                                  const next = {
-                                    ...prev,
-                                    performanceTier: preset.tier,
-                                    databaseType: preset.recommendations.databaseType,
-                                    cacheType: preset.recommendations.cacheType,
-                                    loadProfile: (preset.tier === 'medium' || preset.tier === 'good') ? 'heavy' : prev.loadProfile,
-                                    captchaPreheatMode: isLowMem ? 'memory' : 'balanced' as CaptchaPreheatMode,
-                                  };
-                                  if (preset.recommendations.databaseType === 'sqlite') {
-                                    next.sqlitePath = '{APPDATADIR}/fileuni.db';
-                                    next.sqliteDsn = 'sqlite://{APPDATADIR}/fileuni.db';
-                                  }
-                                  return next;
-                                });
-                              }}
-                              className={cn(
-                                'rounded-2xl border p-4 text-left transition-all',
-                                selected
-                                  ? (isDark ? 'border-cyan-400/40 bg-cyan-500/10 ring-1 ring-cyan-400/20' : 'border-cyan-300 bg-cyan-50 ring-1 ring-cyan-100 shadow-sm')
-                                  : (isDark ? 'border-white/10 bg-black/20 hover:bg-white/5' : 'border-slate-200 bg-slate-50/80 hover:bg-slate-100')
-                              )}
-                            >
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className={cn(
-                                  'inline-flex h-2.5 w-2.5 rounded-full',
-                                  preset.tier === 'extreme-low' ? 'bg-rose-400' :
-                                  preset.tier === 'low' ? 'bg-amber-400' :
-                                  preset.tier === 'medium' ? 'bg-sky-400' : 'bg-emerald-400'
-                                )} />
-                                <span className={cn('text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                                  {t(preset.labelKey)}
-                                </span>
-                              </div>
-                              <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                                {t(preset.descKey)}
-                              </p>
-                              <div className="mt-3 flex flex-wrap gap-2">
-                                <span className={cn(
-                                  'rounded-full px-2.5 py-1 text-xs font-black',
-                                  isDark ? 'bg-white/10 text-slate-200' : 'bg-white text-slate-700'
-                                )}>
-                                  {databaseLabelFor(preset.recommendations.databaseType)}
-                                </span>
-                                <span className={cn(
-                                  'rounded-full px-2.5 py-1 text-xs font-black',
-                                  isDark ? 'bg-white/10 text-slate-200' : 'bg-white text-slate-700'
-                                )}>
-                                  {cacheLabelFor(preset.recommendations.cacheType)}
-                                </span>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
-                        <div className={cn(
-                          'mt-4 rounded-2xl border p-4',
-                          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/80'
-                        )}>
-                          <div className={cn('text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                            {t('admin.config.quickWizard.performance.loadProfile.title')}
-                          </div>
-                          <p className={cn('mt-1 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                            {t('admin.config.quickWizard.performance.loadProfile.desc')}
-                          </p>
-                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                            {(['light', 'heavy'] as LoadProfile[]).map((profile) => {
-                              const selected = draft.loadProfile === profile;
-                              return (
-                                <button
-                                  key={profile}
-                                  type="button"
-                                  onClick={() => syncDraft((prev) => ({ ...prev, loadProfile: profile }))}
-                                  className={cn(
-                                    'rounded-2xl border p-3 text-left transition-all',
-                                    selected
-                                      ? (isDark ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-100' : 'border-emerald-300 bg-emerald-50 text-emerald-900')
-                                      : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
-                                  )}
-                                >
-                                  <div className="text-sm font-black">
-                                    {t(`admin.config.quickWizard.performance.loadProfile.${profile}`)}
-                                  </div>
-                                  <div className={cn('mt-1 text-sm leading-6', selected ? (isDark ? 'text-emerald-100/80' : 'text-emerald-800') : (isDark ? 'text-slate-400' : 'text-slate-500'))}>
-                                    {t(`admin.config.quickWizard.performance.loadProfile.${profile}Desc`)}
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </section>
-
-                    <section className={cn(
-                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
-                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
-                    )}>
-                      <div className="flex items-center gap-2">
-                        <HardDrive size={18} className={isDark ? 'text-cyan-300' : 'text-cyan-700'} />
-                        <h4 className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                          {t('admin.config.quickWizard.steps.database')} / {t('admin.config.quickWizard.steps.cache')}
-                        </h4>
-                      </div>
-                      <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                        {t('admin.config.quickWizard.setupAdvanced.desc')}
-                      </p>
-
-                      <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                        <div className={cn(
-                          'rounded-2xl border p-4',
-                          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/80'
-                        )}>
-                          <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                            {t('admin.config.quickWizard.steps.database')}
-                          </div>
-                          <div className="mt-3 grid grid-cols-2 gap-2">
-                            {(['sqlite', 'postgres'] as DatabaseType[]).map((databaseType) => {
-                              const selected = draft.databaseType === databaseType;
-                              return (
-                                <button
-                                  key={databaseType}
-                                  type="button"
-                                  onClick={() => syncDraft((prev) => ({ ...prev, databaseType }))}
-                                  className={cn(
-                                    'rounded-2xl border px-3 py-3 text-sm font-black transition-all',
-                                    selected
-                                      ? (isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100' : 'border-cyan-300 bg-cyan-50 text-cyan-900')
-                                      : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
-                                  )}
-                                >
-                                  {databaseLabelFor(databaseType)}
-                                </button>
-                              );
-                            })}
-                          </div>
-
-                          {draft.databaseType === 'postgres' ? (
-                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                {t('admin.config.quickWizard.fields.host')}
-                                <input
-                                  className={cn(
-                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                  )}
-                                  value={draft.dbHost}
-                                  onChange={(event) => {
-                                    const dbHost = event.target.value;
-                                    syncDraft((prev) => {
-                                      const next = { ...prev, dbHost };
-                                      next.postgresDsn = buildPostgresDsn(next);
-                                      return next;
-                                    });
-                                  }}
-                                />
-                              </label>
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                {t('admin.config.quickWizard.fields.port')}
-                                <input
-                                  className={cn(
-                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                  )}
-                                  value={draft.dbPort}
-                                  onChange={(event) => {
-                                    const dbPort = event.target.value;
-                                    syncDraft((prev) => {
-                                      const next = { ...prev, dbPort };
-                                      next.postgresDsn = buildPostgresDsn(next);
-                                      return next;
-                                    });
-                                  }}
-                                />
-                              </label>
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                {t('admin.config.quickWizard.fields.user')}
-                                <input
-                                  className={cn(
-                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                  )}
-                                  value={draft.dbUser}
-                                  onChange={(event) => {
-                                    const dbUser = event.target.value;
-                                    syncDraft((prev) => {
-                                      const next = { ...prev, dbUser };
-                                      next.postgresDsn = buildPostgresDsn(next);
-                                      return next;
-                                    });
-                                  }}
-                                />
-                              </label>
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                {t('admin.config.quickWizard.fields.password')}
-                                <input
-                                  type="password"
-                                  className={cn(
-                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                  )}
-                                  value={draft.dbPass}
-                                  onChange={(event) => {
-                                    const dbPass = event.target.value;
-                                    syncDraft((prev) => {
-                                      const next = { ...prev, dbPass };
-                                      next.postgresDsn = buildPostgresDsn(next);
-                                      return next;
-                                    });
-                                  }}
-                                />
-                              </label>
-                              <label className={cn('text-sm font-black sm:col-span-2', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                {t('admin.config.quickWizard.fields.databaseName')}
-                                <input
-                                  className={cn(
-                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                  )}
-                                  value={draft.dbName}
-                                  onChange={(event) => {
-                                    const dbName = event.target.value;
-                                    syncDraft((prev) => {
-                                      const next = { ...prev, dbName };
-                                      next.postgresDsn = buildPostgresDsn(next);
-                                      return next;
-                                    });
-                                  }}
-                                />
-                              </label>
-                            </div>
-                          ) : (
-                            <div className="mt-4 space-y-2">
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                {t('admin.config.quickWizard.fields.sqlitePath')}
-                                <input
-                                  className={cn(
-                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm font-mono focus:outline-none focus:ring-2',
-                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                  )}
-                                  value={draft.sqlitePath}
-                                  onChange={(event) => {
-                                    const sqlitePath = event.target.value;
-                                    syncDraft((prev) => {
-                                      const next = { ...prev, sqlitePath };
-                                      next.sqliteDsn = buildSqliteDsn(sqlitePath);
-                                      return next;
-                                    });
-                                  }}
-                                />
-                              </label>
-                              <p className={cn('text-sm leading-6', isDark ? 'text-emerald-200/85' : 'text-emerald-700')}>
-                                {t('admin.config.quickWizard.hints.sqliteSingleNode')}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className={cn(
-                          'rounded-2xl border p-4',
-                          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/80'
-                        )}>
-                          <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                            {t('admin.config.quickWizard.steps.cache')}
-                          </div>
-                          <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                            {[
-                              { value: 'dashmap', label: cacheLabelFor('dashmap'), selected: draft.cacheType === 'dashmap' },
-                              { value: 'database', label: cacheLabelFor('database'), selected: draft.cacheType === 'database' },
-                              { value: 'external', label: cacheLabelFor('valkey'), selected: isRedisLikeCache },
-                            ].map((option) => (
-                              <button
-                                key={option.value}
-                                type="button"
-                                onClick={() => syncDraft((prev) => ({
-                                  ...prev,
-                                  cacheType: option.value === 'external'
-                                    ? (prev.cacheType === 'redis' || prev.cacheType === 'keydb' || prev.cacheType === 'valkey' ? prev.cacheType : 'valkey')
-                                    : option.value,
-                                }))}
-                                className={cn(
-                                  'rounded-2xl border px-3 py-3 text-sm font-black transition-all',
-                                  option.selected
-                                    ? (isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100' : 'border-cyan-300 bg-cyan-50 text-cyan-900')
-                                    : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
-                                )}
-                              >
-                                {option.label}
-                              </button>
-                            ))}
-                          </div>
-
-                          {isRedisLikeCache ? (
-                            <div className="mt-4 space-y-3">
-                              <div className="grid gap-3 sm:grid-cols-2">
-                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                  {t('admin.config.quickWizard.fields.host')}
-                                  <input
-                                    className={cn(
-                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                      isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                    )}
-                                    value={draft.cacheHost}
-                                    onChange={(event) => {
-                                      const cacheHost = event.target.value;
-                                      syncDraft((prev) => {
-                                        const next = { ...prev, cacheHost };
-                                        next.cacheRedisUrl = buildRedisUrl(next);
-                                        return next;
-                                      });
-                                    }}
-                                  />
-                                </label>
-                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                  {t('admin.config.quickWizard.fields.port')}
-                                  <input
-                                    className={cn(
-                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                      isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                    )}
-                                    value={draft.cachePort}
-                                    onChange={(event) => {
-                                      const cachePort = event.target.value;
-                                      syncDraft((prev) => {
-                                        const next = { ...prev, cachePort };
-                                        next.cacheRedisUrl = buildRedisUrl(next);
-                                        return next;
-                                      });
-                                    }}
-                                  />
-                                </label>
-                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                  {t('admin.config.quickWizard.fields.user')}
-                                  <input
-                                    className={cn(
-                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                      isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                    )}
-                                    value={draft.cacheUser}
-                                    onChange={(event) => {
-                                      const cacheUser = event.target.value;
-                                      syncDraft((prev) => {
-                                        const next = { ...prev, cacheUser };
-                                        next.cacheRedisUrl = buildRedisUrl(next);
-                                        return next;
-                                      });
-                                    }}
-                                  />
-                                </label>
-                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                  {t('admin.config.quickWizard.fields.password')}
-                                  <input
-                                    type="password"
-                                    className={cn(
-                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                      isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                    )}
-                                    value={draft.cachePass}
-                                    onChange={(event) => {
-                                      const cachePass = event.target.value;
-                                      syncDraft((prev) => {
-                                        const next = { ...prev, cachePass };
-                                        next.cacheRedisUrl = buildRedisUrl(next);
-                                        return next;
-                                      });
-                                    }}
-                                  />
-                                </label>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  syncDraft((prev) => {
-                                    const next = { ...prev, cacheUseTls: !prev.cacheUseTls };
-                                    next.cacheRedisUrl = buildRedisUrl(next);
-                                    return next;
-                                  });
-                                }}
-                                className={cn(
-                                  'inline-flex h-11 items-center rounded-2xl border px-4 text-sm font-black transition-all',
-                                  draft.cacheUseTls
-                                    ? (isDark ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-100' : 'border-emerald-300 bg-emerald-50 text-emerald-900')
-                                    : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
-                                )}
-                              >
-                                {t('admin.config.quickWizard.fields.useTls')}: {draft.cacheUseTls ? t('admin.config.quickWizard.options.enabled') : t('admin.config.quickWizard.options.disabled')}
-                              </button>
-                            </div>
-                          ) : (
-                            <p className={cn('mt-4 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                              {draft.cacheType === 'database'
-                                ? t('admin.config.quickWizard.hints.cacheNoExternalConnection')
-                                : t('admin.config.quickWizard.hints.cacheDashmapLightweight')}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-4">
-                        {renderSetupAdvancedToggle()}
-                      </div>
-
-                      {showTechnicalChoices && (
-                        <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                          <div className={cn(
-                            'rounded-2xl border p-4',
-                            isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/70'
-                          )}>
-                            <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                              {t('admin.config.quickWizard.setupAdvanced.show')}
-                            </div>
-                            <div className="mt-3 space-y-3">
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                {t('admin.config.quickWizard.fields.healthTimeoutSeconds')}
-                                <input
-                                  className={cn(
-                                    'mt-1 h-11 w-full rounded-2xl border px-3 text-sm focus:outline-none focus:ring-2',
-                                    isDark ? 'border-white/10 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-200 bg-white text-slate-900 focus:ring-cyan-500/20'
-                                  )}
-                                  value={draft.dbHealthTimeoutSeconds}
-                                  onChange={(event) => {
-                                    const value = event.target.value;
-                                    syncDraft((prev) => ({ ...prev, dbHealthTimeoutSeconds: value }));
-                                  }}
-                                />
-                              </label>
-
-                              {draft.databaseType === 'postgres' && (
-                                <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                  {t('admin.config.quickWizard.fields.postgresDsn')}
-                                  <input
-                                    className={cn(
-                                      'mt-1 h-11 w-full rounded-2xl border px-3 text-sm font-mono focus:outline-none focus:ring-2',
-                                      isDark ? 'border-cyan-400/20 bg-black/30 text-cyan-100 focus:ring-cyan-500/30' : 'border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20'
-                                    )}
-                                    value={draft.postgresDsn}
-                                    onChange={(event) => {
-                                      const postgresDsn = event.target.value;
-                                      const parsedFields = parsePostgresDsn(postgresDsn);
-                                      syncDraft((prev) => ({
-                                        ...prev,
-                                        postgresDsn,
-                                        dbHost: parsedFields.dbHost,
-                                        dbPort: parsedFields.dbPort,
-                                        dbUser: parsedFields.dbUser,
-                                        dbPass: parsedFields.dbPass,
-                                        dbName: parsedFields.dbName,
-                                      }));
-                                    }}
-                                  />
-                                </label>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className={cn(
-                            'rounded-2xl border p-4',
-                            isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/70'
-                          )}>
-                            <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                              {t('admin.config.quickWizard.steps.cache')}
-                            </div>
-                            <div className="mt-3 space-y-3">
-                              {isRedisLikeCache && (
-                                <>
-                                  <div className="grid gap-2 sm:grid-cols-3">
-                                    {(['valkey', 'redis', 'keydb'] as const).map((cacheType) => {
-                                      const selected = draft.cacheType === cacheType;
-                                      return (
-                                        <button
-                                          key={cacheType}
-                                          type="button"
-                                          onClick={() => syncDraft((prev) => ({ ...prev, cacheType }))}
-                                          className={cn(
-                                            'rounded-2xl border px-3 py-3 text-sm font-black transition-all',
-                                            selected
-                                              ? (isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100' : 'border-cyan-300 bg-cyan-50 text-cyan-900')
-                                              : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
-                                          )}
-                                        >
-                                          {cacheLabelFor(cacheType)}
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-
-                                  <label className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                    {t('admin.config.quickWizard.fields.redisUrl')}
-                                    <input
-                                      className={cn(
-                                        'mt-1 h-11 w-full rounded-2xl border px-3 text-sm font-mono focus:outline-none focus:ring-2',
-                                        isDark ? 'border-cyan-400/20 bg-black/30 text-cyan-100 focus:ring-cyan-500/30' : 'border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-cyan-500/20'
-                                      )}
-                                      value={draft.cacheRedisUrl}
-                                      onChange={(event) => {
-                                        const cacheRedisUrl = event.target.value;
-                                        const fields = parseRedisUrl(cacheRedisUrl);
-                                        syncDraft((prev) => ({
-                                          ...prev,
-                                          cacheRedisUrl,
-                                          cacheHost: fields.cacheHost,
-                                          cachePort: fields.cachePort,
-                                          cacheUser: fields.cacheUser,
-                                          cachePass: fields.cachePass,
-                                          cacheUseTls: fields.cacheUseTls,
-                                        }));
-                                      }}
-                                    />
-                                  </label>
-                                </>
-                              )}
-
-                              {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
-                                <div>
-                                  <div className={cn('text-sm font-black', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                    {t('admin.config.quickWizard.performance.preheatMode.title')}
-                                  </div>
-                                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                                    {(['memory', 'balanced', 'throughput'] as CaptchaPreheatMode[]).map((mode) => {
-                                      const selected = draft.captchaPreheatMode === mode;
-                                      return (
-                                        <button
-                                          key={mode}
-                                          type="button"
-                                          onClick={() => syncDraft((prev) => ({ ...prev, captchaPreheatMode: mode }))}
-                                          className={cn(
-                                            'rounded-2xl border px-3 py-3 text-sm font-black transition-all',
-                                            selected
-                                              ? (isDark ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-100' : 'border-emerald-300 bg-emerald-50 text-emerald-900')
-                                              : (isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')
-                                          )}
-                                        >
-                                          {t(`admin.config.quickWizard.performance.preheatMode.options.${mode}`)}
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </section>
-
-                    {(onOpenAdminPassword || onOpenLicenseManagement || onOpenStorageConfig) && (
-                      <section className={cn(
-                        'rounded-3xl border p-4 sm:p-5 shadow-sm',
-                        isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
-                      )}>
-                        <div className="flex items-center gap-2">
-                          <Key size={18} className={isDark ? 'text-amber-300' : 'text-amber-600'} />
-                          <h4 className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                            {t('admin.config.quickWizard.steps.other')}
-                          </h4>
-                        </div>
-                        <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                          {t('admin.config.quickWizard.otherActions.intro')}
-                        </p>
-                        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                          {onOpenAdminPassword && (
-                            <button
-                              type="button"
-                              onClick={onOpenAdminPassword}
-                              className={cn(
-                                'h-11 rounded-2xl border px-4 text-sm font-black transition-all',
-                                isDark ? 'border-cyan-400/35 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20' : 'border-cyan-300 bg-cyan-50 text-cyan-900 hover:bg-cyan-100'
-                              )}
-                            >
-                              {t('admin.config.quickWizard.actions.setAdminPassword')}
-                            </button>
-                          )}
-                          {onOpenLicenseManagement && (
-                            <button
-                              type="button"
-                              onClick={onOpenLicenseManagement}
-                              className={cn(
-                                'h-11 rounded-2xl border px-4 text-sm font-black transition-all',
-                                isDark ? 'border-amber-400/35 bg-amber-500/10 text-amber-100 hover:bg-amber-500/20' : 'border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100'
-                              )}
-                            >
-                              {t('admin.config.license.title')}
-                            </button>
-                          )}
-                          {onOpenStorageConfig && (
-                            <button
-                              type="button"
-                              onClick={onOpenStorageConfig}
-                              className={cn(
-                                'h-11 rounded-2xl border px-4 text-sm font-black transition-all',
-                                isDark ? 'border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10' : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100'
-                              )}
-                            >
-                              {t('admin.config.storage.title')}
-                            </button>
-                          )}
-                        </div>
-                      </section>
-                    )}
-                  </div>
-
-                  <aside className="space-y-4">
-                    <section className={cn(
-                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
-                      isDark ? 'border-cyan-500/20 bg-cyan-500/10' : 'border-cyan-200 bg-cyan-50/80'
-                    )}>
-                      <div className="flex items-center gap-2">
-                        <Wand2 size={18} className={isDark ? 'text-cyan-200' : 'text-cyan-700'} />
-                        <div className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-cyan-100' : 'text-cyan-900')}>
-                          {t('admin.config.quickWizard.performance.recommendedSettings')}
-                        </div>
-                      </div>
-                      <div className="mt-4 space-y-3">
-                        {setupOverviewItems.map((item) => (
-                          <div
-                            key={`${item.label}:${item.value}`}
-                            className={cn(
-                              'rounded-2xl border px-4 py-3',
-                              isDark ? 'border-white/10 bg-black/20' : 'border-white/70 bg-white/90'
-                            )}
-                          >
-                            <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                              {item.label}
-                            </div>
-                            <div className={cn('mt-1 text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                              {item.value}
-                            </div>
-                            <p className={cn('mt-1 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                              {item.hint}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-
-                    <section className={cn(
-                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
-                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
-                    )}>
-                      <div className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                        {t('admin.config.quickWizard.performance.preview.simpleHint')}
-                      </div>
-                      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-                        {setupSummaryCards.map((card) => {
-                          const isEnabled = 'enabled' in card ? card.enabled : undefined;
-                          return (
-                            <div
-                              key={`${card.label}:${card.value}`}
-                              className={cn(
-                                'rounded-2xl border px-4 py-3',
-                                isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/80'
-                              )}
-                            >
-                              <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-500' : 'text-slate-500')}>
-                                {card.label}
-                              </div>
-                              <div className={cn(
-                                'mt-1 text-sm font-black',
-                                isEnabled === undefined
-                                  ? (isDark ? 'text-slate-100' : 'text-slate-900')
-                                  : isEnabled
-                                    ? (isDark ? 'text-emerald-300' : 'text-emerald-700')
-                                    : (isDark ? 'text-rose-300' : 'text-rose-700')
-                              )}>
-                                {card.value}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </section>
-
-                    <section className={cn(
-                      'rounded-3xl border p-4 sm:p-5 shadow-sm',
-                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
-                    )}>
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <div className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                            {t('admin.config.quickWizard.performance.preview.totalChanges', { count: previewConfigItems.length })}
-                          </div>
-                          <p className={cn('mt-1 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                            {t('admin.config.quickWizard.performance.preview.groupStats')}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setShowDetailedPreview((prev) => !prev)}
-                          className={cn(
-                            'rounded-2xl border px-3 py-2 text-sm font-black transition-all',
-                            isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                          )}
-                        >
-                          {showDetailedPreview
-                            ? t('admin.config.quickWizard.performance.preview.hideDetails')
-                            : t('admin.config.quickWizard.performance.preview.viewDetails')}
-                        </button>
-                      </div>
-
-                      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-                        {previewGroupStats.slice(0, 6).map((group) => (
-                          <div
-                            key={`${group.key}:${group.count}`}
-                            className={cn(
-                              'flex items-center justify-between rounded-2xl border px-4 py-3',
-                              isDark ? 'border-white/10 bg-black/20 text-slate-200' : 'border-slate-200 bg-slate-50/80 text-slate-700'
-                            )}
-                          >
-                            <span className="text-sm font-black">{t(group.labelKey)}</span>
-                            <span className={cn('text-sm font-black', isDark ? 'text-cyan-300' : 'text-cyan-700')}>{group.count}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {showDetailedPreview && (
-                        <div className={cn(
-                          'mt-4 max-h-80 overflow-auto rounded-2xl border',
-                          isDark ? 'border-white/10 bg-black/30' : 'border-slate-200 bg-slate-50/60'
-                        )}>
-                          <div className={cn(
-                            'grid grid-cols-[1fr_auto] gap-3 border-b px-4 py-3 text-xs font-black uppercase tracking-[0.18em]',
-                            isDark ? 'border-white/10 text-slate-400' : 'border-slate-200 text-slate-500'
-                          )}>
-                            <span>{t('admin.config.quickWizard.performance.preview.path')}</span>
-                            <span>{t('admin.config.quickWizard.performance.preview.value')}</span>
-                          </div>
-                          {previewConfigItems.map((item) => (
-                            <div
-                              key={`${item.path}:${item.value}`}
-                              className={cn(
-                                'grid grid-cols-[1fr_auto] gap-3 border-b px-4 py-2.5 text-sm last:border-b-0',
-                                isDark ? 'border-white/10 text-slate-200' : 'border-slate-200 text-slate-700'
-                              )}
-                            >
-                              <span className="break-all font-mono">{item.path}</span>
-                              <span className={cn('font-mono font-black', isDark ? 'text-cyan-300' : 'text-cyan-700')}>{item.value}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </section>
-                  </aside>
-                </div>
-
-                <div className={cn(
-                  'rounded-3xl border px-4 py-3 sm:px-5',
-                  isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
-                )}>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className={cn('text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                      {showDoneAction ? t('setup.admin.finalConfirmDesc') : t('setup.editor.finishHint')}
-                    </p>
-                    {showDoneAction && (
-                      <button
-                        type="button"
-                        onClick={onClose}
-                        className="inline-flex h-11 items-center justify-center rounded-2xl border border-primary bg-primary px-5 text-sm font-black text-white shadow-lg shadow-primary/20 transition-all hover:opacity-90"
-                      >
-                        {t('admin.config.quickWizard.actions.doneSetup')}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
+              setupModeContent
             ) : (
               <div className="space-y-4">
                 <div className={cn(

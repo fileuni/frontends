@@ -160,7 +160,7 @@
     "mode": {
       "latexmk": "Compilation Latexmk",
       "latexjs": "Rendu Latex.js",
-      "monaco": "Editeur Monaco"
+      "codemirror": "CodeMirror"
     }
   },
   "archive": {

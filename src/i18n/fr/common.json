@@ -80,8 +80,9 @@
   "visualMode": "Mode visuel",
   "switchToRawJson": "Passer en mode JSON brut",
   "editorEngine": {
+    "codemirror": "CodeMirror",
     "textarea": "Texte",
-    "switchToMonaco": "Passer à Monaco",
+    "switchToCodeMirror": "Passer à CodeMirror",
     "switchToTextarea": "Passer au champ texte"
   },
   "na": "N/D",

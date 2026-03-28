@@ -109,10 +109,10 @@
     "suggestPassword": "ランダムパスワードを生成",
     "generate_password": "ランダムパスワードを生成",
     "pendingHint": "最終適用後に反映されます",
-    "resetRuleHint": "ルール: 管理者が存在する場合は最初の管理者パスワードをリセット。存在しない場合は admin を作成します。",
+    "resetRuleHint": "セットアップ完了後、このパスワードで管理者アカウントにログインします。",
     "resetSuccessWithUser": "管理者パスワードを適用しました。現在の管理者: {{username}}",
     "finalConfirm": "最終確認",
-    "finalConfirmDesc": "クリックするとシステム設定が保存され、管理者アカウントの準備が整います。テーブルや管理者が既に存在する場合は必要な同期のみを行います。",
+    "finalConfirmDesc": "確認すると現在の設定を保存してセットアップを完了します。追加設定は後から調整できます。",
     "finish": "設定を適用",
     "changePassword": "管理者パスワードを設定",
     "passwordHintTitle": "セットアップ完了には管理者パスワードが必要です",
@@ -142,6 +142,6 @@
     "dbSuccess": "DB 接続に成功しました！",
     "applyingConfig": "設定を適用し、DB スキーマを同期中...",
     "setupFailed": "デプロイに失敗しました",
-    "setupSuccess": "セットアップが完了しました。確認して通常フローを続行してください。"
+    "setupSuccess": "セットアップが完了しました。確認して続行してください。"
   }
 }

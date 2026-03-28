@@ -78,6 +78,7 @@
   "viewDetails": "View Details",
   "copy": "Copy",
   "copied": "Copied",
+  "more": "More",
   "share": "Share",
   "delete": "Delete",
   "name": "Name",
@@ -85,9 +86,9 @@
   "visualMode": "Visual Mode",
   "switchToRawJson": "Switch to Raw JSON Mode",
   "editorEngine": {
-    "monaco": "Monaco",
+    "codemirror": "CodeMirror",
     "textarea": "Text",
-    "switchToMonaco": "Switch to Monaco",
+    "switchToCodeMirror": "Switch to CodeMirror",
     "switchToTextarea": "Switch to Textarea"
   },
   "on": "ON",

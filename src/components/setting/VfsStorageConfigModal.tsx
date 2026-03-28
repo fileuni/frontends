@@ -48,6 +48,32 @@ type PolicyDraft = {
   default_quota: string;
 };
 
+type CacheSectionDraft = {
+  readEnable: boolean;
+  readBackend: 'memory' | 'local_dir';
+  readLocalDir: string;
+  readCapacityBytes: string;
+  readMaxFileSizeBytes: string;
+  readTtlSecs: string;
+  writeEnable: boolean;
+  writeBackend: 'memory' | 'local_dir';
+  writeLocalDir: string;
+  writeCapacityBytes: string;
+  writeMaxFileSizeBytes: string;
+  writeFlushConcurrency: string;
+  writeFlushIntervalMs: string;
+  writeFlushDeadlineSecs: string;
+};
+
+type ArchiveSectionDraft = {
+  enable: boolean;
+  exe7zipPath: string;
+  defaultCompressionFormat: string;
+  maxConcurrency: string;
+  maxCpuThreads: string;
+  timeoutSecs: string;
+};
+
 type ActiveTab = 'pools' | 'connectors' | 'policies';
 
 type ViewMode = 'main' | 'advanced';
@@ -58,6 +84,7 @@ export interface VfsStorageConfigModalProps {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
+  mode?: 'modal' | 'panel';
   onPickDirectory?: () => Promise<{
     driver: string;
     root: string;
@@ -349,6 +376,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
   tomlAdapter,
   content,
   onContentChange,
+  mode = 'modal',
   onPickDirectory,
 }) => {
   const { t } = useTranslation();
@@ -408,6 +436,30 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
   const [pools, setPools] = useState<PoolDraft[]>([]);
   const [defaultPool, setDefaultPool] = useState('');
   const [policies, setPolicies] = useState<PolicyDraft[]>([]);
+  const [cacheSection, setCacheSection] = useState<CacheSectionDraft>({
+    readEnable: false,
+    readBackend: 'memory',
+    readLocalDir: '{APPDATADIR}/cache/vfs-read',
+    readCapacityBytes: '134217728',
+    readMaxFileSizeBytes: '2097152',
+    readTtlSecs: '1800',
+    writeEnable: false,
+    writeBackend: 'local_dir',
+    writeLocalDir: '{APPDATADIR}/cache/vfs-write',
+    writeCapacityBytes: '100663296',
+    writeMaxFileSizeBytes: '262144',
+    writeFlushConcurrency: '2',
+    writeFlushIntervalMs: '30',
+    writeFlushDeadlineSecs: '360',
+  });
+  const [archiveSection, setArchiveSection] = useState<ArchiveSectionDraft>({
+    enable: false,
+    exe7zipPath: '7z',
+    defaultCompressionFormat: 'zip',
+    maxConcurrency: '2',
+    maxCpuThreads: '2',
+    timeoutSecs: '300',
+  });
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
@@ -425,6 +477,41 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     setPools(parsed.pools);
     setDefaultPool(parsed.defaultPool);
     setPolicies(parsed.policies);
+    try {
+      const root = tomlAdapter.parse(content);
+      if (isRecord(root)) {
+        const hub = isRecord(root.vfs_storage_hub) ? root.vfs_storage_hub : {};
+        const readCache = isRecord(hub.read_cache) ? hub.read_cache : {};
+        const writeCache = isRecord(hub.write_cache) ? hub.write_cache : {};
+        const fileCompress = isRecord(hub.file_compress) ? hub.file_compress : {};
+        setCacheSection({
+          readEnable: typeof readCache.enable === 'boolean' ? readCache.enable : false,
+          readBackend: readCache.backend === 'local_dir' ? 'local_dir' : 'memory',
+          readLocalDir: typeof readCache.local_dir === 'string' ? readCache.local_dir : '{APPDATADIR}/cache/vfs-read',
+          readCapacityBytes: String(readCache.capacity_bytes ?? 134217728),
+          readMaxFileSizeBytes: String(readCache.max_file_size_bytes ?? 2097152),
+          readTtlSecs: String(readCache.ttl_secs ?? 1800),
+          writeEnable: typeof writeCache.enable === 'boolean' ? writeCache.enable : false,
+          writeBackend: writeCache.backend === 'memory' ? 'memory' : 'local_dir',
+          writeLocalDir: typeof writeCache.local_dir === 'string' ? writeCache.local_dir : '{APPDATADIR}/cache/vfs-write',
+          writeCapacityBytes: String(writeCache.capacity_bytes ?? 100663296),
+          writeMaxFileSizeBytes: String(writeCache.max_file_size_bytes ?? 262144),
+          writeFlushConcurrency: String(writeCache.flush_concurrency ?? 2),
+          writeFlushIntervalMs: String(writeCache.flush_interval_ms ?? 30),
+          writeFlushDeadlineSecs: String(writeCache.flush_deadline_secs ?? 360),
+        });
+        setArchiveSection({
+          enable: typeof fileCompress.enable === 'boolean' ? fileCompress.enable : false,
+          exe7zipPath: typeof fileCompress.exe_7zip_path === 'string' ? fileCompress.exe_7zip_path : '7z',
+          defaultCompressionFormat: typeof fileCompress.default_compression_format === 'string' ? fileCompress.default_compression_format : 'zip',
+          maxConcurrency: String(fileCompress.process_manager_max_concurrency ?? 2),
+          maxCpuThreads: String(fileCompress.max_cpu_threads ?? 2),
+          timeoutSecs: String(fileCompress.timeout_secs ?? 300),
+        });
+      }
+    } catch {
+      // ignore
+    }
     setError(parsed.error);
     setView('main');
     setTab('pools');
@@ -512,6 +599,32 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       pool_name: policy.pool_name.trim(),
       default_quota: Number.parseInt(policy.default_quota.trim(), 10),
     }));
+
+    const readCache = ensureRecord(vfsHub, 'read_cache');
+    readCache.enable = cacheSection.readEnable;
+    readCache.backend = cacheSection.readBackend;
+    readCache.local_dir = cacheSection.readLocalDir;
+    readCache.capacity_bytes = Number.parseInt(cacheSection.readCapacityBytes, 10) || 134217728;
+    readCache.max_file_size_bytes = Number.parseInt(cacheSection.readMaxFileSizeBytes, 10) || 2097152;
+    readCache.ttl_secs = Number.parseInt(cacheSection.readTtlSecs, 10) || 1800;
+
+    const writeCache = ensureRecord(vfsHub, 'write_cache');
+    writeCache.enable = cacheSection.writeEnable;
+    writeCache.backend = cacheSection.writeBackend;
+    writeCache.local_dir = cacheSection.writeLocalDir;
+    writeCache.capacity_bytes = Number.parseInt(cacheSection.writeCapacityBytes, 10) || 100663296;
+    writeCache.max_file_size_bytes = Number.parseInt(cacheSection.writeMaxFileSizeBytes, 10) || 262144;
+    writeCache.flush_concurrency = Number.parseInt(cacheSection.writeFlushConcurrency, 10) || 2;
+    writeCache.flush_interval_ms = Number.parseInt(cacheSection.writeFlushIntervalMs, 10) || 30;
+    writeCache.flush_deadline_secs = Number.parseInt(cacheSection.writeFlushDeadlineSecs, 10) || 360;
+
+    const fileCompress = ensureRecord(vfsHub, 'file_compress');
+    fileCompress.enable = archiveSection.enable;
+    fileCompress.exe_7zip_path = archiveSection.exe7zipPath;
+    fileCompress.default_compression_format = archiveSection.defaultCompressionFormat;
+    fileCompress.process_manager_max_concurrency = Number.parseInt(archiveSection.maxConcurrency, 10) || 2;
+    fileCompress.max_cpu_threads = Number.parseInt(archiveSection.maxCpuThreads, 10) || 2;
+    fileCompress.timeout_secs = Number.parseInt(archiveSection.timeoutSecs, 10) || 300;
 
     const nextContent = tomlAdapter.stringify(nextConfig);
     onContentChange(nextContent);
@@ -675,25 +788,111 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     setPolicies((prev) => prev.map((p) => (p.id === id ? updater(p) : p)));
   };
 
-  if (!isOpen) return null;
+  if (mode === 'modal' && !isOpen) return null;
+
+  const contentView = (
+    <>
+      <div className={cn(
+        'rounded-xl border p-3 sm:p-4',
+        isDark ? 'border-white/10 bg-white/[0.02]' : 'border-slate-200 bg-white',
+      )}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-200' : 'text-slate-600')}>
+            {t('admin.config.storage.fields.defaultPool')}
+          </div>
+          <select
+            className={cn(
+              'h-10 rounded-lg border px-3 text-sm font-mono font-bold w-full sm:w-auto',
+              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+            )}
+            value={defaultPool}
+            onChange={(e) => setDefaultPool(e.target.value)}
+          >
+            {pools.map((p) => (
+              <option key={p.id} value={p.name}>
+                {p.name || '(unnamed)'}
+              </option>
+            ))}
+          </select>
+          <div className={cn('text-xs font-bold opacity-60 sm:ml-auto', isDark ? 'text-slate-400' : 'text-slate-500')}>
+            vfs_storage_hub
+          </div>
+        </div>
+      </div>
+
+      {validationErrors.length > 0 && (
+        <div className={cn(
+          'rounded-xl border p-3 sm:p-4',
+          isDark ? 'border-rose-500/30 bg-rose-500/10 text-rose-200' : 'border-rose-200 bg-rose-50 text-rose-900',
+        )}>
+          <div className="text-xs font-black uppercase tracking-widest mb-2">
+            {t('admin.config.storage.validation.title')}
+          </div>
+          <div className="space-y-1 text-sm font-mono font-bold">
+            {validationErrors.map((msg, idx) => (
+              <div key={`${idx}-${msg}`}>- {msg}</div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className={cn('grid grid-cols-2 gap-2')}>
+        <button
+          type="button"
+          className={cn(
+            'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+            view === 'main'
+              ? 'bg-primary text-white border-primary'
+              : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
+          )}
+          onClick={() => setView('main')}
+        >
+          <HardDrive size={16} />
+          {t('admin.config.storage.views.main')}
+        </button>
+        <button
+          type="button"
+          className={cn(
+            'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+            view === 'advanced'
+              ? 'bg-primary text-white border-primary'
+              : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
+          )}
+          onClick={() => setView('advanced')}
+        >
+          <Settings2 size={16} />
+          {t('admin.config.storage.views.advanced')}
+        </button>
+      </div>
+    </>
+  );
+
+  const showAllSections = mode === 'panel';
 
   return (
     <div
-      className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300"
-      role="dialog"
-      aria-modal="true"
+      className={cn(
+        mode === 'modal'
+          ? 'fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300'
+          : 'relative w-full'
+      )}
+      {...(mode === 'modal' ? { role: 'dialog', 'aria-modal': 'true' as const } : {})}
     >
-      <div
-        className={cn(
-          'absolute inset-0 backdrop-blur-2xl transition-all duration-300',
-          isDark ? 'bg-black/95' : 'bg-slate-900/80',
-        )}
-        onClick={onClose}
-      />
+      {mode === 'modal' && (
+        <div
+          className={cn(
+            'absolute inset-0 backdrop-blur-2xl transition-all duration-300',
+            isDark ? 'bg-black/95' : 'bg-slate-900/80',
+          )}
+          onClick={onClose}
+        />
+      )}
 
       <div
         className={cn(
-          'relative w-full max-w-5xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]',
+          mode === 'modal'
+            ? 'relative w-full max-w-5xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]'
+            : 'relative w-full rounded-2xl border shadow-xl overflow-hidden flex flex-col min-h-0',
           isDark
             ? 'bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5'
             : 'bg-white border-gray-200 text-slate-900',
@@ -718,93 +917,24 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className={cn(
-              'h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors',
-              isDark ? 'border-white/15 text-slate-300 hover:bg-white/10' : 'border-gray-200 text-slate-600 hover:bg-gray-100',
-            )}
-          >
-            <X size={16} />
-          </button>
+          {mode === 'modal' && (
+            <button
+              type="button"
+              onClick={onClose}
+              className={cn(
+                'h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors',
+                isDark ? 'border-white/15 text-slate-300 hover:bg-white/10' : 'border-gray-200 text-slate-600 hover:bg-gray-100',
+              )}
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-4">
-          <div className={cn(
-            'rounded-xl border p-3 sm:p-4',
-            isDark ? 'border-white/10 bg-white/[0.02]' : 'border-slate-200 bg-white',
-          )}>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-              <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-200' : 'text-slate-600')}>
-                {t('admin.config.storage.fields.defaultPool')}
-              </div>
-              <select
-                className={cn(
-                  'h-10 rounded-lg border px-3 text-sm font-mono font-bold w-full sm:w-auto',
-                  isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                )}
-                value={defaultPool}
-                onChange={(e) => setDefaultPool(e.target.value)}
-              >
-                {pools.map((p) => (
-                  <option key={p.id} value={p.name}>
-                    {p.name || '(unnamed)'}
-                  </option>
-                ))}
-              </select>
-              <div className={cn('text-xs font-bold opacity-60 sm:ml-auto', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                vfs_storage_hub
-              </div>
-            </div>
-          </div>
+          {contentView}
 
-          {validationErrors.length > 0 && (
-            <div className={cn(
-              'rounded-xl border p-3 sm:p-4',
-              isDark ? 'border-rose-500/30 bg-rose-500/10 text-rose-200' : 'border-rose-200 bg-rose-50 text-rose-900',
-            )}>
-              <div className="text-xs font-black uppercase tracking-widest mb-2">
-                {t('admin.config.storage.validation.title')}
-              </div>
-              <div className="space-y-1 text-sm font-mono font-bold">
-                {validationErrors.map((msg, idx) => (
-                  <div key={`${idx}-${msg}`}>- {msg}</div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className={cn('grid grid-cols-2 gap-2')}>
-            <button
-              type="button"
-              className={cn(
-                'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
-                view === 'main'
-                  ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
-                  : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
-              )}
-              onClick={() => setView('main')}
-            >
-              <HardDrive size={16} />
-              {t('admin.config.storage.views.main')}
-            </button>
-            <button
-              type="button"
-              className={cn(
-                'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
-                view === 'advanced'
-                  ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
-                  : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
-              )}
-              onClick={() => setView('advanced')}
-            >
-              <Settings2 size={16} />
-              {t('admin.config.storage.views.advanced')}
-            </button>
-          </div>
-
-          {view === 'main' && (
+          {view === 'main' && !showAllSections && (
             <div className={cn(
               'rounded-2xl border p-3 sm:p-4',
               isDark ? 'border-white/10 bg-white/[0.02]' : 'border-slate-200 bg-white',
@@ -1092,8 +1222,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
             </div>
           )}
 
-          {view === 'advanced' && (
+          {(view === 'advanced' || showAllSections) && (
             <>
+              {!showAllSections && (
               <div className={cn(
                 'grid grid-cols-1 sm:grid-cols-3 gap-2',
               )}>
@@ -1137,9 +1268,11 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                   {t('admin.config.storage.tabs.policies')}
                 </button>
               </div>
+              )}
 
-              {tab === 'connectors' && (
+              {(showAllSections || tab === 'connectors') && (
                 <div className="space-y-3">
+                  {showAllSections && <div className={cn('text-sm font-black uppercase tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.connectors')}</div>}
                   <div className="flex items-center justify-between">
                     <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
                       {t('admin.config.storage.connectors.title')}
@@ -1474,8 +1607,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                 </div>
               )}
 
-              {tab === 'pools' && (
+              {(showAllSections || tab === 'pools') && (
                 <div className="space-y-3">
+                  {showAllSections && <div className={cn('text-sm font-black uppercase tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.pools')}</div>}
                   <div className="flex items-center justify-between">
                     <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
                       {t('admin.config.storage.pools.title')}
@@ -1681,8 +1815,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                 </div>
               )}
 
-              {tab === 'policies' && (
+              {(showAllSections || tab === 'policies') && (
                 <div className="space-y-3">
+                  {showAllSections && <div className={cn('text-sm font-black uppercase tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.policies')}</div>}
                   <div className="flex items-center justify-between">
                     <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
                       {t('admin.config.storage.policies.title')}
@@ -1788,6 +1923,54 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                   ))}
                 </div>
               )}
+
+              {false && showAllSections && (
+                <div className="space-y-3">
+                  <div className={cn('text-sm font-black uppercase tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.cache')}</div>
+                  <div className="grid gap-4 xl:grid-cols-2">
+                    <div className={cn('rounded-2xl border p-4 space-y-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+                      <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>{t('admin.config.storage.cache.read')}</div>
+                      <label className="flex items-center gap-3 text-sm font-black"><input type="checkbox" checked={cacheSection.readEnable} onChange={(e) => setCacheSection((prev) => ({ ...prev, readEnable: e.target.checked }))} />{t('admin.config.storage.cache.enable')}</label>
+                      <select className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.readBackend} onChange={(e) => setCacheSection((prev) => ({ ...prev, readBackend: e.target.value as 'memory' | 'local_dir' }))}>
+                        <option value="memory">memory</option>
+                        <option value="local_dir">local_dir</option>
+                      </select>
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.readLocalDir} onChange={(e) => setCacheSection((prev) => ({ ...prev, readLocalDir: e.target.value }))} placeholder="local_dir" />
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.readCapacityBytes} onChange={(e) => setCacheSection((prev) => ({ ...prev, readCapacityBytes: e.target.value }))} placeholder="capacity_bytes" />
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.readMaxFileSizeBytes} onChange={(e) => setCacheSection((prev) => ({ ...prev, readMaxFileSizeBytes: e.target.value }))} placeholder="max_file_size_bytes" />
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.readTtlSecs} onChange={(e) => setCacheSection((prev) => ({ ...prev, readTtlSecs: e.target.value }))} placeholder="ttl_secs" />
+                    </div>
+                    <div className={cn('rounded-2xl border p-4 space-y-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+                      <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>{t('admin.config.storage.cache.write')}</div>
+                      <label className="flex items-center gap-3 text-sm font-black"><input type="checkbox" checked={cacheSection.writeEnable} onChange={(e) => setCacheSection((prev) => ({ ...prev, writeEnable: e.target.checked }))} />{t('admin.config.storage.cache.enable')}</label>
+                      <select className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.writeBackend} onChange={(e) => setCacheSection((prev) => ({ ...prev, writeBackend: e.target.value as 'memory' | 'local_dir' }))}>
+                        <option value="memory">memory</option>
+                        <option value="local_dir">local_dir</option>
+                      </select>
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.writeLocalDir} onChange={(e) => setCacheSection((prev) => ({ ...prev, writeLocalDir: e.target.value }))} placeholder="local_dir" />
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.writeCapacityBytes} onChange={(e) => setCacheSection((prev) => ({ ...prev, writeCapacityBytes: e.target.value }))} placeholder="capacity_bytes" />
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.writeFlushConcurrency} onChange={(e) => setCacheSection((prev) => ({ ...prev, writeFlushConcurrency: e.target.value }))} placeholder="flush_concurrency" />
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={cacheSection.writeFlushIntervalMs} onChange={(e) => setCacheSection((prev) => ({ ...prev, writeFlushIntervalMs: e.target.value }))} placeholder="flush_interval_ms" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {false && showAllSections && (
+                <div className="space-y-3">
+                  <div className={cn('text-sm font-black uppercase tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.archive')}</div>
+                  <div className={cn('rounded-2xl border p-4 space-y-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+                    <label className="flex items-center gap-3 text-sm font-black"><input type="checkbox" checked={archiveSection.enable} onChange={(e) => setArchiveSection((prev) => ({ ...prev, enable: e.target.checked }))} />{t('admin.config.storage.archive.enable')}</label>
+                    <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={archiveSection.exe7zipPath} onChange={(e) => setArchiveSection((prev) => ({ ...prev, exe7zipPath: e.target.value }))} placeholder="exe_7zip_path" />
+                    <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={archiveSection.defaultCompressionFormat} onChange={(e) => setArchiveSection((prev) => ({ ...prev, defaultCompressionFormat: e.target.value }))} placeholder="default_compression_format" />
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={archiveSection.maxConcurrency} onChange={(e) => setArchiveSection((prev) => ({ ...prev, maxConcurrency: e.target.value }))} placeholder="process_manager_max_concurrency" />
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={archiveSection.maxCpuThreads} onChange={(e) => setArchiveSection((prev) => ({ ...prev, maxCpuThreads: e.target.value }))} placeholder="max_cpu_threads" />
+                      <input className={cn('h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold', isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900')} value={archiveSection.timeoutSecs} onChange={(e) => setArchiveSection((prev) => ({ ...prev, timeoutSecs: e.target.value }))} placeholder="timeout_secs" />
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -1810,16 +1993,18 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
           </button>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className={cn(
-                'h-10 px-4 rounded-lg border text-sm font-black transition-all',
-                isDark ? 'border-white/15 bg-white/5 text-slate-300 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
-              )}
-            >
-              {t('common.cancel')}
-            </button>
+            {mode === 'modal' && (
+              <button
+                type="button"
+                onClick={onClose}
+                className={cn(
+                  'h-10 px-4 rounded-lg border text-sm font-black transition-all',
+                  isDark ? 'border-white/15 bg-white/5 text-slate-300 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+                )}
+              >
+                {t('common.cancel')}
+              </button>
+            )}
             <Button
               onClick={applyToConfig}
               className="h-10 px-6 rounded-lg shadow-xl shadow-primary/20"

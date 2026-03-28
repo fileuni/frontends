@@ -1,5 +1,6 @@
 import about from './about.json';
 import admin from './admin.json';
+import adminSetting from './admin-setting.json';
 import auth from './auth.json';
 import blacklist from './blacklist.json';
 import cacheManager from './cacheManager.json';
@@ -21,14 +22,17 @@ import privacy from './privacy.json';
 import profile from './profile.json';
 import security from './security.json';
 import sessions from './sessions.json';
-import setup from './setup.json';
 import themes from './themes.json';
 import tos from './tos.json';
 import welcome from './welcome.json';
 
 const translation = {
   "about": about,
-  "admin": admin,
+  "admin": {
+    ...admin,
+    "settings": adminSetting.admin.settings,
+    "config": adminSetting.admin.config,
+  },
   "auth": auth,
   "blacklist": blacklist,
   "cacheManager": cacheManager,
@@ -50,7 +54,7 @@ const translation = {
   "profile": profile,
   "security": security,
   "sessions": sessions,
-  "setup": setup,
+  "setup": adminSetting.setup,
   "themes": themes,
   "tos": tos,
   "welcome": welcome,

@@ -258,6 +258,7 @@ export interface components {
         };
         DbCheckRequest: {
             connection_string: string;
+            db_type: string;
         };
         ExternalToolDiagnoseReq: {
             configured_values: {
@@ -291,6 +292,7 @@ export interface components {
         };
         KvCheckRequest: {
             connection_string: string;
+            kv_type: string;
         };
         Resp: {
             biz_code?: string | null;

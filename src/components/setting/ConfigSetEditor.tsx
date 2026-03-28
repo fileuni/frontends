@@ -4,17 +4,16 @@ import '@/lib/i18n';
 import * as toml from 'smol-toml';
 import type { components as ApiComponents } from '@/types/api.ts';
 import type { components as ConfigSetComponents } from '@/types/config_set_api.ts';
-import type { ConfigError, ConfigNoteEntry } from '@/components/system-config/components/ConfigRawEditor';
-import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
-import { ConfigWorkbenchShell } from '@/components/system-config/components/ConfigWorkbenchShell';
-import { SetupOnboardingIntro } from '@/components/system-config/components/SetupOnboardingIntro';
-import { SetupSurfaceControls } from '@/components/system-config/components/SetupSurfaceControls';
-import type { ExternalToolDiagnosisResponse } from '@/components/system-config/components/ExternalDependencyConfigModal';
+import type { ConfigError, ConfigNoteEntry } from '@/components/setting/ConfigRawEditor';
+import { ConfigWorkbenchShell } from '@/components/setting/ConfigWorkbenchShell';
+import { SettingWorkbenchSurface } from '@/components/setting/SettingWorkbenchSurface';
+import { SettingSurfaceControls } from '@/components/setting/SettingSurfaceControls';
+import type { ExternalToolDiagnosisResponse } from '@/components/setting/ExternalDependencyConfigModal';
+import { buildSettingCommonActions } from '@/components/setting/SettingCommonActions';
+import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useToastStore } from '@/stores/toast';
-import { useThemeStore } from '@/stores/theme';
-import { useLanguageStore } from '@/stores/language';
 import { client, extractData, handleApiError } from '@/lib/api';
-import { CheckCircle, ShieldAlert } from 'lucide-react';
+import { CheckCircle, Pencil, ShieldAlert } from 'lucide-react';
 
 type ConfigSetStatusResponse = ConfigSetComponents['schemas']['ConfigSetStatusResponse'];
 type ConfigTemplateResponse = ConfigSetComponents['schemas']['ConfigTemplateResponse'];
@@ -48,9 +47,8 @@ const extractValidationErrorsFromException = (error: unknown): ConfigValidationE
 
 export const ConfigSetEditor: React.FC = () => {
   const { t } = useTranslation();
+  const isDark = useResolvedTheme() === 'dark';
   const { addToast } = useToastStore();
-  const { theme, setTheme } = useThemeStore();
-  const { language, setLanguage } = useLanguageStore();
 
   const [permitted, setPermitted] = useState(false);
   const [permissionMessage, setPermissionMessage] = useState('');
@@ -309,14 +307,34 @@ export const ConfigSetEditor: React.FC = () => {
     );
   }, []);
 
+  const handleCheckDatabase = useCallback(async ({ databaseType, connectionString }: { databaseType: 'sqlite' | 'postgres'; connectionString: string }) => {
+    try {
+      await extractData(
+        client.POST('/api/v1/config-set/check-db', {
+          body: { db_type: databaseType, connection_string: connectionString },
+        }),
+      );
+      addToast(t('admin.config.testSuccess'), 'success');
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    }
+  }, [addToast, t]);
+
+  const handleCheckCache = useCallback(async ({ cacheType, connectionString }: { cacheType: string; connectionString: string }) => {
+    try {
+      await extractData(
+        client.POST('/api/v1/config-set/check-kv', {
+          body: { kv_type: cacheType, connection_string: connectionString },
+        }),
+      );
+      addToast(t('admin.config.testSuccess'), 'success');
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    }
+  }, [addToast, t]);
+
   const headerActions = (
-    <SetupSurfaceControls
-      language={language}
-      onLanguageChange={setLanguage}
-      theme={theme}
-      onThemeChange={setTheme}
-      compact={true}
-    />
+    <SettingSurfaceControls compact={true} />
   );
 
   const finalMessage =
@@ -330,12 +348,37 @@ export const ConfigSetEditor: React.FC = () => {
             ? t('configSet.final.adminExisting', { user: adminUsername })
             : '');
 
+  const settingActions = buildSettingCommonActions({
+    t,
+    isDark,
+    tomlAdapter: toml,
+    content,
+    onContentChange: setContent,
+    runtimeOs,
+    onTestDatabase: handleCheckDatabase,
+    onTestCache: handleCheckCache,
+    adminPassword: {
+      onApply: async (password) => handleQuickWizardResetAdminPassword(password),
+      loading: resettingAdminPassword,
+      hint: t('setup.admin.resetRuleHint'),
+    },
+    license: {
+      status: licenseStatus,
+      licenseKey,
+      onLicenseKeyChange: setLicenseKey,
+      onApplyLicense: () => { void applyLicenseKey(); },
+      saving: licenseSaving,
+    },
+    storage: {
+      onPrimaryAction: () => { void handleApplyWithoutPassword(); },
+      primaryActionLabel: t('setup.guide.card3Action'),
+    },
+  });
+
   if (!loading && !permitted) {
     return (
       <ConfigWorkbenchShell
-        title={t('configSet.wizard.title')}
-        subtitle={t('configSet.wizard.subtitle')}
-        configPath={configPath}
+        title={t('admin.config.title')}
         headerActions={headerActions}
       >
         <div className="max-w-2xl mx-auto p-6 sm:p-8 bg-card border-2 border-destructive/20 rounded-3xl sm:rounded-[2.5rem] text-center shadow-2xl">
@@ -343,6 +386,7 @@ export const ConfigSetEditor: React.FC = () => {
           <h2 className="text-4xl font-black mb-6">{t('configSet.locked.title')}</h2>
           <p className="text-xl opacity-70 mb-10">{permissionMessage}</p>
           <button
+            type="button"
             onClick={() => { void fetchStatus(); }}
             className="px-10 py-4 bg-primary text-primary-foreground rounded-2xl font-black shadow-xl"
           >
@@ -356,8 +400,7 @@ export const ConfigSetEditor: React.FC = () => {
   if (completed) {
     return (
       <ConfigWorkbenchShell
-        title={t('configSet.wizard.title')}
-        subtitle={t('configSet.wizard.subtitle')}
+        title={t('admin.config.title')}
         configPath={configPath}
         headerActions={headerActions}
       >
@@ -380,6 +423,7 @@ export const ConfigSetEditor: React.FC = () => {
             </div>
           </div>
           <button
+            type="button"
             onClick={() => { void finishAndReturnToHome(); }}
             disabled={finishing}
             className="px-6 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
@@ -392,67 +436,56 @@ export const ConfigSetEditor: React.FC = () => {
   }
 
   return (
-      <ConfigWorkbenchShell
-        title={t('configSet.wizard.title')}
-        subtitle={t('configSet.wizard.subtitle')}
-        configPath={configPath}
-        headerActions={headerActions}
-      >
-        <div className="space-y-4">
-          <SetupOnboardingIntro configPath={configPath} />
-          <SystemConfigWorkbench
-            tomlAdapter={toml}
-            loading={loading}
-            configPath={configPath}
-            content={content}
-            savedContent={savedContent}
-            notes={notes}
-            validationErrors={validationErrors}
-            busy={testing}
-            onChange={setContent}
-            onTest={handleTest}
-            onSave={handleApplyWithoutPassword}
-            onCancel={handleResetToSaved}
-            showCancel={false}
-            allowSaveWithoutChanges={true}
-            forceEnableSave={true}
-            setupMode={true}
-            editorTitle={t('setup.editor.title')}
-            testLabel={t('setup.editor.check')}
-            onClearValidationErrors={() => setValidationErrors([])}
-            restartNotice={t('setup.admin.finalConfirmDesc')}
-            quickWizardEnabled={true}
-            runtimeOs={runtimeOs}
-            onDiagnoseExternalTools={handleDiagnoseExternalTools}
-            quickWizardLicense={{
-              isValid: Boolean(licenseStatus?.is_valid),
-              msg: licenseStatus?.msg,
-              currentUsers: licenseStatus?.current_users ?? 0,
-              maxUsers: licenseStatus?.max_users ?? 0,
-              deviceCode: licenseStatus?.device_code ?? '',
-              hwId: licenseStatus?.hw_id,
-              auxId: licenseStatus?.aux_id,
-              expiresAt: licenseStatus?.expires_at ?? null,
-              features: licenseStatus?.features ?? [],
-              licenseKey,
-              saving: licenseSaving,
-              onLicenseKeyChange: setLicenseKey,
-              onApplyLicense: () => {
-                void applyLicenseKey();
-              },
-            }}
-            adminPasswordLabel={t('configSet.admin.changePassword')}
-            onResetAdminPassword={handleQuickWizardResetAdminPassword}
-            isResettingAdminPassword={resettingAdminPassword}
-            adminPasswordPanelProps={{
-              showWarning: false,
-              showSuccess: false,
-              showResetHint: false,
-              confirmLabel: t('configSet.admin.changePassword'),
-              pendingHint: t('configSet.admin.pendingHint'),
-            }}
-          />
-        </div>
-      </ConfigWorkbenchShell>
-    );
+    <SettingWorkbenchSurface
+      title={t('admin.config.title')}
+      configPath={configPath}
+      configPathAction={
+        <button
+          type="button"
+          onClick={() => {
+            void addToast('CLI/Web: restart FileUni with --runtime-dir <path> to change the runtime directory.', { type: 'info', duration: 'long' });
+          }}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-300 bg-cyan-50 text-cyan-900 shadow-sm transition-all hover:bg-cyan-100 dark:border-cyan-400/30 dark:bg-cyan-500/10 dark:text-cyan-100 dark:hover:bg-cyan-500/20"
+          aria-label={t('setup.guide.card1Action')}
+          title={t('setup.guide.card1Action')}
+        >
+          <Pencil size={16} />
+        </button>
+      }
+      headerExtras={headerActions}
+      settingActions={settingActions}
+      testAction={{
+        label: t('setup.editor.check'),
+        onClick: () => { void handleTest(); },
+        disabled: testing,
+      }}
+      primaryAction={{
+        label: t('setup.guide.card3Action'),
+        onClick: () => { void handleApplyWithoutPassword(); },
+        disabled: testing,
+      }}
+      workbenchProps={{
+        tomlAdapter: toml,
+        loading,
+        configPath,
+        content,
+        savedContent,
+        notes,
+        validationErrors,
+        busy: testing,
+        onChange: setContent,
+        onTest: handleTest,
+        onSave: handleApplyWithoutPassword,
+        onCancel: handleResetToSaved,
+        showCancel: false,
+        allowSaveWithoutChanges: true,
+        forceEnableSave: true,
+        editorTitle: t('setup.editor.title'),
+        testLabel: t('setup.editor.check'),
+        onClearValidationErrors: () => setValidationErrors([]),
+        runtimeOs,
+        onDiagnoseExternalTools: handleDiagnoseExternalTools,
+      }}
+    />
+  );
 };

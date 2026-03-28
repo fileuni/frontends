@@ -1,7 +1,7 @@
 {
   "wizard": {
     "title": "FileUni Initialization",
-    "subtitle": "Configure your high-performance file management system"
+    "subtitle": "Finish system setup"
   },
   "steps": {
     "step": "Step",
@@ -109,7 +109,7 @@
     "password": "Secure Password",
     "suggestPassword": "Generate Random Password",
     "finalConfirm": "Final Confirmation",
-    "finalConfirmDesc": "Clicking will save the system configuration and ensure the admin account is ready. If tables or the administrator already exist, the system will only perform necessary synchronization.",
+    "finalConfirmDesc": "Confirm to save your settings and finish setup.",
     "finish": "Apply Configuration",
     "changePassword": "Set Admin Password",
     "pendingHint": "Takes effect after final apply",
@@ -127,7 +127,7 @@
     "nextSteps": "What to do next:",
     "step1": "Sign in with your administrator account.",
     "step2": "Edit and save configuration online in the Admin Console.",
-    "step3": "Click confirm to return to the home page and continue normal startup.",
+    "step3": "Confirm to return to the home page.",
     "reload": "Return Home",
     "docs": "View Documentation"
   },
@@ -140,7 +140,7 @@
     "dbSuccess": "Database connection success!",
     "applyingConfig": "Applying configuration and syncing DB schema...",
     "setupFailed": "Deployment failed",
-    "setupSuccess": "Setup completed successfully. Confirm to continue the normal flow.",
+    "setupSuccess": "Setup complete. Confirm to return home.",
     "failed": "Failed",
     "success": "Success"
   }

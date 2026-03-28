@@ -33,7 +33,7 @@ export interface SystemCapabilities {
   latex_preview_mode: string;
   enable_latexmk: boolean;
   enable_latexjs: boolean;
-  enable_monaco: boolean;
+  enable_codemirror: boolean;
   preview_size_limits: {
     default_mb: number;
     text_mb: number;

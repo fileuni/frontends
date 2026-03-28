@@ -1,0 +1,817 @@
+{
+  "setup": {
+    "wizard": {
+      "title": "欢迎安装 FileUni",
+      "subtitle": "按提示完成几步设置，即可开始使用"
+    },
+    "guide": {
+      "badge": "首次安装",
+      "title": "三步完成 FileUni 安装",
+      "desc": "如果您是第一次使用，保持默认选项通常就够了。FileUni 会先帮您准备最适合快速上手的设置，后续再慢慢调整也没问题。",
+      "card1Title": "选择保存位置",
+      "card1Desc": "确认 FileUni 唯一的运行目录，配置和数据都会保存在这里。",
+      "card1Action": "修改位置",
+      "card1Hint": "更改运行目录后，请重新启动 FileUni。",
+      "card2Title": "设置登录密码",
+      "card2Desc": "为管理员账号设置一个您记得住的密码。",
+      "card2Action": "设置密码",
+      "card2Hint": "设置管理员登录密码。",
+      "card3Title": "完成并开始使用",
+      "card3Desc": "安装完成后，回到启动器即可启动 FileUni。",
+      "card3Action": "应用",
+      "card3Hint": "保存当前设置并继续。",
+      "recommendedTitle": "推荐给第一次使用的您",
+      "recommendedDesc": "如果拿不准，尽量保留当前默认值。默认方案更适合个人、家庭和快速体验。",
+      "locationTitle": "当前安装位置",
+      "configDirLabel": "运行目录",
+      "configPathLabel": "当前配置文件",
+      "locationDesc": "这里只是告诉您安装内容会保存到哪里，不需要手动创建文件。",
+      "commonActionsTitle": "常用配置",
+      "openAction": "打开此项",
+      "requiredPrompt": "FileUni 尚未完成首次安装，是否现在继续？"
+    },
+    "editor": {
+      "title": "安装设置",
+      "check": "检查设置",
+      "quickWizard": "继续快速设置",
+      "showAdvanced": "显示高级设置",
+      "hideAdvanced": "隐藏高级设置",
+      "visualMode": "可视化编辑",
+      "sourceMode": "文本编辑",
+      "rawHiddenTitle": "需要更多设置时，再编辑配置文本",
+      "rawHiddenDesc": "首次安装时，优先使用上方的快速设置即可。只有当您需要更细致的控制时，再展开高级设置。",
+      "finishHint": "确认后完成安装。",
+      "backToWizard": "返回快速设置",
+      "moreActionsTitle": "其他高级入口",
+      "moreActionsDesc": "授权、存储和外部工具检查通常可以等安装完成后再处理。",
+      "showMoreActions": "显示更多高级入口",
+      "hideMoreActions": "隐藏高级入口"
+    },
+    "steps": {
+      "step": "步骤",
+      "performance": "进行性能调优",
+      "databaseCache": "配置数据库和缓存",
+      "storage": "配置存储",
+      "adminPassword": "设置管理员密码",
+      "finishSimple": "完成",
+      "profile": "性能画像",
+      "database": "数据库",
+      "cache": "缓存",
+      "advanced": "微调",
+      "config": "配置审核",
+      "admin": "管理员设置",
+      "final": "完成部署",
+      "review": "配置复核"
+    },
+    "locked": {
+      "title": "引导模式已锁定",
+      "howToUnlockFile": "如需解锁，请在项目根目录创建标志文件：",
+      "howToUnlockArg": "或者使用命令行参数重启："
+    },
+    "profile": {
+      "title": "选择性能画像",
+      "subtitle": "根据您的硬件资源选择一个起点，您可以在下一步进行详细微调。",
+      "low": {
+        "name": "节能 / IoT",
+        "desc": "适用于树莓派或 1GB 内存的云服务器。使用轻量级 SQLite 和 内存缓存。"
+      },
+      "medium": {
+        "name": "标准平衡",
+        "desc": "大多数家用 NAS 的理想选择。在内存占用和响应速度之间取得完美平衡。"
+      },
+      "high": {
+        "name": "高性能生产",
+        "desc": "生产级环境推荐。配合 PostgreSQL 和 Redis 处理海量文件集群。"
+      }
+    },
+    "config": {
+      "title": "系统环境配置",
+      "subtitle": "配置您的数据库与缓存后端，系统将自动生成 DSN 连接串",
+      "changeProfile": "重新选择画像",
+      "dbDsn": "数据库连接串 (DSN)",
+      "dsnNote": "提示：手动修改连接串会覆盖表单生成的内容。",
+      "rawToml": "配置文件预览 (TOML)",
+      "useTls": "使用安全连接 (TLS/SSL)",
+      "dbType": "数据库",
+      "host": "主机地址 (IP)",
+      "port": "端口号",
+      "username": "数据库用户名",
+      "password": "数据库密码",
+      "dbName": "数据库库名",
+      "dbPath": "SQLite 文件存储路径",
+      "kvUsername": "Redis 用户名",
+      "kvType": "缓存",
+      "kvRedisHint": "Redis 格式的缓存后端 (Redis/KeyDB/Valkey)",
+      "kvDashmapHint": "提示：内存缓存不会持久化数据，重启后缓存将清空。",
+      "kvSqlHint": "提示：将复用主数据库存储缓存数据。",
+      "versionWarning": {
+        "keydb": "KeyDB 建议版本: 6.3.4+",
+        "redis": "Redis 建议版本: 7.4.0+",
+        "valkey": "Valkey 建议版本: 9.0.0+"
+      },
+      "advanced": {
+        "toggle": "详细高级配置 (数据库、连接池、系统性能微调)",
+        "userCenterTitle": "用户中心配置",
+        "enableReg": "允许新用户注册",
+        "plusTitle": "Plus 增强插件系统",
+        "plusEnabled": "启用增强插件系统",
+        "plusCaptureLogs": "实时捕获插件日志",
+        "captchaTitle": "验证码安全配置",
+        "captchaLength": "验证码字符长度",
+        "captchaExpires": "过期时间 (秒)",
+        "captchaSecret": "验证码签名密钥 (Secret Key)",
+        "captchaMaxFailures": "最大重试/失败次数",
+        "captchaCooldown": "失败后锁定冷却时间 (秒)",
+        "captchaGlobalLimit": "全局每小时请求上限",
+        "captchaCacheSize": "验证码预生成池大小",
+        "captchaConcurrency": "后台生成任务并发数",
+        "accessTokenSecret": "访问令牌密钥 (Access Token Secret)",
+        "refreshTokenSecret": "刷新令牌密钥 (Refresh Token Secret)",
+        "genSecret": "生成 64 位随机密钥",
+        "poolTitle": "连接池与通用性能",
+        "maxConn": "最大连接数 (max_connections)",
+        "minConn": "最小连接数 (min_connections)",
+        "connectTimeout": "连接超时 (秒, connect_timeout)",
+        "idleTimeout": "空闲超时 (秒, idle_timeout)",
+        "maxLifetime": "连接生存期 (秒, max_lifetime)",
+        "healthCheck": "健康检查超时 (秒)",
+        "pgTitle": "PostgreSQL 引擎调优 (性能与锁定)",
+        "statementTimeout": "语句超时 (秒, statement_timeout_seconds)",
+        "lockTimeout": "锁等待超时 (ms, lock_timeout)",
+        "poolSizeLimit": "启用连接池大小限制",
+        "tcpKeepalive": "TCP Keepalive (秒, 0=默认)",
+        "walMode": "启用 WAL 模式 (高性能写入)",
+        "busyTimeout": "忙等待超时 (ms, busy_timeout)",
+        "cacheSize": "缓存大小 (KB, cache_size)",
+        "tempStore": "临时表位置 (0=默认, 1=文件, 2=内存)",
+        "mmapSize": "内存映射大小 (Bytes, mmap_size)",
+        "pageSize": "页面大小 (Bytes, page_size)",
+        "sharedCache": "启用共享缓存 (shared_cache)"
+      }
+    },
+    "cache": {
+      "externalServer": "独立缓存服务器",
+      "externalHints": {
+        "redis": "如果您已经有 Redis 环境，直接复用即可。",
+        "valkey": "首次安装需要独立缓存服务器时，推荐优先使用 Valkey。",
+        "keydb": "KeyDB 更适合高并发和多线程负载。"
+      }
+    },
+    "storagePool": {
+      "title": "存储池配置",
+      "desc": "为每个存储池选择后端类型，并填写该后端真正需要的最少字段。",
+      "rootHint": "推荐默认值：{{value}}",
+      "s3": {
+        "endpoint": "服务地址",
+        "region": "区域",
+        "bucket": "桶名称",
+        "access_key_id": "Access Key ID",
+        "secret_access_key": "Secret Access Key"
+      },
+      "s3Hints": {
+        "endpoint": "填写 S3 或兼容对象存储的访问地址。",
+        "region": "填写服务所在区域；兼容对象存储可按服务商要求填写。",
+        "bucket": "填写要作为此存储池根位置的 bucket。",
+        "access_key_id": "用于访问对象存储的账号标识。",
+        "secret_access_key": "用于访问对象存储的密钥。"
+      },
+      "webdav": {
+        "endpoint": "WebDAV 地址",
+        "username": "用户名",
+        "password": "密码"
+      },
+      "webdavHints": {
+        "endpoint": "填写 WebDAV 服务根地址。",
+        "username": "用于登录 WebDAV 的账号。",
+        "password": "用于登录 WebDAV 的密码。"
+      }
+    },
+    "storageCache": {
+      "title": "读写缓存加速",
+      "writeRisk": "警告：写缓存启用后，数据会先落入缓存再异步刷回后端；如果设备突然断电、缓存目录被清理或刷写失败，可能出现文件丢失或落盘延迟。"
+    },
+    "admin": {
+      "title": "设置管理员账号",
+      "subtitle": "这个账号用于登录管理后台，后续也可以再修改。",
+      "username": "管理员用户名",
+      "password": "安全密码",
+      "suggestPassword": "生成随机强密码",
+      "generate_password": "生成随机强密码",
+      "pendingHint": "完成安装后生效",
+      "resetRuleHint": "如果当前还没有管理员账号，应用时会创建用户名为 admin 的管理员；如果已经存在管理员账号，应用时会重置第一个管理员的密码为这里填写的密码。",
+      "resetSuccessWithUser": "管理员密码已生效，当前管理员用户名：{{username}}",
+      "finalConfirm": "准备完成安装",
+      "finalConfirmDesc": "确认后将保存当前设置并完成安装。更多设置可稍后调整。",
+      "finish": "完成安装",
+      "changePassword": "管理员配置",
+      "passwordHintTitle": "完成安装前，请先设置管理员登录密码",
+      "passwordHintDesc": "这是您第一次登录管理后台时要用到的密码。",
+      "passwordHintAction": "设置登录密码"
+    },
+    "final": {
+      "title": "安装完成",
+      "subtitle": "管理员账号 {{user}} 已准备就绪。",
+      "adminCreatedDefault": "已为您创建管理员账号 {{user}}，临时密码为 {{password}}。首次登录后建议尽快修改。",
+      "adminCreatedWithPassword": "已为您创建管理员账号 {{user}}，登录密码为 {{password}}。",
+      "adminReset": "管理员 {{user}} 的登录密码已更新为 {{password}}。",
+      "adminExisting": "已检测到管理员 {{user}}，这次没有修改密码。",
+      "nextSteps": "后续操作步骤：",
+      "step1": "返回启动器后启动 FileUni。",
+      "step2": "打开 Web 界面，并使用管理员账号登录。",
+      "step3": "进入管理后台后，再按需要完善更多设置。",
+      "startNow": "启动 FileUni",
+      "started": "FileUni 已启动",
+      "openWebUi": "打开 Web 界面",
+      "finishLater": "稍后再说",
+      "openHint": "启动后打开 Web 界面即可登录。",
+      "runningHint": "FileUni 已在运行，现在可以直接打开 Web 界面开始使用。",
+      "reload": "返回启动界面",
+      "docs": "查看官方技术文档"
+    },
+    "logs": {
+      "title": "实时部署日志",
+      "selectingProfile": "正在应用性能画像: {{profile}}...",
+      "templateLoadFailed": "模板加载失败: {{error}}",
+      "testingDb": "正在测试数据库连通性...",
+      "dbError": "数据库错误",
+      "dbSuccess": "数据库连接测试成功！",
+      "applyingConfig": "正在应用配置并同步数据库表结构...",
+      "setupFailed": "部署失败",
+      "setupSuccess": "安装完成，请确认后继续。"
+    }
+  },
+  "admin": {
+    "settings": {
+      "title": "系统设置",
+      "save_config": "保存配置",
+      "sensitive": "敏感信息",
+      "accessing": "正在调取管理数据...",
+      "noData": "此部分没有可用数据",
+      "globalSettings": "全局设置",
+      "navNote": "修改系统参数将立即对运行时配置生效，但某些核心引擎可能需要重启。",
+      "quotaTitle": "系统配额与权限",
+      "paramManagement": "管理 {{module}} 参数",
+      "hardwareId": "硬件 ID",
+      "matched": "已匹配",
+      "notFound": "未找到",
+      "enabledFeatures": "已启用的功能",
+      "configNote": "配置说明",
+      "licenseNote": "授权码与该服务器的特定硬件指纹绑定。更换核心硬件组件可能需要新的授权码。",
+      "generalNote": "对核心引擎参数的更改可能需要重启系统才能完全生效。在直接编辑之前，请务必验证 TOML structure。",
+      "tabs": {
+        "server": "基础服务",
+        "database": "数据库",
+        "vfs": "存储核心",
+        "security": "安全策略",
+        "log": "日志审计",
+        "license": "授权管理"
+      },
+      "generate": "生成随机密钥"
+    },
+    "config": {
+      "title": "配置编辑器",
+      "loading": "正在加载配置...",
+      "save": "保存",
+      "saveAndReload": "保存并重载",
+      "testContent": "测试内容",
+      "saveSuccess": "配置已保存",
+      "test": "测试",
+      "testSuccess": "配置测试通过",
+      "testFailed": "配置测试失败",
+      "reload": "热重载配置",
+      "reloadSuccess": "配置已重载",
+      "reloadFailed": "配置重载失败",
+      "reset": "初始化为示例配置",
+      "resetNotice": "模板已加载。请检查并保存以应用更改。",
+      "resetUnavailable": "内置模板不可用",
+      "resetHintTitle": "重置提醒",
+      "resetHint": "重置后会恢复默认设置，请确认后再保存。",
+      "restartNotice": "少数配置项需要重启服务器才能完全生效。",
+      "thumbnail": {
+        "title": "缩略图配置",
+        "subtitle": "配置缩略图外部工具路径与视频截帧策略，无需手写 TOML。若启用相关类型但外部程序不可用，系统将禁止带病启动。",
+        "apply": "应用缩略图设置",
+        "applied": "缩略图设置已应用",
+        "applyFailed": "缩略图设置应用失败",
+        "loadFailed": "缩略图配置不可用",
+        "videoSeekSeconds": "视频截帧秒数",
+        "videoSeekRatio": "视频截帧比例",
+        "vipsPath": "libvips 路径",
+        "imagemagickPath": "ImageMagick 路径",
+        "ffmpegPath": "FFmpeg 路径",
+        "libreofficePath": "LibreOffice 路径",
+        "videoSeekHint": "填写比例时将优先按视频时长 * 比例计算截帧点；推荐默认值为 0.3，可尽量避开视频开头黑帧。",
+        "helper": "修改路径后，请先检查是否可用。"
+      },
+      "compression": {
+        "title": "压缩解压配置",
+        "subtitle": "配置 7-Zip 依赖，用于压缩、解压、归档浏览等增强能力。",
+        "applied": "在线压缩设置已写入编辑器",
+        "enable": "启用在线压缩",
+        "enableHint": "启用后可创建压缩包、解压更多格式并浏览归档内容。若缺少 7-Zip，则只能回退到原生 ZIP/TAR 支持。",
+        "format": "默认压缩格式",
+        "concurrency": "最大并发",
+        "cpuThreads": "最大 CPU 线程数",
+        "helper": "建议先检查 7-Zip，再保存设置。",
+        "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
+      },
+      "externalTools": {
+        "diagnose": "诊断",
+        "autofill": "自动填写",
+        "autofillSuccess": "已将检测到的路径自动填写到表单中。",
+        "autofillNoChange": "没有可用于自动填写的检测结果。",
+        "mobileDisabled": "Android 与 iOS 不支持 FFmpeg、ImageMagick、LibreOffice、libvips、7-Zip 这类桌面外部二进制。移动端部署请保持相关功能禁用。",
+        "status": {
+          "ok": "正常",
+          "warning": "需复查",
+          "missing": "未找到",
+          "configuredInvalid": "配置无效",
+          "unsupported": "不支持"
+        },
+        "labels": {
+          "vips": "libvips",
+          "imagemagick": "ImageMagick",
+          "ffmpeg": "FFmpeg",
+          "libreoffice": "LibreOffice"
+        },
+        "placeholders": {
+          "vips": "vips",
+          "imagemagick": "convert 或 magick",
+          "ffmpeg": "ffmpeg",
+          "libreoffice": "soffice"
+        },
+        "messages": {
+          "diagnoseFailed": "外部依赖诊断失败",
+          "writeFailed": "写入外部依赖配置失败"
+        },
+        "card": {
+          "current": "当前值",
+          "detected": "检测结果",
+          "version": "版本信息",
+          "candidates": "候选路径",
+          "warnings": "运维提示"
+        }
+      },
+      "unsaved": "未保存",
+      "saved": "已保存",
+      "pendingChanges": "待提交修改",
+      "noPendingChanges": "无待提交修改",
+      "diffSummary": "差异统计",
+      "changedLines": "变更",
+      "addedLines": "新增",
+      "removedLines": "删除",
+      "shortcuts": {
+        "title": "快捷入口",
+        "subtitle": "常用功能入口"
+      },
+      "pathUnavailable": "配置文件路径不可用",
+      "quickNotes": "快速说明",
+      "example": "示例配置",
+      "noteEmpty": "当前项没有可用说明。",
+      "noteHint": "说明对应于配置键和各段落。",
+      "license": {
+        "title": "授权管理",
+        "featureCatalog": {
+          "free": {
+            "title": "免费版",
+            "desc": "基础功能可用，适合个人或轻量使用。"
+          },
+          "premium": {
+            "title": "高级授权",
+            "desc": "解锁高级功能与更高配额。"
+          },
+          "storage": {
+            "title": "存储能力",
+            "desc": "启用存储相关的增强功能与限制策略。"
+          }
+        }
+      },
+      "storage": {
+        "title": "存储池与后端",
+        "subtitle": "可视化编辑 vfs_storage_hub 存储配置",
+        "views": {
+          "main": "主存储",
+          "advanced": "高级"
+        },
+        "main": {
+          "hint": "主存储快捷编辑",
+          "openAdvanced": "打开高级配置",
+          "desc": "此处仅编辑默认存储池关联的主连接器；更多连接器/存储池/策略请切换到高级。",
+          "noPrimaryConnector": "当前默认存储池未配置主连接器 (primary_connector)。请先选择一个主连接器，或在高级模式中修复配置。"
+        },
+        "tabs": {
+          "pools": "存储池",
+          "connectors": "后端连接器",
+          "policies": "策略"
+        },
+        "sections": {
+          "connectors": "连接器",
+          "pools": "存储池",
+          "policies": "角色策略",
+          "cache": "读写缓存加速",
+          "archive": "在线解压"
+        },
+        "fields": {
+          "defaultPool": "默认存储池",
+          "name": "名称",
+          "driver": "后端类型",
+          "enabled": "启用",
+          "options": "高级选项"
+        },
+        "cache": {
+          "read": "读缓存",
+          "write": "写缓存",
+          "enable": "启用",
+          "backend": "后端",
+          "localDir": "本地目录",
+          "capacityBytes": "容量上限 Bytes",
+          "maxFileSizeBytes": "单文件上限 Bytes",
+          "ttlSecs": "过期时间 秒",
+          "flushConcurrency": "刷新并发",
+          "flushIntervalMs": "刷新间隔 ms",
+          "flushDeadlineSecs": "刷新截止 秒"
+        },
+        "archive": {
+          "enable": "启用在线解压",
+          "exe7zipPath": "7-Zip 路径",
+          "defaultCompressionFormat": "默认压缩格式",
+          "maxConcurrency": "最大并发",
+          "maxCpuThreads": "最大 CPU 线程数",
+          "timeoutSecs": "超时 秒"
+        },
+        "drivers": {
+          "fs": "本地文件系统 (fs)",
+          "s3": "S3 兼容 (s3)",
+          "memory": "内存"
+        },
+        "connectors": {
+          "title": "连接器列表",
+          "connector": "连接器",
+          "commonOptions": "常用选项"
+        },
+        "pools": {
+          "title": "存储池列表",
+          "pool": "存储池",
+          "primary": "主连接器",
+          "backup": "备用连接器",
+          "writeCache": "写入缓存"
+        },
+        "policies": {
+          "title": "存储策略",
+          "hint": "可选：按 role_id 指定 pool_name 与 default_quota（字节）。若留空，将使用 default_pool。",
+          "empty": "当前没有策略（policies = []）。",
+          "policy": "策略",
+          "defaultQuota": "默认配额（字节）"
+        },
+        "actions": {
+          "addConnector": "添加连接器",
+          "addPool": "添加存储池",
+          "addPolicy": "添加策略",
+          "addOption": "添加选项",
+          "pickDirectory": "选择目录",
+          "resetLocal": "重置为本地存储默认值",
+          "apply": "写入配置"
+        },
+        "hints": {
+          "root": {
+            "fs": "本地存储目录路径。移动端必须位于 APPDATADIR 沙箱内。",
+            "s3": "S3 根前缀 (root prefix)。",
+            "webdav": "WebDAV 根路径。",
+            "memory": "内存后端 root 仅用于通过配置校验。",
+            "android_saf": "Android SAF 授权目录 Tree URI（content://...）。",
+            "ios_scoped_fs": "iOS 安全作用域书签，需以 bookmark_b64: 开头。"
+          }
+        },
+        "validation": {
+          "title": "配置校验失败",
+          "minimumOneConnector": "至少需要 1 个连接器",
+          "minimumOnePool": "至少需要 1 个存储池",
+          "errors": {
+            "parseRoot": "TOML 根必须为对象",
+            "parseFailed": "解析配置失败: {{message}}",
+            "atLeastOneConnector": "至少需要 1 个连接器",
+            "connectorNamesUnique": "连接器名称必须唯一",
+            "connectorNameRequired": "connectors[{{index}}].name 为必填",
+            "connectorDriverRequired": "connectors[{{index}}].driver 为必填",
+            "connectorRootRequired": "connectors[{{index}}].root 为必填",
+            "atLeastOnePool": "至少需要 1 个存储池",
+            "poolNamesUnique": "存储池名称必须唯一",
+            "poolNameRequired": "pools[{{index}}].name 为必填",
+            "poolPrimaryRequired": "pools[{{index}}].primary_connector 为必填",
+            "poolPrimaryUnknown": "pools[{{index}}].primary_connector 引用未知连接器 '{{name}}'",
+            "poolBackupUnknown": "pools[{{index}}].backup_connector 引用未知连接器 '{{name}}'",
+            "defaultPoolRequired": "default_pool 为必填",
+            "defaultPoolNotFound": "default_pool '{{name}}' 必须匹配 pools 中已存在的存储池名称",
+            "policyRoleRequired": "policies[{{index}}].role_id 为必填",
+            "policyPoolRequired": "policies[{{index}}].pool_name 为必填",
+            "policyPoolUnknown": "policies[{{index}}].pool_name 引用未知存储池 '{{name}}'",
+            "policyQuotaInvalid": "policies[{{index}}].default_quota 必须为 >= 0 的数字"
+          }
+        }
+      },
+      "quickWizard": {
+        "title": "快速设置",
+        "subtitle": "按步骤完成首次安装常用设置。",
+        "parseErrorTitle": "当前设置暂时无法用简化模式显示。",
+        "parseErrorHint": "您可以先在下方设置页里修改，现有内容不会丢失。",
+        "setupHintTitle": "推荐：拿不准就保持默认",
+        "setupHintDesc": "默认方案已经适合大多数首次安装场景，后续随时都能再改。",
+        "steps": {
+          "performance": "使用场景",
+          "database": "数据保存",
+          "cache": "运行加速",
+          "advanced": "常见高阶配置",
+          "other": "更多选项"
+        },
+        "fields": {
+          "dbType": "数据保存方式",
+          "healthTimeoutSeconds": "连接检查等待时间（秒）",
+          "host": "地址",
+          "port": "端口",
+          "user": "账号",
+          "password": "密码",
+          "databaseName": "数据库名称",
+          "postgresDsn": "高级连接串",
+          "sqlitePath": "本机数据文件位置",
+          "cacheType": "加速方式",
+          "useTls": "使用安全连接",
+          "redisUrl": "高级缓存地址",
+          "licenseStatus": "授权状态",
+          "maxUsers": "最大用户配额",
+          "hwFingerprint": "硬件指纹",
+          "licenseKey": "授权密钥",
+          "licenseInputPlaceholder": "请输入获取到的 Base64 授权码...",
+          "expiresAt": "到期时间",
+          "features": "已启用功能",
+          "licenseHint": "请从官网获取授权码。设备代码用于硬件绑定。",
+          "enableRegistration": "启用注册",
+          "plusEnabled": "启用 Plus",
+          "plusCaptureLogs": "Plus 捕获日志",
+          "captchaCodeLength": "验证码长度",
+          "captchaExpiresInSeconds": "验证码过期时间（秒）"
+        },
+        "hints": {
+          "sqliteSingleNode": "推荐给首次安装、个人使用和家庭设备。",
+          "sqlitePathOnly": "只需填写数据库文件路径，系统会自动处理连接串。",
+          "cacheDashmapLightweight": "推荐给首次安装和轻量使用，无需额外服务。",
+          "cacheNoExternalConnection": "当前选项不需要额外安装缓存服务，保持默认即可。"
+        },
+        "options": {
+          "postgres": "连接已有 PostgreSQL",
+          "sqlite": "本机保存（推荐）",
+          "enabled": "已启用",
+          "disabled": "已禁用",
+          "cacheValkey": "Valkey",
+          "cacheRedis": "Redis",
+          "cacheKeydb": "KeyDB",
+          "cacheDashmap": "内置加速（推荐）",
+          "cacheDatabase": "跟随数据库",
+          "licenseAuthorized": "已正式授权",
+          "licenseUnauthorized": "未授权 / 免费版"
+        },
+        "actions": {
+          "previous": "上一步",
+          "next": "下一步",
+          "done": "返回设置页",
+          "doneSetup": "返回安装页面",
+          "applyLicense": "检查授权",
+          "setAdminPassword": "设置登录密码"
+        },
+        "setupAdvanced": {
+          "title": "需要更专业的连接方式？",
+          "desc": "只有在您确定要接入已有数据库或缓存服务时，才需要打开这些高级选项。",
+          "show": "显示高级选项",
+          "hide": "隐藏高级选项"
+        },
+        "setupLabels": {
+          "localDatabase": "保存在本机（推荐）",
+          "externalDatabase": "连接已有数据库",
+          "builtInCache": "内置加速（推荐）",
+          "databaseCache": "跟随数据库",
+          "externalCache": "连接已有缓存服务"
+        },
+        "setupHints": {
+          "externalDatabase": "如果您已经有独立的数据服务，请填写地址、端口和登录信息即可。",
+          "externalCache": "如果您已经有独立的缓存服务，请填写地址、端口和登录信息即可。"
+        },
+        "advancedActions": {
+          "intro": "需要更多设置时，可稍后在管理后台继续调整。",
+          "licensePlaceholder": "授权管理",
+          "openAdminConfig": "前往管理后台",
+          "changeAdminPassword": "修改管理员密码"
+        },
+        "otherActions": {
+          "intro": "更多设置"
+        },
+        "performance": {
+          "intro": "如果拿不准，保持默认即可。下面这些方案只是告诉 FileUni 更适合哪一类设备和使用场景。",
+          "allocatorRecommendationLinux": "内存分配器推荐（{{os}}）：jemalloc",
+          "allocatorRecommendationOthers": "内存分配器推荐（{{os}}）：mimalloc",
+          "maxConnections": "最大 {{count}} 连接",
+          "recommendedSettings": "本次会自动帮您完成",
+          "featureCompression": "压缩解压",
+          "featureSftp": "SFTP服务",
+          "featureFtp": "FTP服务",
+          "featureWebdav": "WebDAV服务",
+          "featureS3": "S3服务",
+          "featureBloomWarmup": "布隆预热",
+          "featureChat": "聊天功能",
+          "featureEmail": "邮件代收",
+          "features": {
+            "compression": "压缩解压能力",
+            "sftp": "SFTP 服务",
+            "ftp": "FTP 服务",
+            "s3": "S3 服务",
+            "webdav": "WebDAV 服务",
+            "chat": "聊天功能",
+            "email": "邮件代收",
+            "bloomWarmup": "布隆预热"
+          },
+          "preview": {
+            "simpleHint": "以下是本次将应用的设置。",
+            "viewDetails": "查看将应用的设置",
+            "hideDetails": "收起设置详情",
+            "configKeyChanges": "本次将调整的内容",
+            "totalChanges": "共 {{count}} 项",
+            "path": "项目",
+            "value": "设置值",
+            "groupStats": "分类统计",
+            "groups": {
+              "database": "数据库",
+              "cache": "缓存",
+              "middleware": "中间件限速",
+              "captcha": "验证码预热",
+              "allocator": "内存分配器",
+              "vfs": "VFS 存储",
+              "scheduler": "计划任务",
+              "sftp": "SFTP 服务",
+              "ftp": "FTP 服务",
+              "s3": "S3 服务",
+              "chat": "聊天模块",
+              "email": "邮件模块",
+              "other": "其他"
+            },
+            "dbPool": "数据库连接池（min-max）",
+            "cacheMemory": "缓存内存预算",
+            "ipRateLimit": "IP 限速（请求/窗口）",
+            "clientRateLimit": "Client 限速（请求/窗口）",
+            "userRateLimit": "User 限速（请求/窗口）",
+            "bruteForceLockout": "暴力破解锁定时长",
+            "captchaPreheatMode": "验证码预热策略",
+            "captchaPreheatPool": "验证码预热池大小",
+            "captchaGenConcurrency": "验证码生成并发(图形/总)",
+            "captchaPoolCheckInterval": "验证码池巡检间隔",
+            "criticalCron": "关键任务调度",
+            "maintenanceCron": "维护任务调度",
+            "lowPriorityCron": "低优先级任务调度",
+            "vfsConcurrency": "VFS 批处理并发",
+            "compressionConcurrency": "压缩进程并发",
+            "sftpMaxConnections": "SFTP 最大连接数",
+            "ftpMaxConnections": "FTP 最大连接数",
+            "s3MaxConnections": "S3 最大连接数"
+          },
+          "tiers": {
+            "extremeLow": "超低配设备",
+            "low": "轻量设备",
+            "medium": "家庭 / 个人",
+            "good": "多人使用 / 服务器"
+          },
+          "descriptions": {
+            "extremeLow": "适合非常有限的旧设备，只保留最核心的功能。",
+            "low": "适合轻量设备，尽量降低资源占用。",
+            "medium": "适合大多数个人、家庭和首次安装场景。",
+            "good": "适合多人共享、持续运行或资源更充足的设备。"
+          },
+          "loadProfile": {
+            "title": "使用强度",
+            "desc": "如果只有自己或少量成员使用，选择日常使用即可。",
+            "light": "日常使用",
+            "lightDesc": "适合个人或小团队",
+            "heavy": "多人同时使用",
+            "heavyDesc": "适合需要更多并发访问的场景",
+            "disabledOnLowHardware": "超低配置和轻量设备下不可选"
+          },
+          "preheatMode": {
+            "title": "验证码预热策略",
+            "desc": "用于平衡验证码池内存占用与高峰时生成吞吐。该策略会自动联动预热池与并发参数。",
+            "options": {
+              "memory": "内存优先",
+              "balanced": "均衡模式",
+              "throughput": "吞吐优先"
+            },
+            "descs": {
+              "memory": "减少预热池和生成并发，降低内存占用",
+              "balanced": "在内存与响应速度之间保持平衡",
+              "throughput": "扩大预热池和生成并发，优先抗高峰"
+            }
+          },
+          "performanceTips": {
+            "title": "性能调优建议",
+            "raid": "建议使用 RAID 阵列提升磁盘 I/O 性能和数据冗余",
+            "pgsql": "建议调整 PostgreSQL 参数 (shared_buffers, work_mem, effective_cache_size) 以匹配硬件资源",
+            "memory": "本模块仅提供基础优化建议，复杂场景需结合系统级调优"
+          }
+        }
+      }
+    }
+  },
+  "common": {
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出登录",
+    "theme": "主题模式",
+    "language": "语言选择",
+    "switchUser": "切换账号",
+    "home": "个人中心",
+    "backToHome": "返回首页",
+    "admin": "系统管理",
+    "system": "系统",
+    "test": "测试连接",
+    "dashboard": "控制台",
+    "username": "用户名/ID/邮箱/手机号",
+    "usernameRegister": "用户名",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "rememberMe": "记住我",
+    "forgotPassword": "忘记密码？",
+    "submit": "提交",
+    "back": "返回",
+    "next": "下一步",
+    "backToLogin": "返回登录",
+    "sendCode": "发送验证码",
+    "verificationCode": "验证码",
+    "manage": "管理",
+    "search": "搜索",
+    "actions": "操作",
+    "new": "新建",
+    "save": "保存",
+    "cancel": "取消",
+    "confirm": "确认",
+    "processing": "处理中",
+    "clear": "清除",
+    "loading": "加载中",
+    "all": "全部",
+    "close": "关闭",
+    "enable": "启用",
+    "disable": "禁用",
+    "items": "个项目",
+    "retry": "重试",
+    "notifications": "消息通知",
+    "noNotifications": "暂无新消息",
+    "markAllRead": "全部标记为已读",
+    "add": "新增",
+    "edit": "编辑",
+    "error": "错误",
+    "success": "成功",
+    "time": "时间",
+    "message": "消息",
+    "noData": "暂无数据",
+    "noItems": "暂无项目",
+    "noResults": "无结果",
+    "none": "无",
+    "status": "状态",
+    "confirmDelete": "确定要删除此项目吗？",
+    "downloadStarted": "开始下载...",
+    "loadingArchive": "正在打开压缩包...",
+    "minimize": "最小化",
+    "paginationTitle": "分页",
+    "pagination": {
+      "showing": "正在显示 {{start}} - {{end}}，共 {{total}} 条",
+      "page": "页",
+      "go": "跳转",
+      "limit": "每页限制",
+      "jumpTo": "跳转至页码",
+      "itemsPerPage": "每页显示数量",
+      "browseAll": "浏览全部 {{count}} 页"
+    },
+    "passwordMismatch": "密码不一致",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "download": "下载",
+    "refresh": "刷新",
+    "check": "检查",
+    "doNotShowAgain": "稍后再说",
+    "hideDetails": "隐藏详情",
+    "viewDetails": "查看详情",
+    "copy": "复制",
+    "copied": "已复制",
+    "more": "更多",
+    "share": "分享",
+    "delete": "删除",
+    "name": "名称",
+    "rawJson": "原始 JSON",
+    "visualMode": "可视化模式",
+    "switchToRawJson": "切换到原始 JSON 模式",
+    "editorEngine": {
+      "codemirror": "CodeMirror",
+      "textarea": "文本框",
+      "switchToCodeMirror": "切换到 CodeMirror",
+      "switchToTextarea": "切换到文本框"
+    },
+    "on": "开",
+    "off": "关",
+    "menu": "菜单",
+    "logoAlt": "FileUni 标志",
+    "codePlaceholder": "6位数字"
+  }
+}

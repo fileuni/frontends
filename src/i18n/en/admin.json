@@ -643,7 +643,7 @@
       "renewShortLifetimeDivisor": "Dynamic Renewal Ratio Divisor (Short)",
       "dnsConfigJson": "DNS Config JSON",
       "syncFromJson": "Sync From JSON",
-      "syncHint": "Form fields and JSON are synchronized. Save uses JSON as final source.",
+      "syncHint": "Save uses the current JSON content.",
       "rawJsonWarning": "Edit JSON carefully. Invalid fields may cause issuance failure."
     },
     "validation": {
@@ -925,10 +925,10 @@
     "resetNotice": "Template loaded. Review and save to apply changes.",
     "resetUnavailable": "Embedded template not available",
     "resetHintTitle": "Reset Reminder",
-    "resetHint": "Reset replaces editor content with the embedded template. Modify and save before reload.",
+    "resetHint": "Reset restores the default settings. Save when you are ready.",
     "restartNotice": "Some settings require a server restart to take full effect.",
     "thumbnail": {
-      "title": "Thumbnail Tools",
+      "title": "Thumbnail Settings",
       "subtitle": "Configure desktop thumbnail executables and video seek strategy without editing TOML by hand. If required tools are unavailable, startup validation will block unhealthy deployment.",
       "apply": "Apply Thumbnail Settings",
       "applied": "Thumbnail settings applied",
@@ -936,16 +936,23 @@
       "loadFailed": "Thumbnail config unavailable",
       "videoSeekSeconds": "Video Seek Seconds",
       "videoSeekRatio": "Video Seek Ratio",
+      "vipsPath": "libvips Path",
+      "imagemagickPath": "ImageMagick Path",
+      "ffmpegPath": "FFmpeg Path",
+      "libreofficePath": "LibreOffice Path",
       "videoSeekHint": "If ratio is set, it overrides seek seconds. A default like 0.3 usually avoids black opening frames.",
-      "helper": "Run diagnosis after editing the paths. The check actually starts the command and inspects the response, instead of only checking whether a file exists."
+      "helper": "After changing the path, check that it works first."
     },
     "compression": {
-      "title": "Online Compression",
+      "title": "Compression & Extraction",
       "subtitle": "Configure the 7-Zip dependency used for compression, extraction, archive browsing, and related enhancements.",
       "applied": "Online compression settings written into the editor",
       "enable": "Enable Online Compression",
       "enableHint": "When enabled, FileUni can create archives, extract more formats, and browse supported archives. Without 7-Zip, support falls back to native ZIP/TAR only.",
-      "helper": "Recommended flow: keep online compression enabled on desktop deployments, run diagnosis, autofill the detected 7-Zip path, then return to the main editor and save or reload.",
+      "format": "Default Compression Format",
+      "concurrency": "Max Concurrency",
+      "cpuThreads": "Max CPU Threads",
+      "helper": "Check 7-Zip first, then save your settings.",
       "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
     },
     "externalTools": {
@@ -1041,6 +1048,13 @@
         "connectors": "Connectors",
         "policies": "Policies"
       },
+      "sections": {
+        "connectors": "Connectors",
+        "pools": "Pools",
+        "policies": "Role Policies",
+        "cache": "Read / Write Cache",
+        "archive": "Online Extraction"
+      },
       "fields": {
         "defaultPool": "Default Pool",
         "name": "Name",
@@ -1049,11 +1063,32 @@
         "enabled": "Enabled",
         "options": "Advanced Options"
       },
+      "cache": {
+        "read": "Read Cache",
+        "write": "Write Cache",
+        "enable": "Enable",
+        "backend": "Backend",
+        "localDir": "Local Directory",
+        "capacityBytes": "Capacity Bytes",
+        "maxFileSizeBytes": "Max File Size Bytes",
+        "ttlSecs": "TTL Seconds",
+        "flushConcurrency": "Flush Concurrency",
+        "flushIntervalMs": "Flush Interval ms",
+        "flushDeadlineSecs": "Flush Deadline Seconds"
+      },
+      "archive": {
+        "enable": "Enable Online Extraction",
+        "exe7zipPath": "7-Zip Path",
+        "defaultCompressionFormat": "Default Compression Format",
+        "maxConcurrency": "Max Concurrency",
+        "maxCpuThreads": "Max CPU Threads",
+        "timeoutSecs": "Timeout Seconds"
+      },
       "drivers": {
         "fs": "Local Filesystem (fs)",
         "s3": "S3 Compatible (s3)",
         "webdav": "WebDAV (webdav)",
-        "memory": "Memory (memory, Dev)",
+        "memory": "Memory",
         "android_saf": "Android SAF (android_saf)",
         "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
       },
@@ -1223,14 +1258,14 @@
         "externalCache": "If you already have a separate cache service, just enter its address, port, and sign-in details here."
       },
       "advancedActions": {
-        "intro": "For more settings, continue on the admin settings page with these quick actions.",
+        "intro": "You can adjust more settings later in the admin console.",
         "licensePlaceholder": "License Management",
         "licensePlaceholderHint": "Open license management to review your current status and key.",
-        "openAdminConfig": "Open Admin Config Workspace",
+        "openAdminConfig": "Go to Admin Console",
         "changeAdminPassword": "Change Admin Password"
       },
       "otherActions": {
-        "intro": "Extra setup actions live here, such as license, storage, and administrator password options."
+        "intro": "More Settings"
       },
       "performance": {
         "intro": "If you are unsure, keeping the default choice is fine. These options simply tell FileUni what kind of device and usage style fits you best.",
@@ -1246,15 +1281,25 @@
         "featureBloomWarmup": "Bloom Warmup",
         "featureChat": "Chat Feature",
         "featureEmail": "Email Service",
+        "features": {
+          "compression": "Compression / Extraction",
+          "sftp": "SFTP Service",
+          "ftp": "FTP Service",
+          "s3": "S3 Service",
+          "webdav": "WebDAV Service",
+          "chat": "Chat Feature",
+          "email": "Email Service",
+          "bloomWarmup": "Bloom Warmup"
+        },
         "preview": {
-          "simpleHint": "This is a simple overview of what the selected plan will do. You do not need to understand every technical detail.",
-          "viewDetails": "View Detailed Config Keys",
-          "hideDetails": "Hide Detailed Config Keys",
-          "configKeyChanges": "Complete Config Changes",
+          "simpleHint": "Here are the settings that will be applied.",
+          "viewDetails": "View Applied Settings",
+          "hideDetails": "Hide Setting Details",
+          "configKeyChanges": "Changes to Apply",
           "totalChanges": "{{count}} items",
-          "path": "Config Path",
-          "value": "Suggested Value",
-          "groupStats": "Module Group Stats",
+          "path": "Item",
+          "value": "Setting",
+          "groupStats": "Category Summary",
           "groups": {
             "database": "Database",
             "cache": "Cache",
@@ -1297,7 +1342,7 @@
         },
         "descriptions": {
           "extremeLow": "For very limited older hardware. Only the most essential features stay enabled.",
-          "low": "For lightweight devices or test environments where lower resource usage matters most.",
+          "low": "For lightweight devices with limited resources.",
           "medium": "Best for most personal, home, and first-time setup scenarios.",
           "good": "Best for shared access, always-on use, or devices with more available resources."
         },
@@ -1307,7 +1352,8 @@
           "light": "Everyday use",
           "lightDesc": "Best for personal or small-team use",
           "heavy": "Many people at once",
-          "heavyDesc": "Best when you expect more concurrent access"
+          "heavyDesc": "Best when you expect more concurrent access",
+          "disabledOnLowHardware": "Unavailable on ultra-low and light hardware"
         },
         "preheatMode": {
           "title": "Captcha Preheat Strategy",
@@ -1324,7 +1370,7 @@
           }
         },
         "performanceTips": {
-          "title": "Performance Optimization Tips",
+          "title": "Performance Tuning Advice",
           "raid": "Consider RAID arrays for improved disk I/O performance and data redundancy",
           "pgsql": "Tune PostgreSQL parameters (shared_buffers, work_mem, effective_cache_size) to match hardware resources",
           "memory": "This module provides basic optimization suggestions; complex scenarios require system-level tuning"

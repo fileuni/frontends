@@ -7,7 +7,7 @@ import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { deepClone, ensureRecord, isRecord } from '@/lib/configObject';
 import { useToastStore } from '@/stores/toast';
 
-type TomlAdapter = {
+export type TomlAdapter = {
   parse: (source: string) => unknown;
   stringify: (value: unknown) => string;
 };
@@ -43,7 +43,7 @@ type DiagnoseExternalTools = (
   configuredValues: Record<string, string>,
 ) => Promise<ExternalToolDiagnosisResponse>;
 
-type ThumbnailDraft = {
+export type ThumbnailDraft = {
   vipsPath: string;
   imagemagickPath: string;
   ffmpegPath: string;
@@ -52,9 +52,12 @@ type ThumbnailDraft = {
   videoSeekRatio: string;
 };
 
-type CompressionDraft = {
+export type CompressionDraft = {
   enabled: boolean;
   exe7zPath: string;
+  defaultCompressionFormat: string;
+  maxConcurrency: string;
+  maxCpuThreads: string;
 };
 
 type ToolInputDescriptor = {
@@ -76,6 +79,9 @@ const DEFAULT_THUMBNAIL_DRAFT: ThumbnailDraft = {
 const DEFAULT_COMPRESSION_DRAFT: CompressionDraft = {
   enabled: true,
   exe7zPath: '7z',
+  defaultCompressionFormat: 'zip',
+  maxConcurrency: '2',
+  maxCpuThreads: '2',
 };
 
 const normalizeRuntimeOs = (runtimeOs?: string): string => {
@@ -96,7 +102,7 @@ const normalizeRuntimeOs = (runtimeOs?: string): string => {
   return 'linux';
 };
 
-const parseThumbnailDraft = (content: string, tomlAdapter: TomlAdapter): ThumbnailDraft => {
+export const parseThumbnailDraft = (content: string, tomlAdapter: TomlAdapter): ThumbnailDraft => {
   try {
     const parsed = tomlAdapter.parse(content);
     if (!isRecord(parsed)) return DEFAULT_THUMBNAIL_DRAFT;
@@ -120,7 +126,7 @@ const parseThumbnailDraft = (content: string, tomlAdapter: TomlAdapter): Thumbna
   }
 };
 
-const parseCompressionDraft = (content: string, tomlAdapter: TomlAdapter): CompressionDraft => {
+export const parseCompressionDraft = (content: string, tomlAdapter: TomlAdapter): CompressionDraft => {
   try {
     const parsed = tomlAdapter.parse(content);
     if (!isRecord(parsed)) return DEFAULT_COMPRESSION_DRAFT;
@@ -130,6 +136,9 @@ const parseCompressionDraft = (content: string, tomlAdapter: TomlAdapter): Compr
     return {
       enabled: typeof fileCompress.enable === 'boolean' ? fileCompress.enable : DEFAULT_COMPRESSION_DRAFT.enabled,
       exe7zPath: typeof fileCompress.exe_7zip_path === 'string' ? fileCompress.exe_7zip_path : DEFAULT_COMPRESSION_DRAFT.exe7zPath,
+      defaultCompressionFormat: typeof fileCompress.default_compression_format === 'string' ? fileCompress.default_compression_format : DEFAULT_COMPRESSION_DRAFT.defaultCompressionFormat,
+      maxConcurrency: String(fileCompress.process_manager_max_concurrency ?? DEFAULT_COMPRESSION_DRAFT.maxConcurrency),
+      maxCpuThreads: String(fileCompress.max_cpu_threads ?? DEFAULT_COMPRESSION_DRAFT.maxCpuThreads),
     };
   } catch {
     return DEFAULT_COMPRESSION_DRAFT;
@@ -145,9 +154,12 @@ const buildThumbnailConfiguredValues = (draft: ThumbnailDraft): Record<string, s
 
 const buildCompressionConfiguredValues = (draft: CompressionDraft): Record<string, string> => ({
   'vfs_storage_hub.file_compress.exe_7zip_path': draft.exe7zPath.trim(),
+  'vfs_storage_hub.file_compress.default_compression_format': draft.defaultCompressionFormat.trim(),
+  'vfs_storage_hub.file_compress.process_manager_max_concurrency': draft.maxConcurrency.trim(),
+  'vfs_storage_hub.file_compress.max_cpu_threads': draft.maxCpuThreads.trim(),
 });
 
-const applyThumbnailDraft = (content: string, tomlAdapter: TomlAdapter, draft: ThumbnailDraft): string => {
+export const applyThumbnailDraft = (content: string, tomlAdapter: TomlAdapter, draft: ThumbnailDraft): string => {
   const parsed = tomlAdapter.parse(content);
   if (!isRecord(parsed)) {
     throw new Error('TOML root must be an object');
@@ -174,7 +186,7 @@ const applyThumbnailDraft = (content: string, tomlAdapter: TomlAdapter, draft: T
   return tomlAdapter.stringify(next);
 };
 
-const applyCompressionDraft = (content: string, tomlAdapter: TomlAdapter, draft: CompressionDraft): string => {
+export const applyCompressionDraft = (content: string, tomlAdapter: TomlAdapter, draft: CompressionDraft): string => {
   const parsed = tomlAdapter.parse(content);
   if (!isRecord(parsed)) {
     throw new Error('TOML root must be an object');
@@ -184,6 +196,9 @@ const applyCompressionDraft = (content: string, tomlAdapter: TomlAdapter, draft:
   const fileCompress = ensureRecord(vfsStorageHub, 'file_compress');
   fileCompress.enable = draft.enabled;
   fileCompress.exe_7zip_path = draft.exe7zPath.trim();
+  fileCompress.default_compression_format = draft.defaultCompressionFormat.trim();
+  fileCompress.process_manager_max_concurrency = Number.parseInt(draft.maxConcurrency, 10) || 2;
+  fileCompress.max_cpu_threads = Number.parseInt(draft.maxCpuThreads, 10) || 2;
   return tomlAdapter.stringify(next);
 };
 

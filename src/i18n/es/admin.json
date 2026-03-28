@@ -643,7 +643,7 @@
       "renewShortLifetimeDivisor": "Divisor de ratio de renovación dinámica (corta)",
       "dnsConfigJson": "JSON de configuración DNS",
       "syncFromJson": "Sincronizar desde JSON",
-      "syncHint": "Los campos del formulario y el JSON se sincronizan. Guardar usa el JSON como fuente final.",
+      "syncHint": "Al guardar se usará el contenido actual del JSON.",
       "rawJsonWarning": "Edite el JSON con cuidado. Campos no válidos pueden causar fallo de emisión."
     },
     "validation": {
@@ -852,7 +852,7 @@
     "resetNotice": "Plantilla cargada. Revise y guarde para aplicar cambios.",
     "resetUnavailable": "Plantilla embebida no disponible",
     "resetHintTitle": "Recordatorio de restablecimiento",
-    "resetHint": "Restablecer reemplaza el contenido del editor con la plantilla embebida. Modifique y guarde antes de recargar.",
+    "resetHint": "Restablecer recupera la configuración predeterminada. Guarde cuando esté listo.",
     "restartNotice": "Algunos ajustes requieren reiniciar el servidor para aplicarse completamente.",
     "thumbnail": {
       "title": "Ajustes de miniaturas",
@@ -933,7 +933,7 @@
         "fs": "Sistema de archivos local (fs)",
         "s3": "Compatible con S3 (s3)",
         "webdav": "WebDAV (webdav)",
-        "memory": "Memoria (memory, Dev)",
+        "memory": "Memoria",
         "android_saf": "Android SAF (android_saf)",
         "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
       },
@@ -1083,14 +1083,14 @@
         "setAdminPassword": "Establecer contraseña de admin"
       },
       "advancedActions": {
-        "intro": "Para más ajustes, continúe en la página de configuración de administración con estas acciones rápidas.",
+        "intro": "Puede ajustar más opciones después en la consola de administración.",
         "licensePlaceholder": "Gestión de licencia",
         "licensePlaceholderHint": "Abra la gestión de licencia para revisar el estado actual y la clave.",
-        "openAdminConfig": "Abrir espacio de configuración admin",
+        "openAdminConfig": "Ir a la consola de administración",
         "changeAdminPassword": "Cambiar contraseña de admin"
       },
       "otherActions": {
-        "intro": "Aquí viven acciones de configuración extra, como gestión de licencias y configuración de pools/backend de almacenamiento."
+        "intro": "Más ajustes"
       },
       "performance": {
         "intro": "Seleccione ajustes recomendados según su hardware. Son sugerencias: puede ajustar manualmente todos los parámetros en los pasos siguientes.",
@@ -1107,14 +1107,14 @@
         "featureChat": "Función de chat",
         "featureEmail": "Servicio de email",
         "preview": {
-          "simpleHint": "Esta sección muestra resultados clave. Expanda los detalles para ver cada clave de configuración exacta.",
-          "viewDetails": "Ver claves de configuración detalladas",
-          "hideDetails": "Ocultar claves de configuración detalladas",
-          "configKeyChanges": "Cambios completos de configuración",
+          "simpleHint": "Estos son los ajustes que se aplicarán.",
+          "viewDetails": "Ver ajustes que se aplicarán",
+          "hideDetails": "Ocultar detalles de ajustes",
+          "configKeyChanges": "Cambios que se aplicarán",
           "totalChanges": "{{count}} elementos",
-          "path": "Ruta de configuración",
-          "value": "Valor sugerido",
-          "groupStats": "Estadísticas de grupos de módulos",
+          "path": "Elemento",
+          "value": "Ajuste",
+          "groupStats": "Resumen por categoría",
           "groups": {
             "database": "Base de datos",
             "cache": "Caché",
@@ -1157,7 +1157,7 @@
         },
         "descriptions": {
           "extremeLow": "Para routers heredados y dispositivos embebidos con recursos de hardware extremadamente limitados. Solo funciones núcleo y WebDAV.",
-          "low": "Para dispositivos de gama baja y pequeñas pasarelas IoT con recursos limitados. Gestión básica de archivos y WebDAV.",
+          "low": "Para dispositivos ligeros con recursos limitados.",
           "medium": "Para servidores domésticos y NAS con recursos moderados. Se recomienda SQLite + caché de base de datos.",
           "good": "Para servidores y NAS de alto rendimiento con recursos abundantes. Elija un perfil de carga para mayor optimización."
         },

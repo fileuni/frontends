@@ -4645,6 +4645,7 @@ export interface components {
             enable_archive_browser?: boolean | null;
             enable_captcha: boolean;
             enable_chat: boolean;
+            enable_codemirror: boolean;
             enable_email_auth: boolean;
             enable_email_manager: boolean;
             enable_embedded_websocket: boolean;
@@ -4655,7 +4656,6 @@ export interface components {
             enable_markdown_vditor: boolean;
             enable_microsoft_viewer: boolean;
             enable_mobile_auth: boolean;
-            enable_monaco: boolean;
             enable_mqtt_proxy_broker: boolean;
             enable_quota: boolean;
             enable_registration: boolean;

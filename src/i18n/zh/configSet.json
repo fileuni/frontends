@@ -1,7 +1,7 @@
 {
   "wizard": {
     "title": "系统初始化向导",
-    "subtitle": "配置并初始化您的 FileUni 高性能文件管理系统"
+    "subtitle": "完成系统初始化"
   },
   "steps": {
     "step": "步骤",
@@ -108,7 +108,7 @@
     "password": "安全密码",
     "suggestPassword": "生成随机强密码",
     "finalConfirm": "最后确认初始化",
-    "finalConfirmDesc": "点击初始化将保存系统配置文件并确保管理账户已就绪。如果数据库中已存在同名表或管理员，系统将仅进行必要的配置同步。",
+    "finalConfirmDesc": "确认后将保存当前设置并完成初始化。",
     "finish": "开始应用配置",
     "changePassword": "设置管理员密码",
     "pendingHint": "最终应用后生效",
@@ -126,7 +126,7 @@
     "nextSteps": "后续操作步骤：",
     "step1": "使用管理员账号登录系统。",
     "step2": "在管理后台的配置页面在线编辑并保存配置。",
-    "step3": "点击确认后返回首页并继续正常启动流程。",
+    "step3": "确认后返回首页。",
     "reload": "返回首页",
     "docs": "查看官方技术文档"
   },
@@ -139,7 +139,7 @@
     "dbSuccess": "数据库连接测试成功！",
     "applyingConfig": "正在应用配置并同步数据库表结构...",
     "setupFailed": "部署失败",
-    "setupSuccess": "部署成功，请确认后返回正常流程。",
+    "setupSuccess": "初始化完成，请确认后返回首页。",
     "failed": "失败",
     "success": "成功"
   }

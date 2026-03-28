@@ -1,0 +1,304 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
+import { useResolvedTheme } from '@/hooks/useResolvedTheme';
+import { PasswordInput } from '@/components/common/PasswordInput';
+import type { CompressionDraft, ThumbnailDraft, TomlAdapter } from './ExternalDependencyConfigModal';
+import {
+  applyCompressionDraft,
+  applyThumbnailDraft,
+  parseCompressionDraft,
+  parseThumbnailDraft,
+} from './ExternalDependencyConfigModal';
+
+interface BaseProps {
+  tomlAdapter: TomlAdapter;
+  content: string;
+  onContentChange: (value: string) => void;
+}
+
+export const ThumbnailInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content, onContentChange }) => {
+  const { t } = useTranslation();
+  const isDark = useResolvedTheme() === 'dark';
+  const [draft, setDraft] = useState<ThumbnailDraft>(() => parseThumbnailDraft(content, tomlAdapter));
+  const didInitRef = useRef(false);
+
+  useEffect(() => {
+    setDraft(parseThumbnailDraft(content, tomlAdapter));
+    didInitRef.current = false;
+  }, [content, tomlAdapter]);
+
+  const inputClass = cn(
+    'mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono',
+    isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900'
+  );
+
+  useEffect(() => {
+    if (!didInitRef.current) {
+      didInitRef.current = true;
+      return;
+    }
+    onContentChange(applyThumbnailDraft(content, tomlAdapter, draft));
+  }, [content, draft, onContentChange, tomlAdapter]);
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <div className={cn('rounded-2xl border p-4 space-y-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+        {[
+          ['admin.config.thumbnail.vipsPath', draft.vipsPath, (value: string) => setDraft((prev) => ({ ...prev, vipsPath: value })), 'vips'],
+          ['admin.config.thumbnail.imagemagickPath', draft.imagemagickPath, (value: string) => setDraft((prev) => ({ ...prev, imagemagickPath: value })), 'convert'],
+          ['admin.config.thumbnail.ffmpegPath', draft.ffmpegPath, (value: string) => setDraft((prev) => ({ ...prev, ffmpegPath: value })), 'ffmpeg'],
+          ['admin.config.thumbnail.libreofficePath', draft.libreofficePath, (value: string) => setDraft((prev) => ({ ...prev, libreofficePath: value })), 'soffice'],
+        ].map(([label, value, onChange, placeholder]) => (
+          <div key={String(label)}>
+            <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-700')}>
+              {t(String(label))}
+            </div>
+            <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass} placeholder={String(placeholder)} />
+          </div>
+        ))}
+      </div>
+
+      <div className={cn('rounded-2xl border p-4 space-y-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+        <div>
+          <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>
+            {t('admin.config.thumbnail.videoSeekSeconds')}
+          </div>
+          <input value={draft.videoSeekSeconds} onChange={(event) => setDraft((prev) => ({ ...prev, videoSeekSeconds: event.target.value }))} className={inputClass} inputMode="numeric" placeholder="3" />
+        </div>
+        <div>
+          <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>
+            {t('admin.config.thumbnail.videoSeekRatio')}
+          </div>
+          <input value={draft.videoSeekRatio} onChange={(event) => setDraft((prev) => ({ ...prev, videoSeekRatio: event.target.value }))} className={inputClass} inputMode="decimal" placeholder="0.3" />
+        </div>
+        <div className={cn('rounded-xl border p-3 text-sm leading-6', isDark ? 'border-cyan-500/20 bg-cyan-500/10 text-cyan-100' : 'border-cyan-200 bg-cyan-50 text-cyan-900')}>
+          {t('admin.config.thumbnail.helper')}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const CompressionInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content, onContentChange }) => {
+  const { t } = useTranslation();
+  const isDark = useResolvedTheme() === 'dark';
+  const [draft, setDraft] = useState<CompressionDraft>(() => parseCompressionDraft(content, tomlAdapter));
+  const didInitRef = useRef(false);
+
+  useEffect(() => {
+    setDraft(parseCompressionDraft(content, tomlAdapter));
+    didInitRef.current = false;
+  }, [content, tomlAdapter]);
+
+  const inputClass = cn(
+    'mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono',
+    isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900'
+  );
+
+  useEffect(() => {
+    if (!didInitRef.current) {
+      didInitRef.current = true;
+      return;
+    }
+    onContentChange(applyCompressionDraft(content, tomlAdapter, draft));
+  }, [content, draft, onContentChange, tomlAdapter]);
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+      <div className={cn('rounded-2xl border p-4 space-y-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+        <label className="flex items-start gap-3">
+          <input type="checkbox" className="mt-1 h-4 w-4 rounded border-slate-300" checked={draft.enabled} onChange={(event) => setDraft((prev) => ({ ...prev, enabled: event.target.checked }))} />
+          <div>
+            <div className="text-sm font-black uppercase tracking-wide">{t('admin.config.compression.enable')}</div>
+            <div className={cn('text-sm mt-1 leading-6', isDark ? 'text-slate-400' : 'text-slate-700')}>{t('admin.config.compression.enableHint')}</div>
+          </div>
+        </label>
+        <div>
+          <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>7-Zip</div>
+          <input value={draft.exe7zPath} onChange={(event) => setDraft((prev) => ({ ...prev, exe7zPath: event.target.value }))} className={inputClass} placeholder="7z" />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>Format</div>
+            <input value={draft.defaultCompressionFormat} onChange={(event) => setDraft((prev) => ({ ...prev, defaultCompressionFormat: event.target.value }))} className={inputClass} placeholder="zip" />
+          </div>
+          <div>
+            <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>Concurrency</div>
+            <input value={draft.maxConcurrency} onChange={(event) => setDraft((prev) => ({ ...prev, maxConcurrency: event.target.value }))} className={inputClass} placeholder="2" />
+          </div>
+          <div>
+            <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>CPU Threads</div>
+            <input value={draft.maxCpuThreads} onChange={(event) => setDraft((prev) => ({ ...prev, maxCpuThreads: event.target.value }))} className={inputClass} placeholder="2" />
+          </div>
+        </div>
+      </div>
+      <div className={cn('rounded-2xl border p-4 space-y-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+        <div className={cn('text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-700')}>
+          {t('admin.config.compression.disabledHint')}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface AdminPasswordInlinePanelProps {
+  onApply: (password: string) => Promise<void | string | { username?: string }>;
+  loading?: boolean;
+  hint?: string;
+}
+
+export const AdminPasswordInlinePanel: React.FC<AdminPasswordInlinePanelProps> = ({ onApply, loading = false, hint }) => {
+  const { t } = useTranslation();
+  const isDark = useResolvedTheme() === 'dark';
+  const [password, setPassword] = useState('');
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      <div>
+        <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>
+          {t('setup.admin.password')}
+        </div>
+        <PasswordInput
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          inputClassName={cn(
+            'mt-2 h-11 w-full rounded-xl border px-3 text-sm',
+            isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900'
+          )}
+          placeholder={t('setup.admin.password')}
+        />
+        {hint && <div className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">{hint}</div>}
+      </div>
+      <button
+        type="button"
+        onClick={() => { void onApply(password); }}
+        disabled={loading || password.trim().length < 8}
+        className="h-11 px-4 rounded-xl bg-primary text-white text-sm font-black hover:opacity-90 disabled:opacity-50"
+      >
+        {t('setup.guide.card3Action')}
+      </button>
+    </div>
+  );
+};
+
+type CacheAccelerationDraft = {
+  readEnable: boolean;
+  readBackend: 'memory' | 'local_dir';
+  readLocalDir: string;
+  readCapacityBytes: string;
+  readMaxFileSizeBytes: string;
+  readTtlSecs: string;
+  writeEnable: boolean;
+  writeBackend: 'memory' | 'local_dir';
+  writeLocalDir: string;
+  writeCapacityBytes: string;
+  writeMaxFileSizeBytes: string;
+  writeFlushConcurrency: string;
+  writeFlushIntervalMs: string;
+  writeFlushDeadlineSecs: string;
+};
+
+export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content, onContentChange }) => {
+  const { t } = useTranslation();
+  const isDark = useResolvedTheme() === 'dark';
+  const [draft, setDraft] = useState<CacheAccelerationDraft>({
+    readEnable: false,
+    readBackend: 'memory',
+    readLocalDir: '{APPDATADIR}/cache/vfs-read',
+    readCapacityBytes: '134217728',
+    readMaxFileSizeBytes: '2097152',
+    readTtlSecs: '1800',
+    writeEnable: false,
+    writeBackend: 'local_dir',
+    writeLocalDir: '{APPDATADIR}/cache/vfs-write',
+    writeCapacityBytes: '100663296',
+    writeMaxFileSizeBytes: '262144',
+    writeFlushConcurrency: '2',
+    writeFlushIntervalMs: '30',
+    writeFlushDeadlineSecs: '360',
+  });
+
+  useEffect(() => {
+    const root = tomlAdapter.parse(content) as Record<string, any>;
+    const hub = root?.vfs_storage_hub ?? {};
+    const readCache = hub.read_cache ?? {};
+    const writeCache = hub.write_cache ?? {};
+    setDraft({
+      readEnable: Boolean(readCache.enable),
+      readBackend: readCache.backend === 'local_dir' ? 'local_dir' : 'memory',
+      readLocalDir: readCache.local_dir ?? '{APPDATADIR}/cache/vfs-read',
+      readCapacityBytes: String(readCache.capacity_bytes ?? 134217728),
+      readMaxFileSizeBytes: String(readCache.max_file_size_bytes ?? 2097152),
+      readTtlSecs: String(readCache.ttl_secs ?? 1800),
+      writeEnable: Boolean(writeCache.enable),
+      writeBackend: writeCache.backend === 'memory' ? 'memory' : 'local_dir',
+      writeLocalDir: writeCache.local_dir ?? '{APPDATADIR}/cache/vfs-write',
+      writeCapacityBytes: String(writeCache.capacity_bytes ?? 100663296),
+      writeMaxFileSizeBytes: String(writeCache.max_file_size_bytes ?? 262144),
+      writeFlushConcurrency: String(writeCache.flush_concurrency ?? 2),
+      writeFlushIntervalMs: String(writeCache.flush_interval_ms ?? 30),
+      writeFlushDeadlineSecs: String(writeCache.flush_deadline_secs ?? 360),
+    });
+  }, [content, tomlAdapter]);
+
+  const apply = (next: CacheAccelerationDraft) => {
+    const root = tomlAdapter.parse(content) as Record<string, any>;
+    const hub = root.vfs_storage_hub ?? {};
+    root.vfs_storage_hub = hub;
+    hub.read_cache = {
+      enable: next.readEnable,
+      backend: next.readBackend,
+      local_dir: next.readLocalDir,
+      capacity_bytes: Number.parseInt(next.readCapacityBytes, 10) || 134217728,
+      max_file_size_bytes: Number.parseInt(next.readMaxFileSizeBytes, 10) || 2097152,
+      ttl_secs: Number.parseInt(next.readTtlSecs, 10) || 1800,
+    };
+    hub.write_cache = {
+      enable: next.writeEnable,
+      backend: next.writeBackend,
+      local_dir: next.writeLocalDir,
+      capacity_bytes: Number.parseInt(next.writeCapacityBytes, 10) || 100663296,
+      max_file_size_bytes: Number.parseInt(next.writeMaxFileSizeBytes, 10) || 262144,
+      flush_concurrency: Number.parseInt(next.writeFlushConcurrency, 10) || 2,
+      flush_interval_ms: Number.parseInt(next.writeFlushIntervalMs, 10) || 30,
+      flush_deadline_secs: Number.parseInt(next.writeFlushDeadlineSecs, 10) || 360,
+    };
+    onContentChange(tomlAdapter.stringify(root));
+  };
+
+  const inputClass = cn('mt-1 h-11 w-full rounded-xl border px-3 text-sm font-mono', isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900');
+  const patch = (updater: (prev: CacheAccelerationDraft) => CacheAccelerationDraft) => {
+    setDraft((prev) => {
+      const next = updater(prev);
+      apply(next);
+      return next;
+    });
+  };
+
+  return (
+      <div className="grid gap-4 xl:grid-cols-2">
+      <div className={cn('rounded-2xl border p-4 space-y-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+        <div className="text-sm font-black">{t('admin.config.storage.cache.read')}</div>
+        <label className="flex items-center gap-3 text-sm font-black"><input type="checkbox" checked={draft.readEnable} onChange={(e) => patch((prev) => ({ ...prev, readEnable: e.target.checked }))} />{t('admin.config.storage.cache.enable')}</label>
+        <select className={inputClass} value={draft.readBackend} onChange={(e) => patch((prev) => ({ ...prev, readBackend: e.target.value as 'memory' | 'local_dir' }))}><option value="memory">memory</option><option value="local_dir">local_dir</option></select>
+        <input className={inputClass} value={draft.readLocalDir} onChange={(e) => patch((prev) => ({ ...prev, readLocalDir: e.target.value }))} placeholder={t('admin.config.storage.cache.localDir')} />
+        <input className={inputClass} value={draft.readCapacityBytes} onChange={(e) => patch((prev) => ({ ...prev, readCapacityBytes: e.target.value }))} placeholder={t('admin.config.storage.cache.capacityBytes')} />
+        <input className={inputClass} value={draft.readMaxFileSizeBytes} onChange={(e) => patch((prev) => ({ ...prev, readMaxFileSizeBytes: e.target.value }))} placeholder={t('admin.config.storage.cache.maxFileSizeBytes')} />
+      </div>
+      <div className={cn('rounded-2xl border p-4 space-y-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+        <div className="text-sm font-black">{t('admin.config.storage.cache.write')}</div>
+        {draft.writeEnable && (
+          <div className={cn('rounded-xl border p-3 text-sm leading-6', isDark ? 'border-rose-500/20 bg-rose-500/10 text-rose-200' : 'border-rose-200 bg-rose-50 text-rose-900')}>
+            {t('setup.storageCache.writeRisk')}
+          </div>
+        )}
+        <label className="flex items-center gap-3 text-sm font-black"><input type="checkbox" checked={draft.writeEnable} onChange={(e) => patch((prev) => ({ ...prev, writeEnable: e.target.checked }))} />{t('admin.config.storage.cache.enable')}</label>
+        <select className={inputClass} value={draft.writeBackend} onChange={(e) => patch((prev) => ({ ...prev, writeBackend: e.target.value as 'memory' | 'local_dir' }))}><option value="memory">memory</option><option value="local_dir">local_dir</option></select>
+        <input className={inputClass} value={draft.writeLocalDir} onChange={(e) => patch((prev) => ({ ...prev, writeLocalDir: e.target.value }))} placeholder={t('admin.config.storage.cache.localDir')} />
+        <input className={inputClass} value={draft.writeCapacityBytes} onChange={(e) => patch((prev) => ({ ...prev, writeCapacityBytes: e.target.value }))} placeholder={t('admin.config.storage.cache.capacityBytes')} />
+        <input className={inputClass} value={draft.writeFlushConcurrency} onChange={(e) => patch((prev) => ({ ...prev, writeFlushConcurrency: e.target.value }))} placeholder={t('admin.config.storage.cache.flushConcurrency')} />
+      </div>
+    </div>
+  );
+};

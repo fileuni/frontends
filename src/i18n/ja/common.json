@@ -85,8 +85,9 @@
   "visualMode": "ビジュアルモード",
   "switchToRawJson": "生JSONモードに切替",
   "editorEngine": {
+    "codemirror": "CodeMirror",
     "textarea": "テキスト",
-    "switchToMonaco": "Monaco に切替",
+    "switchToCodeMirror": "CodeMirror に切替",
     "switchToTextarea": "テキスト入力に切替"
   },
   "na": "該当なし",

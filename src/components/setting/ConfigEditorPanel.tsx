@@ -23,6 +23,8 @@ interface ConfigEditorPanelProps {
   isDark?: boolean;
   editorVisible?: boolean;
   collapsedContent?: React.ReactNode;
+  hideToolbarWhenCollapsed?: boolean;
+  showToolbar?: boolean;
 }
 
 export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
@@ -46,9 +48,11 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
   isDark = true,
   editorVisible = true,
   collapsedContent,
+  hideToolbarWhenCollapsed = false,
+  showToolbar = true,
 }) => {
   return (
-    <div className="flex flex-col gap-3 sm:gap-4 min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]">
+    <div className="flex flex-col gap-3 sm:gap-4 min-h-[320px] sm:min-h-[420px] lg:min-h-[600px]">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <h3 className={cn(
@@ -68,45 +72,47 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0 justify-end flex-wrap">
-          {actionsPrefix}
-          <button
-            type="button"
-            onClick={onTest}
-            disabled={loading}
-            className={cn(
-              "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-sm sm:text-sm font-black uppercase tracking-wide transition-all disabled:opacity-50 shadow-sm border",
-              isDark 
-                ? "bg-cyan-500/10 text-cyan-400 border-transparent hover:bg-cyan-500/20" 
-                : "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100"
-            )}
-          >
-            {testLabel}
-          </button>
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={loading || saveDisabled}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-primary hover:opacity-90 text-white text-sm sm:text-sm font-black uppercase tracking-wide shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
-          >
-            {saveLabel}
-          </button>
-          {showCancel && (
+        {showToolbar && !(hideToolbarWhenCollapsed && !editorVisible) && (
+          <div className="flex items-center gap-2 shrink-0 justify-end flex-wrap">
+            {actionsPrefix}
             <button
               type="button"
-              onClick={onCancel}
+              onClick={onTest}
               disabled={loading}
               className={cn(
-                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-sm sm:text-sm font-black uppercase tracking-wide transition-all shadow-sm border",
+                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-sm sm:text-sm font-black uppercase tracking-wide transition-all disabled:opacity-50 shadow-sm border",
                 isDark 
-                  ? "bg-slate-800/50 text-slate-400 border-transparent hover:bg-slate-700" 
-                  : "bg-slate-200 text-slate-800 border-slate-300 hover:bg-slate-300"
+                  ? "bg-cyan-500/10 text-cyan-400 border-transparent hover:bg-cyan-500/20" 
+                  : "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100"
               )}
             >
-              {cancelLabel}
+              {testLabel}
             </button>
-          )}
-        </div>
+            <button
+              type="button"
+              onClick={onSave}
+              disabled={loading || saveDisabled}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-primary hover:opacity-90 text-white text-sm sm:text-sm font-black uppercase tracking-wide shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
+            >
+              {saveLabel}
+            </button>
+            {showCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                disabled={loading}
+                className={cn(
+                  "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-sm sm:text-sm font-black uppercase tracking-wide transition-all shadow-sm border",
+                  isDark 
+                    ? "bg-slate-800/50 text-slate-400 border-transparent hover:bg-slate-700" 
+                    : "bg-slate-200 text-slate-800 border-slate-300 hover:bg-slate-300"
+                )}
+              >
+                {cancelLabel}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className={cn(
@@ -116,15 +122,17 @@ export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({
           : "bg-slate-100 border-slate-300 shadow-inner"
       )}>
         {editorVisible ? (
-          <ConfigRawEditor
-            content={content}
-            onChange={onChange}
-            notes={notes}
-            errors={errors}
-            jumpTo={jumpTo}
-            height="100%"
-            isDark={isDark}
-          />
+          <div className="overflow-visible p-2 sm:p-3">
+            <ConfigRawEditor
+              content={content}
+              onChange={onChange}
+              notes={notes}
+              errors={errors}
+              jumpTo={jumpTo}
+              height="clamp(420px, 72vh, 960px)"
+              isDark={isDark}
+            />
+          </div>
         ) : (
           <div className="h-full min-h-[280px] p-4 sm:p-6 lg:p-8">
             {collapsedContent}

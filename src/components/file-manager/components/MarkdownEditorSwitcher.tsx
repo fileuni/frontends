@@ -1,12 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
-import { isMonacoSupported } from '@/lib/monaco';
 import { MarkdownVditorEditor } from './MarkdownVditorEditor';
 import { SimpleMarkdownEditor } from './SimpleMarkdownEditor';
 import { TextPreviewAndEditor } from './TextPreviewAndEditor';
 
-type MarkdownEngine = 'textarea' | 'simple' | 'vditor' | 'monaco';
+type MarkdownEngine = 'textarea' | 'simple' | 'vditor' | 'codemirror';
 type ContentMode = 'markdown' | 'plain';
 
 interface SaveResult {
@@ -38,36 +37,30 @@ const ENGINE_STORAGE_KEY = 'fileuni:text-editor-engine';
 const LEGACY_MARKDOWN_ENGINE_STORAGE_KEY = 'fileuni:markdown-editor-engine';
 
 const getDefaultEngine = (): MarkdownEngine => {
-  return 'textarea';
+  return 'simple';
 };
 
-const normalizeEngine = (value: string | null, monacoAvailable: boolean): MarkdownEngine | null => {
-  if (value !== 'textarea' && value !== 'simple' && value !== 'vditor' && value !== 'monaco') {
+const normalizeEngine = (value: string | null): MarkdownEngine | null => {
+  if (value !== 'textarea' && value !== 'simple' && value !== 'vditor' && value !== 'codemirror') {
     return null;
-  }
-  if (value === 'monaco' && !monacoAvailable) {
-    return 'textarea';
   }
   return value;
 };
 
 export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
   const [engine, setEngine] = useState<MarkdownEngine>(getDefaultEngine);
-  const [monacoAvailable, setMonacoAvailable] = useState(false);
   const [isCompactLayout, setIsCompactLayout] = useState(
     typeof window !== 'undefined' && window.matchMedia(MOBILE_BREAKPOINT).matches,
   );
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
-    const available = isMonacoSupported();
-    setMonacoAvailable(available);
     const media = window.matchMedia(MOBILE_BREAKPOINT);
     const update = () => setIsCompactLayout(media.matches);
     update();
     media.addEventListener('change', update);
-    const stored = normalizeEngine(window.localStorage.getItem(ENGINE_STORAGE_KEY), available)
-      ?? normalizeEngine(window.localStorage.getItem(LEGACY_MARKDOWN_ENGINE_STORAGE_KEY), available);
+    const stored = normalizeEngine(window.localStorage.getItem(ENGINE_STORAGE_KEY))
+      ?? normalizeEngine(window.localStorage.getItem(LEGACY_MARKDOWN_ENGINE_STORAGE_KEY));
     if (stored) {
       setEngine(stored);
     } else {
@@ -76,12 +69,12 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
     return () => media.removeEventListener('change', update);
   }, []);
 
-  const handleEngineChange = (next: MarkdownEngine) => {
+  const handleEngineChange = useCallback((next: MarkdownEngine) => {
     setEngine(next);
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(ENGINE_STORAGE_KEY, next);
     }
-  };
+  }, []);
 
   const engineExtra = useMemo(() => (
     <div className="flex min-w-0 items-center gap-2">
@@ -99,13 +92,13 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
               props.isDark ? 'text-white' : 'text-zinc-900',
             )}
              aria-label={props.contentMode === 'plain' ? 'Text editor engine' : 'Markdown editor engine'}
-           >
-            <option value="textarea">Textarea</option>
-            <option value="simple">Simple</option>
-            <option value="vditor">Vditor</option>
-            {monacoAvailable && <option value="monaco">Monaco</option>}
-          </select>
-        </label>
+            >
+              <option value="textarea">Textarea</option>
+              <option value="simple">Simple</option>
+              <option value="codemirror">CodeMirror</option>
+              <option value="vditor">Vditor</option>
+            </select>
+          </label>
       ) : (
         <div className={cn(
           'flex items-center gap-1 rounded-2xl border p-1',
@@ -128,6 +121,14 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
             Simple
           </Button>
           <Button
+            variant={engine === 'codemirror' ? 'primary' : 'ghost'}
+            size="sm"
+            className="h-9 px-3 rounded-xl text-xs uppercase"
+            onClick={() => handleEngineChange('codemirror')}
+          >
+            CodeMirror
+          </Button>
+          <Button
             variant={engine === 'vditor' ? 'primary' : 'ghost'}
             size="sm"
             className="h-9 px-3 rounded-xl text-xs uppercase"
@@ -135,20 +136,10 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
           >
             Vditor
           </Button>
-          {monacoAvailable && (
-            <Button
-              variant={engine === 'monaco' ? 'primary' : 'ghost'}
-              size="sm"
-              className="h-9 px-3 rounded-xl text-xs uppercase"
-              onClick={() => handleEngineChange('monaco')}
-            >
-              Monaco
-            </Button>
-          )}
         </div>
       )}
     </div>
-  ), [engine, isCompactLayout, monacoAvailable, props.headerExtra, props.isDark]);
+  ), [engine, handleEngineChange, isCompactLayout, props.contentMode, props.headerExtra, props.isDark]);
 
   if (engine === 'textarea') {
     return (
@@ -157,7 +148,7 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
           headerExtra={engineExtra}
           languageOverride={props.contentMode === 'plain' ? undefined : 'markdown'}
           markdownPreview={props.contentMode !== 'plain'}
-          preferMonaco={false}
+          preferCodeEditor={false}
           hideInternalEngineToggle={true}
         />
     );
@@ -167,14 +158,14 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
      return <SimpleMarkdownEditor {...props} headerExtra={engineExtra} contentMode={props.contentMode || 'markdown'} />;
   }
 
-  if (engine === 'monaco' && monacoAvailable) {
+  if (engine === 'codemirror') {
     return (
         <TextPreviewAndEditor
           {...props}
           headerExtra={engineExtra}
           languageOverride={props.contentMode === 'plain' ? undefined : 'markdown'}
           markdownPreview={props.contentMode !== 'plain'}
-          preferMonaco={true}
+          preferCodeEditor={true}
           hideInternalEngineToggle={true}
         />
     );

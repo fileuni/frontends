@@ -109,10 +109,10 @@
     "suggestPassword": "Générer un mot de passe aléatoire",
     "generate_password": "Générer un mot de passe aléatoire",
     "pendingHint": "Prend effet après l'application finale",
-    "resetRuleHint": "Règle : si un admin existe, réinitialiser le mot de passe du premier admin ; sinon, créer un admin avec le nom admin.",
+    "resetRuleHint": "Ce mot de passe sera utilisé pour le compte administrateur après l'installation.",
     "resetSuccessWithUser": "Mot de passe admin appliqué. Nom admin actuel : {{username}}",
     "finalConfirm": "Confirmation finale",
-    "finalConfirmDesc": "En cliquant, la configuration système sera enregistrée et le compte admin sera prêt. Si les tables ou l'administrateur existent déjà, le système ne fera que la synchronisation nécessaire.",
+    "finalConfirmDesc": "Confirmez pour enregistrer vos réglages et terminer l'installation. Vous pourrez ajuster d'autres options plus tard.",
     "finish": "Appliquer la configuration",
     "changePassword": "Définir le mot de passe admin",
     "passwordHintTitle": "Mot de passe admin requis pour terminer",
@@ -142,6 +142,6 @@
     "dbSuccess": "Connexion à la base réussie !",
     "applyingConfig": "Application de la configuration et synchronisation du schéma...",
     "setupFailed": "Échec du déploiement",
-    "setupSuccess": "Installation terminée. Confirmez pour continuer le flux normal."
+    "setupSuccess": "Installation terminée. Confirmez pour continuer."
   }
 }

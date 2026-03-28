@@ -92,6 +92,20 @@ export interface SystemConfigWorkbenchProps {
   setupMode?: boolean;
   editorTitle?: string;
   testLabel?: string;
+  onSetupActionsReady?: (actions: SetupActionHandles) => void;
+  setupViewMode?: 'visual' | 'raw';
+  onSetupViewChange?: (mode: 'visual' | 'raw') => void;
+  hideShortcuts?: boolean;
+  hideEditorToolbar?: boolean;
+  hideEditorPath?: boolean;
+}
+
+export interface SetupActionHandles {
+  openAdminPassword?: () => void;
+  openLicenseManagement?: () => void;
+  openStorageConfig: () => void;
+  openThumbnailTools: () => void;
+  openCompressionTools: () => void;
 }
 
 export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
@@ -127,6 +141,12 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   setupMode = false,
   editorTitle,
   testLabel,
+  onSetupActionsReady,
+  setupViewMode,
+  onSetupViewChange,
+  hideShortcuts = false,
+  hideEditorToolbar = false,
+  hideEditorPath = false,
 }) => {
   const { t } = useTranslation();
   const [isQuickWizardOpen, setIsQuickWizardOpen] = useState(false);
@@ -160,6 +180,20 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
       setShowRawEditor(true);
     }
   }, [setupMode, validationErrors.length]);
+
+  useEffect(() => {
+    if (!setupMode || !setupViewMode) {
+      return;
+    }
+    setShowRawEditor(setupViewMode === 'raw');
+  }, [setupMode, setupViewMode]);
+
+  useEffect(() => {
+    if (!setupMode) {
+      return;
+    }
+    onSetupViewChange?.(showRawEditor ? 'raw' : 'visual');
+  }, [onSetupViewChange, setupMode, showRawEditor]);
 
   const openQuickWizardAt = useCallback((step: FriendlyStep) => {
     setQuickWizardInitialStep(step);
@@ -206,6 +240,25 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
     setIsCompressionToolsOpen(true);
   }, []);
 
+  useEffect(() => {
+    onSetupActionsReady?.({
+      ...(onResetAdminPassword ? { openAdminPassword } : {}),
+      ...(quickWizardLicense ? { openLicenseManagement } : {}),
+      openStorageConfig,
+      openThumbnailTools,
+      openCompressionTools,
+    });
+  }, [
+    onResetAdminPassword,
+    quickWizardLicense,
+    onSetupActionsReady,
+    openAdminPassword,
+    openCompressionTools,
+    openLicenseManagement,
+    openStorageConfig,
+    openThumbnailTools,
+  ]);
+
   if (loading) {
     return (
       <div className={cn(
@@ -232,21 +285,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         >
           <WandSparkles size={18} className="text-primary" />
           {setupMode ? t('setup.editor.quickWizard') : t('admin.config.quickWizard.title')}
-        </button>
-      )}
-      {setupMode && (
-        <button
-          type="button"
-          className={cn(
-            "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border font-black uppercase tracking-wide transition-all inline-flex items-center gap-1.5 shadow-sm",
-            isDark
-              ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10"
-              : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50"
-          )}
-          onClick={() => setShowRawEditor((prev) => !prev)}
-        >
-          <Settings2 size={18} className={isDark ? 'text-slate-200' : 'text-slate-700'} />
-          {showRawEditor ? t('setup.editor.hideAdvanced') : t('setup.editor.showAdvanced')}
         </button>
       )}
     </div>
@@ -610,10 +648,10 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         </div>
       )}
 
-      {(!setupMode || showRawEditor) && shortcuts}
+      {!setupMode && !hideShortcuts && shortcuts}
 
       <ConfigEditorPanel
-        configPath={configPath || t('admin.config.pathUnavailable')}
+        configPath={hideEditorPath ? undefined : (setupMode ? undefined : (configPath || t('admin.config.pathUnavailable')))}
         content={content}
         notes={notes}
         errors={validationErrors}
@@ -632,6 +670,8 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         isDark={isDark}
         actionsPrefix={quickWizardEnabled ? actionButtons : undefined}
         editorVisible={showRawEditor}
+        hideToolbarWhenCollapsed={setupMode}
+        showToolbar={!hideEditorToolbar}
         collapsedContent={setupMode ? (
           <div className="space-y-4">
             {quickWizardEnabled && (
@@ -650,31 +690,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                 showDoneAction={false}
               />
             )}
-            <div className={cn(
-              'rounded-2xl border p-5 sm:p-6 text-center',
-              isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-white'
-            )}>
-              <div className={cn('text-base sm:text-lg font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                {t('setup.editor.rawHiddenTitle')}
-              </div>
-              <p className={cn('mt-2 text-sm sm:text-base leading-7', isDark ? 'text-slate-400' : 'text-slate-600')}>
-                {t('setup.editor.rawHiddenDesc')}
-              </p>
-              <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
-                <button
-                  type="button"
-                  className={cn(
-                    'h-10 rounded-lg border px-4 text-sm font-black transition-all',
-                    isDark
-                      ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10'
-                      : 'border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100'
-                  )}
-                  onClick={() => setShowRawEditor(true)}
-                >
-                  {t('setup.editor.showAdvanced')}
-                </button>
-              </div>
-            </div>
           </div>
         ) : undefined}
       />

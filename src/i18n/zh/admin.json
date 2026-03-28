@@ -589,7 +589,7 @@
       "renewShortLifetimeDivisor": "动态续签比例分母 (短周期)",
       "dnsConfigJson": "DNS 配置 JSON",
       "syncFromJson": "从 JSON 同步",
-      "syncHint": "表单字段与 JSON 会互相同步，保存时以 JSON 内容为准",
+      "syncHint": "保存时将以当前 JSON 内容为准。",
       "rawJsonWarning": "请谨慎修改 JSON；不正确字段可能导致签发失败"
     },
     "validation": {
@@ -871,10 +871,10 @@
     "resetNotice": "模板已加载。请检查并保存以应用更改。",
     "resetUnavailable": "内置模板不可用",
     "resetHintTitle": "重置提醒",
-    "resetHint": "重置将用内置模板替换编辑器内容。在重载前请修改并保存。",
+    "resetHint": "重置后会恢复默认设置，请确认后再保存。",
     "restartNotice": "少数配置项需要重启服务器才能完全生效。",
     "thumbnail": {
-      "title": "缩略图工具",
+      "title": "缩略图配置",
       "subtitle": "配置缩略图外部工具路径与视频截帧策略，无需手写 TOML。若启用相关类型但外部程序不可用，系统将禁止带病启动。",
       "apply": "应用缩略图设置",
       "applied": "缩略图设置已应用",
@@ -882,16 +882,23 @@
       "loadFailed": "缩略图配置不可用",
       "videoSeekSeconds": "视频截帧秒数",
       "videoSeekRatio": "视频截帧比例",
+      "vipsPath": "libvips 路径",
+      "imagemagickPath": "ImageMagick 路径",
+      "ffmpegPath": "FFmpeg 路径",
+      "libreofficePath": "LibreOffice 路径",
       "videoSeekHint": "填写比例时将优先按视频时长 * 比例计算截帧点；推荐默认值为 0.3，可尽量避开视频开头黑帧。",
-      "helper": "修改路径后请先执行诊断。系统会真正启动命令并检查返回结果，而不只是检查文件是否存在。"
+      "helper": "修改路径后，请先检查是否可用。"
     },
     "compression": {
-      "title": "在线压缩",
+      "title": "压缩解压配置",
       "subtitle": "配置 7-Zip 依赖，用于压缩、解压、归档浏览等增强能力。",
       "applied": "在线压缩设置已写入编辑器",
       "enable": "启用在线压缩",
       "enableHint": "启用后可创建压缩包、解压更多格式并浏览归档内容。若缺少 7-Zip，则只能回退到原生 ZIP/TAR 支持。",
-      "helper": "建议流程：在桌面部署中保持启用，先执行诊断，再自动填写检测到的 7-Zip 路径，最后回到主编辑器执行保存与重载。",
+      "format": "默认压缩格式",
+      "concurrency": "最大并发",
+      "cpuThreads": "最大 CPU 线程数",
+      "helper": "建议先检查 7-Zip，再保存设置。",
       "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
     },
     "externalTools": {
@@ -983,6 +990,13 @@
         "connectors": "后端连接器",
         "policies": "策略"
       },
+      "sections": {
+        "connectors": "连接器",
+        "pools": "存储池",
+        "policies": "角色策略",
+        "cache": "读写缓存加速",
+        "archive": "在线解压"
+      },
       "fields": {
         "defaultPool": "默认存储池",
         "name": "名称",
@@ -990,10 +1004,31 @@
         "enabled": "启用",
         "options": "高级选项"
       },
+      "cache": {
+        "read": "读缓存",
+        "write": "写缓存",
+        "enable": "启用",
+        "backend": "后端",
+        "localDir": "本地目录",
+        "capacityBytes": "容量上限 Bytes",
+        "maxFileSizeBytes": "单文件上限 Bytes",
+        "ttlSecs": "过期时间 秒",
+        "flushConcurrency": "刷新并发",
+        "flushIntervalMs": "刷新间隔 ms",
+        "flushDeadlineSecs": "刷新截止 秒"
+      },
+      "archive": {
+        "enable": "启用在线解压",
+        "exe7zipPath": "7-Zip 路径",
+        "defaultCompressionFormat": "默认压缩格式",
+        "maxConcurrency": "最大并发",
+        "maxCpuThreads": "最大 CPU 线程数",
+        "timeoutSecs": "超时 秒"
+      },
       "drivers": {
         "fs": "本地文件系统 (fs)",
         "s3": "S3 兼容 (s3)",
-        "memory": "内存 (memory, Dev)"
+        "memory": "内存"
       },
       "connectors": {
         "title": "连接器列表",
@@ -1146,13 +1181,13 @@
         "externalCache": "如果您已经有独立的缓存服务，请填写地址、端口和登录信息即可。"
       },
       "advancedActions": {
-        "intro": "如需调整更多设置，可前往管理员配置界面继续操作。",
+        "intro": "需要更多设置时，可稍后在管理后台继续调整。",
         "licensePlaceholder": "授权管理",
-        "openAdminConfig": "打开管理员配置界面",
+        "openAdminConfig": "前往管理后台",
         "changeAdminPassword": "修改管理员密码"
       },
       "otherActions": {
-        "intro": "这里放了一些附加设置入口，例如授权、存储和管理员密码。"
+        "intro": "更多设置"
       },
       "performance": {
         "intro": "如果拿不准，保持默认即可。下面这些方案只是告诉 FileUni 更适合哪一类设备和使用场景。",
@@ -1168,15 +1203,25 @@
         "featureBloomWarmup": "布隆预热",
         "featureChat": "聊天功能",
         "featureEmail": "邮件代收",
+        "features": {
+          "compression": "压缩解压能力",
+          "sftp": "SFTP 服务",
+          "ftp": "FTP 服务",
+          "s3": "S3 服务",
+          "webdav": "WebDAV 服务",
+          "chat": "聊天功能",
+          "email": "邮件代收",
+          "bloomWarmup": "布隆预热"
+        },
         "preview": {
-          "simpleHint": "下面是这组方案的大致结果，您不需要理解每个技术细节。",
-          "viewDetails": "查看详细配置项",
-          "hideDetails": "收起详细配置项",
-          "configKeyChanges": "完整配置项变化",
+          "simpleHint": "以下是本次将应用的设置。",
+          "viewDetails": "查看将应用的设置",
+          "hideDetails": "收起设置详情",
+          "configKeyChanges": "本次将调整的内容",
           "totalChanges": "共 {{count}} 项",
-          "path": "配置路径",
-          "value": "建议值",
-          "groupStats": "模块分组统计",
+          "path": "项目",
+          "value": "设置值",
+          "groupStats": "分类统计",
           "groups": {
             "database": "数据库",
             "cache": "缓存",
@@ -1219,7 +1264,7 @@
         },
         "descriptions": {
           "extremeLow": "适合非常有限的旧设备，只保留最核心的功能。",
-          "low": "适合轻量设备或测试环境，尽量降低资源占用。",
+          "low": "适合轻量设备，尽量降低资源占用。",
           "medium": "适合大多数个人、家庭和首次安装场景。",
           "good": "适合多人共享、持续运行或资源更充足的设备。"
         },
@@ -1229,7 +1274,8 @@
           "light": "日常使用",
           "lightDesc": "适合个人或小团队",
           "heavy": "多人同时使用",
-          "heavyDesc": "适合需要更多并发访问的场景"
+          "heavyDesc": "适合需要更多并发访问的场景",
+          "disabledOnLowHardware": "超低配置和轻量设备下不可选"
         },
         "preheatMode": {
           "title": "验证码预热策略",
@@ -1246,7 +1292,7 @@
           }
         },
         "performanceTips": {
-          "title": "性能优化提示",
+          "title": "性能调优建议",
           "raid": "建议使用 RAID 阵列提升磁盘 I/O 性能和数据冗余",
           "pgsql": "建议调整 PostgreSQL 参数 (shared_buffers, work_mem, effective_cache_size) 以匹配硬件资源",
           "memory": "本模块仅提供基础优化建议，复杂场景需结合系统级调优"

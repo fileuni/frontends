@@ -160,7 +160,7 @@
     "mode": {
       "latexmk": "Сборка Latexmk",
       "latexjs": "Рендер Latex.js",
-      "monaco": "Редактор Monaco"
+      "codemirror": "CodeMirror"
     }
   },
   "archive": {

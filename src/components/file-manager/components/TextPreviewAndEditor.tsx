@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MonacoEditor } from '@/components/editors/MonacoEditor';
-import { isMonacoSupported, useMonacoReady } from '@/lib/monaco';
+import { CodeMirrorEditor } from '@/components/editors/CodeMirrorEditor';
 import { client, BASE_URL } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { 
@@ -30,12 +29,12 @@ interface Props {
   languageOverride?: string;
   markdownPreview?: boolean;
   previewTransform?: (html: string) => string;
-  preferMonaco?: boolean;
+  preferCodeEditor?: boolean;
   hideInternalEngineToggle?: boolean;
   onEditorReady?: () => void;
 }
 
-// Extension to Monaco Language Map
+// Extension to CodeMirror language map
 const LANGUAGE_MAP: Record<string, string> = {
   'js': 'javascript', 'ts': 'typescript', 'tsx': 'typescript', 'jsx': 'javascript',
   'py': 'python', 'rs': 'rust', 'cpp': 'cpp', 'c': 'c', 'h': 'cpp', 'hpp': 'cpp',
@@ -54,7 +53,7 @@ const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
 const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 
 /**
- * Common Text Preview and Editor (Monaco powered).
+ * Common Text Preview and Editor (CodeMirror powered).
  */
 export const TextPreviewAndEditor = ({
   path,
@@ -71,15 +70,14 @@ export const TextPreviewAndEditor = ({
   languageOverride,
   markdownPreview = false,
   previewTransform,
-  preferMonaco = true,
+  preferCodeEditor = true,
   hideInternalEngineToggle = false,
   onEditorReady,
 }: Props) => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
 
-  const [mounted, setMounted] = useState(typeof window !== 'undefined');
-  const [forcePlainTextarea, setForcePlainTextarea] = useState(!preferMonaco);
+  const [forcePlainTextarea, setForcePlainTextarea] = useState(!preferCodeEditor);
   
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
@@ -95,27 +93,23 @@ export const TextPreviewAndEditor = ({
   const readyNotifiedRef = useRef(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setIsEditing(defaultEditing);
+    readyNotifiedRef.current = false;
+  }, [defaultEditing]);
 
   useEffect(() => {
-    setIsEditing(defaultEditing);
-    setForcePlainTextarea(!preferMonaco);
-    readyNotifiedRef.current = false;
-  }, [defaultEditing, path, preferMonaco]);
+    setForcePlainTextarea(!preferCodeEditor);
+  }, [preferCodeEditor]);
   
   const fileName = propFileName || path.split('/').pop() || 'File';
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   const language = languageOverride || LANGUAGE_MAP[ext] || 'plaintext';
 
-  const monacoAvailable = mounted && isMonacoSupported();
-  const prefersMonacoEngine = monacoAvailable && !forcePlainTextarea;
-  const monacoStatus = useMonacoReady({ enabled: prefersMonacoEngine });
-  const useMonaco = prefersMonacoEngine && monacoStatus === 'ready';
-  const showMonacoLoading = prefersMonacoEngine && monacoStatus === 'pending';
+  const useCodeEditor = !forcePlainTextarea;
 
   useEffect(() => {
     let canceled = false;
+    readyNotifiedRef.current = false;
     const fetchContent = async () => {
       setLoading(true);
         try {
@@ -149,7 +143,7 @@ export const TextPreviewAndEditor = ({
     return () => {
       canceled = true;
     };
-  }, [fileName, loadContent, path]);
+  }, [addToast, fileName, loadContent, path, t]);
 
   useEffect(() => {
     if (!loading && !readyNotifiedRef.current) {
@@ -249,7 +243,7 @@ export const TextPreviewAndEditor = ({
             <div className="flex items-center gap-3">
               {headerExtra}
 
-              {monacoAvailable && !hideInternalEngineToggle && (
+              {!hideInternalEngineToggle && (
                 <Button
                   variant="outline"
                   className={cn(
@@ -259,9 +253,9 @@ export const TextPreviewAndEditor = ({
                       : "border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-900"
                   )}
                   onClick={() => setForcePlainTextarea((v) => !v)}
-                  title={useMonaco ? (t('common.editorEngine.switchToTextarea') || 'Switch to Textarea') : (t('common.editorEngine.switchToMonaco') || 'Switch to Monaco')}
+                  title={useCodeEditor ? (t('common.editorEngine.switchToTextarea') || 'Switch to Textarea') : (t('common.editorEngine.switchToCodeMirror') || 'Switch to CodeMirror')}
                 >
-                  {useMonaco ? (t('common.editorEngine.textarea') || 'Textarea') : (t('common.editorEngine.monaco') || 'Monaco')}
+                  {useCodeEditor ? (t('common.editorEngine.textarea') || 'Textarea') : (t('common.editorEngine.codemirror') || 'CodeMirror')}
                 </Button>
               )}
               
@@ -270,8 +264,9 @@ export const TextPreviewAndEditor = ({
                   "flex items-center p-1 rounded-2xl",
                   isDark ? "bg-white/5 border border-white/5 shadow-inner" : "bg-zinc-100 border border-zinc-200"
                 )}>
-                 <button 
-                  onClick={() => setIsEditing(false)}
+                  <button
+                   type="button"
+                   onClick={() => setIsEditing(false)}
                   className={cn(
                     "px-5 h-9 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2", 
                     !isEditing 
@@ -281,8 +276,9 @@ export const TextPreviewAndEditor = ({
                  >
                    <Eye size={18} /> {t('filemanager.actions.preview')}
                  </button>
-                 <button 
-                  onClick={() => setIsEditing(true)}
+                  <button
+                   type="button"
+                   onClick={() => setIsEditing(true)}
                   className={cn(
                     "px-5 h-9 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2", 
                     isEditing 
@@ -323,34 +319,20 @@ export const TextPreviewAndEditor = ({
               isDark={isDark}
               previewTransform={previewTransform}
             />
-          ) : showMonacoLoading ? (
-            <div className="h-full flex flex-col items-center justify-center gap-4 opacity-60">
-              <Loader2 className="animate-spin text-primary" size={36} />
-              <p className="text-sm font-black uppercase tracking-[0.24em]">
-                {t('filemanager.editor.loadingEditor') || 'Initializing editor...'}
-              </p>
-            </div>
-          ) : useMonaco ? (
-            <MonacoEditor
+          ) : useCodeEditor ? (
+            <CodeMirrorEditor
               height="100%"
               language={language}
               value={content}
-              theme={isDark ? 'vs-dark' : 'light'}
+              theme={isDark ? 'dark' : 'light'}
               options={{
                 readOnly: !isEditing,
                 fontSize: 14,
                 fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                minimap: { enabled: true },
-                automaticLayout: true,
                 wordWrap: 'on',
                 lineNumbers: 'on',
                 renderLineHighlight: isEditing ? 'all' : 'none',
-                padding: { top: 20 },
-                scrollBeyondLastLine: false,
-                scrollbar: {
-                  verticalScrollbarSize: 8,
-                  horizontalScrollbarSize: 8
-                }
+                padding: { top: 20, bottom: 24 },
               }}
               onChange={(val) => {
                 setContent(val || '');

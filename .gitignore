@@ -47,3 +47,7 @@ bun-error.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Local OpenAPI snapshots used for type generation
+openapi.json
+openapi-config-set.json

@@ -84,8 +84,9 @@
   "visualMode": "Modo visual",
   "switchToRawJson": "Cambiar a modo JSON sin procesar",
   "editorEngine": {
+    "codemirror": "CodeMirror",
     "textarea": "Texto",
-    "switchToMonaco": "Cambiar a Monaco",
+    "switchToCodeMirror": "Cambiar a CodeMirror",
     "switchToTextarea": "Cambiar a área de texto"
   },
   "na": "N/D",

@@ -11,7 +11,7 @@ import {
   Users,
 } from "lucide-react";
 import { client } from "@/lib/api";
-import { ConfigSetEditor } from "./ConfigSetEditor";
+import { ConfigSetEditor } from "@/components/setting/ConfigSetEditor";
 import { useAuthStore } from "@/stores/auth.ts";
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { cn } from "@/lib/utils.ts";

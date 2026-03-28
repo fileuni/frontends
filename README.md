@@ -18,8 +18,8 @@ This project builds a single static dist that is used by:
 | `src/stores/` | Global Zustand stores |
 | `src/i18n/` | i18n resources (`en/`, `zh/`) |
 | `public/` | Static assets copied into dist |
-| `openapi.json` | Backend OpenAPI snapshot for type generation |
-| `openapi-config-set.json` | Setup-wizard OpenAPI snapshot for type generation |
+| `openapi.json` | Local backend OpenAPI snapshot for type generation (ignored by git) |
+| `openapi-config-set.json` | Local setup-wizard OpenAPI snapshot for type generation (ignored by git) |
 
 ## Commands
 

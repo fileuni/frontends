@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { MonacoEditor } from '@/components/editors/MonacoEditor';
-import { isMonacoSupported } from '@/lib/monaco';
+import { CodeMirrorEditor } from '@/components/editors/CodeMirrorEditor';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
@@ -13,7 +12,7 @@ import { Loader2, Save, Eye, ChevronDown } from 'lucide-react';
 import { buildJsdelivrNpmUrl } from '../utils/officeLite.ts';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
 
-type LatexPreviewMode = 'latexmk' | 'latexjs' | 'monaco';
+type LatexPreviewMode = 'latexmk' | 'latexjs' | 'codemirror';
 
 interface Props {
   path: string;
@@ -85,7 +84,6 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const { addToast } = useToastStore();
   const { capabilities } = useConfigStore();
 
-  const [mounted, setMounted] = useState(typeof window !== 'undefined');
   const [forcePlainTextarea, setForcePlainTextarea] = useState(false);
 
   const [content, setContent] = useState('');
@@ -102,28 +100,23 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const savingRef = useRef(false);
   const lastAutoSaveErrorAtRef = useRef<number>(0);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const defaultMode = (capabilities?.latex_preview_mode || 'monaco') as LatexPreviewMode;
+  const defaultMode = (capabilities?.latex_preview_mode || 'codemirror') as LatexPreviewMode;
   const enableLatexmk = capabilities?.enable_latexmk === true;
   const enableLatexjs = capabilities?.enable_latexjs === true;
-  const enableMonaco = capabilities?.enable_monaco === true;
+  const enableCodeMirror = capabilities?.enable_codemirror === true;
   const availableModes = useMemo<LatexPreviewMode[]>(() => {
     const modes: LatexPreviewMode[] = [];
     if (enableLatexmk) modes.push('latexmk');
     if (enableLatexjs) modes.push('latexjs');
-    if (enableMonaco) modes.push('monaco');
-    return modes.length > 0 ? modes : ['monaco'];
-  }, [enableLatexmk, enableLatexjs, enableMonaco]);
+    if (enableCodeMirror) modes.push('codemirror');
+    return modes.length > 0 ? modes : ['codemirror'];
+  }, [enableCodeMirror, enableLatexmk, enableLatexjs]);
   const initialMode = availableModes.includes(defaultMode) ? defaultMode : availableModes[0];
   const [previewMode, setPreviewMode] = useState<LatexPreviewMode>(initialMode);
   const [modeOpen, setModeOpen] = useState(false);
   const canRender = previewMode === 'latexmk' || previewMode === 'latexjs';
 
-  const monacoAvailable = mounted && isMonacoSupported();
-  const useMonaco = monacoAvailable && !forcePlainTextarea;
+  const useCodeEditor = !forcePlainTextarea;
 
   const fileName = path.split('/').pop() || 'LaTeX';
   const jsdelivrBase = capabilities?.jsdelivr_mirror_base || 'https://cdn.jsdelivr.net';
@@ -161,7 +154,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     return () => {
       canceled = true;
     };
-  }, [path]);
+  }, [addToast, fileName, path, t]);
 
   useEffect(() => {
     return () => {
@@ -379,16 +372,14 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
         onClose={onClose}
         extra={
           <div className="flex items-center gap-3">
-            {monacoAvailable && (
-              <Button
-                variant="outline"
-                className="h-10 px-4 rounded-xl text-sm font-black uppercase"
-                onClick={() => setForcePlainTextarea((v) => !v)}
-                title={useMonaco ? (t('common.editorEngine.switchToTextarea') || 'Switch to Textarea') : (t('common.editorEngine.switchToMonaco') || 'Switch to Monaco')}
-              >
-                {useMonaco ? (t('common.editorEngine.textarea') || 'Textarea') : (t('common.editorEngine.monaco') || 'Monaco')}
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              className="h-10 px-4 rounded-xl text-sm font-black uppercase"
+              onClick={() => setForcePlainTextarea((v) => !v)}
+              title={useCodeEditor ? (t('common.editorEngine.switchToTextarea') || 'Switch to Textarea') : (t('common.editorEngine.switchToCodeMirror') || 'Switch to CodeMirror')}
+            >
+              {useCodeEditor ? (t('common.editorEngine.textarea') || 'Textarea') : (t('common.editorEngine.codemirror') || 'CodeMirror')}
+            </Button>
             <div className="relative">
               <Button
                 variant="outline"
@@ -402,6 +393,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
                 <div className="absolute right-0 top-12 z-50 w-40 rounded-2xl border border-border bg-background shadow-xl overflow-hidden">
                   {availableModes.map(mode => (
                     <button
+                      type="button"
                       key={mode}
                       className="w-full px-4 py-2 text-left text-sm font-black uppercase hover:bg-accent"
                       onClick={() => {
@@ -452,24 +444,20 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
               {t('filemanager.editor.opening') || 'Opening'}
             </div>
           ) : (
-            useMonaco ? (
-              <MonacoEditor
+            useCodeEditor ? (
+              <CodeMirrorEditor
                 height="100%"
                 language="latex"
                 value={content}
-                theme={isDark ? 'vs-dark' : 'light'}
+                theme={isDark ? 'dark' : 'light'}
                 options={{
                   readOnly: false,
                   fontSize: 14,
                   fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                  minimap: { enabled: true },
-                  automaticLayout: true,
                   wordWrap: 'on',
                   lineNumbers: 'on',
                   renderLineHighlight: 'all',
-                  padding: { top: 16 },
-                  scrollBeyondLastLine: false,
-                  scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 }
+                  padding: { top: 16, bottom: 24 },
                 }}
                 onChange={(val) => {
                   setContent(val || '');

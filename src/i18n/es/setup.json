@@ -109,10 +109,10 @@
     "suggestPassword": "Generar contraseña aleatoria",
     "generate_password": "Generar contraseña aleatoria",
     "pendingHint": "Se aplica tras el último aplicar",
-    "resetRuleHint": "Regla: si existe un admin, restablecer la contraseña del primer admin; si no existe, crear un admin con usuario admin.",
+    "resetRuleHint": "Esta contraseña se usará para la cuenta de administrador después de la configuración.",
     "resetSuccessWithUser": "Contraseña de admin aplicada. Usuario admin actual: {{username}}",
     "finalConfirm": "Confirmación final",
-    "finalConfirmDesc": "Al hacer clic se guardará la configuración del sistema y se asegurará que la cuenta admin esté lista. Si las tablas o el administrador ya existen, el sistema solo realizará la sincronización necesaria.",
+    "finalConfirmDesc": "Confirme para guardar la configuración y terminar la instalación. Podrá ajustar más opciones después.",
     "finish": "Aplicar configuración",
     "changePassword": "Establecer contraseña de admin",
     "passwordHintTitle": "Se requiere contraseña de admin para finalizar",
@@ -142,6 +142,6 @@
     "dbSuccess": "¡Conexión a base de datos exitosa!",
     "applyingConfig": "Aplicando configuración y sincronizando el esquema...",
     "setupFailed": "El despliegue falló",
-    "setupSuccess": "Configuración completada. Confirme para continuar el flujo normal."
+    "setupSuccess": "Configuración completada. Confirme para continuar."
   }
 }

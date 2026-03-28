@@ -9,17 +9,25 @@
     "desc": "如果您是第一次使用，保持默认选项通常就够了。FileUni 会先帮您准备最适合快速上手的设置，后续再慢慢调整也没问题。",
     "card1Title": "选择保存位置",
     "card1Desc": "确认 FileUni 唯一的运行目录，配置和数据都会保存在这里。",
+    "card1Action": "修改位置",
+    "card1Hint": "更改运行目录后，请重新启动 FileUni。",
     "card2Title": "设置登录密码",
     "card2Desc": "为管理员账号设置一个您记得住的密码。",
+    "card2Action": "设置密码",
+    "card2Hint": "设置管理员登录密码。",
     "card3Title": "完成并开始使用",
     "card3Desc": "安装完成后，回到启动器即可启动 FileUni。",
+    "card3Action": "应用",
+    "card3Hint": "保存当前设置并继续。",
     "recommendedTitle": "推荐给第一次使用的您",
     "recommendedDesc": "如果拿不准，尽量保留当前默认值。默认方案更适合个人、家庭和快速体验。",
     "locationTitle": "当前安装位置",
     "configDirLabel": "运行目录",
     "configPathLabel": "当前配置文件",
     "locationDesc": "这里只是告诉您安装内容会保存到哪里，不需要手动创建文件。",
-    "requiredPrompt": "检测到 FileUni 还没有完成首次安装。继续后会直接打开安装向导，后续仍然可以随时修改这些设置。"
+    "commonActionsTitle": "常用配置",
+    "openAction": "打开此项",
+    "requiredPrompt": "FileUni 尚未完成首次安装，是否现在继续？"
   },
   "editor": {
     "title": "安装设置",
@@ -27,9 +35,11 @@
     "quickWizard": "继续快速设置",
     "showAdvanced": "显示高级设置",
     "hideAdvanced": "隐藏高级设置",
-    "rawHiddenTitle": "大多数用户不需要手动修改原始设置",
+    "visualMode": "可视化编辑",
+    "sourceMode": "文本编辑",
+    "rawHiddenTitle": "需要更多设置时，再编辑配置文本",
     "rawHiddenDesc": "首次安装时，优先使用上方的快速设置即可。只有当您需要更细致的控制时，再展开高级设置。",
-    "finishHint": "完成上面的选择后，点击上方“完成安装”即可继续。",
+    "finishHint": "确认后完成安装。",
     "backToWizard": "返回快速设置",
     "moreActionsTitle": "其他高级入口",
     "moreActionsDesc": "授权、存储和外部工具检查通常可以等安装完成后再处理。",
@@ -38,6 +48,11 @@
   },
   "steps": {
     "step": "步骤",
+    "performance": "进行性能调优",
+    "databaseCache": "配置数据库和缓存",
+    "storage": "配置存储",
+    "adminPassword": "设置管理员密码",
+    "finishSimple": "完成",
     "profile": "性能画像",
     "database": "数据库",
     "cache": "缓存",
@@ -76,7 +91,7 @@
     "dsnNote": "提示：手动修改连接串会覆盖表单生成的内容。",
     "rawToml": "配置文件预览 (TOML)",
     "useTls": "使用安全连接 (TLS/SSL)",
-    "dbType": "数据库引擎类型",
+    "dbType": "数据库",
     "host": "主机地址 (IP)",
     "port": "端口号",
     "username": "数据库用户名",
@@ -84,7 +99,7 @@
     "dbName": "数据库库名",
     "dbPath": "SQLite 文件存储路径",
     "kvUsername": "Redis 用户名",
-    "kvType": "缓存后端",
+    "kvType": "缓存",
     "kvRedisHint": "Redis 格式的缓存后端 (Redis/KeyDB/Valkey)",
     "kvDashmapHint": "提示：内存缓存不会持久化数据，重启后缓存将清空。",
     "kvSqlHint": "提示：将复用主数据库存储缓存数据。",
@@ -133,6 +148,47 @@
       "sharedCache": "启用共享缓存 (shared_cache)"
     }
   },
+  "cache": {
+    "externalServer": "独立缓存服务器",
+    "externalHints": {
+      "redis": "如果您已经有 Redis 环境，直接复用即可。",
+      "valkey": "首次安装需要独立缓存服务器时，推荐优先使用 Valkey。",
+      "keydb": "KeyDB 更适合高并发和多线程负载。"
+    }
+  },
+  "storagePool": {
+    "title": "存储池配置",
+    "desc": "为每个存储池选择后端类型，并填写该后端真正需要的最少字段。",
+    "rootHint": "推荐默认值：{{value}}",
+    "s3": {
+      "endpoint": "服务地址",
+      "region": "区域",
+      "bucket": "桶名称",
+      "access_key_id": "Access Key ID",
+      "secret_access_key": "Secret Access Key"
+    },
+    "s3Hints": {
+      "endpoint": "填写 S3 或兼容对象存储的访问地址。",
+      "region": "填写服务所在区域；兼容对象存储可按服务商要求填写。",
+      "bucket": "填写要作为此存储池根位置的 bucket。",
+      "access_key_id": "用于访问对象存储的账号标识。",
+      "secret_access_key": "用于访问对象存储的密钥。"
+    },
+    "webdav": {
+      "endpoint": "WebDAV 地址",
+      "username": "用户名",
+      "password": "密码"
+    },
+    "webdavHints": {
+      "endpoint": "填写 WebDAV 服务根地址。",
+      "username": "用于登录 WebDAV 的账号。",
+      "password": "用于登录 WebDAV 的密码。"
+    }
+  },
+  "storageCache": {
+    "title": "读写缓存加速",
+    "writeRisk": "警告：写缓存启用后，数据会先落入缓存再异步刷回后端；如果设备突然断电、缓存目录被清理或刷写失败，可能出现文件丢失或落盘延迟。"
+  },
   "admin": {
     "title": "设置管理员账号",
     "subtitle": "这个账号用于登录管理后台，后续也可以再修改。",
@@ -141,12 +197,12 @@
     "suggestPassword": "生成随机强密码",
     "generate_password": "生成随机强密码",
     "pendingHint": "完成安装后生效",
-    "resetRuleHint": "重置规则：若存在管理员账号，将重置第一个管理员密码；若不存在管理员账号，将自动创建用户名为 admin 的管理员。",
+    "resetRuleHint": "如果当前还没有管理员账号，应用时会创建用户名为 admin 的管理员；如果已经存在管理员账号，应用时会重置第一个管理员的密码为这里填写的密码。",
     "resetSuccessWithUser": "管理员密码已生效，当前管理员用户名：{{username}}",
     "finalConfirm": "准备完成安装",
-    "finalConfirmDesc": "点击“完成安装”后，FileUni 会保存当前设置，并准备好管理员账号。安装完成后，您仍然可以在后台继续调整。",
+    "finalConfirmDesc": "确认后将保存当前设置并完成安装。更多设置可稍后调整。",
     "finish": "完成安装",
-    "changePassword": "设置登录密码",
+    "changePassword": "管理员配置",
     "passwordHintTitle": "完成安装前，请先设置管理员登录密码",
     "passwordHintDesc": "这是您第一次登录管理后台时要用到的密码。",
     "passwordHintAction": "设置登录密码"
@@ -166,7 +222,7 @@
     "started": "FileUni 已启动",
     "openWebUi": "打开 Web 界面",
     "finishLater": "稍后再说",
-    "openHint": "您可以先启动 FileUni，再打开 Web 界面登录；也可以直接点“打开 Web 界面”，系统会自动帮您继续。",
+    "openHint": "启动后打开 Web 界面即可登录。",
     "runningHint": "FileUni 已在运行，现在可以直接打开 Web 界面开始使用。",
     "reload": "返回启动界面",
     "docs": "查看官方技术文档"
@@ -180,6 +236,6 @@
     "dbSuccess": "数据库连接测试成功！",
     "applyingConfig": "正在应用配置并同步数据库表结构...",
     "setupFailed": "部署失败",
-    "setupSuccess": "部署成功，请确认后返回正常流程。"
+    "setupSuccess": "安装完成，请确认后继续。"
   }
 }

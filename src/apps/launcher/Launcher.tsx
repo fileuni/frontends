@@ -5,19 +5,20 @@ import {
   Zap,
   FileText,
   Info,
+  Pencil,
 } from 'lucide-react';
 import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo } from '@/components/modals/AboutModal';
 import { ToastContainer, ToastI18nContext } from '@/components/ui/Toast';
 import { toast } from '@/stores/toast';
 import { useThemeStore, applyTheme } from '@/stores/theme';
 import { useLanguageStore } from '@/stores/language';
-import type { ConfigError, ConfigNoteEntry } from '@/components/system-config/components/ConfigRawEditor';
-import { ConfigWorkbenchShell } from '@/components/system-config/components/ConfigWorkbenchShell';
-import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
-import { SetupOnboardingIntro } from '@/components/system-config/components/SetupOnboardingIntro';
-import { SetupSurfaceControls } from '@/components/system-config/components/SetupSurfaceControls';
-import type { ExternalToolDiagnosisResponse } from '@/components/system-config/components/ExternalDependencyConfigModal';
+import type { ConfigError, ConfigNoteEntry } from '@/components/setting/ConfigRawEditor';
+import { SettingWorkbenchSurface } from '@/components/setting/SettingWorkbenchSurface';
+import { SettingSurfaceControls } from '@/components/setting/SettingSurfaceControls';
+import type { ExternalToolDiagnosisResponse } from '@/components/setting/ExternalDependencyConfigModal';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
+import { useResolvedTheme } from '@/hooks/useResolvedTheme';
+import { buildSettingCommonActions } from '@/components/setting/SettingCommonActions';
 import { LogViewer, type LogEntry } from '@/apps/launcher/components/LogViewer';
 import { QuickActionsPanel } from '@/apps/launcher/components/QuickActionsPanel';
 import { ServiceControlPanel, type ServiceInstallLevel } from '@/apps/launcher/components/ServiceControlPanel';
@@ -94,10 +95,11 @@ const extractErrorMessage = (error: unknown): string => {
   return String(error);
 };
 
-export default function Launcher() {
+export function Launcher() {
   const { t } = useTranslation();
-  const { theme, setTheme } = useThemeStore();
-  const { language, setLanguage } = useLanguageStore();
+  const { theme } = useThemeStore();
+  const isDark = useResolvedTheme() === 'dark';
+  const { language } = useLanguageStore();
   const { runtimeDir, setRuntimeDir } = useConfigStore();
 
   // Toast i18n
@@ -471,6 +473,47 @@ export default function Launcher() {
     }
   };
 
+  const handleSetupRuntimeAction = async () => {
+    if (!isTauriRuntime()) {
+      await toast.info('CLI: restart FileUni with --runtime-dir <path> to change the runtime directory.', { duration: 'long' });
+      return;
+    }
+
+    if (isServiceRunning) {
+      await toast.warning(t('launcher.messages.stop_service_before_dirs'));
+      return;
+    }
+
+    setShowConfigSelector(true);
+  };
+
+  const settingActions = buildSettingCommonActions({
+    t,
+    isDark,
+    tomlAdapter: toml,
+    content: configContent,
+    onContentChange: setConfigContent,
+    runtimeOs: osInfo?.os_type,
+    onTestDatabase: handleCheckDatabase,
+    onTestCache: handleCheckCache,
+    adminPassword: {
+      onApply: async (password) => handleStoreAdminPassword(password),
+      loading: setupApplying,
+      hint: t('setup.admin.resetRuleHint'),
+    },
+    license: {
+      status: licenseStatus,
+      licenseKey,
+      onLicenseKeyChange: setLicenseKey,
+      onApplyLicense: () => { void handleUpdateLicenseKey(); },
+      saving: licenseSaving,
+    },
+    storage: {
+      onPrimaryAction: () => { void handleFinalizeSetup(); },
+      primaryActionLabel: t('setup.guide.card3Action'),
+    },
+  });
+
   const handleTestConfig = async () => {
     setConfigBusy(true);
     try {
@@ -499,6 +542,30 @@ export default function Launcher() {
       payload: { configured_values: configuredValues },
     });
   };
+
+  async function handleCheckDatabase({ databaseType, connectionString }: { databaseType: 'sqlite' | 'postgres'; connectionString: string }) {
+    try {
+      await safeInvoke<void>('check_db_connection', {
+        db_type: databaseType,
+        connection_string: connectionString,
+      });
+      toast.success(t('admin.config.testSuccess'));
+    } catch (error) {
+      toast.error(String(error));
+    }
+  }
+
+  async function handleCheckCache({ cacheType, connectionString }: { cacheType: string; connectionString: string }) {
+    try {
+      await safeInvoke<void>('check_kv_connection', {
+        kv_type: cacheType,
+        connection_string: connectionString,
+      });
+      toast.success(t('admin.config.testSuccess'));
+    } catch (error) {
+      toast.error(String(error));
+    }
+  }
 
   useEffect(() => {
     let unlistenServiceAction: (() => void) | null = null;
@@ -863,92 +930,62 @@ export default function Launcher() {
   if (setupRequired) {
     return (
       <>
-        <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between px-6 pb-6 pt-[calc(1.5rem+var(--safe-area-top))] sm:px-8 sm:pb-8 sm:pt-[calc(2rem+var(--safe-area-top))] border-b border-slate-200/50 dark:border-slate-800/40 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-                {t('setup.wizard.title')}
-              </h1>
-              <p className="text-sm mt-1 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">
-                {t('setup.wizard.subtitle')}
-              </p>
-            </div>
-            <SetupSurfaceControls
-              language={language}
-              onLanguageChange={setLanguage}
-              theme={theme}
-              onThemeChange={setTheme}
-            />
-          </div>
-
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-8">
+        <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col overflow-y-auto overscroll-contain touch-pan-y">
+          <div className="flex-1 min-h-0 p-3 pt-[calc(1rem+var(--safe-area-top))] pb-[calc(1rem+var(--safe-area-bottom))] sm:p-6 sm:pt-[calc(1.25rem+var(--safe-area-top))] lg:p-8 lg:pt-[calc(1.5rem+var(--safe-area-top))]">
             <div className="max-w-6xl mx-auto space-y-4">
-              <SetupOnboardingIntro
-                runtimeDir={setupStatus?.runtime_dir}
-              />
-
-              <ConfigWorkbenchShell
-                title={t('setup.wizard.title')}
-                subtitle={t('setup.wizard.subtitle')}
+              <SettingWorkbenchSurface
+                title={t('admin.config.title')}
                 configPath={configFilePath}
-              >
-                <SystemConfigWorkbench
-                  tomlAdapter={toml}
-                  loading={configFetching}
-                  configPath={configFilePath}
-                  content={configContent}
-                  savedContent={savedConfigContent}
-                  notes={configNotes}
-                  validationErrors={configErrors}
-                  busy={configBusy}
-                  onChange={setConfigContent}
-                  onTest={handleTestConfig}
-                  onSave={handleFinalizeSetup}
-                  saveLabel={t('setup.admin.finish')}
-                  onCancel={handleResetToSavedConfig}
-                  allowSaveWithoutChanges={true}
-                  forceEnableSave={true}
-                  setupMode={true}
-                  editorTitle={t('setup.editor.title')}
-                  testLabel={t('setup.editor.check')}
-                  onClearValidationErrors={() => setConfigErrors([])}
-                  showCancel={false}
-                  reloadSummary={configSummary}
-                  reloadSummaryLevel={configSummaryLevel}
-                  restartNotice={t('setup.admin.finalConfirmDesc')}
-                  quickWizardEnabled={true}
-                  runtimeOs={osInfo?.os_type}
-                  onDiagnoseExternalTools={handleDiagnoseExternalTools}
-                  {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
-                  quickWizardLicense={{
-                    isValid: Boolean(licenseStatus?.is_valid),
-                    ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),
-                    currentUsers: licenseStatus?.current_users ?? 0,
-                    maxUsers: licenseStatus?.max_users ?? 0,
-                    deviceCode: licenseStatus?.device_code ?? '',
-                    ...(licenseStatus?.hw_id ? { hwId: licenseStatus.hw_id } : {}),
-                    ...(licenseStatus?.aux_id ? { auxId: licenseStatus.aux_id } : {}),
-                    expiresAt: licenseStatus?.expires_at ?? null,
-                    features: licenseStatus?.features ?? [],
-                    licenseKey,
-                    saving: licenseSaving,
-                    onLicenseKeyChange: setLicenseKey,
-                    onApplyLicense: () => {
-                      void handleUpdateLicenseKey();
-                    },
-                  }}
-                  adminPasswordLabel={t('setup.admin.changePassword')}
-                  onResetAdminPassword={handleStoreAdminPassword}
-                  isResettingAdminPassword={setupApplying}
-                  adminPasswordPanelProps={{
-                    showWarning: false,
-                    showSuccess: false,
-                    showResetHint: false,
-                    confirmLabel: t('setup.admin.changePassword'),
-                    pendingHint: t('setup.admin.pendingHint'),
-                  }}
-                />
-              </ConfigWorkbenchShell>
+                configPathAction={
+                  <button
+                    type="button"
+                    onClick={() => { void handleSetupRuntimeAction(); }}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-300 bg-cyan-50 text-cyan-900 shadow-sm transition-all hover:bg-cyan-100 dark:border-cyan-400/30 dark:bg-cyan-500/10 dark:text-cyan-100 dark:hover:bg-cyan-500/20"
+                    aria-label={t('setup.guide.card1Action')}
+                    title={t('setup.guide.card1Action')}
+                  >
+                    <Pencil size={16} />
+                  </button>
+                }
+                headerExtras={<SettingSurfaceControls compact={true} />}
+                settingActions={settingActions}
+                testAction={{
+                  label: t('setup.editor.check'),
+                  onClick: () => { void handleTestConfig(); },
+                  disabled: configBusy || setupApplying,
+                }}
+                primaryAction={{
+                  label: t('setup.guide.card3Action'),
+                  onClick: () => { void handleFinalizeSetup(); },
+                  disabled: configBusy || setupApplying,
+                }}
+                workbenchProps={{
+                  tomlAdapter: toml,
+                  loading: configFetching,
+                  configPath: configFilePath,
+                  content: configContent,
+                  savedContent: savedConfigContent,
+                  notes: configNotes,
+                  validationErrors: configErrors,
+                  busy: configBusy,
+                  onChange: setConfigContent,
+                  onTest: handleTestConfig,
+                  onSave: handleFinalizeSetup,
+                  saveLabel: t('setup.admin.finish'),
+                  onCancel: handleResetToSavedConfig,
+                  allowSaveWithoutChanges: true,
+                  forceEnableSave: true,
+                  editorTitle: t('setup.editor.title'),
+                  testLabel: t('setup.editor.check'),
+                  onClearValidationErrors: () => setConfigErrors([]),
+                  showCancel: false,
+                  reloadSummary: configSummary,
+                  reloadSummaryLevel: configSummaryLevel,
+                  runtimeOs: osInfo?.os_type,
+                  onDiagnoseExternalTools: handleDiagnoseExternalTools,
+                  ...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {}),
+                }}
+              />
             </div>
           </div>
 
@@ -978,6 +1015,7 @@ export default function Launcher() {
                 <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex flex-col gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
                     <button
+                      type="button"
                       onClick={() => { void handleStart(); }}
                       disabled={loading || status === 'Running'}
                       className="px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 transition-all"
@@ -985,6 +1023,7 @@ export default function Launcher() {
                       {status === 'Running' ? t('setup.final.started') : t('setup.final.startNow')}
                     </button>
                     <button
+                      type="button"
                       onClick={() => { void handleOpenWebUiFromSetupCompleted(); }}
                       disabled={loading}
                       className="px-5 py-2.5 rounded-xl text-sm font-bold border border-cyan-300 text-cyan-700 hover:bg-cyan-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-cyan-500/30 dark:text-cyan-200 dark:hover:bg-cyan-500/10 transition-all"
@@ -992,6 +1031,7 @@ export default function Launcher() {
                       {t('setup.final.openWebUi')}
                     </button>
                     <button
+                      type="button"
                       onClick={() => { void finishSetupAndReturnToLauncher(); }}
                       className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all"
                     >
@@ -1053,13 +1093,7 @@ export default function Launcher() {
               </div>
             )}
 
-            <SetupSurfaceControls
-              language={language}
-              onLanguageChange={setLanguage}
-              theme={theme}
-              onThemeChange={setTheme}
-              compact={true}
-            />
+            <SettingSurfaceControls compact={true} />
             <button
               type="button"
               onClick={() => setIsAboutOpen(true)}
@@ -1314,54 +1348,65 @@ export default function Launcher() {
 
       {isEditingConfig && (
         <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm p-2 sm:p-4">
-          <ConfigWorkbenchShell
+          <SettingWorkbenchSurface
             title={t('launcher.edit_config')}
             configPath={configFilePath}
+            headerExtras={<SettingSurfaceControls compact={true} />}
             onClose={handleCloseConfigEditor}
             closeAriaLabel={t('common.close')}
-          >
-            <SystemConfigWorkbench
-              tomlAdapter={toml}
-              loading={configFetching}
-              configPath={configFilePath}
-              content={configContent}
-              savedContent={savedConfigContent}
-              notes={configNotes}
-              validationErrors={configErrors}
-              busy={configBusy}
-              onChange={setConfigContent}
-              onTest={handleTestConfig}
-              onSave={handleSaveConfig}
-              saveLabel={t('launcher.save_config')}
-              onCancel={handleResetToSavedConfig}
-              onClearValidationErrors={() => setConfigErrors([])}
-              showCancel={false}
-              reloadSummary={configSummary}
-              reloadSummaryLevel={configSummaryLevel}
-              runtimeOs={osInfo?.os_type}
-              onDiagnoseExternalTools={handleDiagnoseExternalTools}
-              onResetAdminPassword={handleResetAdminPassword}
-              isResettingAdminPassword={resettingAdminPassword}
-              {...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {})}
-                  quickWizardLicense={{
-                    isValid: Boolean(licenseStatus?.is_valid),
-                    ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),
-                    currentUsers: licenseStatus?.current_users ?? 0,
-                    maxUsers: licenseStatus?.max_users ?? 0,
-                    deviceCode: licenseStatus?.device_code ?? '',
-                    ...(licenseStatus?.hw_id ? { hwId: licenseStatus.hw_id } : {}),
-                    ...(licenseStatus?.aux_id ? { auxId: licenseStatus.aux_id } : {}),
-                    expiresAt: licenseStatus?.expires_at ?? null,
-                    features: licenseStatus?.features ?? [],
-                    licenseKey,
-                    saving: licenseSaving,
-                    onLicenseKeyChange: setLicenseKey,
-                    onApplyLicense: () => {
-                      void handleUpdateLicenseKey();
-                    },
-                  }}
-            />
-          </ConfigWorkbenchShell>
+            settingActions={settingActions}
+            testAction={{
+              label: t('setup.editor.check'),
+              onClick: () => { void handleTestConfig(); },
+              disabled: configBusy,
+            }}
+            primaryAction={{
+              label: t('launcher.save_config'),
+              onClick: () => { void handleSaveConfig(); },
+              disabled: configBusy,
+            }}
+            workbenchProps={{
+              tomlAdapter: toml,
+              loading: configFetching,
+              configPath: configFilePath,
+              content: configContent,
+              savedContent: savedConfigContent,
+              notes: configNotes,
+              validationErrors: configErrors,
+              busy: configBusy,
+              onChange: setConfigContent,
+              onTest: handleTestConfig,
+              onSave: handleSaveConfig,
+              saveLabel: t('launcher.save_config'),
+              onCancel: handleResetToSavedConfig,
+              onClearValidationErrors: () => setConfigErrors([]),
+              showCancel: false,
+              reloadSummary: configSummary,
+              reloadSummaryLevel: configSummaryLevel,
+              runtimeOs: osInfo?.os_type,
+              onDiagnoseExternalTools: handleDiagnoseExternalTools,
+              onResetAdminPassword: handleResetAdminPassword,
+              isResettingAdminPassword: resettingAdminPassword,
+              ...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {}),
+              quickWizardLicense: {
+                isValid: Boolean(licenseStatus?.is_valid),
+                ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),
+                currentUsers: licenseStatus?.current_users ?? 0,
+                maxUsers: licenseStatus?.max_users ?? 0,
+                deviceCode: licenseStatus?.device_code ?? '',
+                ...(licenseStatus?.hw_id ? { hwId: licenseStatus.hw_id } : {}),
+                ...(licenseStatus?.aux_id ? { auxId: licenseStatus.aux_id } : {}),
+                expiresAt: licenseStatus?.expires_at ?? null,
+                features: licenseStatus?.features ?? [],
+                licenseKey,
+                saving: licenseSaving,
+                onLicenseKeyChange: setLicenseKey,
+                onApplyLicense: () => {
+                  void handleUpdateLicenseKey();
+                },
+              },
+            }}
+          />
         </div>
       )}
     </div>
@@ -1373,3 +1418,5 @@ export default function Launcher() {
     </>
   );
 }
+
+export default Launcher;

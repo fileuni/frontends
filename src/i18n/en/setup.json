@@ -9,17 +9,25 @@
     "desc": "If this is your first time, keeping the default choices is usually the best option. FileUni starts with a beginner-friendly setup, and you can fine-tune everything later.",
     "card1Title": "Choose where things are saved",
     "card1Desc": "Pick the single runtime directory where FileUni should keep its settings and data.",
+    "card1Action": "Change location",
+    "card1Hint": "Restart FileUni after changing the runtime directory.",
     "card2Title": "Create your sign-in password",
     "card2Desc": "Set a password for the administrator account you will use later.",
+    "card2Action": "Set password",
+    "card2Hint": "Set the admin sign-in password.",
     "card3Title": "Finish and start using FileUni",
     "card3Desc": "When setup is done, return to the launcher and start FileUni.",
+    "card3Action": "Apply",
+    "card3Hint": "Save your settings and continue.",
     "recommendedTitle": "Recommended for first-time users",
     "recommendedDesc": "If you are unsure, keep the current defaults. They are the easiest choice for personal use, home use, and quick trials.",
     "locationTitle": "Current install locations",
     "configDirLabel": "Runtime directory",
     "configPathLabel": "Current config file",
     "locationDesc": "This is only where FileUni will save things for you. You do not need to create any files by hand.",
-    "requiredPrompt": "FileUni has not finished its first-time setup yet. Continue to open the setup wizard now. You can still change these settings later."
+    "commonActionsTitle": "Common settings",
+    "openAction": "Open this item",
+    "requiredPrompt": "FileUni has not finished first-time setup yet. Continue now?"
   },
   "editor": {
     "title": "Setup Settings",
@@ -27,9 +35,11 @@
     "quickWizard": "Continue Quick Setup",
     "showAdvanced": "Show Advanced Settings",
     "hideAdvanced": "Hide Advanced Settings",
-    "rawHiddenTitle": "Most people do not need to edit the raw settings by hand",
+    "visualMode": "Visual Editor",
+    "sourceMode": "Text Editor",
+    "rawHiddenTitle": "Edit the config text only if you need more control",
     "rawHiddenDesc": "During first-time setup, the quick setup flow above is usually enough. Open advanced settings only if you need more detailed control.",
-    "finishHint": "After choosing the options above, click \"Finish Setup\" to continue.",
+    "finishHint": "Confirm to finish setup.",
     "backToWizard": "Back to Quick Setup",
     "moreActionsTitle": "Other advanced entries",
     "moreActionsDesc": "License, storage, and external tool checks can usually wait until after setup is finished.",
@@ -38,6 +48,11 @@
   },
   "steps": {
     "step": "Step",
+    "performance": "Tune performance",
+    "databaseCache": "Configure database and cache",
+    "storage": "Configure storage",
+    "adminPassword": "Set admin password",
+    "finishSimple": "Finish",
     "profile": "Profile",
     "database": "Database",
     "cache": "Cache",
@@ -76,7 +91,7 @@
     "dsnNote": "Note: Manual edits to the DSN will override form values.",
     "rawToml": "Configuration Preview (TOML)",
     "useTls": "Use Secure Connection (TLS/SSL)",
-    "dbType": "Database Type",
+    "dbType": "Database",
     "host": "Host",
     "port": "Port",
     "username": "Username",
@@ -84,7 +99,7 @@
     "dbName": "Database Name",
     "dbPath": "SQLite File Path",
     "kvUsername": "Redis UserName",
-    "kvType": "Cache Backend",
+    "kvType": "Cache",
     "kvRedisHint": "Redis-compatible backends (Redis/KeyDB/Valkey)",
     "kvDashmapHint": "Note: In-memory cache is volatile and cleared on restart.",
     "kvSqlHint": "Note: Will reuse primary database for cache storage.",
@@ -134,6 +149,47 @@
       "sharedCache": "Enable Shared Cache (shared_cache)"
     }
   },
+  "cache": {
+    "externalServer": "External Cache Server",
+    "externalHints": {
+      "redis": "Use Redis when you already operate a Redis deployment.",
+      "valkey": "Valkey is the recommended first-install choice for an external cache server.",
+      "keydb": "KeyDB fits high-concurrency and multithreaded workloads better."
+    }
+  },
+  "storagePool": {
+    "title": "Storage Pool Settings",
+    "desc": "Choose a backend type for each pool, then fill only the fields that backend really needs.",
+    "rootHint": "Recommended default: {{value}}",
+    "s3": {
+      "endpoint": "Endpoint",
+      "region": "Region",
+      "bucket": "Bucket",
+      "access_key_id": "Access Key ID",
+      "secret_access_key": "Secret Access Key"
+    },
+    "s3Hints": {
+      "endpoint": "Enter the S3 or compatible object storage endpoint.",
+      "region": "Enter the service region or provider-specific region value.",
+      "bucket": "Enter the bucket used as the root for this storage pool.",
+      "access_key_id": "The access key identifier used to sign requests.",
+      "secret_access_key": "The secret key used to sign requests."
+    },
+    "webdav": {
+      "endpoint": "WebDAV Endpoint",
+      "username": "Username",
+      "password": "Password"
+    },
+    "webdavHints": {
+      "endpoint": "Enter the base WebDAV service endpoint.",
+      "username": "The account used to sign in to WebDAV.",
+      "password": "The password used to sign in to WebDAV."
+    }
+  },
+  "storageCache": {
+    "title": "Read / Write Cache Acceleration",
+    "writeRisk": "Warning: when write cache is enabled, data is cached first and flushed back asynchronously. Sudden power loss, cache cleanup, or flush failure may cause file loss or delayed persistence."
+  },
   "admin": {
     "title": "Set up the administrator account",
     "subtitle": "This is the account you will use to sign in to the admin console.",
@@ -142,12 +198,12 @@
     "suggestPassword": "Generate Random Password",
     "generate_password": "Generate Random Password",
     "pendingHint": "Applies when setup is finished",
-    "resetRuleHint": "Reset policy: if an admin exists, reset the first admin password; if none exists, create an admin user with username admin.",
+    "resetRuleHint": "If no administrator exists yet, apply will create an admin user named admin. If an administrator already exists, apply will reset the first administrator password to the password entered here.",
     "resetSuccessWithUser": "Admin password applied. Current admin username: {{username}}",
     "finalConfirm": "Ready to finish setup",
-    "finalConfirmDesc": "When you click Finish Setup, FileUni will save your choices and make sure the administrator account is ready. You can still adjust more settings later in the admin console.",
+    "finalConfirmDesc": "Confirm to save your settings and finish setup. You can adjust more options later.",
     "finish": "Finish Setup",
-    "changePassword": "Set Sign-In Password",
+    "changePassword": "Admin Settings",
     "passwordHintTitle": "Set the administrator sign-in password before finishing",
     "passwordHintDesc": "You will use this password the first time you sign in to the admin console.",
     "passwordHintAction": "Set Sign-In Password"
@@ -167,7 +223,7 @@
     "started": "FileUni is running",
     "openWebUi": "Open Web UI",
     "finishLater": "Maybe later",
-    "openHint": "You can start FileUni first and then open the Web UI, or click “Open Web UI” and let FileUni continue for you.",
+    "openHint": "Start FileUni, then open the Web UI to sign in.",
     "runningHint": "FileUni is already running, so you can open the Web UI right away.",
     "reload": "Return to Launcher",
     "docs": "View Documentation"
@@ -181,6 +237,6 @@
     "dbSuccess": "Database connection success!",
     "applyingConfig": "Applying configuration and syncing DB schema...",
     "setupFailed": "Deployment failed",
-    "setupSuccess": "Setup completed successfully. Confirm to continue the normal flow."
+    "setupSuccess": "Setup complete. Confirm to continue."
   }
 }

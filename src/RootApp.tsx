@@ -9,7 +9,7 @@ const WebApp = React.lazy(() =>
 
 const TauriLauncher = React.lazy(() =>
   import("@/apps/launcher/Launcher").then((m) => ({
-    default: m.default,
+    default: m.Launcher,
   }))
 );
 
@@ -33,3 +33,5 @@ export const RootApp: React.FC = () => {
     </React.Suspense>
   );
 };
+
+export default RootApp;

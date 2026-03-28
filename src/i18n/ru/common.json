@@ -85,8 +85,9 @@
   "visualMode": "Визуальный режим",
   "switchToRawJson": "Переключить в режим исходного JSON",
   "editorEngine": {
+    "codemirror": "CodeMirror",
     "textarea": "Текст",
-    "switchToMonaco": "Переключить на Monaco",
+    "switchToCodeMirror": "Переключить на CodeMirror",
     "switchToTextarea": "Переключить на поле текста"
   },
   "na": "Н/д",

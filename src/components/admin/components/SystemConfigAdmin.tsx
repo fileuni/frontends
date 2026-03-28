@@ -7,13 +7,15 @@ import type { components } from '@/lib/api.ts';
 import type {
   ConfigError,
   ConfigNoteEntry as SharedConfigNoteEntry,
-} from '@/components/system-config/components/ConfigRawEditor';
-import { SystemConfigWorkbench } from '@/components/system-config/components/SystemConfigWorkbench';
+} from '@/components/setting/ConfigRawEditor';
+import { SettingWorkbenchSurface } from '@/components/setting/SettingWorkbenchSurface';
+import { buildSettingCommonActions } from '@/components/setting/SettingCommonActions';
+import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useToastStore } from '@/stores/toast';
 import { useAuthzStore } from '@/stores/authz.ts';
 import { useAuthStore } from '@/stores/auth.ts';
 import { AdminPage } from './admin-ui';
-import type { ExternalToolDiagnosisResponse } from '@/components/system-config/components/ExternalDependencyConfigModal';
+import type { ExternalToolDiagnosisResponse } from '@/components/setting/ExternalDependencyConfigModal';
 
 type ConfigRawResponse = components['schemas']['ConfigRawResponse'];
 type ConfigNotesResponse = components['schemas']['ConfigNotesResponse'];
@@ -109,6 +111,7 @@ const formatLineDiffSummary = (stats: LineDiffStats): string => {
 
 export const SystemConfigAdmin = () => {
   const { t } = useTranslation();
+  const isDark = useResolvedTheme() === 'dark';
   const { addToast } = useToastStore();
 
   const [loading, setLoading] = useState(true);
@@ -358,47 +361,89 @@ export const SystemConfigAdmin = () => {
     );
   }, []);
 
+  const settingActions = buildSettingCommonActions({
+    t,
+    isDark,
+    tomlAdapter: toml,
+    content,
+    onContentChange: setContent,
+    runtimeOs,
+    adminPassword: {
+      onApply: async (password) => handleQuickWizardResetAdminPassword(password),
+      loading: isResettingAdminPassword,
+      hint: t('setup.admin.resetRuleHint'),
+    },
+    license: {
+      status: licenseStatus,
+      licenseKey,
+      onLicenseKeyChange: setLicenseKey,
+      onApplyLicense: () => { void handleUpdateLicense(); },
+      saving,
+    },
+    storage: {
+      onPrimaryAction: () => { void handleReload(); },
+      primaryActionLabel: t('admin.config.saveAndReload'),
+    },
+  });
+
   return (
     <AdminPage>
-      <SystemConfigWorkbench
-        tomlAdapter={toml}
-        loading={loading}
+      <SettingWorkbenchSurface
+        title={t('admin.config.title')}
         configPath={configPath}
-        content={content}
-        savedContent={savedContent}
-        notes={normalizedNotes}
-        validationErrors={editorErrors}
-        busy={testing || reloading}
-        onChange={setContent}
-        onTest={handleTest}
-        onSave={handleReload}
-        onCancel={handleResetToSaved}
-        showCancel={false}
-        onClearValidationErrors={() => setValidationErrors([])}
-        restartNotice={t('admin.config.restartNotice')}
-        reloadSummary={reloadSummary}
-        reloadSummaryLevel={reloadSummaryLevel}
-        runtimeOs={runtimeOs}
-        onDiagnoseExternalTools={handleDiagnoseExternalTools}
-        quickWizardLicense={{
-          isValid: Boolean(licenseStatus?.is_valid),
-          msg: licenseStatus?.msg,
-          currentUsers: licenseStatus?.current_users || 0,
-          maxUsers: licenseStatus?.max_users || 0,
-          deviceCode: licenseStatus?.device_code || '',
-          hwId: licenseStatus?.hw_id,
-          auxId: licenseStatus?.aux_id,
-          expiresAt: licenseStatus?.expires_at ?? null,
-          features: licenseStatus?.features ?? [],
-          licenseKey,
-          saving,
-          onLicenseKeyChange: setLicenseKey,
-          onApplyLicense: () => {
-            void handleUpdateLicense();
-          },
+        settingActions={settingActions}
+        testAction={{
+          label: t('setup.editor.check'),
+          onClick: () => { void handleTest(); },
+          disabled: testing || reloading,
         }}
-        onResetAdminPassword={handleQuickWizardResetAdminPassword}
-        isResettingAdminPassword={isResettingAdminPassword}
+        primaryAction={{
+          label: t('admin.config.saveAndReload'),
+          onClick: () => { void handleReload(); },
+          disabled: testing || reloading,
+        }}
+        workbenchProps={{
+          tomlAdapter: toml,
+          loading,
+          configPath,
+          content,
+          savedContent,
+          notes: normalizedNotes,
+          validationErrors: editorErrors,
+          busy: testing || reloading,
+          onChange: setContent,
+          onTest: handleTest,
+          onSave: handleReload,
+          onCancel: handleResetToSaved,
+          showCancel: false,
+          onClearValidationErrors: () => setValidationErrors([]),
+          restartNotice: t('admin.config.restartNotice'),
+          reloadSummary,
+          reloadSummaryLevel,
+          runtimeOs,
+          onDiagnoseExternalTools: handleDiagnoseExternalTools,
+          quickWizardLicense: {
+            isValid: Boolean(licenseStatus?.is_valid),
+            msg: licenseStatus?.msg,
+            currentUsers: licenseStatus?.current_users || 0,
+            maxUsers: licenseStatus?.max_users || 0,
+            deviceCode: licenseStatus?.device_code || '',
+            hwId: licenseStatus?.hw_id,
+            auxId: licenseStatus?.aux_id,
+            expiresAt: licenseStatus?.expires_at ?? null,
+            features: licenseStatus?.features ?? [],
+            licenseKey,
+            saving,
+            onLicenseKeyChange: setLicenseKey,
+            onApplyLicense: () => {
+              void handleUpdateLicense();
+            },
+          },
+          onResetAdminPassword: handleQuickWizardResetAdminPassword,
+          isResettingAdminPassword,
+          editorTitle: t('admin.config.title'),
+          testLabel: t('setup.editor.check'),
+        }}
       />
     </AdminPage>
   );

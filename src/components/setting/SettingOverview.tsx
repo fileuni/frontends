@@ -1,0 +1,376 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, Database, FolderCog, ImagePlus, KeyRound, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useResolvedTheme } from '@/hooks/useResolvedTheme';
+import { cn } from '@/lib/utils';
+
+export interface SettingActionItem {
+  id: string;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  onClick?: () => void;
+  disabled?: boolean;
+  actionLabel?: string;
+  eyebrow?: string;
+  points?: string[];
+  stats?: Array<{ label: string; value: string }>;
+  renderPanel?: React.ReactNode;
+  actions?: Array<{
+    id: string;
+    label: string;
+    onClick?: () => void;
+    disabled?: boolean;
+    variant?: 'primary' | 'secondary';
+  }>;
+}
+
+interface SettingOverviewProps {
+  commonActions?: SettingActionItem[];
+}
+
+export const SettingOverview: React.FC<SettingOverviewProps> = ({
+  commonActions = [],
+}) => {
+  const { t } = useTranslation();
+  const resolvedTheme = useResolvedTheme();
+  const isDark = resolvedTheme === 'dark';
+  const [isMobileLayout, setIsMobileLayout] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+
+  useEffect(() => {
+    const update = () => setIsMobileLayout(window.innerWidth < 1024);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  useEffect(() => {
+    setIsSidebarExpanded(!isMobileLayout);
+  }, [isMobileLayout]);
+
+  const steps = useMemo(() => [
+    { id: 'performance', icon: Sparkles, title: t('setup.steps.performance') },
+    { id: 'database-cache', icon: Database, title: t('setup.steps.databaseCache') },
+    { id: 'storage', icon: FolderCog, title: t('setup.steps.storage') },
+    { id: 'admin', icon: ShieldCheck, title: t('setup.steps.adminPassword') },
+    { id: 'finish', icon: Zap, title: t('setup.steps.finishSimple') },
+  ], [t]);
+
+  const [selectedSettingId, setSelectedSettingId] = useState<string>(commonActions[0]?.id ?? '');
+
+  useEffect(() => {
+    if (!commonActions.some((item) => item.id === selectedSettingId)) {
+      setSelectedSettingId(commonActions[0]?.id ?? '');
+    }
+  }, [commonActions, selectedSettingId]);
+
+  useEffect(() => {
+    if (commonActions.length === 0 || isMobileLayout) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntry = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        const nextId = visibleEntry?.target.getAttribute('data-setting-action-id');
+        if (nextId) {
+          setSelectedSettingId(nextId);
+        }
+      },
+      {
+        root: null,
+        threshold: [0.2, 0.45, 0.7],
+        rootMargin: '-10% 0px -45% 0px',
+      }
+    );
+
+    const sections = commonActions
+      .map((item) => document.getElementById(`setting-inline-${item.id}`))
+      .filter((element): element is HTMLElement => Boolean(element));
+
+    sections.forEach((section) => {
+      observer.observe(section);
+    });
+
+    return () => {
+      sections.forEach((section) => {
+        observer.unobserve(section);
+      });
+      observer.disconnect();
+    };
+  }, [commonActions, isMobileLayout]);
+
+  return (
+    <div className="space-y-3 sm:space-y-4">
+        <section className={cn(
+          'rounded-[1.5rem] border p-3 sm:p-4 shadow-sm',
+          isDark
+            ? 'border-white/10 bg-slate-950'
+            : 'border-sky-200/70 bg-gradient-to-br from-sky-50 via-cyan-50 to-white'
+        )}>
+        <div>
+          <div>
+            <div className={cn(
+              'inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.18em]',
+              isDark ? 'border-sky-400/20 bg-sky-500/10 text-sky-200' : 'border-sky-200 bg-white/80 text-sky-700'
+            )}>
+              {t('setup.steps.step')}
+            </div>
+            <h2 className={cn('mt-3 text-lg font-black tracking-tight sm:text-xl', isDark ? 'text-slate-100' : 'text-slate-900')}>
+              {t('setup.steps.step')}
+            </h2>
+          </div>
+        </div>
+
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+          {steps.map(({ id, icon: Icon, title }, index) => (
+            <article
+              key={id}
+              className={cn(
+                'rounded-2xl border p-2.5',
+                isDark ? 'border-white/10 bg-white/[0.04]' : 'border-slate-200 bg-white'
+              )}
+            >
+              <div className="flex items-center gap-2.5">
+                <div className={cn(
+                  'flex h-8 w-8 items-center justify-center rounded-xl',
+                  isDark ? 'bg-sky-500/15 text-sky-200' : 'bg-sky-100 text-sky-700'
+                )}>
+                  <Icon size={15} />
+                </div>
+                <div className={cn(
+                  'flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-[10px] font-black',
+                  isDark ? 'bg-white/10 text-slate-100' : 'bg-slate-100 text-slate-700'
+                )}>
+                  {String(index + 1).padStart(2, '0')}
+                </div>
+              </div>
+              <div className={cn('mt-2 text-[13px] font-black leading-5 sm:text-sm', isDark ? 'text-slate-100' : 'text-slate-900')}>{title}</div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {commonActions.length > 0 && (
+        <section className={cn(
+          'rounded-[1.75rem] border p-3 sm:p-4 shadow-sm',
+          isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+        )}>
+          <div className={cn(
+            'grid items-start gap-3',
+            isSidebarExpanded
+              ? 'grid-cols-[minmax(0,12rem)_minmax(0,1fr)] lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)]'
+              : 'grid-cols-[4.25rem_minmax(0,1fr)]'
+          )}>
+            <aside className={cn(
+              'sticky top-[calc(0.75rem+var(--safe-area-top,0px))] self-start border p-2 z-10 max-h-[calc(100vh-1.5rem-var(--safe-area-top,0px))] overflow-auto overscroll-contain',
+              isSidebarExpanded ? 'rounded-3xl' : 'rounded-2xl',
+              isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/70'
+            )}>
+              <button
+                type="button"
+                onClick={() => setIsSidebarExpanded((prev) => !prev)}
+                className={cn(
+                  'mb-2 flex w-full items-center justify-center rounded-xl border px-2 py-2 text-[11px] font-black uppercase tracking-[0.18em] transition-all',
+                  isDark ? 'border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
+                )}
+                aria-label={isSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+                title={isSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+              >
+                <span>{isSidebarExpanded ? '−' : '+'}</span>
+              </button>
+              <div className={cn(
+                isSidebarExpanded
+                  ? 'grid gap-1.5'
+                  : isMobileLayout
+                  ? 'grid gap-1.5'
+                  : 'pb-1 lg:grid lg:gap-1.5 lg:overflow-visible lg:pb-0 flex gap-1.5 overflow-x-auto'
+              )}>
+                {commonActions.map(({ id, label, icon: Icon }) => {
+                  const active = selectedSettingId === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSettingId(id);
+                        document.getElementById(`setting-inline-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
+                      className={cn(
+                        !isSidebarExpanded
+                          ? 'flex items-center justify-center rounded-xl px-2 py-3 text-left text-sm font-black transition-all min-h-11 w-full'
+                          : 'flex shrink-0 items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-black transition-all lg:w-full min-h-11',
+                        active
+                          ? (isDark ? 'bg-cyan-500/15 text-cyan-100' : 'bg-cyan-100 text-cyan-950')
+                          : (isDark ? 'text-slate-200 hover:bg-white/5' : 'text-slate-700 hover:bg-white')
+                      )}
+                    >
+                      <div className={cn(
+                        'flex h-8 w-8 items-center justify-center rounded-2xl',
+                        active
+                          ? (isDark ? 'bg-cyan-500/20 text-cyan-100' : 'bg-cyan-100 text-cyan-800')
+                          : (isDark ? 'bg-white/10 text-slate-200' : 'bg-slate-100 text-slate-700')
+                      )}>
+                        <Icon size={15} />
+                      </div>
+                      {isSidebarExpanded && <span className="truncate whitespace-nowrap lg:whitespace-normal">{label}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </aside>
+
+            <div className="space-y-3">
+              {commonActions.map((item) => {
+                const active = selectedSettingId === item.id;
+                const Icon = item.icon;
+
+                return (
+                  <section
+                    id={`setting-inline-${item.id}`}
+                    key={item.id}
+                    data-setting-action-id={item.id}
+                    className={cn(
+                      'rounded-3xl border p-4 sm:p-5 scroll-mt-24 transition-all',
+                      active
+                        ? (isDark ? 'border-cyan-400/25 bg-cyan-500/10 shadow-lg shadow-cyan-500/5' : 'border-cyan-200 bg-cyan-50/70 shadow-sm')
+                        : (isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/60')
+                    )}
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            'flex h-10 w-10 items-center justify-center rounded-2xl',
+                            active
+                              ? (isDark ? 'bg-cyan-500/20 text-cyan-100' : 'bg-cyan-100 text-cyan-800')
+                              : (isDark ? 'bg-white/10 text-slate-100' : 'bg-white text-slate-700')
+                          )}>
+                            <Icon size={18} />
+                          </div>
+                          <div>
+                            <h3 className={cn('text-lg font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                              {item.label}
+                            </h3>
+                          </div>
+                        </div>
+                        {item.description.trim().length > 0 && (
+                          <p className={cn('mt-4 max-w-2xl text-sm leading-7', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {item.onClick && (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={item.onClick}
+                            disabled={item.disabled}
+                            className={cn(
+                              'inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-black transition-all disabled:cursor-not-allowed disabled:opacity-50',
+                              isDark ? 'border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-100'
+                            )}
+                          >
+                            <span>{item.actionLabel ?? t('setup.guide.openAction')}</span>
+                            <ArrowRight size={15} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {(item.renderPanel || item.stats?.length || item.points?.length) && (
+                      <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                        {item.renderPanel && (
+                          <div className="xl:col-span-2">{item.renderPanel}</div>
+                        )}
+
+                        {item.stats && item.stats.length > 0 && (
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            {item.stats.map((stat) => (
+                              <div
+                                key={`${item.id}:${stat.label}`}
+                                className={cn(
+                                  'rounded-2xl border px-3 py-3',
+                                  isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+                                )}
+                              >
+                                <div className={cn('text-[11px] font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                                  {stat.label}
+                                </div>
+                                <div className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                                  {stat.value}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {item.points && item.points.length > 0 && (
+                          <div className={cn(
+                            'rounded-2xl border p-3',
+                            isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+                          )}>
+                            <div className="mt-3 space-y-2">
+                              {item.points.map((point) => (
+                                <div key={`${item.id}:${point}`} className={cn('flex gap-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                                  <span className={cn('mt-2 inline-flex h-1.5 w-1.5 shrink-0 rounded-full', active ? 'bg-cyan-500' : 'bg-slate-400')} />
+                                  <span>{point}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {item.actions && item.actions.length > 0 && (
+                      <div className={cn(
+                        'mt-4 flex flex-wrap items-center gap-2 border-t pt-4',
+                        isDark ? 'border-white/10' : 'border-slate-200'
+                      )}>
+                        {item.actions.map((action) => (
+                          <button
+                            key={`${item.id}:${action.id}`}
+                            type="button"
+                            onClick={action.onClick}
+                            disabled={action.disabled || !action.onClick}
+                            className={cn(
+                              'inline-flex h-10 items-center justify-center rounded-2xl border px-4 text-sm font-black transition-all disabled:cursor-not-allowed disabled:opacity-50',
+                              action.variant === 'primary'
+                                ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20 hover:opacity-90'
+                                : isDark
+                                  ? 'border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10'
+                                  : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-100'
+                            )}
+                          >
+                            {action.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+};
+
+export const settingCommonIcons = {
+  admin: KeyRound,
+  license: ShieldCheck,
+  storage: FolderCog,
+  thumbnail: ImagePlus,
+  compression: Zap,
+  database: Database,
+  cache: Database,
+  performance: Sparkles,
+} as const;

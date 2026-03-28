@@ -231,7 +231,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
     <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4 bg-background text-red-500">
       <AlertCircle size={64} />
       <p className="text-xl font-black uppercase tracking-widest">{error || "File Not Found"}</p>
-      <Button variant="outline" onClick={onClose} className="mt-4 rounded-2xl h-12 px-8 uppercase font-black">Close</Button>
+      <Button variant="outline" onClick={onClose} className="mt-4 rounded-2xl h-12 px-8 uppercase font-black">{t('common.close')}</Button>
     </div>
   );
 

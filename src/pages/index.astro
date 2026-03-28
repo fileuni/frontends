@@ -1,9 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import { RootApp } from '../RootApp.tsx'
+import { RootAppEntry } from '../RootAppEntry.tsx'
 import i18next from 'i18next'
 ---
 
 <Layout title={`${i18next.t('pages.index.title')} - FileUni`}>
-	<RootApp client:only="react" />
+	<RootAppEntry client:only="react" />
 </Layout>
