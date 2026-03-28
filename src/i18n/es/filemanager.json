@@ -445,12 +445,25 @@
     "unmute": "Activar sonido",
     "nowPlaying": "Reproduciendo",
     "queue": "Cola ({{count}})",
+    "audioEngine": "Reproductor de audio profesional",
     "videoEngine": "Motor de vídeo profesional",
     "pdfEngine": "Motor PDF nativo"
   },
   "audio": {
     "addedToPlaylist": "Añadido a la lista",
-    "highFidelity": "Alta fidelidad"
+    "highFidelity": "Alta fidelidad",
+    "buffering": "Cargando",
+    "localTrack": "Archivo de audio local",
+    "lyrics": "Letras",
+    "lyricsLoading": "Cargando letras LRC coincidentes",
+    "lyricsUnavailable": "No se encontró un archivo .lrc coincidente",
+    "lyricsFailed": "No se pudieron cargar las letras",
+    "instrumental": "El audio puede seguir reproduciéndose aunque no haya archivo de letras.",
+    "playbackFailed": "No se pudo cargar el flujo de audio",
+    "plainLyrics": "Letras estáticas",
+    "speed": "Velocidad",
+    "syncedLyrics": "Letras sincronizadas",
+    "volume": "Volumen"
   },
   "errors": {
     "loadFailed": "Falló la carga",

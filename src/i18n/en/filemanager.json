@@ -500,12 +500,25 @@
     "unmute": "Unmute",
     "nowPlaying": "Now Playing",
     "queue": "Queue ({{count}})",
+    "audioEngine": "Professional Audio Player",
     "videoEngine": "Professional Video Engine",
     "pdfEngine": "Native PDF Engine"
   },
   "audio": {
     "addedToPlaylist": "Added to playlist",
-    "highFidelity": "High fidelity"
+    "highFidelity": "High fidelity",
+    "buffering": "Buffering",
+    "localTrack": "Local audio file",
+    "lyrics": "Lyrics",
+    "lyricsLoading": "Loading matching LRC lyrics",
+    "lyricsUnavailable": "No matching .lrc lyric file found",
+    "lyricsFailed": "Failed to load lyrics",
+    "instrumental": "The audio can still play normally when no lyric file is available.",
+    "playbackFailed": "Failed to load audio stream",
+    "plainLyrics": "Static lyrics",
+    "speed": "Speed",
+    "syncedLyrics": "Synced lyrics",
+    "volume": "Volume"
   },
   "errors": {
     "loadFailed": "Load failed",

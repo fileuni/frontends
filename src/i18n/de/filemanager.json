@@ -382,16 +382,30 @@
     "previous": "Vorherige",
     "next": "Weiter",
     "play": "Abspielen",
+    "pause": "Pausieren",
     "mute": "Stummschalten",
     "unmute": "Ton einschalten",
     "nowPlaying": "Jetzt läuft",
     "queue": "Warteschlange ({{count}})",
+    "audioEngine": "Professioneller Audio-Player",
     "videoEngine": "Professionelle Video-Engine",
     "pdfEngine": "Native PDF-Engine"
   },
   "audio": {
     "addedToPlaylist": "Zur Wiedergabeliste hinzugefügt",
-    "highFidelity": "Hohe Wiedergabetreue"
+    "highFidelity": "Hohe Wiedergabetreue",
+    "buffering": "Wird gepuffert",
+    "localTrack": "Lokale Audiodatei",
+    "lyrics": "Songtext",
+    "lyricsLoading": "Passende LRC-Datei wird geladen",
+    "lyricsUnavailable": "Keine passende .lrc-Datei gefunden",
+    "lyricsFailed": "Songtext konnte nicht geladen werden",
+    "instrumental": "Die Audiodatei kann auch ohne Songtext normal abgespielt werden.",
+    "playbackFailed": "Audiostream konnte nicht geladen werden",
+    "plainLyrics": "Statischer Songtext",
+    "speed": "Geschwindigkeit",
+    "syncedLyrics": "Synchroner Songtext",
+    "volume": "Lautstärke"
   },
   "errors": {
     "loadFailed": "Laden fehlgeschlagen",

@@ -486,12 +486,25 @@
     "unmute": "取消静音",
     "nowPlaying": "正在播放",
     "queue": "播放列表 ({{count}})",
+    "audioEngine": "专业音频播放器",
     "videoEngine": "专业视频引擎",
     "pdfEngine": "原生 PDF 引擎"
   },
   "audio": {
     "addedToPlaylist": "已加入播放列表",
-    "highFidelity": "高保真"
+    "highFidelity": "高保真",
+    "buffering": "缓冲中",
+    "localTrack": "本地音频文件",
+    "lyrics": "歌词",
+    "lyricsLoading": "正在加载同名 LRC 歌词文件",
+    "lyricsUnavailable": "未找到同名 .lrc 歌词文件",
+    "lyricsFailed": "歌词加载失败",
+    "instrumental": "如果当前歌曲没有歌词，也可以直接播放音频。",
+    "playbackFailed": "音频流加载失败",
+    "plainLyrics": "静态歌词",
+    "speed": "倍速",
+    "syncedLyrics": "滚动歌词",
+    "volume": "音量"
   },
   "errors": {
     "loadFailed": "加载失败",

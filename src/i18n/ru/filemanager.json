@@ -445,12 +445,25 @@
     "unmute": "Со звуком",
     "nowPlaying": "Сейчас играет",
     "queue": "Очередь ({{count}})",
+    "audioEngine": "Профессиональный аудиоплеер",
     "videoEngine": "Профессиональный видеодвижок",
     "pdfEngine": "Нативный PDF движок"
   },
   "audio": {
     "addedToPlaylist": "Добавлено в плейлист",
-    "highFidelity": "Высокое качество"
+    "highFidelity": "Высокое качество",
+    "buffering": "Буферизация",
+    "localTrack": "Локальный аудиофайл",
+    "lyrics": "Текст песни",
+    "lyricsLoading": "Загрузка подходящего файла LRC",
+    "lyricsUnavailable": "Подходящий файл .lrc не найден",
+    "lyricsFailed": "Не удалось загрузить текст песни",
+    "instrumental": "Аудио все равно можно воспроизводить даже без файла с текстом.",
+    "playbackFailed": "Не удалось загрузить аудиопоток",
+    "plainLyrics": "Статичный текст",
+    "speed": "Скорость",
+    "syncedLyrics": "Синхронизированный текст",
+    "volume": "Громкость"
   },
   "errors": {
     "loadFailed": "Не удалось загрузить",

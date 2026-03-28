@@ -445,12 +445,25 @@
     "unmute": "ミュート解除",
     "nowPlaying": "再生中",
     "queue": "キュー ({{count}})",
+    "audioEngine": "プロ向けオーディオプレーヤー",
     "videoEngine": "プロ向けビデオエンジン",
     "pdfEngine": "ネイティブ PDF エンジン"
   },
   "audio": {
     "addedToPlaylist": "プレイリストに追加しました",
-    "highFidelity": "高音質"
+    "highFidelity": "高音質",
+    "buffering": "読み込み中",
+    "localTrack": "ローカル音声ファイル",
+    "lyrics": "歌詞",
+    "lyricsLoading": "一致する LRC 歌詞を読み込み中",
+    "lyricsUnavailable": "一致する .lrc 歌詞ファイルが見つかりません",
+    "lyricsFailed": "歌詞の読み込みに失敗しました",
+    "instrumental": "歌詞ファイルがなくても音声はそのまま再生できます。",
+    "playbackFailed": "音声ストリームの読み込みに失敗しました",
+    "plainLyrics": "固定歌詞",
+    "speed": "速度",
+    "syncedLyrics": "同期歌詞",
+    "volume": "音量"
   },
   "errors": {
     "loadFailed": "読み込みに失敗しました",

@@ -276,7 +276,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
     )}>
       {data.type === 'image' && <ImagePreview playlist={data.playlist} initialIndex={data.index} {...commonProps} />}
       {data.type === 'video' && <VideoPlayer playlist={data.playlist} initialIndex={data.index} {...commonProps} />}
-      {data.type === 'audio' && <AudioPreview path={activeFile.path} {...commonProps} />}
+      {data.type === 'audio' && <AudioPreview playlist={data.playlist} initialIndex={data.index} {...commonProps} />}
       
       {data.type === 'markdown' && (
         <div className="flex-1 flex flex-col overflow-hidden">
