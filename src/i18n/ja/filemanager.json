@@ -448,6 +448,11 @@
     "recentlyPlayed": "最近再生した項目",
     "historyEmpty": "再生履歴はまだありません",
     "resumeFrom": "続きから再生",
+    "lastPlayed": "前回再生",
+    "filterAudio": "音声",
+    "filterVideo": "動画",
+    "audioTrack": "音声トラック",
+    "audioTrackUnavailable": "切り替え可能な音声トラックはありません",
     "audioEngine": "プロ向けオーディオプレーヤー",
     "videoEngine": "プロ向けビデオエンジン",
     "pdfEngine": "ネイティブ PDF エンジン"

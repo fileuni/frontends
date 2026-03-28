@@ -448,6 +448,11 @@
     "recentlyPlayed": "Недавно воспроизведено",
     "historyEmpty": "История воспроизведения пока пуста",
     "resumeFrom": "Продолжить с",
+    "lastPlayed": "Последнее воспроизведение",
+    "filterAudio": "Аудио",
+    "filterVideo": "Видео",
+    "audioTrack": "Аудиодорожка",
+    "audioTrackUnavailable": "Нет доступных аудиодорожек для переключения",
     "audioEngine": "Профессиональный аудиоплеер",
     "videoEngine": "Профессиональный видеодвижок",
     "pdfEngine": "Нативный PDF движок"

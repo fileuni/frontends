@@ -20,19 +20,20 @@ import {
 import { cn } from '@/lib/utils.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { useTranslation } from 'react-i18next';
-import { clearMediaPlaybackRecords, removeMediaPlaybackRecord, useMediaPlaybackHistory } from '@/lib/mediaPlaybackHistory.ts';
+import { clearMediaPlaybackRecords, formatMediaPlaybackUpdatedAt, removeMediaPlaybackRecord, type MediaPlaybackKind, useMediaPlaybackHistory } from '@/lib/mediaPlaybackHistory.ts';
 import { formatTime } from './audioPreviewShared.ts';
 import { useAudioPlaybackController } from './useAudioPlaybackController.ts';
 
 type PanelTab = 'lyrics' | 'playlist' | 'recent';
 
 export const GlobalAudioPlayer = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isOpen, isMinimized, currentTrack, playlist, currentIndex, close, setCurrentIndex, setMinimized } = useAudioStore();
   const { theme } = useThemeStore();
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const activeLyricRef = useRef<HTMLButtonElement | null>(null);
   const [panelTab, setPanelTab] = useState<PanelTab>('lyrics');
+  const [recentFilter, setRecentFilter] = useState<'all' | MediaPlaybackKind>('all');
 
   const controller = useAudioPlaybackController({
     playlist,
@@ -40,9 +41,10 @@ export const GlobalAudioPlayer = () => {
     onIndexChange: setCurrentIndex,
     t,
   });
-  const recentRecords = useMediaPlaybackHistory('audio')
+  const recentRecords = useMediaPlaybackHistory()
     .filter((record) => record.path !== controller.activeFile?.path)
-    .slice(0, 6);
+    .slice(0, 12);
+  const filteredRecentRecords = recentRecords.filter((record) => recentFilter === 'all' || record.kind === recentFilter);
 
   useEffect(() => {
     if (controller.activeLyricIndex < 0) return;
@@ -247,20 +249,36 @@ export const GlobalAudioPlayer = () => {
                 </div>
               ) : (
                 <div className="custom-scrollbar max-h-52 space-y-2 overflow-y-auto p-3">
-                  {recentRecords.length === 0 && <p className={cn('px-2 py-8 text-center text-sm font-bold', isDark ? 'text-white/55' : 'text-slate-500')}>{t('filemanager.player.historyEmpty')}</p>}
                   {recentRecords.length > 0 && (
-                    <div className="flex justify-end pb-1">
-                      <Button variant="ghost" size="sm" className="h-8 rounded-full px-3 text-xs" onClick={() => clearMediaPlaybackRecords('audio')}>
+                    <div className="space-y-2 pb-1">
+                      <div className={cn('grid grid-cols-3 gap-2 rounded-2xl border p-1', isDark ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-white/80')}>
+                        <button type="button" onClick={() => setRecentFilter('all')} className={cn('h-8 rounded-xl text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'all' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+                          {t('common.all')}
+                        </button>
+                        <button type="button" onClick={() => setRecentFilter('audio')} className={cn('h-8 rounded-xl text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'audio' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+                          {t('filemanager.player.filterAudio')}
+                        </button>
+                        <button type="button" onClick={() => setRecentFilter('video')} className={cn('h-8 rounded-xl text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'video' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+                          {t('filemanager.player.filterVideo')}
+                        </button>
+                      </div>
+                      <div className="flex justify-end">
+                      <Button variant="ghost" size="sm" className="h-8 rounded-full px-3 text-xs" onClick={() => clearMediaPlaybackRecords(recentFilter === 'all' ? undefined : recentFilter)}>
                         {t('common.clear')}
                       </Button>
+                      </div>
                     </div>
                   )}
-                  {recentRecords.map((record) => (
+                  {filteredRecentRecords.length === 0 && <p className={cn('px-2 py-8 text-center text-sm font-bold', isDark ? 'text-white/55' : 'text-slate-500')}>{t('filemanager.player.historyEmpty')}</p>}
+                  {filteredRecentRecords.map((record) => (
                     <div key={record.path} className={cn('rounded-2xl border px-3 py-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white/70')}>
                       <div className="flex items-start gap-3">
                         <button type="button" onClick={() => handleOpenRecentRecord(record.path)} className="min-w-0 flex-1 text-left">
                           <p className="truncate text-sm font-bold">{record.title || record.name}</p>
                           <p className={cn('mt-1 truncate text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{record.subtitle || record.name}</p>
+                          <p className={cn('mt-2 text-xs', isDark ? 'text-white/35' : 'text-slate-400')}>
+                            {`${t('filemanager.player.lastPlayed')} ${formatMediaPlaybackUpdatedAt(record.updatedAt, i18n.resolvedLanguage || i18n.language)}`}
+                          </p>
                           <div className={cn('mt-2 flex items-center justify-between text-xs font-mono', isDark ? 'text-white/35' : 'text-slate-400')}>
                             <span>{`${t('filemanager.player.resumeFrom')} ${formatTime(record.position)}`}</span>
                             <span>{record.progressPercent}%</span>

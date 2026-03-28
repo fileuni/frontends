@@ -5,8 +5,9 @@ import 'xgplayer/dist/index.min.css';
 import type { FileInfo } from '../types/index.ts';
 import { BASE_URL } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
-import { clearMediaPlaybackRecords, removeMediaPlaybackRecord, resolveMediaResumePosition, upsertMediaPlaybackRecord, useMediaPlaybackHistory } from '@/lib/mediaPlaybackHistory.ts';
+import { clearMediaPlaybackRecords, formatMediaPlaybackUpdatedAt, removeMediaPlaybackRecord, resolveMediaResumePosition, upsertMediaPlaybackRecord, type MediaPlaybackKind, useMediaPlaybackHistory } from '@/lib/mediaPlaybackHistory.ts';
 import { storageHub } from '@/lib/storageHub.ts';
+import { getVideoPlaybackPreference, updateVideoPlaybackPreference } from './videoPlaybackPreferences.ts';
 import {
   Trash2,
   SkipBack,
@@ -81,6 +82,29 @@ interface SubtitleInfo {
   isActive: boolean;
 }
 
+interface AudioTrackInfo {
+  index: number;
+  label: string;
+  language?: string;
+  enabled: boolean;
+}
+
+interface AudioTrackLike {
+  enabled: boolean;
+  id?: string;
+  label?: string;
+  language?: string;
+}
+
+interface AudioTrackListLike {
+  length: number;
+  [index: number]: AudioTrackLike;
+}
+
+type VideoWithOptionalTracks = HTMLVideoElement & {
+  audioTracks?: AudioTrackListLike;
+};
+
 type SubtitleCapablePlayer = Player & {
   attachSubtitle?: (options: { url: string; type: 'vtt' | 'srt' | 'ass' }) => void;
   removeSubtitle?: () => void;
@@ -101,13 +125,16 @@ const getRandomIndex = (length: number, currentIndex: number) => {
 };
 
 export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const initialPrefsRef = useRef(readVideoPlayerPrefs());
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [playMode, setPlayMode] = useState<PlayMode>('list');
   const [showSubtitlePanel, setShowSubtitlePanel] = useState(false);
   const [availableSubtitles, setAvailableSubtitles] = useState<SubtitleInfo[]>([]);
+  const [subtitlesLoaded, setSubtitlesLoaded] = useState(false);
   const [currentSubtitle, setCurrentSubtitle] = useState<SubtitleInfo | null>(null);
+  const [availableAudioTracks, setAvailableAudioTracks] = useState<AudioTrackInfo[]>([]);
+  const [currentAudioTrackIndex, setCurrentAudioTrackIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -116,6 +143,8 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
   const [pipPreferred, setPipPreferred] = useState(initialPrefsRef.current.pipPreferred);
   const [isPipActive, setIsPipActive] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>('playlist');
+  const [recentFilter, setRecentFilter] = useState<'all' | MediaPlaybackKind>('all');
+  const [gestureHint, setGestureHint] = useState<{ side: 'left' | 'right'; delta: number } | null>(null);
 
   const activeFile = playlist[currentIndex];
   const isFlv = activeFile?.name.toLowerCase().endsWith('.flv');
@@ -129,7 +158,12 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
   const playModeRef = useRef<PlayMode>('list');
   const currentIndexRef = useRef(initialIndex);
   const lastVolumeRef = useRef(initialPrefsRef.current.volume > 0 ? initialPrefsRef.current.volume : 1);
-  const recentVideos = useMediaPlaybackHistory('video').filter((record) => record.path !== activeFile?.path).slice(0, 6);
+  const subtitleRestorePathRef = useRef<string | null>(null);
+  const audioTrackRestorePathRef = useRef<string | null>(null);
+  const tapStateRef = useRef<{ left: number; right: number }>({ left: 0, right: 0 });
+  const gestureTimerRef = useRef<number | null>(null);
+  const recentRecords = useMediaPlaybackHistory().filter((record) => record.path !== activeFile?.path).slice(0, 12);
+  const filteredRecentRecords = recentRecords.filter((record) => recentFilter === 'all' || record.kind === recentFilter);
 
   const playedPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
 
@@ -163,6 +197,49 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
   }, [pipPreferred, playbackRate, volume]);
 
   const getVideoElement = useCallback(() => playerContainerRef.current?.querySelector('video') as HTMLVideoElement | null, []);
+  const getAudioTrackList = useCallback(() => (getVideoElement() as VideoWithOptionalTracks | null)?.audioTracks, [getVideoElement]);
+
+  const syncAudioTracks = useCallback(() => {
+    const trackList = getAudioTrackList();
+    if (!trackList || typeof trackList.length !== 'number' || trackList.length === 0) {
+      setAvailableAudioTracks([]);
+      setCurrentAudioTrackIndex(null);
+      return [] as AudioTrackInfo[];
+    }
+
+    const tracks = Array.from({ length: trackList.length }, (_, index) => {
+      const track = trackList[index];
+      return {
+        index,
+        label: track?.label || track?.language || `${t('filemanager.player.audioTrack')} ${index + 1}`,
+        language: track?.language,
+        enabled: track?.enabled === true,
+      } satisfies AudioTrackInfo;
+    });
+
+    setAvailableAudioTracks(tracks);
+    const activeIndex = tracks.findIndex((track) => track.enabled);
+    setCurrentAudioTrackIndex(activeIndex >= 0 ? activeIndex : 0);
+    return tracks;
+  }, [getAudioTrackList, t]);
+
+  const applyAudioTrackSelection = useCallback((index: number | null, persist = true) => {
+    const trackList = getAudioTrackList();
+    if (!trackList || typeof trackList.length !== 'number' || trackList.length === 0) return;
+
+    for (let trackIndex = 0; trackIndex < trackList.length; trackIndex += 1) {
+      const track = trackList[trackIndex];
+      if (track) {
+        track.enabled = index === null ? trackIndex === 0 : trackIndex === index;
+      }
+    }
+
+    setCurrentAudioTrackIndex(index ?? 0);
+    syncAudioTracks();
+    if (persist && activeFile) {
+      updateVideoPlaybackPreference(activeFile.path, { audioTrackIndex: index ?? 0 });
+    }
+  }, [activeFile, getAudioTrackList, syncAudioTracks]);
 
   useEffect(() => {
     currentIndexRef.current = currentIndex;
@@ -252,8 +329,30 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
     }
   }, [getVideoElement]);
 
+  const handleSubtitleChange = useCallback((subtitle: SubtitleInfo, persist = true) => {
+    const player = playerRef.current;
+    if (!player) return;
+    const ext = subtitle.file.name.split('.').pop()?.toLowerCase() || '';
+    player.attachSubtitle?.({ url: subtitle.url, type: ext as 'vtt' | 'srt' | 'ass' });
+    setCurrentSubtitle(subtitle);
+    setAvailableSubtitles((prev) => prev.map((item) => ({ ...item, isActive: item.file.path === subtitle.file.path })));
+    if (persist && activeFile) {
+      updateVideoPlaybackPreference(activeFile.path, { subtitlePath: subtitle.file.path });
+    }
+  }, [activeFile]);
+
+  const disableSubtitle = useCallback((persist = true) => {
+    playerRef.current?.removeSubtitle?.();
+    setCurrentSubtitle(null);
+    setAvailableSubtitles((prev) => prev.map((item) => ({ ...item, isActive: false })));
+    if (persist && activeFile) {
+      updateVideoPlaybackPreference(activeFile.path, { subtitlePath: null });
+    }
+  }, [activeFile]);
+
   const loadSubtitles = useCallback(async () => {
     if (!activeFile) return;
+    setSubtitlesLoaded(false);
     const baseName = activeFile.name.replace(/\.[^.]+$/, '');
     const subtitleFiles = playlist.filter((file) => {
       const fBase = file.name.replace(/\.[^.]+$/, '');
@@ -275,6 +374,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
       }
     }
     setAvailableSubtitles(subtitles);
+    setSubtitlesLoaded(true);
   }, [activeFile, playlist]);
 
   useEffect(() => {
@@ -282,6 +382,8 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
     let mounted = true;
     restoredPathRef.current = null;
     lastPersistedSecondRef.current = -1;
+    subtitleRestorePathRef.current = null;
+    audioTrackRestorePathRef.current = null;
 
     const init = async () => {
       playerRef.current?.destroy();
@@ -363,6 +465,25 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
 
   useEffect(() => {
     const video = getVideoElement();
+    if (!video || !activeFile?.path) return undefined;
+
+    const syncNow = () => {
+      syncAudioTracks();
+    };
+
+    const timer = window.setTimeout(syncNow, 120);
+    video.addEventListener('loadedmetadata', syncNow);
+    video.addEventListener('loadeddata', syncNow);
+
+    return () => {
+      window.clearTimeout(timer);
+      video.removeEventListener('loadedmetadata', syncNow);
+      video.removeEventListener('loadeddata', syncNow);
+    };
+  }, [activeFile, getVideoElement, syncAudioTracks]);
+
+  useEffect(() => {
+    const video = getVideoElement();
     if (!video) return undefined;
 
     const handleEnterPictureInPicture = () => setIsPipActive(true);
@@ -381,6 +502,42 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
       video.removeEventListener('leavepictureinpicture', handleLeavePictureInPicture);
     };
   }, [getVideoElement, pipPreferred]);
+
+  useEffect(() => {
+    if (!activeFile || !subtitlesLoaded || subtitleRestorePathRef.current === activeFile.path) return undefined;
+
+    const preference = getVideoPlaybackPreference(activeFile.path);
+    if (!preference) {
+      subtitleRestorePathRef.current = activeFile.path;
+      return undefined;
+    }
+
+    if (preference.subtitlePath === null) {
+      disableSubtitle(false);
+      subtitleRestorePathRef.current = activeFile.path;
+      return undefined;
+    }
+
+    if (preference.subtitlePath) {
+      const matchedSubtitle = availableSubtitles.find((subtitle) => subtitle.file.path === preference.subtitlePath);
+      if (matchedSubtitle) {
+        handleSubtitleChange(matchedSubtitle, false);
+      }
+    }
+
+    subtitleRestorePathRef.current = activeFile.path;
+    return undefined;
+  }, [activeFile, availableSubtitles, disableSubtitle, handleSubtitleChange, subtitlesLoaded]);
+
+  useEffect(() => {
+    if (!activeFile || availableAudioTracks.length === 0 || audioTrackRestorePathRef.current === activeFile.path) return undefined;
+    const preference = getVideoPlaybackPreference(activeFile.path);
+    if (typeof preference?.audioTrackIndex === 'number' && preference.audioTrackIndex >= 0 && preference.audioTrackIndex < availableAudioTracks.length) {
+      applyAudioTrackSelection(preference.audioTrackIndex, false);
+    }
+    audioTrackRestorePathRef.current = activeFile.path;
+    return undefined;
+  }, [activeFile, applyAudioTrackSelection, availableAudioTracks]);
 
   useEffect(() => {
     if (!activeFile || duration <= 0 || restoredPathRef.current === activeFile.path) return undefined;
@@ -445,15 +602,6 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
     return undefined;
   }, [activeFile, currentTime, duration, isPlaying, pauseVideo, playNext, playPrev, playVideo, playbackRate, seekTo, t]);
 
-  const handleSubtitleChange = (subtitle: SubtitleInfo) => {
-    const player = playerRef.current;
-    if (!player) return;
-    const ext = subtitle.file.name.split('.').pop()?.toLowerCase() || '';
-    player.attachSubtitle?.({ url: subtitle.url, type: ext as 'vtt' | 'srt' | 'ass' });
-    setCurrentSubtitle(subtitle);
-    setAvailableSubtitles((prev) => prev.map((item) => ({ ...item, isActive: item.file.path === subtitle.file.path })));
-  };
-
   const togglePlay = () => {
     if (isPlaying) {
       pauseVideo();
@@ -473,6 +621,29 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
     params.set('preview_path', path);
     window.location.hash = params.toString();
   };
+
+  const handleGestureSeek = useCallback((side: 'left' | 'right') => {
+    const now = Date.now();
+    const lastTapAt = tapStateRef.current[side];
+    tapStateRef.current[side] = now;
+    if (now - lastTapAt > 320) return;
+
+    const delta = side === 'left' ? -10 : 10;
+    seekTo(Math.max(0, Math.min(durationRef.current || Number.MAX_SAFE_INTEGER, currentTimeRef.current + delta)));
+    setGestureHint({ side, delta });
+    if (gestureTimerRef.current !== null) {
+      window.clearTimeout(gestureTimerRef.current);
+    }
+    gestureTimerRef.current = window.setTimeout(() => setGestureHint(null), 700);
+  }, [seekTo]);
+
+  useEffect(() => {
+    return () => {
+      if (gestureTimerRef.current !== null) {
+        window.clearTimeout(gestureTimerRef.current);
+      }
+    };
+  }, []);
 
   if (!activeFile) return null;
 
@@ -500,6 +671,15 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
             <button type="button" onClick={togglePlay} className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px] z-10">
               <div className="w-20 h-20 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center border border-white/10 shadow-2xl"><Play size={32} className="text-white fill-white ml-1" /></div>
             </button>
+          )}
+
+          <button type="button" onTouchEnd={() => handleGestureSeek('left')} className="absolute inset-y-0 left-0 z-[5] w-1/2 lg:hidden" aria-label="Seek backward" />
+          <button type="button" onTouchEnd={() => handleGestureSeek('right')} className="absolute inset-y-0 right-0 z-[5] w-1/2 lg:hidden" aria-label="Seek forward" />
+
+          {gestureHint && (
+            <div className={cn('pointer-events-none absolute top-1/2 z-[12] -translate-y-1/2 rounded-full bg-black/55 px-4 py-2 text-sm font-black text-white shadow-2xl lg:hidden', gestureHint.side === 'left' ? 'left-6' : 'right-6')}>
+              {gestureHint.delta > 0 ? `+${gestureHint.delta}s` : `${gestureHint.delta}s`}
+            </div>
           )}
 
           <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-black/90 to-transparent opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-20">
@@ -538,8 +718,11 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
           </div>
 
           {showSubtitlePanel && (
-            <div className="absolute top-20 right-6 w-64 bg-zinc-900/95 border border-white/10 rounded-2xl shadow-2xl p-2 z-30">
-              <button type="button" onClick={() => { playerRef.current?.removeSubtitle?.(); setCurrentSubtitle(null); }} className={cn('w-full text-left px-4 py-2 rounded-xl text-sm font-bold', !currentSubtitle ? 'bg-primary text-white' : 'text-white/60 hover:bg-white/5')}>
+            <div className="absolute top-20 right-6 w-72 bg-zinc-900/95 border border-white/10 rounded-2xl shadow-2xl p-2 z-30">
+              <div className="px-2 pt-2 pb-1">
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-white/40">{t('filemanager.player.subtitle')}</p>
+              </div>
+              <button type="button" onClick={() => disableSubtitle()} className={cn('w-full text-left px-4 py-2 rounded-xl text-sm font-bold', !currentSubtitle ? 'bg-primary text-white' : 'text-white/60 hover:bg-white/5')}>
                 {t('filemanager.player.subtitlesOff')}
               </button>
               {availableSubtitles.map((subtitle) => (
@@ -547,6 +730,15 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                   {subtitle.file.name}
                 </button>
               ))}
+
+              <div className="mt-3 border-t border-white/10 px-2 pt-3 pb-1">
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-white/40">{t('filemanager.player.audioTrack')}</p>
+              </div>
+              {availableAudioTracks.length > 0 ? availableAudioTracks.map((track) => (
+                <button type="button" key={`${track.index}-${track.label}`} onClick={() => applyAudioTrackSelection(track.index)} className={cn('mt-1 w-full rounded-xl px-4 py-2 text-left text-sm font-bold', currentAudioTrackIndex === track.index ? 'bg-primary text-white' : 'text-white/60 hover:bg-white/5')}>
+                  {track.label}
+                </button>
+              )) : <p className="px-4 py-2 text-sm text-white/45">{t('filemanager.player.audioTrackUnavailable')}</p>}
             </div>
           )}
         </div>
@@ -564,11 +756,11 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
           <div className="p-4 border-b border-border flex items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground">{sidebarTab === 'playlist' ? t('filemanager.player.playlist') : t('filemanager.player.recentlyPlayed')}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{sidebarTab === 'playlist' ? `${currentIndex + 1} / ${playlist.length}` : recentVideos.length > 0 ? t('filemanager.player.queue', { count: recentVideos.length }) : t('filemanager.player.historyEmpty')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{sidebarTab === 'playlist' ? `${currentIndex + 1} / ${playlist.length}` : filteredRecentRecords.length > 0 ? t('filemanager.player.queue', { count: filteredRecentRecords.length }) : t('filemanager.player.historyEmpty')}</p>
             </div>
             {sidebarTab === 'recent' ? (
-              recentVideos.length > 0 ? (
-                <Button variant="ghost" size="sm" className="h-8 rounded-full px-3" onClick={() => clearMediaPlaybackRecords('video')}>
+              filteredRecentRecords.length > 0 ? (
+                <Button variant="ghost" size="sm" className="h-8 rounded-full px-3" onClick={() => clearMediaPlaybackRecords(recentFilter === 'all' ? undefined : recentFilter)}>
                   {t('common.clear')}
                 </Button>
               ) : <History size={16} className="text-muted-foreground" />
@@ -584,11 +776,24 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                 </div>
               </button>
             )) : (
-              recentVideos.length > 0 ? recentVideos.map((record) => (
+              <div className="space-y-2">
+                <div className="grid grid-cols-3 gap-2 rounded-xl border border-border p-1">
+                  <button type="button" onClick={() => setRecentFilter('all')} className={cn('h-8 rounded-lg text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'all' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
+                    {t('common.all')}
+                  </button>
+                  <button type="button" onClick={() => setRecentFilter('audio')} className={cn('h-8 rounded-lg text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'audio' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
+                    {t('filemanager.player.filterAudio')}
+                  </button>
+                  <button type="button" onClick={() => setRecentFilter('video')} className={cn('h-8 rounded-lg text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'video' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
+                    {t('filemanager.player.filterVideo')}
+                  </button>
+                </div>
+                {filteredRecentRecords.length > 0 ? filteredRecentRecords.map((record) => (
                 <div key={record.path} className="rounded-xl border border-border bg-background/80 p-3">
                   <div className="flex items-start gap-3">
                     <button type="button" onClick={() => openRecentVideo(record.path)} className="min-w-0 flex-1 text-left">
                       <p className="truncate text-sm font-bold">{record.title || record.name}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{`${t('filemanager.player.lastPlayed')} ${formatMediaPlaybackUpdatedAt(record.updatedAt, i18n.resolvedLanguage || i18n.language)}`}</p>
                       <div className="mt-2 flex items-center justify-between text-xs font-mono text-muted-foreground">
                         <span>{`${t('filemanager.player.resumeFrom')} ${formatTime(record.position)}`}</span>
                         <span>{record.progressPercent}%</span>
@@ -599,7 +804,8 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                     </Button>
                   </div>
                 </div>
-              )) : <p className="py-8 text-center text-sm font-bold text-muted-foreground">{t('filemanager.player.historyEmpty')}</p>
+                )) : <p className="py-8 text-center text-sm font-bold text-muted-foreground">{t('filemanager.player.historyEmpty')}</p>}
+              </div>
             )}
           </div>
         </div>

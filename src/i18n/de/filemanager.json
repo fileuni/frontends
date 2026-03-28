@@ -390,6 +390,11 @@
     "recentlyPlayed": "Zuletzt abgespielt",
     "historyEmpty": "Noch kein Wiedergabeverlauf",
     "resumeFrom": "Fortsetzen ab",
+    "lastPlayed": "Zuletzt gehört",
+    "filterAudio": "Audio",
+    "filterVideo": "Video",
+    "audioTrack": "Audiospur",
+    "audioTrackUnavailable": "Keine umschaltbaren Audiospuren verfügbar",
     "audioEngine": "Professioneller Audio-Player",
     "videoEngine": "Professionelle Video-Engine",
     "pdfEngine": "Native PDF-Engine"

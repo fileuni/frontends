@@ -489,6 +489,11 @@
     "recentlyPlayed": "最近播放",
     "historyEmpty": "还没有播放记录",
     "resumeFrom": "上次播放到",
+    "lastPlayed": "上次播放",
+    "filterAudio": "音频",
+    "filterVideo": "视频",
+    "audioTrack": "音轨",
+    "audioTrackUnavailable": "当前视频没有可切换的音轨",
     "audioEngine": "专业音频播放器",
     "videoEngine": "专业视频引擎",
     "pdfEngine": "原生 PDF 引擎"

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type React from 'react';
 import type { FileInfo } from '../types/index.ts';
-import type { MediaPlaybackRecord } from '@/lib/mediaPlaybackHistory.ts';
+import { formatMediaPlaybackUpdatedAt, type MediaPlaybackKind, type MediaPlaybackRecord } from '@/lib/mediaPlaybackHistory.ts';
 import { ListMusic, Loader2, Mic2, Pause, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import { formatTime, getBaseName, type LyricsState } from './audioPreviewShared.ts';
@@ -15,11 +15,12 @@ interface AudioPreviewSidebarProps {
   isPlaying: boolean;
   lyricsState: LyricsState;
   onLyricSeek: (time: number) => void;
-  onClearRecentHistory: () => void;
+  onClearRecentHistory: (kind?: MediaPlaybackKind) => void;
   onOpenRecentRecord: (path: string) => void;
   onRemoveRecentRecord: (path: string) => void;
   onTrackSelect: (index: number) => void;
   playlist: FileInfo[];
+  recentLocale?: string;
   recentRecords: MediaPlaybackRecord[];
   t: (key: string, options?: Record<string, unknown>) => string;
 }
@@ -38,10 +39,13 @@ export const AudioPreviewSidebar = ({
   onRemoveRecentRecord,
   onTrackSelect,
   playlist,
+  recentLocale,
   recentRecords,
   t,
 }: AudioPreviewSidebarProps) => {
   const [mobileTab, setMobileTab] = useState<'lyrics' | 'playlist' | 'recent'>('lyrics');
+  const [recentFilter, setRecentFilter] = useState<'all' | MediaPlaybackKind>('all');
+  const filteredRecentRecords = recentRecords.filter((record) => recentFilter === 'all' || record.kind === recentFilter);
 
   return (
     <aside className="flex min-h-0 flex-col gap-4">
@@ -160,12 +164,12 @@ export const AudioPreviewSidebar = ({
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.28em]">{t('filemanager.player.recentlyPlayed')}</p>
-            <p className={cn('text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{recentRecords.length > 0 ? t('filemanager.player.queue', { count: recentRecords.length }) : t('filemanager.player.historyEmpty')}</p>
+            <p className={cn('text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{filteredRecentRecords.length > 0 ? t('filemanager.player.queue', { count: filteredRecentRecords.length }) : t('filemanager.player.historyEmpty')}</p>
           </div>
           {recentRecords.length > 0 && (
             <button
               type="button"
-              onClick={onClearRecentHistory}
+              onClick={() => onClearRecentHistory(recentFilter === 'all' ? undefined : recentFilter)}
               className={cn('inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors', isDark ? 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900')}
               title={t('common.clear')}
             >
@@ -174,14 +178,29 @@ export const AudioPreviewSidebar = ({
           )}
         </div>
 
+        <div className={cn('mb-4 grid grid-cols-3 gap-2 rounded-2xl border p-1', isDark ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-slate-50')}>
+          <button type="button" onClick={() => setRecentFilter('all')} className={cn('h-9 rounded-xl text-xs font-black uppercase tracking-[0.22em] transition-all', recentFilter === 'all' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+            {t('common.all')}
+          </button>
+          <button type="button" onClick={() => setRecentFilter('audio')} className={cn('h-9 rounded-xl text-xs font-black uppercase tracking-[0.22em] transition-all', recentFilter === 'audio' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+            {t('filemanager.player.filterAudio')}
+          </button>
+          <button type="button" onClick={() => setRecentFilter('video')} className={cn('h-9 rounded-xl text-xs font-black uppercase tracking-[0.22em] transition-all', recentFilter === 'video' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+            {t('filemanager.player.filterVideo')}
+          </button>
+        </div>
+
         <div className="custom-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
-          {recentRecords.length === 0 && <p className={cn('px-2 py-8 text-center text-sm font-bold', isDark ? 'text-white/50' : 'text-slate-500')}>{t('filemanager.player.historyEmpty')}</p>}
-          {recentRecords.map((record) => (
+          {filteredRecentRecords.length === 0 && <p className={cn('px-2 py-8 text-center text-sm font-bold', isDark ? 'text-white/50' : 'text-slate-500')}>{t('filemanager.player.historyEmpty')}</p>}
+          {filteredRecentRecords.map((record) => (
             <div key={record.path} className={cn('rounded-2xl border px-3 py-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-slate-50/80')}>
               <div className="flex items-start gap-3">
                 <button type="button" onClick={() => onOpenRecentRecord(record.path)} className="min-w-0 flex-1 text-left">
                   <p className="truncate text-sm font-bold">{record.title || record.name}</p>
                   <p className={cn('mt-1 truncate text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{record.subtitle || record.name}</p>
+                  <p className={cn('mt-2 text-xs', isDark ? 'text-white/35' : 'text-slate-400')}>
+                    {`${t('filemanager.player.lastPlayed')} ${formatMediaPlaybackUpdatedAt(record.updatedAt, recentLocale)}`}
+                  </p>
                   <div className={cn('mt-2 flex items-center justify-between text-xs font-mono', isDark ? 'text-white/35' : 'text-slate-400')}>
                     <span>{`${t('filemanager.player.resumeFrom')} ${formatTime(record.completed ? 0 : record.position)}`}</span>
                     <span>{record.progressPercent}%</span>

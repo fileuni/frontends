@@ -20,7 +20,7 @@ interface AudioPreviewProps {
 }
 
 export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, onClose }: AudioPreviewProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const activeLyricRef = useRef<HTMLButtonElement | null>(null);
 
   const controller = useAudioPlaybackController({
@@ -28,9 +28,9 @@ export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, 
     initialIndex,
     t,
   });
-  const recentRecords = useMediaPlaybackHistory('audio')
+  const recentRecords = useMediaPlaybackHistory()
     .filter((record) => record.path !== controller.activeFile?.path)
-    .slice(0, 6);
+    .slice(0, 12);
 
   const openRecentRecord = (path: string) => {
     const nextIndex = playlist.findIndex((track) => track.path === path);
@@ -128,12 +128,13 @@ export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, 
             isDark={isDark}
             isPlaying={controller.isPlaying}
             lyricsState={controller.lyricsState}
-            onClearRecentHistory={() => clearMediaPlaybackRecords('audio')}
+            onClearRecentHistory={(kind) => clearMediaPlaybackRecords(kind)}
             onLyricSeek={controller.jumpToLyric}
             onOpenRecentRecord={openRecentRecord}
             onRemoveRecentRecord={removeMediaPlaybackRecord}
             onTrackSelect={controller.selectTrack}
             playlist={playlist}
+            recentLocale={i18n.resolvedLanguage || i18n.language}
             recentRecords={recentRecords}
             t={t}
           />

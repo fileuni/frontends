@@ -127,6 +127,24 @@ export const resolveMediaResumePosition = (path: string, duration?: number) => {
   return record.position;
 };
 
+export const formatMediaPlaybackUpdatedAt = (updatedAt: number, locale?: string) => {
+  const diffSeconds = Math.round((updatedAt - Date.now()) / 1000);
+  const absSeconds = Math.abs(diffSeconds);
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
+  if (absSeconds < 60) return rtf.format(diffSeconds, 'second');
+  if (absSeconds < 3600) return rtf.format(Math.round(diffSeconds / 60), 'minute');
+  if (absSeconds < 86400) return rtf.format(Math.round(diffSeconds / 3600), 'hour');
+  if (absSeconds < 604800) return rtf.format(Math.round(diffSeconds / 86400), 'day');
+
+  return new Intl.DateTimeFormat(locale, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(updatedAt);
+};
+
 const subscribe = (listener: () => void) => {
   listeners.add(listener);
   return () => listeners.delete(listener);

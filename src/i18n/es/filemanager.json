@@ -448,6 +448,11 @@
     "recentlyPlayed": "Reproducido recientemente",
     "historyEmpty": "Todavía no hay historial de reproducción",
     "resumeFrom": "Continuar desde",
+    "lastPlayed": "Última reproducción",
+    "filterAudio": "Audio",
+    "filterVideo": "Video",
+    "audioTrack": "Pista de audio",
+    "audioTrackUnavailable": "No hay pistas de audio intercambiables",
     "audioEngine": "Reproductor de audio profesional",
     "videoEngine": "Motor de vídeo profesional",
     "pdfEngine": "Motor PDF nativo"

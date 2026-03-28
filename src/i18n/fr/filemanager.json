@@ -448,6 +448,11 @@
     "recentlyPlayed": "Lecture récente",
     "historyEmpty": "Aucun historique de lecture",
     "resumeFrom": "Reprendre à",
+    "lastPlayed": "Dernière lecture",
+    "filterAudio": "Audio",
+    "filterVideo": "Vidéo",
+    "audioTrack": "Piste audio",
+    "audioTrackUnavailable": "Aucune piste audio commutable disponible",
     "audioEngine": "Lecteur audio professionnel",
     "videoEngine": "Moteur vidéo professionnel",
     "pdfEngine": "Moteur PDF natif"
