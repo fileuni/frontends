@@ -1,15 +1,15 @@
 // VFS Storage Configuration Modal
 // Visual editor for vfs_storage_hub.{connectors,pools,policies,default_pool}
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Database, HardDrive, Layers, Plus, Settings2, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { deepClone, ensureRecord, isRecord, type ConfigObject } from '@/lib/configObject';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
-import { PasswordInput } from '@/components/common/PasswordInput';
 import { Button } from '@/components/ui/Button';
+import { ConnectorCard, PolicyCard, PoolCard } from './VfsStorageDraftCards';
 
 type TomlAdapter = {
   parse: (source: string) => unknown;
@@ -200,45 +200,6 @@ const isRemoteConnectorDriver = (driver: VfsDriver): driver is RemoteConnectorDr
 
 const driverUsesSlashRoot = (driver: VfsDriver): boolean => {
   return isRemoteConnectorDriver(driver);
-};
-
-const getConnectorOptionFields = (driver: VfsDriver): ConnectorOptionField[] => {
-  return isRemoteConnectorDriver(driver) ? remoteConnectorFields[driver] : [];
-};
-
-const getConnectorFieldLabelKey = (driver: RemoteConnectorDriver, key: string): string => {
-  return `setup.storagePool.${driver}.${key}`;
-};
-
-const getConnectorFieldHintKey = (driver: RemoteConnectorDriver, key: string): string => {
-  return driver === 's3'
-    ? `setup.storagePool.s3Hints.${key}`
-    : `setup.storagePool.${driver}Hints.${key}`;
-};
-
-const getOption = (pairs: KvPair[], key: string): string => {
-  const found = pairs.find((pair) => pair.key === key);
-  return found ? found.value : '';
-};
-
-const upsertOption = (pairs: KvPair[], key: string, value: string): KvPair[] => {
-  const normalizedKey = key.trim();
-  if (!normalizedKey) {
-    return pairs;
-  }
-  const nextValue = value;
-  const existingIndex = pairs.findIndex((pair) => pair.key === normalizedKey);
-  if (existingIndex < 0) {
-    if (nextValue.trim().length === 0) return pairs;
-    return [...pairs, { key: normalizedKey, value: nextValue }].sort((a, b) => a.key.localeCompare(b.key));
-  }
-  const next = pairs.slice();
-  if (nextValue.trim().length === 0) {
-    next.splice(existingIndex, 1);
-    return next;
-  }
-  next[existingIndex] = { key: normalizedKey, value: nextValue };
-  return next;
 };
 
 const buildLocalDefaults = (): {
@@ -467,54 +428,6 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
   const [pickingConnectorId, setPickingConnectorId] = useState<string | null>(null);
   const isDark = resolvedTheme === 'dark';
 
-  const isVfsDriver = (value: string): value is VfsDriver => {
-    return (
-      value === 'fs'
-      || value === 's3'
-      || value === 'webdav'
-      || value === 'dropbox'
-      || value === 'onedrive'
-      || value === 'gdrive'
-      || value === 'memory'
-      || value === 'android_saf'
-      || value === 'ios_scoped_fs'
-    );
-  };
-
-  const canPickRootForDriver = (driver: VfsDriver): boolean => {
-    if (!onPickDirectory) {
-      return false;
-    }
-    // The mobile storage picker returns android_saf / ios_scoped_fs.
-    // Allow starting from fs for a smoother "pick -> switch driver" workflow.
-    return driver === 'fs' || driver === 'android_saf' || driver === 'ios_scoped_fs';
-  };
-
-  const pickConnectorRoot = async (connectorId: string) => {
-    if (!onPickDirectory) {
-      return;
-    }
-    setPickingConnectorId(connectorId);
-    try {
-      const picked = await onPickDirectory();
-      if (!picked) {
-        return;
-      }
-      const nextDriver = isVfsDriver(picked.driver) ? picked.driver : null;
-      updateConnector(connectorId, (prev) => {
-        const driver: VfsDriver = nextDriver ?? prev.driver;
-        return {
-          ...prev,
-          driver,
-          root: picked.root,
-          options: normalizeOptionsForDriver(driver, prev.options),
-        };
-      });
-    } finally {
-      setPickingConnectorId(null);
-    }
-  };
-
   const [tab, setTab] = useState<ActiveTab>('pools');
   const [view, setView] = useState<ViewMode>('main');
   const [connectors, setConnectors] = useState<ConnectorDraft[]>([]);
@@ -630,84 +543,6 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     return connectors.find((c) => c.name.trim() === wanted) ?? null;
   }, [connectors, mainPool]);
 
-  const driverLabel = (driver: VfsDriver): string => {
-    return t(`admin.config.storage.drivers.${driver}`);
-  };
-
-  const renderConnectorOptionFields = (
-    connector: ConnectorDraft,
-    update: (updater: (prev: ConnectorDraft) => ConnectorDraft) => void,
-  ) => {
-    if (!isRemoteConnectorDriver(connector.driver)) {
-      return null;
-    }
-
-    const driver = connector.driver;
-    const fields = getConnectorOptionFields(driver);
-    const inputClassName = cn(
-      'h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold',
-      isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-    );
-
-    return (
-      <div className={cn(
-        'mt-3 rounded-xl border p-3',
-        isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
-      )}>
-        <div className={cn('text-xs font-black uppercase tracking-widest opacity-60 mb-2', isDark ? 'text-slate-300' : 'text-slate-600')}>
-          {t('admin.config.storage.connectors.commonOptions')}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {fields.map((field) => {
-            const label = t(getConnectorFieldLabelKey(driver, field.key));
-            const hint = t(getConnectorFieldHintKey(driver, field.key));
-            const inputId = `${connector.id}-${field.key}`;
-
-            return (
-              <div
-                key={`${connector.id}-${field.key}`}
-                className={cn(
-                  'text-sm',
-                  field.fullWidth && 'md:col-span-2',
-                  isDark ? 'text-slate-300' : 'text-slate-700',
-                )}
-              >
-                <label htmlFor={inputId} className="font-black">
-                  {label}
-                </label>
-                {field.secret ? (
-                  <PasswordInput
-                    id={inputId}
-                    wrapperClassName="mt-1"
-                    inputClassName={inputClassName}
-                    value={getOption(connector.options, field.key)}
-                    onChange={(event) => update((prev) => ({
-                      ...prev,
-                      options: upsertOption(prev.options, field.key, event.target.value),
-                    }))}
-                  />
-                ) : (
-                  <input
-                    id={inputId}
-                    className={cn('mt-1', inputClassName)}
-                    value={getOption(connector.options, field.key)}
-                    onChange={(event) => update((prev) => ({
-                      ...prev,
-                      options: upsertOption(prev.options, field.key, event.target.value),
-                    }))}
-                  />
-                )}
-                <div className={cn('mt-1 text-xs font-bold opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                  {hint}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
   const applyToConfig = () => {
     setValidationErrors([]);
     if (error) {
@@ -793,7 +628,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     onClose();
   };
 
-  const resetToLocalDefaults = () => {
+  const resetToLocalDefaults = useCallback(() => {
     const defaults = buildLocalDefaults();
     setConnectors(defaults.connectors);
     setPools(defaults.pools);
@@ -802,13 +637,13 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     setValidationErrors([]);
     setError(null);
     setTab('pools');
-  };
+  }, []);
 
-  const updateConnector = (id: string, updater: (prev: ConnectorDraft) => ConnectorDraft) => {
+  const updateConnector = useCallback((id: string, updater: (prev: ConnectorDraft) => ConnectorDraft) => {
     setConnectors((prev) => prev.map((c) => (c.id === id ? updater(c) : c)));
-  };
+  }, []);
 
-  const renameConnector = (id: string, nextName: string) => {
+  const renameConnector = useCallback((id: string, nextName: string) => {
     setConnectors((prev) => {
       const current = prev.find((c) => c.id === id);
       const oldName = current?.name ?? '';
@@ -823,9 +658,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       })));
       return next;
     });
-  };
+  }, []);
 
-  const removeConnector = (id: string) => {
+  const removeConnector = useCallback((id: string) => {
     setConnectors((prev) => {
       const removing = prev.find((c) => c.id === id);
       const next = prev.filter((c) => c.id !== id);
@@ -840,9 +675,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       }
       return next;
     });
-  };
+  }, []);
 
-  const addConnector = () => {
+  const addConnector = useCallback(() => {
     const baseName = 'connector';
     const existing = new Set(connectorNames);
     let index = 1;
@@ -862,13 +697,13 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
         options: [],
       },
     ]));
-  };
+  }, [connectorNames]);
 
-  const updatePool = (id: string, updater: (prev: PoolDraft) => PoolDraft) => {
+  const updatePool = useCallback((id: string, updater: (prev: PoolDraft) => PoolDraft) => {
     setPools((prev) => prev.map((p) => (p.id === id ? updater(p) : p)));
-  };
+  }, []);
 
-  const renamePool = (id: string, nextName: string) => {
+  const renamePool = useCallback((id: string, nextName: string) => {
     setPools((prev) => {
       const current = prev.find((p) => p.id === id);
       const oldName = current?.name ?? '';
@@ -883,9 +718,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       })));
       return next;
     });
-  };
+  }, []);
 
-  const removePool = (id: string) => {
+  const removePool = useCallback((id: string) => {
     setPools((prev) => {
       const removing = prev.find((p) => p.id === id);
       const next = prev.filter((p) => p.id !== id);
@@ -900,9 +735,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       }
       return next;
     });
-  };
+  }, []);
 
-  const addPool = () => {
+  const addPool = useCallback(() => {
     const baseName = 'pool';
     const existing = new Set(poolNames);
     let index = 1;
@@ -927,9 +762,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     if (!defaultPool.trim()) {
       setDefaultPool(name);
     }
-  };
+  }, [connectorNames, defaultPool, poolNames]);
 
-  const addPolicy = () => {
+  const addPolicy = useCallback(() => {
     const fallbackPool = defaultPool.trim() || poolNames[0] || 'default-pool';
     setPolicies((prev) => ([
       ...prev,
@@ -943,15 +778,61 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
           max_mount_sync_timeout_secs: '900',
         },
       ]));
-  };
+  }, [defaultPool, poolNames]);
 
-  const removePolicy = (id: string) => {
+  const removePolicy = useCallback((id: string) => {
     setPolicies((prev) => prev.filter((p) => p.id !== id));
-  };
+  }, []);
 
-  const updatePolicy = (id: string, updater: (prev: PolicyDraft) => PolicyDraft) => {
+  const updatePolicy = useCallback((id: string, updater: (prev: PolicyDraft) => PolicyDraft) => {
     setPolicies((prev) => prev.map((p) => (p.id === id ? updater(p) : p)));
-  };
+  }, []);
+
+  const isVfsDriver = useCallback((value: string): value is VfsDriver => {
+    return (
+      value === 'fs'
+      || value === 's3'
+      || value === 'webdav'
+      || value === 'dropbox'
+      || value === 'onedrive'
+      || value === 'gdrive'
+      || value === 'memory'
+      || value === 'android_saf'
+      || value === 'ios_scoped_fs'
+    );
+  }, []);
+
+  const canPickRootForDriver = useCallback((driver: VfsDriver): boolean => {
+    if (!onPickDirectory) {
+      return false;
+    }
+    return driver === 'fs' || driver === 'android_saf' || driver === 'ios_scoped_fs';
+  }, [onPickDirectory]);
+
+  const pickConnectorRoot = useCallback(async (connectorId: string) => {
+    if (!onPickDirectory) {
+      return;
+    }
+    setPickingConnectorId(connectorId);
+    try {
+      const picked = await onPickDirectory();
+      if (!picked) {
+        return;
+      }
+      const nextDriver = isVfsDriver(picked.driver) ? picked.driver : null;
+      updateConnector(connectorId, (prev) => {
+        const driver: VfsDriver = nextDriver ?? prev.driver;
+        return {
+          ...prev,
+          driver,
+          root: picked.root,
+          options: normalizeOptionsForDriver(driver, prev.options),
+        };
+      });
+    } finally {
+      setPickingConnectorId(null);
+    }
+  }, [isVfsDriver, onPickDirectory, updateConnector]);
 
   if (mode === 'modal' && !isOpen) return null;
 
