@@ -3,13 +3,14 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Database, HardDrive, Layers, Plus, Settings2, Trash2, X } from 'lucide-react';
+import { Database, HardDrive, Layers, Plus, Settings2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { deepClone, ensureRecord, isRecord, type ConfigObject } from '@/lib/configObject';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { Button } from '@/components/ui/Button';
 import { ConnectorCard, ConnectorOptionFields, PolicyCard, PoolCard } from './VfsStorageDraftCards';
+import { upsertOption } from './vfsStorageDraftShared';
 
 type TomlAdapter = {
   parse: (source: string) => unknown;
@@ -886,7 +887,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
         <button
           type="button"
           className={cn(
-            'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+            'h-10 rounded-lg text-sm font-black border transition-colors shadow-sm inline-flex items-center justify-center gap-2',
             view === 'main'
               ? 'bg-primary text-white border-primary'
               : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
@@ -899,7 +900,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
         <button
           type="button"
           className={cn(
-            'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+            'h-10 rounded-lg text-sm font-black border transition-colors shadow-sm inline-flex items-center justify-center gap-2',
             view === 'advanced'
               ? 'bg-primary text-white border-primary'
               : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
@@ -996,7 +997,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                 <button
                   type="button"
                   className={cn(
-                    'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all shrink-0',
+                    'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-colors shrink-0',
                     isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
                   )}
                   onClick={() => {
@@ -1122,7 +1123,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                           <button
                             type="button"
                             className={cn(
-                              'h-10 px-3 rounded-lg border text-sm font-black shrink-0 transition-all',
+                              'h-10 px-3 rounded-lg border text-sm font-black shrink-0 transition-colors',
                               isDark
                                 ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'
                                 : 'border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100',
@@ -1180,7 +1181,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                 <button
                   type="button"
                   className={cn(
-                    'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+                    'h-10 rounded-lg text-sm font-black border transition-colors shadow-sm inline-flex items-center justify-center gap-2',
                     tab === 'pools'
                       ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
                       : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
@@ -1193,7 +1194,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                 <button
                   type="button"
                   className={cn(
-                    'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+                    'h-10 rounded-lg text-sm font-black border transition-colors shadow-sm inline-flex items-center justify-center gap-2',
                     tab === 'connectors'
                       ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
                       : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
@@ -1206,7 +1207,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                 <button
                   type="button"
                   className={cn(
-                    'h-10 rounded-lg text-sm font-black border transition-all shadow-sm inline-flex items-center justify-center gap-2',
+                    'h-10 rounded-lg text-sm font-black border transition-colors shadow-sm inline-flex items-center justify-center gap-2',
                     tab === 'policies'
                       ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
                       : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'),
@@ -1229,7 +1230,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                     <button
                       type="button"
                       className={cn(
-                        'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
+                        'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-colors',
                         isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
                       )}
                       onClick={addConnector}
@@ -1267,7 +1268,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                     <button
                       type="button"
                       className={cn(
-                        'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
+                        'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-colors',
                         isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
                       )}
                       onClick={addPool}
@@ -1303,7 +1304,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                     <button
                       type="button"
                       className={cn(
-                        'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-all',
+                        'h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-colors',
                         isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
                       )}
                       onClick={addPolicy}
@@ -1401,7 +1402,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
             type="button"
             onClick={resetToLocalDefaults}
             className={cn(
-              'h-10 px-4 rounded-lg border text-sm font-black transition-all',
+              'h-10 px-4 rounded-lg border text-sm font-black transition-colors',
               isDark ? 'border-amber-500/40 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20' : 'border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100',
             )}
           >
@@ -1414,7 +1415,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                 type="button"
                 onClick={onClose}
                 className={cn(
-                  'h-10 px-4 rounded-lg border text-sm font-black transition-all',
+                  'h-10 px-4 rounded-lg border text-sm font-black transition-colors',
                   isDark ? 'border-white/15 bg-white/5 text-slate-300 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
                 )}
               >
@@ -1423,7 +1424,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
             )}
             <Button
               onClick={applyToConfig}
-              className="h-10 px-6 rounded-lg shadow-xl shadow-primary/20"
+              className="h-10 px-6 rounded-lg shadow-sm"
             >
               {t('admin.config.storage.actions.apply')}
             </Button>
