@@ -179,6 +179,42 @@
       "username": "用户名",
       "password": "密码"
     },
+    "dropbox": {
+      "access_token": "Access Token",
+      "refresh_token": "Refresh Token",
+      "client_id": "Client ID",
+      "client_secret": "Client Secret"
+    },
+    "dropboxHints": {
+      "access_token": "可选的短期令牌；如需长期稳定使用，建议改填 refresh_token。",
+      "refresh_token": "推荐用于长期 Dropbox 访问；OpenDAL 会自动续期 access token。",
+      "client_id": "与 refresh_token 搭配使用的 Dropbox 应用 Client ID。",
+      "client_secret": "与 refresh_token 搭配使用的 Dropbox 应用 Client Secret。"
+    },
+    "onedrive": {
+      "access_token": "Access Token",
+      "refresh_token": "Refresh Token",
+      "client_id": "Client ID",
+      "client_secret": "Client Secret"
+    },
+    "onedriveHints": {
+      "access_token": "可选的短期 Microsoft Graph 令牌；如需长期使用，建议改填 refresh_token。",
+      "refresh_token": "推荐用于长期 OneDrive 访问；获取时请包含 offline_access。",
+      "client_id": "与 refresh_token 搭配使用的 Microsoft Graph 应用 Client ID。",
+      "client_secret": "Public Client 可留空；Confidential Client 需要填写。"
+    },
+    "gdrive": {
+      "access_token": "Access Token",
+      "refresh_token": "Refresh Token",
+      "client_id": "Client ID",
+      "client_secret": "Client Secret"
+    },
+    "gdriveHints": {
+      "access_token": "可选的短期令牌；如需长期稳定使用，建议改填 refresh_token。",
+      "refresh_token": "推荐用于长期 Google Drive 访问；OpenDAL 会自动续期 access token。",
+      "client_id": "与 refresh_token 搭配使用的 Google OAuth Client ID。",
+      "client_secret": "与 refresh_token 搭配使用的 Google OAuth Client Secret。"
+    },
     "webdavHints": {
       "endpoint": "填写 WebDAV 服务根地址。",
       "username": "用于登录 WebDAV 的账号。",

@@ -3,10 +3,19 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
+import { PasswordInput } from '@/components/common/PasswordInput';
 import type { TomlAdapter } from './ExternalDependencyConfigModal';
 import { SettingSegmentedControl } from './SettingSegmentedControl';
 
-type Driver = 'fs' | 'memory' | 's3' | 'webdav' | 'android_saf' | 'ios_scoped_fs';
+type Driver = 'fs' | 'memory' | 's3' | 'webdav' | 'dropbox' | 'onedrive' | 'gdrive' | 'android_saf' | 'ios_scoped_fs';
+
+type RemoteDriver = 's3' | 'webdav' | 'dropbox' | 'onedrive' | 'gdrive';
+
+type DriverOptionField = {
+  key: string;
+  secret?: boolean;
+  fullWidth?: boolean;
+};
 
 type PoolItem = {
   id: string;
@@ -31,8 +40,54 @@ const driverDefaults: Record<Driver, { root: string; tipsKey: string }> = {
   memory: { root: '/', tipsKey: 'admin.config.storage.hints.root.memory' },
   s3: { root: '/', tipsKey: 'admin.config.storage.hints.root.s3' },
   webdav: { root: '/', tipsKey: 'admin.config.storage.hints.root.webdav' },
+  dropbox: { root: '/', tipsKey: 'admin.config.storage.hints.root.dropbox' },
+  onedrive: { root: '/', tipsKey: 'admin.config.storage.hints.root.onedrive' },
+  gdrive: { root: '/', tipsKey: 'admin.config.storage.hints.root.gdrive' },
   android_saf: { root: 'content://...', tipsKey: 'admin.config.storage.hints.root.android_saf' },
   ios_scoped_fs: { root: 'bookmark_b64:<BASE64>', tipsKey: 'admin.config.storage.hints.root.ios_scoped_fs' },
+};
+
+const remoteDriverFields: Record<RemoteDriver, DriverOptionField[]> = {
+  s3: [
+    { key: 'endpoint' },
+    { key: 'region' },
+    { key: 'bucket' },
+    { key: 'access_key_id' },
+    { key: 'secret_access_key', secret: true },
+  ],
+  webdav: [
+    { key: 'endpoint', fullWidth: true },
+    { key: 'username' },
+    { key: 'password', secret: true },
+  ],
+  dropbox: [
+    { key: 'access_token', secret: true },
+    { key: 'refresh_token', secret: true },
+    { key: 'client_id' },
+    { key: 'client_secret', secret: true },
+  ],
+  onedrive: [
+    { key: 'access_token', secret: true },
+    { key: 'refresh_token', secret: true },
+    { key: 'client_id' },
+    { key: 'client_secret', secret: true },
+  ],
+  gdrive: [
+    { key: 'access_token', secret: true },
+    { key: 'refresh_token', secret: true },
+    { key: 'client_id' },
+    { key: 'client_secret', secret: true },
+  ],
+};
+
+const isRemoteDriver = (driver: Driver): driver is RemoteDriver => {
+  return driver in remoteDriverFields;
+};
+
+const getFieldHintKey = (driver: RemoteDriver, key: string): string => {
+  return driver === 's3'
+    ? `setup.storagePool.s3Hints.${key}`
+    : `setup.storagePool.${driver}Hints.${key}`;
 };
 
 export const StoragePoolInlinePanel: React.FC<Props> = ({ tomlAdapter, content, onContentChange, runtimeOs }) => {
@@ -41,7 +96,7 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({ tomlAdapter, content, 
   const [items, setItems] = useState<PoolItem[]>([]);
   const normalizedOs = runtimeOs?.toLowerCase() ?? '';
   const driverOptions = useMemo(() => {
-    const next: Driver[] = ['fs', 's3', 'webdav'];
+    const next: Driver[] = ['fs', 's3', 'webdav', 'dropbox', 'onedrive', 'gdrive'];
     if (normalizedOs === 'android') {
       next.push('android_saf');
     }
@@ -107,6 +162,50 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({ tomlAdapter, content, 
   };
 
   const inputClass = cn('mt-1 h-11 w-full rounded-xl border px-3 text-sm', isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900');
+  const passwordInputClass = cn('h-11 w-full rounded-xl border px-3 text-sm', isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900');
+
+  const renderRemoteDriverFields = (item: PoolItem) => {
+    if (!isRemoteDriver(item.driver)) {
+      return null;
+    }
+
+    const driver = item.driver;
+
+    return (
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {remoteDriverFields[driver].map((field) => {
+          const label = t(`setup.storagePool.${driver}.${field.key}`);
+          const hint = t(getFieldHintKey(driver, field.key));
+          const inputId = `${item.id}-${field.key}`;
+
+          return (
+            <div key={`${item.id}-${field.key}`} className={cn('text-sm text-slate-700 dark:text-slate-200', field.fullWidth && 'md:col-span-2')}>
+              <label htmlFor={inputId} className="font-black">
+                {label}
+              </label>
+              {field.secret ? (
+                <PasswordInput
+                  id={inputId}
+                  value={item.options[field.key] ?? ''}
+                  wrapperClassName="mt-1"
+                  inputClassName={passwordInputClass}
+                  onChange={(e) => patch((prev) => prev.map((entry) => entry.id === item.id ? { ...entry, options: { ...entry.options, [field.key]: e.target.value } } : entry))}
+                />
+              ) : (
+                <input
+                  id={inputId}
+                  className={inputClass}
+                  value={item.options[field.key] ?? ''}
+                  onChange={(e) => patch((prev) => prev.map((entry) => entry.id === item.id ? { ...entry, options: { ...entry.options, [field.key]: e.target.value } } : entry))}
+                />
+              )}
+              <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{hint}</div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -192,27 +291,7 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({ tomlAdapter, content, 
               </div>
             </div>
 
-            {(item.driver === 's3' || item.driver === 'webdav') && (
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                {item.driver === 's3' ? (
-                  ['endpoint', 'region', 'bucket', 'access_key_id', 'secret_access_key'].map((key) => (
-                    <label key={key} className="text-sm font-black text-slate-700 dark:text-slate-200">
-                      {t(`setup.storagePool.s3.${key}`)}
-                      <input className={inputClass} type={key.includes('secret') ? 'password' : 'text'} value={item.options[key] ?? ''} onChange={(e) => patch((prev) => prev.map((entry) => entry.id === item.id ? { ...entry, options: { ...entry.options, [key]: e.target.value } } : entry))} />
-                      <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{t(`setup.storagePool.s3Hints.${key}`)}</div>
-                    </label>
-                  ))
-                ) : (
-                  ['endpoint', 'username', 'password'].map((key) => (
-                    <label key={key} className={`text-sm font-black text-slate-700 dark:text-slate-200 ${key === 'endpoint' ? 'md:col-span-2' : ''}`}>
-                      {t(`setup.storagePool.webdav.${key}`)}
-                      <input className={inputClass} type={key === 'password' ? 'password' : 'text'} value={item.options[key] ?? ''} onChange={(e) => patch((prev) => prev.map((entry) => entry.id === item.id ? { ...entry, options: { ...entry.options, [key]: e.target.value } } : entry))} />
-                      <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{t(`setup.storagePool.webdavHints.${key}`)}</div>
-                    </label>
-                  ))
-                )}
-              </div>
-            )}
+            {renderRemoteDriverFields(item)}
           </div>
         ))}
       </div>

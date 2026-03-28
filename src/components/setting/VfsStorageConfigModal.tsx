@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { deepClone, ensureRecord, isRecord, type ConfigObject } from '@/lib/configObject';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
+import { PasswordInput } from '@/components/common/PasswordInput';
 import { Button } from '@/components/ui/Button';
 
 type TomlAdapter = {
@@ -15,7 +16,15 @@ type TomlAdapter = {
   stringify: (value: unknown) => string;
 };
 
-type VfsDriver = 'fs' | 's3' | 'webdav' | 'memory' | 'android_saf' | 'ios_scoped_fs';
+type VfsDriver = 'fs' | 's3' | 'webdav' | 'dropbox' | 'onedrive' | 'gdrive' | 'memory' | 'android_saf' | 'ios_scoped_fs';
+
+type RemoteConnectorDriver = 's3' | 'webdav' | 'dropbox' | 'onedrive' | 'gdrive';
+
+type ConnectorOptionField = {
+  key: string;
+  secret?: boolean;
+  fullWidth?: boolean;
+};
 
 type KvPair = {
   key: string;
@@ -46,6 +55,9 @@ type PolicyDraft = {
   role_id: string;
   pool_name: string;
   default_quota: string;
+  max_private_mounts: string;
+  min_mount_sync_interval_minutes: string;
+  max_mount_sync_timeout_secs: string;
 };
 
 type CacheSectionDraft = {
@@ -149,6 +161,61 @@ const normalizeOptionsForDriver = (driver: VfsDriver, pairs: KvPair[]): KvPair[]
   return next;
 };
 
+const remoteConnectorFields: Record<RemoteConnectorDriver, ConnectorOptionField[]> = {
+  s3: [
+    { key: 'endpoint' },
+    { key: 'region' },
+    { key: 'bucket' },
+    { key: 'access_key_id' },
+    { key: 'secret_access_key', secret: true },
+  ],
+  webdav: [
+    { key: 'endpoint', fullWidth: true },
+    { key: 'username' },
+    { key: 'password', secret: true },
+  ],
+  dropbox: [
+    { key: 'access_token', secret: true },
+    { key: 'refresh_token', secret: true },
+    { key: 'client_id' },
+    { key: 'client_secret', secret: true },
+  ],
+  onedrive: [
+    { key: 'access_token', secret: true },
+    { key: 'refresh_token', secret: true },
+    { key: 'client_id' },
+    { key: 'client_secret', secret: true },
+  ],
+  gdrive: [
+    { key: 'access_token', secret: true },
+    { key: 'refresh_token', secret: true },
+    { key: 'client_id' },
+    { key: 'client_secret', secret: true },
+  ],
+};
+
+const isRemoteConnectorDriver = (driver: VfsDriver): driver is RemoteConnectorDriver => {
+  return driver in remoteConnectorFields;
+};
+
+const driverUsesSlashRoot = (driver: VfsDriver): boolean => {
+  return isRemoteConnectorDriver(driver);
+};
+
+const getConnectorOptionFields = (driver: VfsDriver): ConnectorOptionField[] => {
+  return isRemoteConnectorDriver(driver) ? remoteConnectorFields[driver] : [];
+};
+
+const getConnectorFieldLabelKey = (driver: RemoteConnectorDriver, key: string): string => {
+  return `setup.storagePool.${driver}.${key}`;
+};
+
+const getConnectorFieldHintKey = (driver: RemoteConnectorDriver, key: string): string => {
+  return driver === 's3'
+    ? `setup.storagePool.s3Hints.${key}`
+    : `setup.storagePool.${driver}Hints.${key}`;
+};
+
 const getOption = (pairs: KvPair[], key: string): string => {
   const found = pairs.find((pair) => pair.key === key);
   return found ? found.value : '';
@@ -241,7 +308,7 @@ const parseVfsDraftFromContent = (
         .map((conn) => {
           const driver: VfsDriver = (typeof conn.driver === 'string' ? conn.driver : 'fs') as VfsDriver;
           const rawRoot = typeof conn.root === 'string' ? conn.root : '';
-          const root = (driver === 's3' || driver === 'webdav') && rawRoot.trim().length === 0
+          const root = driverUsesSlashRoot(driver) && rawRoot.trim().length === 0
             ? '/'
             : rawRoot;
           return {
@@ -277,6 +344,9 @@ const parseVfsDraftFromContent = (
           role_id: typeof policy.role_id === 'string' ? policy.role_id : '',
           pool_name: typeof policy.pool_name === 'string' ? policy.pool_name : '',
           default_quota: typeof policy.default_quota === 'number' ? String(policy.default_quota) : '',
+          max_private_mounts: typeof policy.max_private_mounts === 'number' ? String(policy.max_private_mounts) : '',
+          min_mount_sync_interval_minutes: typeof policy.min_mount_sync_interval_minutes === 'number' ? String(policy.min_mount_sync_interval_minutes) : '',
+          max_mount_sync_timeout_secs: typeof policy.max_mount_sync_timeout_secs === 'number' ? String(policy.max_mount_sync_timeout_secs) : '',
         }))
       : [];
 
@@ -365,6 +435,18 @@ const validateDraft = (
     if (!Number.isFinite(quota) || quota < 0) {
       errors.push(t('admin.config.storage.validation.errors.policyQuotaInvalid', { index }));
     }
+    const maxPrivateMounts = Number.parseInt(policy.max_private_mounts.trim(), 10);
+    if (!Number.isFinite(maxPrivateMounts) || maxPrivateMounts < 0) {
+      errors.push(t('admin.config.storage.validation.errors.policyMaxPrivateMountsInvalid', { index }));
+    }
+    const minSyncInterval = Number.parseInt(policy.min_mount_sync_interval_minutes.trim(), 10);
+    if (!Number.isFinite(minSyncInterval) || minSyncInterval <= 0) {
+      errors.push(t('admin.config.storage.validation.errors.policyMinMountSyncIntervalInvalid', { index }));
+    }
+    const maxSyncTimeout = Number.parseInt(policy.max_mount_sync_timeout_secs.trim(), 10);
+    if (!Number.isFinite(maxSyncTimeout) || maxSyncTimeout <= 0) {
+      errors.push(t('admin.config.storage.validation.errors.policyMaxMountSyncTimeoutInvalid', { index }));
+    }
   });
 
   return errors;
@@ -390,6 +472,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       value === 'fs'
       || value === 's3'
       || value === 'webdav'
+      || value === 'dropbox'
+      || value === 'onedrive'
+      || value === 'gdrive'
       || value === 'memory'
       || value === 'android_saf'
       || value === 'ios_scoped_fs'
@@ -549,6 +634,80 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     return t(`admin.config.storage.drivers.${driver}`);
   };
 
+  const renderConnectorOptionFields = (
+    connector: ConnectorDraft,
+    update: (updater: (prev: ConnectorDraft) => ConnectorDraft) => void,
+  ) => {
+    if (!isRemoteConnectorDriver(connector.driver)) {
+      return null;
+    }
+
+    const driver = connector.driver;
+    const fields = getConnectorOptionFields(driver);
+    const inputClassName = cn(
+      'h-10 w-full rounded-lg border px-3 text-sm font-mono font-bold',
+      isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+    );
+
+    return (
+      <div className={cn(
+        'mt-3 rounded-xl border p-3',
+        isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
+      )}>
+        <div className={cn('text-xs font-black uppercase tracking-widest opacity-60 mb-2', isDark ? 'text-slate-300' : 'text-slate-600')}>
+          {t('admin.config.storage.connectors.commonOptions')}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {fields.map((field) => {
+            const label = t(getConnectorFieldLabelKey(driver, field.key));
+            const hint = t(getConnectorFieldHintKey(driver, field.key));
+            const inputId = `${connector.id}-${field.key}`;
+
+            return (
+              <div
+                key={`${connector.id}-${field.key}`}
+                className={cn(
+                  'text-sm',
+                  field.fullWidth && 'md:col-span-2',
+                  isDark ? 'text-slate-300' : 'text-slate-700',
+                )}
+              >
+                <label htmlFor={inputId} className="font-black">
+                  {label}
+                </label>
+                {field.secret ? (
+                  <PasswordInput
+                    id={inputId}
+                    wrapperClassName="mt-1"
+                    inputClassName={inputClassName}
+                    value={getOption(connector.options, field.key)}
+                    onChange={(event) => update((prev) => ({
+                      ...prev,
+                      options: upsertOption(prev.options, field.key, event.target.value),
+                    }))}
+                  />
+                ) : (
+                  <input
+                    id={inputId}
+                    className={cn('mt-1', inputClassName)}
+                    value={getOption(connector.options, field.key)}
+                    onChange={(event) => update((prev) => ({
+                      ...prev,
+                      options: upsertOption(prev.options, field.key, event.target.value),
+                    }))}
+                  />
+                )}
+                <div className={cn('mt-1 text-xs font-bold opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                  {hint}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   const applyToConfig = () => {
     setValidationErrors([]);
     if (error) {
@@ -598,6 +757,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       role_id: policy.role_id.trim(),
       pool_name: policy.pool_name.trim(),
       default_quota: Number.parseInt(policy.default_quota.trim(), 10),
+      max_private_mounts: Number.parseInt(policy.max_private_mounts.trim(), 10),
+      min_mount_sync_interval_minutes: Number.parseInt(policy.min_mount_sync_interval_minutes.trim(), 10),
+      max_mount_sync_timeout_secs: Number.parseInt(policy.max_mount_sync_timeout_secs.trim(), 10),
     }));
 
     const readCache = ensureRecord(vfsHub, 'read_cache');
@@ -771,13 +933,16 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     const fallbackPool = defaultPool.trim() || poolNames[0] || 'default-pool';
     setPolicies((prev) => ([
       ...prev,
-      {
-        id: makeId('policy'),
-        role_id: '0',
-        pool_name: fallbackPool,
-        default_quota: '0',
-      },
-    ]));
+        {
+          id: makeId('policy'),
+          role_id: '0',
+          pool_name: fallbackPool,
+          default_quota: '0',
+          max_private_mounts: '0',
+          min_mount_sync_interval_minutes: '5',
+          max_mount_sync_timeout_secs: '900',
+        },
+      ]));
   };
 
   const removePolicy = (id: string) => {
@@ -829,8 +994,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
             {t('admin.config.storage.validation.title')}
           </div>
           <div className="space-y-1 text-sm font-mono font-bold">
-            {validationErrors.map((msg, idx) => (
-              <div key={`${idx}-${msg}`}>- {msg}</div>
+            {validationErrors.map((msg) => (
+              <div key={`${msg}-${validationErrors.length}`}>- {msg}</div>
             ))}
           </div>
         </div>
@@ -879,7 +1044,9 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       {...(mode === 'modal' ? { role: 'dialog', 'aria-modal': 'true' as const } : {})}
     >
       {mode === 'modal' && (
-        <div
+        <button
+          type="button"
+          aria-label={t('common.cancel')}
           className={cn(
             'absolute inset-0 backdrop-blur-2xl transition-all duration-300',
             isDark ? 'bg-black/95' : 'bg-slate-900/80',
@@ -1041,8 +1208,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                           updateConnector(mainConnector.id, (prev) => ({
                             ...prev,
                             driver: nextDriver,
-                            root: (nextDriver === 's3' || nextDriver === 'webdav')
-                              ? (prev.driver === 's3' || prev.driver === 'webdav'
+                            root: driverUsesSlashRoot(nextDriver)
+                              ? (driverUsesSlashRoot(prev.driver)
                                 ? prev.root
                                 : '/')
                               : prev.root,
@@ -1050,7 +1217,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                           }));
                         }}
                       >
-                        {(['fs', 's3', 'webdav', 'memory', 'android_saf', 'ios_scoped_fs'] as VfsDriver[]).map((driver) => (
+                        {(['fs', 's3', 'webdav', 'dropbox', 'onedrive', 'gdrive', 'memory', 'android_saf', 'ios_scoped_fs'] as VfsDriver[]).map((driver) => (
                           <option key={driver} value={driver}>
                             {driverLabel(driver)}
                           </option>
@@ -1108,115 +1275,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                     <div className="md:col-span-2" />
                   </div>
 
-                  {(mainConnector.driver === 's3' || mainConnector.driver === 'webdav') && (
-                    <div className={cn(
-                      'mt-3 rounded-xl border p-3',
-                      isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
-                    )}>
-                      <div className={cn('text-xs font-black uppercase tracking-widest opacity-60 mb-2', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                        {t('admin.config.storage.connectors.commonOptions')}
-                      </div>
-                      {mainConnector.driver === 's3' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                            endpoint
-                            <input
-                              className={cn(
-                                'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                              )}
-                              value={getOption(mainConnector.options, 'endpoint')}
-                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
-                            />
-                          </label>
-                          <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                            region
-                            <input
-                              className={cn(
-                                'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                              )}
-                              value={getOption(mainConnector.options, 'region')}
-                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'region', e.target.value) }))}
-                            />
-                          </label>
-                          <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                            bucket
-                            <input
-                              className={cn(
-                                'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                              )}
-                              value={getOption(mainConnector.options, 'bucket')}
-                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'bucket', e.target.value) }))}
-                            />
-                          </label>
-                          <div />
-                          <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                            access_key_id
-                            <input
-                              className={cn(
-                                'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                              )}
-                              value={getOption(mainConnector.options, 'access_key_id')}
-                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'access_key_id', e.target.value) }))}
-                            />
-                          </label>
-                          <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                            secret_access_key
-                            <input
-                              type="password"
-                              className={cn(
-                                'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                              )}
-                              value={getOption(mainConnector.options, 'secret_access_key')}
-                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'secret_access_key', e.target.value) }))}
-                            />
-                          </label>
-                        </div>
-                      )}
-                      {mainConnector.driver === 'webdav' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <label className={cn('text-sm font-black md:col-span-2', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                            endpoint
-                            <input
-                              className={cn(
-                                'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                              )}
-                              value={getOption(mainConnector.options, 'endpoint')}
-                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
-                            />
-                          </label>
-                          <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                            username
-                            <input
-                              className={cn(
-                                'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                              )}
-                              value={getOption(mainConnector.options, 'username')}
-                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'username', e.target.value) }))}
-                            />
-                          </label>
-                          <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                            password
-                            <input
-                              type="password"
-                              className={cn(
-                                'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                              )}
-                              value={getOption(mainConnector.options, 'password')}
-                              onChange={(e) => updateConnector(mainConnector.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'password', e.target.value) }))}
-                            />
-                          </label>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {renderConnectorOptionFields(mainConnector, (updater) => updateConnector(mainConnector.id, updater))}
                 </div>
               )}
             </div>
@@ -1348,8 +1407,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                               updateConnector(c.id, (prev) => ({
                                 ...prev,
                                 driver: nextDriver,
-                                root: (nextDriver === 's3' || nextDriver === 'webdav')
-                                  ? (prev.driver === 's3' || prev.driver === 'webdav'
+                                root: driverUsesSlashRoot(nextDriver)
+                                  ? (driverUsesSlashRoot(prev.driver)
                                     ? prev.root
                                     : '/')
                                   : prev.root,
@@ -1357,7 +1416,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                               }));
                             }}
                           >
-                            {(['fs', 's3', 'webdav', 'memory', 'android_saf', 'ios_scoped_fs'] as VfsDriver[]).map((driver) => (
+                            {(['fs', 's3', 'webdav', 'dropbox', 'onedrive', 'gdrive', 'memory', 'android_saf', 'ios_scoped_fs'] as VfsDriver[]).map((driver) => (
                               <option key={driver} value={driver}>
                                 {driverLabel(driver)}
                               </option>
@@ -1415,115 +1474,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                         <div className="md:col-span-2" />
                       </div>
 
-                      {(c.driver === 's3' || c.driver === 'webdav') && (
-                        <div className={cn(
-                          'mt-3 rounded-xl border p-3',
-                          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50',
-                        )}>
-                          <div className={cn('text-xs font-black uppercase tracking-widest opacity-60 mb-2', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                            {t('admin.config.storage.connectors.commonOptions')}
-                          </div>
-                          {c.driver === 's3' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                                endpoint
-                                <input
-                                  className={cn(
-                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                                  )}
-                                  value={getOption(c.options, 'endpoint')}
-                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
-                                />
-                              </label>
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                                region
-                                <input
-                                  className={cn(
-                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                                  )}
-                                  value={getOption(c.options, 'region')}
-                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'region', e.target.value) }))}
-                                />
-                              </label>
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                                bucket
-                                <input
-                                  className={cn(
-                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                                  )}
-                                  value={getOption(c.options, 'bucket')}
-                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'bucket', e.target.value) }))}
-                                />
-                              </label>
-                              <div />
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                                access_key_id
-                                <input
-                                  className={cn(
-                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                                  )}
-                                  value={getOption(c.options, 'access_key_id')}
-                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'access_key_id', e.target.value) }))}
-                                />
-                              </label>
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                                secret_access_key
-                                <input
-                                  type="password"
-                                  className={cn(
-                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                                  )}
-                                  value={getOption(c.options, 'secret_access_key')}
-                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'secret_access_key', e.target.value) }))}
-                                />
-                              </label>
-                            </div>
-                          )}
-                          {c.driver === 'webdav' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              <label className={cn('text-sm font-black md:col-span-2', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                                endpoint
-                                <input
-                                  className={cn(
-                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                                  )}
-                                  value={getOption(c.options, 'endpoint')}
-                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'endpoint', e.target.value) }))}
-                                />
-                              </label>
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                                username
-                                <input
-                                  className={cn(
-                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                                  )}
-                                  value={getOption(c.options, 'username')}
-                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'username', e.target.value) }))}
-                                />
-                              </label>
-                              <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                                password
-                                <input
-                                  type="password"
-                                  className={cn(
-                                    'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
-                                    isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
-                                  )}
-                                  value={getOption(c.options, 'password')}
-                                  onChange={(e) => updateConnector(c.id, (prev) => ({ ...prev, options: upsertOption(prev.options, 'password', e.target.value) }))}
-                                />
-                              </label>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      {renderConnectorOptionFields(c, (updater) => updateConnector(c.id, updater))}
 
                       <div className={cn(
                         'mt-3 rounded-xl border p-3',
@@ -1548,7 +1499,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
 
                         <div className="mt-2 space-y-2">
                           {c.options.map((pair, pairIndex) => (
-                            <div key={`${c.id}-opt-${pairIndex}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                            <div key={`${c.id}-${pair.key}-${pair.value}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
                               <input
                                 className={cn(
                                   'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
@@ -1756,7 +1707,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                         </div>
                         <div className="mt-2 space-y-2">
                           {p.options.map((pair, pairIndex) => (
-                            <div key={`${p.id}-opt-${pairIndex}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                            <div key={`${p.id}-${pair.key}-${pair.value}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
                               <input
                                 className={cn(
                                   'h-10 rounded-lg border px-3 text-sm font-mono font-bold',
@@ -1875,7 +1826,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                         </button>
                       </div>
 
-                      <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                         <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
                           {t('admin.config.storage.policies.roleId')}
                           <input
@@ -1916,6 +1867,45 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
                             placeholder="0"
                             value={policy.default_quota}
                             onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, default_quota: e.target.value }))}
+                          />
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.policies.maxPrivateMounts')}
+                          <input
+                            className={cn(
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                            )}
+                            placeholder="0"
+                            value={policy.max_private_mounts}
+                            onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, max_private_mounts: e.target.value }))}
+                          />
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.policies.minMountSyncIntervalMinutes')}
+                          <input
+                            className={cn(
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                            )}
+                            placeholder="5"
+                            value={policy.min_mount_sync_interval_minutes}
+                            onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, min_mount_sync_interval_minutes: e.target.value }))}
+                          />
+                        </label>
+
+                        <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                          {t('admin.config.storage.policies.maxMountSyncTimeoutSecs')}
+                          <input
+                            className={cn(
+                              'mt-1 w-full h-10 rounded-lg border px-3 text-sm font-mono font-bold',
+                              isDark ? 'border-white/15 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900',
+                            )}
+                            placeholder="900"
+                            value={policy.max_mount_sync_timeout_secs}
+                            onChange={(e) => updatePolicy(policy.id, (prev) => ({ ...prev, max_mount_sync_timeout_secs: e.target.value }))}
                           />
                         </label>
                       </div>

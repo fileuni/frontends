@@ -180,6 +180,42 @@
       "username": "Username",
       "password": "Password"
     },
+    "dropbox": {
+      "access_token": "Access Token",
+      "refresh_token": "Refresh Token",
+      "client_id": "Client ID",
+      "client_secret": "Client Secret"
+    },
+    "dropboxHints": {
+      "access_token": "Optional short-lived token. Prefer refresh_token for long-term use.",
+      "refresh_token": "Recommended for long-term Dropbox access. OpenDAL refreshes access tokens automatically.",
+      "client_id": "Dropbox app client ID used with refresh_token.",
+      "client_secret": "Dropbox app client secret used with refresh_token."
+    },
+    "onedrive": {
+      "access_token": "Access Token",
+      "refresh_token": "Refresh Token",
+      "client_id": "Client ID",
+      "client_secret": "Client Secret"
+    },
+    "onedriveHints": {
+      "access_token": "Optional short-lived Microsoft Graph token. Prefer refresh_token for long-term use.",
+      "refresh_token": "Recommended for long-term OneDrive access. Include offline_access when obtaining it.",
+      "client_id": "Microsoft Graph app client ID used with refresh_token.",
+      "client_secret": "Optional for public clients; required for confidential clients."
+    },
+    "gdrive": {
+      "access_token": "Access Token",
+      "refresh_token": "Refresh Token",
+      "client_id": "Client ID",
+      "client_secret": "Client Secret"
+    },
+    "gdriveHints": {
+      "access_token": "Optional short-lived token. Prefer refresh_token for long-term use.",
+      "refresh_token": "Recommended for long-term Google Drive access. OpenDAL refreshes access tokens automatically.",
+      "client_id": "Google OAuth client ID used with refresh_token.",
+      "client_secret": "Google OAuth client secret used with refresh_token."
+    },
     "webdavHints": {
       "endpoint": "Enter the base WebDAV service endpoint.",
       "username": "The account used to sign in to WebDAV.",

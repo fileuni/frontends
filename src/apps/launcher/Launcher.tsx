@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as toml from 'smol-toml';
 import {
@@ -172,13 +172,13 @@ export function Launcher() {
   const handleStartRef = useRef<(() => Promise<boolean>) | null>(null);
   const handleStopRef = useRef<(() => Promise<void>) | null>(null);
 
-  const inspectRuntimeDir = async (nextRuntimeDir?: string | null) => {
+  const inspectRuntimeDir = useCallback(async (nextRuntimeDir?: string | null) => {
     return safeInvoke<RuntimeDirInspection>('inspect_runtime_dir', {
       runtimeDir: nextRuntimeDir ?? '',
     });
-  };
+  }, []);
 
-  const bindRuntimeDir = async (nextRuntimeDir?: string | null) => {
+  const bindRuntimeDir = useCallback(async (nextRuntimeDir?: string | null) => {
     const inspected = await inspectRuntimeDir(nextRuntimeDir);
     await safeInvoke<void>('set_runtime_dir', {
       runtimeDir: inspected.runtime_dir,
@@ -186,7 +186,7 @@ export function Launcher() {
     setRuntimeDir(inspected.runtime_dir);
     setConfigFilePath(inspected.config_path);
     return inspected;
-  };
+  }, [inspectRuntimeDir, setRuntimeDir]);
 
   const ensureRuntimeConfigReady = async () => {
     try {
@@ -216,7 +216,7 @@ export function Launcher() {
     }
   };
 
-  const refreshLicenseStatus = async () => {
+  const refreshLicenseStatus = useCallback(async () => {
     if (!isTauriRuntime()) {
       return;
     }
@@ -231,7 +231,7 @@ export function Launcher() {
       }
       console.error('Failed to load license status:', error);
     }
-  };
+  }, []);
 
   const pickExternalStorageDirectory = async (): Promise<PickedDirectory | null> => {
     try {
@@ -261,7 +261,7 @@ export function Launcher() {
     }
   };
 
-  const loadSetupWorkbench = async () => {
+  const loadSetupWorkbench = useCallback(async () => {
     setConfigFetching(true);
     try {
       const [content, notes] = await Promise.all([
@@ -280,9 +280,9 @@ export function Launcher() {
     } finally {
       setConfigFetching(false);
     }
-  };
+  }, [refreshLicenseStatus]);
 
-  const inspectInstallationState = async (nextRuntimeDir?: string | null) => {
+  const inspectInstallationState = useCallback(async (nextRuntimeDir?: string | null) => {
     const inspected = await inspectRuntimeDir(nextRuntimeDir);
     let status = await safeInvoke<InstallationStatus>('inspect_installation_status', {
       runtimeDir: inspected.runtime_dir,
@@ -312,7 +312,7 @@ export function Launcher() {
       setSetupRequired(false);
     }
     return status;
-  };
+  }, [inspectRuntimeDir, loadSetupWorkbench, setRuntimeDir]);
 
   const closeMissingConfigPrompt = (accepted: boolean) => {
     setMissingConfigPrompt(null);
@@ -378,7 +378,7 @@ export function Launcher() {
     return () => {
       cancelled = true;
     };
-  }, [runtimeDir]);
+  }, [bindRuntimeDir, inspectInstallationState, runtimeDir]);
 
   useEffect(() => {
     if (!isTauriRuntime()) {
@@ -1071,6 +1071,17 @@ export function Launcher() {
               </div>
             </div>
           )}
+
+          <ConfigSelector
+            isOpen={showConfigSelector}
+            onRuntimeDirSelected={handleRuntimeDirSelected}
+            canClose={true}
+            currentValue={{
+              runtimeDir: displayedRuntimeDir === '...' ? '' : displayedRuntimeDir,
+            }}
+            presets={runtimeDirPresets}
+            onClose={() => setShowConfigSelector(false)}
+          />
         </div>
         <ToastI18nContext.Provider value={toastI18n}>
           <ToastContainer />

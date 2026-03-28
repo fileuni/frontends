@@ -182,6 +182,42 @@
         "username": "Username",
         "password": "Password"
       },
+      "dropbox": {
+        "access_token": "Access Token",
+        "refresh_token": "Refresh Token",
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      },
+      "dropboxHints": {
+        "access_token": "Optional short-lived token. Prefer refresh_token for long-term use.",
+        "refresh_token": "Recommended for long-term Dropbox access. OpenDAL refreshes access tokens automatically.",
+        "client_id": "Dropbox app client ID used with refresh_token.",
+        "client_secret": "Dropbox app client secret used with refresh_token."
+      },
+      "onedrive": {
+        "access_token": "Access Token",
+        "refresh_token": "Refresh Token",
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      },
+      "onedriveHints": {
+        "access_token": "Optional short-lived Microsoft Graph token. Prefer refresh_token for long-term use.",
+        "refresh_token": "Recommended for long-term OneDrive access. Include offline_access when obtaining it.",
+        "client_id": "Microsoft Graph app client ID used with refresh_token.",
+        "client_secret": "Optional for public clients; required for confidential clients."
+      },
+      "gdrive": {
+        "access_token": "Access Token",
+        "refresh_token": "Refresh Token",
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      },
+      "gdriveHints": {
+        "access_token": "Optional short-lived token. Prefer refresh_token for long-term use.",
+        "refresh_token": "Recommended for long-term Google Drive access. OpenDAL refreshes access tokens automatically.",
+        "client_id": "Google OAuth client ID used with refresh_token.",
+        "client_secret": "Google OAuth client secret used with refresh_token."
+      },
       "webdavHints": {
         "endpoint": "Enter the base WebDAV service endpoint.",
         "username": "The account used to sign in to WebDAV.",
@@ -271,7 +307,7 @@
       "generate": "Generate Random Key"
     },
     "config": {
-      "title": "Configuration Editor",
+      "title": "System Configuration",
       "loading": "Loading configuration...",
       "save": "Save",
       "saveAndReload": "Save & Reload",
@@ -454,6 +490,9 @@
           "fs": "Local Filesystem (fs)",
           "s3": "S3 Compatible (s3)",
           "webdav": "WebDAV (webdav)",
+          "dropbox": "Dropbox (dropbox)",
+          "onedrive": "OneDrive Personal (onedrive)",
+          "gdrive": "Google Drive (gdrive)",
           "memory": "Memory",
           "android_saf": "Android SAF (android_saf)",
           "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
@@ -472,12 +511,15 @@
         },
         "policies": {
           "title": "Storage Policies",
-          "hint": "Optional: map role_id to pool_name and default_quota (bytes). If empty, default_pool is used.",
+          "hint": "Optional: map role_id to pool_name, quota, and private remote mount limits. If empty, default_pool is used and self-service mounts stay disabled.",
           "empty": "No policies currently (policies = []).",
           "policy": "Policy",
           "roleId": "Role ID",
           "poolName": "Pool",
-          "defaultQuota": "Default Quota (bytes)"
+          "defaultQuota": "Default Quota (bytes)",
+          "maxPrivateMounts": "Max Private Mounts",
+          "minMountSyncIntervalMinutes": "Min Sync Interval (minutes)",
+          "maxMountSyncTimeoutSecs": "Max Sync Timeout (seconds)"
         },
         "actions": {
           "addConnector": "Add Connector",
@@ -495,6 +537,9 @@
             "fs": "{APPDATADIR}/vfs",
             "s3": "/ (root prefix)",
             "webdav": "/",
+            "dropbox": "/",
+            "onedrive": "/",
+            "gdrive": "/",
             "memory": "/",
             "android_saf": "content://...",
             "ios_scoped_fs": "bookmark_b64:<BASE64>"
@@ -505,6 +550,9 @@
             "fs": "Local directory path. On mobile, it must be under the APPDATADIR sandbox.",
             "s3": "S3 root prefix.",
             "webdav": "WebDAV root path.",
+            "dropbox": "Dropbox working root path.",
+            "onedrive": "OneDrive working root path.",
+            "gdrive": "Google Drive working root path.",
             "memory": "Memory backend root is only used to satisfy config validation.",
             "android_saf": "Android SAF granted Tree URI (content://...).",
             "ios_scoped_fs": "iOS security-scoped bookmark; must start with bookmark_b64:."
@@ -533,7 +581,10 @@
             "policyRoleRequired": "policies[{{index}}].role_id is required",
             "policyPoolRequired": "policies[{{index}}].pool_name is required",
             "policyPoolUnknown": "policies[{{index}}].pool_name references unknown pool '{{name}}'",
-            "policyQuotaInvalid": "policies[{{index}}].default_quota must be a number >= 0"
+            "policyQuotaInvalid": "policies[{{index}}].default_quota must be a number >= 0",
+            "policyMaxPrivateMountsInvalid": "policies[{{index}}].max_private_mounts must be a number >= 0",
+            "policyMinMountSyncIntervalInvalid": "policies[{{index}}].min_mount_sync_interval_minutes must be a number > 0",
+            "policyMaxMountSyncTimeoutInvalid": "policies[{{index}}].max_mount_sync_timeout_secs must be a number > 0"
           }
         }
       },

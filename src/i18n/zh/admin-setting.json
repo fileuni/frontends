@@ -181,6 +181,42 @@
         "username": "用户名",
         "password": "密码"
       },
+      "dropbox": {
+        "access_token": "Access Token",
+        "refresh_token": "Refresh Token",
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      },
+      "dropboxHints": {
+        "access_token": "可选的短期令牌；如需长期稳定使用，建议改填 refresh_token。",
+        "refresh_token": "推荐用于长期 Dropbox 访问；OpenDAL 会自动续期 access token。",
+        "client_id": "与 refresh_token 搭配使用的 Dropbox 应用 Client ID。",
+        "client_secret": "与 refresh_token 搭配使用的 Dropbox 应用 Client Secret。"
+      },
+      "onedrive": {
+        "access_token": "Access Token",
+        "refresh_token": "Refresh Token",
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      },
+      "onedriveHints": {
+        "access_token": "可选的短期 Microsoft Graph 令牌；如需长期使用，建议改填 refresh_token。",
+        "refresh_token": "推荐用于长期 OneDrive 访问；获取时请包含 offline_access。",
+        "client_id": "与 refresh_token 搭配使用的 Microsoft Graph 应用 Client ID。",
+        "client_secret": "Public Client 可留空；Confidential Client 需要填写。"
+      },
+      "gdrive": {
+        "access_token": "Access Token",
+        "refresh_token": "Refresh Token",
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      },
+      "gdriveHints": {
+        "access_token": "可选的短期令牌；如需长期稳定使用，建议改填 refresh_token。",
+        "refresh_token": "推荐用于长期 Google Drive 访问；OpenDAL 会自动续期 access token。",
+        "client_id": "与 refresh_token 搭配使用的 Google OAuth Client ID。",
+        "client_secret": "与 refresh_token 搭配使用的 Google OAuth Client Secret。"
+      },
       "webdavHints": {
         "endpoint": "填写 WebDAV 服务根地址。",
         "username": "用于登录 WebDAV 的账号。",
@@ -270,7 +306,7 @@
       "generate": "生成随机密钥"
     },
     "config": {
-      "title": "配置编辑器",
+      "title": "系统配置",
       "loading": "正在加载配置...",
       "save": "保存",
       "saveAndReload": "保存并重载",
@@ -447,7 +483,13 @@
         "drivers": {
           "fs": "本地文件系统 (fs)",
           "s3": "S3 兼容 (s3)",
-          "memory": "内存"
+          "webdav": "WebDAV (webdav)",
+          "dropbox": "Dropbox (dropbox)",
+          "onedrive": "OneDrive Personal (onedrive)",
+          "gdrive": "Google Drive (gdrive)",
+          "memory": "内存",
+          "android_saf": "Android SAF (android_saf)",
+          "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
         },
         "connectors": {
           "title": "连接器列表",
@@ -463,10 +505,15 @@
         },
         "policies": {
           "title": "存储策略",
-          "hint": "可选：按 role_id 指定 pool_name 与 default_quota（字节）。若留空，将使用 default_pool。",
+          "hint": "可选：按 role_id 指定 pool_name、默认配额，以及私有远程挂载限制。若留空，将使用 default_pool，且默认不开放自助挂载。",
           "empty": "当前没有策略（policies = []）。",
           "policy": "策略",
-          "defaultQuota": "默认配额（字节）"
+          "roleId": "角色 ID",
+          "poolName": "存储池",
+          "defaultQuota": "默认配额（字节）",
+          "maxPrivateMounts": "私有挂载上限",
+          "minMountSyncIntervalMinutes": "最小同步频率（分钟）",
+          "maxMountSyncTimeoutSecs": "单次同步最长时间（秒）"
         },
         "actions": {
           "addConnector": "添加连接器",
@@ -477,11 +524,29 @@
           "resetLocal": "重置为本地存储默认值",
           "apply": "写入配置"
         },
+        "placeholders": {
+          "optionKey": "key",
+          "optionValue": "value",
+          "root": {
+            "fs": "{APPDATADIR}/vfs",
+            "s3": "/ (root prefix)",
+            "webdav": "/",
+            "dropbox": "/",
+            "onedrive": "/",
+            "gdrive": "/",
+            "memory": "/",
+            "android_saf": "content://...",
+            "ios_scoped_fs": "bookmark_b64:<BASE64>"
+          }
+        },
         "hints": {
           "root": {
             "fs": "本地存储目录路径。移动端必须位于 APPDATADIR 沙箱内。",
             "s3": "S3 根前缀 (root prefix)。",
             "webdav": "WebDAV 根路径。",
+            "dropbox": "Dropbox 工作根路径。",
+            "onedrive": "OneDrive 工作根路径。",
+            "gdrive": "Google Drive 工作根路径。",
             "memory": "内存后端 root 仅用于通过配置校验。",
             "android_saf": "Android SAF 授权目录 Tree URI（content://...）。",
             "ios_scoped_fs": "iOS 安全作用域书签，需以 bookmark_b64: 开头。"
@@ -510,7 +575,10 @@
             "policyRoleRequired": "policies[{{index}}].role_id 为必填",
             "policyPoolRequired": "policies[{{index}}].pool_name 为必填",
             "policyPoolUnknown": "policies[{{index}}].pool_name 引用未知存储池 '{{name}}'",
-            "policyQuotaInvalid": "policies[{{index}}].default_quota 必须为 >= 0 的数字"
+            "policyQuotaInvalid": "policies[{{index}}].default_quota 必须为 >= 0 的数字",
+            "policyMaxPrivateMountsInvalid": "policies[{{index}}].max_private_mounts 必须为 >= 0 的数字",
+            "policyMinMountSyncIntervalInvalid": "policies[{{index}}].min_mount_sync_interval_minutes 必须为 > 0 的数字",
+            "policyMaxMountSyncTimeoutInvalid": "policies[{{index}}].max_mount_sync_timeout_secs 必须为 > 0 的数字"
           }
         }
       },
