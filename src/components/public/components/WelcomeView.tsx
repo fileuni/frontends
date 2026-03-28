@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
 import {
@@ -23,33 +23,33 @@ export const WelcomeView = () => {
   const resolvedTheme = useResolvedTheme();
   const { isLoggedIn, usersMap, _hasHydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
-  const [settingsCenterMode, setSetupMode] = useState(false);
+  const [settingsCenterMode, setSettingsCenterMode] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const savedUsers = Object.values(usersMap);
 
-  useEffect(() => {
-    setMounted(true);
-    checkCapabilities();
-  }, []);
-
   const isDark = resolvedTheme === 'dark';
 
-  const checkCapabilities = async () => {
+  const checkCapabilities = useCallback(async () => {
     try {
       const { data } = await client.GET(
         "/api/v1/system/backend-capabilities-handshake",
       );
       if (data?.data) {
         const caps = data.data as unknown as SystemCapabilities;
-        setSetupMode(!!caps.is_config_set_mode);
+        setSettingsCenterMode(!!caps.is_config_set_mode);
       }
     } catch (e) {
       console.error("Failed to fetch capabilities", e);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    void checkCapabilities();
+  }, [checkCapabilities]);
 
   if (!mounted || loading || !_hasHydrated)
     return (
