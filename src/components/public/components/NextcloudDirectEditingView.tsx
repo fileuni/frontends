@@ -10,9 +10,11 @@ import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
 interface DirectEditingState {
+  id?: number;
   note_id: number;
   title: string;
   content: string;
+  path?: string;
   note_path: string;
   notes_path: string;
   can_share: boolean;
@@ -57,10 +59,6 @@ export const NextcloudDirectEditingView: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    loadedRef.current = false;
-  }, [token]);
-
-  useEffect(() => {
     if (typeof window === 'undefined') return undefined;
     const media = window.matchMedia('(max-width: 960px)');
     const update = () => setIsCompactLayout(media.matches);
@@ -75,6 +73,7 @@ export const NextcloudDirectEditingView: React.FC = () => {
 
   useEffect(() => {
     let cancelled = false;
+    loadedRef.current = false;
 
     const run = async () => {
       if (!token) {
@@ -87,9 +86,14 @@ export const NextcloudDirectEditingView: React.FC = () => {
       setError(null);
       try {
         const response = await fetch(`${directEditBase}/state`, { credentials: 'include' });
-        const data = (await response.json()) as DirectEditingState & { error?: string };
+        const raw = (await response.json()) as DirectEditingState & { error?: string };
+        const data: DirectEditingState = {
+          ...raw,
+          note_id: raw.id ?? raw.note_id,
+          note_path: raw.path ?? raw.note_path,
+        };
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to load direct editing state');
+          throw new Error(raw.error || 'Failed to load direct editing state');
         }
         if (cancelled) return;
         initialContentRef.current = data.content || '';
@@ -169,18 +173,27 @@ export const NextcloudDirectEditingView: React.FC = () => {
         credentials: 'include',
         body: JSON.stringify({ content, title: state?.title }),
       });
-      const data = (await response.json()) as { ok?: boolean; error?: string; notePath?: string; title?: string };
+      const data = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        path?: string;
+        note_path?: string;
+        notePath?: string;
+        title?: string;
+      };
       if (!response.ok || data.ok === false) {
         throw new Error(data.error || 'Save failed');
       }
-      if (data.title || data.notePath) {
+      const nextPath = data.path || data.note_path || data.notePath;
+      if (data.title || nextPath) {
         setState(prev => prev ? ({
           ...prev,
           title: data.title || prev.title,
-          note_path: data.notePath || prev.note_path,
+          path: nextPath || prev.path,
+          note_path: nextPath || prev.note_path,
         }) : prev);
       }
-      return { path: data.notePath || path, fileName: data.title || state?.title };
+      return { path: nextPath || path, fileName: data.title || state?.title };
     },
     [directEditBase, state?.title],
   );
