@@ -1,12 +1,11 @@
-import type { FileInfo } from '../types/index.ts';
 import { Disc3, Loader2, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
 import { PLAYBACK_SPEEDS, type LyricsState } from './audioPreviewShared.ts';
 
 interface AudioPreviewMainPanelProps {
-  activeFile: FileInfo;
   bufferedPercent: number;
+  coverUrl?: string;
   currentExtension: string;
   currentIndex: number;
   currentTime: number;
@@ -33,12 +32,15 @@ interface AudioPreviewMainPanelProps {
   progressValue: number;
   t: (key: string) => string;
   timeLabel: (value: number) => string;
+  trackAlbum?: string;
+  trackArtist: string;
+  trackTitle: string;
   volume: number;
 }
 
 export const AudioPreviewMainPanel = ({
-  activeFile,
   bufferedPercent,
+  coverUrl,
   currentExtension,
   currentIndex,
   currentTime,
@@ -65,6 +67,9 @@ export const AudioPreviewMainPanel = ({
   progressValue,
   t,
   timeLabel,
+  trackAlbum,
+  trackArtist,
+  trackTitle,
   volume,
 }: AudioPreviewMainPanelProps) => {
   const rateText = playbackRate.toFixed(playbackRate % 1 === 0 ? 0 : 2);
@@ -74,19 +79,26 @@ export const AudioPreviewMainPanel = ({
       <div className="flex h-full flex-col gap-6 lg:gap-8">
         <div className="flex flex-col gap-8 xl:flex-row xl:items-center xl:gap-10">
           <div className="relative mx-auto flex shrink-0 items-center justify-center xl:mx-0">
-            <div className={cn('absolute inset-0 rounded-full blur-3xl', isDark ? 'bg-sky-400/20' : 'bg-sky-300/40')} />
-            <div className={cn('relative flex h-56 w-56 items-center justify-center rounded-full border shadow-[0_30px_80px_rgba(15,23,42,0.35)] md:h-72 md:w-72', isDark ? 'border-white/10 bg-[radial-gradient(circle_at_30%_30%,_rgba(125,211,252,0.24),_transparent_38%),linear-gradient(135deg,_rgba(15,23,42,0.98)_0%,_rgba(15,118,110,0.65)_100%)]' : 'border-white/80 bg-[radial-gradient(circle_at_30%_30%,_rgba(255,255,255,0.95),_rgba(186,230,253,0.85)_38%,_rgba(14,165,233,0.26)_100%)]')}>
-              <div className={cn('absolute inset-[16%] rounded-full border', isDark ? 'border-white/10 bg-slate-950/70' : 'border-white/70 bg-white/75')} />
-              <div className={cn('absolute inset-[34%] rounded-full border backdrop-blur-md', isDark ? 'border-white/10 bg-white/10' : 'border-white/80 bg-white/80')} />
-              <div className={cn('relative z-10 flex h-24 w-24 items-center justify-center rounded-full border text-primary md:h-28 md:w-28', isDark ? 'border-white/10 bg-slate-950/80' : 'border-white/80 bg-white/90')}>
-                <Disc3 className={cn('h-10 w-10 md:h-12 md:w-12', isPlaying ? 'animate-[spin_7s_linear_infinite]' : '')} />
-              </div>
-              <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-end gap-1.5">
+            <div className={cn('absolute inset-0 rounded-[2.5rem] blur-3xl', isDark ? 'bg-sky-400/20' : 'bg-sky-300/40')} />
+            <div className={cn('relative h-56 w-56 overflow-hidden rounded-[2.25rem] border shadow-[0_30px_80px_rgba(15,23,42,0.35)] md:h-72 md:w-72', isDark ? 'border-white/10 bg-[radial-gradient(circle_at_30%_30%,_rgba(125,211,252,0.24),_transparent_38%),linear-gradient(135deg,_rgba(15,23,42,0.98)_0%,_rgba(15,118,110,0.65)_100%)]' : 'border-white/80 bg-[radial-gradient(circle_at_30%_30%,_rgba(255,255,255,0.95),_rgba(186,230,253,0.85)_38%,_rgba(14,165,233,0.26)_100%)]')}>
+              {coverUrl ? (
+                <img src={coverUrl} alt={trackTitle} className={cn('h-full w-full object-cover transition-transform duration-700', isPlaying ? 'scale-[1.04]' : 'scale-100')} />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <div className={cn('absolute inset-[12%] rounded-full border', isDark ? 'border-white/10 bg-slate-950/70' : 'border-white/70 bg-white/75')} />
+                  <div className={cn('absolute inset-[31%] rounded-full border backdrop-blur-md', isDark ? 'border-white/10 bg-white/10' : 'border-white/80 bg-white/80')} />
+                  <div className={cn('relative z-10 flex h-24 w-24 items-center justify-center rounded-full border text-primary md:h-28 md:w-28', isDark ? 'border-white/10 bg-slate-950/80' : 'border-white/80 bg-white/90')}>
+                    <Disc3 className={cn('h-10 w-10 md:h-12 md:w-12', isPlaying ? 'animate-[spin_7s_linear_infinite]' : '')} />
+                  </div>
+                </div>
+              )}
+              <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-950/75 to-transparent" />
+              <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-end gap-1.5">
                 {[0, 1, 2, 3, 4].map((bar) => (
-                  <span key={bar} className={cn('block w-1.5 rounded-full bg-primary/80 transition-all', isPlaying ? 'animate-[music-bar_1.2s_ease-in-out_infinite]' : 'h-4 opacity-50')} style={{ height: isPlaying ? `${22 + ((bar * 7) % 20)}px` : '16px', animationDelay: `${bar * 0.15}s` }} />
+                  <span key={bar} className={cn('block w-1.5 rounded-full bg-white/90 transition-all', isPlaying ? 'animate-[music-bar_1.2s_ease-in-out_infinite]' : 'h-4 opacity-50')} style={{ height: isPlaying ? `${22 + ((bar * 7) % 20)}px` : '16px', animationDelay: `${bar * 0.15}s` }} />
                 ))}
               </div>
-              {isTrackLoading && <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-950/30 backdrop-blur-[2px]"><Loader2 className="h-10 w-10 animate-spin text-white" /></div>}
+              {isTrackLoading && <div className="absolute inset-0 flex items-center justify-center bg-slate-950/30 backdrop-blur-[2px]"><Loader2 className="h-10 w-10 animate-spin text-white" /></div>}
             </div>
           </div>
 
@@ -98,9 +110,9 @@ export const AudioPreviewMainPanel = ({
             </div>
 
             <div className="space-y-3">
-              <h1 className="line-clamp-2 break-all text-3xl font-black tracking-tight md:text-5xl">{lyricsState.title || activeFile.name}</h1>
-              <p className={cn('text-base md:text-lg', isDark ? 'text-white/70' : 'text-slate-600')}>{lyricsState.artist || t('filemanager.audio.localTrack')}</p>
-              {lyricsState.album && <p className={cn('text-sm font-medium', isDark ? 'text-white/45' : 'text-slate-500')}>{lyricsState.album}</p>}
+              <h1 className="line-clamp-2 break-all text-3xl font-black tracking-tight md:text-5xl">{trackTitle}</h1>
+              <p className={cn('text-base md:text-lg', isDark ? 'text-white/70' : 'text-slate-600')}>{trackArtist}</p>
+              {trackAlbum && <p className={cn('text-sm font-medium', isDark ? 'text-white/45' : 'text-slate-500')}>{trackAlbum}</p>}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">

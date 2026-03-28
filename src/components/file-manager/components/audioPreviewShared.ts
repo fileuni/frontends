@@ -30,8 +30,10 @@ export const PLAY_MODE_CONFIG: Record<PlayMode, { icon: React.ElementType; label
 
 export const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5, 2] as const;
 export const EMPTY_LYRICS: LyricsState = { status: 'loading', lines: [], synced: false };
+export const AUDIO_EXTENSIONS = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'] as const;
 
 export const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+export const isAudioFile = (name: string) => AUDIO_EXTENSIONS.includes((name.split('.').pop()?.toLowerCase() || '') as (typeof AUDIO_EXTENSIONS)[number]);
 
 export const getParentPath = (path: string) => {
   const lastSlash = path.lastIndexOf('/');

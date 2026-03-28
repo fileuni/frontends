@@ -1,23 +1,17 @@
 import { create } from 'zustand';
 import type { FileInfo } from '@/components/file-manager/types';
-
-interface AudioTrack {
-  name: string;
-  path: string;
-  artist?: string;
-  cover?: string;
-}
+import { isAudioFile } from '@/components/file-manager/components/audioPreviewShared.ts';
 
 interface AudioState {
   isOpen: boolean;
   isMinimized: boolean;
-  currentTrack: AudioTrack | null;
-  playlist: AudioTrack[];
+  currentTrack: FileInfo | null;
+  playlist: FileInfo[];
   currentIndex: number;
 
-  // Actions
   play: (track: FileInfo, folderFiles: FileInfo[]) => void;
   close: () => void;
+  setCurrentIndex: (index: number) => void;
   setMinimized: (minimized: boolean) => void;
   next: () => void;
   prev: () => void;
@@ -32,64 +26,52 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   currentIndex: -1,
 
   play: (file, folderFiles) => {
-    // Filter out audio files
-    const audioExtensions = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'];
-    const audioFiles = folderFiles.filter(f => {
-      const ext = f.name.split('.').pop()?.toLowerCase() || '';
-      return audioExtensions.includes(ext);
-    });
-
-    const tracks: AudioTrack[] = audioFiles.map(f => ({
-      name: f.name,
-      path: f.path,
-      artist: 'FileUni VFS',
-      cover: '/assets/audio-cover.svg'
-    }));
-
-    const index = tracks.findIndex(t => t.path === file.path);
+    const audioFiles = folderFiles.filter((entry) => !entry.is_dir && isAudioFile(entry.name));
+    const playlist = audioFiles.length > 0 ? audioFiles : [file];
+    const nextIndex = playlist.findIndex((track) => track.path === file.path);
+    const resolvedIndex = nextIndex >= 0 ? nextIndex : 0;
 
     set({
       isOpen: true,
       isMinimized: false,
-      currentTrack: tracks[index] || {
-        name: file.name,
-        path: file.path,
-        artist: 'FileUni VFS',
-        cover: '/assets/audio-cover.svg'
-      },
-      playlist: tracks,
-      currentIndex: index >= 0 ? index : 0
+      currentTrack: playlist[resolvedIndex] ?? file,
+      playlist,
+      currentIndex: resolvedIndex,
     });
   },
 
   close: () => set({ isOpen: false, currentTrack: null, playlist: [], currentIndex: -1 }),
-  
+
+  setCurrentIndex: (index) => set((state) => {
+    if (state.playlist.length === 0) return state;
+    const nextIndex = Math.min(Math.max(index, 0), state.playlist.length - 1);
+    return { currentIndex: nextIndex, currentTrack: state.playlist[nextIndex] ?? null };
+  }),
+
   setMinimized: (minimized) => set({ isMinimized: minimized }),
 
   next: () => {
     const { playlist, currentIndex } = get();
     if (playlist.length === 0) return;
     const nextIndex = (currentIndex + 1) % playlist.length;
-    set({ currentIndex: nextIndex, currentTrack: playlist[nextIndex] });
+    set({ currentIndex: nextIndex, currentTrack: playlist[nextIndex] ?? null });
   },
 
   prev: () => {
     const { playlist, currentIndex } = get();
     if (playlist.length === 0) return;
     const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-    set({ currentIndex: prevIndex, currentTrack: playlist[prevIndex] });
+    set({ currentIndex: prevIndex, currentTrack: playlist[prevIndex] ?? null });
   },
 
-  setPlaylist: (files) => {
-    const audioExtensions = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'];
-    const tracks: AudioTrack[] = files
-      .filter(f => audioExtensions.includes(f.name.split('.').pop()?.toLowerCase() || ''))
-      .map(f => ({
-        name: f.name,
-        path: f.path,
-        artist: 'FileUni VFS',
-        cover: '/assets/audio-cover.svg'
-      }));
-    set({ playlist: tracks });
-  }
+  setPlaylist: (files) => set((state) => {
+    const playlist = files.filter((entry) => !entry.is_dir && isAudioFile(entry.name));
+    if (playlist.length === 0) {
+      return { playlist: [], currentTrack: null, currentIndex: -1 };
+    }
+    const currentTrackPath = state.currentTrack?.path;
+    const nextIndex = currentTrackPath ? playlist.findIndex((entry) => entry.path === currentTrackPath) : 0;
+    const resolvedIndex = nextIndex >= 0 ? nextIndex : 0;
+    return { playlist, currentIndex: resolvedIndex, currentTrack: playlist[resolvedIndex] ?? null };
+  }),
 }));
