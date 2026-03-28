@@ -158,6 +158,64 @@
       "actions": {
         "previous": "Vorherige",
         "next": "Weiter"
+      },
+      "steps": {
+        "performance": "Leistung"
+      },
+      "performance": {
+        "hardwareRecommendationBadge": "Empfohlen",
+        "recommendedSettings": "Vorlagenübersicht",
+        "currentProfile": "Aktuelles Profil",
+        "featureEnablementTitle": "Funktionsaktivierung",
+        "intro": "Wenn Sie das passende Nutzungsszenario wählen, kann FileUni in den meisten Umgebungen bereits eine insgesamt sinnvolle Leistungsabstimmung anwenden.",
+        "scenarioHint": {
+          "line1": "Durch die Auswahl eines Nutzungsszenarios kann FileUni in den meisten Umgebungen eine insgesamt passende Leistungsabstimmung anwenden. In den meisten Fällen ist keine manuelle Anpassung nötig.",
+          "line2": "Wenn Sie die Konfigurationsoptionen gut kennen, können Sie für eine feinere Abstimmung in den Textbearbeitungsmodus wechseln."
+        },
+        "tiers": {
+          "constrained": "Eingeschränktes Gerät",
+          "lightweight": "Leichtes Gerät",
+          "performance": "Leistungsstarkes Gerät"
+        },
+        "descriptions": {
+          "constrained": "Für stärker eingeschränkte Geräte wie Router, Mini-Hosts oder ältere ARM-Hardware, mit Priorität auf geringer Hintergrundlast und niedrigem Speicherverbrauch bei erhaltener Grundnutzbarkeit.",
+          "lightweight": "Für ausreichend brauchbare Geräte wie Laptops oder ältere PCs, wobei Funktionsumfang und Ressourcenverbrauch möglichst ausgewogen bleiben.",
+          "performance": "Für Geräte mit viel Arbeitsspeicher und hoher Rechenleistung wie Desktops, Workstations oder neuere Server, mit Priorität auf mehr Funktionen und höherem Durchsatz für schwerere Lasten."
+        },
+        "templates": {
+          "constrained": "Eingeschränktes Gerät",
+          "lightweight": "Leichtes Gerät",
+          "performanceLowConcurrency": "Leistungsstarkes Gerät - Niedrige Parallelität",
+          "performanceHighConcurrency": "Leistungsstarkes Gerät - Hohe Parallelität",
+          "performanceMultiUser": "Leistungsstarkes Gerät - Hohe Parallelität"
+        },
+        "loadProfile": {
+          "title": "Plan für leistungsstarkes Gerät",
+          "desc": "Wählen Sie, ob diese leistungsstarke Maschine vor allem wenige gleichzeitige Sitzungen bedient oder mehr Parallelität abfangen soll.",
+          "low-concurrency": "Niedrige Parallelität",
+          "lowConcurrency": "Niedrige Parallelität",
+          "lowConcurrencyDesc": "Behält einen reichen Funktionsumfang bei und eignet sich für intensive Einzelnutzung, kleine Teams oder überwiegend administrative Abläufe.",
+          "high-concurrency": "Hohe Parallelität",
+          "highConcurrency": "Hohe Parallelität",
+          "highConcurrencyDesc": "Erhöht Verbindungslimits, Warteschlangen und Hintergrunddurchsatz für mehr gleichzeitigen Verkehr.",
+          "multi-user": "Hohe Parallelität",
+          "multiUser": "Hohe Parallelität",
+          "multiUserDesc": "Erhöht Verbindungslimits, Warteschlangen und Hintergrunddurchsatz für mehr gleichzeitigen Verkehr.",
+          "notApplicable": "Nur für leistungsstarke Geräte relevant"
+        },
+        "preview": {
+          "configKeyChanges": "Funktionsaktivierung"
+        },
+        "features": {
+          "compression": "Komprimierung",
+          "sftp": "SFTP",
+          "ftp": "FTP",
+          "s3": "S3",
+          "chat": "Chat",
+          "email": "Email",
+          "webdav": "WebDAV",
+          "bloomWarmup": "Bloom-Warmup"
+        }
       }
     }
   },

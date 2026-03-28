@@ -1150,24 +1150,41 @@
           "s3MaxConnections": "S3 最大接続数"
         },
         "tiers": {
-          "extremeLow": "超低性能 (ref: <=64MB RAM)",
-          "low": "低性能 (ref: 64-256MB RAM)",
-          "medium": "中性能 (ref: 256MB-1GB RAM)",
-          "good": "高性能 (ref: >1GB RAM)"
+          "constrained": "制約のあるデバイス",
+          "lightweight": "軽量デバイス",
+          "performance": "高性能デバイス"
         },
         "descriptions": {
-          "extremeLow": "旧式ルーターや極端にリソースが少ない組み込み機器向け。コア機能と WebDAV のみ。",
-          "low": "リソースが限られた軽量デバイス向け。",
-          "medium": "ホームサーバーや中程度のリソースを持つ NAS 向け。SQLite + DB キャッシュ推奨。",
-          "good": "十分なリソースを持つサーバー/高性能 NAS 向け。さらに最適化するため負荷プロファイルを選択。"
+          "constrained": "ルーター、小型ホスト、旧式 ARM ハードウェアのような、より制約のある機器向けです。バックグラウンド負荷とメモリ使用量を抑えつつ、基本的な使い勝手を維持します。",
+          "lightweight": "ノート PC や古い PC など、そこそこ使えるデバイス向けです。機能の充実度とリソース消費のバランスをできるだけ取ります。",
+          "performance": "デスクトップ、ワークステーション、新しいサーバーのような高メモリ・高演算性能の機器向けです。より重い負荷に向けて、機能とスループットを優先します。"
+        },
+        "currentProfile": "現在のプロファイル",
+        "featureEnablementTitle": "機能の有効化",
+        "scenarioHint": {
+          "line1": "利用シナリオを選ぶことで、FileUni は多くの環境でおおむね適切な性能チューニングを適用できます。通常は手動で細かく調整する必要はありません。",
+          "line2": "設定項目に慣れている場合は、テキスト編集モードに切り替えてさらに細かく調整できます。"
+        },
+        "templates": {
+          "constrained": "制約のあるデバイス",
+          "lightweight": "軽量デバイス",
+          "performanceLowConcurrency": "高性能デバイス - 低並行",
+          "performanceHighConcurrency": "高性能デバイス - 高並行",
+          "performanceMultiUser": "高性能デバイス - 高並行"
         },
         "loadProfile": {
-          "title": "負荷プロファイル選択",
-          "desc": "想定利用に応じて負荷プロファイルを選択します。高負荷モードでは安定性のため非コア機能の無効化を推奨します。",
-          "light": "軽負荷モード",
-          "lightDesc": "より多くの機能を有効化。個人利用や小規模チーム向け",
-          "heavy": "高負荷モード",
-          "heavyDesc": "非コア機能の無効化を推奨。高並列シナリオ向け"
+          "title": "高性能デバイス向けプラン",
+          "desc": "この高性能マシンが少数セッション中心なのか、より多くの同時アクセスを吸収すべきかを選んでください。",
+          "low-concurrency": "低並行",
+          "lowConcurrency": "低並行",
+          "lowConcurrencyDesc": "機能を豊富に保ちつつ、個人のヘビーユース、小規模チーム、管理操作中心の運用に向きます。",
+          "high-concurrency": "高並行",
+          "highConcurrency": "高並行",
+          "highConcurrencyDesc": "接続数、キュー、バックグラウンドスループットを高め、より多い同時トラフィックに対応します。",
+          "multi-user": "高並行",
+          "multiUser": "高並行",
+          "multiUserDesc": "接続数、キュー、バックグラウンドスループットを高め、より多い同時トラフィックに対応します。",
+          "notApplicable": "高性能デバイスでのみ使用します"
         },
         "preheatMode": {
           "title": "Captcha ウォームアップ戦略",

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { PasswordInput } from '@/components/common/PasswordInput';
 import type { CompressionDraft, ThumbnailDraft, TomlAdapter } from './ExternalDependencyConfigModal';
+import { SettingSegmentedControl } from './SettingSegmentedControl';
 import {
   applyCompressionDraft,
   applyThumbnailDraft,
@@ -199,6 +200,25 @@ type CacheAccelerationDraft = {
   writeFlushDeadlineSecs: string;
 };
 
+const InlineSegmentCard: React.FC<{
+  isDark: boolean;
+  title: string;
+  subtitle?: string;
+  value: string;
+  options: Array<{ value: string; label: string }>;
+  onChange: (value: string) => void;
+}> = ({ isDark, title, subtitle, value, options, onChange }) => (
+  <div className={cn('rounded-xl border px-3 py-3', isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50')}>
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <div className={cn('text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>{title}</div>
+        {subtitle && <div className={cn('mt-1 text-xs leading-5', isDark ? 'text-slate-400' : 'text-slate-500')}>{subtitle}</div>}
+      </div>
+      <SettingSegmentedControl value={value} options={options} onChange={onChange} />
+    </div>
+  </div>
+);
+
 export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content, onContentChange }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === 'dark';
@@ -268,6 +288,14 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({ tomlAdapter,
   };
 
   const inputClass = cn('mt-1 h-11 w-full rounded-xl border px-3 text-sm font-mono', isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900');
+  const backendOptions = [
+    { value: 'memory', label: t('admin.config.storage.cache.backends.memory') },
+    { value: 'local_dir', label: t('admin.config.storage.cache.backends.localDir') },
+  ] as const;
+  const enableOptions = [
+    { value: 'enabled', label: t('common.enabled') },
+    { value: 'disabled', label: t('common.disabled') },
+  ] as const;
   const patch = (updater: (prev: CacheAccelerationDraft) => CacheAccelerationDraft) => {
     setDraft((prev) => {
       const next = updater(prev);
@@ -277,12 +305,28 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({ tomlAdapter,
   };
 
   return (
-      <div className="grid gap-4 xl:grid-cols-2">
+    <div className="grid gap-4 xl:grid-cols-2">
       <div className={cn('rounded-2xl border p-4 space-y-3', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
         <div className="text-sm font-black">{t('admin.config.storage.cache.read')}</div>
-        <label className="flex items-center gap-3 text-sm font-black"><input type="checkbox" checked={draft.readEnable} onChange={(e) => patch((prev) => ({ ...prev, readEnable: e.target.checked }))} />{t('admin.config.storage.cache.enable')}</label>
-        <select className={inputClass} value={draft.readBackend} onChange={(e) => patch((prev) => ({ ...prev, readBackend: e.target.value as 'memory' | 'local_dir' }))}><option value="memory">memory</option><option value="local_dir">local_dir</option></select>
-        <input className={inputClass} value={draft.readLocalDir} onChange={(e) => patch((prev) => ({ ...prev, readLocalDir: e.target.value }))} placeholder={t('admin.config.storage.cache.localDir')} />
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t('admin.config.storage.cache.enable')}
+          subtitle={draft.readEnable ? t('common.enabled') : t('common.disabled')}
+          value={draft.readEnable ? 'enabled' : 'disabled'}
+          options={[...enableOptions]}
+          onChange={(value) => patch((prev) => ({ ...prev, readEnable: value === 'enabled' }))}
+        />
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t('admin.config.storage.cache.backend')}
+          subtitle={draft.readBackend === 'local_dir' ? t('admin.config.storage.cache.backends.localDir') : t('admin.config.storage.cache.backends.memory')}
+          value={draft.readBackend}
+          options={[...backendOptions]}
+          onChange={(value) => patch((prev) => ({ ...prev, readBackend: value as 'memory' | 'local_dir' }))}
+        />
+        {draft.readBackend === 'local_dir' && (
+          <input className={inputClass} value={draft.readLocalDir} onChange={(e) => patch((prev) => ({ ...prev, readLocalDir: e.target.value }))} placeholder={t('admin.config.storage.cache.localDir')} />
+        )}
         <input className={inputClass} value={draft.readCapacityBytes} onChange={(e) => patch((prev) => ({ ...prev, readCapacityBytes: e.target.value }))} placeholder={t('admin.config.storage.cache.capacityBytes')} />
         <input className={inputClass} value={draft.readMaxFileSizeBytes} onChange={(e) => patch((prev) => ({ ...prev, readMaxFileSizeBytes: e.target.value }))} placeholder={t('admin.config.storage.cache.maxFileSizeBytes')} />
       </div>
@@ -293,9 +337,25 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({ tomlAdapter,
             {t('setup.storageCache.writeRisk')}
           </div>
         )}
-        <label className="flex items-center gap-3 text-sm font-black"><input type="checkbox" checked={draft.writeEnable} onChange={(e) => patch((prev) => ({ ...prev, writeEnable: e.target.checked }))} />{t('admin.config.storage.cache.enable')}</label>
-        <select className={inputClass} value={draft.writeBackend} onChange={(e) => patch((prev) => ({ ...prev, writeBackend: e.target.value as 'memory' | 'local_dir' }))}><option value="memory">memory</option><option value="local_dir">local_dir</option></select>
-        <input className={inputClass} value={draft.writeLocalDir} onChange={(e) => patch((prev) => ({ ...prev, writeLocalDir: e.target.value }))} placeholder={t('admin.config.storage.cache.localDir')} />
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t('admin.config.storage.cache.enable')}
+          subtitle={draft.writeEnable ? t('common.enabled') : t('common.disabled')}
+          value={draft.writeEnable ? 'enabled' : 'disabled'}
+          options={[...enableOptions]}
+          onChange={(value) => patch((prev) => ({ ...prev, writeEnable: value === 'enabled' }))}
+        />
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t('admin.config.storage.cache.backend')}
+          subtitle={draft.writeBackend === 'local_dir' ? t('admin.config.storage.cache.backends.localDir') : t('admin.config.storage.cache.backends.memory')}
+          value={draft.writeBackend}
+          options={[...backendOptions]}
+          onChange={(value) => patch((prev) => ({ ...prev, writeBackend: value as 'memory' | 'local_dir' }))}
+        />
+        {draft.writeBackend === 'local_dir' && (
+          <input className={inputClass} value={draft.writeLocalDir} onChange={(e) => patch((prev) => ({ ...prev, writeLocalDir: e.target.value }))} placeholder={t('admin.config.storage.cache.localDir')} />
+        )}
         <input className={inputClass} value={draft.writeCapacityBytes} onChange={(e) => patch((prev) => ({ ...prev, writeCapacityBytes: e.target.value }))} placeholder={t('admin.config.storage.cache.capacityBytes')} />
         <input className={inputClass} value={draft.writeFlushConcurrency} onChange={(e) => patch((prev) => ({ ...prev, writeFlushConcurrency: e.target.value }))} placeholder={t('admin.config.storage.cache.flushConcurrency')} />
       </div>

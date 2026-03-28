@@ -11,6 +11,7 @@ import { SettingSurfaceControls } from '@/components/setting/SettingSurfaceContr
 import { ConfigPathActionButton } from '@/components/setting/ConfigPathActionButton';
 import type { ExternalToolDiagnosisResponse } from '@/components/setting/ExternalDependencyConfigModal';
 import { buildSettingCommonActions } from '@/components/setting/SettingCommonActions';
+import type { SystemHardwareInfo } from '@/components/setting/ConfigQuickWizardModal';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useToastStore } from '@/stores/toast';
 import { client, extractData, handleApiError } from '@/lib/api';
@@ -60,6 +61,7 @@ export const ConfigSetEditor: React.FC = () => {
   const [content, setContent] = useState('');
   const [savedContent, setSavedContent] = useState('');
   const [runtimeOs, setRuntimeOs] = useState<string>('');
+  const [systemHardware, setSystemHardware] = useState<SystemHardwareInfo | null>(null);
   const [notes, setNotes] = useState<Record<string, ConfigNoteEntry>>({});
   const [validationErrors, setValidationErrors] = useState<ConfigError[]>([]);
 
@@ -153,6 +155,18 @@ export const ConfigSetEditor: React.FC = () => {
     }
   }, []);
 
+  const fetchSystemHardware = useCallback(async () => {
+    try {
+      const data = await extractData<SystemHardwareInfo>(
+        client.GET('/api/v1/system/os-info')
+      );
+      setSystemHardware(data ?? null);
+    } catch (e) {
+      console.warn('Failed to fetch system os-info', e);
+      setSystemHardware(null);
+    }
+  }, []);
+
   const refreshLicenseStatus = useCallback(async () => {
     try {
       const data = await extractData<ConfigSetLicenseStatusResponse>(
@@ -189,7 +203,7 @@ export const ConfigSetEditor: React.FC = () => {
       setLoading(true);
       try {
         await fetchStatus();
-        await Promise.all([fetchTemplate(), fetchNotes(), fetchCapabilities(), refreshLicenseStatus()]);
+        await Promise.all([fetchTemplate(), fetchNotes(), fetchCapabilities(), fetchSystemHardware(), refreshLicenseStatus()]);
       } catch (e) {
         console.error('Config-set init failed', e);
       } finally {
@@ -197,7 +211,7 @@ export const ConfigSetEditor: React.FC = () => {
       }
     };
     load();
-  }, [fetchStatus, fetchTemplate, fetchNotes, fetchCapabilities, refreshLicenseStatus]);
+  }, [fetchStatus, fetchTemplate, fetchNotes, fetchCapabilities, fetchSystemHardware, refreshLicenseStatus]);
 
   const finishAndReturnToHome = async () => {
     if (finishing) return;
@@ -351,7 +365,7 @@ export const ConfigSetEditor: React.FC = () => {
 
   const handleConfigPathAction = () => {
     void addToast(
-      t('launcher.runtime_dir_change_hint'),
+      t(['setup.guide.runtimeDirChangeHint', 'launcher.runtime_dir_change_hint']),
       { type: 'info', duration: 'long' },
     );
   };
@@ -363,6 +377,7 @@ export const ConfigSetEditor: React.FC = () => {
     content,
     onContentChange: setContent,
     runtimeOs,
+    systemHardware,
     onTestDatabase: handleCheckDatabase,
     onTestCache: handleCheckCache,
     adminPassword: {
@@ -410,7 +425,7 @@ export const ConfigSetEditor: React.FC = () => {
       <ConfigWorkbenchShell
         title={t('admin.config.title')}
         configPath={configPath}
-        configPathAction={<ConfigPathActionButton onClick={handleConfigPathAction} label={t('setup.guide.card1Action')} />}
+        configPathAction={<ConfigPathActionButton onClick={handleConfigPathAction} label={t(['setup.guide.card1Action', 'launcher.modify_runtime_dirs'])} />}
         headerActions={headerActions}
       >
         <div className="max-w-2xl mx-auto p-6 sm:p-8 bg-card border-2 border-emerald-500/20 rounded-3xl sm:rounded-[2.5rem] text-center shadow-2xl">
@@ -448,7 +463,7 @@ export const ConfigSetEditor: React.FC = () => {
     <SettingWorkbenchSurface
       title={t('admin.config.title')}
       configPath={configPath}
-      configPathAction={<ConfigPathActionButton onClick={handleConfigPathAction} label={t('setup.guide.card1Action')} />}
+      configPathAction={<ConfigPathActionButton onClick={handleConfigPathAction} label={t(['setup.guide.card1Action', 'launcher.modify_runtime_dirs'])} />}
       headerExtras={headerActions}
       settingActions={settingActions}
       testAction={{
@@ -481,6 +496,7 @@ export const ConfigSetEditor: React.FC = () => {
         testLabel: t('setup.editor.check'),
         onClearValidationErrors: () => setValidationErrors([]),
         runtimeOs,
+        systemHardware,
         onDiagnoseExternalTools: handleDiagnoseExternalTools,
       }}
     />

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Database, FolderCog, ImagePlus, KeyRound, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { ArrowRight, ChevronRight, Database, FolderCog, ImagePlus, KeyRound, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { cn } from '@/lib/utils';
@@ -35,19 +35,14 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
   const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
   const isDark = resolvedTheme === 'dark';
-  const [isMobileLayout, setIsMobileLayout] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   useEffect(() => {
-    const update = () => setIsMobileLayout(window.innerWidth < 1024);
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    if (typeof window === 'undefined') {
+      return;
+    }
+    setIsSidebarExpanded(window.innerWidth >= 1024);
   }, []);
-
-  useEffect(() => {
-    setIsSidebarExpanded(!isMobileLayout);
-  }, [isMobileLayout]);
 
   const steps = useMemo(() => [
     { id: 'performance', icon: Sparkles, title: t('setup.steps.performance') },
@@ -65,48 +60,15 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
     }
   }, [commonActions, selectedSettingId]);
 
-  useEffect(() => {
-    if (commonActions.length === 0 || isMobileLayout) {
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntry = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-        const nextId = visibleEntry?.target.getAttribute('data-setting-action-id');
-        if (nextId) {
-          setSelectedSettingId(nextId);
-        }
-      },
-      {
-        root: null,
-        threshold: [0.2, 0.45, 0.7],
-        rootMargin: '-10% 0px -45% 0px',
-      }
-    );
-
-    const sections = commonActions
-      .map((item) => document.getElementById(`setting-inline-${item.id}`))
-      .filter((element): element is HTMLElement => Boolean(element));
-
-    sections.forEach((section) => {
-      observer.observe(section);
-    });
-
-    return () => {
-      sections.forEach((section) => {
-        observer.unobserve(section);
-      });
-      observer.disconnect();
-    };
-  }, [commonActions, isMobileLayout]);
+  const activeItem = useMemo(
+    () => commonActions.find((item) => item.id === selectedSettingId) ?? commonActions[0],
+    [commonActions, selectedSettingId],
+  );
+  const ActiveIcon = activeItem?.icon;
 
   return (
     <div className="space-y-3 sm:space-y-4">
-        <section className={cn(
+      <section className={cn(
           'rounded-[1.5rem] border p-3 sm:p-4 shadow-sm',
           isDark
             ? 'border-white/10 bg-slate-950'
@@ -114,19 +76,29 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
         )}>
         <div>
           <div>
-            <div className={cn(
-              'inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.18em]',
-              isDark ? 'border-sky-400/20 bg-sky-500/10 text-sky-200' : 'border-sky-200 bg-white/80 text-sky-700'
-            )}>
-              {t('setup.steps.step')}
-            </div>
-            <h2 className={cn('mt-3 text-lg font-black tracking-tight sm:text-xl', isDark ? 'text-slate-100' : 'text-slate-900')}>
+            <h2 className={cn('text-lg font-black tracking-tight sm:text-xl', isDark ? 'text-slate-100' : 'text-slate-900')}>
               {t('setup.steps.step')}
             </h2>
           </div>
         </div>
 
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-3 flex flex-wrap items-center gap-1 sm:hidden">
+          {steps.map(({ id, title }, index) => (
+            <React.Fragment key={id}>
+              <div className={cn(
+                'rounded-full border px-2.5 py-1.5 text-xs font-black transition-colors',
+                isDark ? 'border-white/10 bg-white/[0.04] text-slate-200' : 'border-slate-200 bg-white text-slate-700'
+              )}>
+                {index + 1}. {title}
+              </div>
+              {index < steps.length - 1 && (
+                <ChevronRight size={14} className={isDark ? 'text-slate-500' : 'text-slate-400'} />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+
+        <div className="mt-3 hidden gap-2 sm:grid sm:grid-cols-2 xl:grid-cols-5">
           {steps.map(({ id, icon: Icon, title }, index) => (
             <article
               key={id}
@@ -155,7 +127,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
         </div>
       </section>
 
-      {commonActions.length > 0 && (
+      {commonActions.length > 0 && activeItem && (
         <section className={cn(
           'rounded-[1.75rem] border p-3 sm:p-4 shadow-sm',
           isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
@@ -163,7 +135,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
           <div className={cn(
             'grid items-start gap-3',
             isSidebarExpanded
-              ? 'grid-cols-[minmax(0,12rem)_minmax(0,1fr)] lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)]'
+              ? 'grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)]'
               : 'grid-cols-[4.25rem_minmax(0,1fr)]'
           )}>
             <aside className={cn(
@@ -175,7 +147,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                 type="button"
                 onClick={() => setIsSidebarExpanded((prev) => !prev)}
                 className={cn(
-                  'mb-2 flex w-full items-center justify-center rounded-xl border px-2 py-2 text-[11px] font-black uppercase tracking-[0.18em] transition-all',
+                  'mb-2 flex w-full items-center justify-center rounded-xl border px-2 py-2 text-[11px] font-black uppercase tracking-[0.18em] transition-colors',
                   isDark ? 'border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
                 )}
                 aria-label={isSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
@@ -184,11 +156,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                 <span>{isSidebarExpanded ? '−' : '+'}</span>
               </button>
               <div className={cn(
-                isSidebarExpanded
-                  ? 'grid gap-1.5'
-                  : isMobileLayout
-                  ? 'grid gap-1.5'
-                  : 'pb-1 lg:grid lg:gap-1.5 lg:overflow-visible lg:pb-0 flex gap-1.5 overflow-x-auto'
+                'grid gap-1.5'
               )}>
                 {commonActions.map(({ id, label, icon: Icon }) => {
                   const active = selectedSettingId === id;
@@ -196,14 +164,11 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                     <button
                       key={id}
                       type="button"
-                      onClick={() => {
-                        setSelectedSettingId(id);
-                        document.getElementById(`setting-inline-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }}
+                      onClick={() => setSelectedSettingId(id)}
                       className={cn(
                         !isSidebarExpanded
-                          ? 'flex items-center justify-center rounded-xl px-2 py-3 text-left text-sm font-black transition-all min-h-11 w-full'
-                          : 'flex shrink-0 items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-black transition-all lg:w-full min-h-11',
+                          ? 'flex w-full items-center justify-center rounded-xl px-2 py-3 text-left text-sm font-black transition-colors min-h-11'
+                          : 'flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-black transition-colors min-h-11',
                         active
                           ? (isDark ? 'bg-cyan-500/15 text-cyan-100' : 'bg-cyan-100 text-cyan-950')
                           : (isDark ? 'text-slate-200 hover:bg-white/5' : 'text-slate-700 hover:bg-white')
@@ -217,146 +182,132 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                       )}>
                         <Icon size={15} />
                       </div>
-                      {isSidebarExpanded && <span className="truncate whitespace-nowrap lg:whitespace-normal">{label}</span>}
+                      {isSidebarExpanded && <span className="truncate whitespace-nowrap">{label}</span>}
                     </button>
                   );
                 })}
               </div>
             </aside>
 
-            <div className="space-y-3">
-              {commonActions.map((item) => {
-                const active = selectedSettingId === item.id;
-                const Icon = item.icon;
-
-                return (
-                  <section
-                    id={`setting-inline-${item.id}`}
-                    key={item.id}
-                    data-setting-action-id={item.id}
-                    className={cn(
-                      'rounded-3xl border p-4 sm:p-5 scroll-mt-24 transition-all',
-                      active
-                        ? (isDark ? 'border-cyan-400/25 bg-cyan-500/10 shadow-lg shadow-cyan-500/5' : 'border-cyan-200 bg-cyan-50/70 shadow-sm')
-                        : (isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-slate-50/60')
-                    )}
-                  >
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-3">
-                          <div className={cn(
-                            'flex h-10 w-10 items-center justify-center rounded-2xl',
-                            active
-                              ? (isDark ? 'bg-cyan-500/20 text-cyan-100' : 'bg-cyan-100 text-cyan-800')
-                              : (isDark ? 'bg-white/10 text-slate-100' : 'bg-white text-slate-700')
-                          )}>
-                            <Icon size={18} />
-                          </div>
-                          <div>
-                            <h3 className={cn('text-lg font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                              {item.label}
-                            </h3>
-                          </div>
-                        </div>
-                        {item.description.trim().length > 0 && (
-                          <p className={cn('mt-4 max-w-2xl text-sm leading-7', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {item.onClick && (
-                        <div className="flex flex-wrap items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={item.onClick}
-                            disabled={item.disabled}
-                            className={cn(
-                              'inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-black transition-all disabled:cursor-not-allowed disabled:opacity-50',
-                              isDark ? 'border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-100'
-                            )}
-                          >
-                            <span>{item.actionLabel ?? t('setup.guide.openAction')}</span>
-                            <ArrowRight size={15} />
-                          </button>
-                        </div>
-                      )}
+            <section
+              id={`setting-inline-${activeItem.id}`}
+              data-setting-action-id={activeItem.id}
+              className={cn(
+                'rounded-3xl border p-4 sm:p-5 transition-colors',
+                isDark ? 'border-cyan-400/25 bg-cyan-500/10' : 'border-cyan-200 bg-cyan-50/70 shadow-sm'
+              )}
+            >
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      'flex h-10 w-10 items-center justify-center rounded-2xl',
+                      isDark ? 'bg-cyan-500/20 text-cyan-100' : 'bg-cyan-100 text-cyan-800'
+                    )}>
+                      {ActiveIcon && <ActiveIcon size={18} />}
                     </div>
+                    <div>
+                      <h3 className={cn('text-lg font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
+                        {activeItem.label}
+                      </h3>
+                    </div>
+                  </div>
+                  {activeItem.description.trim().length > 0 && (
+                    <p className={cn('mt-4 max-w-2xl text-sm leading-7', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                      {activeItem.description}
+                    </p>
+                  )}
+                </div>
 
-                    {(item.renderPanel || item.stats?.length || item.points?.length) && (
-                      <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-                        {item.renderPanel && (
-                          <div className="xl:col-span-2">{item.renderPanel}</div>
-                        )}
+                {activeItem.onClick && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={activeItem.onClick}
+                      disabled={activeItem.disabled}
+                      className={cn(
+                        'inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+                        isDark ? 'border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-100'
+                      )}
+                    >
+                      <span>{activeItem.actionLabel ?? t('setup.guide.openAction')}</span>
+                      <ArrowRight size={15} />
+                    </button>
+                  </div>
+                )}
+              </div>
 
-                        {item.stats && item.stats.length > 0 && (
-                          <div className="grid gap-2 sm:grid-cols-2">
-                            {item.stats.map((stat) => (
-                              <div
-                                key={`${item.id}:${stat.label}`}
-                                className={cn(
-                                  'rounded-2xl border px-3 py-3',
-                                  isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
-                                )}
-                              >
-                                <div className={cn('text-[11px] font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                                  {stat.label}
-                                </div>
-                                <div className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-200' : 'text-slate-700')}>
-                                  {stat.value}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+              {(activeItem.renderPanel || activeItem.stats?.length || activeItem.points?.length) && (
+                <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                  {activeItem.renderPanel && (
+                    <div className="xl:col-span-2">{activeItem.renderPanel}</div>
+                  )}
 
-                        {item.points && item.points.length > 0 && (
-                          <div className={cn(
-                            'rounded-2xl border p-3',
+                  {activeItem.stats && activeItem.stats.length > 0 && (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {activeItem.stats.map((stat) => (
+                        <div
+                          key={`${activeItem.id}:${stat.label}`}
+                          className={cn(
+                            'rounded-2xl border px-3 py-3',
                             isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
-                          )}>
-                            <div className="mt-3 space-y-2">
-                              {item.points.map((point) => (
-                                <div key={`${item.id}:${point}`} className={cn('flex gap-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-700')}>
-                                  <span className={cn('mt-2 inline-flex h-1.5 w-1.5 shrink-0 rounded-full', active ? 'bg-cyan-500' : 'bg-slate-400')} />
-                                  <span>{point}</span>
-                                </div>
-                              ))}
-                            </div>
+                          )}
+                        >
+                          <div className={cn('text-[11px] font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                            {stat.label}
                           </div>
-                        )}
-                      </div>
-                    )}
+                          <div className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-200' : 'text-slate-700')}>
+                            {stat.value}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-                    {item.actions && item.actions.length > 0 && (
-                      <div className={cn(
-                        'mt-4 flex flex-wrap items-center gap-2 border-t pt-4',
-                        isDark ? 'border-white/10' : 'border-slate-200'
-                      )}>
-                        {item.actions.map((action) => (
-                          <button
-                            key={`${item.id}:${action.id}`}
-                            type="button"
-                            onClick={action.onClick}
-                            disabled={action.disabled || !action.onClick}
-                            className={cn(
-                              'inline-flex h-10 items-center justify-center rounded-2xl border px-4 text-sm font-black transition-all disabled:cursor-not-allowed disabled:opacity-50',
-                              action.variant === 'primary'
-                                ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20 hover:opacity-90'
-                                : isDark
-                                  ? 'border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10'
-                                  : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-100'
-                            )}
-                          >
-                            {action.label}
-                          </button>
+                  {activeItem.points && activeItem.points.length > 0 && (
+                    <div className={cn(
+                      'rounded-2xl border p-3',
+                      isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white'
+                    )}>
+                      <div className="mt-3 space-y-2">
+                        {activeItem.points.map((point) => (
+                          <div key={`${activeItem.id}:${point}`} className={cn('flex gap-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-700')}>
+                            <span className="mt-2 inline-flex h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-500" />
+                            <span>{point}</span>
+                          </div>
                         ))}
                       </div>
-                    )}
-                  </section>
-                );
-              })}
-            </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeItem.actions && activeItem.actions.length > 0 && (
+                <div className={cn(
+                  'mt-4 flex flex-wrap items-center gap-2 border-t pt-4',
+                  isDark ? 'border-white/10' : 'border-slate-200'
+                )}>
+                  {activeItem.actions.map((action) => (
+                    <button
+                      key={`${activeItem.id}:${action.id}`}
+                      type="button"
+                      onClick={action.onClick}
+                      disabled={action.disabled || !action.onClick}
+                      className={cn(
+                        'inline-flex h-10 items-center justify-center rounded-2xl border px-4 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+                        action.variant === 'primary'
+                          ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20 hover:opacity-90'
+                          : isDark
+                            ? 'border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10'
+                            : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-100'
+                      )}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
           </div>
         </section>
       )}

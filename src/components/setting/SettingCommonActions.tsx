@@ -9,6 +9,7 @@ import { AdminPasswordInlinePanel, CacheAccelerationInlinePanel, CompressionInli
 import { CacheInlinePanel, DatabaseInlinePanel, PerformanceInlinePanel } from './SettingInlineQuickPanels';
 import { StoragePoolInlinePanel } from './StoragePoolInlinePanel';
 import type { TomlAdapter } from './ExternalDependencyConfigModal';
+import type { SystemHardwareInfo } from './ConfigQuickWizardModal';
 
 type DatabaseCheckPayload = {
   databaseType: 'sqlite' | 'postgres';
@@ -154,6 +155,7 @@ interface BuildSettingCommonActionsParams {
   content: string;
   onContentChange: (value: string) => void;
   runtimeOs?: string;
+  systemHardware?: SystemHardwareInfo | null;
   onTestDatabase?: (payload: DatabaseCheckPayload) => Promise<void>;
   onTestCache?: (payload: CacheCheckPayload) => Promise<void>;
   adminPassword: {
@@ -181,6 +183,7 @@ export const buildSettingCommonActions = ({
   content,
   onContentChange,
   runtimeOs,
+  systemHardware,
   onTestDatabase,
   onTestCache,
   adminPassword,
@@ -194,7 +197,7 @@ export const buildSettingCommonActions = ({
       description: '',
       icon: settingCommonIcons.performance,
       renderPanel: (
-        <PerformanceInlinePanel tomlAdapter={tomlAdapter} content={content} onContentChange={onContentChange} runtimeOs={runtimeOs} />
+        <PerformanceInlinePanel tomlAdapter={tomlAdapter} content={content} onContentChange={onContentChange} runtimeOs={runtimeOs} systemHardware={systemHardware} />
       ),
     },
     {
@@ -221,7 +224,7 @@ export const buildSettingCommonActions = ({
       description: '',
       icon: settingCommonIcons.storage,
       renderPanel: (
-        <StoragePoolInlinePanel tomlAdapter={tomlAdapter} content={content} onContentChange={onContentChange} />
+        <StoragePoolInlinePanel tomlAdapter={tomlAdapter} content={content} onContentChange={onContentChange} runtimeOs={runtimeOs} />
       ),
       actions: [
         { id: 'save', label: storage.primaryActionLabel, onClick: storage.onPrimaryAction, variant: 'primary' },

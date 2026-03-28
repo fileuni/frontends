@@ -1150,24 +1150,41 @@
           "s3MaxConnections": "Connexions max S3"
         },
         "tiers": {
-          "extremeLow": "Performance extrêmement faible (ref : <=64MB RAM)",
-          "low": "Faible performance (ref : 64-256MB RAM)",
-          "medium": "Performance moyenne (ref : 256MB-1GB RAM)",
-          "good": "Bonne performance (ref : >1GB RAM)"
+          "constrained": "Appareil contraint",
+          "lightweight": "Appareil léger",
+          "performance": "Appareil performant"
         },
         "descriptions": {
-          "extremeLow": "Pour routeurs legacy et appareils embarqués aux ressources matérielles extrêmement limitées. Fonctions cœur et WebDAV uniquement.",
-          "low": "Pour les appareils légers aux ressources limitées.",
-          "medium": "Pour serveurs domestiques et NAS aux ressources modérées. SQLite + cache base de données recommandé.",
-          "good": "Pour serveurs et NAS haute performance avec ressources matérielles suffisantes. Choisissez un profil de charge pour optimiser davantage."
+          "constrained": "Pour les appareils plus limités, comme les routeurs, mini-hôtes ou anciens matériels ARM, en privilégiant une charge d'arrière-plan et une consommation mémoire plus faibles tout en gardant l'essentiel utilisable.",
+          "lightweight": "Pour les appareils raisonnablement capables, comme les ordinateurs portables ou anciens PC, en équilibrant autant que possible la richesse fonctionnelle et l'usage des ressources.",
+          "performance": "Pour les machines avec beaucoup de mémoire et de puissance de calcul, comme les PC de bureau, stations de travail ou serveurs récents, en privilégiant plus de fonctionnalités et un débit supérieur pour des charges plus lourdes."
+        },
+        "currentProfile": "Profil actuel",
+        "featureEnablementTitle": "Activation des fonctions",
+        "scenarioHint": {
+          "line1": "En choisissant un scénario d'utilisation, FileUni peut appliquer un réglage de performance généralement adapté à la plupart des environnements. Dans la majorité des cas, il n'est pas nécessaire de l'ajuster manuellement.",
+          "line2": "Si vous maîtrisez les options de configuration, vous pouvez passer en mode édition texte pour un réglage plus fin."
+        },
+        "templates": {
+          "constrained": "Appareil contraint",
+          "lightweight": "Appareil léger",
+          "performanceLowConcurrency": "Appareil performant - Faible concurrence",
+          "performanceHighConcurrency": "Appareil performant - Forte concurrence",
+          "performanceMultiUser": "Appareil performant - Forte concurrence"
         },
         "loadProfile": {
-          "title": "Sélection du profil de charge",
-          "desc": "Choisissez un profil de charge selon l'usage attendu. Le mode charge élevée suggère de désactiver les fonctions non cœur pour la stabilité.",
-          "light": "Mode charge légère",
-          "lightDesc": "Plus de fonctionnalités activées, adapté à un usage personnel ou petite équipe",
-          "heavy": "Mode charge élevée",
-          "heavyDesc": "Désactivation conseillée des fonctions non cœur, adapté aux scénarios de forte concurrence"
+          "title": "Plan pour appareil performant",
+          "desc": "Choisissez si cette machine performante sert surtout quelques sessions simultanées ou si elle doit absorber davantage de concurrence.",
+          "low-concurrency": "Faible concurrence",
+          "lowConcurrency": "Faible concurrence",
+          "lowConcurrencyDesc": "Conserve des fonctionnalités riches, adapté à un usage personnel intensif, à de petites équipes ou à des opérations surtout administratives.",
+          "high-concurrency": "Forte concurrence",
+          "highConcurrency": "Forte concurrence",
+          "highConcurrencyDesc": "Augmente les limites de connexion, les files d'attente et le débit en arrière-plan pour davantage de trafic simultané.",
+          "multi-user": "Forte concurrence",
+          "multiUser": "Forte concurrence",
+          "multiUserDesc": "Augmente les limites de connexion, les files d'attente et le débit en arrière-plan pour davantage de trafic simultané.",
+          "notApplicable": "Utilisé uniquement pour les appareils performants"
         },
         "preheatMode": {
           "title": "Stratégie de pré-chauffage captcha",

@@ -11,6 +11,7 @@ import type {
 import { SettingWorkbenchSurface } from '@/components/setting/SettingWorkbenchSurface';
 import { ConfigPathActionButton } from '@/components/setting/ConfigPathActionButton';
 import { buildSettingCommonActions } from '@/components/setting/SettingCommonActions';
+import type { SystemHardwareInfo } from '@/components/setting/ConfigQuickWizardModal';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useToastStore } from '@/stores/toast';
 import { useAuthzStore } from '@/stores/authz.ts';
@@ -130,6 +131,7 @@ export const SystemConfigAdmin = () => {
   const [reloadSummary, setReloadSummary] = useState('');
   const [reloadSummaryLevel, setReloadSummaryLevel] = useState<'success' | 'warning' | 'error' | 'info'>('info');
   const [runtimeOs, setRuntimeOs] = useState('');
+  const [systemHardware, setSystemHardware] = useState<SystemHardwareInfo | null>(null);
   const { currentUserData } = useAuthStore();
 
   const fetchConfig = useCallback(async () => {
@@ -171,13 +173,25 @@ export const SystemConfigAdmin = () => {
     }
   }, []);
 
+  const fetchSystemHardware = useCallback(async () => {
+    try {
+      const data = await extractData<SystemHardwareInfo>(
+        client.GET('/api/v1/system/os-info'),
+      );
+      setSystemHardware(data ?? null);
+    } catch (e) {
+      console.warn('Failed to fetch system os-info', e);
+      setSystemHardware(null);
+    }
+  }, []);
+
   const { hasPermission } = useAuthzStore();
 
   useEffect(() => {
     const load = async () => {
       if (!hasPermission('admin.access')) return;
       try {
-        await Promise.all([fetchConfig(), fetchNotes(), fetchLicenseStatus(), fetchCapabilities()]);
+        await Promise.all([fetchConfig(), fetchNotes(), fetchLicenseStatus(), fetchCapabilities(), fetchSystemHardware()]);
       } catch (e) {
         addToast(handleApiError(e, t), 'error');
       } finally {
@@ -185,7 +199,7 @@ export const SystemConfigAdmin = () => {
       }
     };
     load();
-  }, [fetchCapabilities, fetchConfig, fetchNotes, fetchLicenseStatus, addToast, t, hasPermission]);
+  }, [fetchCapabilities, fetchConfig, fetchNotes, fetchLicenseStatus, fetchSystemHardware, addToast, t, hasPermission]);
 
   useEffect(() => {
     if (!testing && !reloading) return undefined;
@@ -369,6 +383,7 @@ export const SystemConfigAdmin = () => {
     content,
     onContentChange: setContent,
     runtimeOs,
+    systemHardware,
     adminPassword: {
       onApply: async (password) => handleQuickWizardResetAdminPassword(password),
       loading: isResettingAdminPassword,
@@ -389,7 +404,7 @@ export const SystemConfigAdmin = () => {
 
   const handleConfigPathAction = () => {
     void addToast(
-      t('launcher.runtime_dir_change_hint'),
+      t(['setup.guide.runtimeDirChangeHint', 'launcher.runtime_dir_change_hint']),
       { type: 'info', duration: 'long' },
     );
   };
@@ -399,7 +414,7 @@ export const SystemConfigAdmin = () => {
       <SettingWorkbenchSurface
         title={t('admin.config.title')}
         configPath={configPath}
-        configPathAction={<ConfigPathActionButton onClick={handleConfigPathAction} label={t('setup.guide.card1Action')} />}
+        configPathAction={<ConfigPathActionButton onClick={handleConfigPathAction} label={t(['setup.guide.card1Action', 'launcher.modify_runtime_dirs'])} />}
         settingActions={settingActions}
         testAction={{
           label: t('setup.editor.check'),
@@ -430,6 +445,7 @@ export const SystemConfigAdmin = () => {
           reloadSummary,
           reloadSummaryLevel,
           runtimeOs,
+          systemHardware,
           onDiagnoseExternalTools: handleDiagnoseExternalTools,
           quickWizardLicense: {
             isValid: Boolean(licenseStatus?.is_valid),

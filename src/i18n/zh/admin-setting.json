@@ -11,6 +11,7 @@
       "card1Title": "选择保存位置",
       "card1Desc": "确认 FileUni 唯一的运行目录，配置和数据都会保存在这里。",
       "card1Action": "修改位置",
+      "runtimeDirChangeHint": "如需修改这里，请在启动 FileUni 时使用 --runtime-dir，或在安装服务时使用 --service-workdir。",
       "card1Hint": "更改运行目录后，请重新启动 FileUni。",
       "card2Title": "设置登录密码",
       "card2Desc": "为管理员账号设置一个您记得住的密码。",
@@ -423,6 +424,10 @@
           "write": "写缓存",
           "enable": "启用",
           "backend": "后端",
+          "backends": {
+            "memory": "内存",
+            "localDir": "本地目录"
+          },
           "localDir": "本地目录",
           "capacityBytes": "容量上限 Bytes",
           "maxFileSizeBytes": "单文件上限 Bytes",
@@ -607,8 +612,16 @@
           "intro": "如果拿不准，保持默认即可。下面这些方案只是告诉 FileUni 更适合哪一类设备和使用场景。",
           "allocatorRecommendationLinux": "内存分配器推荐（{{os}}）：jemalloc",
           "allocatorRecommendationOthers": "内存分配器推荐（{{os}}）：mimalloc",
+          "templateLabel": "预设模板",
+          "hardwareRecommendationTitle": "当前机器推荐",
+          "hardwareRecommendationBadge": "推荐",
+          "hardwareSummary": {
+            "memory": "{{value}} GiB 内存",
+            "cores": "{{value}} 逻辑核心",
+            "arch": "{{value}}"
+          },
           "maxConnections": "最大 {{count}} 连接",
-          "recommendedSettings": "本次会自动帮您完成",
+          "recommendedSettings": "模板摘要",
           "featureCompression": "压缩解压",
           "featureSftp": "SFTP服务",
           "featureFtp": "FTP服务",
@@ -671,25 +684,42 @@
             "s3MaxConnections": "S3 最大连接数"
           },
           "tiers": {
-            "extremeLow": "超低配设备",
-            "low": "轻量设备",
-            "medium": "家庭 / 个人",
-            "good": "多人使用 / 服务器"
+            "constrained": "受限设备",
+            "lightweight": "轻量设备",
+            "performance": "性能设备"
           },
           "descriptions": {
-            "extremeLow": "适合非常有限的旧设备，只保留最核心的功能。",
-            "low": "适合轻量设备，尽量降低资源占用。",
-            "medium": "适合大多数个人、家庭和首次安装场景。",
-            "good": "适合多人共享、持续运行或资源更充足的设备。"
+            "constrained": "资源较紧张的设备（路由器/小主机/老旧 ARM 设备），优先控制后台负载和内存占用，保留核心可用性。",
+            "lightweight": "性能尚可的设备（笔记本/旧电脑），在功能完整度和资源占用尽量平衡。",
+            "performance": "高算力高内存设备（台式机/工作站/新服务器），优先释放更多功能和吞吐能力，适合更高并发与更重负载。"
+          },
+          "currentProfile": "当前方案",
+          "featureEnablementTitle": "功能启用",
+          "applyTemplate": "应用此模板",
+          "scenarioHint": {
+            "line1": "通过选择使用场景，可以让 FileUni 在多数环境获得基本不错的性能调优。多数情况下不需要手动修改。",
+            "line2": "如果你熟悉配置项，可以切换到文本编辑模式精细调优。"
+          },
+          "templates": {
+            "constrained": "受限设备",
+            "lightweight": "轻量设备",
+            "performanceLowConcurrency": "性能设备 - 低并发",
+            "performanceHighConcurrency": "性能设备 - 高并发",
+            "performanceMultiUser": "性能设备 - 高并发"
           },
           "loadProfile": {
-            "title": "使用强度",
-            "desc": "如果只有自己或少量成员使用，选择日常使用即可。",
-            "light": "日常使用",
-            "lightDesc": "适合个人或小团队",
-            "heavy": "多人同时使用",
-            "heavyDesc": "适合需要更多并发访问的场景",
-            "disabledOnLowHardware": "超低配置和轻量设备下不可选"
+            "title": "性能设备方案",
+            "desc": "选择这台性能设备更偏向少量用户的稳定使用，还是偏向多人同时在线时的更高吞吐。",
+            "low-concurrency": "低并发",
+            "lowConcurrency": "低并发",
+            "lowConcurrencyDesc": "保留完整功能，适合个人重度使用、小团队或以管理操作为主的场景。",
+            "high-concurrency": "高并发",
+            "highConcurrency": "高并发",
+            "highConcurrencyDesc": "提高连接数、任务队列和后台吞吐，适合同时在线请求和会话更多的场景。",
+            "multi-user": "高并发",
+            "multiUser": "高并发",
+            "multiUserDesc": "提高连接数、任务队列和后台吞吐，适合同时在线请求和会话更多的场景。",
+            "notApplicable": "仅性能设备需要选择"
           },
           "preheatMode": {
             "title": "验证码预热策略",

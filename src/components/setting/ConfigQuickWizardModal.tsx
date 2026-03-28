@@ -1,17 +1,30 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Cpu, HardDrive, Key, Settings2, Shield, Wand2, X } from 'lucide-react';
+import { AlertTriangle, ChevronRight, Cpu, HardDrive, Key, PenLine, Settings2, Shield, Wand2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { deepClone, ensureRecord, isRecord, type ConfigObject } from '@/lib/configObject';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
+import { PerformanceProfilePickerModal } from './PerformanceProfilePickerModal';
 
 export type DatabaseType = 'postgres' | 'sqlite';
 export type FriendlyStep = 'performance' | 'database' | 'cache' | 'other';
-export type PerformanceTier = 'extreme-low' | 'low' | 'medium' | 'good';
-export type LoadProfile = 'light' | 'heavy';
+export type PerformanceTier = 'constrained' | 'lightweight' | 'performance';
+export type LoadProfile = 'low-concurrency' | 'high-concurrency';
+export type PerformanceTemplateId = 'constrained' | 'lightweight' | 'performance-low-concurrency' | 'performance-high-concurrency';
 export type CaptchaPreheatMode = 'memory' | 'balanced' | 'throughput';
+
+type LegacyPerformanceTier = 'extreme-low' | 'medium' | 'good';
+
+export interface SystemHardwareInfo {
+  os_type?: string;
+  arch?: string;
+  logical_cpu_count?: number | null;
+  physical_cpu_count?: number | null;
+  total_memory_bytes?: number | null;
+  suggested_performance_template?: string | null;
+}
 
 export interface FriendlyDraft {
   performanceTier: PerformanceTier;
@@ -44,10 +57,10 @@ export interface FriendlyDraft {
 }
 
 export const defaultDraft: FriendlyDraft = {
-  performanceTier: 'good',
-  loadProfile: 'heavy',
+  performanceTier: 'lightweight',
+  loadProfile: 'low-concurrency',
   captchaPreheatMode: 'balanced',
-  databaseType: 'postgres',
+  databaseType: 'sqlite',
   postgresDsn: 'postgres://postgres:admin888@localhost:5432/fileuni',
   sqliteDsn: 'sqlite://{APPDATADIR}/fileuni.db',
   dbHost: 'localhost',
@@ -57,7 +70,7 @@ export const defaultDraft: FriendlyDraft = {
   dbName: 'fileuni',
   sqlitePath: '{APPDATADIR}/fileuni.db',
   dbHealthTimeoutSeconds: '5',
-  cacheType: 'valkey',
+  cacheType: 'database',
   cacheRedisUrl: 'redis://:admin888@127.0.0.1:6379',
   cacheHost: '127.0.0.1',
   cachePort: '6379',
@@ -228,9 +241,9 @@ interface ConfigPreviewGroupStat {
 
 const PERFORMANCE_PRESETS: PerformancePreset[] = [
   {
-    tier: 'extreme-low',
-    labelKey: 'admin.config.quickWizard.performance.tiers.extremeLow',
-    descKey: 'admin.config.quickWizard.performance.descriptions.extremeLow',
+    tier: 'constrained',
+    labelKey: 'admin.config.quickWizard.performance.tiers.constrained',
+    descKey: 'admin.config.quickWizard.performance.descriptions.constrained',
     recommendations: {
       databaseType: 'sqlite',
       cacheType: 'database',
@@ -249,30 +262,9 @@ const PERFORMANCE_PRESETS: PerformancePreset[] = [
     },
   },
   {
-    tier: 'low',
-    labelKey: 'admin.config.quickWizard.performance.tiers.low',
-    descKey: 'admin.config.quickWizard.performance.descriptions.low',
-    recommendations: {
-      databaseType: 'sqlite',
-      cacheType: 'database',
-      maxConnections: 5,
-      cacheMemoryMB: 16,
-    },
-    features: {
-      compression: false,
-      sftp: false,
-      ftp: false,
-      webdav: true,
-      s3: false,
-      bloomWarmup: false,
-      chat: false,
-      email: false,
-    },
-  },
-  {
-    tier: 'medium',
-    labelKey: 'admin.config.quickWizard.performance.tiers.medium',
-    descKey: 'admin.config.quickWizard.performance.descriptions.medium',
+    tier: 'lightweight',
+    labelKey: 'admin.config.quickWizard.performance.tiers.lightweight',
+    descKey: 'admin.config.quickWizard.performance.descriptions.lightweight',
     recommendations: {
       databaseType: 'sqlite',
       cacheType: 'database',
@@ -291,14 +283,14 @@ const PERFORMANCE_PRESETS: PerformancePreset[] = [
     },
   },
   {
-    tier: 'good',
-    labelKey: 'admin.config.quickWizard.performance.tiers.good',
-    descKey: 'admin.config.quickWizard.performance.descriptions.good',
+    tier: 'performance',
+    labelKey: 'admin.config.quickWizard.performance.tiers.performance',
+    descKey: 'admin.config.quickWizard.performance.descriptions.performance',
     recommendations: {
       databaseType: 'postgres',
       cacheType: 'valkey',
-      maxConnections: 100,
-      cacheMemoryMB: 256,
+      maxConnections: 72,
+      cacheMemoryMB: 192,
     },
     features: {
       compression: true,
@@ -314,37 +306,9 @@ const PERFORMANCE_PRESETS: PerformancePreset[] = [
 ];
 
 const LOAD_PROFILE_PRESETS = {
-  medium: {
-    light: {
-      maxConnections: 20,
-      features: {
-        compression: false,
-        sftp: false,
-        ftp: true,
-        webdav: true,
-        s3: false,
-        bloomWarmup: true,
-        chat: true,
-        email: false,
-      },
-    },
-    heavy: {
-      maxConnections: 30,
-      features: {
-        compression: false,
-        sftp: false,
-        ftp: false,
-        webdav: true,
-        s3: false,
-        bloomWarmup: false,
-        chat: false,
-        email: false,
-      },
-    },
-  },
-  good: {
-    light: {
-      maxConnections: 50,
+  performance: {
+    'low-concurrency': {
+      maxConnections: 72,
       features: {
         compression: true,
         sftp: true,
@@ -356,20 +320,97 @@ const LOAD_PROFILE_PRESETS = {
         email: true,
       },
     },
-    heavy: {
+    'high-concurrency': {
       maxConnections: 200,
       features: {
-        compression: false,
+        compression: true,
         sftp: true,
-        ftp: false,
+        ftp: true,
         webdav: true,
         s3: true,
-        bloomWarmup: false,
-        chat: false,
-        email: false,
+        bloomWarmup: true,
+        chat: true,
+        email: true,
       },
     },
   },
+};
+
+export const getActivePerformanceTemplate = (draft: Pick<FriendlyDraft, 'performanceTier' | 'loadProfile'>): PerformanceTemplateId => {
+  if (draft.performanceTier === 'performance') {
+    return draft.loadProfile === 'high-concurrency' ? 'performance-high-concurrency' : 'performance-low-concurrency';
+  }
+  return draft.performanceTier;
+};
+
+export const parsePerformanceTemplateId = (value?: string | null): PerformanceTemplateId | null => {
+  switch ((value ?? '').trim().toLowerCase()) {
+    case 'constrained':
+      return 'constrained';
+    case 'lightweight':
+      return 'lightweight';
+    case 'performance-low-concurrency':
+      return 'performance-low-concurrency';
+    case 'performance-high-concurrency':
+      return 'performance-high-concurrency';
+    case 'performance-multi-user':
+      return 'performance-high-concurrency';
+    default:
+      return null;
+  }
+};
+
+export const performanceTemplateLabelKey = (template: PerformanceTemplateId): string => {
+  switch (template) {
+    case 'constrained':
+      return 'admin.config.quickWizard.performance.templates.constrained';
+    case 'lightweight':
+      return 'admin.config.quickWizard.performance.templates.lightweight';
+    case 'performance-low-concurrency':
+      return 'admin.config.quickWizard.performance.templates.performanceLowConcurrency';
+    case 'performance-high-concurrency':
+      return 'admin.config.quickWizard.performance.templates.performanceHighConcurrency';
+  }
+};
+
+const performanceTemplateToSelection = (template: PerformanceTemplateId): Pick<FriendlyDraft, 'performanceTier' | 'loadProfile'> => {
+  switch (template) {
+    case 'constrained':
+      return { performanceTier: 'constrained', loadProfile: 'low-concurrency' };
+    case 'lightweight':
+      return { performanceTier: 'lightweight', loadProfile: 'low-concurrency' };
+    case 'performance-high-concurrency':
+      return { performanceTier: 'performance', loadProfile: 'high-concurrency' };
+    case 'performance-low-concurrency':
+    default:
+      return { performanceTier: 'performance', loadProfile: 'low-concurrency' };
+  }
+};
+
+const mapPerformanceTierToLegacy = (tier: PerformanceTier): LegacyPerformanceTier => {
+  if (tier === 'constrained') return 'extreme-low';
+  if (tier === 'lightweight') return 'medium';
+  return 'good';
+};
+
+export const applyPerformanceTemplateToDraft = (prev: FriendlyDraft, template: PerformanceTemplateId): FriendlyDraft => {
+  const selection = performanceTemplateToSelection(template);
+  const preset = getPresetByTier(selection.performanceTier);
+  const next: FriendlyDraft = {
+    ...prev,
+    performanceTier: selection.performanceTier,
+    loadProfile: selection.loadProfile,
+    databaseType: preset.recommendations.databaseType,
+    cacheType: preset.recommendations.cacheType,
+    captchaPreheatMode: selection.performanceTier === 'constrained' ? 'memory' : 'balanced',
+  };
+
+  if (preset.recommendations.databaseType === 'sqlite') {
+    next.sqlitePath = '{APPDATADIR}/fileuni.db';
+    next.sqliteDsn = 'sqlite://{APPDATADIR}/fileuni.db';
+  }
+
+  return next;
 };
 
 const CRITICAL_TASK_KEYS = ['process_timeout_check', 'interrupted_task_checker'] as const;
@@ -395,11 +436,11 @@ const everyMinutesCron = (minutes: number): string => {
   return `0 */${Math.max(1, minutes)} * * * *`;
 };
 
-const resolveEffectivePreset = (draft: FriendlyDraft, preset: PerformancePreset): EffectivePreset => {
-  const tierKey = draft.performanceTier === 'medium' ? 'medium' : draft.performanceTier === 'good' ? 'good' : null;
+export const resolveEffectivePreset = (draft: FriendlyDraft, preset: PerformancePreset): EffectivePreset => {
+  const tierKey = draft.performanceTier === 'performance' ? 'performance' : null;
   const hasLoadProfile = tierKey && LOAD_PROFILE_PRESETS[tierKey as keyof typeof LOAD_PROFILE_PRESETS] && draft.loadProfile;
   if (hasLoadProfile) {
-    const profile = LOAD_PROFILE_PRESETS[tierKey as keyof typeof LOAD_PROFILE_PRESETS][draft.loadProfile as 'light' | 'heavy'];
+    const profile = LOAD_PROFILE_PRESETS[tierKey as keyof typeof LOAD_PROFILE_PRESETS][draft.loadProfile as 'low-concurrency' | 'high-concurrency'];
     return {
       preset,
       maxConnections: profile.maxConnections,
@@ -415,9 +456,10 @@ const resolveEffectivePreset = (draft: FriendlyDraft, preset: PerformancePreset)
 
 const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: EffectivePreset): PerformanceTuningPlan => {
   const { preset, maxConnections } = effectivePreset;
-  const isHeavyProfile = draft.loadProfile === 'heavy';
+  const tuningTier = mapPerformanceTierToLegacy(preset.tier);
+  const isMultiUserProfile = draft.performanceTier === 'performance' && draft.loadProfile === 'high-concurrency';
   let cacheMemoryMB = preset.recommendations.cacheMemoryMB;
-  if ((preset.tier === 'medium' || preset.tier === 'good') && isHeavyProfile) {
+  if (tuningTier === 'good' && isMultiUserProfile) {
     cacheMemoryMB = Math.round(cacheMemoryMB * 1.5);
   }
 
@@ -427,38 +469,33 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
   const dbMaxConnectionsLowMemory = Math.max(1, Math.floor(maxConnections * 0.5));
   const dbMaxConnectionsThroughput = Math.max(maxConnections, Math.ceil(maxConnections * 1.5));
 
-  const sqliteCacheSize = preset.tier === 'extreme-low'
+  const sqliteCacheSize = tuningTier === 'extreme-low'
     ? 256
-    : preset.tier === 'low'
-      ? 512
-      : preset.tier === 'medium'
+    : tuningTier === 'medium'
         ? 2048
         : 4096;
-  const sqliteMmapSize = preset.tier === 'extreme-low'
+  const sqliteMmapSize = tuningTier === 'extreme-low'
     ? 0
-    : preset.tier === 'good'
+    : tuningTier === 'good'
       ? 268435456
       : 33554432;
-  const kvTtlByTier: Record<PerformanceTier, { defaultTtl: number; conditionTtl: number; dashmapUpperLimitRatio: number }> = {
+  const kvTtlByTier: Record<LegacyPerformanceTier, { defaultTtl: number; conditionTtl: number; dashmapUpperLimitRatio: number }> = {
     'extreme-low': { defaultTtl: 900, conditionTtl: 60, dashmapUpperLimitRatio: 0.6 },
-    low: { defaultTtl: 1200, conditionTtl: 90, dashmapUpperLimitRatio: 0.7 },
-    medium: { defaultTtl: isHeavyProfile ? 2400 : 1800, conditionTtl: isHeavyProfile ? 180 : 120, dashmapUpperLimitRatio: isHeavyProfile ? 0.95 : 0.85 },
-    good: { defaultTtl: isHeavyProfile ? 7200 : 3600, conditionTtl: isHeavyProfile ? 600 : 300, dashmapUpperLimitRatio: isHeavyProfile ? 1.3 : 1.1 },
+    medium: { defaultTtl: 1800, conditionTtl: 120, dashmapUpperLimitRatio: 0.85 },
+    good: { defaultTtl: isMultiUserProfile ? 7200 : 3600, conditionTtl: isMultiUserProfile ? 600 : 300, dashmapUpperLimitRatio: isMultiUserProfile ? 1.3 : 1.1 },
   };
-  const notifyByTier: Record<PerformanceTier, { unreadCountCacheTtl: number; retentionDays: number }> = {
+  const notifyByTier: Record<LegacyPerformanceTier, { unreadCountCacheTtl: number; retentionDays: number }> = {
     'extreme-low': { unreadCountCacheTtl: 300, retentionDays: 30 },
-    low: { unreadCountCacheTtl: 600, retentionDays: 45 },
-    medium: { unreadCountCacheTtl: isHeavyProfile ? 1800 : 1200, retentionDays: isHeavyProfile ? 60 : 90 },
-    good: { unreadCountCacheTtl: isHeavyProfile ? 3600 : 2400, retentionDays: isHeavyProfile ? 120 : 90 },
+    medium: { unreadCountCacheTtl: 1200, retentionDays: 90 },
+    good: { unreadCountCacheTtl: isMultiUserProfile ? 3600 : 2400, retentionDays: isMultiUserProfile ? 120 : 90 },
   };
-  const systemBackupByTier: Record<PerformanceTier, { maxBackupSizeMb: number }> = {
+  const systemBackupByTier: Record<LegacyPerformanceTier, { maxBackupSizeMb: number }> = {
     'extreme-low': { maxBackupSizeMb: 256 },
-    low: { maxBackupSizeMb: 512 },
-    medium: { maxBackupSizeMb: isHeavyProfile ? 2048 : 1024 },
-    good: { maxBackupSizeMb: isHeavyProfile ? 8192 : 4096 },
+    medium: { maxBackupSizeMb: 1024 },
+    good: { maxBackupSizeMb: isMultiUserProfile ? 8192 : 4096 },
   };
 
-  const middlewareByTier: Record<PerformanceTier, PerformanceTuningPlan['middleware']> = {
+  const middlewareByTier: Record<LegacyPerformanceTier, PerformanceTuningPlan['middleware']> = {
     'extreme-low': {
       ipWindowSecs: 60,
       ipMaxRequests: 60,
@@ -474,150 +511,113 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
       bruteForceLockoutSecs: 600,
       bruteForceBackoffEnabled: true,
     },
-    low: {
-      ipWindowSecs: 60,
-      ipMaxRequests: 90,
-      clientWindowSecs: 60,
-      clientMaxRequests: 120,
-      clientMaxCid: 150,
-      userWindowSecs: 60,
-      userMaxRequests: 160,
-      userMaxId: 80,
-      bruteForceEnabled: true,
-      bruteForceMaxFailuresPerUserIp: 4,
-      bruteForceMaxFailuresPerIpGlobal: 15,
-      bruteForceLockoutSecs: 480,
-      bruteForceBackoffEnabled: true,
-    },
     medium: {
       ipWindowSecs: 60,
-      ipMaxRequests: isHeavyProfile ? 220 : 180,
+      ipMaxRequests: 180,
       clientWindowSecs: 60,
-      clientMaxRequests: isHeavyProfile ? 260 : 220,
-      clientMaxCid: isHeavyProfile ? 1000 : 700,
+      clientMaxRequests: 220,
+      clientMaxCid: 700,
       userWindowSecs: 60,
-      userMaxRequests: isHeavyProfile ? 320 : 260,
-      userMaxId: isHeavyProfile ? 500 : 300,
+      userMaxRequests: 260,
+      userMaxId: 300,
       bruteForceEnabled: true,
-      bruteForceMaxFailuresPerUserIp: isHeavyProfile ? 6 : 5,
-      bruteForceMaxFailuresPerIpGlobal: isHeavyProfile ? 24 : 20,
-      bruteForceLockoutSecs: isHeavyProfile ? 300 : 360,
+      bruteForceMaxFailuresPerUserIp: 5,
+      bruteForceMaxFailuresPerIpGlobal: 20,
+      bruteForceLockoutSecs: 360,
       bruteForceBackoffEnabled: true,
     },
     good: {
       ipWindowSecs: 60,
-      ipMaxRequests: isHeavyProfile ? 500 : 300,
+      ipMaxRequests: isMultiUserProfile ? 500 : 300,
       clientWindowSecs: 60,
-      clientMaxRequests: isHeavyProfile ? 600 : 360,
-      clientMaxCid: isHeavyProfile ? 5000 : 2500,
+      clientMaxRequests: isMultiUserProfile ? 600 : 360,
+      clientMaxCid: isMultiUserProfile ? 5000 : 2500,
       userWindowSecs: 60,
-      userMaxRequests: isHeavyProfile ? 700 : 420,
-      userMaxId: isHeavyProfile ? 3000 : 1200,
+      userMaxRequests: isMultiUserProfile ? 700 : 420,
+      userMaxId: isMultiUserProfile ? 3000 : 1200,
       bruteForceEnabled: true,
-      bruteForceMaxFailuresPerUserIp: isHeavyProfile ? 8 : 6,
-      bruteForceMaxFailuresPerIpGlobal: isHeavyProfile ? 30 : 24,
-      bruteForceLockoutSecs: isHeavyProfile ? 180 : 240,
+      bruteForceMaxFailuresPerUserIp: isMultiUserProfile ? 8 : 6,
+      bruteForceMaxFailuresPerIpGlobal: isMultiUserProfile ? 30 : 24,
+      bruteForceLockoutSecs: isMultiUserProfile ? 180 : 240,
       bruteForceBackoffEnabled: true,
     },
   };
 
-  const schedulerByTier: Record<PerformanceTier, PerformanceTuningPlan['scheduler']> = {
+  const schedulerByTier: Record<LegacyPerformanceTier, PerformanceTuningPlan['scheduler']> = {
     'extreme-low': {
       criticalCron: everyMinutesCron(10),
       maintenanceCron: everyMinutesCron(30),
       lowPriorityCron: everyMinutesCron(60),
       healthCheckCron: everyMinutesCron(15),
     },
-    low: {
-      criticalCron: everyMinutesCron(5),
-      maintenanceCron: everyMinutesCron(20),
-      lowPriorityCron: everyMinutesCron(40),
-      healthCheckCron: everyMinutesCron(10),
-    },
     medium: {
       criticalCron: everyMinutesCron(2),
-      maintenanceCron: everyMinutesCron(isHeavyProfile ? 12 : 8),
-      lowPriorityCron: everyMinutesCron(isHeavyProfile ? 30 : 20),
-      healthCheckCron: everyMinutesCron(isHeavyProfile ? 5 : 3),
+      maintenanceCron: everyMinutesCron(8),
+      lowPriorityCron: everyMinutesCron(20),
+      healthCheckCron: everyMinutesCron(3),
     },
     good: {
       criticalCron: everyMinutesCron(1),
-      maintenanceCron: everyMinutesCron(isHeavyProfile ? 10 : 6),
-      lowPriorityCron: everyMinutesCron(isHeavyProfile ? 20 : 15),
-      healthCheckCron: everyMinutesCron(isHeavyProfile ? 3 : 2),
+      maintenanceCron: everyMinutesCron(isMultiUserProfile ? 10 : 6),
+      lowPriorityCron: everyMinutesCron(isMultiUserProfile ? 20 : 15),
+      healthCheckCron: everyMinutesCron(isMultiUserProfile ? 3 : 2),
     },
   };
-  const bloomWarmupTuningByTier: Record<PerformanceTier, PerformanceTuningPlan['bloomWarmupTuning']> = {
+  const bloomWarmupTuningByTier: Record<LegacyPerformanceTier, PerformanceTuningPlan['bloomWarmupTuning']> = {
     'extreme-low': {
       reserveCapacity: 100000,
       maxUsersPerRun: 5000,
       yieldEveryUsers: 20,
       sleepMsPerYield: 8,
     },
-    low: {
-      reserveCapacity: 200000,
-      maxUsersPerRun: 20000,
-      yieldEveryUsers: 40,
-      sleepMsPerYield: 5,
-    },
     medium: {
-      reserveCapacity: isHeavyProfile ? 300000 : 500000,
-      maxUsersPerRun: isHeavyProfile ? 40000 : 60000,
-      yieldEveryUsers: isHeavyProfile ? 80 : 100,
-      sleepMsPerYield: isHeavyProfile ? 3 : 2,
+      reserveCapacity: 500000,
+      maxUsersPerRun: 60000,
+      yieldEveryUsers: 100,
+      sleepMsPerYield: 2,
     },
     good: {
-      reserveCapacity: isHeavyProfile ? 600000 : 1000000,
-      maxUsersPerRun: isHeavyProfile ? 80000 : 120000,
-      yieldEveryUsers: isHeavyProfile ? 120 : 150,
-      sleepMsPerYield: isHeavyProfile ? 1 : 0,
+      reserveCapacity: isMultiUserProfile ? 600000 : 1000000,
+      maxUsersPerRun: isMultiUserProfile ? 80000 : 120000,
+      yieldEveryUsers: isMultiUserProfile ? 120 : 150,
+      sleepMsPerYield: isMultiUserProfile ? 1 : 0,
     },
   };
-  const quotaCalibrationTuningByTier: Record<PerformanceTier, PerformanceTuningPlan['quotaCalibrationTuning']> = {
+  const quotaCalibrationTuningByTier: Record<LegacyPerformanceTier, PerformanceTuningPlan['quotaCalibrationTuning']> = {
     'extreme-low': {
       maxUsersPerRun: 200,
       yieldEveryUsers: 20,
       sleepMsPerUser: 20,
     },
-    low: {
-      maxUsersPerRun: 1000,
-      yieldEveryUsers: 40,
-      sleepMsPerUser: 10,
-    },
     medium: {
-      maxUsersPerRun: isHeavyProfile ? 2500 : 4000,
-      yieldEveryUsers: isHeavyProfile ? 60 : 80,
-      sleepMsPerUser: isHeavyProfile ? 6 : 4,
+      maxUsersPerRun: 4000,
+      yieldEveryUsers: 80,
+      sleepMsPerUser: 4,
     },
     good: {
-      maxUsersPerRun: isHeavyProfile ? 5000 : 8000,
-      yieldEveryUsers: isHeavyProfile ? 100 : 120,
-      sleepMsPerUser: isHeavyProfile ? 2 : 1,
+      maxUsersPerRun: isMultiUserProfile ? 5000 : 8000,
+      yieldEveryUsers: isMultiUserProfile ? 100 : 120,
+      sleepMsPerUser: isMultiUserProfile ? 2 : 1,
     },
   };
-  const fileIndexSyncTuningByTier: Record<PerformanceTier, PerformanceTuningPlan['fileIndexSyncTuning']> = {
+  const fileIndexSyncTuningByTier: Record<LegacyPerformanceTier, PerformanceTuningPlan['fileIndexSyncTuning']> = {
     'extreme-low': {
       maxUsersPerRun: 50,
       yieldEveryUsers: 10,
       sleepMsPerUser: 80,
     },
-    low: {
-      maxUsersPerRun: 300,
-      yieldEveryUsers: 20,
-      sleepMsPerUser: 50,
-    },
     medium: {
-      maxUsersPerRun: isHeavyProfile ? 600 : 1000,
-      yieldEveryUsers: isHeavyProfile ? 30 : 40,
-      sleepMsPerUser: isHeavyProfile ? 30 : 20,
+      maxUsersPerRun: 1000,
+      yieldEveryUsers: 40,
+      sleepMsPerUser: 20,
     },
     good: {
-      maxUsersPerRun: isHeavyProfile ? 1500 : 3000,
-      yieldEveryUsers: isHeavyProfile ? 60 : 80,
-      sleepMsPerUser: isHeavyProfile ? 10 : 5,
+      maxUsersPerRun: isMultiUserProfile ? 1500 : 3000,
+      yieldEveryUsers: isMultiUserProfile ? 60 : 80,
+      sleepMsPerUser: isMultiUserProfile ? 10 : 5,
     },
   };
-  const captchaPreheatByTier: Record<PerformanceTier, PerformanceTuningPlan['captchaPreheat']> = {
+  const captchaPreheatByTier: Record<LegacyPerformanceTier, PerformanceTuningPlan['captchaPreheat']> = {
     'extreme-low': {
       graphicCacheSize: 20,
       graphicGenConcurrency: 1,
@@ -625,29 +625,22 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
       poolCheckIntervalSecs: 5,
       emergencyFillMultiplier: 1,
     },
-    low: {
-      graphicCacheSize: 50,
-      graphicGenConcurrency: 2,
-      maxGenConcurrency: 2,
-      poolCheckIntervalSecs: 3,
-      emergencyFillMultiplier: 2,
-    },
     medium: {
-      graphicCacheSize: isHeavyProfile ? 120 : 80,
+      graphicCacheSize: 80,
       graphicGenConcurrency: 2,
       maxGenConcurrency: 3,
       poolCheckIntervalSecs: 2,
       emergencyFillMultiplier: 2,
     },
     good: {
-      graphicCacheSize: isHeavyProfile ? 300 : 180,
-      graphicGenConcurrency: isHeavyProfile ? 4 : 3,
-      maxGenConcurrency: isHeavyProfile ? 8 : 6,
+      graphicCacheSize: isMultiUserProfile ? 300 : 180,
+      graphicGenConcurrency: isMultiUserProfile ? 4 : 3,
+      maxGenConcurrency: isMultiUserProfile ? 8 : 6,
       poolCheckIntervalSecs: 1,
-      emergencyFillMultiplier: isHeavyProfile ? 3 : 2,
+      emergencyFillMultiplier: isMultiUserProfile ? 3 : 2,
     },
   };
-  const baseCaptchaPreheat = captchaPreheatByTier[preset.tier];
+  const baseCaptchaPreheat = captchaPreheatByTier[tuningTier];
   const captchaPreheat = (() => {
     if (draft.captchaPreheatMode === 'memory') {
       return {
@@ -671,142 +664,120 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
   })();
 
   const compressionConcurrency = effectivePreset.features.compression
-    ? (preset.tier === 'good' ? (isHeavyProfile ? 2 : 4) : preset.tier === 'medium' ? 2 : 1)
+    ? (tuningTier === 'good' ? (isMultiUserProfile ? 2 : 4) : tuningTier === 'medium' ? 2 : 1)
     : 1;
   const compressionConcurrencyLowMemory = 1;
   const compressionConcurrencyThroughput = effectivePreset.features.compression
-    ? (preset.tier === 'good' ? (isHeavyProfile ? 4 : 6) : preset.tier === 'medium' ? 3 : 2)
+    ? (tuningTier === 'good' ? (isMultiUserProfile ? 4 : 6) : tuningTier === 'medium' ? 3 : 2)
     : 1;
   const compressionMaxCpuThreads = effectivePreset.features.compression
-    ? (preset.tier === 'good' ? (isHeavyProfile ? 4 : 3) : preset.tier === 'medium' ? 2 : 1)
+    ? (tuningTier === 'good' ? (isMultiUserProfile ? 4 : 3) : tuningTier === 'medium' ? 2 : 1)
     : 1;
   const compressionMaxCpuThreadsLowMemory = 1;
   const compressionMaxCpuThreadsThroughput = effectivePreset.features.compression
-    ? (preset.tier === 'good' ? (isHeavyProfile ? 8 : 6) : preset.tier === 'medium' ? 4 : 2)
+    ? (tuningTier === 'good' ? (isMultiUserProfile ? 8 : 6) : tuningTier === 'medium' ? 4 : 2)
     : 1;
   const vfsBatchMaxConcurrentTasks = effectivePreset.features.compression
-    ? (preset.tier === 'good' ? (isHeavyProfile ? 4 : 6) : preset.tier === 'medium' ? 3 : 2)
+    ? (tuningTier === 'good' ? (isMultiUserProfile ? 4 : 6) : tuningTier === 'medium' ? 3 : 2)
     : 1;
   const vfsBatchMaxConcurrentTasksLowMemory = 1;
-  const vfsBatchMaxConcurrentTasksThroughput = preset.tier === 'good'
-    ? (isHeavyProfile ? 6 : 8)
-    : preset.tier === 'medium'
+  const vfsBatchMaxConcurrentTasksThroughput = tuningTier === 'good'
+    ? (isMultiUserProfile ? 6 : 8)
+    : tuningTier === 'medium'
       ? 4
       : 2;
-  const fileIndexMaxConcurrentRefresh = preset.tier === 'good'
-    ? (isHeavyProfile ? 6 : 5)
-    : preset.tier === 'medium'
+  const fileIndexMaxConcurrentRefresh = tuningTier === 'good'
+    ? (isMultiUserProfile ? 6 : 5)
+    : tuningTier === 'medium'
       ? 3
       : 2;
   const fileIndexMaxConcurrentRefreshLowMemory = 1;
-  const fileIndexMaxConcurrentRefreshThroughput = preset.tier === 'good'
-    ? (isHeavyProfile ? 10 : 8)
-    : preset.tier === 'medium'
+  const fileIndexMaxConcurrentRefreshThroughput = tuningTier === 'good'
+    ? (isMultiUserProfile ? 10 : 8)
+    : tuningTier === 'medium'
       ? 5
       : 3;
-  const fileIndexMaxFilesPerRefresh = preset.tier === 'good'
-    ? (isHeavyProfile ? 4096 : 2048)
-    : preset.tier === 'medium'
-      ? (isHeavyProfile ? 1536 : 1024)
-      : preset.tier === 'low'
-        ? 512
-        : 256;
-  const fileIndexMaxFilesPerRefreshLowMemory = preset.tier === 'good'
+  const fileIndexMaxFilesPerRefresh = tuningTier === 'good'
+    ? (isMultiUserProfile ? 4096 : 2048)
+    : tuningTier === 'medium'
+      ? 1024
+      : 256;
+  const fileIndexMaxFilesPerRefreshLowMemory = tuningTier === 'good'
     ? 512
-    : preset.tier === 'medium'
+    : tuningTier === 'medium'
       ? 384
       : 256;
-  const fileIndexMaxFilesPerRefreshThroughput = preset.tier === 'good'
-    ? (isHeavyProfile ? 8192 : 4096)
-    : preset.tier === 'medium'
-      ? (isHeavyProfile ? 3072 : 2048)
-      : preset.tier === 'low'
-        ? 1024
-        : 512;
+  const fileIndexMaxFilesPerRefreshThroughput = tuningTier === 'good'
+    ? (isMultiUserProfile ? 8192 : 4096)
+    : tuningTier === 'medium'
+      ? 2048
+      : 512;
   const fileIndexAdminConsistencyBatchSize = Math.min(1000, Math.max(50, Math.floor(fileIndexMaxFilesPerRefresh / 4)));
-  const fileIndexRefreshTimeout = preset.tier === 'good'
-    ? (isHeavyProfile ? 900 : 600)
-    : preset.tier === 'medium'
+  const fileIndexRefreshTimeout = tuningTier === 'good'
+    ? (isMultiUserProfile ? 900 : 600)
+    : tuningTier === 'medium'
       ? 480
-      : preset.tier === 'low'
-        ? 360
-        : 300;
-  const readCache = preset.tier === 'good'
+      : 300;
+  const readCache = tuningTier === 'good'
     ? {
         backend: 'memory' as const,
-        capacityBytes: isHeavyProfile ? 512 * 1024 * 1024 : 256 * 1024 * 1024,
-        maxFileSizeBytes: isHeavyProfile ? 8 * 1024 * 1024 : 4 * 1024 * 1024,
-        ttlSecs: isHeavyProfile ? 3600 : 2400,
+        capacityBytes: isMultiUserProfile ? 512 * 1024 * 1024 : 256 * 1024 * 1024,
+        maxFileSizeBytes: isMultiUserProfile ? 8 * 1024 * 1024 : 4 * 1024 * 1024,
+        ttlSecs: isMultiUserProfile ? 3600 : 2400,
       }
-    : preset.tier === 'medium'
+    : tuningTier === 'medium'
       ? {
           backend: 'memory' as const,
-          capacityBytes: isHeavyProfile ? 96 * 1024 * 1024 : 128 * 1024 * 1024,
-          maxFileSizeBytes: isHeavyProfile ? 1024 * 1024 : 2 * 1024 * 1024,
-          ttlSecs: isHeavyProfile ? 1200 : 1800,
+          capacityBytes: 128 * 1024 * 1024,
+          maxFileSizeBytes: 2 * 1024 * 1024,
+          ttlSecs: 1800,
         }
-      : preset.tier === 'low'
-        ? {
-            backend: 'local_dir' as const,
-            capacityBytes: 32 * 1024 * 1024,
-            maxFileSizeBytes: 512 * 1024,
-            ttlSecs: 900,
-          }
-        : {
-            backend: 'local_dir' as const,
-            capacityBytes: 8 * 1024 * 1024,
-            maxFileSizeBytes: 128 * 1024,
-            ttlSecs: 300,
-          };
-  const writeCache = preset.tier === 'good'
+      : {
+          backend: 'local_dir' as const,
+          capacityBytes: 8 * 1024 * 1024,
+          maxFileSizeBytes: 128 * 1024,
+          ttlSecs: 300,
+        };
+  const writeCache = tuningTier === 'good'
     ? {
         backend: 'local_dir' as const,
-        capacityBytes: isHeavyProfile ? 512 * 1024 * 1024 : 256 * 1024 * 1024,
-        maxFileSizeBytes: isHeavyProfile ? 1024 * 1024 : 512 * 1024,
-        flushConcurrency: isHeavyProfile ? 4 : 3,
-        flushIntervalMs: isHeavyProfile ? 10 : 20,
-        flushDeadlineSecs: isHeavyProfile ? 600 : 480,
+        capacityBytes: isMultiUserProfile ? 512 * 1024 * 1024 : 256 * 1024 * 1024,
+        maxFileSizeBytes: isMultiUserProfile ? 1024 * 1024 : 512 * 1024,
+        flushConcurrency: isMultiUserProfile ? 4 : 3,
+        flushIntervalMs: isMultiUserProfile ? 10 : 20,
+        flushDeadlineSecs: isMultiUserProfile ? 600 : 480,
       }
-    : preset.tier === 'medium'
+    : tuningTier === 'medium'
       ? {
           backend: 'local_dir' as const,
-          capacityBytes: isHeavyProfile ? 128 * 1024 * 1024 : 96 * 1024 * 1024,
+          capacityBytes: 96 * 1024 * 1024,
           maxFileSizeBytes: 256 * 1024,
           flushConcurrency: 2,
-          flushIntervalMs: isHeavyProfile ? 20 : 30,
+          flushIntervalMs: 30,
           flushDeadlineSecs: 360,
         }
-      : preset.tier === 'low'
-        ? {
-            backend: 'local_dir' as const,
-            capacityBytes: 32 * 1024 * 1024,
-            maxFileSizeBytes: 128 * 1024,
-            flushConcurrency: 1,
-            flushIntervalMs: 50,
-            flushDeadlineSecs: 240,
-          }
-        : {
-            backend: 'local_dir' as const,
-            capacityBytes: 8 * 1024 * 1024,
-            maxFileSizeBytes: 64 * 1024,
-            flushConcurrency: 1,
-            flushIntervalMs: 80,
-            flushDeadlineSecs: 180,
-          };
+      : {
+          backend: 'local_dir' as const,
+          capacityBytes: 8 * 1024 * 1024,
+          maxFileSizeBytes: 64 * 1024,
+          flushConcurrency: 1,
+          flushIntervalMs: 80,
+          flushDeadlineSecs: 180,
+        };
 
-  const domainRequestTimeoutSec = preset.tier === 'good' ? (isHeavyProfile ? 8 : 12) : preset.tier === 'medium' ? 15 : 20;
-  const domainWebhookTimeoutSec = preset.tier === 'good' ? (isHeavyProfile ? 8 : 10) : preset.tier === 'medium' ? 12 : 15;
-  const domainDnsPropagationWaitSec = preset.tier === 'good' ? (isHeavyProfile ? 15 : 20) : preset.tier === 'medium' ? 25 : 30;
-  const domainChallengePollIntervalSec = preset.tier === 'good' ? 2 : 3;
-  const domainChallengeMaxPollCount = preset.tier === 'good' ? (isHeavyProfile ? 120 : 90) : preset.tier === 'medium' ? 75 : 60;
-  const chatRateLimitWindowSecs = preset.tier === 'good' ? 10 : 15;
-  const chatRateLimitMessagesPerWindow = preset.tier === 'good' ? (isHeavyProfile ? 80 : 50) : preset.tier === 'medium' ? 40 : 20;
-  const chatWsSessionTimeoutSecs = preset.tier === 'good' ? 86400 : 43200;
-  const chatMaxMessageSizeBytes = preset.tier === 'good' ? (isHeavyProfile ? 131072 : 65536) : preset.tier === 'medium' ? 32768 : 16384;
-  const chatMaxGroupsPerUser = preset.tier === 'good' ? 30 : preset.tier === 'medium' ? 20 : 10;
-  const chatMaxMembersPerGroup = preset.tier === 'good' ? (isHeavyProfile ? 20000 : 10000) : preset.tier === 'medium' ? 5000 : 1000;
-  const chatMaxGroupsJoinedPerUser = preset.tier === 'good' ? (isHeavyProfile ? 400 : 200) : preset.tier === 'medium' ? 150 : 80;
-  const chatMaxGuestInvitesPerUser = preset.tier === 'good' ? (isHeavyProfile ? 100 : 50) : preset.tier === 'medium' ? 30 : 10;
+  const domainRequestTimeoutSec = tuningTier === 'good' ? (isMultiUserProfile ? 8 : 12) : tuningTier === 'medium' ? 15 : 20;
+  const domainWebhookTimeoutSec = tuningTier === 'good' ? (isMultiUserProfile ? 8 : 10) : tuningTier === 'medium' ? 12 : 15;
+  const domainDnsPropagationWaitSec = tuningTier === 'good' ? (isMultiUserProfile ? 15 : 20) : tuningTier === 'medium' ? 25 : 30;
+  const domainChallengePollIntervalSec = tuningTier === 'good' ? 2 : 3;
+  const domainChallengeMaxPollCount = tuningTier === 'good' ? (isMultiUserProfile ? 120 : 90) : tuningTier === 'medium' ? 75 : 60;
+  const chatRateLimitWindowSecs = tuningTier === 'good' ? 10 : 15;
+  const chatRateLimitMessagesPerWindow = tuningTier === 'good' ? (isMultiUserProfile ? 80 : 50) : tuningTier === 'medium' ? 40 : 20;
+  const chatWsSessionTimeoutSecs = tuningTier === 'good' ? 86400 : 43200;
+  const chatMaxMessageSizeBytes = tuningTier === 'good' ? (isMultiUserProfile ? 131072 : 65536) : tuningTier === 'medium' ? 32768 : 16384;
+  const chatMaxGroupsPerUser = tuningTier === 'good' ? 30 : tuningTier === 'medium' ? 20 : 10;
+  const chatMaxMembersPerGroup = tuningTier === 'good' ? (isMultiUserProfile ? 20000 : 10000) : tuningTier === 'medium' ? 5000 : 1000;
+  const chatMaxGroupsJoinedPerUser = tuningTier === 'good' ? (isMultiUserProfile ? 400 : 200) : tuningTier === 'medium' ? 150 : 80;
+  const chatMaxGuestInvitesPerUser = tuningTier === 'good' ? (isMultiUserProfile ? 100 : 50) : tuningTier === 'medium' ? 30 : 10;
 
   return {
     domainRequestTimeoutSec,
@@ -829,17 +800,17 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
     sqliteCacheSize,
     sqliteMmapSize,
     cacheMemoryMB,
-    kvDefaultTtlSecs: kvTtlByTier[preset.tier].defaultTtl,
-    kvConditionTtlSecs: kvTtlByTier[preset.tier].conditionTtl,
-    kvDashmapUpperLimitRatio: kvTtlByTier[preset.tier].dashmapUpperLimitRatio,
-    notifyUnreadCountCacheTtlSecs: notifyByTier[preset.tier].unreadCountCacheTtl,
-    notifyRetentionDays: notifyByTier[preset.tier].retentionDays,
-    systemBackupMaxSizeMb: systemBackupByTier[preset.tier].maxBackupSizeMb,
-    middleware: middlewareByTier[preset.tier],
-    scheduler: schedulerByTier[preset.tier],
-    bloomWarmupTuning: bloomWarmupTuningByTier[preset.tier],
-    quotaCalibrationTuning: quotaCalibrationTuningByTier[preset.tier],
-    fileIndexSyncTuning: fileIndexSyncTuningByTier[preset.tier],
+    kvDefaultTtlSecs: kvTtlByTier[tuningTier].defaultTtl,
+    kvConditionTtlSecs: kvTtlByTier[tuningTier].conditionTtl,
+    kvDashmapUpperLimitRatio: kvTtlByTier[tuningTier].dashmapUpperLimitRatio,
+    notifyUnreadCountCacheTtlSecs: notifyByTier[tuningTier].unreadCountCacheTtl,
+    notifyRetentionDays: notifyByTier[tuningTier].retentionDays,
+    systemBackupMaxSizeMb: systemBackupByTier[tuningTier].maxBackupSizeMb,
+    middleware: middlewareByTier[tuningTier],
+    scheduler: schedulerByTier[tuningTier],
+    bloomWarmupTuning: bloomWarmupTuningByTier[tuningTier],
+    quotaCalibrationTuning: quotaCalibrationTuningByTier[tuningTier],
+    fileIndexSyncTuning: fileIndexSyncTuningByTier[tuningTier],
     captchaPreheat,
     vfsBatchMaxConcurrentTasks,
     vfsBatchMaxConcurrentTasksLowMemory,
@@ -860,44 +831,36 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
     compressionMaxCpuThreads,
     compressionMaxCpuThreadsLowMemory,
     compressionMaxCpuThreadsThroughput,
-    taskRetentionDays: preset.tier === 'good' ? 90 : preset.tier === 'medium' ? 45 : 30,
-    journalLogRetentionDays: preset.tier === 'good' ? 180 : preset.tier === 'medium' ? 90 : 30,
-    journalLogBatchSize: preset.tier === 'good'
-      ? (isHeavyProfile ? 400 : 200)
-      : preset.tier === 'medium'
-        ? (isHeavyProfile ? 120 : 80)
-        : preset.tier === 'low'
-          ? 40
-          : 20,
-    journalLogBatchSizeLowMemory: preset.tier === 'good'
-      ? (isHeavyProfile ? 160 : 120)
-      : preset.tier === 'medium'
-        ? (isHeavyProfile ? 80 : 60)
-        : preset.tier === 'low'
-          ? 30
-          : 12,
-    journalLogBatchSizeThroughput: preset.tier === 'good'
-      ? (isHeavyProfile ? 600 : 320)
-      : preset.tier === 'medium'
-        ? (isHeavyProfile ? 180 : 130)
-        : preset.tier === 'low'
-          ? 60
-          : 30,
-    journalLogFlushIntervalMs: preset.tier === 'good'
-      ? (isHeavyProfile ? 300 : 500)
-      : preset.tier === 'medium'
-        ? (isHeavyProfile ? 700 : 900)
-        : preset.tier === 'low'
-          ? 1200
-          : 1800,
-    journalLogQueueCapacityMultiplier: preset.tier === 'good' ? 4 : preset.tier === 'medium' ? 3 : 2,
-    webApiUploadMaxFileSize: preset.tier === 'good'
+    taskRetentionDays: tuningTier === 'good' ? 90 : tuningTier === 'medium' ? 45 : 30,
+    journalLogRetentionDays: tuningTier === 'good' ? 180 : tuningTier === 'medium' ? 90 : 30,
+    journalLogBatchSize: tuningTier === 'good'
+      ? (isMultiUserProfile ? 400 : 200)
+      : tuningTier === 'medium'
+        ? 80
+        : 20,
+    journalLogBatchSizeLowMemory: tuningTier === 'good'
+      ? (isMultiUserProfile ? 160 : 120)
+      : tuningTier === 'medium'
+        ? 60
+        : 12,
+    journalLogBatchSizeThroughput: tuningTier === 'good'
+      ? (isMultiUserProfile ? 600 : 320)
+      : tuningTier === 'medium'
+        ? 130
+        : 30,
+    journalLogFlushIntervalMs: tuningTier === 'good'
+      ? (isMultiUserProfile ? 300 : 500)
+      : tuningTier === 'medium'
+        ? 900
+        : 1800,
+    journalLogQueueCapacityMultiplier: tuningTier === 'good' ? 4 : tuningTier === 'medium' ? 3 : 2,
+    webApiUploadMaxFileSize: tuningTier === 'good'
       ? 1024 * 1024 * 1024
-      : preset.tier === 'medium'
+      : tuningTier === 'medium'
         ? 512 * 1024 * 1024
         : 256 * 1024 * 1024,
-    webRefreshIntervalSec: preset.tier === 'extreme-low' ? 300 : preset.tier === 'low' ? 120 : preset.tier === 'medium' ? 60 : 30,
-    logEnableAsync: preset.tier === 'good',
+    webRefreshIntervalSec: tuningTier === 'extreme-low' ? 300 : tuningTier === 'medium' ? 60 : 30,
+    logEnableAsync: tuningTier === 'good',
   };
 };
 
@@ -1028,7 +991,7 @@ export const parseRedisUrl = (url: string): Pick<FriendlyDraft, 'cacheHost' | 'c
   };
 };
 
-const getPresetByTier = (tier: PerformanceTier): PerformancePreset => {
+export const getPresetByTier = (tier: PerformanceTier): PerformancePreset => {
   const matched = PERFORMANCE_PRESETS.find((preset) => preset.tier === tier);
   if (matched) {
     return matched;
@@ -1103,7 +1066,11 @@ export const parseConfig = (
   }
 };
 
-export const buildDraftFromConfig = (config: ConfigObject, fallbackPolicy: FriendlyDraft['allocatorPolicy']): FriendlyDraft => {
+export const buildDraftFromConfig = (
+  config: ConfigObject,
+  fallbackPolicy: FriendlyDraft['allocatorPolicy'],
+  suggestedTemplate: PerformanceTemplateId | null = null,
+): FriendlyDraft => {
   const database = isRecord(config.database) ? config.database : {};
   const postgresConfig = isRecord(database.postgres_config) ? database.postgres_config : {};
   const sqliteConfig = isRecord(database.sqlite_config) ? database.sqlite_config : {};
@@ -1147,9 +1114,11 @@ export const buildDraftFromConfig = (config: ConfigObject, fallbackPolicy: Frien
       ? 'throughput'
       : 'balanced';
 
+  const templateSelection = performanceTemplateToSelection(suggestedTemplate ?? 'lightweight');
+
   return {
-    performanceTier: defaultDraft.performanceTier,
-    loadProfile: defaultDraft.loadProfile,
+    performanceTier: templateSelection.performanceTier,
+    loadProfile: templateSelection.loadProfile,
     databaseType,
     captchaPreheatMode,
     postgresDsn,
@@ -1223,11 +1192,13 @@ export const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, rec
     const effectivePreset = resolveEffectivePreset(draft, preset);
     const effectiveFeatures = effectivePreset.features;
     const tuningPlan = buildPerformanceTuningPlan(draft, effectivePreset);
+    const isLowFootprintPreset = draft.performanceTier !== 'performance';
+    const isPerformanceMultiUser = draft.performanceTier === 'performance' && draft.loadProfile === 'high-concurrency';
 
     memoryAllocator.policy = recommendedPolicy;
-    memoryAllocator.profile = preset.tier === 'extreme-low' || preset.tier === 'low'
+    memoryAllocator.profile = isLowFootprintPreset
       ? 'low_memory'
-      : (preset.tier === 'good' && draft.loadProfile === 'heavy')
+      : isPerformanceMultiUser
         ? 'throughput'
         : 'balanced';
     captchaCode.graphic_cache_size = tuningPlan.captchaPreheat.graphicCacheSize;
@@ -1235,8 +1206,8 @@ export const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, rec
     captchaCode.max_gen_concurrency = tuningPlan.captchaPreheat.maxGenConcurrency;
     captchaCode.pool_check_interval_secs = tuningPlan.captchaPreheat.poolCheckIntervalSecs;
     captchaCode.emergency_fill_multiplier = tuningPlan.captchaPreheat.emergencyFillMultiplier;
-    plus.startup_parallelism_low_memory = preset.tier === 'extreme-low' || preset.tier === 'low' ? 1 : 2;
-    plus.startup_parallelism_throughput = preset.tier === 'good' ? (draft.loadProfile === 'heavy' ? 6 : 4) : 2;
+    plus.startup_parallelism_low_memory = isLowFootprintPreset ? 1 : 2;
+    plus.startup_parallelism_throughput = draft.performanceTier === 'performance' ? (isPerformanceMultiUser ? 6 : 4) : 2;
 
     if (draft.databaseType === 'sqlite') {
       sqliteConfig.max_connections = tuningPlan.dbMaxConnections;
@@ -1249,7 +1220,7 @@ export const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, rec
 
       // Extreme-low tier targets very low-RAM devices (e.g. 32MB).
       // Force mmap off to avoid memory pressure.
-      if (preset.tier === 'extreme-low') {
+      if (draft.performanceTier === 'constrained') {
         sqliteConfig.mmap_size = 0;
       }
     } else {
@@ -1308,7 +1279,7 @@ export const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, rec
 
     // Extreme-low tier targets very low-RAM devices (e.g. 32MB).
     // Force a small bloom filter capacity to reduce memory footprint.
-    if (preset.tier === 'extreme-low') {
+    if (draft.performanceTier === 'constrained') {
       const safeaccessGuard = ensureRecord(next, 'safeaccess_guard');
       safeaccessGuard.bloom_filter_capacity = 10000;
     }
@@ -1406,14 +1377,14 @@ export const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, rec
     databaseHealthCheck.cron_expression = tuningPlan.scheduler.healthCheckCron;
 
     const sftpServ = ensureRecord(next, 'file_manager_serv_sftp');
-    sftpServ.max_connections = effectiveFeatures.sftp ? (preset.tier === 'good' ? 100 : 20) : 1;
-    sftpServ.worker_threads = effectiveFeatures.sftp ? (preset.tier === 'good' ? 4 : 2) : 1;
+    sftpServ.max_connections = effectiveFeatures.sftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1;
+    sftpServ.worker_threads = effectiveFeatures.sftp ? (draft.performanceTier === 'performance' ? 4 : 2) : 1;
 
     const ftpServ = ensureRecord(next, 'file_manager_serv_ftp');
-    ftpServ.max_connections = effectiveFeatures.ftp ? (preset.tier === 'good' ? 100 : 20) : 1;
+    ftpServ.max_connections = effectiveFeatures.ftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1;
 
     const s3Serv = ensureRecord(next, 'file_manager_serv_s3');
-    s3Serv.max_connections = effectiveFeatures.s3 ? (preset.tier === 'good' ? 100 : 20) : 1;
+    s3Serv.max_connections = effectiveFeatures.s3 ? (draft.performanceTier === 'performance' ? 100 : 20) : 1;
 
     const chatManager = ensureRecord(next, 'chat_manager');
     chatManager.enabled = effectiveFeatures.chat;
@@ -1466,6 +1437,7 @@ export interface ConfigQuickWizardModalProps {
   content: string;
   onContentChange: (value: string) => void;
   runtimeOs?: string;
+  systemHardware?: SystemHardwareInfo | null;
   initialStep?: FriendlyStep;
   onOpenAdminPassword?: () => void;
   onOpenLicenseManagement?: () => void;
@@ -1482,6 +1454,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   content,
   onContentChange,
   runtimeOs,
+  systemHardware,
   initialStep,
   onOpenAdminPassword,
   onOpenLicenseManagement,
@@ -1496,6 +1469,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   const [draft, setDraft] = useState<FriendlyDraft>(defaultDraft);
   const [showDetailedPreview, setShowDetailedPreview] = useState(false);
   const [showSetupAdvanced, setShowSetupAdvanced] = useState(false);
+  const [isPerformanceProfilePickerOpen, setIsPerformanceProfilePickerOpen] = useState(false);
   const resolvedTheme = useResolvedTheme();
 
   const draftRef = useRef<FriendlyDraft>(defaultDraft);
@@ -1537,6 +1511,11 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       policy: recommendedAllocatorPolicyForRuntime(runtimeOs),
     };
   }, [runtimeOs]);
+
+  const suggestedTemplate = useMemo(
+    () => parsePerformanceTemplateId(systemHardware?.suggested_performance_template),
+    [systemHardware?.suggested_performance_template],
+  );
 
   const currentPreset = useMemo(() => {
     const base = getPresetByTier(draft.performanceTier);
@@ -1609,7 +1588,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('middleware.brute_force.lockout_secs', previewTuningPlan.middleware.bruteForceLockoutSecs);
     pushItem('middleware.brute_force.enable_exponential_backoff', previewTuningPlan.middleware.bruteForceBackoffEnabled);
 
-    if (draft.performanceTier === 'extreme-low') {
+    if (draft.performanceTier === 'constrained') {
       pushItem('safeaccess_guard.bloom_filter_capacity', 10000);
     }
 
@@ -1620,10 +1599,10 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('captcha_code.emergency_fill_multiplier', previewTuningPlan.captchaPreheat.emergencyFillMultiplier);
     pushItem('memory_allocator.policy', draft.allocatorPolicy);
     pushItem('memory_allocator.profile', draft.allocatorProfile);
-    pushItem('extension_manager.plus.startup_parallelism_low_memory', currentPreset.tier === 'extreme-low' || currentPreset.tier === 'low' ? 1 : 2);
+    pushItem('extension_manager.plus.startup_parallelism_low_memory', currentPreset.tier === 'performance' ? 2 : 1);
     pushItem(
       'extension_manager.plus.startup_parallelism_throughput',
-      currentPreset.tier === 'good' ? (draft.loadProfile === 'heavy' ? 6 : 4) : 2
+      currentPreset.tier === 'performance' ? (draft.loadProfile === 'high-concurrency' ? 6 : 4) : 2
     );
 
     pushItem('vfs_storage_hub.enable_webdav', currentPreset.features.webdav);
@@ -1690,10 +1669,10 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('task_registry.database_health_check.enabled', true);
     pushItem('task_registry.database_health_check.cron_expression', previewTuningPlan.scheduler.healthCheckCron);
 
-    pushItem('file_manager_serv_sftp.max_connections', currentPreset.features.sftp ? (draft.performanceTier === 'good' ? 100 : 20) : 1);
-    pushItem('file_manager_serv_sftp.worker_threads', currentPreset.features.sftp ? (draft.performanceTier === 'good' ? 4 : 2) : 1);
-    pushItem('file_manager_serv_ftp.max_connections', currentPreset.features.ftp ? (draft.performanceTier === 'good' ? 100 : 20) : 1);
-    pushItem('file_manager_serv_s3.max_connections', currentPreset.features.s3 ? (draft.performanceTier === 'good' ? 100 : 20) : 1);
+    pushItem('file_manager_serv_sftp.max_connections', currentPreset.features.sftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1);
+    pushItem('file_manager_serv_sftp.worker_threads', currentPreset.features.sftp ? (draft.performanceTier === 'performance' ? 4 : 2) : 1);
+    pushItem('file_manager_serv_ftp.max_connections', currentPreset.features.ftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1);
+    pushItem('file_manager_serv_s3.max_connections', currentPreset.features.s3 ? (draft.performanceTier === 'performance' ? 100 : 20) : 1);
     pushItem('chat_manager.enabled', currentPreset.features.chat);
     pushItem('chat_manager.rate_limit_window_secs', previewTuningPlan.chatRateLimitWindowSecs);
     pushItem('chat_manager.rate_limit_messages_per_window', previewTuningPlan.chatRateLimitMessagesPerWindow);
@@ -1754,9 +1733,9 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   }, [previewConfigItems]);
 
   const previewSimpleCards = useMemo(() => {
-    const sftpConnectionValue = currentPreset.features.sftp ? (draft.performanceTier === 'good' ? 100 : 20) : 1;
-    const ftpConnectionValue = currentPreset.features.ftp ? (draft.performanceTier === 'good' ? 100 : 20) : 1;
-    const s3ConnectionValue = currentPreset.features.s3 ? (draft.performanceTier === 'good' ? 100 : 20) : 1;
+    const sftpConnectionValue = currentPreset.features.sftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1;
+    const ftpConnectionValue = currentPreset.features.ftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1;
+    const s3ConnectionValue = currentPreset.features.s3 ? (draft.performanceTier === 'performance' ? 100 : 20) : 1;
     return [
       {
         label: t('admin.config.quickWizard.performance.featureS3'),
@@ -1825,7 +1804,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       {
         label: t('admin.config.quickWizard.performance.preview.captchaPreheatMode'),
         value: t(`admin.config.quickWizard.performance.preheatMode.options.${draft.captchaPreheatMode}`),
-        interactive: draft.performanceTier === 'medium' || draft.performanceTier === 'good',
+        interactive: draft.performanceTier !== 'constrained',
         options: ['memory', 'balanced', 'throughput'] as CaptchaPreheatMode[],
         current: draft.captchaPreheatMode,
       },
@@ -1886,7 +1865,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   const initializeFromParsed = useCallback(() => {
     if (parsed.value) {
       const nextDraft = {
-        ...buildDraftFromConfig(parsed.value, allocatorRecommendation.policy),
+        ...buildDraftFromConfig(parsed.value, allocatorRecommendation.policy, suggestedTemplate),
         allocatorPolicy: allocatorRecommendation.policy,
       };
       draftRef.current = nextDraft;
@@ -1895,7 +1874,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     } else {
       setParseError(parsed.error);
     }
-  }, [allocatorRecommendation.policy, parsed.error, parsed.value]);
+  }, [allocatorRecommendation.policy, parsed.error, parsed.value, suggestedTemplate]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -1904,6 +1883,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       lastObservedContentRef.current = content;
       setShowDetailedPreview(false);
       setShowSetupAdvanced(false);
+      setIsPerformanceProfilePickerOpen(false);
       return;
     }
 
@@ -1959,6 +1939,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     onContentChange(nextContent);
     setParseError(null);
   }, [allocatorRecommendation.policy, onContentChange, parsed.value, tomlAdapter]);
+
+  const selectPerformanceProfile = useCallback((profile: LoadProfile) => {
+    syncDraft((prev) => applyPerformanceTemplateToDraft(
+      prev,
+      profile === 'high-concurrency' ? 'performance-high-concurrency' : 'performance-low-concurrency',
+    ));
+  }, [syncDraft]);
 
   const databaseLabelFor = useCallback((databaseType: DatabaseType) => {
     if (showTechnicalChoices) {
@@ -2121,9 +2108,6 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
             {t('admin.config.quickWizard.steps.performance')}
           </h4>
         </div>
-        <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-          {t('admin.config.quickWizard.performance.intro')}
-        </p>
 
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {PERFORMANCE_PRESETS.map((preset) => {
@@ -2133,59 +2117,48 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                 key={preset.tier}
                 type="button"
                 onClick={() => {
-                  syncDraft((prev) => {
-                    const isLowMem = preset.tier === 'extreme-low' || preset.tier === 'low';
-                    const next = {
-                      ...prev,
-                      performanceTier: preset.tier,
-                      databaseType: preset.recommendations.databaseType,
-                      cacheType: preset.recommendations.cacheType,
-                      loadProfile: (preset.tier === 'medium' || preset.tier === 'good') ? 'heavy' : prev.loadProfile,
-                      captchaPreheatMode: isLowMem ? 'memory' : 'balanced' as CaptchaPreheatMode,
-                    };
-                    if (preset.recommendations.databaseType === 'sqlite') {
-                      next.sqlitePath = '{APPDATADIR}/fileuni.db';
-                      next.sqliteDsn = 'sqlite://{APPDATADIR}/fileuni.db';
-                    }
-                    return next;
-                  });
+                  syncDraft((prev) => applyPerformanceTemplateToDraft(prev, preset.tier === 'performance' ? 'performance-low-concurrency' : preset.tier));
+                  if (preset.tier === 'performance') {
+                    setIsPerformanceProfilePickerOpen(true);
+                  }
                 }}
-                className={setupChoiceClassName(selected)}
+                className={cn(setupChoiceClassName(selected), preset.tier === 'performance' && 'md:col-span-2 xl:col-span-4')}
               >
                 <div className="flex items-center gap-2">
                   <span className={cn(
                     'inline-flex h-2.5 w-2.5 rounded-full',
-                    preset.tier === 'extreme-low' ? 'bg-rose-400' :
-                    preset.tier === 'low' ? 'bg-amber-400' :
-                    preset.tier === 'medium' ? 'bg-sky-400' : 'bg-emerald-400'
+                    preset.tier === 'constrained' ? 'bg-rose-400' :
+                    preset.tier === 'lightweight' ? 'bg-sky-400' : 'bg-emerald-400'
                   )} />
                   <span>{t(preset.labelKey)}</span>
                 </div>
                 <p className={cn('mt-2 text-sm leading-6 font-medium', selected ? '' : isDark ? 'text-slate-300' : 'text-slate-600')}>
                   {t(preset.descKey)}
                 </p>
+                {preset.tier === 'performance' && selected && (
+                  <div className={cn('mt-3 flex items-center justify-between gap-2 rounded-full border px-3 py-2', isDark ? 'border-white/10 bg-white/[0.04]' : 'border-slate-200 bg-white')}>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className={cn('text-[11px] font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                        {t('admin.config.quickWizard.performance.currentProfile')}
+                      </span>
+                      <span className={cn('truncate rounded-full px-2.5 py-1 text-xs font-black', isDark ? 'bg-primary/20 text-primary-foreground' : 'bg-primary/10 text-primary')}>
+                        {t(`admin.config.quickWizard.performance.loadProfile.${draft.loadProfile}`)}
+                      </span>
+                    </div>
+                    <span className={cn('inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border', isDark ? 'border-white/10 bg-white/[0.06] text-slate-100' : 'border-slate-200 bg-slate-50 text-slate-700')}>
+                      <PenLine size={14} />
+                    </span>
+                  </div>
+                )}
               </button>
             );
           })}
         </div>
 
-        {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
-          <div className={cn('mt-4 grid gap-2 md:grid-cols-2', setupSubPanelClassName)}>
-            {(['light', 'heavy'] as LoadProfile[]).map((profile) => (
-              <button
-                key={profile}
-                type="button"
-                onClick={() => syncDraft((prev) => ({ ...prev, loadProfile: profile }))}
-                className={setupChoiceClassName(draft.loadProfile === profile, 'emerald')}
-              >
-                <div>{t(`admin.config.quickWizard.performance.loadProfile.${profile}`)}</div>
-                <div className={cn('mt-1 text-sm leading-6 font-medium', isDark ? 'text-slate-300' : 'text-slate-600')}>
-                  {t(`admin.config.quickWizard.performance.loadProfile.${profile}Desc`)}
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
+        <div className={cn('mt-4 rounded-xl border px-3 py-3 text-sm leading-6', isDark ? 'border-white/10 bg-white/[0.03] text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-600')}>
+          <div>{t('admin.config.quickWizard.performance.scenarioHint.line1')}</div>
+          <div className="mt-1">{t('admin.config.quickWizard.performance.scenarioHint.line2')}</div>
+        </div>
       </section>
 
       <section id="setup-section-storage" className={setupPanelClassName}>
@@ -2398,9 +2371,6 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                 {t('admin.config.quickWizard.performance.recommendedSettings')}
               </h4>
             </div>
-            <p className={cn('mt-2 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600')}>
-              {t('admin.config.quickWizard.performance.preview.simpleHint')}
-            </p>
           </div>
           {renderSetupAdvancedToggle()}
         </div>
@@ -2501,7 +2471,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
               <div className={cn('text-xs font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-500' : 'text-slate-500')}>
                 {t('admin.config.quickWizard.steps.other')}
               </div>
-              {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
+        {draft.performanceTier !== 'constrained' && (
                 <div className="mt-3 grid gap-2 sm:grid-cols-3">
                   {(['memory', 'balanced', 'throughput'] as CaptchaPreheatMode[]).map((mode) => (
                     <button
@@ -2560,6 +2530,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   }
 
   const panelContent = (
+    <>
       <div className={cn(
         embedded
           ? 'w-full min-h-0'
@@ -2634,32 +2605,60 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
             ) : (
               <div className="space-y-4">
                 <div className={cn(
-                "rounded-xl border p-2 sm:p-3",
-                isDark ? "border-white/10 bg-white/[0.02]" : "border-slate-300 bg-slate-100 shadow-inner"
-              )}>
-                 <div className={cn(
-                   'grid grid-cols-1 gap-2',
-                   friendlySteps.length >= 5 ? 'sm:grid-cols-5' : friendlySteps.length >= 4 ? 'sm:grid-cols-4' : 'sm:grid-cols-3',
-                 )}>
-                  {friendlySteps.map((step, index) => (
-                    <button
-                      key={step}
-                      type="button"
-                      onClick={() => setFriendlyStep(step)}
-                      className={cn(
-                        'h-10 rounded-lg text-sm sm:text-sm font-black border transition-all shadow-sm',
-                        friendlyStep === step
-                          ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
-                          : index < currentStepIndex
-                            ? (isDark ? 'bg-emerald-500/10 text-emerald-200 border-emerald-500/30' : 'bg-emerald-50 text-emerald-800 border-emerald-200')
-                            : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50 shadow-sm'),
-                      )}
-                    >
-                      {index + 1}. {t(`admin.config.quickWizard.steps.${step}`)}
-                    </button>
-                  ))}
+                  "rounded-xl border p-2 sm:p-3",
+                  isDark ? "border-white/10 bg-white/[0.02]" : "border-slate-300 bg-slate-100 shadow-inner"
+                )}>
+                  <div className="flex items-center gap-1 overflow-x-auto sm:hidden">
+                    {friendlySteps.map((step, index) => {
+                      const active = friendlyStep === step;
+                      const completed = index < currentStepIndex;
+                      return (
+                        <React.Fragment key={step}>
+                          <button
+                            type="button"
+                            onClick={() => setFriendlyStep(step)}
+                            className={cn(
+                              'shrink-0 rounded-full border px-2.5 py-1.5 text-xs font-black transition-colors',
+                              active
+                                ? 'border-primary bg-primary text-white'
+                                : completed
+                                  ? (isDark ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : 'border-emerald-200 bg-emerald-50 text-emerald-800')
+                                  : (isDark ? 'border-white/10 bg-black/20 text-slate-300' : 'border-slate-300 bg-white text-slate-700')
+                            )}
+                          >
+                            {t(`admin.config.quickWizard.steps.${step}`)}
+                          </button>
+                          {index < friendlySteps.length - 1 && (
+                            <ChevronRight size={14} className={isDark ? 'shrink-0 text-slate-500' : 'shrink-0 text-slate-400'} />
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+
+                  <div className={cn(
+                    'hidden gap-2 sm:grid sm:grid-cols-3',
+                    friendlySteps.length >= 5 ? 'sm:grid-cols-5' : friendlySteps.length >= 4 ? 'sm:grid-cols-4' : 'sm:grid-cols-3',
+                  )}>
+                    {friendlySteps.map((step, index) => (
+                      <button
+                        key={step}
+                        type="button"
+                        onClick={() => setFriendlyStep(step)}
+                        className={cn(
+                          'h-10 rounded-lg text-sm sm:text-sm font-black border transition-all shadow-sm',
+                          friendlyStep === step
+                            ? (isDark ? 'bg-primary text-white border-primary' : 'bg-primary text-white border-primary')
+                            : index < currentStepIndex
+                              ? (isDark ? 'bg-emerald-500/10 text-emerald-200 border-emerald-500/30' : 'bg-emerald-50 text-emerald-800 border-emerald-200')
+                              : (isDark ? 'bg-black/20 text-slate-300 border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50 shadow-sm'),
+                        )}
+                      >
+                        {index + 1}. {t(`admin.config.quickWizard.steps.${step}`)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
               {friendlyStep === 'performance' && (
                 <section className={cn(
@@ -2691,25 +2690,14 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         key={preset.tier}
                         type="button"
                         onClick={() => {
-                          syncDraft((prev) => {
-                            const isLowMem = preset.tier === 'extreme-low' || preset.tier === 'low';
-                            const next = {
-                              ...prev,
-                              performanceTier: preset.tier,
-                              databaseType: preset.recommendations.databaseType,
-                              cacheType: preset.recommendations.cacheType,
-                              loadProfile: (preset.tier === 'medium' || preset.tier === 'good') ? 'heavy' : prev.loadProfile,
-                              captchaPreheatMode: isLowMem ? 'memory' : 'balanced' as CaptchaPreheatMode,
-                            };
-                            if (preset.recommendations.databaseType === 'sqlite') {
-                              next.sqlitePath = '{APPDATADIR}/fileuni.db';
-                              next.sqliteDsn = 'sqlite://{APPDATADIR}/fileuni.db';
-                            }
-                            return next;
-                          });
+                          syncDraft((prev) => applyPerformanceTemplateToDraft(prev, preset.tier === 'performance' ? 'performance-low-concurrency' : preset.tier));
+                          if (preset.tier === 'performance') {
+                            setIsPerformanceProfilePickerOpen(true);
+                          }
                         }}
                         className={cn(
                           'relative p-3 rounded-xl border text-left transition-all',
+                          preset.tier === 'performance' && 'sm:col-span-2',
                           draft.performanceTier === preset.tier
                             ? (isDark ? 'border-purple-400/50 bg-purple-500/10 ring-1 ring-purple-400/30 shadow-black/40 shadow-lg' : 'border-purple-500 bg-purple-50 ring-1 ring-purple-200 shadow-purple-100 shadow-lg')
                             : (isDark ? 'border-white/10 bg-black/20 hover:bg-white/5' : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100')
@@ -2718,9 +2706,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                         <div className="flex items-center gap-2 mb-1">
                           <div className={cn(
                             'w-3 h-3 rounded-full',
-                            preset.tier === 'extreme-low' ? 'bg-red-400' :
-                            preset.tier === 'low' ? 'bg-amber-400' :
-                            preset.tier === 'medium' ? 'bg-blue-400' :
+                            preset.tier === 'constrained' ? 'bg-red-400' :
+                            preset.tier === 'lightweight' ? 'bg-blue-400' :
                             'bg-emerald-400'
                           )} />
                           <span className="text-sm sm:text-sm font-black">{t(preset.labelKey)}</span>
@@ -2740,49 +2727,31 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                             {cacheLabelFor(preset.recommendations.cacheType)}
                           </span>
                         </div>
+                        {preset.tier === 'performance' && draft.performanceTier === 'performance' && (
+                          <div className={cn('mt-3 flex items-center justify-between gap-2 rounded-full border px-3 py-2', isDark ? 'border-white/10 bg-white/[0.04]' : 'border-slate-200 bg-white')}>
+                            <div className="flex min-w-0 items-center gap-2">
+                              <span className={cn('text-[11px] font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                                {t('admin.config.quickWizard.performance.currentProfile')}
+                              </span>
+                              <span className={cn('truncate rounded-full px-2.5 py-1 text-xs font-black', isDark ? 'bg-primary/20 text-primary-foreground' : 'bg-primary/10 text-primary')}>
+                                {t(`admin.config.quickWizard.performance.loadProfile.${draft.loadProfile}`)}
+                              </span>
+                            </div>
+                            <span className={cn('inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border', isDark ? 'border-white/10 bg-white/[0.06] text-slate-100' : 'border-slate-200 bg-slate-50 text-slate-700')}>
+                              <PenLine size={14} />
+                            </span>
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
 
-                  {(draft.performanceTier === 'medium' || draft.performanceTier === 'good') && (
-                    <div className={cn(
-                      "mt-4 rounded-xl border p-3 shadow-inner transition-colors",
-                      isDark ? "border-purple-500/30 bg-purple-500/5" : "border-purple-200 bg-purple-50/50"
-                    )}>
-                      <div className={cn("text-sm font-black mb-2", isDark ? "text-purple-200" : "text-purple-900")}>{t('admin.config.quickWizard.performance.loadProfile.title')}</div>
-                      <p className={cn("text-sm mb-3", isDark ? "text-slate-400" : "text-slate-800 font-black")}>{t('admin.config.quickWizard.performance.loadProfile.desc')}</p>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => syncDraft((prev) => ({ ...prev, loadProfile: 'light' }))}
-                          className={cn(
-                            'flex-1 p-2 rounded-lg border text-left transition-all font-black',
-                            draft.loadProfile === 'light'
-                              ? (isDark ? 'border-emerald-400/50 bg-emerald-500/10' : 'border-emerald-500 bg-emerald-100 shadow-sm')
-                              : (isDark ? 'border-white/10 bg-black/20 hover:bg-white/5' : 'border-slate-200 bg-white hover:bg-slate-100')
-                          )}
-                        >
-                          <div className="text-sm">{t('admin.config.quickWizard.performance.loadProfile.light')}</div>
-                          <div className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-500")}>{t('admin.config.quickWizard.performance.loadProfile.lightDesc')}</div>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => syncDraft((prev) => ({ ...prev, loadProfile: 'heavy' }))}
-                          className={cn(
-                            'flex-1 p-2 rounded-lg border text-left transition-all font-black',
-                            draft.loadProfile === 'heavy'
-                              ? (isDark ? 'border-orange-400/50 bg-orange-500/10' : 'border-orange-500 bg-orange-100 shadow-sm')
-                              : (isDark ? 'border-white/10 bg-black/20 hover:bg-white/5' : 'border-slate-200 bg-white hover:bg-slate-100')
-                          )}
-                        >
-                          <div className="text-sm">{t('admin.config.quickWizard.performance.loadProfile.heavy')}</div>
-                          <div className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-500")}>{t('admin.config.quickWizard.performance.loadProfile.heavyDesc')}</div>
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <div className={cn('mt-4 rounded-xl border px-3 py-3 text-sm leading-6', isDark ? 'border-white/10 bg-white/[0.03] text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-600')}>
+                    <div>{t('admin.config.quickWizard.performance.scenarioHint.line1')}</div>
+                    <div className="mt-1">{t('admin.config.quickWizard.performance.scenarioHint.line2')}</div>
+                  </div>
 
-                  {showTechnicalChoices && draft.performanceTier === 'good' && (
+                  {showTechnicalChoices && draft.performanceTier === 'performance' && (
                     <div className={cn(
                       "mt-4 rounded-xl border p-3",
                       isDark ? "border-cyan-500/30 bg-cyan-500/5" : "border-cyan-200 bg-cyan-50"
@@ -2809,8 +2778,6 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
                       <Wand2 size={18} className="text-primary" />
                       <div className={cn("text-sm uppercase font-black tracking-widest", isDark ? "opacity-60" : "text-slate-500")}>{t('admin.config.quickWizard.performance.recommendedSettings')}</div>
                     </div>
-                    
-                    <div className={cn("text-sm mb-3 font-bold", isDark ? "text-slate-400" : "text-slate-600")}>{t('admin.config.quickWizard.performance.preview.simpleHint')}</div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
                       {previewSimpleCards.map((card) => (
@@ -3451,6 +3418,14 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
           )}
         </div>
       </div>
+      <PerformanceProfilePickerModal
+        isOpen={isPerformanceProfilePickerOpen}
+        value={draft.loadProfile}
+        onClose={() => setIsPerformanceProfilePickerOpen(false)}
+        onSelect={selectPerformanceProfile}
+        zIndexClassName="z-[170]"
+      />
+    </>
   );
 
   if (embedded) {

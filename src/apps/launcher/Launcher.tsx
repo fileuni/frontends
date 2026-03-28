@@ -30,6 +30,11 @@ import { isTauriRuntime, safeInvoke, safeListen } from './tauri';
 // OS info interface
 interface OSInfo {
   os_type: string;
+  arch?: string;
+  logical_cpu_count?: number | null;
+  physical_cpu_count?: number | null;
+  total_memory_bytes?: number | null;
+  suggested_performance_template?: string;
   support_service: boolean;
   nixos_hint: boolean;
   is_mobile: boolean;
@@ -163,6 +168,9 @@ export function Launcher() {
   const isServiceRunning = status === 'Running';
   const displayedRuntimeDir = runtimeDir ?? runtimeDirPresets?.default_runtime_dir ?? '...';
   const missingConfigPromptResolver = useRef<((accepted: boolean) => void) | null>(null);
+  const suspendLogUpdatesRef = useRef(false);
+  const handleStartRef = useRef<(() => Promise<boolean>) | null>(null);
+  const handleStopRef = useRef<(() => Promise<void>) | null>(null);
 
   const inspectRuntimeDir = async (nextRuntimeDir?: string | null) => {
     return safeInvoke<RuntimeDirInspection>('inspect_runtime_dir', {
@@ -391,6 +399,10 @@ export function Launcher() {
     };
   }, []);
 
+  useEffect(() => {
+    suspendLogUpdatesRef.current = setupRequired || isEditingConfig || showConfigSelector || Boolean(missingConfigPrompt);
+  }, [isEditingConfig, missingConfigPrompt, setupRequired, showConfigSelector]);
+
   useEscapeToCloseTopLayer({
     active: Boolean(missingConfigPrompt),
     onEscape: () => closeMissingConfigPrompt(false),
@@ -500,6 +512,7 @@ export function Launcher() {
     content: configContent,
     onContentChange: setConfigContent,
     runtimeOs: osInfo?.os_type,
+    systemHardware: osInfo,
     onTestDatabase: handleCheckDatabase,
     onTestCache: handleCheckCache,
     adminPassword: {
@@ -581,28 +594,58 @@ export function Launcher() {
       if (!isTauriRuntime()) {
         return;
       }
-      await refreshStatus();
-      await Promise.all([getVersion(), getVersionCode(), getOS()]);
+
+      try {
+        const response = await safeInvoke<ServiceStatusResponse>('get_service_status');
+        setStatus(response.status);
+      } catch (error: unknown) {
+        console.error(error);
+        setStatus('Unknown');
+      }
+
+      try {
+        const nextVersion = await safeInvoke<string>('get_app_version');
+        setVersion(nextVersion);
+      } catch (error: unknown) {
+        console.error(error);
+      }
+
+      try {
+        const nextVersionCode = await safeInvoke<number | null>('get_android_version_code');
+        setVersionCode(nextVersionCode);
+      } catch (error: unknown) {
+        console.error(error);
+        setVersionCode(null);
+      }
+
+      try {
+        const info = await safeInvoke<OSInfo>('get_os_info');
+        setOsInfo(info);
+      } catch (error: unknown) {
+        console.error(error);
+      }
 
       unlistenServiceAction = await safeListen<string>('service-action', (event) => {
-        if (event.payload === 'start') handleStart();
-        if (event.payload === 'stop') handleStop();
+        if (event.payload === 'start') {
+          void handleStartRef.current?.();
+        }
+        if (event.payload === 'stop') {
+          void handleStopRef.current?.();
+        }
       });
 
-      unlistenLogs = await safeListen<LogEntry>('log-update', (event) => {
-        setLogs(prev => [...prev, event.payload].slice(-1000));
+      unlistenLogs = await safeListen<LogEntry[]>('log-update', (event) => {
+        const batch = Array.isArray(event.payload) ? event.payload : [];
+        if (batch.length === 0 || suspendLogUpdatesRef.current) {
+          return;
+        }
+        setLogs((prev) => (prev.length === 0 ? batch.slice(-1000) : [...prev, ...batch].slice(-1000)));
       });
 
       await safeInvoke<void>('subscribe_logs');
     };
 
-    init().catch(console.error);
-
-    const uptimeInterval = setInterval(() => {
-      if (status === 'Running') {
-        setUptime(prev => prev + 1);
-      }
-    }, 1000);
+    void init().catch(console.error);
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleSystemThemeChange = () => {
@@ -615,8 +658,19 @@ export function Launcher() {
     return () => {
       unlistenServiceAction?.();
       unlistenLogs?.();
-      clearInterval(uptimeInterval);
       mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const uptimeInterval = setInterval(() => {
+      if (status === 'Running') {
+        setUptime((prev) => prev + 1);
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(uptimeInterval);
     };
   }, [status]);
 
@@ -627,34 +681,6 @@ export function Launcher() {
     } catch (e: unknown) {
       console.error(e);
       setStatus('Unknown');
-    }
-  };
-
-  const getVersion = async () => {
-    try {
-      const v = await safeInvoke<string>('get_app_version');
-      setVersion(v);
-    } catch (e: unknown) {
-      console.error(e);
-    }
-  };
-
-  const getVersionCode = async () => {
-    try {
-      const code = await safeInvoke<number | null>('get_android_version_code');
-      setVersionCode(code);
-    } catch (e: unknown) {
-      console.error(e);
-      setVersionCode(null);
-    }
-  };
-
-  const getOS = async () => {
-    try {
-      const info = await safeInvoke<OSInfo>('get_os_info');
-      setOsInfo(info);
-    } catch (e: unknown) {
-      console.error(e);
     }
   };
 
@@ -693,6 +719,9 @@ export function Launcher() {
     }
     setLoading(false);
   };
+
+  handleStartRef.current = handleStart;
+  handleStopRef.current = handleStop;
 
   const persistServiceInstallOptions = (level: ServiceInstallLevel, autostart: boolean) => {
     window.localStorage.setItem(
@@ -939,12 +968,12 @@ export function Launcher() {
         <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col overflow-y-auto overscroll-contain touch-pan-y">
           <div className="flex-1 min-h-0 p-3 pt-[calc(1rem+var(--safe-area-top))] pb-[calc(1rem+var(--safe-area-bottom))] sm:p-6 sm:pt-[calc(1.25rem+var(--safe-area-top))] lg:p-8 lg:pt-[calc(1.5rem+var(--safe-area-top))]">
             <div className="max-w-6xl mx-auto space-y-4">
-              <SettingWorkbenchSurface
-                title={t('admin.config.title')}
-                configPath={configFilePath}
-                configPathAction={<ConfigPathActionButton onClick={() => { void handleSetupRuntimeAction(); }} label={t('launcher.modify_runtime_dirs')} />}
-                headerExtras={<SettingSurfaceControls compact={true} />}
-                settingActions={settingActions}
+                <SettingWorkbenchSurface
+                  title={t('admin.config.title')}
+                  configPath={configFilePath}
+                  configPathAction={<ConfigPathActionButton onClick={() => { void handleSetupRuntimeAction(); }} label={t(['setup.guide.card1Action', 'launcher.modify_runtime_dirs'])} />}
+                  headerExtras={<SettingSurfaceControls compact={true} />}
+                  settingActions={settingActions}
                 testAction={{
                   label: t('setup.editor.check'),
                   onClick: () => { void handleTestConfig(); },
@@ -978,6 +1007,7 @@ export function Launcher() {
                   reloadSummary: configSummary,
                   reloadSummaryLevel: configSummaryLevel,
                   runtimeOs: osInfo?.os_type,
+                  systemHardware: osInfo,
                   onDiagnoseExternalTools: handleDiagnoseExternalTools,
                   ...(osInfo?.is_mobile ? { onPickStorageDirectory: pickExternalStorageDirectory } : {}),
                 }}
@@ -986,7 +1016,7 @@ export function Launcher() {
           </div>
 
           {isSetupCompletedPromptOpen && (
-            <div className="fixed inset-0 z-[160] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
+            <div className="fixed inset-0 z-[160] bg-black/70 flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
               <div className="w-full max-w-md rounded-3xl border border-emerald-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
                 <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
                   <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
@@ -1249,7 +1279,7 @@ export function Launcher() {
       />
 
       {missingConfigPrompt && (
-        <div className="fixed inset-0 z-[130] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[130] bg-black/70 flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
           <div className="w-full max-w-lg rounded-3xl border border-slate-200/70 dark:border-slate-700/60 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
             <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
               <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
@@ -1285,7 +1315,7 @@ export function Launcher() {
       )}
 
       {isSetupRequiredPromptOpen && (
-        <div className="fixed inset-0 z-[140] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[140] bg-black/70 flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
           <div className="w-full max-w-lg rounded-3xl border border-amber-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
             <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
               <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
@@ -1343,11 +1373,11 @@ export function Launcher() {
       />
 
       {isEditingConfig && (
-        <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm p-2 sm:p-4">
+        <div className="fixed inset-0 z-[120] bg-black/78 p-2 sm:p-4">
           <SettingWorkbenchSurface
             title={t('launcher.edit_config')}
             configPath={configFilePath}
-            configPathAction={<ConfigPathActionButton onClick={() => { void handleSetupRuntimeAction(); }} label={t('launcher.modify_runtime_dirs')} />}
+            configPathAction={<ConfigPathActionButton onClick={() => { void handleSetupRuntimeAction(); }} label={t(['setup.guide.card1Action', 'launcher.modify_runtime_dirs'])} />}
             headerExtras={<SettingSurfaceControls compact={true} />}
             onClose={handleCloseConfigEditor}
             closeAriaLabel={t('common.close')}
@@ -1381,6 +1411,7 @@ export function Launcher() {
               reloadSummary: configSummary,
               reloadSummaryLevel: configSummaryLevel,
               runtimeOs: osInfo?.os_type,
+              systemHardware: osInfo,
               onDiagnoseExternalTools: handleDiagnoseExternalTools,
               onResetAdminPassword: handleResetAdminPassword,
               isResettingAdminPassword: resettingAdminPassword,

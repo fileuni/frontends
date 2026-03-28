@@ -11,6 +11,7 @@
       "card1Title": "Choose where things are saved",
       "card1Desc": "Pick the single runtime directory where FileUni should keep its settings and data.",
       "card1Action": "Change location",
+      "runtimeDirChangeHint": "To change this location, start FileUni with --runtime-dir, or use --service-workdir while installing the service.",
       "card1Hint": "Restart FileUni after changing the runtime directory.",
       "card2Title": "Create your sign-in password",
       "card2Desc": "Set a password for the administrator account you will use later.",
@@ -429,6 +430,10 @@
           "write": "Write Cache",
           "enable": "Enable",
           "backend": "Backend",
+          "backends": {
+            "memory": "Memory",
+            "localDir": "Local Directory"
+          },
           "localDir": "Local Directory",
           "capacityBytes": "Capacity Bytes",
           "maxFileSizeBytes": "Max File Size Bytes",
@@ -632,8 +637,16 @@
           "intro": "If you are unsure, keeping the default choice is fine. These options simply tell FileUni what kind of device and usage style fits you best.",
           "allocatorRecommendationLinux": "Allocator recommendation ({{os}}): jemalloc",
           "allocatorRecommendationOthers": "Allocator recommendation ({{os}}): mimalloc",
+          "templateLabel": "Preset Template",
+          "hardwareRecommendationTitle": "Suggested for this machine",
+          "hardwareRecommendationBadge": "Recommended",
+          "hardwareSummary": {
+            "memory": "{{value}} GiB memory",
+            "cores": "{{value}} logical cores",
+            "arch": "{{value}}"
+          },
           "maxConnections": "Max {{count}} connections",
-          "recommendedSettings": "What FileUni will set for you",
+          "recommendedSettings": "Template Summary",
           "featureCompression": "Compression",
           "featureSftp": "SFTP Service",
           "featureFtp": "FTP Service",
@@ -696,25 +709,42 @@
             "s3MaxConnections": "S3 Max Connections"
           },
           "tiers": {
-            "extremeLow": "Very low-end device",
-            "low": "Lightweight device",
-            "medium": "Home / personal use",
-            "good": "Shared use / server"
+            "constrained": "Constrained device",
+            "lightweight": "Lightweight device",
+            "performance": "Performance device"
           },
           "descriptions": {
-            "extremeLow": "For very limited older hardware. Only the most essential features stay enabled.",
-            "low": "For lightweight devices with limited resources.",
-            "medium": "Best for most personal, home, and first-time setup scenarios.",
-            "good": "Best for shared access, always-on use, or devices with more available resources."
+            "constrained": "For tighter devices such as routers, mini hosts, or older ARM hardware, prioritizing lower background load and memory usage while preserving core usability.",
+            "lightweight": "For reasonably capable devices such as laptops or older PCs, balancing feature completeness and resource usage as much as possible.",
+            "performance": "For high-memory, high-compute devices such as desktops, workstations, or newer servers, prioritizing richer features and higher throughput for heavier workloads."
+          },
+          "currentProfile": "Current Profile",
+          "featureEnablementTitle": "Feature Enablement",
+          "applyTemplate": "Apply this template",
+          "scenarioHint": {
+            "line1": "Choosing a usage scenario lets FileUni apply a generally good tuning profile for most environments. In most cases, you do not need to adjust settings manually.",
+            "line2": "If you are familiar with the config options, you can switch to text editing mode for finer tuning."
+          },
+          "templates": {
+            "constrained": "Constrained Device",
+            "lightweight": "Lightweight Device",
+            "performanceLowConcurrency": "Performance Device - Low Concurrency",
+            "performanceHighConcurrency": "Performance Device - High Concurrency",
+            "performanceMultiUser": "Performance Device - High Concurrency"
           },
           "loadProfile": {
-            "title": "How many people will use it",
-            "desc": "For personal use or a small group, the everyday option is usually enough.",
-            "light": "Everyday use",
-            "lightDesc": "Best for personal or small-team use",
-            "heavy": "Many people at once",
-            "heavyDesc": "Best when you expect more concurrent access",
-            "disabledOnLowHardware": "Unavailable on ultra-low and light hardware"
+            "title": "Performance Device Plan",
+            "desc": "Choose whether this performance-class machine mainly serves a small number of users or needs to absorb more concurrent access.",
+            "low-concurrency": "Low concurrency",
+            "lowConcurrency": "Low concurrency",
+            "lowConcurrencyDesc": "Keep rich features enabled, tuned for personal use, small teams, or admin-heavy operation.",
+            "high-concurrency": "High concurrency",
+            "highConcurrency": "High concurrency",
+            "highConcurrencyDesc": "Increase connection limits, queue sizes, and background throughput for busier simultaneous traffic.",
+            "multi-user": "High concurrency",
+            "multiUser": "High concurrency",
+            "multiUserDesc": "Increase connection limits, queue sizes, and background throughput for busier simultaneous traffic.",
+            "notApplicable": "Only used for performance devices"
           },
           "preheatMode": {
             "title": "Captcha Preheat Strategy",

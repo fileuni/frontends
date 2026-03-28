@@ -82,6 +82,7 @@ export interface SystemConfigWorkbenchProps {
   };
   quickWizardEnabled?: boolean;
   runtimeOs?: string;
+  systemHardware?: ConfigQuickWizardModalProps['systemHardware'];
   onClearValidationErrors?: () => void;
   onResetAdminPassword?: (password: string) => Promise<void | string | { username?: string }>;
   isResettingAdminPassword?: boolean;
@@ -131,6 +132,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   quickWizardLicense,
   quickWizardEnabled = true,
   runtimeOs,
+  systemHardware,
   onClearValidationErrors,
   onResetAdminPassword,
   isResettingAdminPassword,
@@ -682,6 +684,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                 content={content}
                 onContentChange={onChange}
                 runtimeOs={runtimeOs}
+                systemHardware={systemHardware}
                 onOpenAdminPassword={onResetAdminPassword ? openAdminPassword : undefined}
                 onOpenLicenseManagement={quickWizardLicense ? openLicenseManagement : undefined}
                 onOpenStorageConfig={openStorageConfig}
@@ -715,6 +718,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           onContentChange={onChange}
           {...(quickWizardInitialStep ? { initialStep: quickWizardInitialStep } : {})}
           {...(runtimeOs ? { runtimeOs } : {})}
+          {...(systemHardware ? { systemHardware } : {})}
           {...(onResetAdminPassword ? { onOpenAdminPassword: openAdminPassword } : {})}
           {...(quickWizardLicense ? { onOpenLicenseManagement: openLicenseManagement } : {})}
           onOpenStorageConfig={openStorageConfig}

@@ -1150,24 +1150,41 @@
           "s3MaxConnections": "Máx. conexiones S3"
         },
         "tiers": {
-          "extremeLow": "Rendimiento extremadamente bajo (ref: <=64MB RAM)",
-          "low": "Rendimiento bajo (ref: 64-256MB RAM)",
-          "medium": "Rendimiento medio (ref: 256MB-1GB RAM)",
-          "good": "Buen rendimiento (ref: >1GB RAM)"
+          "constrained": "Dispositivo limitado",
+          "lightweight": "Dispositivo ligero",
+          "performance": "Dispositivo de alto rendimiento"
         },
         "descriptions": {
-          "extremeLow": "Para routers heredados y dispositivos embebidos con recursos de hardware extremadamente limitados. Solo funciones núcleo y WebDAV.",
-          "low": "Para dispositivos ligeros con recursos limitados.",
-          "medium": "Para servidores domésticos y NAS con recursos moderados. Se recomienda SQLite + caché de base de datos.",
-          "good": "Para servidores y NAS de alto rendimiento con recursos abundantes. Elija un perfil de carga para mayor optimización."
+          "constrained": "Para dispositivos más ajustados, como routers, mini hosts o hardware ARM antiguo, priorizando menor carga en segundo plano y menor uso de memoria sin perder la usabilidad básica.",
+          "lightweight": "Para dispositivos razonablemente capaces, como portátiles u ordenadores antiguos, equilibrando lo máximo posible la integridad funcional y el consumo de recursos.",
+          "performance": "Para equipos con mucha memoria y capacidad de cómputo, como sobremesas, estaciones de trabajo o servidores más nuevos, priorizando más funciones y mayor rendimiento para cargas pesadas."
+        },
+        "currentProfile": "Perfil actual",
+        "featureEnablementTitle": "Activación de funciones",
+        "scenarioHint": {
+          "line1": "Al elegir un escenario de uso, FileUni puede aplicar un ajuste de rendimiento generalmente adecuado para la mayoría de entornos. En la mayoría de casos no hace falta modificarlo manualmente.",
+          "line2": "Si conoces bien las opciones de configuración, puedes cambiar al modo de edición de texto para ajustarlo con más detalle."
+        },
+        "templates": {
+          "constrained": "Dispositivo limitado",
+          "lightweight": "Dispositivo ligero",
+          "performanceLowConcurrency": "Dispositivo de alto rendimiento - Baja concurrencia",
+          "performanceHighConcurrency": "Dispositivo de alto rendimiento - Alta concurrencia",
+          "performanceMultiUser": "Dispositivo de alto rendimiento - Alta concurrencia"
         },
         "loadProfile": {
-          "title": "Selección de perfil de carga",
-          "desc": "Elija un perfil de carga según el uso esperado. El modo de carga alta sugiere deshabilitar funciones no núcleo para mayor estabilidad.",
-          "light": "Modo de carga ligera",
-          "lightDesc": "Más funciones habilitadas, adecuado para uso personal o equipos pequeños",
-          "heavy": "Modo de carga alta",
-          "heavyDesc": "Se sugiere deshabilitar funciones no núcleo, adecuado para escenarios de alta concurrencia"
+          "title": "Plan para dispositivo de alto rendimiento",
+          "desc": "Elige si este equipo de alto rendimiento se usará principalmente con pocas sesiones simultáneas o si debe absorber más concurrencia.",
+          "low-concurrency": "Baja concurrencia",
+          "lowConcurrency": "Baja concurrencia",
+          "lowConcurrencyDesc": "Mantiene funciones completas, adecuado para uso personal intensivo, equipos pequeños o tareas centradas en administración.",
+          "high-concurrency": "Alta concurrencia",
+          "highConcurrency": "Alta concurrencia",
+          "highConcurrencyDesc": "Aumenta límites de conexión, colas y rendimiento en segundo plano para más tráfico simultáneo.",
+          "multi-user": "Alta concurrencia",
+          "multiUser": "Alta concurrencia",
+          "multiUserDesc": "Aumenta límites de conexión, colas y rendimiento en segundo plano para más tráfico simultáneo.",
+          "notApplicable": "Solo se usa en dispositivos de alto rendimiento"
         },
         "preheatMode": {
           "title": "Estrategia de precarga captcha",
