@@ -12,8 +12,8 @@ interface QuickActionsPanelProps {
   editConfigLabel: string;
   helpLabel: string;
   aboutLabel?: string;
-  setupWizardLabel?: string;
-  setupLoading?: boolean;
+  settingsCenterLabel?: string;
+  settingsCenterLoading?: boolean;
   configDisabled?: boolean;
   configDisabledHint?: string;
   onConfigDisabled?: () => void;
@@ -21,11 +21,11 @@ interface QuickActionsPanelProps {
   onOpenRuntimeDir: () => void;
   onEditConfig: () => void;
   onOpenAbout?: () => void;
-  onStartSetupWizard?: () => void;
+  onOpenSettingsCenter?: () => void;
   onResetAdminPassword?: () => void;
   resetAdminPasswordLabel?: string;
   helpUrl?: string;
-  showSetupWizardAction?: boolean;
+  showSettingsCenterAction?: boolean;
 }
 
 export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
@@ -36,8 +36,8 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
   editConfigLabel,
   helpLabel,
   aboutLabel,
-  setupWizardLabel,
-  setupLoading = false,
+  settingsCenterLabel,
+  settingsCenterLoading = false,
   configDisabled = false,
   configDisabledHint,
   onConfigDisabled,
@@ -45,11 +45,11 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
   onOpenRuntimeDir,
   onEditConfig,
   onOpenAbout,
-  onStartSetupWizard,
+  onOpenSettingsCenter,
   onResetAdminPassword,
   resetAdminPasswordLabel,
   helpUrl,
-  showSetupWizardAction = true,
+  showSettingsCenterAction = true,
 }) => {
   const [showConfigMenu, setShowConfigMenu] = useState(false);
   const configMenuRef = useRef<HTMLDivElement>(null);
@@ -238,22 +238,22 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
           </button>
         )}
 
-        {showSetupWizardAction && onStartSetupWizard && setupWizardLabel && (
+        {showSettingsCenterAction && onOpenSettingsCenter && settingsCenterLabel && (
           <div className={cn(
             "mt-3 pt-5 border-t",
             isDark ? "border-white/5" : "border-gray-100"
           )}>
             <button
-              onClick={onStartSetupWizard}
-              disabled={setupLoading}
+              onClick={onOpenSettingsCenter}
+              disabled={settingsCenterLoading}
               className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-xs uppercase tracking-[0.2em] transition-all duration-500 shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:grayscale disabled:hover:translate-y-0"
             >
-              {setupLoading ? (
+              {settingsCenterLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <Rocket size={18} className="group-hover:rotate-12 transition-transform" />
               )}
-              <span>{setupWizardLabel}</span>
+              <span>{settingsCenterLabel}</span>
             </button>
           </div>
         )}

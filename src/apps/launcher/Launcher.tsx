@@ -168,22 +168,22 @@ export function Launcher() {
   const [configSummaryLevel, setConfigSummaryLevel] = useState<'success' | 'warning' | 'error' | 'info'>('info');
   const [configFilePath, setConfigFilePath] = useState('');
 
-  // License management state (Quick Wizard)
+  // License management state (Quick Settings)
   const [licenseStatus, setLicenseStatus] = useState<LicenseStatusPayload | null>(null);
   const [licenseKey, setLicenseKey] = useState('');
   const [licenseSaving, setLicenseSaving] = useState(false);
 
   const [runtimeDirPresets, setRuntimeDirPresets] = useState<RuntimeDirPresets | null>(null);
   const [missingConfigPrompt, setMissingConfigPrompt] = useState<MissingConfigPromptState | null>(null);
-  const [setupStatus, setSetupStatus] = useState<InstallationStatus | null>(null);
-  const [setupRequired, setSetupRequired] = useState(false);
-  const [setupAdminUsername, setSetupAdminUsername] = useState('admin');
-  const [setupAdminAction, setSetupAdminAction] = useState('existing_admin');
-  const [setupPasswordHint, setSetupPasswordHint] = useState<string | null>(null);
+  const [initialSettingsStatus, setInitialSettingsStatus] = useState<InstallationStatus | null>(null);
+  const [initialSettingsRequired, setInitialSettingsRequired] = useState(false);
+  const [settingsCenterAdminUsername, setSettingsCenterAdminUsername] = useState('admin');
+  const [settingsCenterAdminAction, setSettingsCenterAdminAction] = useState('existing_admin');
+  const [settingsCenterPasswordHint, setSettingsCenterPasswordHint] = useState<string | null>(null);
   const [pendingAdminPassword, setPendingAdminPassword] = useState('');
-  const [setupApplying, setSetupApplying] = useState(false);
-  const [isSetupRequiredPromptOpen, setIsSetupRequiredPromptOpen] = useState(false);
-  const [isSetupCompletedPromptOpen, setIsSetupCompletedPromptOpen] = useState(false);
+  const [settingsCenterApplying, setSettingsCenterApplying] = useState(false);
+  const [isSettingsCenterRequiredPromptOpen, setIsSettingsCenterRequiredPromptOpen] = useState(false);
+  const [isSettingsCenterCompletedPromptOpen, setIsSettingsCenterCompletedPromptOpen] = useState(false);
   const [versionUpgradeStatus, setVersionUpgradeStatus] = useState<VersionUpgradeStatus | null>(null);
   const [isVersionUpgradePromptOpen, setIsVersionUpgradePromptOpen] = useState(false);
   const [versionUpgradeBusy, setVersionUpgradeBusy] = useState(false);
@@ -287,7 +287,7 @@ export function Launcher() {
     }
   };
 
-  const loadSetupWorkbench = useCallback(async () => {
+  const loadSettingsCenterWorkbench = useCallback(async () => {
     setConfigFetching(true);
     try {
       const [content, notes] = await Promise.all([
@@ -352,18 +352,18 @@ export function Launcher() {
       setConfigFilePath(status.config_path);
     }
 
-    setSetupStatus(status);
+    setInitialSettingsStatus(status);
     if (status.is_setup_required) {
-      await loadSetupWorkbench();
-      setSetupRequired(true);
+      await loadSettingsCenterWorkbench();
+      setInitialSettingsRequired(true);
       setVersionUpgradeStatus(null);
       setIsVersionUpgradePromptOpen(false);
     } else {
-      setSetupRequired(false);
+      setInitialSettingsRequired(false);
       await refreshVersionUpgradeStatus();
     }
     return status;
-  }, [inspectRuntimeDir, loadSetupWorkbench, refreshVersionUpgradeStatus, setRuntimeDir]);
+  }, [inspectRuntimeDir, loadSettingsCenterWorkbench, refreshVersionUpgradeStatus, setRuntimeDir]);
 
   const closeMissingConfigPrompt = (accepted: boolean) => {
     setMissingConfigPrompt(null);
@@ -451,8 +451,8 @@ export function Launcher() {
   }, []);
 
   useEffect(() => {
-    suspendLogUpdatesRef.current = setupRequired || isEditingConfig || showConfigSelector || Boolean(missingConfigPrompt) || isVersionUpgradePromptOpen;
-  }, [isEditingConfig, isVersionUpgradePromptOpen, missingConfigPrompt, setupRequired, showConfigSelector]);
+    suspendLogUpdatesRef.current = initialSettingsRequired || isEditingConfig || showConfigSelector || Boolean(missingConfigPrompt) || isVersionUpgradePromptOpen;
+  }, [isEditingConfig, isVersionUpgradePromptOpen, missingConfigPrompt, initialSettingsRequired, showConfigSelector]);
 
   useEscapeToCloseTopLayer({
     active: Boolean(missingConfigPrompt),
@@ -575,7 +575,7 @@ export function Launcher() {
     }
   };
 
-  const handleSetupRuntimeAction = async () => {
+  const handleSettingsCenterRuntimeAction = async () => {
     if (!isTauriRuntime()) {
       await toast.info('CLI: restart FileUni with --runtime-dir <path> to change the runtime directory.', { duration: 'long' });
       return;
@@ -601,7 +601,7 @@ export function Launcher() {
     onTestCache: handleCheckCache,
     adminPassword: {
       onApply: async (password) => handleStoreAdminPassword(password),
-      loading: setupApplying,
+      loading: settingsCenterApplying,
       hint: t('setup.admin.resetRuleHint'),
     },
     license: {
@@ -612,7 +612,7 @@ export function Launcher() {
       saving: licenseSaving,
     },
     storage: {
-      onPrimaryAction: () => { void handleFinalizeSetup(); },
+      onPrimaryAction: () => { void handleFinalizeSettingsCenter(); },
       primaryActionLabel: t('setup.guide.card3Action'),
     },
   });
@@ -785,7 +785,7 @@ export function Launcher() {
     } catch (e: unknown) {
       const message = extractErrorMessage(e);
       if (message.includes('Initial settings are incomplete')) {
-        setIsSetupRequiredPromptOpen(true);
+        setIsSettingsCenterRequiredPromptOpen(true);
       } else {
         toast.error(message);
       }
@@ -838,7 +838,7 @@ export function Launcher() {
     } catch (e: unknown) {
       const message = extractErrorMessage(e);
       if (message.includes('Initial settings are incomplete')) {
-        setIsSetupRequiredPromptOpen(true);
+        setIsSettingsCenterRequiredPromptOpen(true);
       } else {
         toast.error(message);
       }
@@ -883,7 +883,7 @@ export function Launcher() {
     }
   };
 
-  const handleOpenWebUiFromSetupCompleted = async () => {
+  const handleOpenWebUiFromSettingsCenterCompleted = async () => {
     let running = status === 'Running';
     if (!running) {
       running = await handleStart();
@@ -893,7 +893,7 @@ export function Launcher() {
     }
     const opened = await handleOpenWebUI();
     if (opened) {
-      await finishSetupAndReturnToLauncher();
+      await finishSettingsCenterAndReturnToLauncher();
     }
   };
 
@@ -940,47 +940,47 @@ export function Launcher() {
     password_hint?: string | null;
   };
 
-  const handleApplySetup = async (password: string): Promise<string> => {
-    setSetupApplying(true);
+  const handleApplySettingsCenter = async (password: string): Promise<string> => {
+    setSettingsCenterApplying(true);
     try {
       const res = await safeInvoke<SettingsCenterResult>('apply_settings_center', {
         content: configContent,
         password,
       });
       const username = res?.admin_username?.trim() || 'admin';
-      setSetupAdminUsername(username);
+      setSettingsCenterAdminUsername(username);
       if (res?.admin_action) {
-        setSetupAdminAction(res.admin_action);
+        setSettingsCenterAdminAction(res.admin_action);
       }
-      setSetupPasswordHint(res?.password_hint ?? null);
+      setSettingsCenterPasswordHint(res?.password_hint ?? null);
       setSavedConfigContent(configContent);
       setConfigSummary(t('setup.logs.setupSuccess'));
       setConfigSummaryLevel('success');
       setConfigErrors([]);
       toast.success(t('setup.logs.setupSuccess'));
-      setIsSetupCompletedPromptOpen(true);
+      setIsSettingsCenterCompletedPromptOpen(true);
       setPendingAdminPassword('');
       return username;
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
       throw e;
     } finally {
-      setSetupApplying(false);
+      setSettingsCenterApplying(false);
     }
   };
 
   const handleStoreAdminPassword = async (password: string): Promise<string> => {
-    setSetupApplying(true);
+    setSettingsCenterApplying(true);
     try {
       setPendingAdminPassword(password);
-      return setupAdminUsername;
+      return settingsCenterAdminUsername;
     } finally {
-      setSetupApplying(false);
+      setSettingsCenterApplying(false);
     }
   };
 
-  const enterSetupModeFromPrompt = async () => {
-    setIsSetupRequiredPromptOpen(false);
+  const enterSettingsCenterFromPrompt = async () => {
+    setIsSettingsCenterRequiredPromptOpen(false);
     try {
       await inspectInstallationState(runtimeDir);
     } catch (e: unknown) {
@@ -988,9 +988,9 @@ export function Launcher() {
     }
   };
 
-  const finishSetupAndReturnToLauncher = async () => {
-    setIsSetupCompletedPromptOpen(false);
-    setSetupRequired(false);
+  const finishSettingsCenterAndReturnToLauncher = async () => {
+    setIsSettingsCenterCompletedPromptOpen(false);
+    setInitialSettingsRequired(false);
     try {
       await inspectInstallationState(runtimeDir);
       await refreshStatus();
@@ -999,7 +999,7 @@ export function Launcher() {
     }
   };
 
-  const handleFinalizeSetup = async () => {
+  const handleFinalizeSettingsCenter = async () => {
     setConfigBusy(true);
     try {
       // Enforce the same structured validation model used by "Test".
@@ -1014,7 +1014,7 @@ export function Launcher() {
 
       setConfigErrors([]);
 
-      await handleApplySetup(pendingAdminPassword);
+      await handleApplySettingsCenter(pendingAdminPassword);
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
       setConfigSummary(extractErrorMessage(e));
@@ -1033,15 +1033,15 @@ export function Launcher() {
     }
   };
 
-  const setupFinalMessage =
-    (setupAdminAction === 'created_default'
-      ? t('setup.final.adminCreatedDefault', { user: setupAdminUsername, password: setupPasswordHint || 'admin888' })
-      : setupAdminAction === 'created_with_password'
-        ? t('setup.final.adminCreatedWithPassword', { user: setupAdminUsername, password: setupPasswordHint || '' })
-        : setupAdminAction === 'reset_password'
-          ? t('setup.final.adminReset', { user: setupAdminUsername, password: setupPasswordHint || '' })
-          : setupAdminAction === 'existing_admin'
-            ? t('setup.final.adminExisting', { user: setupAdminUsername })
+  const settingsCenterFinalMessage =
+    (settingsCenterAdminAction === 'created_default'
+      ? t('setup.final.adminCreatedDefault', { user: settingsCenterAdminUsername, password: settingsCenterPasswordHint || 'admin888' })
+      : settingsCenterAdminAction === 'created_with_password'
+        ? t('setup.final.adminCreatedWithPassword', { user: settingsCenterAdminUsername, password: settingsCenterPasswordHint || '' })
+        : settingsCenterAdminAction === 'reset_password'
+          ? t('setup.final.adminReset', { user: settingsCenterAdminUsername, password: settingsCenterPasswordHint || '' })
+          : settingsCenterAdminAction === 'existing_admin'
+            ? t('setup.final.adminExisting', { user: settingsCenterAdminUsername })
             : '');
 
   // Format uptime
@@ -1052,7 +1052,7 @@ export function Launcher() {
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (setupRequired) {
+  if (initialSettingsRequired) {
     return (
       <>
         <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col overflow-y-auto overscroll-contain touch-pan-y">
@@ -1061,18 +1061,18 @@ export function Launcher() {
                 <SettingWorkbenchSurface
                   title={t('admin.config.title')}
                   configPath={configFilePath}
-                  configPathAction={<ConfigPathActionButton onClick={() => { void handleSetupRuntimeAction(); }} label={t(['setup.guide.card1Action', 'launcher.modify_runtime_dirs'])} />}
+                  configPathAction={<ConfigPathActionButton onClick={() => { void handleSettingsCenterRuntimeAction(); }} label={t(['setup.guide.card1Action', 'launcher.modify_runtime_dirs'])} />}
                   headerExtras={<SettingSurfaceControls compact={true} />}
                   settingActions={settingActions}
                 testAction={{
                   label: t('setup.editor.check'),
                   onClick: () => { void handleTestConfig(); },
-                  disabled: configBusy || setupApplying,
+                  disabled: configBusy || settingsCenterApplying,
                 }}
                 primaryAction={{
                   label: t('setup.guide.card3Action'),
-                  onClick: () => { void handleFinalizeSetup(); },
-                  disabled: configBusy || setupApplying,
+                  onClick: () => { void handleFinalizeSettingsCenter(); },
+                  disabled: configBusy || settingsCenterApplying,
                 }}
                 workbenchProps={{
                   tomlAdapter: toml,
@@ -1085,7 +1085,7 @@ export function Launcher() {
                   busy: configBusy,
                   onChange: setConfigContent,
                   onTest: handleTestConfig,
-                  onSave: handleFinalizeSetup,
+                  onSave: handleFinalizeSettingsCenter,
                   saveLabel: t('setup.admin.finish'),
                   onCancel: handleResetToSavedConfig,
                   allowSaveWithoutChanges: true,
@@ -1105,7 +1105,7 @@ export function Launcher() {
             </div>
           </div>
 
-          {isSetupCompletedPromptOpen && (
+          {isSettingsCenterCompletedPromptOpen && (
             <div className="fixed inset-0 z-[160] bg-black/70 flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
               <div className="w-full max-w-md rounded-3xl border border-emerald-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
                 <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
@@ -1115,7 +1115,7 @@ export function Launcher() {
                 </div>
                 <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
                   <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    {setupFinalMessage || t('setup.final.subtitle', { user: setupAdminUsername })}
+                    {settingsCenterFinalMessage || t('setup.final.subtitle', { user: settingsCenterAdminUsername })}
                   </p>
                   <div className="mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-slate-700/60 dark:bg-slate-950/40">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
@@ -1140,7 +1140,7 @@ export function Launcher() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => { void handleOpenWebUiFromSetupCompleted(); }}
+                      onClick={() => { void handleOpenWebUiFromSettingsCenterCompleted(); }}
                       disabled={loading}
                       className="px-5 py-2.5 rounded-xl text-sm font-bold border border-cyan-300 text-cyan-700 hover:bg-cyan-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-cyan-500/30 dark:text-cyan-200 dark:hover:bg-cyan-500/10 transition-all"
                     >
@@ -1148,7 +1148,7 @@ export function Launcher() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => { void finishSetupAndReturnToLauncher(); }}
+                      onClick={() => { void finishSettingsCenterAndReturnToLauncher(); }}
                       className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all"
                     >
                       {t('setup.final.finishLater')}
@@ -1332,7 +1332,7 @@ export function Launcher() {
                       onOpenRuntimeDir={handleOpenRuntimeDir}
                       onEditConfig={handleEditConfig}
                       onOpenAbout={() => setIsAboutOpen(true)}
-                      showSetupWizardAction={false}
+                      showSettingsCenterAction={false}
                     />
                   </div>
                 </div>
@@ -1415,7 +1415,7 @@ export function Launcher() {
         </div>
       )}
 
-      {isSetupRequiredPromptOpen && (
+      {isSettingsCenterRequiredPromptOpen && (
         <div className="fixed inset-0 z-[140] bg-black/70 flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
           <div className="w-full max-w-lg rounded-3xl border border-amber-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
             <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
@@ -1427,10 +1427,10 @@ export function Launcher() {
               <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
                 {t('setup.guide.requiredPrompt')}
               </p>
-              {setupStatus && (
+              {initialSettingsStatus && (
                 <div className="space-y-3">
                   <div className="mt-1 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
-                    {setupStatus.runtime_dir}
+                    {initialSettingsStatus.runtime_dir}
                   </div>
                 </div>
               )}
@@ -1438,17 +1438,17 @@ export function Launcher() {
             <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
               <button
                 type="button"
-                onClick={() => setIsSetupRequiredPromptOpen(false)}
+                onClick={() => setIsSettingsCenterRequiredPromptOpen(false)}
                 className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
               >
                 {t('common.cancel')}
               </button>
               <button
                 type="button"
-                onClick={() => { void enterSetupModeFromPrompt(); }}
+                onClick={() => { void enterSettingsCenterFromPrompt(); }}
                 className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/25 transition-all"
               >
-                {t('launcher.setup_wizard')}
+                {t('launcher.settings_center')}
               </button>
             </div>
           </div>
@@ -1488,7 +1488,7 @@ export function Launcher() {
           <SettingWorkbenchSurface
             title={t('launcher.edit_config')}
             configPath={configFilePath}
-            configPathAction={<ConfigPathActionButton onClick={() => { void handleSetupRuntimeAction(); }} label={t(['setup.guide.card1Action', 'launcher.modify_runtime_dirs'])} />}
+            configPathAction={<ConfigPathActionButton onClick={() => { void handleSettingsCenterRuntimeAction(); }} label={t(['setup.guide.card1Action', 'launcher.modify_runtime_dirs'])} />}
             headerExtras={<SettingSurfaceControls compact={true} />}
             onClose={handleCloseConfigEditor}
             closeAriaLabel={t('common.close')}
