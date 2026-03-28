@@ -23,6 +23,7 @@ import {
   type PoolDraft,
   type TomlAdapter,
   type VfsDriver,
+  driverUsesSlashRoot,
   normalizeOptionsForDriver,
   upsertOption,
 } from "./vfsStorageDraftShared";
