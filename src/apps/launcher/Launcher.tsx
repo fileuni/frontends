@@ -21,6 +21,7 @@ import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { buildSettingCommonActions } from '@/components/setting/SettingCommonActions';
 import { LogViewer, type LogEntry } from '@/apps/launcher/components/LogViewer';
 import { QuickActionsPanel } from '@/apps/launcher/components/QuickActionsPanel';
+import { VersionUpgradeModal, type VersionUpgradeStatusView } from '@/apps/launcher/components/VersionUpgradeModal';
 import { ServiceControlPanel, type ServiceInstallLevel } from '@/apps/launcher/components/ServiceControlPanel';
 import { useConfigStore } from './stores/config';
 import '@/lib/i18n';
@@ -93,6 +94,28 @@ interface InstallationStatus {
   is_setup_required: boolean;
 }
 
+interface VersionUpgradeStatus extends VersionUpgradeStatusView {
+  runtime_dir: string;
+  config_path: string;
+  needs_config_upgrade: boolean;
+  needs_schema_upgrade: boolean;
+  blocks_startup: boolean;
+  issue?: string | null;
+}
+
+interface VersionUpgradeResult {
+  runtime_dir: string;
+  config_path: string;
+  backup_path: string;
+  program_version: string;
+  target_version: string;
+  from_config_version?: string | null;
+  from_schema_version?: string | null;
+  planned_steps: VersionUpgradeStatusView['planned_steps'];
+  uses_major_upgrade_bridge: boolean;
+  applied_steps: string[];
+}
+
 const extractErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
@@ -161,6 +184,9 @@ export function Launcher() {
   const [setupApplying, setSetupApplying] = useState(false);
   const [isSetupRequiredPromptOpen, setIsSetupRequiredPromptOpen] = useState(false);
   const [isSetupCompletedPromptOpen, setIsSetupCompletedPromptOpen] = useState(false);
+  const [versionUpgradeStatus, setVersionUpgradeStatus] = useState<VersionUpgradeStatus | null>(null);
+  const [isVersionUpgradePromptOpen, setIsVersionUpgradePromptOpen] = useState(false);
+  const [versionUpgradeBusy, setVersionUpgradeBusy] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [aboutUpdateInfo, setAboutUpdateInfo] = useState<AboutUpdateInfo | null>(null);
   const [aboutUpdateError, setAboutUpdateError] = useState<string | null>(null);
@@ -207,7 +233,7 @@ export function Launcher() {
         return null;
       }
 
-      // Config file must be created by the setup wizard apply flow.
+      // Config file must be created by the settings center apply flow.
       await inspectInstallationState(inspected.runtime_dir);
       return null;
     } catch (error) {
@@ -282,6 +308,28 @@ export function Launcher() {
     }
   }, [refreshLicenseStatus]);
 
+  const refreshVersionUpgradeStatus = useCallback(async () => {
+    if (!isTauriRuntime()) {
+      setVersionUpgradeStatus(null);
+      setIsVersionUpgradePromptOpen(false);
+      return null;
+    }
+
+    try {
+      const status = await safeInvoke<VersionUpgradeStatus>('inspect_version_upgrade_status');
+      setVersionUpgradeStatus(status);
+      setIsVersionUpgradePromptOpen(status.blocks_startup);
+      return status;
+    } catch (error) {
+      const message = extractErrorMessage(error);
+      console.error('Failed to inspect version upgrade status:', error);
+      toast.error(message);
+      setVersionUpgradeStatus(null);
+      setIsVersionUpgradePromptOpen(false);
+      return null;
+    }
+  }, []);
+
   const inspectInstallationState = useCallback(async (nextRuntimeDir?: string | null) => {
     const inspected = await inspectRuntimeDir(nextRuntimeDir);
     let status = await safeInvoke<InstallationStatus>('inspect_installation_status', {
@@ -308,11 +356,14 @@ export function Launcher() {
     if (status.is_setup_required) {
       await loadSetupWorkbench();
       setSetupRequired(true);
+      setVersionUpgradeStatus(null);
+      setIsVersionUpgradePromptOpen(false);
     } else {
       setSetupRequired(false);
+      await refreshVersionUpgradeStatus();
     }
     return status;
-  }, [inspectRuntimeDir, loadSetupWorkbench, setRuntimeDir]);
+  }, [inspectRuntimeDir, loadSetupWorkbench, refreshVersionUpgradeStatus, setRuntimeDir]);
 
   const closeMissingConfigPrompt = (accepted: boolean) => {
     setMissingConfigPrompt(null);
@@ -400,12 +451,17 @@ export function Launcher() {
   }, []);
 
   useEffect(() => {
-    suspendLogUpdatesRef.current = setupRequired || isEditingConfig || showConfigSelector || Boolean(missingConfigPrompt);
-  }, [isEditingConfig, missingConfigPrompt, setupRequired, showConfigSelector]);
+    suspendLogUpdatesRef.current = setupRequired || isEditingConfig || showConfigSelector || Boolean(missingConfigPrompt) || isVersionUpgradePromptOpen;
+  }, [isEditingConfig, isVersionUpgradePromptOpen, missingConfigPrompt, setupRequired, showConfigSelector]);
 
   useEscapeToCloseTopLayer({
     active: Boolean(missingConfigPrompt),
     onEscape: () => closeMissingConfigPrompt(false),
+  });
+
+  useEscapeToCloseTopLayer({
+    active: isVersionUpgradePromptOpen,
+    onEscape: () => setIsVersionUpgradePromptOpen(false),
   });
 
   const handleRuntimeDirSelected = async (nextRuntimeDir: string) => {
@@ -420,7 +476,35 @@ export function Launcher() {
     }
   };
 
+  const ensureVersionUpgradeReady = useCallback(async (): Promise<boolean> => {
+    const latestStatus = versionUpgradeStatus ?? await refreshVersionUpgradeStatus();
+    if (!latestStatus?.blocks_startup) {
+      return true;
+    }
+    setIsVersionUpgradePromptOpen(true);
+    await toast.warning(t('launcher.upgrade.startBlocked'));
+    return false;
+  }, [refreshVersionUpgradeStatus, versionUpgradeStatus, t]);
+
+  const handleRunVersionUpgrade = async () => {
+    setVersionUpgradeBusy(true);
+    try {
+      const result = await safeInvoke<VersionUpgradeResult>('run_version_upgrade');
+      toast.success(t('launcher.upgrade.success'));
+      setIsVersionUpgradePromptOpen(false);
+      await inspectInstallationState(result.runtime_dir);
+      await refreshStatus();
+    } catch (error) {
+      toast.error(extractErrorMessage(error));
+    } finally {
+      setVersionUpgradeBusy(false);
+    }
+  };
+
   const handleEditConfig = async () => {
+    if (!(await ensureVersionUpgradeReady())) {
+      return;
+    }
     const ready = await ensureRuntimeConfigReady();
     if (!ready) {
       return;
@@ -689,6 +773,9 @@ export function Launcher() {
     if (!ready) {
       return false;
     }
+    if (!(await ensureVersionUpgradeReady())) {
+      return false;
+    }
     setLoading(true);
     try {
       await safeInvoke<string>('start_service');
@@ -697,7 +784,7 @@ export function Launcher() {
       return true;
     } catch (e: unknown) {
       const message = extractErrorMessage(e);
-      if (message.includes('Setup wizard has not been completed')) {
+      if (message.includes('Initial settings are incomplete')) {
         setIsSetupRequiredPromptOpen(true);
       } else {
         toast.error(message);
@@ -741,13 +828,16 @@ export function Launcher() {
       );
       return;
     }
+    if (!(await ensureVersionUpgradeReady())) {
+      return;
+    }
     setLoading(true);
     try {
       await safeInvoke<string>('install_service', { level: serviceInstallLevel, autostart: serviceAutostart });
       toast.success(t('launcher.messages.install_requested'));
     } catch (e: unknown) {
       const message = extractErrorMessage(e);
-      if (message.includes('Setup wizard has not been completed')) {
+      if (message.includes('Initial settings are incomplete')) {
         setIsSetupRequiredPromptOpen(true);
       } else {
         toast.error(message);
@@ -844,7 +934,7 @@ export function Launcher() {
     }
   };
 
-  type SetupWizardResult = {
+  type SettingsCenterResult = {
     admin_username: string;
     admin_action: string;
     password_hint?: string | null;
@@ -853,7 +943,7 @@ export function Launcher() {
   const handleApplySetup = async (password: string): Promise<string> => {
     setSetupApplying(true);
     try {
-      const res = await safeInvoke<SetupWizardResult>('apply_setup_wizard', {
+      const res = await safeInvoke<SettingsCenterResult>('apply_settings_center', {
         content: configContent,
         password,
       });
@@ -1364,6 +1454,16 @@ export function Launcher() {
           </div>
         </div>
       )}
+
+      <VersionUpgradeModal
+        isOpen={isVersionUpgradePromptOpen}
+        status={versionUpgradeStatus}
+        busy={versionUpgradeBusy}
+        onClose={() => setIsVersionUpgradePromptOpen(false)}
+        onConfirm={() => {
+          void handleRunVersionUpgrade();
+        }}
+      />
 
       <AboutModal
         isOpen={isAboutOpen}

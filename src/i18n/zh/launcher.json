@@ -81,5 +81,29 @@
   "install_level": "安装级别",
   "install_level_system": "系统级",
   "install_level_user": "用户级",
-  "install_autostart": "开机自启"
+  "install_autostart": "开机自启",
+  "upgrade": {
+    "title": "需要升级运行环境",
+    "requiredDescription": "当前 FileUni 运行环境来自不同版本。完成升级后，才能启动服务或编辑设置。",
+    "downgradeBlocked": "当前运行环境来自更新的 FileUni 版本。请先安装相同版本或更新版本，再继续使用。",
+    "manualBlocked": "当前运行环境暂时无法自动升级。请检查运行环境数据和数据库连接，再使用兼容的 FileUni 版本重试。",
+    "backupTitle": "请先完成备份",
+    "backupDatabase": "立即备份数据库。",
+    "backupRuntimeDir": "立即备份完整运行目录。",
+    "backupUserFiles": "立即备份重要用户文件。",
+    "binaryVersion": "程序版本",
+    "environmentVersion": "环境版本",
+    "targetVersion": "目标版本",
+    "schemaVersion": "数据库结构版本",
+    "planTitle": "升级计划",
+    "stepBootstrapLegacyRuntime": "旧环境引导升级",
+    "stepConsecutiveRelease": "相邻版本升级步骤",
+    "stepMajorUpgradeBridge": "大版本桥接步骤",
+    "majorBridgeWarning": "当前升级路径包含大版本桥接步骤。继续前请再次确认备份完整可用。",
+    "missingValue": "未记录",
+    "confirm": "立即升级",
+    "upgrading": "升级中...",
+    "success": "运行环境升级完成",
+    "startBlocked": "请先完成运行环境升级，再继续操作。"
+  }
 }
