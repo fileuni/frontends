@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FileArchive, HardDrive, ImagePlus, Key, Settings2, Shield, WandSparkles } from 'lucide-react';
 import { ConfigEditorPanel } from './ConfigEditorPanel';
@@ -166,7 +166,8 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const isDark = resolvedTheme === 'dark';
 
   const isDirty = content !== savedContent;
-  const pendingDiffStats = useMemo(() => calculateLineDiffStats(savedContent, content), [savedContent, content]);
+  const deferredContent = useDeferredValue(content);
+  const pendingDiffStats = useMemo(() => calculateLineDiffStats(savedContent, deferredContent), [savedContent, deferredContent]);
   const isSaveDisabled = !forceEnableSave && !allowSaveWithoutChanges && !isDirty;
 
   useEffect(() => {
@@ -505,14 +506,14 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
 
   return (
     <div className={cn(
-      "flex flex-col rounded-2xl sm:rounded-[2.5rem] border p-3 sm:p-6 shadow-xl transition-all overflow-hidden",
+      "flex flex-col rounded-2xl sm:rounded-[2.5rem] border p-3 sm:p-6 shadow-md transition-colors overflow-hidden",
       isDark 
         ? "bg-white/[0.02] border-white/5 shadow-black/40 hover:border-white/10" 
         : "bg-white border-slate-300 shadow-slate-200/50 hover:border-slate-400"
     )}>
       {validationErrors.length > 0 && (
         <div className={cn(
-          "mb-4 sm:mb-6 rounded-xl sm:rounded-2xl border p-3 sm:p-5 animate-in fade-in slide-in-from-top-2 shadow-inner",
+          "mb-4 sm:mb-6 rounded-xl sm:rounded-2xl border p-3 sm:p-5 shadow-inner",
           isDark ? "bg-red-500/10 border-red-500/20" : "bg-red-50 border-red-200"
         )}>
           <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -548,7 +549,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                     setJumpTo({ line: err.line, column: err.column });
                   }}
                   className={cn(
-                    "flex items-start gap-2 sm:gap-3 group p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all border text-left",
+                    "flex items-start gap-2 sm:gap-3 group p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-colors border text-left",
                     isDark
                       ? "bg-black/20 hover:bg-black/40 border-white/5 hover:border-red-500/20"
                       : "bg-white hover:bg-red-50/30 border-slate-100 hover:border-red-200",

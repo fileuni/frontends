@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ChevronRight, Cpu, HardDrive, Key, PenLine, Settings2, Shield, Wand2, X } from 'lucide-react';
@@ -7,6 +7,7 @@ import { deepClone, ensureRecord, isRecord, type ConfigObject } from '@/lib/conf
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { PerformanceProfilePickerModal } from './PerformanceProfilePickerModal';
+import { useConfigDraftBinding } from './useConfigDraftBinding';
 
 export type DatabaseType = 'postgres' | 'sqlite';
 export type FriendlyStep = 'performance' | 'database' | 'cache' | 'other';
@@ -1465,24 +1466,14 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const [friendlyStep, setFriendlyStep] = useState<FriendlyStep>('performance');
-  const [parseError, setParseError] = useState<string | null>(null);
-  const [draft, setDraft] = useState<FriendlyDraft>(defaultDraft);
   const [showDetailedPreview, setShowDetailedPreview] = useState(false);
   const [showSetupAdvanced, setShowSetupAdvanced] = useState(false);
   const [isPerformanceProfilePickerOpen, setIsPerformanceProfilePickerOpen] = useState(false);
   const resolvedTheme = useResolvedTheme();
 
-  const draftRef = useRef<FriendlyDraft>(defaultDraft);
   const hasInitializedRef = useRef(false);
-  const isInternalSyncRef = useRef(false);
-  const lastObservedContentRef = useRef(content);
 
   const isDark = resolvedTheme === 'dark';
-  const showTechnicalChoices = !setupMode || showSetupAdvanced;
-  const isExternalDatabase = draft.databaseType === 'postgres';
-  const isRedisLikeCache = draft.cacheType === 'valkey' || draft.cacheType === 'redis' || draft.cacheType === 'keydb';
-  const isDashmapCache = draft.cacheType === 'dashmap';
-  const canInspectTechnicalPreview = !setupMode || showSetupAdvanced;
 
   useEscapeToCloseTopLayer({
     active: isOpen && !embedded,
@@ -1517,9 +1508,46 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     [systemHardware?.suggested_performance_template],
   );
 
+  const createDraft = useCallback((source: string): FriendlyDraft => {
+    const parsed = parseConfig(source, tomlAdapter.parse);
+    if (!parsed.value) {
+      return { ...defaultDraft, allocatorPolicy: allocatorRecommendation.policy };
+    }
+    return {
+      ...buildDraftFromConfig(parsed.value, allocatorRecommendation.policy, suggestedTemplate),
+      allocatorPolicy: allocatorRecommendation.policy,
+    };
+  }, [allocatorRecommendation.policy, suggestedTemplate, tomlAdapter]);
+
+  const buildContent = useCallback((source: string, nextDraft: FriendlyDraft): string => {
+    const parsed = parseConfig(source, tomlAdapter.parse);
+    const baseConfig = parsed.value ?? {};
+    const normalizedDraft: FriendlyDraft = {
+      ...nextDraft,
+      allocatorPolicy: allocatorRecommendation.policy,
+    };
+    return tomlAdapter.stringify(applyDraftToConfig(baseConfig, normalizedDraft, allocatorRecommendation.policy));
+  }, [allocatorRecommendation.policy, tomlAdapter]);
+
+  const { draft, setDraft } = useConfigDraftBinding<FriendlyDraft>({
+    active: isOpen,
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+    debounceMs: 220,
+  });
+  const previewDraft = useDeferredValue(draft);
+  const showTechnicalChoices = !setupMode || showSetupAdvanced;
+  const isExternalDatabase = draft.databaseType === 'postgres';
+  const isRedisLikeCache = draft.cacheType === 'valkey' || draft.cacheType === 'redis' || draft.cacheType === 'keydb';
+  const isDashmapCache = draft.cacheType === 'dashmap';
+  const canInspectTechnicalPreview = !setupMode || showSetupAdvanced;
+  const previewIsRedisLikeCache = previewDraft.cacheType === 'valkey' || previewDraft.cacheType === 'redis' || previewDraft.cacheType === 'keydb';
+
   const currentPreset = useMemo(() => {
-    const base = getPresetByTier(draft.performanceTier);
-    const effectivePreset = resolveEffectivePreset(draft, base);
+    const base = getPresetByTier(previewDraft.performanceTier);
+    const effectivePreset = resolveEffectivePreset(previewDraft, base);
     return {
       ...base,
       recommendations: {
@@ -1528,13 +1556,13 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       },
       features: effectivePreset.features,
     };
-  }, [draft]);
+  }, [previewDraft]);
 
   const previewTuningPlan = useMemo(() => {
-    const base = getPresetByTier(draft.performanceTier);
-    const effectivePreset = resolveEffectivePreset(draft, base);
-    return buildPerformanceTuningPlan(draft, effectivePreset);
-  }, [draft]);
+    const base = getPresetByTier(previewDraft.performanceTier);
+    const effectivePreset = resolveEffectivePreset(previewDraft, base);
+    return buildPerformanceTuningPlan(previewDraft, effectivePreset);
+  }, [previewDraft]);
 
   const previewConfigItems = useMemo<ConfigPreviewItem[]>(() => {
     const items: ConfigPreviewItem[] = [];
@@ -1542,8 +1570,8 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       items.push({ path, value: String(value) });
     };
 
-    pushItem('database.db_type', draft.databaseType);
-    if (draft.databaseType === 'sqlite') {
+    pushItem('database.db_type', previewDraft.databaseType);
+    if (previewDraft.databaseType === 'sqlite') {
       pushItem('database.sqlite_config.max_connections', previewTuningPlan.dbMaxConnections);
       pushItem('database.sqlite_config.max_connections_low_memory', previewTuningPlan.dbMaxConnectionsLowMemory);
       pushItem('database.sqlite_config.max_connections_throughput', previewTuningPlan.dbMaxConnectionsThroughput);
@@ -1558,7 +1586,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       pushItem('database.postgres_config.min_connections', previewTuningPlan.dbMinConnections);
     }
 
-    pushItem('fast_kv_storage_hub.kv_type', nonEmptyString(draft.cacheType, defaultDraft.cacheType));
+    pushItem('fast_kv_storage_hub.kv_type', nonEmptyString(previewDraft.cacheType, defaultDraft.cacheType));
     pushItem('fast_kv_storage_hub.default_ttl', previewTuningPlan.kvDefaultTtlSecs);
     pushItem('fast_kv_storage_hub.condition_ttl', previewTuningPlan.kvConditionTtlSecs);
     pushItem('fast_kv_storage_hub.dashmap_mem_upper_limit_ratio', previewTuningPlan.kvDashmapUpperLimitRatio);
@@ -1588,7 +1616,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('middleware.brute_force.lockout_secs', previewTuningPlan.middleware.bruteForceLockoutSecs);
     pushItem('middleware.brute_force.enable_exponential_backoff', previewTuningPlan.middleware.bruteForceBackoffEnabled);
 
-    if (draft.performanceTier === 'constrained') {
+    if (previewDraft.performanceTier === 'constrained') {
       pushItem('safeaccess_guard.bloom_filter_capacity', 10000);
     }
 
@@ -1597,12 +1625,12 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('captcha_code.max_gen_concurrency', previewTuningPlan.captchaPreheat.maxGenConcurrency);
     pushItem('captcha_code.pool_check_interval_secs', previewTuningPlan.captchaPreheat.poolCheckIntervalSecs);
     pushItem('captcha_code.emergency_fill_multiplier', previewTuningPlan.captchaPreheat.emergencyFillMultiplier);
-    pushItem('memory_allocator.policy', draft.allocatorPolicy);
-    pushItem('memory_allocator.profile', draft.allocatorProfile);
+    pushItem('memory_allocator.policy', previewDraft.allocatorPolicy);
+    pushItem('memory_allocator.profile', previewDraft.allocatorProfile);
     pushItem('extension_manager.plus.startup_parallelism_low_memory', currentPreset.tier === 'performance' ? 2 : 1);
     pushItem(
       'extension_manager.plus.startup_parallelism_throughput',
-      currentPreset.tier === 'performance' ? (draft.loadProfile === 'high-concurrency' ? 6 : 4) : 2
+      currentPreset.tier === 'performance' ? (previewDraft.loadProfile === 'high-concurrency' ? 6 : 4) : 2
     );
 
     pushItem('vfs_storage_hub.enable_webdav', currentPreset.features.webdav);
@@ -1669,10 +1697,10 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('task_registry.database_health_check.enabled', true);
     pushItem('task_registry.database_health_check.cron_expression', previewTuningPlan.scheduler.healthCheckCron);
 
-    pushItem('file_manager_serv_sftp.max_connections', currentPreset.features.sftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1);
-    pushItem('file_manager_serv_sftp.worker_threads', currentPreset.features.sftp ? (draft.performanceTier === 'performance' ? 4 : 2) : 1);
-    pushItem('file_manager_serv_ftp.max_connections', currentPreset.features.ftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1);
-    pushItem('file_manager_serv_s3.max_connections', currentPreset.features.s3 ? (draft.performanceTier === 'performance' ? 100 : 20) : 1);
+    pushItem('file_manager_serv_sftp.max_connections', currentPreset.features.sftp ? (previewDraft.performanceTier === 'performance' ? 100 : 20) : 1);
+    pushItem('file_manager_serv_sftp.worker_threads', currentPreset.features.sftp ? (previewDraft.performanceTier === 'performance' ? 4 : 2) : 1);
+    pushItem('file_manager_serv_ftp.max_connections', currentPreset.features.ftp ? (previewDraft.performanceTier === 'performance' ? 100 : 20) : 1);
+    pushItem('file_manager_serv_s3.max_connections', currentPreset.features.s3 ? (previewDraft.performanceTier === 'performance' ? 100 : 20) : 1);
     pushItem('chat_manager.enabled', currentPreset.features.chat);
     pushItem('chat_manager.rate_limit_window_secs', previewTuningPlan.chatRateLimitWindowSecs);
     pushItem('chat_manager.rate_limit_messages_per_window', previewTuningPlan.chatRateLimitMessagesPerWindow);
@@ -1698,7 +1726,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     pushItem('log.enable_async', previewTuningPlan.logEnableAsync);
 
     return items;
-  }, [currentPreset, draft, previewTuningPlan]);
+  }, [currentPreset, previewDraft, previewTuningPlan]);
 
   const previewGroupStats = useMemo<ConfigPreviewGroupStat[]>(() => {
     const groupLabelKeyMap: Record<string, string> = {
@@ -1733,9 +1761,9 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   }, [previewConfigItems]);
 
   const previewSimpleCards = useMemo(() => {
-    const sftpConnectionValue = currentPreset.features.sftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1;
-    const ftpConnectionValue = currentPreset.features.ftp ? (draft.performanceTier === 'performance' ? 100 : 20) : 1;
-    const s3ConnectionValue = currentPreset.features.s3 ? (draft.performanceTier === 'performance' ? 100 : 20) : 1;
+    const sftpConnectionValue = currentPreset.features.sftp ? (previewDraft.performanceTier === 'performance' ? 100 : 20) : 1;
+    const ftpConnectionValue = currentPreset.features.ftp ? (previewDraft.performanceTier === 'performance' ? 100 : 20) : 1;
+    const s3ConnectionValue = currentPreset.features.s3 ? (previewDraft.performanceTier === 'performance' ? 100 : 20) : 1;
     return [
       {
         label: t('admin.config.quickWizard.performance.featureS3'),
@@ -1803,10 +1831,10 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       },
       {
         label: t('admin.config.quickWizard.performance.preview.captchaPreheatMode'),
-        value: t(`admin.config.quickWizard.performance.preheatMode.options.${draft.captchaPreheatMode}`),
-        interactive: draft.performanceTier !== 'constrained',
+        value: t(`admin.config.quickWizard.performance.preheatMode.options.${previewDraft.captchaPreheatMode}`),
+        interactive: previewDraft.performanceTier !== 'constrained',
         options: ['memory', 'balanced', 'throughput'] as CaptchaPreheatMode[],
-        current: draft.captchaPreheatMode,
+        current: previewDraft.captchaPreheatMode,
       },
       {
         label: t('admin.config.quickWizard.performance.preview.captchaPreheatPool'),
@@ -1853,7 +1881,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
         value: String(s3ConnectionValue),
       }] : []),
     ];
-  }, [currentPreset.features, draft.captchaPreheatMode, draft.performanceTier, previewTuningPlan, t]);
+  }, [currentPreset.features, previewDraft.captchaPreheatMode, previewDraft.performanceTier, previewTuningPlan, t]);
 
   const parsed = useMemo(() => {
     if (!isOpen) {
@@ -1861,54 +1889,22 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
     }
     return parseConfig(content, tomlAdapter.parse);
   }, [content, isOpen, tomlAdapter]);
-
-  const initializeFromParsed = useCallback(() => {
-    if (parsed.value) {
-      const nextDraft = {
-        ...buildDraftFromConfig(parsed.value, allocatorRecommendation.policy, suggestedTemplate),
-        allocatorPolicy: allocatorRecommendation.policy,
-      };
-      draftRef.current = nextDraft;
-      setDraft(nextDraft);
-      setParseError(null);
-    } else {
-      setParseError(parsed.error);
-    }
-  }, [allocatorRecommendation.policy, parsed.error, parsed.value, suggestedTemplate]);
+  const parseError = isOpen ? parsed.error : null;
 
   useEffect(() => {
     if (!isOpen) {
       hasInitializedRef.current = false;
-      isInternalSyncRef.current = false;
-      lastObservedContentRef.current = content;
       setShowDetailedPreview(false);
       setShowSetupAdvanced(false);
       setIsPerformanceProfilePickerOpen(false);
       return;
     }
 
-    const isFirstOpen = !hasInitializedRef.current;
-    const contentChanged = lastObservedContentRef.current !== content;
-    lastObservedContentRef.current = content;
-
-    if (isFirstOpen) {
-      initializeFromParsed();
+    if (!hasInitializedRef.current) {
       setFriendlyStep(initialStep ?? 'performance');
       hasInitializedRef.current = true;
-      return;
     }
-
-    if (!contentChanged) {
-      return;
-    }
-
-    if (isInternalSyncRef.current) {
-      isInternalSyncRef.current = false;
-      return;
-    }
-
-    initializeFromParsed();
-  }, [content, initializeFromParsed, initialStep, isOpen]);
+  }, [initialStep, isOpen]);
 
   useEffect(() => {
     if (!isOpen || embedded || typeof document === 'undefined') {
@@ -1924,21 +1920,14 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   const currentStepIndex = friendlySteps.indexOf(friendlyStep);
 
   const syncDraft = useCallback((updater: (prev: FriendlyDraft) => FriendlyDraft) => {
-    const updated = updater(draftRef.current);
-    const nextDraft: FriendlyDraft = {
-      ...updated,
-      allocatorPolicy: allocatorRecommendation.policy,
-    };
-    draftRef.current = nextDraft;
-    setDraft(nextDraft);
-    const baseConfig = parsed.value ?? {};
-    const nextConfig = applyDraftToConfig(baseConfig, nextDraft, allocatorRecommendation.policy);
-    const nextContent = tomlAdapter.stringify(nextConfig);
-    isInternalSyncRef.current = true;
-    lastObservedContentRef.current = nextContent;
-    onContentChange(nextContent);
-    setParseError(null);
-  }, [allocatorRecommendation.policy, onContentChange, parsed.value, tomlAdapter]);
+    setDraft((prev) => {
+      const updated = updater(prev);
+      return {
+        ...updated,
+        allocatorPolicy: allocatorRecommendation.policy,
+      };
+    });
+  }, [allocatorRecommendation.policy, setDraft]);
 
   const selectPerformanceProfile = useCallback((profile: LoadProfile) => {
     syncDraft((prev) => applyPerformanceTemplateToDraft(
@@ -1979,9 +1968,9 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
   }, [showTechnicalChoices, t]);
 
   const setupOverviewItems = useMemo(() => {
-    const cacheHint = isRedisLikeCache
+    const cacheHint = previewIsRedisLikeCache
       ? t('admin.config.quickWizard.setupHints.externalCache')
-      : draft.cacheType === 'database'
+      : previewDraft.cacheType === 'database'
         ? t('admin.config.quickWizard.hints.cacheNoExternalConnection')
         : t('admin.config.quickWizard.hints.cacheDashmapLightweight');
 
@@ -1993,18 +1982,18 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       },
       {
         label: t('admin.config.quickWizard.steps.database'),
-        value: databaseLabelFor(draft.databaseType),
-        hint: draft.databaseType === 'sqlite'
+        value: databaseLabelFor(previewDraft.databaseType),
+        hint: previewDraft.databaseType === 'sqlite'
           ? t('admin.config.quickWizard.hints.sqliteSingleNode')
           : t('admin.config.quickWizard.setupHints.externalDatabase'),
       },
       {
         label: t('admin.config.quickWizard.steps.cache'),
-        value: cacheLabelFor(draft.cacheType),
+        value: cacheLabelFor(previewDraft.cacheType),
         hint: cacheHint,
       },
     ];
-  }, [cacheLabelFor, currentPreset.descKey, currentPreset.labelKey, databaseLabelFor, draft.cacheType, draft.databaseType, isRedisLikeCache, t]);
+  }, [cacheLabelFor, currentPreset.descKey, currentPreset.labelKey, databaseLabelFor, previewDraft.cacheType, previewDraft.databaseType, previewIsRedisLikeCache, t]);
 
   const setupSummaryCards = useMemo(() => {
     return previewSimpleCards.filter((card) => !('interactive' in card) || !card.interactive).slice(0, 8);
@@ -2534,7 +2523,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
       <div className={cn(
         embedded
           ? 'w-full min-h-0'
-          : "relative w-full max-w-6xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
+          : "relative w-full max-w-6xl rounded-2xl border shadow-lg overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
         embedded
           ? 'text-inherit'
           : isDark ? 'border-white/10 bg-slate-950 text-slate-100 ring-1 ring-white/5' : 'border-slate-300 bg-white text-slate-900'
@@ -3438,7 +3427,7 @@ export const ConfigQuickWizardModal: React.FC<ConfigQuickWizardModalProps> = ({
         type="button"
         aria-label={t('common.close')}
         className={cn(
-          "absolute inset-0 backdrop-blur-2xl transition-all duration-300",
+          "absolute inset-0 backdrop-blur-sm transition-colors",
           isDark ? "bg-black/95" : "bg-slate-900/80"
         )}
         onClick={onClose}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import * as toml from 'smol-toml';
@@ -241,7 +241,7 @@ export const SystemConfigAdmin = () => {
     }
   };
 
-  const handleReload = async () => {
+  const handleReload = useCallback(async () => {
     if (reloading || testing) return;
     setReloading(true);
     setValidationErrors([]);
@@ -301,9 +301,9 @@ export const SystemConfigAdmin = () => {
     } finally {
       setReloading(false);
     }
-  };
+  }, [addToast, configPath, content, reloading, t, testing]);
 
-  const handleUpdateLicense = async () => {
+  const handleUpdateLicense = useCallback(async () => {
     if (!licenseKey.trim()) return;
     setSaving(true);
     try {
@@ -320,14 +320,14 @@ export const SystemConfigAdmin = () => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [addToast, fetchLicenseStatus, licenseKey, t]);
 
   const handleResetToSaved = () => {
     setContent(savedContent);
     setValidationErrors([]);
   };
 
-  const handleQuickWizardResetAdminPassword = async (password: string) => {
+  const handleQuickWizardResetAdminPassword = useCallback(async (password: string) => {
     if (!currentUserData?.user.id) {
       throw new Error('Current user context unavailable');
     }
@@ -347,7 +347,7 @@ export const SystemConfigAdmin = () => {
     } finally {
       setIsResettingAdminPassword(false);
     }
-  };
+  }, [addToast, currentUserData?.user.id, currentUserData?.user.username, t]);
 
   const normalizedNotes: Record<string, SharedConfigNoteEntry> = Object.fromEntries(
     Object.entries(notes).map(([key, note]) => [
@@ -376,7 +376,7 @@ export const SystemConfigAdmin = () => {
     );
   }, []);
 
-  const settingActions = buildSettingCommonActions({
+  const settingActions = useMemo(() => buildSettingCommonActions({
     t,
     isDark,
     tomlAdapter: toml,
@@ -400,7 +400,20 @@ export const SystemConfigAdmin = () => {
       onPrimaryAction: () => { void handleReload(); },
       primaryActionLabel: t('admin.config.saveAndReload'),
     },
-  });
+  }), [
+    t,
+    isDark,
+    content,
+    runtimeOs,
+    systemHardware,
+    handleQuickWizardResetAdminPassword,
+    isResettingAdminPassword,
+    licenseStatus,
+    licenseKey,
+    handleUpdateLicense,
+    saving,
+    handleReload,
+  ]);
 
   const handleConfigPathAction = () => {
     void addToast(

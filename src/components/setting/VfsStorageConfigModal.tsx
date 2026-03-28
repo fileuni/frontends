@@ -1038,7 +1038,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
     <div
       className={cn(
         mode === 'modal'
-          ? 'fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300'
+          ? 'fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4'
           : 'relative w-full'
       )}
       {...(mode === 'modal' ? { role: 'dialog', 'aria-modal': 'true' as const } : {})}
@@ -1048,7 +1048,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
           type="button"
           aria-label={t('common.cancel')}
           className={cn(
-            'absolute inset-0 backdrop-blur-2xl transition-all duration-300',
+            'absolute inset-0 backdrop-blur-sm transition-colors',
             isDark ? 'bg-black/95' : 'bg-slate-900/80',
           )}
           onClick={onClose}
@@ -1058,8 +1058,8 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       <div
         className={cn(
           mode === 'modal'
-            ? 'relative w-full max-w-5xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]'
-            : 'relative w-full rounded-2xl border shadow-xl overflow-hidden flex flex-col min-h-0',
+            ? 'relative w-full max-w-5xl rounded-2xl border shadow-lg overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]'
+            : 'relative w-full rounded-2xl border shadow-md overflow-hidden flex flex-col min-h-0',
           isDark
             ? 'bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5'
             : 'bg-white border-gray-200 text-slate-900',

@@ -34,7 +34,7 @@ export const ConfigWorkbenchShell: React.FC<ConfigWorkbenchShellProps> = ({
 
   return (
     <div className={cn(
-      'w-full rounded-2xl sm:rounded-3xl border shadow-2xl flex flex-col overflow-visible transition-all duration-300',
+      'w-full rounded-2xl sm:rounded-3xl border shadow-lg flex flex-col overflow-visible transition-colors',
       isDark ? 'border-white/10 bg-slate-950 text-slate-100' : 'border-slate-200 bg-white text-slate-900',
       containerClassName,
     )}>

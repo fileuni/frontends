@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import * as toml from 'smol-toml';
@@ -266,7 +266,7 @@ export const ConfigSetEditor: React.FC = () => {
     }
   };
 
-  const handleApplyWithoutPassword = async () => {
+  const handleApplyWithoutPassword = useCallback(async () => {
     if (testing) return;
     setTesting(true);
     setValidationErrors([]);
@@ -297,14 +297,14 @@ export const ConfigSetEditor: React.FC = () => {
     } finally {
       setTesting(false);
     }
-  };
+  }, [addToast, configPath, content, pendingAdminPassword, t, testing]);
 
   const handleResetToSaved = () => {
     setContent(savedContent);
     setValidationErrors([]);
   };
 
-  const handleQuickWizardResetAdminPassword = async (password: string) => {
+  const handleQuickWizardResetAdminPassword = useCallback(async (password: string) => {
     setResettingAdminPassword(true);
     try {
       setPendingAdminPassword(password);
@@ -312,7 +312,7 @@ export const ConfigSetEditor: React.FC = () => {
     } finally {
       setResettingAdminPassword(false);
     }
-  };
+  }, [adminUsername]);
 
   const handleDiagnoseExternalTools = useCallback(async (configuredValues: Record<string, string>): Promise<ExternalToolDiagnosisResponse> => {
     return extractData<ExternalToolDiagnosisResponse>(
@@ -370,7 +370,7 @@ export const ConfigSetEditor: React.FC = () => {
     );
   };
 
-  const settingActions = buildSettingCommonActions({
+  const settingActions = useMemo(() => buildSettingCommonActions({
     t,
     isDark,
     tomlAdapter: toml,
@@ -396,7 +396,22 @@ export const ConfigSetEditor: React.FC = () => {
       onPrimaryAction: () => { void handleApplyWithoutPassword(); },
       primaryActionLabel: t('setup.guide.card3Action'),
     },
-  });
+  }), [
+    t,
+    isDark,
+    content,
+    runtimeOs,
+    systemHardware,
+    handleCheckDatabase,
+    handleCheckCache,
+    handleQuickWizardResetAdminPassword,
+    resettingAdminPassword,
+    licenseStatus,
+    licenseKey,
+    licenseSaving,
+    applyLicenseKey,
+    handleApplyWithoutPassword,
+  ]);
 
   if (!loading && !permitted) {
     return (

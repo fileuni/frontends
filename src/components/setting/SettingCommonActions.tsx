@@ -196,7 +196,7 @@ export const buildSettingCommonActions = ({
       label: t('admin.config.quickWizard.performance.performanceTips.title'),
       description: '',
       icon: settingCommonIcons.performance,
-      renderPanel: (
+      renderPanel: () => (
         <PerformanceInlinePanel tomlAdapter={tomlAdapter} content={content} onContentChange={onContentChange} runtimeOs={runtimeOs} systemHardware={systemHardware} />
       ),
     },
@@ -205,7 +205,7 @@ export const buildSettingCommonActions = ({
       label: t('setup.steps.databaseCache'),
       description: '',
       icon: settingCommonIcons.database,
-      renderPanel: (
+      renderPanel: () => (
         <div className="grid gap-4">
           <section className="space-y-3">
             <h4 className={cn('text-base font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('setup.config.dbType')}</h4>
@@ -223,7 +223,7 @@ export const buildSettingCommonActions = ({
       label: t('setup.storagePool.title'),
       description: '',
       icon: settingCommonIcons.storage,
-      renderPanel: (
+      renderPanel: () => (
         <StoragePoolInlinePanel tomlAdapter={tomlAdapter} content={content} onContentChange={onContentChange} runtimeOs={runtimeOs} />
       ),
       actions: [
@@ -236,7 +236,7 @@ export const buildSettingCommonActions = ({
       label: t('setup.admin.changePassword'),
       description: '',
       icon: settingCommonIcons.admin,
-      renderPanel: (
+      renderPanel: () => (
         <AdminPasswordInlinePanel onApply={adminPassword.onApply} loading={adminPassword.loading} hint={adminPassword.hint} />
       ),
       points: [] as string[],
@@ -246,7 +246,7 @@ export const buildSettingCommonActions = ({
       label: t('admin.config.license.title'),
       description: '',
       icon: settingCommonIcons.license,
-      renderPanel: (
+      renderPanel: () => (
         <LicenseInlinePanel
           licenseStatus={license.status}
           licenseKey={license.licenseKey}
@@ -262,7 +262,7 @@ export const buildSettingCommonActions = ({
       label: t('setup.storageCache.title'),
       description: '',
       icon: settingCommonIcons.cache,
-      renderPanel: (
+      renderPanel: () => (
         <CacheAccelerationInlinePanel tomlAdapter={tomlAdapter} content={content} onContentChange={onContentChange} />
       ),
     },
@@ -271,7 +271,7 @@ export const buildSettingCommonActions = ({
       label: t('admin.config.thumbnail.title'),
       description: '',
       icon: settingCommonIcons.thumbnail,
-      renderPanel: (
+      renderPanel: () => (
         <ThumbnailInlinePanel tomlAdapter={tomlAdapter} content={content} onContentChange={onContentChange} />
       ),
     },
@@ -280,7 +280,7 @@ export const buildSettingCommonActions = ({
       label: t('admin.config.compression.title'),
       description: '',
       icon: settingCommonIcons.compression,
-      renderPanel: (
+      renderPanel: () => (
         <CompressionInlinePanel tomlAdapter={tomlAdapter} content={content} onContentChange={onContentChange} />
       ),
     },

@@ -15,7 +15,7 @@ export interface SettingActionItem {
   eyebrow?: string;
   points?: string[];
   stats?: Array<{ label: string; value: string }>;
-  renderPanel?: React.ReactNode;
+  renderPanel?: () => React.ReactNode;
   actions?: Array<{
     id: string;
     label: string;
@@ -240,7 +240,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
               {(activeItem.renderPanel || activeItem.stats?.length || activeItem.points?.length) && (
                 <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                   {activeItem.renderPanel && (
-                    <div className="xl:col-span-2">{activeItem.renderPanel}</div>
+                    <div className="xl:col-span-2">{activeItem.renderPanel()}</div>
                   )}
 
                   {activeItem.stats && activeItem.stats.length > 0 && (

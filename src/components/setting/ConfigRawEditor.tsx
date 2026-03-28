@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Extension } from '@codemirror/state';
+import type { Extension, Text } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -75,20 +75,19 @@ const findLineByPath = (content: string, path: string): number => {
   return startLine > 0 ? startLine + 1 : 1;
 };
 
-const resolveActivePath = (content: string, lineNumber: number): string => {
-  const lines = content.split(/\r?\n/);
-  if (lineNumber <= 0 || lineNumber > lines.length) return '';
+const resolveActivePathFromDoc = (doc: Text, lineNumber: number): string => {
+  if (lineNumber <= 0 || lineNumber > doc.lines) return '';
 
   let currentSection = '';
-  for (let i = lineNumber - 1; i >= 0; i -= 1) {
-    const line = (lines[i] || '').trim();
+  for (let i = lineNumber; i >= 1; i -= 1) {
+    const line = doc.line(i).text.trim();
     if (line.startsWith('[') && line.endsWith(']')) {
       currentSection = line.replace(/[\[\]]/g, '');
       break;
     }
   }
 
-  const currentLine = (lines[lineNumber - 1] || '').trim();
+  const currentLine = doc.line(lineNumber).text.trim();
   const match = currentLine.match(/^([a-zA-Z0-9_-]+)\s*=/);
   if (match && match[1]) {
     return currentSection ? `${currentSection}.${match[1]}` : match[1];
@@ -156,7 +155,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
         return;
       }
       const line = update.state.doc.lineAt(update.state.selection.main.head).number;
-      setInternalActivePath(resolveActivePath(update.state.doc.toString(), line));
+      setInternalActivePath(resolveActivePathFromDoc(update.state.doc, line));
     }),
   ], []);
 
@@ -178,10 +177,10 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
     <div className="flex flex-col w-full gap-3 sm:gap-4" style={{ height: resolvedHeight, minHeight: '360px' }}>
       <div className="flex flex-col shrink-0 gap-3 sm:gap-4">
         {!hideNotes && (
-          <div className={cn(
-            'rounded-xl sm:rounded-2xl border p-3 sm:p-4 flex flex-col gap-3 transition-all animate-in fade-in slide-in-from-top-2 shadow-sm',
-            isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-200 bg-slate-50',
-          )}>
+            <div className={cn(
+              'rounded-xl sm:rounded-2xl border p-3 sm:p-4 flex flex-col gap-3 shadow-sm',
+              isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-200 bg-slate-50',
+            )}>
             {activeNote ? (
               (() => {
                 const localized = getLocalizedNote(activeNote, i18n.language);
@@ -268,7 +267,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
             <button
               type="button"
               className={cn(
-                'h-8 rounded-lg border border-dashed px-3 text-sm font-black uppercase transition-all inline-flex items-center gap-2',
+                'h-8 rounded-lg border border-dashed px-3 text-sm font-black uppercase transition-colors inline-flex items-center gap-2',
                 isDark ? 'border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
               )}
               onClick={() => onChange(embeddedTemplate)}
@@ -281,7 +280,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
       </div>
 
       <div className={cn(
-        'flex-1 h-full rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] border overflow-hidden shadow-2xl relative min-h-[320px] transition-colors',
+        'flex-1 h-full rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] border overflow-hidden shadow-lg relative min-h-[320px] transition-colors',
         isDark ? 'bg-[#1e1e1e] border-white/10' : 'bg-white border-slate-300',
       )}>
         <CodeMirrorEditor
@@ -294,7 +293,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
           onCreateEditor={(view) => {
             editorRef.current = view;
             const line = view.state.doc.lineAt(view.state.selection.main.head).number;
-            setInternalActivePath(resolveActivePath(view.state.doc.toString(), line));
+            setInternalActivePath(resolveActivePathFromDoc(view.state.doc, line));
           }}
           onChange={(value) => {
             onChange(value);

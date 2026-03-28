@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Boxes, Check, PenLine, Sparkles, X as XIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
@@ -8,6 +8,7 @@ import { PasswordInput } from '@/components/common/PasswordInput';
 import { ensureRecord, type ConfigObject } from '@/lib/configObject';
 import type { TomlAdapter } from './ExternalDependencyConfigModal';
 import { PerformanceProfilePickerModal } from './PerformanceProfilePickerModal';
+import { useConfigDraftBinding } from './useConfigDraftBinding';
 import {
   applyPerformanceTemplateToDraft,
   applyDraftToConfig,
@@ -153,6 +154,18 @@ const useDraft = ({ tomlAdapter, content, runtimeOs, systemHardware }: Pick<Base
     [fallbackPolicy, parsed.value, suggestedTemplate],
   );
   return { fallbackPolicy, parsed, draft };
+};
+
+const buildFriendlyDraftFromContent = (
+  content: string,
+  tomlAdapter: TomlAdapter,
+  fallbackPolicy: FriendlyDraft['allocatorPolicy'],
+  suggestedTemplate?: ReturnType<typeof parsePerformanceTemplateId>,
+): FriendlyDraft => {
+  const parsed = parseConfig(content, tomlAdapter.parse);
+  return parsed.value
+    ? buildDraftFromConfig(parsed.value, fallbackPolicy, suggestedTemplate)
+    : { ...defaultDraft, allocatorPolicy: fallbackPolicy };
 };
 
 export const PerformanceInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content, onContentChange, runtimeOs, systemHardware }) => {
@@ -707,26 +720,32 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, conte
 export const DatabaseInlinePanel: React.FC<DatabasePanelProps> = ({ tomlAdapter, content, onContentChange, runtimeOs, onTestDatabase }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === 'dark';
-  const { fallbackPolicy, parsed, draft } = useDraft({ tomlAdapter, content, runtimeOs });
-  const [local, setLocal] = useState<FriendlyDraft>(draft);
-  useEffect(() => setLocal(draft), [draft]);
-
-  const inputClass = cn('mt-1 h-11 w-full rounded-xl border px-3 text-sm', isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900');
-  const pushDraft = (nextDraft: FriendlyDraft) => {
-    if (!parsed.value) return;
+  const fallbackPolicy = recommendedAllocatorPolicyForRuntime(runtimeOs);
+  const createDraft = useCallback((source: string) => {
+    return buildFriendlyDraftFromContent(source, tomlAdapter, fallbackPolicy);
+  }, [fallbackPolicy, tomlAdapter]);
+  const buildContent = useCallback((source: string, nextDraft: FriendlyDraft) => {
+    const parsed = parseConfig(source, tomlAdapter.parse);
+    if (!parsed.value) {
+      return source;
+    }
     const normalized = { ...nextDraft };
     normalized.postgresDsn = buildPostgresDsn(normalized);
     normalized.sqliteDsn = buildSqliteDsn(normalized.sqlitePath);
-    onContentChange(tomlAdapter.stringify(applyDraftToConfig(parsed.value, normalized, fallbackPolicy)));
-  };
+    return tomlAdapter.stringify(applyDraftToConfig(parsed.value, normalized, fallbackPolicy));
+  }, [fallbackPolicy, tomlAdapter]);
+  const { draft: local, setDraft: setLocalDraft } = useConfigDraftBinding<FriendlyDraft>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+  });
 
-  const updateDraft = (updater: (draft: FriendlyDraft) => FriendlyDraft) => {
-    setLocal((prev) => {
-      const nextDraft = updater(prev);
-      pushDraft(nextDraft);
-      return nextDraft;
-    });
-  };
+  const inputClass = cn('mt-1 h-11 w-full rounded-xl border px-3 text-sm', isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900');
+
+  const updateDraft = useCallback((updater: (draft: FriendlyDraft) => FriendlyDraft) => {
+    setLocalDraft((prev) => updater(prev));
+  }, [setLocalDraft]);
 
   return (
     <div className="grid gap-4">
@@ -804,24 +823,30 @@ export const DatabaseInlinePanel: React.FC<DatabasePanelProps> = ({ tomlAdapter,
 export const CacheInlinePanel: React.FC<CachePanelProps> = ({ tomlAdapter, content, onContentChange, runtimeOs, onTestCache }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === 'dark';
-  const { fallbackPolicy, parsed, draft } = useDraft({ tomlAdapter, content, runtimeOs });
-  const [local, setLocal] = useState<FriendlyDraft>(draft);
-  useEffect(() => setLocal(draft), [draft]);
+  const fallbackPolicy = recommendedAllocatorPolicyForRuntime(runtimeOs);
+  const createDraft = useCallback((source: string) => {
+    return buildFriendlyDraftFromContent(source, tomlAdapter, fallbackPolicy);
+  }, [fallbackPolicy, tomlAdapter]);
+  const buildContent = useCallback((source: string, nextDraft: FriendlyDraft) => {
+    const parsed = parseConfig(source, tomlAdapter.parse);
+    if (!parsed.value) {
+      return source;
+    }
+    const normalized = { ...nextDraft, cacheRedisUrl: buildRedisUrl(nextDraft) };
+    return tomlAdapter.stringify(applyDraftToConfig(parsed.value, normalized, fallbackPolicy));
+  }, [fallbackPolicy, tomlAdapter]);
+  const { draft: local, setDraft: setLocalDraft } = useConfigDraftBinding<FriendlyDraft>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+  });
   const inputClass = cn('mt-1 h-11 w-full rounded-xl border px-3 text-sm', isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900');
   const isRedisLike = ['valkey', 'redis', 'keydb'].includes(local.cacheType);
-  const pushDraft = (nextDraft: FriendlyDraft) => {
-    if (!parsed.value) return;
-    const normalized = { ...nextDraft, cacheRedisUrl: buildRedisUrl(nextDraft) };
-    onContentChange(tomlAdapter.stringify(applyDraftToConfig(parsed.value, normalized, fallbackPolicy)));
-  };
 
-  const updateDraft = (updater: (draft: FriendlyDraft) => FriendlyDraft) => {
-    setLocal((prev) => {
-      const nextDraft = updater(prev);
-      pushDraft(nextDraft);
-      return nextDraft;
-    });
-  };
+  const updateDraft = useCallback((updater: (draft: FriendlyDraft) => FriendlyDraft) => {
+    setLocalDraft((prev) => updater(prev));
+  }, [setLocalDraft]);
 
   return (
     <div className="grid gap-4">

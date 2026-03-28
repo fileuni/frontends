@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
@@ -6,6 +6,7 @@ import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { PasswordInput } from '@/components/common/PasswordInput';
 import type { TomlAdapter } from './ExternalDependencyConfigModal';
 import { SettingSegmentedControl } from './SettingSegmentedControl';
+import { useConfigDraftBinding } from './useConfigDraftBinding';
 
 type Driver = 'fs' | 'memory' | 's3' | 'webdav' | 'dropbox' | 'onedrive' | 'gdrive' | 'android_saf' | 'ios_scoped_fs';
 
@@ -93,7 +94,6 @@ const getFieldHintKey = (driver: RemoteDriver, key: string): string => {
 export const StoragePoolInlinePanel: React.FC<Props> = ({ tomlAdapter, content, onContentChange, runtimeOs }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === 'dark';
-  const [items, setItems] = useState<PoolItem[]>([]);
   const normalizedOs = runtimeOs?.toLowerCase() ?? '';
   const driverOptions = useMemo(() => {
     const next: Driver[] = ['fs', 's3', 'webdav', 'dropbox', 'onedrive', 'gdrive'];
@@ -107,8 +107,8 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({ tomlAdapter, content, 
   }, [normalizedOs]);
   const defaultDriver = driverOptions[0] ?? 'fs';
 
-  useEffect(() => {
-    const root = tomlAdapter.parse(content) as Record<string, any>;
+  const createDraft = useCallback((source: string): PoolItem[] => {
+    const root = tomlAdapter.parse(source) as Record<string, any>;
     const hub = root?.vfs_storage_hub ?? {};
     const connectors = Array.isArray(hub.connectors) ? hub.connectors : [];
     const pools = Array.isArray(hub.pools) ? hub.pools : [];
@@ -124,11 +124,13 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({ tomlAdapter, content, 
         options: Object.fromEntries(Object.entries(optionsRaw).map(([key, value]) => [key, String(value)])),
       };
     });
-    setItems(nextItems.length > 0 ? nextItems : [{ id: makeId(), name: 'default-pool', driver: defaultDriver, root: driverDefaults[defaultDriver].root, enabled: true, options: {} }]);
-  }, [content, defaultDriver, driverOptions, tomlAdapter]);
+    return nextItems.length > 0
+      ? nextItems
+      : [{ id: makeId(), name: 'default-pool', driver: defaultDriver, root: driverDefaults[defaultDriver].root, enabled: true, options: {} }];
+  }, [defaultDriver, driverOptions, tomlAdapter]);
 
-  const apply = (nextItems: PoolItem[]) => {
-    const root = tomlAdapter.parse(content) as Record<string, any>;
+  const buildContent = useCallback((source: string, nextItems: PoolItem[]) => {
+    const root = tomlAdapter.parse(source) as Record<string, any>;
     const hub = root.vfs_storage_hub ?? {};
     root.vfs_storage_hub = hub;
     hub.connectors = nextItems.map((item) => ({
@@ -150,15 +152,18 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({ tomlAdapter, content, 
     if (!Array.isArray(hub.policies)) {
       hub.policies = [];
     }
-    onContentChange(tomlAdapter.stringify(root));
-  };
+    return tomlAdapter.stringify(root);
+  }, [tomlAdapter]);
+
+  const { draft: items, setDraft: setItems } = useConfigDraftBinding<PoolItem[]>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+  });
 
   const patch = (updater: (prev: PoolItem[]) => PoolItem[]) => {
-    setItems((prev) => {
-      const next = updater(prev);
-      apply(next);
-      return next;
-    });
+    setItems((prev) => updater(prev));
   };
 
   const inputClass = cn('mt-1 h-11 w-full rounded-xl border px-3 text-sm', isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900');

@@ -34,7 +34,7 @@ export const PerformanceProfilePickerModal: React.FC<PerformanceProfilePickerMod
   return (
     <div className={cn('fixed inset-0 flex items-center justify-center p-4', zIndexClassName)}>
       <button type="button" aria-label={t('common.close')} className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className={cn('relative w-full max-w-xl rounded-2xl border p-4 shadow-2xl', isDark ? 'border-white/10 bg-slate-950 text-slate-100' : 'border-slate-200 bg-white text-slate-900')}>
+      <div className={cn('relative w-full max-w-xl rounded-2xl border p-4 shadow-lg', isDark ? 'border-white/10 bg-slate-950 text-slate-100' : 'border-slate-200 bg-white text-slate-900')}>
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className={cn('text-sm font-black uppercase tracking-[0.18em]', isDark ? 'text-slate-100' : 'text-slate-900')}>
@@ -67,7 +67,7 @@ export const PerformanceProfilePickerModal: React.FC<PerformanceProfilePickerMod
                   onClose();
                 }}
                 className={cn(
-                  'rounded-2xl border px-4 py-4 text-left transition-all',
+                  'rounded-2xl border px-4 py-4 text-left transition-colors',
                   active
                     ? 'border-primary bg-primary/10 text-primary shadow-sm shadow-primary/10'
                     : isDark ? 'border-white/10 bg-slate-950/40 text-slate-200 hover:bg-white/[0.04]' : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100'

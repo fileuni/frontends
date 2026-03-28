@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
@@ -11,6 +11,7 @@ import {
   parseCompressionDraft,
   parseThumbnailDraft,
 } from './ExternalDependencyConfigModal';
+import { useConfigDraftBinding } from './useConfigDraftBinding';
 
 interface BaseProps {
   tomlAdapter: TomlAdapter;
@@ -21,26 +22,21 @@ interface BaseProps {
 export const ThumbnailInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content, onContentChange }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === 'dark';
-  const [draft, setDraft] = useState<ThumbnailDraft>(() => parseThumbnailDraft(content, tomlAdapter));
-  const didInitRef = useRef(false);
-
-  useEffect(() => {
-    setDraft(parseThumbnailDraft(content, tomlAdapter));
-    didInitRef.current = false;
-  }, [content, tomlAdapter]);
+  const createDraft = useCallback((source: string) => parseThumbnailDraft(source, tomlAdapter), [tomlAdapter]);
+  const buildContent = useCallback((source: string, nextDraft: ThumbnailDraft) => {
+    return applyThumbnailDraft(source, tomlAdapter, nextDraft);
+  }, [tomlAdapter]);
+  const { draft, setDraft } = useConfigDraftBinding<ThumbnailDraft>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+  });
 
   const inputClass = cn(
     'mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono',
     isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900'
   );
-
-  useEffect(() => {
-    if (!didInitRef.current) {
-      didInitRef.current = true;
-      return;
-    }
-    onContentChange(applyThumbnailDraft(content, tomlAdapter, draft));
-  }, [content, draft, onContentChange, tomlAdapter]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -105,26 +101,21 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content
 export const CompressionInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content, onContentChange }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === 'dark';
-  const [draft, setDraft] = useState<CompressionDraft>(() => parseCompressionDraft(content, tomlAdapter));
-  const didInitRef = useRef(false);
-
-  useEffect(() => {
-    setDraft(parseCompressionDraft(content, tomlAdapter));
-    didInitRef.current = false;
-  }, [content, tomlAdapter]);
+  const createDraft = useCallback((source: string) => parseCompressionDraft(source, tomlAdapter), [tomlAdapter]);
+  const buildContent = useCallback((source: string, nextDraft: CompressionDraft) => {
+    return applyCompressionDraft(source, tomlAdapter, nextDraft);
+  }, [tomlAdapter]);
+  const { draft, setDraft } = useConfigDraftBinding<CompressionDraft>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+  });
 
   const inputClass = cn(
     'mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono',
     isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900'
   );
-
-  useEffect(() => {
-    if (!didInitRef.current) {
-      didInitRef.current = true;
-      return;
-    }
-    onContentChange(applyCompressionDraft(content, tomlAdapter, draft));
-  }, [content, draft, onContentChange, tomlAdapter]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
@@ -243,29 +234,12 @@ const InlineSegmentCard: React.FC<{
 export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content, onContentChange }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === 'dark';
-  const [draft, setDraft] = useState<CacheAccelerationDraft>({
-    readEnable: false,
-    readBackend: 'memory',
-    readLocalDir: '{RUNTIMEDIR}/cache/vfs-read',
-    readCapacityBytes: '134217728',
-    readMaxFileSizeBytes: '2097152',
-    readTtlSecs: '1800',
-    writeEnable: false,
-    writeBackend: 'local_dir',
-    writeLocalDir: '{RUNTIMEDIR}/cache/vfs-write',
-    writeCapacityBytes: '100663296',
-    writeMaxFileSizeBytes: '262144',
-    writeFlushConcurrency: '2',
-    writeFlushIntervalMs: '30',
-    writeFlushDeadlineSecs: '360',
-  });
-
-  useEffect(() => {
-    const root = tomlAdapter.parse(content) as Record<string, any>;
+  const createDraft = useCallback((source: string): CacheAccelerationDraft => {
+    const root = tomlAdapter.parse(source) as Record<string, any>;
     const hub = root?.vfs_storage_hub ?? {};
     const readCache = hub.read_cache ?? {};
     const writeCache = hub.write_cache ?? {};
-    setDraft({
+    return {
       readEnable: Boolean(readCache.enable),
       readBackend: readCache.backend === 'local_dir' ? 'local_dir' : 'memory',
       readLocalDir: readCache.local_dir ?? '{RUNTIMEDIR}/cache/vfs-read',
@@ -280,11 +254,11 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({ tomlAdapter,
       writeFlushConcurrency: String(writeCache.flush_concurrency ?? 2),
       writeFlushIntervalMs: String(writeCache.flush_interval_ms ?? 30),
       writeFlushDeadlineSecs: String(writeCache.flush_deadline_secs ?? 360),
-    });
-  }, [content, tomlAdapter]);
+    };
+  }, [tomlAdapter]);
 
-  const apply = (next: CacheAccelerationDraft) => {
-    const root = tomlAdapter.parse(content) as Record<string, any>;
+  const buildContent = useCallback((source: string, next: CacheAccelerationDraft) => {
+    const root = tomlAdapter.parse(source) as Record<string, any>;
     const hub = root.vfs_storage_hub ?? {};
     root.vfs_storage_hub = hub;
     hub.read_cache = {
@@ -305,8 +279,15 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({ tomlAdapter,
       flush_interval_ms: Number.parseInt(next.writeFlushIntervalMs, 10) || 30,
       flush_deadline_secs: Number.parseInt(next.writeFlushDeadlineSecs, 10) || 360,
     };
-    onContentChange(tomlAdapter.stringify(root));
-  };
+    return tomlAdapter.stringify(root);
+  }, [tomlAdapter]);
+
+  const { draft, setDraft } = useConfigDraftBinding<CacheAccelerationDraft>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+  });
 
   const inputClass = cn('mt-1 h-11 w-full rounded-xl border px-3 text-sm font-mono', isDark ? 'border-white/10 bg-black/30 text-white' : 'border-slate-300 bg-white text-slate-900');
   const backendOptions = [
@@ -318,11 +299,7 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({ tomlAdapter,
     { value: 'disabled', label: t('common.disabled') },
   ] as const;
   const patch = (updater: (prev: CacheAccelerationDraft) => CacheAccelerationDraft) => {
-    setDraft((prev) => {
-      const next = updater(prev);
-      apply(next);
-      return next;
-    });
+    setDraft((prev) => updater(prev));
   };
 
   return (

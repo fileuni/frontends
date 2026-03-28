@@ -234,17 +234,19 @@ const ModalShell: React.FC<ModalShellProps> = ({ isOpen, onClose, title, subtitl
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300" role="dialog" aria-modal="true">
-      <div
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
+      <button
+        type="button"
+        aria-label="Close"
         className={cn(
-          'absolute inset-0 backdrop-blur-2xl transition-all duration-300',
+          'absolute inset-0 backdrop-blur-sm transition-colors',
           isDark ? 'bg-black/95' : 'bg-slate-900/80',
         )}
         onClick={onClose}
       />
 
       <div className={cn(
-        'relative w-full max-w-4xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]',
+        'relative w-full max-w-4xl rounded-2xl border shadow-lg overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]',
         isDark ? 'bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5' : 'bg-white border-gray-200 text-slate-900',
       )}>
         <div className={cn(
