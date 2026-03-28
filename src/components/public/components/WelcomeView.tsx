@@ -13,10 +13,9 @@ import {
 import { client } from "@/lib/api";
 import { ConfigSetEditor } from "@/components/setting/ConfigSetEditor";
 import { useAuthStore } from "@/stores/auth.ts";
-import { useResolvedTheme } from '@/hooks/useResolvedTheme';
+import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { cn } from "@/lib/utils.ts";
 import type { SystemCapabilities } from "@/stores/config.ts";
-
 
 export const WelcomeView = () => {
   const { t } = useTranslation();
@@ -28,7 +27,7 @@ export const WelcomeView = () => {
 
   const savedUsers = Object.values(usersMap);
 
-  const isDark = resolvedTheme === 'dark';
+  const isDark = resolvedTheme === "dark";
 
   const checkCapabilities = useCallback(async () => {
     try {
@@ -76,7 +75,13 @@ export const WelcomeView = () => {
 
       <div className="relative z-10 max-w-5xl w-full px-6 py-12 text-center">
         <div className="inline-flex mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-          <img src="/favicon.svg" alt={t('common.logoAlt')} width={80} height={80} className="shadow-2xl shadow-primary/20" />
+          <img
+            src="/favicon.svg"
+            alt={t("common.logoAlt")}
+            width={80}
+            height={80}
+            className="shadow-2xl shadow-primary/20"
+          />
         </div>
 
         <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-tight">
@@ -101,7 +106,9 @@ export const WelcomeView = () => {
                 href="#mod=user&page=accounts"
                 className={cn(
                   "px-10 h-14 border rounded-2xl font-black text-lg flex items-center justify-center gap-2 transition-all",
-                  isDark ? "bg-white/5 border-white/10 hover:bg-white/10 text-white" : "bg-white border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm"
+                  isDark
+                    ? "bg-white/5 border-white/10 hover:bg-white/10 text-white"
+                    : "bg-white border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm",
                 )}
               >
                 <Users size={20} />
@@ -122,7 +129,9 @@ export const WelcomeView = () => {
                   href="#mod=user&page=accounts"
                   className={cn(
                     "px-10 h-14 border rounded-2xl font-black text-lg flex items-center justify-center gap-2 transition-all",
-                    isDark ? "bg-white/5 border-white/10 hover:bg-white/10 text-white" : "bg-white border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm"
+                    isDark
+                      ? "bg-white/5 border-white/10 hover:bg-white/10 text-white"
+                      : "bg-white border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm",
                   )}
                 >
                   <Users size={20} />
@@ -133,7 +142,9 @@ export const WelcomeView = () => {
                 href="#mod=public&page=register"
                 className={cn(
                   "px-10 h-14 border rounded-2xl font-black text-lg flex items-center justify-center transition-all",
-                  isDark ? "bg-white/5 border-white/10 hover:bg-white/10 text-white" : "bg-white border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm"
+                  isDark
+                    ? "bg-white/5 border-white/10 hover:bg-white/10 text-white"
+                    : "bg-white border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm",
                 )}
               >
                 {t("common.register")}
@@ -144,30 +155,57 @@ export const WelcomeView = () => {
 
         {/* Feature Badges */}
         <div className="mt-16 flex flex-wrap justify-center gap-6">
-          <div className={cn(
-            "flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all",
-            isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200 shadow-sm"
-          )}>
+          <div
+            className={cn(
+              "flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all",
+              isDark
+                ? "bg-white/5 border-white/10"
+                : "bg-white border-gray-200 shadow-sm",
+            )}
+          >
             <Zap className="text-yellow-500" size={18} />
-            <span className={cn("text-sm font-black uppercase tracking-wider", isDark ? "text-white/80" : "text-gray-700")}>
+            <span
+              className={cn(
+                "text-sm font-black uppercase tracking-wider",
+                isDark ? "text-white/80" : "text-gray-700",
+              )}
+            >
               Blazing Fast
             </span>
           </div>
-          <div className={cn(
-            "flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all",
-            isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200 shadow-sm"
-          )}>
+          <div
+            className={cn(
+              "flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all",
+              isDark
+                ? "bg-white/5 border-white/10"
+                : "bg-white border-gray-200 shadow-sm",
+            )}
+          >
             <ShieldCheck className="text-green-500" size={18} />
-            <span className={cn("text-sm font-black uppercase tracking-wider", isDark ? "text-white/80" : "text-gray-700")}>
+            <span
+              className={cn(
+                "text-sm font-black uppercase tracking-wider",
+                isDark ? "text-white/80" : "text-gray-700",
+              )}
+            >
               Secure Core
             </span>
           </div>
-          <div className={cn(
-            "flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all",
-            isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200 shadow-sm"
-          )}>
+          <div
+            className={cn(
+              "flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all",
+              isDark
+                ? "bg-white/5 border-white/10"
+                : "bg-white border-gray-200 shadow-sm",
+            )}
+          >
             <Cpu className="text-blue-500" size={18} />
-            <span className={cn("text-sm font-black uppercase tracking-wider", isDark ? "text-white/80" : "text-gray-700")}>
+            <span
+              className={cn(
+                "text-sm font-black uppercase tracking-wider",
+                isDark ? "text-white/80" : "text-gray-700",
+              )}
+            >
               Modular
             </span>
           </div>

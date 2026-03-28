@@ -1016,7 +1016,7 @@
         }
       }
     },
-    "quickWizard": {
+    "quickSettings": {
       "title": "クイック設定",
       "subtitle": "よく使う項目を順番に設定し、初期設定をすばやく完了できます。",
       "parseErrorTitle": "現在の TOML はフレンドリーモードで解析できません。",

@@ -63,7 +63,7 @@
     "web": {
       "title": "Webサイト管理",
       "layoutTitle": "マルチサイト管理",
-       "tls": "TLS 暗号化"
+      "tls": "TLS 暗号化"
     },
     "tasks": {
       "title": "タスク監視",

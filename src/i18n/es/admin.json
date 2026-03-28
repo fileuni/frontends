@@ -1016,7 +1016,7 @@
         }
       }
     },
-    "quickWizard": {
+    "quickSettings": {
       "title": "Ajustes rapidos",
       "subtitle": "Configuración paso a paso de opciones comunes para completar la configuración inicial rápidamente.",
       "parseErrorTitle": "El TOML actual no puede parsearse en modo amigable.",

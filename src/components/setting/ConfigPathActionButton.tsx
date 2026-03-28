@@ -1,12 +1,15 @@
-import React from 'react';
-import { Pencil } from 'lucide-react';
+import React from "react";
+import { Pencil } from "lucide-react";
 
 interface ConfigPathActionButtonProps {
   onClick: () => void;
   label: string;
 }
 
-export const ConfigPathActionButton: React.FC<ConfigPathActionButtonProps> = ({ onClick, label }) => {
+export const ConfigPathActionButton: React.FC<ConfigPathActionButtonProps> = ({
+  onClick,
+  label,
+}) => {
   return (
     <button
       type="button"

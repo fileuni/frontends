@@ -123,7 +123,7 @@
         "enabled": "Aktiviert"
       }
     },
-    "quickWizard": {
+    "quickSettings": {
       "title": "Schneller Konfigurationsassistent",
       "subtitle": "Schrittweise Einrichtung der wichtigsten Optionen, um die Erstkonfiguration schnell abzuschliessen.",
       "fields": {

@@ -1,6 +1,9 @@
-import { open } from '@tauri-apps/plugin-dialog';
-import { ConfigPathSelector, type RuntimeDirValue } from '@/apps/launcher/components/ConfigPathSelector';
-import { safeInvoke } from './tauri';
+import { open } from "@tauri-apps/plugin-dialog";
+import {
+  ConfigPathSelector,
+  type RuntimeDirValue,
+} from "@/apps/launcher/components/ConfigPathSelector";
+import { safeInvoke } from "./tauri";
 
 interface RuntimeDirPresets {
   current_runtime_dir: string;
@@ -25,9 +28,11 @@ export default function ConfigSelector({
   presets,
 }: ConfigSelectorProps) {
   const ensureNativeDialogReady = async () => {
-    const ready = await safeInvoke<boolean>('prepare_native_file_dialog');
+    const ready = await safeInvoke<boolean>("prepare_native_file_dialog");
     if (!ready) {
-      throw new Error('Native file dialog is unavailable. Please enter the run data directory manually.');
+      throw new Error(
+        "Native file dialog is unavailable. Please enter the run data directory manually.",
+      );
     }
   };
 
@@ -37,26 +42,33 @@ export default function ConfigSelector({
       onClose={onClose}
       canClose={canClose}
       initialValue={currentValue}
-      currentPreset={presets ? { runtimeDir: presets.current_runtime_dir } : undefined}
-      defaultPreset={presets ? { runtimeDir: presets.default_runtime_dir } : undefined}
+      currentPreset={
+        presets ? { runtimeDir: presets.current_runtime_dir } : undefined
+      }
+      defaultPreset={
+        presets ? { runtimeDir: presets.default_runtime_dir } : undefined
+      }
       onBrowsePath={async () => {
         await ensureNativeDialogReady();
         const selected = await open({
           directory: true,
           multiple: false,
         });
-        return typeof selected === 'string' ? selected : null;
+        return typeof selected === "string" ? selected : null;
       }}
       onValidatePath={async (value) => {
         try {
-          const valid = await safeInvoke<boolean>('validate_runtime_dir', {
+          const valid = await safeInvoke<boolean>("validate_runtime_dir", {
             runtimeDir: value.runtimeDir,
           });
           return { valid };
         } catch (errorValue: unknown) {
           return {
             valid: false,
-            error: errorValue instanceof Error ? errorValue.message : String(errorValue),
+            error:
+              errorValue instanceof Error
+                ? errorValue.message
+                : String(errorValue),
           };
         }
       }}

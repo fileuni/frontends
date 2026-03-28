@@ -1099,7 +1099,7 @@
         }
       }
     },
-    "quickWizard": {
+    "quickSettings": {
       "title": "快速设置",
       "subtitle": "按步骤完成首次安装常用设置。",
       "parseErrorTitle": "当前设置暂时无法用简化模式显示。",

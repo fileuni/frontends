@@ -1175,7 +1175,7 @@
         }
       }
     },
-    "quickWizard": {
+    "quickSettings": {
       "title": "Quick Settings",
       "subtitle": "Walk through the common choices used during the initial settings.",
       "parseErrorTitle": "The current settings cannot be shown in simplified mode right now.",

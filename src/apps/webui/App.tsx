@@ -4,7 +4,10 @@ import { AppRouter } from "./Router";
 import { Navbar } from "@/components/public/components/Navbar.tsx";
 import { ToastContainer, ToastI18nContext } from "@/components/ui/Toast";
 import { GlobalAudioPlayer } from "@/components/file-manager/components";
-import { ChatProvider, ChatErrorBoundary } from "@/components/chat/context/ChatContext";
+import {
+  ChatProvider,
+  ChatErrorBoundary,
+} from "@/components/chat/context/ChatContext";
 import { ChatUnifiedUI } from "@/components/chat/components/ChatUnifiedUI";
 import { EmailUnifiedUI } from "@/components/email/components/EmailUnifiedUI";
 import { useAuthStore } from "@/stores/auth";
@@ -12,15 +15,20 @@ import { useAuthzStore } from "@/stores/authz";
 import { useConfigStore } from "@/stores/config";
 import { MustChangePasswordModal } from "@/components/public/components/MustChangePasswordModal.tsx";
 
-const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { t } = useTranslation();
 
-  const toastI18n = React.useMemo(() => ({
-    doNotShowAgain: t('common.doNotShowAgain'),
-    viewDetails: t('common.viewDetails'),
-    hideDetails: t('common.hideDetails'),
-    copy: t('common.copy'),
-  }), [t]);
+  const toastI18n = React.useMemo(
+    () => ({
+      doNotShowAgain: t("common.doNotShowAgain"),
+      viewDetails: t("common.viewDetails"),
+      hideDetails: t("common.hideDetails"),
+      copy: t("common.copy"),
+    }),
+    [t],
+  );
 
   return (
     <ToastI18nContext.Provider value={toastI18n}>
@@ -35,7 +43,11 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 export const App: React.FC = () => {
   const { currentUserId, isLoggedIn } = useAuthStore();
   const { capabilities, fetchCapabilities } = useConfigStore();
-  const { fetchEntitlements, clear: clearEntitlements, hasPermission } = useAuthzStore();
+  const {
+    fetchEntitlements,
+    clear: clearEntitlements,
+    hasPermission,
+  } = useAuthzStore();
   const isSettingsCenterMode = capabilities?.is_config_set_mode === true;
   const canInitFeatures = Boolean(capabilities) && !isSettingsCenterMode;
 
@@ -65,10 +77,22 @@ export const App: React.FC = () => {
       return;
     }
     void fetchEntitlements();
-  }, [isLoggedIn, currentUserId, fetchEntitlements, clearEntitlements, canInitFeatures]);
+  }, [
+    isLoggedIn,
+    currentUserId,
+    fetchEntitlements,
+    clearEntitlements,
+    canInitFeatures,
+  ]);
 
-  const canUseChat = canInitFeatures && (capabilities?.enable_chat !== false) && hasPermission("feature.chat.use");
-  const canUseEmail = canInitFeatures && (capabilities?.enable_email_manager !== false) && hasPermission("feature.email_manager.use");
+  const canUseChat =
+    canInitFeatures &&
+    capabilities?.enable_chat !== false &&
+    hasPermission("feature.chat.use");
+  const canUseEmail =
+    canInitFeatures &&
+    capabilities?.enable_email_manager !== false &&
+    hasPermission("feature.email_manager.use");
 
   if (!canInitFeatures || !chatAuth) {
     return (

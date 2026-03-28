@@ -63,7 +63,7 @@
     "web": {
       "title": "Gestión de sitios web",
       "layoutTitle": "Gestión multisite",
-       "tls": "TLS seguro"
+      "tls": "TLS seguro"
     },
     "tasks": {
       "title": "Monitor de tareas",

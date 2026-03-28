@@ -1,20 +1,43 @@
-import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AlertTriangle, FileArchive, HardDrive, ImagePlus, Key, Settings2, Shield, WandSparkles } from 'lucide-react';
-import { ConfigEditorPanel } from './ConfigEditorPanel';
-import { AdminPasswordPanel } from './AdminPasswordPanel';
-import { ConfigQuickWizardModal, type ConfigQuickWizardModalProps, type FriendlyStep } from './ConfigQuickWizardModal';
-import { LicenseManagementModal } from './LicenseManagementModal';
-import { VfsStorageConfigModal } from './VfsStorageConfigModal';
+import React, {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useTranslation } from "react-i18next";
+import {
+  AlertTriangle,
+  FileArchive,
+  HardDrive,
+  ImagePlus,
+  Key,
+  Settings2,
+  Shield,
+  WandSparkles,
+} from "lucide-react";
+import { ConfigEditorPanel } from "./ConfigEditorPanel";
+import { AdminPasswordPanel } from "./AdminPasswordPanel";
+import {
+  ConfigQuickSettingsModal,
+  type ConfigQuickSettingsModalProps,
+  type FriendlyStep,
+} from "./ConfigQuickSettingsModal";
+import { LicenseManagementModal } from "./LicenseManagementModal";
+import { VfsStorageConfigModal } from "./VfsStorageConfigModal";
 import {
   CompressionDependencyConfigModal,
   ThumbnailDependencyConfigModal,
   type ExternalToolDiagnosisResponse,
-} from './ExternalDependencyConfigModal';
-import type { ConfigError, ConfigNoteEntry, EditorJumpPosition } from './ConfigRawEditor';
-import { deepClone, ensureRecord, isRecord } from '@/lib/configObject';
-import { useResolvedTheme } from '@/hooks/useResolvedTheme';
-import { cn } from '@/lib/utils';
+} from "./ExternalDependencyConfigModal";
+import type {
+  ConfigError,
+  ConfigNoteEntry,
+  EditorJumpPosition,
+} from "./ConfigRawEditor";
+import { deepClone, ensureRecord, isRecord } from "@/lib/configObject";
+import { useResolvedTheme } from "@/hooks/useResolvedTheme";
+import { cn } from "@/lib/utils";
 
 type LineDiffStats = {
   changed: number;
@@ -22,7 +45,10 @@ type LineDiffStats = {
   removed: number;
 };
 
-const calculateLineDiffStats = (before: string, after: string): LineDiffStats => {
+const calculateLineDiffStats = (
+  before: string,
+  after: string,
+): LineDiffStats => {
   const beforeLines = before.split(/\r?\n/);
   const afterLines = after.split(/\r?\n/);
   const maxLen = Math.max(beforeLines.length, afterLines.length);
@@ -46,7 +72,7 @@ const calculateLineDiffStats = (before: string, after: string): LineDiffStats =>
 };
 
 export interface SystemConfigWorkbenchProps {
-  tomlAdapter: ConfigQuickWizardModalProps['tomlAdapter'];
+  tomlAdapter: ConfigQuickSettingsModalProps["tomlAdapter"];
   loading: boolean;
   configPath?: string | null;
   content: string;
@@ -63,9 +89,9 @@ export interface SystemConfigWorkbenchProps {
   allowSaveWithoutChanges?: boolean;
   forceEnableSave?: boolean;
   reloadSummary?: string;
-  reloadSummaryLevel?: 'success' | 'warning' | 'error' | 'info';
+  reloadSummaryLevel?: "success" | "warning" | "error" | "info";
   restartNotice?: string;
-  quickWizardLicense?: {
+  quickSettingsLicense?: {
     isValid: boolean;
     msg?: string;
     currentUsers: number;
@@ -80,22 +106,28 @@ export interface SystemConfigWorkbenchProps {
     onLicenseKeyChange: (value: string) => void;
     onApplyLicense: () => void;
   };
-  quickWizardEnabled?: boolean;
+  quickSettingsEnabled?: boolean;
   runtimeOs?: string;
-  systemHardware?: ConfigQuickWizardModalProps['systemHardware'];
+  systemHardware?: ConfigQuickSettingsModalProps["systemHardware"];
   onClearValidationErrors?: () => void;
-  onResetAdminPassword?: (password: string) => Promise<void | string | { username?: string }>;
+  onResetAdminPassword?: (
+    password: string,
+  ) => Promise<void | string | { username?: string }>;
   isResettingAdminPassword?: boolean;
   adminPasswordLabel?: string;
-  adminPasswordPanelProps?: Partial<import('./AdminPasswordPanel').AdminPasswordPanelProps>;
-  onPickStorageDirectory?: import('./VfsStorageConfigModal').VfsStorageConfigModalProps['onPickDirectory'];
-  onDiagnoseExternalTools?: (configuredValues: Record<string, string>) => Promise<ExternalToolDiagnosisResponse>;
+  adminPasswordPanelProps?: Partial<
+    import("./AdminPasswordPanel").AdminPasswordPanelProps
+  >;
+  onPickStorageDirectory?: import("./VfsStorageConfigModal").VfsStorageConfigModalProps["onPickDirectory"];
+  onDiagnoseExternalTools?: (
+    configuredValues: Record<string, string>,
+  ) => Promise<ExternalToolDiagnosisResponse>;
   settingsCenterMode?: boolean;
   editorTitle?: string;
   testLabel?: string;
   onSetupActionsReady?: (actions: SetupActionHandles) => void;
-  setupViewMode?: 'visual' | 'raw';
-  onSetupViewChange?: (mode: 'visual' | 'raw') => void;
+  setupViewMode?: "visual" | "raw";
+  onSetupViewChange?: (mode: "visual" | "raw") => void;
   hideShortcuts?: boolean;
   hideEditorToolbar?: boolean;
   hideEditorPath?: boolean;
@@ -126,11 +158,11 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   showCancel = false,
   allowSaveWithoutChanges = false,
   forceEnableSave = false,
-  reloadSummary = '',
-  reloadSummaryLevel = 'info',
+  reloadSummary = "",
+  reloadSummaryLevel = "info",
   restartNotice,
-  quickWizardLicense,
-  quickWizardEnabled = true,
+  quickSettingsLicense,
+  quickSettingsEnabled = true,
   runtimeOs,
   systemHardware,
   onClearValidationErrors,
@@ -151,8 +183,10 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   hideEditorPath = false,
 }) => {
   const { t } = useTranslation();
-  const [isQuickWizardOpen, setIsQuickWizardOpen] = useState(false);
-  const [quickWizardInitialStep, setQuickWizardInitialStep] = useState<FriendlyStep | undefined>(undefined);
+  const [isQuickSettingsOpen, setIsQuickSettingsOpen] = useState(false);
+  const [quickSettingsInitialStep, setQuickSettingsInitialStep] = useState<
+    FriendlyStep | undefined
+  >(undefined);
   const [isAdminPasswordOpen, setIsAdminPasswordOpen] = useState(false);
   const [isLicenseOpen, setIsLicenseOpen] = useState(false);
   const [isStorageOpen, setIsStorageOpen] = useState(false);
@@ -160,21 +194,26 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const [isCompressionToolsOpen, setIsCompressionToolsOpen] = useState(false);
   const [jumpTo, setJumpTo] = useState<EditorJumpPosition | null>(null);
   const [showRawEditor, setShowRawEditor] = useState(!settingsCenterMode);
-  const [showSetupAdvancedActions, setShowSetupAdvancedActions] = useState(false);
+  const [showSetupAdvancedActions, setShowSetupAdvancedActions] =
+    useState(false);
   const resolvedTheme = useResolvedTheme();
 
-  const isDark = resolvedTheme === 'dark';
+  const isDark = resolvedTheme === "dark";
 
   const isDirty = content !== savedContent;
   const deferredContent = useDeferredValue(content);
-  const pendingDiffStats = useMemo(() => calculateLineDiffStats(savedContent, deferredContent), [savedContent, deferredContent]);
-  const isSaveDisabled = !forceEnableSave && !allowSaveWithoutChanges && !isDirty;
+  const pendingDiffStats = useMemo(
+    () => calculateLineDiffStats(savedContent, deferredContent),
+    [savedContent, deferredContent],
+  );
+  const isSaveDisabled =
+    !forceEnableSave && !allowSaveWithoutChanges && !isDirty;
 
   useEffect(() => {
     if (!settingsCenterMode) {
       setShowRawEditor(true);
       setShowSetupAdvancedActions(false);
-      setIsQuickWizardOpen(false);
+      setIsQuickSettingsOpen(false);
     }
   }, [settingsCenterMode]);
 
@@ -188,19 +227,19 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
     if (!settingsCenterMode || !setupViewMode) {
       return;
     }
-    setShowRawEditor(setupViewMode === 'raw');
+    setShowRawEditor(setupViewMode === "raw");
   }, [settingsCenterMode, setupViewMode]);
 
   useEffect(() => {
     if (!settingsCenterMode) {
       return;
     }
-    onSetupViewChange?.(showRawEditor ? 'raw' : 'visual');
+    onSetupViewChange?.(showRawEditor ? "raw" : "visual");
   }, [onSetupViewChange, settingsCenterMode, showRawEditor]);
 
-  const openQuickWizardAt = useCallback((step: FriendlyStep) => {
-    setQuickWizardInitialStep(step);
-    setIsQuickWizardOpen(true);
+  const openQuickSettingsAt = useCallback((step: FriendlyStep) => {
+    setQuickSettingsInitialStep(step);
+    setIsQuickSettingsOpen(true);
   }, []);
 
   const openAdminPassword = useCallback(() => {
@@ -246,14 +285,14 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   useEffect(() => {
     onSetupActionsReady?.({
       ...(onResetAdminPassword ? { openAdminPassword } : {}),
-      ...(quickWizardLicense ? { openLicenseManagement } : {}),
+      ...(quickSettingsLicense ? { openLicenseManagement } : {}),
       openStorageConfig,
       openThumbnailTools,
       openCompressionTools,
     });
   }, [
     onResetAdminPassword,
-    quickWizardLicense,
+    quickSettingsLicense,
     onSetupActionsReady,
     openAdminPassword,
     openCompressionTools,
@@ -264,86 +303,120 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
 
   if (loading) {
     return (
-      <div className={cn(
-        "h-64 flex items-center justify-center font-black animate-pulse uppercase tracking-widest",
-        isDark ? "text-white opacity-50" : "text-slate-900 opacity-40"
-      )}>
-        {t('admin.config.loading')}
+      <div
+        className={cn(
+          "h-64 flex items-center justify-center font-black animate-pulse uppercase tracking-widest",
+          isDark ? "text-white opacity-50" : "text-slate-900 opacity-40",
+        )}
+      >
+        {t("admin.config.loading")}
       </div>
     );
   }
 
   const actionButtons = (
     <div className="flex items-center gap-2 flex-wrap">
-      {quickWizardEnabled && (!settingsCenterMode || showRawEditor) && (
+      {quickSettingsEnabled && (!settingsCenterMode || showRawEditor) && (
         <button
           type="button"
           className={cn(
             "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border font-black uppercase tracking-wide transition-all inline-flex items-center gap-1.5 shadow-sm",
-            isDark 
-              ? "border-white/15 hover:bg-white/10 text-slate-300" 
-              : "border-slate-300 bg-white hover:bg-slate-50 text-slate-900"
+            isDark
+              ? "border-white/15 hover:bg-white/10 text-slate-300"
+              : "border-slate-300 bg-white hover:bg-slate-50 text-slate-900",
           )}
-          onClick={() => setIsQuickWizardOpen(true)}
+          onClick={() => setIsQuickSettingsOpen(true)}
         >
           <WandSparkles size={18} className="text-primary" />
-          {settingsCenterMode ? t('setup.editor.quickWizard') : t('admin.config.quickWizard.title')}
+          {settingsCenterMode
+            ? t("setup.editor.quickSettings")
+            : t("admin.config.quickSettings.title")}
         </button>
       )}
     </div>
   );
 
   const shortcuts = (
-    <div className={cn(
-      "mb-3 sm:mb-4 rounded-2xl border p-3 sm:p-4",
-      isDark ? "border-white/10 bg-black/20" : "border-slate-300 bg-slate-50/70 shadow-inner"
-    )}>
+    <div
+      className={cn(
+        "mb-3 sm:mb-4 rounded-2xl border p-3 sm:p-4",
+        isDark
+          ? "border-white/10 bg-black/20"
+          : "border-slate-300 bg-slate-50/70 shadow-inner",
+      )}
+    >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
         <div>
-          <div className={cn("text-sm font-black uppercase tracking-wide", isDark ? "text-slate-200" : "text-slate-900")}>{t('admin.config.shortcuts.title')}</div>
-          <div className={cn("text-sm sm:text-sm font-bold", isDark ? "text-slate-500" : "text-slate-600")}>{t('admin.config.shortcuts.subtitle')}</div>
+          <div
+            className={cn(
+              "text-sm font-black uppercase tracking-wide",
+              isDark ? "text-slate-200" : "text-slate-900",
+            )}
+          >
+            {t("admin.config.shortcuts.title")}
+          </div>
+          <div
+            className={cn(
+              "text-sm sm:text-sm font-bold",
+              isDark ? "text-slate-500" : "text-slate-600",
+            )}
+          >
+            {t("admin.config.shortcuts.subtitle")}
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        {quickWizardEnabled && !settingsCenterMode && (
+        {quickSettingsEnabled && !settingsCenterMode && (
           <button
             type="button"
             className={cn(
               "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-              isDark ? "border-primary/30 bg-primary/10 text-slate-100 hover:bg-primary/15" : "border-primary/30 bg-primary/5 text-slate-900 hover:bg-primary/10"
+              isDark
+                ? "border-primary/30 bg-primary/10 text-slate-100 hover:bg-primary/15"
+                : "border-primary/30 bg-primary/5 text-slate-900 hover:bg-primary/10",
             )}
-            onClick={() => openQuickWizardAt('performance')}
+            onClick={() => openQuickSettingsAt("performance")}
           >
             <WandSparkles size={18} className="text-primary" />
-            {t('admin.config.quickWizard.steps.performance')}
+            {t("admin.config.quickSettings.steps.performance")}
           </button>
         )}
 
-        {quickWizardEnabled && !settingsCenterMode && (
+        {quickSettingsEnabled && !settingsCenterMode && (
           <button
             type="button"
             className={cn(
               "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-              isDark ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15" : "border-cyan-500/30 bg-cyan-50 text-cyan-900 hover:bg-cyan-100"
+              isDark
+                ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15"
+                : "border-cyan-500/30 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
             )}
-            onClick={() => openQuickWizardAt('database')}
+            onClick={() => openQuickSettingsAt("database")}
           >
-            <Settings2 size={18} className={isDark ? "text-cyan-300" : "text-cyan-700"} />
-            {t('admin.config.quickWizard.steps.database')}
+            <Settings2
+              size={18}
+              className={isDark ? "text-cyan-300" : "text-cyan-700"}
+            />
+            {t("admin.config.quickSettings.steps.database")}
           </button>
         )}
 
-        {quickWizardEnabled && !settingsCenterMode && (
+        {quickSettingsEnabled && !settingsCenterMode && (
           <button
             type="button"
             className={cn(
               "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-              isDark ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/15" : "border-emerald-500/25 bg-emerald-50 text-emerald-900 hover:bg-emerald-100"
+              isDark
+                ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/15"
+                : "border-emerald-500/25 bg-emerald-50 text-emerald-900 hover:bg-emerald-100",
             )}
-            onClick={() => openQuickWizardAt('cache')}
+            onClick={() => openQuickSettingsAt("cache")}
           >
-            <Settings2 size={18} className={isDark ? "text-emerald-300" : "text-emerald-700"} />
-            {t('admin.config.quickWizard.steps.cache')}
+            <Settings2
+              size={18}
+              className={isDark ? "text-emerald-300" : "text-emerald-700"}
+            />
+            {t("admin.config.quickSettings.steps.cache")}
           </button>
         )}
 
@@ -352,113 +425,160 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
             type="button"
             className={cn(
               "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-              isDark ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15" : "border-cyan-500/30 bg-cyan-50 text-cyan-900 hover:bg-cyan-100"
+              isDark
+                ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15"
+                : "border-cyan-500/30 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
             )}
             onClick={openAdminPassword}
           >
-            <Shield size={18} className={isDark ? "text-cyan-300" : "text-cyan-700"} />
-            {adminPasswordLabel || t('admin.config.quickWizard.actions.setAdminPassword')}
+            <Shield
+              size={18}
+              className={isDark ? "text-cyan-300" : "text-cyan-700"}
+            />
+            {adminPasswordLabel ||
+              t("admin.config.quickSettings.actions.setAdminPassword")}
           </button>
         )}
 
-        {!settingsCenterMode && quickWizardLicense && (
+        {!settingsCenterMode && quickSettingsLicense && (
           <button
             type="button"
             className={cn(
               "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-              isDark ? "border-amber-500/30 bg-amber-500/10 text-amber-200 hover:bg-amber-500/15" : "border-amber-500/30 bg-amber-50 text-amber-900 hover:bg-amber-100"
+              isDark
+                ? "border-amber-500/30 bg-amber-500/10 text-amber-200 hover:bg-amber-500/15"
+                : "border-amber-500/30 bg-amber-50 text-amber-900 hover:bg-amber-100",
             )}
             onClick={openLicenseManagement}
           >
-            <Key size={18} className={isDark ? "text-amber-400" : "text-amber-600"} />
-            {t('admin.config.license.title')}
+            <Key
+              size={18}
+              className={isDark ? "text-amber-400" : "text-amber-600"}
+            />
+            {t("admin.config.license.title")}
           </button>
         )}
 
         {!settingsCenterMode && (
-        <button
-          type="button"
-          className={cn(
-            "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-            isDark ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10" : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50"
-          )}
-          onClick={openStorageConfig}
+          <button
+            type="button"
+            className={cn(
+              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+              isDark
+                ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10"
+                : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50",
+            )}
+            onClick={openStorageConfig}
           >
-            <HardDrive size={18} className={isDark ? "text-slate-200" : "text-slate-700"} />
-            {t('admin.config.storage.title')}
+            <HardDrive
+              size={18}
+              className={isDark ? "text-slate-200" : "text-slate-700"}
+            />
+            {t("admin.config.storage.title")}
           </button>
         )}
 
         {!settingsCenterMode && (
-        <button
-          type="button"
-          className={cn(
-            "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-            isDark ? "border-fuchsia-400/25 bg-fuchsia-500/10 text-fuchsia-100 hover:bg-fuchsia-500/15" : "border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100"
-          )}
-          onClick={openThumbnailTools}
-        >
-          <ImagePlus size={18} className={isDark ? "text-fuchsia-300" : "text-fuchsia-700"} />
-          {t('admin.config.thumbnail.title')}
-        </button>
+          <button
+            type="button"
+            className={cn(
+              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+              isDark
+                ? "border-fuchsia-400/25 bg-fuchsia-500/10 text-fuchsia-100 hover:bg-fuchsia-500/15"
+                : "border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100",
+            )}
+            onClick={openThumbnailTools}
+          >
+            <ImagePlus
+              size={18}
+              className={isDark ? "text-fuchsia-300" : "text-fuchsia-700"}
+            />
+            {t("admin.config.thumbnail.title")}
+          </button>
         )}
 
         {!settingsCenterMode && (
-        <button
-          type="button"
-          className={cn(
-            "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-            isDark ? "border-orange-400/25 bg-orange-500/10 text-orange-100 hover:bg-orange-500/15" : "border-orange-300 bg-orange-50 text-orange-900 hover:bg-orange-100"
-          )}
-          onClick={openCompressionTools}
-        >
-          <FileArchive size={18} className={isDark ? "text-orange-300" : "text-orange-700"} />
-          {t('admin.config.compression.title')}
-        </button>
+          <button
+            type="button"
+            className={cn(
+              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+              isDark
+                ? "border-orange-400/25 bg-orange-500/10 text-orange-100 hover:bg-orange-500/15"
+                : "border-orange-300 bg-orange-50 text-orange-900 hover:bg-orange-100",
+            )}
+            onClick={openCompressionTools}
+          >
+            <FileArchive
+              size={18}
+              className={isDark ? "text-orange-300" : "text-orange-700"}
+            />
+            {t("admin.config.compression.title")}
+          </button>
         )}
       </div>
 
       {settingsCenterMode && (
-        <div className={cn(
-          'mt-3 rounded-xl border p-3',
-          isDark ? 'border-white/10 bg-black/20' : 'border-slate-200 bg-white'
-        )}>
+        <div
+          className={cn(
+            "mt-3 rounded-xl border p-3",
+            isDark
+              ? "border-white/10 bg-black/20"
+              : "border-slate-200 bg-white",
+          )}
+        >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className={cn('text-sm font-black', isDark ? 'text-slate-100' : 'text-slate-900')}>
-                {t('setup.editor.moreActionsTitle')}
+              <div
+                className={cn(
+                  "text-sm font-black",
+                  isDark ? "text-slate-100" : "text-slate-900",
+                )}
+              >
+                {t("setup.editor.moreActionsTitle")}
               </div>
-              <div className={cn('text-sm leading-6', isDark ? 'text-slate-400' : 'text-slate-600')}>
-                {t('setup.editor.moreActionsDesc')}
+              <div
+                className={cn(
+                  "text-sm leading-6",
+                  isDark ? "text-slate-400" : "text-slate-600",
+                )}
+              >
+                {t("setup.editor.moreActionsDesc")}
               </div>
             </div>
             <button
               type="button"
               className={cn(
-                'h-10 rounded-lg border px-4 text-sm font-black transition-all shrink-0',
+                "h-10 rounded-lg border px-4 text-sm font-black transition-all shrink-0",
                 isDark
-                  ? 'border-white/15 bg-white/5 text-slate-300 hover:bg-white/10'
-                  : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50'
+                  ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10"
+                  : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50",
               )}
               onClick={() => setShowSetupAdvancedActions((prev) => !prev)}
             >
-              {showSetupAdvancedActions ? t('setup.editor.hideMoreActions') : t('setup.editor.showMoreActions')}
+              {showSetupAdvancedActions
+                ? t("setup.editor.hideMoreActions")
+                : t("setup.editor.showMoreActions")}
             </button>
           </div>
 
           {showSetupAdvancedActions && (
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {quickWizardLicense && (
+              {quickSettingsLicense && (
                 <button
                   type="button"
                   className={cn(
                     "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-                    isDark ? "border-amber-500/30 bg-amber-500/10 text-amber-200 hover:bg-amber-500/15" : "border-amber-500/30 bg-amber-50 text-amber-900 hover:bg-amber-100"
+                    isDark
+                      ? "border-amber-500/30 bg-amber-500/10 text-amber-200 hover:bg-amber-500/15"
+                      : "border-amber-500/30 bg-amber-50 text-amber-900 hover:bg-amber-100",
                   )}
                   onClick={openLicenseManagement}
                 >
-                  <Key size={18} className={isDark ? "text-amber-400" : "text-amber-600"} />
-                  {t('admin.config.license.title')}
+                  <Key
+                    size={18}
+                    className={isDark ? "text-amber-400" : "text-amber-600"}
+                  />
+                  {t("admin.config.license.title")}
                 </button>
               )}
 
@@ -466,36 +586,51 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                 type="button"
                 className={cn(
                   "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-                  isDark ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10" : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50"
+                  isDark
+                    ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10"
+                    : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50",
                 )}
                 onClick={openStorageConfig}
               >
-                <HardDrive size={18} className={isDark ? "text-slate-200" : "text-slate-700"} />
-                {t('admin.config.storage.title')}
+                <HardDrive
+                  size={18}
+                  className={isDark ? "text-slate-200" : "text-slate-700"}
+                />
+                {t("admin.config.storage.title")}
               </button>
 
               <button
                 type="button"
                 className={cn(
                   "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-                  isDark ? "border-fuchsia-400/25 bg-fuchsia-500/10 text-fuchsia-100 hover:bg-fuchsia-500/15" : "border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100"
+                  isDark
+                    ? "border-fuchsia-400/25 bg-fuchsia-500/10 text-fuchsia-100 hover:bg-fuchsia-500/15"
+                    : "border-fuchsia-300 bg-fuchsia-50 text-fuchsia-900 hover:bg-fuchsia-100",
                 )}
                 onClick={openThumbnailTools}
               >
-                <ImagePlus size={18} className={isDark ? "text-fuchsia-300" : "text-fuchsia-700"} />
-                {t('admin.config.thumbnail.title')}
+                <ImagePlus
+                  size={18}
+                  className={isDark ? "text-fuchsia-300" : "text-fuchsia-700"}
+                />
+                {t("admin.config.thumbnail.title")}
               </button>
 
               <button
                 type="button"
                 className={cn(
                   "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-                  isDark ? "border-orange-400/25 bg-orange-500/10 text-orange-100 hover:bg-orange-500/15" : "border-orange-300 bg-orange-50 text-orange-900 hover:bg-orange-100"
+                  isDark
+                    ? "border-orange-400/25 bg-orange-500/10 text-orange-100 hover:bg-orange-500/15"
+                    : "border-orange-300 bg-orange-50 text-orange-900 hover:bg-orange-100",
                 )}
                 onClick={openCompressionTools}
               >
-                <FileArchive size={18} className={isDark ? "text-orange-300" : "text-orange-700"} />
-                {t('admin.config.compression.title')}
+                <FileArchive
+                  size={18}
+                  className={isDark ? "text-orange-300" : "text-orange-700"}
+                />
+                {t("admin.config.compression.title")}
               </button>
             </div>
           )}
@@ -505,22 +640,33 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   );
 
   return (
-    <div className={cn(
-      "flex flex-col rounded-2xl sm:rounded-[2.5rem] border p-3 sm:p-6 shadow-md transition-colors overflow-hidden",
-      isDark 
-        ? "bg-white/[0.02] border-white/5 shadow-black/40 hover:border-white/10" 
-        : "bg-white border-slate-300 shadow-slate-200/50 hover:border-slate-400"
-    )}>
+    <div
+      className={cn(
+        "flex flex-col rounded-2xl sm:rounded-[2.5rem] border p-3 sm:p-6 shadow-md transition-colors overflow-hidden",
+        isDark
+          ? "bg-white/[0.02] border-white/5 shadow-black/40 hover:border-white/10"
+          : "bg-white border-slate-300 shadow-slate-200/50 hover:border-slate-400",
+      )}
+    >
       {validationErrors.length > 0 && (
-        <div className={cn(
-          "mb-4 sm:mb-6 rounded-xl sm:rounded-2xl border p-3 sm:p-5 shadow-inner",
-          isDark ? "bg-red-500/10 border-red-500/20" : "bg-red-50 border-red-200"
-        )}>
+        <div
+          className={cn(
+            "mb-4 sm:mb-6 rounded-xl sm:rounded-2xl border p-3 sm:p-5 shadow-inner",
+            isDark
+              ? "bg-red-500/10 border-red-500/20"
+              : "bg-red-50 border-red-200",
+          )}
+        >
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className={cn("flex items-center gap-2", isDark ? "text-red-400" : "text-red-700")}>
+            <div
+              className={cn(
+                "flex items-center gap-2",
+                isDark ? "text-red-400" : "text-red-700",
+              )}
+            >
               <AlertTriangle size={16} className="animate-pulse sm:w-[18px]" />
               <h3 className="text-sm sm:text-sm font-black uppercase tracking-wide">
-                {t('admin.config.testFailed')} ({validationErrors.length})
+                {t("admin.config.testFailed")} ({validationErrors.length})
               </h3>
             </div>
             {onClearValidationErrors && (
@@ -528,21 +674,23 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                 type="button"
                 className={cn(
                   "h-7 px-2 text-sm uppercase font-black transition-opacity",
-                  isDark ? "text-slate-400 opacity-50 hover:opacity-100" : "text-red-800 opacity-70 hover:opacity-100"
+                  isDark
+                    ? "text-slate-400 opacity-50 hover:opacity-100"
+                    : "text-red-800 opacity-70 hover:opacity-100",
                 )}
                 onClick={onClearValidationErrors}
               >
-                {t('common.clear')}
+                {t("common.clear")}
               </button>
             )}
           </div>
           <div className="max-h-48 sm:max-h-64 overflow-y-auto custom-scrollbar pr-2 flex flex-col gap-2 sm:gap-2.5">
             {validationErrors.map((err) => {
-              const canJump = typeof err.line === 'number' && err.line > 0;
+              const canJump = typeof err.line === "number" && err.line > 0;
               return (
                 <button
                   type="button"
-                  key={`${err.key ?? 'unknown'}:${err.line ?? 0}:${err.column ?? 0}:${err.message}`}
+                  key={`${err.key ?? "unknown"}:${err.line ?? 0}:${err.column ?? 0}:${err.message}`}
                   title={canJump ? `Jump to line ${err.line}` : undefined}
                   onClick={() => {
                     if (!canJump) return;
@@ -553,38 +701,55 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                     isDark
                       ? "bg-black/20 hover:bg-black/40 border-white/5 hover:border-red-500/20"
                       : "bg-white hover:bg-red-50/30 border-slate-100 hover:border-red-200",
-                    canJump && "cursor-pointer"
+                    canJump && "cursor-pointer",
                   )}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className={cn(
-                      "text-sm sm:text-sm leading-relaxed font-mono font-bold transition-colors",
-                      isDark ? "text-red-200/90 group-hover:text-red-100" : "text-red-900"
-                    )}>
+                    <p
+                      className={cn(
+                        "text-sm sm:text-sm leading-relaxed font-mono font-bold transition-colors",
+                        isDark
+                          ? "text-red-200/90 group-hover:text-red-100"
+                          : "text-red-900",
+                      )}
+                    >
                       {err.message}
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      {typeof err.key === 'string' && err.key.trim().length > 0 && (
-                        <span className={cn(
-                          "text-sm sm:text-sm px-1.5 py-0.5 rounded border font-mono font-black",
-                          isDark ? "border-red-500/30 bg-red-500/10 text-red-200" : "border-red-200 bg-red-100 text-red-800"
-                        )}>
-                          key: {err.key}
-                        </span>
-                      )}
-                      {typeof err.line === 'number' && err.line > 0 && (
-                        <span className={cn(
-                          "text-sm sm:text-sm px-1.5 py-0.5 rounded border font-mono font-bold",
-                          isDark ? "border-white/10 bg-black/20 text-red-100/80" : "border-slate-200 bg-slate-100 text-slate-700"
-                        )}>
+                      {typeof err.key === "string" &&
+                        err.key.trim().length > 0 && (
+                          <span
+                            className={cn(
+                              "text-sm sm:text-sm px-1.5 py-0.5 rounded border font-mono font-black",
+                              isDark
+                                ? "border-red-500/30 bg-red-500/10 text-red-200"
+                                : "border-red-200 bg-red-100 text-red-800",
+                            )}
+                          >
+                            key: {err.key}
+                          </span>
+                        )}
+                      {typeof err.line === "number" && err.line > 0 && (
+                        <span
+                          className={cn(
+                            "text-sm sm:text-sm px-1.5 py-0.5 rounded border font-mono font-bold",
+                            isDark
+                              ? "border-white/10 bg-black/20 text-red-100/80"
+                              : "border-slate-200 bg-slate-100 text-slate-700",
+                          )}
+                        >
                           line: {err.line}
                         </span>
                       )}
-                      {typeof err.column === 'number' && err.column > 0 && (
-                        <span className={cn(
-                          "text-sm sm:text-sm px-1.5 py-0.5 rounded border font-mono font-bold",
-                          isDark ? "border-white/10 bg-black/20 text-red-100/80" : "border-slate-200 bg-slate-100 text-slate-700"
-                        )}>
+                      {typeof err.column === "number" && err.column > 0 && (
+                        <span
+                          className={cn(
+                            "text-sm sm:text-sm px-1.5 py-0.5 rounded border font-mono font-bold",
+                            isDark
+                              ? "border-white/10 bg-black/20 text-red-100/80"
+                              : "border-slate-200 bg-slate-100 text-slate-700",
+                          )}
+                        >
                           column: {err.column}
                         </span>
                       )}
@@ -598,53 +763,88 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
       )}
 
       {!settingsCenterMode && (
-        <div className={cn(
-          "mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3 transition-colors",
-          isDark ? "border-white/10 bg-black/20 shadow-none" : "border-slate-300 bg-slate-100/50 shadow-inner"
-        )}>
+        <div
+          className={cn(
+            "mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3 transition-colors",
+            isDark
+              ? "border-white/10 bg-black/20 shadow-none"
+              : "border-slate-300 bg-slate-100/50 shadow-inner",
+          )}
+        >
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm sm:text-sm">
-            <span className={cn(
-              'rounded-lg border px-2 py-0.5 font-black uppercase tracking-wide',
-              isDirty 
-                ? (isDark ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-amber-500/40 bg-amber-100 text-amber-900') 
-                : (isDark ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' : 'border-emerald-500/40 bg-emerald-100 text-emerald-900'),
-            )}>
-              {isDirty ? t('admin.config.pendingChanges') : t('admin.config.noPendingChanges')}
+            <span
+              className={cn(
+                "rounded-lg border px-2 py-0.5 font-black uppercase tracking-wide",
+                isDirty
+                  ? isDark
+                    ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
+                    : "border-amber-500/40 bg-amber-100 text-amber-900"
+                  : isDark
+                    ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
+                    : "border-emerald-500/40 bg-emerald-100 text-emerald-900",
+              )}
+            >
+              {isDirty
+                ? t("admin.config.pendingChanges")
+                : t("admin.config.noPendingChanges")}
             </span>
-            <span className={cn("font-black uppercase tracking-widest", isDark ? "text-white opacity-30" : "text-slate-900 opacity-40")}>
-              {t('admin.config.diffSummary')}
+            <span
+              className={cn(
+                "font-black uppercase tracking-widest",
+                isDark ? "text-white opacity-30" : "text-slate-900 opacity-40",
+              )}
+            >
+              {t("admin.config.diffSummary")}
             </span>
-            <span className={cn(
-              "rounded border px-2 py-0.5 font-mono font-bold",
-              isDark ? "border-white/10 bg-white/5 text-slate-300" : "border-slate-200 bg-white text-slate-800"
-            )}>
-              {t('admin.config.changedLines')}: {pendingDiffStats.changed}
+            <span
+              className={cn(
+                "rounded border px-2 py-0.5 font-mono font-bold",
+                isDark
+                  ? "border-white/10 bg-white/5 text-slate-300"
+                  : "border-slate-200 bg-white text-slate-800",
+              )}
+            >
+              {t("admin.config.changedLines")}: {pendingDiffStats.changed}
             </span>
-            <span className={cn(
-              "rounded border px-2 py-0.5 font-mono font-bold",
-              isDark ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200" : "border-emerald-500/20 bg-emerald-50 text-emerald-800"
-            )}>
-              {t('admin.config.addedLines')}: {pendingDiffStats.added}
+            <span
+              className={cn(
+                "rounded border px-2 py-0.5 font-mono font-bold",
+                isDark
+                  ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"
+                  : "border-emerald-500/20 bg-emerald-50 text-emerald-800",
+              )}
+            >
+              {t("admin.config.addedLines")}: {pendingDiffStats.added}
             </span>
-            <span className={cn(
-              "rounded border px-2 py-0.5 font-mono font-bold",
-              isDark ? "border-red-400/20 bg-red-500/10 text-red-200" : "border-red-500/20 bg-red-50 text-red-800"
-            )}>
-              {t('admin.config.removedLines')}: {pendingDiffStats.removed}
+            <span
+              className={cn(
+                "rounded border px-2 py-0.5 font-mono font-bold",
+                isDark
+                  ? "border-red-400/20 bg-red-500/10 text-red-200"
+                  : "border-red-500/20 bg-red-50 text-red-800",
+              )}
+            >
+              {t("admin.config.removedLines")}: {pendingDiffStats.removed}
             </span>
           </div>
         </div>
       )}
 
       {restartNotice && (
-        <div className={cn(
-          "mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3",
-          isDark ? "border-amber-500/30 bg-amber-500/10" : "border-amber-200 bg-amber-50"
-        )}>
-          <div className={cn(
-            "flex items-start gap-2 text-sm sm:text-sm font-semibold",
-            isDark ? "text-amber-200" : "text-amber-900"
-          )}>
+        <div
+          className={cn(
+            "mb-3 sm:mb-4 rounded-xl sm:rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3",
+            isDark
+              ? "border-amber-500/30 bg-amber-500/10"
+              : "border-amber-200 bg-amber-50",
+          )}
+        >
+          <div
+            className={cn(
+              "flex items-start gap-2 text-sm sm:text-sm font-semibold",
+              isDark ? "text-amber-200" : "text-amber-900",
+            )}
+          >
             <AlertTriangle size={16} className="mt-0.5 shrink-0" />
             <span>{restartNotice}</span>
           </div>
@@ -654,7 +854,13 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
       {!settingsCenterMode && !hideShortcuts && shortcuts}
 
       <ConfigEditorPanel
-        configPath={hideEditorPath ? undefined : (settingsCenterMode ? undefined : (configPath || t('admin.config.pathUnavailable')))}
+        configPath={
+          hideEditorPath
+            ? undefined
+            : settingsCenterMode
+              ? undefined
+              : configPath || t("admin.config.pathUnavailable")
+        }
         content={content}
         notes={notes}
         errors={validationErrors}
@@ -665,63 +871,89 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         onTest={onTest}
         onSave={onSave}
         onCancel={onCancel || (() => {})}
-        title={editorTitle || t('admin.config.title')}
-        testLabel={testLabel || t('admin.config.testContent')}
-        saveLabel={saveLabel || t('admin.config.saveAndReload')}
-        cancelLabel={t('common.cancel')}
+        title={editorTitle || t("admin.config.title")}
+        testLabel={testLabel || t("admin.config.testContent")}
+        saveLabel={saveLabel || t("admin.config.saveAndReload")}
+        cancelLabel={t("common.cancel")}
         showCancel={showCancel}
         isDark={isDark}
-        actionsPrefix={quickWizardEnabled ? actionButtons : undefined}
+        actionsPrefix={quickSettingsEnabled ? actionButtons : undefined}
         editorVisible={showRawEditor}
         hideToolbarWhenCollapsed={settingsCenterMode}
         showToolbar={!hideEditorToolbar}
-        collapsedContent={settingsCenterMode ? (
-          <div className="space-y-4">
-            {quickWizardEnabled && (
-              <ConfigQuickWizardModal
-                tomlAdapter={tomlAdapter}
-                isOpen={true}
-                onClose={() => {}}
-                content={content}
-                onContentChange={onChange}
-                runtimeOs={runtimeOs}
-                systemHardware={systemHardware}
-                onOpenAdminPassword={onResetAdminPassword ? openAdminPassword : undefined}
-                onOpenLicenseManagement={quickWizardLicense ? openLicenseManagement : undefined}
-                onOpenStorageConfig={openStorageConfig}
-                settingsCenterMode={settingsCenterMode}
-                embedded={true}
-                showDoneAction={false}
-              />
-            )}
-          </div>
-        ) : undefined}
+        collapsedContent={
+          settingsCenterMode ? (
+            <div className="space-y-4">
+              {quickSettingsEnabled && (
+                <ConfigQuickSettingsModal
+                  tomlAdapter={tomlAdapter}
+                  isOpen={true}
+                  onClose={() => {}}
+                  content={content}
+                  onContentChange={onChange}
+                  runtimeOs={runtimeOs}
+                  systemHardware={systemHardware}
+                  onOpenAdminPassword={
+                    onResetAdminPassword ? openAdminPassword : undefined
+                  }
+                  onOpenLicenseManagement={
+                    quickSettingsLicense ? openLicenseManagement : undefined
+                  }
+                  onOpenStorageConfig={openStorageConfig}
+                  settingsCenterMode={settingsCenterMode}
+                  embedded={true}
+                  showDoneAction={false}
+                />
+              )}
+            </div>
+          ) : undefined
+        }
       />
 
       {reloadSummary && (
-        <div className={cn(
-          'mt-3 rounded-xl px-3 py-2 text-sm sm:text-sm font-mono border font-bold shadow-sm transition-colors',
-          reloadSummaryLevel === 'success' && (isDark ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-emerald-50 text-emerald-900 border-emerald-200'),
-          reloadSummaryLevel === 'warning' && (isDark ? 'bg-amber-500/10 text-amber-200 border-amber-500/30' : 'bg-amber-50 text-amber-900 border-amber-200'),
-          reloadSummaryLevel === 'error' && (isDark ? 'bg-red-500/10 text-red-200 border-red-500/30' : 'bg-red-50 text-red-900 border-red-200'),
-          reloadSummaryLevel === 'info' && (isDark ? 'bg-white/5 text-white/70 border-white/10' : 'bg-slate-100 text-slate-800 border-slate-200'),
-        )}>
+        <div
+          className={cn(
+            "mt-3 rounded-xl px-3 py-2 text-sm sm:text-sm font-mono border font-bold shadow-sm transition-colors",
+            reloadSummaryLevel === "success" &&
+              (isDark
+                ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+                : "bg-emerald-50 text-emerald-900 border-emerald-200"),
+            reloadSummaryLevel === "warning" &&
+              (isDark
+                ? "bg-amber-500/10 text-amber-200 border-amber-500/30"
+                : "bg-amber-50 text-amber-900 border-amber-200"),
+            reloadSummaryLevel === "error" &&
+              (isDark
+                ? "bg-red-500/10 text-red-200 border-red-500/30"
+                : "bg-red-50 text-red-900 border-red-200"),
+            reloadSummaryLevel === "info" &&
+              (isDark
+                ? "bg-white/5 text-white/70 border-white/10"
+                : "bg-slate-100 text-slate-800 border-slate-200"),
+          )}
+        >
           {reloadSummary}
         </div>
       )}
 
-      {quickWizardEnabled && (
-        <ConfigQuickWizardModal
+      {quickSettingsEnabled && (
+        <ConfigQuickSettingsModal
           tomlAdapter={tomlAdapter}
-          isOpen={isQuickWizardOpen}
-          onClose={() => setIsQuickWizardOpen(false)}
+          isOpen={isQuickSettingsOpen}
+          onClose={() => setIsQuickSettingsOpen(false)}
           content={content}
           onContentChange={onChange}
-          {...(quickWizardInitialStep ? { initialStep: quickWizardInitialStep } : {})}
+          {...(quickSettingsInitialStep
+            ? { initialStep: quickSettingsInitialStep }
+            : {})}
           {...(runtimeOs ? { runtimeOs } : {})}
           {...(systemHardware ? { systemHardware } : {})}
-          {...(onResetAdminPassword ? { onOpenAdminPassword: openAdminPassword } : {})}
-          {...(quickWizardLicense ? { onOpenLicenseManagement: openLicenseManagement } : {})}
+          {...(onResetAdminPassword
+            ? { onOpenAdminPassword: openAdminPassword }
+            : {})}
+          {...(quickSettingsLicense
+            ? { onOpenLicenseManagement: openLicenseManagement }
+            : {})}
           onOpenStorageConfig={openStorageConfig}
           settingsCenterMode={settingsCenterMode}
         />
@@ -742,30 +974,30 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         />
       )}
 
-      {quickWizardLicense && (
+      {quickSettingsLicense && (
         <LicenseManagementModal
           isOpen={isLicenseOpen}
           onClose={() => setIsLicenseOpen(false)}
-          isValid={quickWizardLicense.isValid}
-          statusMessage={quickWizardLicense.msg}
-          currentUsers={quickWizardLicense.currentUsers}
-          maxUsers={quickWizardLicense.maxUsers}
-          deviceCode={quickWizardLicense.deviceCode}
-          hwId={quickWizardLicense.hwId}
-          auxId={quickWizardLicense.auxId}
-          licenseKey={quickWizardLicense.licenseKey}
-          saving={quickWizardLicense.saving}
-          onLicenseKeyChange={quickWizardLicense.onLicenseKeyChange}
-          expiresAt={quickWizardLicense.expiresAt}
-          features={quickWizardLicense.features}
+          isValid={quickSettingsLicense.isValid}
+          statusMessage={quickSettingsLicense.msg}
+          currentUsers={quickSettingsLicense.currentUsers}
+          maxUsers={quickSettingsLicense.maxUsers}
+          deviceCode={quickSettingsLicense.deviceCode}
+          hwId={quickSettingsLicense.hwId}
+          auxId={quickSettingsLicense.auxId}
+          licenseKey={quickSettingsLicense.licenseKey}
+          saving={quickSettingsLicense.saving}
+          onLicenseKeyChange={quickSettingsLicense.onLicenseKeyChange}
+          expiresAt={quickSettingsLicense.expiresAt}
+          features={quickSettingsLicense.features}
           onApplyLicense={() => {
-            const nextKey = quickWizardLicense.licenseKey.trim();
+            const nextKey = quickSettingsLicense.licenseKey.trim();
             if (nextKey.length > 0) {
               try {
                 const parsed = tomlAdapter.parse(content);
                 if (isRecord(parsed)) {
                   const nextConfig = deepClone(parsed);
-                  const licenseSection = ensureRecord(nextConfig, 'license');
+                  const licenseSection = ensureRecord(nextConfig, "license");
                   licenseSection.license_key = nextKey;
                   const nextContent = tomlAdapter.stringify(nextConfig);
                   onChange(nextContent);
@@ -774,7 +1006,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                 // Ignore TOML parse errors; backend apply may still validate.
               }
             }
-            quickWizardLicense.onApplyLicense();
+            quickSettingsLicense.onApplyLicense();
           }}
         />
       )}
@@ -784,7 +1016,9 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         onClose={() => setIsStorageOpen(false)}
         tomlAdapter={tomlAdapter}
         content={content}
-        {...(onPickStorageDirectory ? { onPickDirectory: onPickStorageDirectory } : {})}
+        {...(onPickStorageDirectory
+          ? { onPickDirectory: onPickStorageDirectory }
+          : {})}
         onContentChange={(nextContent) => {
           onChange(nextContent);
         }}

@@ -1016,7 +1016,7 @@
         }
       }
     },
-    "quickWizard": {
+    "quickSettings": {
       "title": "Parametres rapides",
       "subtitle": "Configuration pas a pas des options courantes pour terminer rapidement la configuration initiale.",
       "parseErrorTitle": "Le TOML actuel ne peut pas être parsé en mode convivial.",

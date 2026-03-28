@@ -34,7 +34,7 @@
     "editor": {
       "title": "Settings Center",
       "check": "Check Settings",
-      "quickWizard": "Continue Quick Settings",
+      "quickSettings": "Continue Quick Settings",
       "showAdvanced": "Show Advanced Settings",
       "hideAdvanced": "Hide Advanced Settings",
       "visualMode": "Visual Editor",
@@ -42,7 +42,7 @@
       "rawHiddenTitle": "Edit the config text only if you need more control",
       "rawHiddenDesc": "During the initial settings, the quick settings flow above is usually enough. Open advanced settings only if you need more detailed control.",
       "finishHint": "Confirm to finish the initial settings.",
-      "backToWizard": "Back to Quick Settings",
+      "backToQuickSettings": "Back to Quick Settings",
       "moreActionsTitle": "Other advanced entries",
       "moreActionsDesc": "License, storage, and external tool checks can usually wait until after setup is finished.",
       "showMoreActions": "Show more advanced entries",
@@ -592,7 +592,7 @@
           }
         }
       },
-      "quickWizard": {
+      "quickSettings": {
         "title": "Quick Settings",
         "subtitle": "Walk through the common choices used during the initial settings.",
         "parseErrorTitle": "The current settings cannot be shown in simplified mode right now.",
