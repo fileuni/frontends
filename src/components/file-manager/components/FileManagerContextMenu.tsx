@@ -96,6 +96,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
   const store = useFileStore();
   const { capabilities } = useConfigStore();
   const { fmMode, files } = store;
+  const isSearchMode = store.getIsSearchMode();
   const clipboard = store.getClipboard();
   const { selectedIds } = useSelectionStore();
   
@@ -217,7 +218,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
         <div className="space-y-0.5">
           {target ? (
             <>
-              {fmMode !== 'files' && (
+              {(fmMode !== 'files' || isSearchMode) && (
                 <MenuButton icon={Undo2} label={t('filemanager.actions.openOriginalLocation')} action="open_location" className="text-primary" />
               )}
               {fmMode === 'trash' ? (

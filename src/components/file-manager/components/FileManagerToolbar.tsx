@@ -39,6 +39,7 @@ export const FileManagerToolbar = () => {
   const viewMode = store.getViewMode();
   const currentPath = store.getCurrentPath();
   const shareFilter = store.getShareFilter();
+  const isSearchMode = store.getIsSearchMode();
   const { 
     loadFiles, forceSyncIndex, 
     clearRecycleBin, clearAllShares, clearAllFavorites,
@@ -242,7 +243,12 @@ export const FileManagerToolbar = () => {
             variant="ghost" 
             onClick={() => setShowSearchModal(true)}
             title={t('filemanager.search')}
-            className="p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border border-white/5 transition-all opacity-40 hover:opacity-100"
+            className={cn(
+              "p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border transition-all",
+              isSearchMode
+                ? "border-primary/20 bg-primary/10 text-primary opacity-100"
+                : "border-white/5 opacity-40 hover:opacity-100"
+            )}
           >
             <Search size={18} />
           </Button>

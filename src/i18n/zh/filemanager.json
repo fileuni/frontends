@@ -12,6 +12,7 @@
   "usedOf": "{{used}} 已使用，共 {{total}}",
   "searchPlaceholder": "搜索当前目录下文件...",
   "search": "搜索",
+  "searchActive": "搜索结果",
   "clear": "清除",
   "showShareStatus": "显示分享状态",
   "filterByColor": "按颜色筛选",
@@ -20,6 +21,7 @@
   "virtualScroll": "虚拟滚动",
   "pagination": "分页",
   "emptyFolder": "此文件夹为空",
+  "emptySearch": "未找到匹配文件",
   "sort": {
     "name": "名称",
     "size": "大小",

@@ -326,19 +326,23 @@
       "restartNotice": "少数配置项需要重启服务器才能完全生效。",
       "thumbnail": {
         "title": "缩略图配置",
-        "subtitle": "配置缩略图外部工具路径与视频截帧策略，无需手写 TOML。若启用相关类型但外部程序不可用，系统将禁止带病启动。",
+        "subtitle": "配置内置图片缩略图管线、桌面外部工具路径与视频截帧策略，无需手写 TOML。",
         "apply": "应用缩略图设置",
         "applied": "缩略图设置已应用",
         "applyFailed": "缩略图设置应用失败",
         "loadFailed": "缩略图配置不可用",
         "videoSeekSeconds": "视频截帧秒数",
         "videoSeekRatio": "视频截帧比例",
+        "imageBackend": "图片后端",
+        "imageBackendBuiltin": "内置",
+        "imageBackendExternal": "外部",
+        "imageBackendHint": "内置后端使用 Rust 缩略图管线，也是默认值。外部后端改走 libvips 或 ImageMagick，只在你明确需要外部工具链时再启用。",
         "vipsPath": "libvips 路径",
         "imagemagickPath": "ImageMagick 路径",
         "ffmpegPath": "FFmpeg 路径",
         "libreofficePath": "LibreOffice 路径",
         "videoSeekHint": "填写比例时将优先按视频时长 * 比例计算截帧点；推荐默认值为 0.3，可尽量避开视频开头黑帧。",
-        "helper": "修改路径后，请先检查是否可用。"
+        "helper": "桌面系统的视频缩略图继续使用 FFmpeg；Android 与 iOS 改走系统媒体框架。外部工具路径仍用于 PDF、Office、文本，以及可选的外部图片渲染。"
       },
       "compression": {
         "title": "压缩解压配置",
@@ -357,7 +361,7 @@
         "autofill": "自动填写",
         "autofillSuccess": "已将检测到的路径自动填写到表单中。",
         "autofillNoChange": "没有可用于自动填写的检测结果。",
-        "mobileDisabled": "Android 与 iOS 不支持 FFmpeg、ImageMagick、LibreOffice、libvips、7-Zip 这类桌面外部二进制。移动端部署请保持相关功能禁用。",
+        "mobileDisabled": "Android 与 iOS 的图片缩略图默认走内置 Rust 管线，视频缩略图走系统媒体框架。FFmpeg、ImageMagick、LibreOffice、libvips、7-Zip 这类桌面外部二进制在移动端仍不可用，请保持依赖这些工具的功能关闭。",
         "status": {
           "ok": "正常",
           "warning": "需复查",

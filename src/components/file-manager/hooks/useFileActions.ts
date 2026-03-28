@@ -69,7 +69,8 @@ export function useFileActions() {
     setLoading(true);
     try {
       type FileListEndpoint = 
-        | "/api/v1/file/list" 
+        | "/api/v1/file/list"
+        | "/api/v1/file/search"
         | "/api/v1/file/favorites/list" 
         | "/api/v1/file/recycle-bin/list" 
         | "/api/v1/file/shares/my";
@@ -89,8 +90,15 @@ export function useFileActions() {
         query.order = sortConfig.order;
       }
 
-      if (isSearchMode && searchKeyword) {
-        query.keyword = searchKeyword;
+      const keyword = searchKeyword.trim();
+      if (isSearchMode && keyword) {
+        query.keyword = keyword;
+      }
+
+      if (activeMode === 'files' && isSearchMode && keyword) {
+        endpoint = "/api/v1/file/search";
+        query.path = path;
+        delete query.check_share;
       }
 
       if (activeMode === 'favorites') {
@@ -172,6 +180,11 @@ export function useFileActions() {
   const searchFiles = useCallback(async (keyword: string) => {
     store.setSearchKeyword(keyword.trim());
     store.setIsSearchMode(!!keyword.trim());
+  }, [store]);
+
+  const clearSearch = useCallback(async () => {
+    store.setSearchKeyword('');
+    store.setIsSearchMode(false);
   }, [store]);
 
   const clearHistory = useCallback(() => {
@@ -626,7 +639,7 @@ export function useFileActions() {
   };
 
   return { 
-    loadFiles, loadStorageStats, deleteFiles, renameFile, downloadFile, previewFile, searchFiles, 
+    loadFiles, loadStorageStats, deleteFiles, renameFile, downloadFile, previewFile, searchFiles, clearSearch,
     batchMove, batchCopy, batchCompress,
     restoreFiles, deletePermanent, clearRecycleBin, clearAllShares, clearAllFavorites,
     clearThumbnailCache, clearThumbnailCacheAllUsers, setThumbnailDisabled,

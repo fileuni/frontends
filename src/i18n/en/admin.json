@@ -929,19 +929,23 @@
     "restartNotice": "Some settings require a server restart to take full effect.",
     "thumbnail": {
       "title": "Thumbnail Settings",
-      "subtitle": "Configure desktop thumbnail executables and video seek strategy without editing TOML by hand. If required tools are unavailable, startup validation will block unhealthy deployment.",
+      "subtitle": "Configure the built-in image pipeline, desktop-only external tools, and video frame capture strategy without editing TOML by hand.",
       "apply": "Apply Thumbnail Settings",
       "applied": "Thumbnail settings applied",
       "applyFailed": "Failed to apply thumbnail settings",
       "loadFailed": "Thumbnail config unavailable",
       "videoSeekSeconds": "Video Seek Seconds",
       "videoSeekRatio": "Video Seek Ratio",
+      "imageBackend": "Image Backend",
+      "imageBackendBuiltin": "Built-In",
+      "imageBackendExternal": "External",
+      "imageBackendHint": "Built-In uses the Rust thumbnail pipeline and is the default. External uses libvips or ImageMagick and is only needed when you explicitly want the external toolchain.",
       "vipsPath": "libvips Path",
       "imagemagickPath": "ImageMagick Path",
       "ffmpegPath": "FFmpeg Path",
       "libreofficePath": "LibreOffice Path",
       "videoSeekHint": "If ratio is set, it overrides seek seconds. A default like 0.3 usually avoids black opening frames.",
-      "helper": "After changing the path, check that it works first."
+      "helper": "Desktop systems use FFmpeg for video thumbnails. Android and iOS use the system media framework instead. External tool paths are still used for PDF, Office, text, and optional external image rendering."
     },
     "compression": {
       "title": "Compression & Extraction",
@@ -960,7 +964,7 @@
       "autofill": "Auto Fill",
       "autofillSuccess": "Detected paths have been filled into the form.",
       "autofillNoChange": "No detected path was available to autofill.",
-      "mobileDisabled": "Android and iOS do not support FFmpeg, ImageMagick, LibreOffice, libvips, or 7-Zip as external desktop binaries. Keep these related features disabled on mobile deployments.",
+      "mobileDisabled": "Android and iOS keep image thumbnails on the built-in Rust pipeline and use system media frameworks for video thumbnails. External desktop binaries such as FFmpeg, ImageMagick, LibreOffice, libvips, and 7-Zip remain unavailable, so leave tool-backed features disabled on mobile deployments.",
       "status": {
         "ok": "OK",
         "warning": "Review",

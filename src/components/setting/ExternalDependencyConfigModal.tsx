@@ -6,6 +6,9 @@ import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { deepClone, ensureRecord, isRecord } from '@/lib/configObject';
 import { useToastStore } from '@/stores/toast';
+import { SettingSegmentedControl } from './SettingSegmentedControl';
+
+export type ThumbnailImageBackend = 'builtin' | 'external';
 
 export type TomlAdapter = {
   parse: (source: string) => unknown;
@@ -44,6 +47,7 @@ type DiagnoseExternalTools = (
 ) => Promise<ExternalToolDiagnosisResponse>;
 
 export type ThumbnailDraft = {
+  imageBackend: ThumbnailImageBackend;
   vipsPath: string;
   imagemagickPath: string;
   ffmpegPath: string;
@@ -68,6 +72,7 @@ type ToolInputDescriptor = {
 };
 
 const DEFAULT_THUMBNAIL_DRAFT: ThumbnailDraft = {
+  imageBackend: 'builtin',
   vipsPath: 'vips',
   imagemagickPath: 'convert',
   ffmpegPath: 'ffmpeg',
@@ -109,11 +114,14 @@ export const parseThumbnailDraft = (content: string, tomlAdapter: TomlAdapter): 
     const root = parsed;
     const fileManagerApi = isRecord(root.file_manager_api) ? root.file_manager_api : {};
     const thumbnail = isRecord(fileManagerApi.thumbnail) ? fileManagerApi.thumbnail : {};
+    const image = isRecord(thumbnail.image) ? thumbnail.image : {};
     const tools = isRecord(thumbnail.tools) ? thumbnail.tools : {};
     const video = isRecord(thumbnail.video) ? thumbnail.video : {};
     const asString = (value: unknown, fallback: string) => typeof value === 'string' ? value : fallback;
     const asNumberString = (value: unknown, fallback: string) => typeof value === 'number' && Number.isFinite(value) ? String(value) : fallback;
+    const asBackend = (value: unknown): ThumbnailImageBackend => value === 'external' ? 'external' : 'builtin';
     return {
+      imageBackend: asBackend(image.backend),
       vipsPath: asString(tools.vips_path, DEFAULT_THUMBNAIL_DRAFT.vipsPath),
       imagemagickPath: asString(tools.imagemagick_path, DEFAULT_THUMBNAIL_DRAFT.imagemagickPath),
       ffmpegPath: asString(tools.ffmpeg_path, DEFAULT_THUMBNAIL_DRAFT.ffmpegPath),
@@ -167,8 +175,10 @@ export const applyThumbnailDraft = (content: string, tomlAdapter: TomlAdapter, d
   const next = deepClone(parsed);
   const fileManagerApi = ensureRecord(next, 'file_manager_api');
   const thumbnail = ensureRecord(fileManagerApi, 'thumbnail');
+  const image = ensureRecord(thumbnail, 'image');
   const tools = ensureRecord(thumbnail, 'tools');
   const video = ensureRecord(thumbnail, 'video');
+  image.backend = draft.imageBackend;
   tools.vips_path = draft.vipsPath.trim();
   tools.imagemagick_path = draft.imagemagickPath.trim();
   tools.ffmpeg_path = draft.ffmpegPath.trim();
@@ -517,6 +527,27 @@ export const ThumbnailDependencyConfigModal: React.FC<ThumbnailDependencyConfigM
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className={cn('rounded-2xl border p-4 space-y-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-slate-50')}>
+          <div>
+            <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>
+              {t('admin.config.thumbnail.imageBackend')}
+            </div>
+            <div className="mt-2">
+              <SettingSegmentedControl<ThumbnailImageBackend>
+                value={draft.imageBackend}
+                options={[
+                  { value: 'builtin', label: t('admin.config.thumbnail.imageBackendBuiltin') },
+                  { value: 'external', label: t('admin.config.thumbnail.imageBackendExternal') },
+                ]}
+                onChange={(value) => setDraft((state) => ({ ...state, imageBackend: value }))}
+                className="w-full justify-between"
+                buttonClassName="flex-1"
+              />
+            </div>
+            <div className={cn('mt-2 text-xs leading-6', isDark ? 'text-slate-400' : 'text-slate-600')}>
+              {t('admin.config.thumbnail.imageBackendHint')}
+            </div>
+          </div>
+
           {toolInputs.map((input) => (
             <div key={input.labelKey}>
               <label className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-600')}>{t(input.labelKey)}</label>

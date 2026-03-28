@@ -139,6 +139,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
   const isRecent = store.fmMode === 'recent';
   const isShares = store.fmMode === 'shares';
   const isFavorites = store.fmMode === 'favorites';
+  const isSearchMode = store.getIsSearchMode();
 
   // State of being unfavorited and disappearing
   const isDisappearing = isFavorites && file.favorite_color === 0;
@@ -153,6 +154,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
   const getSecondaryInfo = () => {
     if (isTrash) return file.original_path || '';
     if (isRecent) return file.path;
+    if (store.fmMode === 'files' && isSearchMode) return file.path;
     
     // Share mode displays: Original Location | Start Time | Expiration
     if (isShares) {

@@ -16,25 +16,21 @@ interface SearchModalProps {
 export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const { t } = useTranslation();
   const store = useFileStore();
-  const { loadFiles } = useFileActions();
+  const { searchFiles, clearSearch } = useFileActions();
   const [keyword, setKeyword] = useState('');
+  const currentSearchKeyword = store.getSearchKeyword();
+  const isSearchMode = store.getIsSearchMode();
 
   const handleSearch = () => {
     if (keyword.trim()) {
-      store.setSearchKeyword(keyword);
-      store.setIsSearchMode(true);
-      loadFiles();
+      searchFiles(keyword);
       onClose();
     }
   };
 
   const handleClear = () => {
     setKeyword('');
-    store.setSearchKeyword('');
-    store.setIsSearchMode(false);
-    // Reload file list to exit search mode
-    const { loadFiles } = useFileActions();
-    loadFiles();
+    clearSearch();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -47,9 +43,9 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
   useEffect(() => {
     if (isOpen) {
-      setKeyword(store.getSearchKeyword());
+      setKeyword(currentSearchKeyword);
     }
-  }, [isOpen]);
+  }, [currentSearchKeyword, isOpen]);
 
   return (
     <Modal 
@@ -70,6 +66,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
           />
           {keyword && (
             <button
+              type="button"
               onClick={() => setKeyword('')}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
             >
@@ -89,7 +86,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
           <Button
             variant="ghost"
             onClick={handleClear}
-            disabled={!store.getIsSearchMode()}
+            disabled={!isSearchMode}
           >
             {t('filemanager.clear')}
           </Button>

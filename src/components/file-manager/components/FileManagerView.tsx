@@ -25,6 +25,7 @@ import { isAnyEscLayerOpen } from "@/hooks/useEscapeToCloseTopLayer";
 import { useToastStore } from "@/stores/toast";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { useConfigStore } from "@/stores/config.ts";
+import { Search, X } from "lucide-react";
 
 import { FileManagerTabs } from "./FileManagerTabs.tsx";
 import { FileManagerNavigationBar } from "./FileManagerNavigationBar.tsx";
@@ -44,7 +45,7 @@ export const FileManagerView = () => {
     loadFiles, deleteFiles, downloadFile, restoreFiles, deletePermanent,
     clearRecycleBin, toggleFavorite, createFile, createDirectory, renameFile,
     clearHistory, removeFromHistory, cancelShare, previewFile, pasteItems,
-    waitForTask, clearThumbnailCache, clearThumbnailCacheAllUsers, setThumbnailDisabled
+    waitForTask, clearThumbnailCache, clearThumbnailCacheAllUsers, setThumbnailDisabled, clearSearch
   } = useFileActions();
 
   const store = useFileStore();
@@ -55,6 +56,10 @@ export const FileManagerView = () => {
 
   const currentPath = store.getCurrentPath();
   const clipboard = store.getClipboard();
+  const sortConfig = store.getSortConfig();
+  const isSearchMode = store.getIsSearchMode();
+  const searchKeyword = store.getSearchKeyword();
+  const pageSize = store.getPageSize();
   const { addToast } = useToastStore();
   const { selectedIds, deselectAll, selectAll } = useSelectionStore();
   const { play: playAudio } = useAudioStore();
@@ -92,6 +97,8 @@ export const FileManagerView = () => {
     isSyncingRef.current = true;
     const page = params.page as FileManagerMode;
     const path = params.path;
+    const keyword = params.keyword?.trim() || '';
+    const isSearchFromHash = params.search === '1' && keyword.length > 0;
     
     if (page && page !== useFileStore.getState().fmMode) {
       useFileStore.getState().setFmMode(page);
@@ -102,10 +109,16 @@ export const FileManagerView = () => {
     if (path && path !== useFileStore.getState().getCurrentPath()) {
       useFileStore.getState().setCurrentPath(path);
     }
+    if (keyword !== useFileStore.getState().getSearchKeyword()) {
+      useFileStore.getState().setSearchKeyword(keyword);
+    }
+    if (isSearchFromHash !== useFileStore.getState().getIsSearchMode()) {
+      useFileStore.getState().setIsSearchMode(isSearchFromHash);
+    }
     
     setIsReady(true);
     setTimeout(() => { isSyncingRef.current = false; }, 100);
-  }, [params.page, params.path]);
+  }, [params.keyword, params.page, params.path, params.search]);
 
 
   useEffect(() => {
@@ -115,20 +128,40 @@ export const FileManagerView = () => {
       mod: string;
       page: FileManagerMode;
       path?: string;
+      search?: string;
+      keyword?: string;
     }
 
     const newParams: NavParams = { mod: 'file-manager', page: fmMode };
-    if (fmMode === "files") newParams.path = currentPath;
+    newParams.path = fmMode === "files" ? currentPath : undefined;
+    if (isSearchMode && searchKeyword.trim()) {
+      newParams.search = '1';
+      newParams.keyword = searchKeyword.trim();
+    } else {
+      newParams.search = undefined;
+      newParams.keyword = undefined;
+    }
     
-    if (params.page !== newParams.page || params.path !== newParams.path) {
+    if (
+      params.page !== newParams.page
+      || params.path !== newParams.path
+      || params.search !== newParams.search
+      || params.keyword !== newParams.keyword
+    ) {
       navigate(newParams as unknown as Parameters<typeof navigate>[0]);
     }
-  }, [fmMode, currentPath, isReady, navigate, params.page, params.path]);
-
-  const sortConfig = store.getSortConfig();
-  const isSearchMode = store.getIsSearchMode();
-  const searchKeyword = store.getSearchKeyword();
-  const pageSize = store.getPageSize();
+  }, [
+    currentPath,
+    fmMode,
+    isReady,
+    isSearchMode,
+    navigate,
+    params.keyword,
+    params.page,
+    params.path,
+    params.search,
+    searchKeyword,
+  ]);
 
   useEffect(() => {
     if (!isReady) return;
@@ -263,6 +296,7 @@ export const FileManagerView = () => {
       case "browse_archive": if (target) setBrowsingArchivePath(target.path); break;
       case "open_location":
         if (target) {
+          void clearSearch();
           const pathParts = target.path.split('/').filter(Boolean);
           pathParts.pop();
           const parentPath = '/' + pathParts.join('/');
@@ -511,6 +545,25 @@ export const FileManagerView = () => {
         {fmMode === "files" && !isMinimal && <FileManagerNavigationBar />}
         {fmMode === "favorites" && <FileManagerFavoriteFilter />}
         <div className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
+          {fmMode === 'files' && isSearchMode && searchKeyword && (
+            <div className="mx-2 mt-2 flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-primary">
+                  <Search size={14} />
+                  <span>{t('filemanager.searchActive') || t('filemanager.search')}</span>
+                </div>
+                <div className="mt-1 truncate text-sm font-semibold text-foreground/80">{searchKeyword}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => void clearSearch()}
+                className="ml-4 inline-flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 text-primary transition-colors hover:bg-primary/10"
+                title={t('filemanager.clear')}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
           <FileBrowser 
             onAction={handleAction}
             onContextMenu={(e, file) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, target: file }); }} 

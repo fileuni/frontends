@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { PasswordInput } from '@/components/common/PasswordInput';
-import type { CompressionDraft, ThumbnailDraft, TomlAdapter } from './ExternalDependencyConfigModal';
+import type { CompressionDraft, ThumbnailDraft, ThumbnailImageBackend, TomlAdapter } from './ExternalDependencyConfigModal';
 import { SettingSegmentedControl } from './SettingSegmentedControl';
 import {
   applyCompressionDraft,
@@ -45,6 +45,27 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({ tomlAdapter, content
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className={cn('rounded-2xl border p-4 space-y-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white')}>
+        <div>
+          <div className={cn('text-xs font-black uppercase tracking-wide', isDark ? 'text-slate-400' : 'text-slate-700')}>
+            {t('admin.config.thumbnail.imageBackend')}
+          </div>
+          <div className="mt-2">
+            <SettingSegmentedControl<ThumbnailImageBackend>
+              value={draft.imageBackend}
+              options={[
+                { value: 'builtin', label: t('admin.config.thumbnail.imageBackendBuiltin') },
+                { value: 'external', label: t('admin.config.thumbnail.imageBackendExternal') },
+              ]}
+              onChange={(value) => setDraft((prev) => ({ ...prev, imageBackend: value }))}
+              className="w-full justify-between"
+              buttonClassName="flex-1"
+            />
+          </div>
+          <div className={cn('mt-2 text-xs leading-6', isDark ? 'text-slate-400' : 'text-slate-600')}>
+            {t('admin.config.thumbnail.imageBackendHint')}
+          </div>
+        </div>
+
         {[
           ['admin.config.thumbnail.vipsPath', draft.vipsPath, (value: string) => setDraft((prev) => ({ ...prev, vipsPath: value })), 'vips'],
           ['admin.config.thumbnail.imagemagickPath', draft.imagemagickPath, (value: string) => setDraft((prev) => ({ ...prev, imagemagickPath: value })), 'convert'],

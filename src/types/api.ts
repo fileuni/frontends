@@ -4066,8 +4066,11 @@ export interface components {
         };
         FileSearchQuery: {
             keyword: string;
+            order?: string | null;
             page?: string | null;
             page_size?: string | null;
+            path?: string | null;
+            sort_by?: string | null;
         };
         /** @description Folder response */
         FolderResponse: {
@@ -4362,6 +4365,71 @@ export interface components {
                 /** Format: int64 */
                 size: number;
                 trashed_at?: string | null;
+            }[];
+            pagination: components["schemas"]["PaginationInfo"];
+        };
+        PaginatedResponse_ShareListItem: {
+            data: {
+                attributes?: string | null;
+                /** @example false */
+                can_delete: boolean;
+                /** @example false */
+                can_update_no_create: boolean;
+                /** @example false */
+                can_upload: boolean;
+                /** @example 2026-03-29T12:00:00+00:00 */
+                created_at: string;
+                /** @example false */
+                enable_direct: boolean;
+                expire_at?: string | null;
+                /**
+                 * Format: int32
+                 * @example 0
+                 */
+                favorite_color: number;
+                /** @example file-index-id */
+                file_index_id: string;
+                /** @example demo.txt */
+                file_name: string;
+                /** @example /Docs/demo.txt */
+                file_path: string;
+                /** @example false */
+                has_password: boolean;
+                /** @example false */
+                hide_download: boolean;
+                /** @example Ab12Cd34 */
+                id: string;
+                /** @example false */
+                is_deleted: boolean;
+                /** @example false */
+                is_dir: boolean;
+                /** @example true */
+                is_public: boolean;
+                label?: string | null;
+                /** Format: int64 */
+                max_downloads?: number | null;
+                /** @example 2026-03-29T12:34:56+00:00 */
+                modified: string;
+                /** @example demo.txt */
+                name: string;
+                note?: string | null;
+                /** @example /Docs/demo.txt */
+                path: string;
+                /**
+                 * Format: int64
+                 * @example 1024
+                 */
+                size: number;
+                snapshot_is_dir?: boolean | null;
+                snapshot_name?: string | null;
+                snapshot_path?: string | null;
+                /** @example user-id */
+                user_id: string;
+                /**
+                 * Format: int64
+                 * @example 5
+                 */
+                view_count: number;
             }[];
             pagination: components["schemas"]["PaginationInfo"];
         };
@@ -4673,6 +4741,68 @@ export interface components {
         SetSshKeyRequest: {
             key_name: string;
             public_key: string;
+        };
+        ShareListItem: {
+            attributes?: string | null;
+            /** @example false */
+            can_delete: boolean;
+            /** @example false */
+            can_update_no_create: boolean;
+            /** @example false */
+            can_upload: boolean;
+            /** @example 2026-03-29T12:00:00+00:00 */
+            created_at: string;
+            /** @example false */
+            enable_direct: boolean;
+            expire_at?: string | null;
+            /**
+             * Format: int32
+             * @example 0
+             */
+            favorite_color: number;
+            /** @example file-index-id */
+            file_index_id: string;
+            /** @example demo.txt */
+            file_name: string;
+            /** @example /Docs/demo.txt */
+            file_path: string;
+            /** @example false */
+            has_password: boolean;
+            /** @example false */
+            hide_download: boolean;
+            /** @example Ab12Cd34 */
+            id: string;
+            /** @example false */
+            is_deleted: boolean;
+            /** @example false */
+            is_dir: boolean;
+            /** @example true */
+            is_public: boolean;
+            label?: string | null;
+            /** Format: int64 */
+            max_downloads?: number | null;
+            /** @example 2026-03-29T12:34:56+00:00 */
+            modified: string;
+            /** @example demo.txt */
+            name: string;
+            note?: string | null;
+            /** @example /Docs/demo.txt */
+            path: string;
+            /**
+             * Format: int64
+             * @example 1024
+             */
+            size: number;
+            snapshot_is_dir?: boolean | null;
+            snapshot_name?: string | null;
+            snapshot_path?: string | null;
+            /** @example user-id */
+            user_id: string;
+            /**
+             * Format: int64
+             * @example 5
+             */
+            view_count: number;
         };
         ShareRequest: {
             can_delete?: boolean | null;
@@ -9449,8 +9579,11 @@ export interface operations {
         parameters: {
             query: {
                 keyword: string;
+                path?: string | null;
                 page?: string | null;
                 page_size?: string | null;
+                sort_by?: string | null;
+                order?: string | null;
             };
             header?: never;
             path?: never;

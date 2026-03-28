@@ -12,6 +12,7 @@
   "usedOf": "{{used}} of {{total}} used",
   "searchPlaceholder": "Search files here...",
   "search": "Search",
+  "searchActive": "Search Results",
   "clear": "Clear",
   "showShareStatus": "Show Share Status",
   "filterByColor": "Filter by Color",
@@ -20,6 +21,7 @@
   "virtualScroll": "Virtual Scroll",
   "pagination": "Pagination",
   "emptyFolder": "This folder is empty",
+  "emptySearch": "No matching files found",
   "sort": {
     "name": "Name",
     "size": "Size",
