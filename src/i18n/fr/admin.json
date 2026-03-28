@@ -971,7 +971,7 @@
         "optionKey": "clé",
         "optionValue": "valeur",
         "root": {
-          "fs": "{APPDATADIR}/vfs",
+          "fs": "{RUNTIMEDIR}/vfs",
           "s3": "/ (préfixe racine)",
           "webdav": "/",
           "memory": "/",
@@ -981,7 +981,7 @@
       },
       "hints": {
         "root": {
-          "fs": "Chemin de répertoire local. Sur mobile, il doit être dans la sandbox APPDATADIR.",
+          "fs": "Chemin de répertoire local. Sur mobile, il doit être dans la sandbox RUNTIMEDIR.",
           "s3": "Préfixe racine S3.",
           "webdav": "Chemin racine WebDAV.",
           "memory": "La racine du backend mémoire sert uniquement à satisfaire la validation de config.",

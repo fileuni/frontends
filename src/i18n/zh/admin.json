@@ -1060,7 +1060,7 @@
       },
       "hints": {
         "root": {
-          "fs": "本地存储目录路径。移动端必须位于 APPDATADIR 沙箱内。",
+          "fs": "本地存储目录路径。移动端必须位于 RUNTIMEDIR 沙箱内。",
           "s3": "S3 根前缀 (root prefix)。",
           "webdav": "WebDAV 根路径。",
           "memory": "内存后端 root 仅用于通过配置校验。",

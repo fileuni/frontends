@@ -1126,7 +1126,7 @@
         "optionKey": "key",
         "optionValue": "value",
         "root": {
-          "fs": "{APPDATADIR}/vfs",
+          "fs": "{RUNTIMEDIR}/vfs",
           "s3": "/ (root prefix)",
           "webdav": "/",
           "memory": "/",
@@ -1136,7 +1136,7 @@
       },
       "hints": {
         "root": {
-          "fs": "Local directory path. On mobile, it must be under the APPDATADIR sandbox.",
+          "fs": "Local directory path. On mobile, it must be under the RUNTIMEDIR sandbox.",
           "s3": "S3 root prefix.",
           "webdav": "WebDAV root path.",
           "memory": "Memory backend root is only used to satisfy config validation.",

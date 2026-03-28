@@ -807,10 +807,10 @@ export function Launcher() {
     }
   };
 
-  const handleOpenConfig = async () => {
+  const handleOpenRuntimeDir = async () => {
     try {
       await bindRuntimeDir(runtimeDir);
-      await safeInvoke<void>('open_config_dir');
+      await safeInvoke<void>('open_runtime_dir');
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
     }
@@ -1231,7 +1231,7 @@ export function Launcher() {
                       title={t('launcher.quick_actions')}
                       openWebUiLabel={t('launcher.open_web_ui')}
                       configLabel={t('launcher.config')}
-                      openConfigDirLabel={t('launcher.open_config_dir')}
+                      openRuntimeDirLabel={t('launcher.open_runtime_dir')}
                       editConfigLabel={t('launcher.edit_config')}
                       helpLabel={t('launcher.help')}
                       aboutLabel={t('about.open')}
@@ -1239,7 +1239,7 @@ export function Launcher() {
                       configDisabledHint={t('launcher.messages.stop_service_before_config')}
                       onConfigDisabled={() => toast.warning(t('launcher.messages.stop_service_before_config'))}
                       onOpenWebUi={handleOpenWebUI}
-                      onOpenConfigDir={handleOpenConfig}
+                      onOpenRuntimeDir={handleOpenRuntimeDir}
                       onEditConfig={handleEditConfig}
                       onOpenAbout={() => setIsAboutOpen(true)}
                       showSetupWizardAction={false}

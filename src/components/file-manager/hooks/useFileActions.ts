@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
-import { client, BASE_URL, extractData } from '@/lib/api.ts';
+import { client, BASE_URL, extractData, handleApiError } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { useFileStore, type StorageStats, type TaskState, type FileManagerMode } from '../store/useFileStore.ts';
 import { useSelectionStore } from '../store/useSelectionStore.ts';
 import { useTranslation } from 'react-i18next';
 import type { FileInfo, ClipboardItem } from '../types/index.ts';
 import { useToastStore } from '@/stores/toast';
+import { isMountRootEntry } from '../utils/mounts.ts';
 
 interface TaskData {
   status: TaskState['status'];
@@ -144,7 +145,7 @@ export function useFileActions() {
   }, [
     currentPath, setFiles, setLoading, deselectAll, showShareStatus, fmMode, 
     favoriteFilterColor, sortConfig.field, sortConfig.order, isSearchMode, 
-    searchKeyword, pageSize, store.setPagination, store.getShareFilter
+    searchKeyword, pageSize, store.setPagination, store.getShareFilter, store.getRecentFiles
   ]);
 
   const toggleFavorite = async (paths: string[], color: number) => {
@@ -236,11 +237,28 @@ export function useFileActions() {
     return undefined;
   };
 
+  const resolveFilesByPaths = (paths: string[]): FileInfo[] => {
+    const knownFiles = store.files;
+    return paths
+      .map((path) => knownFiles.find((file) => file.path === path))
+      .filter((file): file is FileInfo => Boolean(file));
+  };
+
+  const showMountRootBlockedToast = () => {
+    addToast(t('filemanager.messages.mountRootDeleteBlocked') || 'This mapped remote storage must be removed from Mounts.', 'error');
+  };
+
   const deleteFiles = async (paths: string[], skipConfirm: boolean = false) => {
     if (paths.length === 0 || !paths[0]) return;
     if (!skipConfirm && !confirm(t('filemanager.messages.confirmDelete', { count: paths.length }))) return;
 
     try {
+      const selectedFiles = resolveFilesByPaths(paths);
+      if (selectedFiles.some((file) => isMountRootEntry(file))) {
+        showMountRootBlockedToast();
+        return;
+      }
+
       if (paths.length === 1) {
         const { data } = await client.DELETE("/api/v1/file/delete", {
           body: { path: paths[0] }
@@ -270,11 +288,20 @@ export function useFileActions() {
           }
         }
       }
-    } catch (e) { /* handled */ }
+    } catch (e) {
+      addToast(handleApiError(e, t), 'error');
+      await loadFiles();
+    }
   };
 
   const batchMove = async (paths: string[], targetDir: string) => {
     try {
+      const selectedFiles = resolveFilesByPaths(paths);
+      if (selectedFiles.some((file) => isMountRootEntry(file))) {
+        showMountRootBlockedToast();
+        return;
+      }
+
       const { data } = await client.POST("/api/v1/file/batch-move", {
         body: { paths, target_path: targetDir }
       });
@@ -297,11 +324,19 @@ export function useFileActions() {
           if (expectedPaths.length > 0) store.setHighlightedPath(expectedPaths[0]);
         }
       }
-    } catch (e) { /* handled */ }
+    } catch (e) {
+      addToast(handleApiError(e, t), 'error');
+    }
   };
 
   const batchCopy = async (paths: string[], targetDir: string) => {
     try {
+      const selectedFiles = resolveFilesByPaths(paths);
+      if (selectedFiles.some((file) => isMountRootEntry(file))) {
+        showMountRootBlockedToast();
+        return;
+      }
+
       const { data } = await client.POST("/api/v1/file/batch-copy", {
         body: { paths, target_path: targetDir }
       });
@@ -322,7 +357,9 @@ export function useFileActions() {
           if (expectedPaths.length > 0) store.setHighlightedPath(expectedPaths[0]);
         }
       }
-    } catch (e) { /* handled */ }
+    } catch (e) {
+      addToast(handleApiError(e, t), 'error');
+    }
   };
 
   const batchCompress = async (paths: string[], targetName: string) => {
@@ -347,7 +384,9 @@ export function useFileActions() {
           store.setHighlightedPath(expectedPath);
         }
       }
-    } catch (e) { /* handled */ }
+    } catch (e) {
+      addToast(handleApiError(e, t), 'error');
+    }
   };
 
   const renameFile = async (oldPath: string, newName: string) => {
@@ -504,7 +543,9 @@ export function useFileActions() {
           loadFiles();
         }
       }
-    } catch (e) { /* handled */ }
+    } catch (e) {
+      addToast(handleApiError(e, t), 'error');
+    }
   };
 
   const forceSyncIndex = async (path: string = currentPath) => {
@@ -568,7 +609,9 @@ export function useFileActions() {
 
     if (movePaths.length > 0) {
       await batchMove(movePaths, targetPath);
-      movePaths.forEach(p => store.removeFromClipboard(p));
+      for (const path of movePaths) {
+        store.removeFromClipboard(path);
+      }
     }
   };
 

@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/Button.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
+import { RemoteMountManagerModal } from './RemoteMountManagerModal.tsx';
 import { SearchModal } from './SearchModal.tsx';
 import { UploadModal } from './UploadModal.tsx';
 import { ShortcutsHelpModal } from './ShortcutsHelpModal.tsx';
@@ -47,6 +48,7 @@ export const FileManagerToolbar = () => {
   const [showRefreshMenu, setShowRefreshMenu] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showMountModal, setShowMountModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showNewMenu, setShowNewMenu] = useState(false);
   const [showThumbnailSettings, setShowThumbnailSettings] = useState(false);
@@ -191,6 +193,15 @@ export const FileManagerToolbar = () => {
                   </>
                 )}
               </div>
+
+              <Button
+                variant="ghost"
+                onClick={() => setShowMountModal(true)}
+                className="bg-white/5 border border-white/5 hover:bg-white/10 h-9 md:h-10 px-3 rounded-xl flex items-center gap-2 transition-all shrink-0"
+              >
+                <Globe size={16} className="text-primary" />
+                <span className="text-sm font-bold uppercase opacity-60 hidden lg:inline">{t('filemanager.mounts.button') || 'Mounts'}</span>
+              </Button>
             </div>
           )}
 
@@ -393,6 +404,13 @@ export const FileManagerToolbar = () => {
       <UploadModal 
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
+      />
+
+      <RemoteMountManagerModal
+        isOpen={showMountModal}
+        onClose={() => setShowMountModal(false)}
+        currentPath={currentPath}
+        onChanged={() => loadFiles()}
       />
 
       <ShortcutsHelpModal 

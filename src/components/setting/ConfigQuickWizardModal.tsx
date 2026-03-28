@@ -62,13 +62,13 @@ export const defaultDraft: FriendlyDraft = {
   captchaPreheatMode: 'balanced',
   databaseType: 'sqlite',
   postgresDsn: 'postgres://postgres:admin888@localhost:5432/fileuni',
-  sqliteDsn: 'sqlite://{APPDATADIR}/fileuni.db',
+  sqliteDsn: 'sqlite://{RUNTIMEDIR}/fileuni.db',
   dbHost: 'localhost',
   dbPort: '5432',
   dbUser: 'postgres',
   dbPass: 'admin888',
   dbName: 'fileuni',
-  sqlitePath: '{APPDATADIR}/fileuni.db',
+  sqlitePath: '{RUNTIMEDIR}/fileuni.db',
   dbHealthTimeoutSeconds: '5',
   cacheType: 'database',
   cacheRedisUrl: 'redis://:admin888@127.0.0.1:6379',
@@ -406,8 +406,8 @@ export const applyPerformanceTemplateToDraft = (prev: FriendlyDraft, template: P
   };
 
   if (preset.recommendations.databaseType === 'sqlite') {
-    next.sqlitePath = '{APPDATADIR}/fileuni.db';
-    next.sqliteDsn = 'sqlite://{APPDATADIR}/fileuni.db';
+    next.sqlitePath = '{RUNTIMEDIR}/fileuni.db';
+    next.sqliteDsn = 'sqlite://{RUNTIMEDIR}/fileuni.db';
   }
 
   return next;
@@ -867,7 +867,7 @@ const buildPerformanceTuningPlan = (draft: FriendlyDraft, effectivePreset: Effec
 const ensureVfsLocalStorageDefaults = (vfsHub: ConfigObject): void => {
   const defaultConnectorName = 'local-fs';
   const defaultPoolName = 'default-pool';
-  const defaultRoot = '{APPDATADIR}/vfs';
+  const defaultRoot = '{RUNTIMEDIR}/vfs';
 
   const connectors = vfsHub.connectors;
   if (!Array.isArray(connectors) || connectors.length === 0) {
@@ -1293,7 +1293,7 @@ export const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, rec
     const readCache = ensureRecord(vfsHub, 'read_cache');
     readCache.enable = false;
     readCache.backend = tuningPlan.readCache.backend;
-    readCache.local_dir = '{APPDATADIR}/cache/vfs-read';
+    readCache.local_dir = '{RUNTIMEDIR}/cache/vfs-read';
     readCache.capacity_bytes = tuningPlan.readCache.capacityBytes;
     readCache.max_file_size_bytes = tuningPlan.readCache.maxFileSizeBytes;
     readCache.cache_thumbnail_paths = false;
@@ -1302,7 +1302,7 @@ export const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, rec
     const writeCache = ensureRecord(vfsHub, 'write_cache');
     writeCache.enable = false;
     writeCache.backend = tuningPlan.writeCache.backend;
-    writeCache.local_dir = '{APPDATADIR}/cache/vfs-write';
+    writeCache.local_dir = '{RUNTIMEDIR}/cache/vfs-write';
     writeCache.capacity_bytes = tuningPlan.writeCache.capacityBytes;
     writeCache.max_file_size_bytes = tuningPlan.writeCache.maxFileSizeBytes;
     writeCache.cache_thumbnail_paths = false;
@@ -1310,7 +1310,7 @@ export const applyDraftToConfig = (base: ConfigObject, draft: FriendlyDraft, rec
     writeCache.flush_concurrency = tuningPlan.writeCache.flushConcurrency;
     writeCache.flush_interval_ms = tuningPlan.writeCache.flushIntervalMs;
     writeCache.flush_deadline_secs = tuningPlan.writeCache.flushDeadlineSecs;
-    writeCache.abnormal_spill_dir = '{APPDATADIR}/cache/vfs-write-abnormal';
+    writeCache.abnormal_spill_dir = '{RUNTIMEDIR}/cache/vfs-write-abnormal';
 
     const fileCompress = ensureRecord(vfsHub, 'file_compress');
     fileCompress.enable = effectiveFeatures.compression;

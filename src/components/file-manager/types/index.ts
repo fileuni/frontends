@@ -11,6 +11,16 @@ export interface FileInfo {
   trashed_at?: string;
   original_path?: string;
   accessed_at?: string; // Browser access timestamp
+  mount_id?: string;
+  mount_name?: string;
+  mount_driver?: string;
+  mount_dir?: string;
+  is_mount_root?: boolean;
+  mount_sync_status?: string;
+  mount_last_sync_at?: string;
+  mount_next_sync_at?: string;
+  mount_last_error?: string;
+  delete_behavior?: 'trash' | 'remote_direct';
 
   // Share specific fields (optional)
   view_count?: number;
@@ -37,4 +47,8 @@ export interface ClipboardItem {
   name: string;
   is_dir: boolean;
   type: 'copy' | 'cut';
+  mount_id?: string;
+  mount_dir?: string;
+  is_mount_root?: boolean;
+  delete_behavior?: 'trash' | 'remote_direct';
 }

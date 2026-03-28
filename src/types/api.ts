@@ -2067,6 +2067,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/file/mounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_private_remote_mounts"];
+        put?: never;
+        post: operations["create_mount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/mounts/{mount_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["update_mount"];
+        post?: never;
+        delete: operations["delete_mount"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/mounts/{mount_id}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["sync_mount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/file/move": {
         parameters: {
             query?: never;
@@ -3984,12 +4032,22 @@ export interface components {
             path: string;
         };
         FileInfo: {
+            delete_behavior?: string;
             /** Format: int32 */
             favorite_color?: number;
             has_active_direct?: boolean | null;
             has_active_share?: boolean | null;
             is_dir: boolean;
+            is_mount_root?: boolean;
             modified: string;
+            mount_dir?: string | null;
+            mount_driver?: string | null;
+            mount_id?: string | null;
+            mount_last_error?: string | null;
+            mount_last_sync_at?: string | null;
+            mount_name?: string | null;
+            mount_next_sync_at?: string | null;
+            mount_sync_status?: string | null;
             name: string;
             original_path?: string | null;
             path: string;
@@ -4282,12 +4340,22 @@ export interface components {
         };
         PaginatedResponse_FileInfo: {
             data: {
+                delete_behavior?: string;
                 /** Format: int32 */
                 favorite_color?: number;
                 has_active_direct?: boolean | null;
                 has_active_share?: boolean | null;
                 is_dir: boolean;
+                is_mount_root?: boolean;
                 modified: string;
+                mount_dir?: string | null;
+                mount_driver?: string | null;
+                mount_id?: string | null;
+                mount_last_error?: string | null;
+                mount_last_sync_at?: string | null;
+                mount_name?: string | null;
+                mount_next_sync_at?: string | null;
+                mount_sync_status?: string | null;
                 name: string;
                 original_path?: string | null;
                 path: string;
@@ -4410,6 +4478,59 @@ export interface components {
         };
         ReloadResult: {
             success: boolean;
+        };
+        RemoteMountDto: {
+            created_at: string;
+            driver: string;
+            enable: boolean;
+            id: string;
+            last_error?: string | null;
+            last_sync_at?: string | null;
+            last_sync_status?: string | null;
+            mount_dir: string;
+            name: string;
+            next_sync_at?: string | null;
+            options: {
+                [key: string]: string;
+            };
+            root: string;
+            /** Format: int64 */
+            sync_interval_minutes: number;
+            /** Format: int32 */
+            sync_mode: number;
+            sync_peer_dir?: string | null;
+            /** Format: int64 */
+            sync_timeout_secs: number;
+            updated_at: string;
+        };
+        RemoteMountListDto: {
+            mounts: components["schemas"]["RemoteMountDto"][];
+            policy: components["schemas"]["RemoteMountPolicyDto"];
+        };
+        RemoteMountPolicyDto: {
+            current_mounts: number;
+            max_private_mounts: number;
+            /** Format: int64 */
+            max_sync_timeout_secs: number;
+            /** Format: int64 */
+            min_sync_interval_minutes: number;
+        };
+        RemoteMountUpsertRequest: {
+            driver: string;
+            enable: boolean;
+            mount_dir: string;
+            name: string;
+            options: {
+                [key: string]: string;
+            };
+            root: string;
+            /** Format: int64 */
+            sync_interval_minutes: number;
+            /** Format: int32 */
+            sync_mode: number;
+            sync_peer_dir?: string | null;
+            /** Format: int64 */
+            sync_timeout_secs: number;
         };
         RemoveBlacklistRequest: {
             blacklist_type: string;
@@ -8775,6 +8896,120 @@ export interface operations {
             };
             /** @description Path not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    list_private_remote_mounts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Private remote mounts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    create_mount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RemoteMountUpsertRequest"];
+            };
+        };
+        responses: {
+            /** @description Mount created */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    update_mount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mount_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RemoteMountUpsertRequest"];
+            };
+        };
+        responses: {
+            /** @description Mount updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    delete_mount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mount_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Mount deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    sync_mount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mount_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Mount sync started */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -11,7 +11,7 @@
       "card1Title": "Choose where things are saved",
       "card1Desc": "Pick the single runtime directory where FileUni should keep its settings and data.",
       "card1Action": "Change location",
-      "runtimeDirChangeHint": "To change this location, start FileUni with --runtime-dir, or use --service-workdir while installing the service.",
+      "runtimeDirChangeHint": "To change this location, restart FileUni with --runtime-dir <DIR>. Service installation uses the same flag.",
       "card1Hint": "Restart FileUni after changing the runtime directory.",
       "card2Title": "Create your sign-in password",
       "card2Desc": "Set a password for the administrator account you will use later.",
@@ -24,7 +24,7 @@
       "recommendedTitle": "Recommended for first-time users",
       "recommendedDesc": "If you are unsure, keep the current defaults. They are the easiest choice for personal use, home use, and quick trials.",
       "locationTitle": "Current install locations",
-      "configDirLabel": "Runtime directory",
+      "runtimeDirLabel": "Runtime directory",
       "configPathLabel": "Current config file",
       "locationDesc": "This is only where FileUni will save things for you. You do not need to create any files by hand.",
       "commonActionsTitle": "Common settings",
@@ -534,7 +534,7 @@
           "optionKey": "key",
           "optionValue": "value",
           "root": {
-            "fs": "{APPDATADIR}/vfs",
+            "fs": "{RUNTIMEDIR}/vfs",
             "s3": "/ (root prefix)",
             "webdav": "/",
             "dropbox": "/",
@@ -547,7 +547,7 @@
         },
         "hints": {
           "root": {
-            "fs": "Local directory path. On mobile, it must be under the APPDATADIR sandbox.",
+            "fs": "Local directory path. On mobile, it must be under the RUNTIMEDIR sandbox.",
             "s3": "S3 root prefix.",
             "webdav": "WebDAV root path.",
             "dropbox": "Dropbox working root path.",

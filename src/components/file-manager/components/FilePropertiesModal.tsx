@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button.tsx';
 import { useTranslation } from 'react-i18next';
 import type { FileInfo } from '../types/index.ts';
 import { FileIcon } from './FileIcon.tsx';
-import { Calendar, HardDrive, Hash, Info, Type, Clock, Eye, type LucideIcon } from 'lucide-react';
+import { Calendar, HardDrive, Hash, Info, Type, Clock, Eye, Globe, AlertTriangle, type LucideIcon } from 'lucide-react';
 import { useFileActions } from '../hooks/useFileActions.ts';
 
 interface Props {
@@ -74,12 +74,32 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
           {!file.is_dir && <PropertyItem icon={Hash} label={t('filemanager.prop.size')} value={formatSize(file.size)} />}
           <PropertyItem icon={Calendar} label={t('filemanager.prop.modified')} value={new Date(file.modified).toLocaleString()} />
 
+          {file.mount_id && (
+            <PropertyItem icon={Globe} label={t('filemanager.mounts.rootBadge') || 'Mounted'} value={file.mount_name || file.mount_dir || file.path} />
+          )}
+
+          {file.mount_driver && (
+            <PropertyItem icon={Info} label={t('filemanager.mounts.driverLabel') || 'Driver'} value={file.mount_driver} />
+          )}
+
+          {file.delete_behavior === 'remote_direct' && (
+            <PropertyItem icon={AlertTriangle} label={t('filemanager.mounts.deleteBehaviorLabel') || 'Delete Behavior'} value={t('filemanager.mounts.remoteDeleteNotice') || 'Deleting here removes remote objects immediately and does not use the recycle bin.'} />
+          )}
+
           {file.accessed_at && (
             <PropertyItem icon={Clock} label={t('filemanager.prop.accessed')} value={new Date(file.accessed_at).toLocaleString()} />
           )}
 
           {file.original_path && (
             <PropertyItem icon={Info} label={t('filemanager.prop.original')} value={file.original_path} />
+          )}
+
+          {file.mount_last_sync_at && (
+            <PropertyItem icon={Clock} label={t('filemanager.mounts.lastSyncAt') || 'Last Sync'} value={new Date(file.mount_last_sync_at).toLocaleString()} />
+          )}
+
+          {file.mount_last_error && (
+            <PropertyItem icon={AlertTriangle} label={t('filemanager.mounts.errorLabel') || 'Last Error'} value={file.mount_last_error} />
           )}
         </div>
 

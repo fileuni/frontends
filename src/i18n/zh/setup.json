@@ -22,7 +22,7 @@
     "recommendedTitle": "推荐给第一次使用的您",
     "recommendedDesc": "如果拿不准，尽量保留当前默认值。默认方案更适合个人、家庭和快速体验。",
     "locationTitle": "当前安装位置",
-    "configDirLabel": "运行目录",
+    "runtimeDirLabel": "运行目录",
     "configPathLabel": "当前配置文件",
     "locationDesc": "这里只是告诉您安装内容会保存到哪里，不需要手动创建文件。",
     "commonActionsTitle": "常用配置",

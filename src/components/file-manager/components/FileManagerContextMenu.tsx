@@ -6,11 +6,12 @@ import { useThemeStore } from '@/stores/theme';
 import {
   FolderOpen, Eye, Download, Share2, Scissors, Copy, Pencil, Trash2,
   RotateCw, PlusSquare, FolderPlus, Clipboard, Undo2, Zap, Archive, StarOff, Star,
-  ChevronRight, X, FolderSearch, Lock, Unlock, type LucideIcon
+  ChevronRight, X, FolderSearch, Lock, Unlock, Globe, AlertTriangle, type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
 import { useTranslation } from 'react-i18next';
+import { isMountRootEntry, isMountedEntry, isRemoteDirectDelete, summarizeMountedSelection } from '../utils/mounts.ts';
 
 const FAVORITE_COLORS = [
   { id: 1, name: 'Red', class: 'bg-red-500' },
@@ -38,6 +39,7 @@ interface MenuButtonProps {
   hasSub?: boolean;
   active?: boolean;
   danger?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -93,7 +95,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
   const { theme } = useThemeStore();
   const store = useFileStore();
   const { capabilities } = useConfigStore();
-  const { fmMode } = store;
+  const { fmMode, files } = store;
   const clipboard = store.getClipboard();
   const { selectedIds } = useSelectionStore();
   
@@ -122,6 +124,17 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
 
   const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const isBatch = selectedIds.size > 1;
+  const selectionPaths = target
+    ? (isBatch ? Array.from(selectedIds) : [target.path])
+    : [];
+  const selectionSummary = summarizeMountedSelection(selectionPaths, files);
+  const mountedTarget = target ? isMountedEntry(target) : false;
+  const mountRootTarget = target ? isMountRootEntry(target) : false;
+  const deleteLabel = mountRootTarget
+    ? (t('filemanager.actions.deleteMountRootBlocked') || 'Manage in Mounts')
+    : ((target && isRemoteDirectDelete(target)) || selectionSummary.hasRemoteDirectDelete
+      ? (t('filemanager.actions.deleteRemote') || 'Delete Remote Object')
+      : t('filemanager.actions.delete'));
 
   const isArchive = (file: FileInfo | null) => {
     if (!file || file.is_dir) return false;
@@ -136,9 +149,14 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
     return archives.some(ext => lowerName.endsWith(ext));
   };
 
-  const MenuButton = ({ icon: Icon, label, action, className, hasSub, active, danger }: MenuButtonProps) => (
+  const MenuButton = ({ icon: Icon, label, action, className, hasSub, active, danger, disabled }: MenuButtonProps) => (
     <button 
+      type="button"
       onClick={(e) => {
+        if (disabled) {
+          e.preventDefault();
+          return;
+        }
         if (hasSub) {
           e.stopPropagation();
           setShowFavoriteSub(!showFavoriteSub);
@@ -150,6 +168,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
         "w-full flex items-center justify-between px-3 py-2 text-[14px] font-medium transition-all text-left outline-none group/btn",
         active ? "bg-primary/10 text-primary" : "hover:bg-primary/10 hover:text-primary",
         danger && "hover:bg-red-500/10 hover:text-red-500",
+        disabled && 'pointer-events-none opacity-30 grayscale',
         isDark ? "text-white/70" : "text-gray-600",
         className
       )}
@@ -178,6 +197,22 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
             <MarqueeTitle text={isBatch ? `${selectedIds.size} ${t('common.items') || 'Items'}` : target.name} />
           </div>
         )}
+        {target && (mountedTarget || selectionSummary.hasRemoteDirectDelete) && fmMode === 'files' && (
+          <div className={cn(
+            'mx-1 mb-2 rounded-xl border px-3 py-2 text-sm',
+            isDark ? 'border-amber-500/20 bg-amber-500/10 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-900',
+          )}>
+            <div className="flex items-center gap-2 font-black">
+              {mountRootTarget ? <Globe size={14} /> : <AlertTriangle size={14} />}
+              <span>{mountRootTarget ? (t('filemanager.mounts.rootBadge') || 'Mounted') : (t('filemanager.mounts.remoteDeleteBadge') || 'Remote delete')}</span>
+            </div>
+            <div className="mt-1 text-xs leading-5 opacity-80">
+              {mountRootTarget
+                ? (t('filemanager.mounts.rootBlockedNotice') || 'This directory is a remote mount mapping. Remove it from Mounts instead of deleting it here.')
+                : (t('filemanager.mounts.remoteDeleteNotice') || 'Deleting here removes remote objects immediately and does not use the recycle bin.')}
+            </div>
+          </div>
+        )}
         
         <div className="space-y-0.5">
           {target ? (
@@ -200,8 +235,8 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                   
                   {fmMode === 'shares' ? (
                     <>
-                      <MenuButton icon={Pencil} label={t('filemanager.shareModal.viewEditTitle')} action="share" />
-                      <MenuButton icon={Share2} label={t('filemanager.actions.cancelShare')} action="cancel_share" danger />
+                       <MenuButton icon={Pencil} label={t('filemanager.shareModal.viewEditTitle')} action="share" />
+                       <MenuButton icon={Share2} label={t('filemanager.actions.cancelShare')} action="cancel_share" danger />
                     </>
                   ) : fmMode === 'recent' ? (
                     <MenuButton icon={X} label={t('filemanager.actions.removeFromHistory')} action="remove_from_history" danger />
@@ -229,10 +264,12 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                           hasSub={true}
                           active={target.favorite_color > 0}
                           className="text-orange-400"
+                          disabled={mountedTarget || selectionSummary.hasMountedEntries}
                         />
                         {showFavoriteSub && (
                           <div className={cn("py-1 animate-in slide-in-from-top-1 rounded-xl mx-1 my-1", isDark ? "bg-white/5" : "bg-gray-50")}>
                             <button
+                              type="button"
                               onClick={() => onAction('favorite_0', target)}
                               className={cn(
                                 "w-full flex items-center gap-3 px-8 py-1.5 text-sm font-bold transition-colors",
@@ -246,6 +283,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                             <div className={cn("h-px my-1 mx-4 opacity-10", isDark ? "bg-white" : "bg-black")} />
                             {FAVORITE_COLORS.map(color => (
                               <button
+                                type="button"
                                 key={color.id}
                                 onClick={() => onAction(`favorite_${color.id}`, target)}
                                 className={cn(
@@ -267,13 +305,13 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
 
                   <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
                   
-                  <MenuButton icon={Copy} label={t('filemanager.actions.copy')} action="copy" />
-                  <MenuButton icon={Scissors} label={t('filemanager.actions.cut')} action="cut" />
-                  {!isBatch && <MenuButton icon={Pencil} label={t('filemanager.actions.rename')} action="rename" />}
+                  <MenuButton icon={Copy} label={t('filemanager.actions.copy')} action="copy" disabled={mountRootTarget || selectionSummary.hasMountRoot} />
+                  <MenuButton icon={Scissors} label={t('filemanager.actions.cut')} action="cut" disabled={mountRootTarget || selectionSummary.hasMountRoot} />
+                  {!isBatch && <MenuButton icon={Pencil} label={t('filemanager.actions.rename')} action="rename" disabled={mountRootTarget || selectionSummary.hasMountRoot} />}
                   
                   <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
                   
-                  <MenuButton icon={Trash2} label={t('filemanager.actions.delete')} action="delete" danger />
+                  <MenuButton icon={Trash2} label={deleteLabel} action="delete" danger disabled={mountRootTarget || selectionSummary.hasMountRoot} />
                   <MenuButton icon={PlusSquare} label={t('filemanager.actions.properties')} action="properties" />
                 </>
               )}

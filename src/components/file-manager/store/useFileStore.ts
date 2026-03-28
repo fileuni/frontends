@@ -139,8 +139,9 @@ interface FileState {
     defaultValue: string;
     targetPath?: string;
     mode?: FileManagerMode;
+    confirmLabel?: string;
   };
-  openActionModal: (type: 'create_file' | 'create_dir' | 'rename' | 'delete_confirm' | 'mode_delete_confirm', title: string, defaultValue: string, targetPath?: string, mode?: FileManagerMode) => void;
+  openActionModal: (type: 'create_file' | 'create_dir' | 'rename' | 'delete_confirm' | 'mode_delete_confirm', title: string, defaultValue: string, targetPath?: string, mode?: FileManagerMode, confirmLabel?: string) => void;
   closeActionModal: () => void;
 }
 
@@ -244,8 +245,8 @@ export const useFileStore = create<FileState>()(
       },
 
       actionModal: { isOpen: false, type: 'create_file', title: '', defaultValue: '' },
-      openActionModal: (type, title, defaultValue, targetPath, mode) => set({ 
-        actionModal: { isOpen: true, type, title, defaultValue, targetPath, mode } 
+      openActionModal: (type, title, defaultValue, targetPath, mode, confirmLabel) => set({ 
+        actionModal: { isOpen: true, type, title, defaultValue, targetPath, mode, confirmLabel } 
       }),
       closeActionModal: () => set((state) => ({ 
         actionModal: { ...state.actionModal, isOpen: false } 

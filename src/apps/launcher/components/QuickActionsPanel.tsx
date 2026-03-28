@@ -8,7 +8,7 @@ interface QuickActionsPanelProps {
   title: string;
   openWebUiLabel: string;
   configLabel: string;
-  openConfigDirLabel: string;
+  openRuntimeDirLabel: string;
   editConfigLabel: string;
   helpLabel: string;
   aboutLabel?: string;
@@ -18,7 +18,7 @@ interface QuickActionsPanelProps {
   configDisabledHint?: string;
   onConfigDisabled?: () => void;
   onOpenWebUi: () => void;
-  onOpenConfigDir: () => void;
+  onOpenRuntimeDir: () => void;
   onEditConfig: () => void;
   onOpenAbout?: () => void;
   onStartSetupWizard?: () => void;
@@ -32,7 +32,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
   title,
   openWebUiLabel,
   configLabel,
-  openConfigDirLabel,
+  openRuntimeDirLabel,
   editConfigLabel,
   helpLabel,
   aboutLabel,
@@ -42,7 +42,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
   configDisabledHint,
   onConfigDisabled,
   onOpenWebUi,
-  onOpenConfigDir,
+  onOpenRuntimeDir,
   onEditConfig,
   onOpenAbout,
   onStartSetupWizard,
@@ -150,7 +150,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
             )}>
               <button
                 onClick={() => {
-                  onOpenConfigDir();
+                  onOpenRuntimeDir();
                   setShowConfigMenu(false);
                 }}
                 className={cn(
@@ -161,7 +161,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover/item:bg-blue-500 group-hover/item:text-white transition-all">
                   <FolderOpen size={16} />
                 </div>
-                <span className="text-xs font-bold uppercase tracking-wider">{openConfigDirLabel}</span>
+                <span className="text-xs font-bold uppercase tracking-wider">{openRuntimeDirLabel}</span>
               </button>
               <button
                 onClick={() => {

@@ -971,7 +971,7 @@
         "optionKey": "キー",
         "optionValue": "値",
         "root": {
-          "fs": "{APPDATADIR}/vfs",
+          "fs": "{RUNTIMEDIR}/vfs",
           "s3": "/ (ルートプレフィックス)",
           "webdav": "/",
           "memory": "/",
@@ -981,7 +981,7 @@
       },
       "hints": {
         "root": {
-          "fs": "ローカルディレクトリパス。モバイルでは APPDATADIR サンドボックス配下である必要があります。",
+          "fs": "ローカルディレクトリパス。モバイルでは RUNTIMEDIR サンドボックス配下である必要があります。",
           "s3": "S3 ルートプレフィックス。",
           "webdav": "WebDAV ルートパス。",
           "memory": "memory backend の root は config バリデーションを満たすためにのみ使用されます。",

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 
-import { Share2, Zap } from 'lucide-react';
+import { AlertTriangle, Globe, Share2, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const COLOR_MAP: Record<number, string> = {
@@ -34,18 +34,22 @@ const StatusIcons = ({ file, mode, className }: { file: FileInfo, mode: 'grid' |
   const isFavorite = file.favorite_color > 0;
   const isShared = file.has_active_share;
   const isDirect = file.has_active_direct;
+  const isMountRoot = file.is_mount_root === true;
+  const mountFailed = file.mount_sync_status === 'failed';
   const favoriteColorClass = isFavorite ? (COLOR_MAP[file.favorite_color] || 'bg-primary') : '';
 
-  if (!isFavorite && !isShared && !isDirect) return null;
+  if (!isFavorite && !isShared && !isDirect && !isMountRoot) return null;
 
   if (mode === 'grid') {
     return (
       <div className={cn("flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2 py-1 rounded-full border border-white/5 shadow-lg", className)}>
+        {isMountRoot && <Globe size={10} className="text-cyan-300" />}
         {isFavorite && (
           <div className={cn("w-2 h-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.2)]", favoriteColorClass)} />
         )}
         {isShared && <Share2 size={10} className="text-primary" />}
         {isDirect && <Zap size={10} className="text-yellow-500" fill="currentColor" />}
+        {isMountRoot && mountFailed && <AlertTriangle size={10} className="text-amber-300" />}
       </div>
     );
   }
@@ -53,11 +57,13 @@ const StatusIcons = ({ file, mode, className }: { file: FileInfo, mode: 'grid' |
   // List mode: compact layout with dot as primary indicator
   return (
     <div className={cn("flex items-center gap-2", className)}>
+      {isMountRoot && <Globe size={18} className="text-cyan-400 shrink-0" />}
       {isFavorite && (
         <div className={cn("w-2 h-2 rounded-full shrink-0 shadow-sm", favoriteColorClass)} />
       )}
       {isShared && <Share2 size={18} className="text-primary shrink-0" />}
       {isDirect && <Zap size={18} className="text-yellow-500 shrink-0" fill="currentColor" />}
+      {isMountRoot && mountFailed && <AlertTriangle size={18} className="text-amber-400 shrink-0" />}
     </div>
   );
 };
@@ -209,6 +215,11 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
           )}>
             {displayName}
           </span>
+          {file.is_mount_root && (
+            <span className="mt-1 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-black uppercase tracking-widest text-cyan-200">
+              {t('filemanager.mounts.rootBadge') || 'Mounted'}
+            </span>
+          )}
           {secondaryInfo && (
             <span className="text-[14px] opacity-30 truncate w-full mt-0.5 uppercase font-black px-1">
               {secondaryInfo}
@@ -249,6 +260,11 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <div className={cn("text-sm font-bold truncate", selected ? "text-primary" : "")}>{displayName}</div>
+            {file.is_mount_root && (
+              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-black uppercase tracking-widest text-cyan-300">
+                {t('filemanager.mounts.rootBadge') || 'Mounted'}
+              </span>
+            )}
           </div>
           {secondaryInfo && (
             <span className="text-sm opacity-20 font-mono truncate max-w-[200px] md:max-w-md">

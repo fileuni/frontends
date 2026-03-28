@@ -34,6 +34,7 @@ import { FilePreviewPage } from "./FilePreviewPage.tsx";
 import { OfficeLitePage } from "./officeLitePage.tsx";
 import { OfficeOpenModal } from "./officeOpenModal.tsx";
 import { getFileExtension, isOfficeExtension } from "../utils/officeLite.ts";
+import { isMountRootEntry, isMountedEntry, summarizeMountedSelection } from "../utils/mounts.ts";
 
 export const FileManagerView = () => {
   const { t } = useTranslation();
@@ -157,7 +158,16 @@ export const FileManagerView = () => {
         e.preventDefault();
         const copyItems: ClipboardItem[] = paths.map(p => {
           const f = files.find(file => file.path === p);
-          return { path: p, type: 'copy', name: f?.name || p.split('/').pop() || '', is_dir: f?.is_dir || false };
+          return {
+            path: p,
+            type: 'copy',
+            name: f?.name || p.split('/').pop() || '',
+            is_dir: f?.is_dir || false,
+            mount_id: f?.mount_id,
+            mount_dir: f?.mount_dir,
+            is_mount_root: f?.is_mount_root,
+            delete_behavior: f?.delete_behavior,
+          };
         });
         store.addToClipboard(copyItems);
         addToast(t('filemanager.messages.addedToClipboardCopy'), "success");
@@ -167,7 +177,16 @@ export const FileManagerView = () => {
         e.preventDefault();
         const cutItems: ClipboardItem[] = paths.map(p => {
           const f = files.find(file => file.path === p);
-          return { path: p, type: 'cut', name: f?.name || p.split('/').pop() || '', is_dir: f?.is_dir || false };
+          return {
+            path: p,
+            type: 'cut',
+            name: f?.name || p.split('/').pop() || '',
+            is_dir: f?.is_dir || false,
+            mount_id: f?.mount_id,
+            mount_dir: f?.mount_dir,
+            is_mount_root: f?.is_mount_root,
+            delete_behavior: f?.delete_behavior,
+          };
         });
         store.addToClipboard(cutItems);
         addToast(t('filemanager.messages.addedToClipboardCut'), "success");
@@ -200,8 +219,22 @@ export const FileManagerView = () => {
     const isShares = fmMode === "shares";
     const selectedList = selectedIds.size > 0 ? Array.from(selectedIds) : target ? [isShares && target.id ? target.id : target.path] : [];
     const paths = isShares ? (selectedIds.size > 0 ? (Array.from(selectedIds).map(id => files.find(f => f.id === id)?.path).filter(Boolean) as string[]) : (target ? [target.path] : [])) : selectedList;
+    const selectionSummary = summarizeMountedSelection(paths, files);
+    const mountedTarget = target && isMountedEntry(target);
+    const mountRootTarget = target && isMountRootEntry(target);
 
     if (paths.length === 0 && !["refresh", "empty_trash", "new_file", "new_folder", "paste", "clear_history"].includes(action)) return;
+
+    if (mountRootTarget && ['delete', 'rename', 'compress', 'extract', 'copy', 'cut'].includes(action)) {
+      addToast(t('filemanager.messages.mountRootDeleteBlocked') || 'This mapped remote storage must be removed from Mounts.', 'error');
+      return;
+    }
+
+    if ((action === 'toggle_favorite' || action.startsWith('favorite_')) && mountedTarget) {
+      const key = 'filemanager.messages.mountFavoriteUnsupported';
+      addToast(t(key) || 'This action is not available for remote mount entries yet.', 'error');
+      return;
+    }
 
     switch (action) {
       case "open":
@@ -244,23 +277,49 @@ export const FileManagerView = () => {
       case "download": if (target) downloadFile(target.path); break;
       case "share": if (target) setActiveShareFile(target); break;
       case "cancel_share": if (selectedIds.size > 0) { for (const id of Array.from(selectedIds)) cancelShare(id); deselectAll(); } else if (target?.id) cancelShare(target.id); break;
-      case "copy": case "cut":
+      case "copy": case "cut": {
         const items: ClipboardItem[] = paths.map(p => {
           const f = files.find(file => file.path === p);
-          return { path: p, type: action as 'copy' | 'cut', name: f?.name || p.split('/').pop() || '', is_dir: f?.is_dir || false };
+          return {
+            path: p,
+            type: action as 'copy' | 'cut',
+            name: f?.name || p.split('/').pop() || '',
+            is_dir: f?.is_dir || false,
+            mount_id: f?.mount_id,
+            mount_dir: f?.mount_dir,
+            is_mount_root: f?.is_mount_root,
+            delete_behavior: f?.delete_behavior,
+          };
         });
         store.addToClipboard(items);
         deselectAll();
         break;
+      }
       case "paste": if (fmMode === 'files') pasteItems(clipboard, currentPath); break;
-      case "delete": 
+      case "delete": {
+        if (selectionSummary.hasMountRoot) {
+          addToast(t('filemanager.messages.mountRootDeleteBlocked') || 'This mapped remote storage must be removed from Mounts.', 'error');
+          return;
+        }
         setPendingDeletePaths(paths);
+        if (fmMode === 'files' && selectionSummary.hasRemoteDirectDelete) {
+          openActionModal(
+            'delete_confirm',
+            t('filemanager.actions.deleteRemote') || t('filemanager.actions.delete'),
+            `${t('filemanager.messages.confirmDeleteRemotePrefix') || 'This will delete '}${paths.length}${t('filemanager.messages.confirmDeleteRemoteSuffix') || ' remote items immediately, and they will not enter the recycle bin.'}`,
+            undefined,
+            undefined,
+            t('filemanager.actions.deleteRemotePhysical') || t('filemanager.actions.deletePhysical'),
+          );
+          break;
+        }
         if (fmMode === 'files' || fmMode === 'trash') {
           openActionModal("delete_confirm", t("filemanager.actions.delete"), t("filemanager.messages.confirmDelete", { count: paths.length }));
         } else {
           openActionModal("mode_delete_confirm", t("filemanager.actions.delete"), t("filemanager.messages.confirmDelete", { count: paths.length }), undefined, fmMode);
         }
         break;
+      }
       case "restore": restoreFiles(paths); break;
       case "delete_permanent": deletePermanent(paths); break;
       case "empty_trash": clearRecycleBin(); break;
@@ -298,7 +357,7 @@ export const FileManagerView = () => {
       }
       deselectAll();
     } else {
-      deleteFiles(pendingDeletePaths);
+      deleteFiles(pendingDeletePaths, true);
     }
   };
 
@@ -477,7 +536,7 @@ export const FileManagerView = () => {
         onSubmit={handleDestructiveSubmit}
         title={actionModal.title}
         message={actionModal.defaultValue}
-        confirmLabel={fmMode === 'files' ? t('filemanager.actions.delete') : t('filemanager.actions.deletePhysical')}
+        confirmLabel={actionModal.confirmLabel || (fmMode === 'files' ? t('filemanager.actions.delete') : t('filemanager.actions.deletePhysical'))}
         mode={actionModal.mode}
         isModeSpecific={actionModal.type === 'mode_delete_confirm'}
       />

@@ -11,7 +11,7 @@
       "card1Title": "选择保存位置",
       "card1Desc": "确认 FileUni 唯一的运行目录，配置和数据都会保存在这里。",
       "card1Action": "修改位置",
-      "runtimeDirChangeHint": "如需修改这里，请在启动 FileUni 时使用 --runtime-dir，或在安装服务时使用 --service-workdir。",
+      "runtimeDirChangeHint": "如需修改这里，请重启 FileUni 并使用 --runtime-dir <目录>。安装服务时也使用同一个参数。",
       "card1Hint": "更改运行目录后，请重新启动 FileUni。",
       "card2Title": "设置登录密码",
       "card2Desc": "为管理员账号设置一个您记得住的密码。",
@@ -24,7 +24,7 @@
       "recommendedTitle": "推荐给第一次使用的您",
       "recommendedDesc": "如果拿不准，尽量保留当前默认值。默认方案更适合个人、家庭和快速体验。",
       "locationTitle": "当前安装位置",
-      "configDirLabel": "运行目录",
+      "runtimeDirLabel": "运行目录",
       "configPathLabel": "当前配置文件",
       "locationDesc": "这里只是告诉您安装内容会保存到哪里，不需要手动创建文件。",
       "commonActionsTitle": "常用配置",
@@ -528,7 +528,7 @@
           "optionKey": "key",
           "optionValue": "value",
           "root": {
-            "fs": "{APPDATADIR}/vfs",
+            "fs": "{RUNTIMEDIR}/vfs",
             "s3": "/ (root prefix)",
             "webdav": "/",
             "dropbox": "/",
@@ -541,7 +541,7 @@
         },
         "hints": {
           "root": {
-            "fs": "本地存储目录路径。移动端必须位于 APPDATADIR 沙箱内。",
+            "fs": "本地存储目录路径。移动端必须位于 RUNTIMEDIR 沙箱内。",
             "s3": "S3 根前缀 (root prefix)。",
             "webdav": "WebDAV 根路径。",
             "dropbox": "Dropbox 工作根路径。",

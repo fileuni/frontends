@@ -22,7 +22,7 @@
     "recommendedTitle": "Recommended for first-time users",
     "recommendedDesc": "If you are unsure, keep the current defaults. They are the easiest choice for personal use, home use, and quick trials.",
     "locationTitle": "Current install locations",
-    "configDirLabel": "Runtime directory",
+    "runtimeDirLabel": "Runtime directory",
     "configPathLabel": "Current config file",
     "locationDesc": "This is only where FileUni will save things for you. You do not need to create any files by hand.",
     "commonActionsTitle": "Common settings",

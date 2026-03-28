@@ -32,6 +32,7 @@ type Props = {
   typeHintPrefix?: string;
 
   size?: 'default' | 'compact';
+  inputTabIndex?: number;
 };
 
 export const CaptchaChallenge: React.FC<Props> = ({
@@ -49,15 +50,16 @@ export const CaptchaChallenge: React.FC<Props> = ({
   showTypeHint = true,
   typeHintPrefix = 'Type: ',
   size = 'default',
+  inputTabIndex,
 }) => {
   const isTurnstileCaptcha = captchaData?.captcha_type === 'turnstile';
   const isCompact = size === 'compact';
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+      <p className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
         {label}
-      </label>
+      </p>
 
       {isTurnstileCaptcha ? (
         <div className="space-y-2">
@@ -84,12 +86,14 @@ export const CaptchaChallenge: React.FC<Props> = ({
             <Input
               value={captchaCode}
               onChange={(e) => onCaptchaCodeChange(e.target.value)}
+              tabIndex={inputTabIndex}
               className={cn('pl-12', isCompact && 'h-10')}
               placeholder={placeholder}
               required
             />
           </div>
-          <div
+          <button
+            type="button"
             className={cn(
               isCompact
                 ? 'w-24 h-10 rounded-lg'
@@ -99,6 +103,7 @@ export const CaptchaChallenge: React.FC<Props> = ({
             )}
             onClick={onRefresh}
             title={refreshTitle}
+            aria-label={refreshTitle}
           >
             {captchaData ? (
               <img
@@ -109,7 +114,7 @@ export const CaptchaChallenge: React.FC<Props> = ({
             ) : (
               <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             )}
-          </div>
+          </button>
         </div>
       )}
 

@@ -9,6 +9,7 @@ type Props = Omit<React.ComponentProps<typeof IconInput>, 'type' | 'right'> & {
   rightExtra?: React.ReactNode;
   showStrength?: boolean;
   strengthClassName?: string;
+  toggleButtonTabIndex?: number;
 };
 
 export const PasswordInput: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const PasswordInput: React.FC<Props> = ({
   rightExtra,
   showStrength = false,
   strengthClassName,
+  toggleButtonTabIndex,
   wrapperClassName,
   inputClassName,
   value,
@@ -45,6 +47,7 @@ export const PasswordInput: React.FC<Props> = ({
               type="button"
               onClick={() => setVisible((v) => !v)}
               disabled={disabled}
+              tabIndex={toggleButtonTabIndex}
               className={cn(
                 'opacity-30 hover:opacity-100 transition-opacity',
                 disabled && 'pointer-events-none',

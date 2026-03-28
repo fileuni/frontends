@@ -36,7 +36,7 @@ interface Props {
 const makeId = () => Math.random().toString(36).slice(2, 10);
 
 const driverDefaults: Record<Driver, { root: string; tipsKey: string }> = {
-  fs: { root: '{APPDATADIR}/vfs', tipsKey: 'admin.config.storage.hints.root.fs' },
+  fs: { root: '{RUNTIMEDIR}/vfs', tipsKey: 'admin.config.storage.hints.root.fs' },
   memory: { root: '/', tipsKey: 'admin.config.storage.hints.root.memory' },
   s3: { root: '/', tipsKey: 'admin.config.storage.hints.root.s3' },
   webdav: { root: '/', tipsKey: 'admin.config.storage.hints.root.webdav' },
@@ -119,7 +119,7 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({ tomlAdapter, content, 
         id: `${pool.name || index}`,
         name: pool.name ?? `pool-${index + 1}`,
         driver: driverOptions.includes(connector.driver as Driver) ? (connector.driver as Driver) : defaultDriver,
-        root: connector.root ?? '{APPDATADIR}/vfs',
+        root: connector.root ?? '{RUNTIMEDIR}/vfs',
         enabled: typeof pool.enable === 'boolean' ? pool.enable : true,
         options: Object.fromEntries(Object.entries(optionsRaw).map(([key, value]) => [key, String(value)])),
       };
