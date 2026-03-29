@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mail, X } from "lucide-react";
 import { EmailPage } from "@/components/email/components/EmailPage";
@@ -18,8 +18,7 @@ export const EmailUnifiedUI: React.FC = () => {
     view: "inbox",
   });
 
-  // Parse hash and update state
-    const parseHash = (): EmailRouterState => {
+  const parseHash = useCallback((): EmailRouterState => {
     const hash = window.location.hash;
     const params = new URLSearchParams(hash.replace(/^#/, ""));
     
@@ -59,7 +58,7 @@ export const EmailUnifiedUI: React.FC = () => {
     }
     
     return { isOpen: false, view: "inbox" };
-  };
+  }, []);
 
   // Listen for hash changes
   useEffect(() => {
@@ -70,9 +69,9 @@ export const EmailUnifiedUI: React.FC = () => {
     checkHash();
     window.addEventListener("hashchange", checkHash);
     return () => window.removeEventListener("hashchange", checkHash);
-  }, []);
+  }, [parseHash]);
 
-  const closeEmail = () => {
+  const closeEmail = useCallback(() => {
     const hash = window.location.hash.replace(/^#/, "");
     const params = new URLSearchParams(hash);
     params.delete("modalPage");
@@ -82,7 +81,7 @@ export const EmailUnifiedUI: React.FC = () => {
     }
     const newHash = params.toString();
     window.location.hash = newHash ? `#${newHash}` : "";
-  };
+  }, []);
 
   useEscapeToCloseTopLayer({
     active: routerState.isOpen,
@@ -94,9 +93,11 @@ export const EmailUnifiedUI: React.FC = () => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-md" 
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
         onClick={closeEmail}
+        aria-label={t("common.close")}
       />
       
       {/* Modal Container */}
@@ -113,6 +114,7 @@ export const EmailUnifiedUI: React.FC = () => {
             </div>
           </div>
           <button
+            type="button"
             onClick={closeEmail}
             className="w-10 h-10 rounded-2xl hover:bg-muted flex items-center justify-center transition-all active:scale-90"
           >

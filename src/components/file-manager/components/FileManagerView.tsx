@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { FileManagerToolbar } from "./FileManagerToolbar.tsx";
 import { FileBrowser } from "./FileBrowser.tsx";
 import { FileManagerContextMenu } from "./FileManagerContextMenu.tsx";
@@ -161,7 +161,7 @@ export const FileManagerView = () => {
     searchKeyword,
   ]);
 
-  const buildClipboardItem = (
+  const buildClipboardItem = useCallback((
     path: string,
     type: ClipboardItem['type'],
   ): ClipboardItem => {
@@ -180,7 +180,7 @@ export const FileManagerView = () => {
         ? { delete_behavior: file.delete_behavior }
         : {}),
     };
-  };
+  }, [files]);
 
   useEffect(() => {
     if (!isReady) return;

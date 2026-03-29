@@ -92,9 +92,10 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
         setLoading(false);
       }
     }
-  }, [path, forceOpen]);
+  }, [path, forceOpen, officeLimitBytes]);
 
   useEffect(() => {
+    void path;
     setForceOpen(false);
     setSheets([]);
     setIsComplex(false);
@@ -197,10 +198,10 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
           {t('filemanager.officeLite.largeFileWarning', { size: Math.ceil(officeLimitBytes / (1024 * 1024)) })}
         </p>
         <div className="flex items-center gap-3">
-          <Button variant="primary" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={() => setForceOpen(true)}>
+          <Button type="button" variant="primary" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={() => setForceOpen(true)}>
             {t('filemanager.officeLite.forceOpen')}
           </Button>
-          <Button variant="outline" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={onClose}>
+          <Button type="button" variant="outline" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={onClose}>
             {t('common.close')}
           </Button>
         </div>
@@ -215,7 +216,7 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
         subtitle={t('filemanager.officeLite.xlsxEditorTitle')}
         onClose={onClose}
         extra={
-          <Button variant="primary" className="h-9 px-4 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={() => { void saveWorkbook('manual'); }} disabled={saving || loading}>
+          <Button type="button" variant="primary" className="h-9 px-4 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={() => { void saveWorkbook('manual'); }} disabled={saving || loading}>
             {saving ? t('filemanager.officeLite.saving') : t('filemanager.officeLite.save')}
             <Save size={18} className="ml-2" />
           </Button>

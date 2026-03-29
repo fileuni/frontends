@@ -31,8 +31,6 @@ import type { components } from "@/types/api.ts";
 
 import { CaptchaChallenge, type CaptchaPayload } from "@/components/common/CaptchaChallenge.tsx";
 
-/* eslint-disable jsx-a11y/tabindex-no-positive -- Keep the login focus flow aligned with the requested keyboard order. */
-
 type UserSession = components["schemas"]["UserSession"];
 export const LoginView = () => {
   const { t } = useTranslation();
@@ -62,16 +60,6 @@ export const LoginView = () => {
   const savedUsers = Object.values(usersMap);
   const isTurnstileCaptcha = captchaData?.captcha_type === "turnstile";
   const captchaTokenForSubmit = isTurnstileCaptcha ? turnstileToken : (captchaData?.token ?? "");
-  const passwordToggleTabIndex = 3;
-  const captchaTabIndex = needCaptcha ? 4 : undefined;
-  const agreementTabIndex = needCaptcha ? 5 : 4;
-  const submitTabIndex = agreementTabIndex + 1;
-  const forgotPasswordTabIndex = submitTabIndex + 1;
-  const registerTabIndex = forgotPasswordTabIndex + 1;
-  const rememberMeTabIndex = registerTabIndex + 1;
-  const privacyTabIndex = rememberMeTabIndex + 1;
-  const termsTabIndex = privacyTabIndex + 1;
-
   useEffect(() => {
     void fetchCapabilities();
   }, [fetchCapabilities]);
@@ -304,7 +292,6 @@ export const LoginView = () => {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   onBlur={() => setIdentifier(normalizeLoginIdentifierInput(identifier))}
-                  tabIndex={1}
                   placeholder={
                     capabilities?.enable_mobile_auth && capabilities?.enable_email_auth
                       ? t("auth.usernameEmailPhone")
@@ -327,7 +314,6 @@ export const LoginView = () => {
                   placeholder={t('common.verificationCode')}
                   refreshTitle={t("auth.refreshCaptcha")}
                   turnstileSiteKeyMissingText={t('auth.turnstileSiteKeyMissing')}
-                  inputTabIndex={captchaTabIndex}
                 />
               )}
 
@@ -336,7 +322,6 @@ export const LoginView = () => {
                   <span className="text-sm font-black uppercase tracking-widest opacity-40">{t("common.password")}</span>
                   <a
                     href="#mod=public&page=forgot-password"
-                    tabIndex={forgotPasswordTabIndex}
                     className="text-sm font-black text-primary hover:underline"
                   >
                     {t("common.forgotPassword")}
@@ -346,8 +331,6 @@ export const LoginView = () => {
                   icon={<Lock size={18} />}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  tabIndex={2}
-                  toggleButtonTabIndex={passwordToggleTabIndex}
                   placeholder=""
                   required
                 />
@@ -355,14 +338,13 @@ export const LoginView = () => {
 
               <div className="space-y-3">
                 <label className="flex items-center gap-3 cursor-pointer group p-1 select-none">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    tabIndex={rememberMeTabIndex}
-                    className={cn(
-                      "w-4 h-4 rounded transition-all cursor-pointer",
-                      isDark ? "border-white/10 bg-white/5 checked:bg-primary" : "border-gray-300 bg-white checked:bg-primary"
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className={cn(
+                        "w-4 h-4 rounded transition-all cursor-pointer",
+                        isDark ? "border-white/10 bg-white/5 checked:bg-primary" : "border-gray-300 bg-white checked:bg-primary"
                     )}
                   />
                   <span className="text-sm font-bold opacity-60 leading-tight">
@@ -371,21 +353,19 @@ export const LoginView = () => {
                 </label>
 
                 <label className="flex items-start gap-3 cursor-pointer group p-1 select-none">
-                  <input
-                    type="checkbox"
-                    checked={agreement}
-                    onChange={(e) => setAgreement(e.target.checked)}
-                    tabIndex={agreementTabIndex}
-                    className={cn(
-                      "mt-1 w-4 h-4 rounded transition-all cursor-pointer",
-                      isDark ? "border-white/10 bg-white/5 checked:bg-primary" : "border-gray-300 bg-white checked:bg-primary"
+                    <input
+                      type="checkbox"
+                      checked={agreement}
+                      onChange={(e) => setAgreement(e.target.checked)}
+                      className={cn(
+                        "mt-1 w-4 h-4 rounded transition-all cursor-pointer",
+                        isDark ? "border-white/10 bg-white/5 checked:bg-primary" : "border-gray-300 bg-white checked:bg-primary"
                     )}
                   />
                   <span className="text-sm font-bold opacity-60 leading-tight">
                     {t("auth.agreementPrefix")}
                     <a
                       href="#mod=public&page=privacy"
-                      tabIndex={privacyTabIndex}
                       className="text-primary hover:underline mx-1"
                     >
                       {t("auth.privacyPolicy")}
@@ -393,7 +373,6 @@ export const LoginView = () => {
                     {t("auth.and")}
                     <a
                       href="#mod=public&page=tos"
-                      tabIndex={termsTabIndex}
                       className="text-primary hover:underline mx-1"
                     >
                       {t("auth.termsOfService")}
@@ -402,7 +381,7 @@ export const LoginView = () => {
                 </label>
               </div>
 
-              <Button className="w-full h-14 text-lg" disabled={loading} tabIndex={submitTabIndex}>
+              <Button type="submit" className="w-full h-14 text-lg" disabled={loading}>
                 {loading ? (
                   <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
@@ -420,7 +399,6 @@ export const LoginView = () => {
               </p>
               <a
                 href="#mod=public&page=register"
-                tabIndex={registerTabIndex}
                 className="inline-flex items-center justify-center px-8 py-3 rounded-xl border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all font-black uppercase text-sm tracking-widest"
               >
                 {t("common.register")}

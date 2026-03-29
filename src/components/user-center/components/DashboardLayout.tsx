@@ -23,6 +23,10 @@ const IconRenderer = ({ name, size = 18, className }: { name: string, size?: num
   return <Icon size={size} {...(className ? { className } : {})} />;
 };
 
+const navigateToHash = (path: string) => {
+  window.location.hash = path.startsWith('#') ? path : `#${path}`;
+};
+
 export const DashboardLayout: React.FC<{
   children: React.ReactNode;
   title?: string;
@@ -144,10 +148,13 @@ export const DashboardLayout: React.FC<{
         </p>
         
         {navItems.map((item) => (
-          <a
+          <button
             key={item.path}
-            href={item.path}
-            onClick={() => isMobile && setIsMobileMenuOpen(false)}
+            type="button"
+            onClick={() => {
+              navigateToHash(item.path);
+              if (isMobile) setIsMobileMenuOpen(false);
+            }}
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all",
               (mod === item.m && (item.p ? page === item.p : true))
@@ -157,13 +164,16 @@ export const DashboardLayout: React.FC<{
           >
             <IconRenderer name={item.icon} size={18} />
             <span className={isDark ? "text-white" : "text-gray-900"}>{item.name}</span>
-          </a>
+          </button>
         ))}
 
         {enableFileManager && (
-          <a
-            href="#mod=file-manager"
-            onClick={() => isMobile && setIsMobileMenuOpen(false)}
+          <button
+            type="button"
+            onClick={() => {
+              navigateToHash('#mod=file-manager');
+              if (isMobile) setIsMobileMenuOpen(false);
+            }}
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all",
               mod === "file-manager"
@@ -173,7 +183,7 @@ export const DashboardLayout: React.FC<{
           >
             <IconRenderer name="FolderOpen" size={18} />
             <span className={isDark ? "text-white" : "text-gray-900"}>{t("nav.filemanager")}</span>
-          </a>
+          </button>
         )}
 
         {isAdmin && (
@@ -182,10 +192,13 @@ export const DashboardLayout: React.FC<{
               {t("common.admin")}
             </p>
             {filteredAdminItems.map((item) => (
-              <a
+              <button
                 key={item.path}
-                href={item.path}
-                onClick={() => isMobile && setIsMobileMenuOpen(false)}
+                type="button"
+                onClick={() => {
+                  navigateToHash(item.path);
+                  if (isMobile) setIsMobileMenuOpen(false);
+                }}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all",
                   (mod === item.m && (item.p ? page === item.p : true))
@@ -195,15 +208,15 @@ export const DashboardLayout: React.FC<{
               >
                 <IconRenderer name={item.icon} size={18} />
                 <span className={isDark ? "text-white" : "text-gray-900"}>{item.name}</span>
-              </a>
+              </button>
             ))}
           </div>
         )}
       </div>
 
       <div className={cn("mt-auto pt-4 border-t flex flex-wrap gap-x-4 gap-y-2 px-2 pb-2", isDark ? "border-white/5" : "border-gray-200")}>
-        <a href="#mod=public&page=tos" className="text-sm font-black uppercase tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all">{t("pages.tos.title")}</a>
-        <a href="#mod=public&page=privacy" className="text-sm font-black uppercase tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all">{t("pages.privacy.title")}</a>
+        <button type="button" onClick={() => navigateToHash('#mod=public&page=tos')} className="text-sm font-black uppercase tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all">{t("pages.tos.title")}</button>
+        <button type="button" onClick={() => navigateToHash('#mod=public&page=privacy')} className="text-sm font-black uppercase tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all">{t("pages.privacy.title")}</button>
         <button
           type="button"
           onClick={() => window.dispatchEvent(new Event('fileuni:open-about'))}
@@ -220,6 +233,7 @@ export const DashboardLayout: React.FC<{
       {/* Mobile Top Bar */}
       <div className={cn("md:hidden fixed top-16 left-0 right-0 h-12 backdrop-blur-md border-b z-40 flex items-center px-4", isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-gray-200")}>
         <button
+          type="button"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className={cn("p-2 -ml-2 rounded-lg text-primary", isDark ? "hover:bg-white/5" : "hover:bg-gray-100")}
         >
@@ -238,7 +252,7 @@ export const DashboardLayout: React.FC<{
 
         {/* Mobile Sidebar Overlay */}
         {isMobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[50]" onClick={() => setIsMobileMenuOpen(false)} />
+          <button type="button" className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[50]" onClick={() => setIsMobileMenuOpen(false)} aria-label={t('common.close')} />
         )}
 
         {/* Mobile Sidebar Drawer */}
@@ -254,7 +268,7 @@ export const DashboardLayout: React.FC<{
 						<img src="/favicon.svg" alt={t('common.logoAlt')} width={32} height={32} className="shadow-lg rounded-lg" />
               <span className={cn("font-black text-sm tracking-tight", isDark ? "text-white" : "text-gray-900")}>{t('common.brandName')}</span>
             </div>
-            <button onClick={() => setIsMobileMenuOpen(false)} className={cn("p-2 rounded-lg", isDark ? "bg-white/5" : "bg-gray-100")}>
+            <button type="button" onClick={() => setIsMobileMenuOpen(false)} className={cn("p-2 rounded-lg", isDark ? "bg-white/5" : "bg-gray-100")}>
               <IconRenderer name="X" size={18} />
             </button>
           </div>

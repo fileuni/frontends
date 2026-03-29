@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ExternalLink, Play, Monitor, Download, Loader2, FileCode, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
@@ -39,7 +39,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
   const enableWopi = capabilities?.enable_wopi !== false;
 
   // Fetch available app list
-  const fetchApps = async () => {
+  const fetchApps = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await client.GET('/api/v1/file/integration/apps', {
@@ -73,13 +73,13 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
     } finally {
       setLoading(false);
     }
-  };
+  }, [enableWopi, ext, isOffice, t]);
 
   useEffect(() => {
     if (isOpen && apps.length === 0) {
-      fetchApps();
+      void fetchApps();
     }
-  }, [isOpen, ext]);
+  }, [apps.length, fetchApps, isOpen]);
 
   const handleAppClick = async (app: AppInfo) => {
     setIsOpen(false);
@@ -159,6 +159,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
   return (
     <div className={cn("relative", className)} ref={menuRef}>
       <Button 
+        type="button"
         variant={variant} 
         className="h-10 px-3 rounded-xl gap-2 text-sm font-bold uppercase"
         onClick={() => setIsOpen(!isOpen)}
@@ -179,6 +180,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
             <>
               {apps.map((app) => (
                 <button
+                  type="button"
                   key={app.id}
                   onClick={() => handleAppClick(app)}
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-white/5 text-left transition-colors text-zinc-300 hover:text-white"
@@ -193,9 +195,10 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
             </>
           )}
           <div className="h-px bg-white/5 my-1" />
-           <button
-             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-white/5 text-left transition-colors text-zinc-300 hover:text-white"
-              onClick={async () => {
+            <button
+              type="button"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-white/5 text-left transition-colors text-zinc-300 hover:text-white"
+               onClick={async () => {
                   setIsOpen(false);
                   try {
                      const token = await getFileDownloadToken(file.path);

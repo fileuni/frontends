@@ -135,7 +135,7 @@ export interface ChatContextProps {
   removePendingGuest: (guestId: string) => void;
 }
 
-const ChatContext = createContext<ChatContextProps | undefined>(undefined);
+export const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 const MAX_HISTORY_COUNT = 500;
 const MAX_HISTORY_BYTES = 300 * 1024;
 

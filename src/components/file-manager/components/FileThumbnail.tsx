@@ -109,7 +109,7 @@ export const FileThumbnail = ({ file, size = 64, className }: FileThumbnailProps
         if (!canceled) setFailed(true);
       });
     return () => { canceled = true; };
-  }, [enabled, inView, src, failed, file.path, file.is_dir]);
+  }, [enabled, inView, isUserDisabled, src, failed, file.path, file.is_dir]);
 
   if (!enabled || isUserDisabled || file.is_dir || !category) {
     return <FileIcon name={file.name} isDir={file.is_dir} size={Math.round(size * 0.75)} />;

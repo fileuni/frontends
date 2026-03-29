@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useContext } from "react";
 import {
   useFileStore,
   type TaskState,
@@ -29,7 +29,7 @@ import { formatDistanceToNow } from "date-fns";
 import { toast } from '@/stores/toast';
 import { zhCN, enUS } from "date-fns/locale";
 import { useLanguageStore } from '@/stores/language';
-import { useChat, type ChatContextProps, type Room } from "@/components/chat/context/ChatContext";
+import { ChatContext, type ChatContextProps, type Room } from "@/components/chat/context/ChatContext";
 import { useConfigStore } from "@/stores/config.ts";
 import { useAuthzStore } from "@/stores/authz.ts";
 
@@ -51,12 +51,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
   } = useNotificationStore();
 
   // Chat integration
-  let chat: ChatContextProps | null = null;
-  try {
-    chat = useChat();
-  } catch (e) {
-    // Chat context not available (e.g. during login/logout)
-  }
+  const chat = useContext(ChatContext) ?? null;
   const chatRooms = chat?.rooms || [];
   const totalChatUnread = chatRooms.reduce(
     (sum: number, r: Room) => sum + r.unreadCount,
@@ -81,7 +76,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
   // Sync total unread count across all modules
   const totalAlerts = runningCount + unreadCount + totalChatUnread + totalEmailUnread;
 
-  const fetchEmailUnread = async () => {
+  const fetchEmailUnread = useCallback(async () => {
     if (capabilities?.enable_email_manager === false || !hasPermission("feature.email_manager.use")) {
       setTotalEmailUnread(0);
       return;
@@ -97,7 +92,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
       
       setTotalEmailUnread(count);
     } catch (e) { console.error("Email count fetch failed", e); }
-  };
+  }, [capabilities?.enable_email_manager, hasPermission, t, totalEmailUnread]);
 
   useEffect(() => {
     if (isOpen) {
@@ -128,7 +123,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
       clearInterval(timer);
       window.removeEventListener('fileuni:email-refresh', handleRefresh);
     };
-  }, [fetchUnreadCount, capabilities?.enable_email_manager, hasPermission]);
+  }, [fetchUnreadCount, fetchEmailUnread, capabilities?.enable_email_manager, hasPermission]);
 
   const enableChat = capabilities?.enable_chat !== false && hasPermission("feature.chat.use");
   const enableEmail = capabilities?.enable_email_manager !== false && hasPermission("feature.email_manager.use");
@@ -145,6 +140,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "p-2 rounded-xl transition-all relative flex items-center justify-center border",
@@ -169,7 +165,9 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
 
       {isOpen && (
         <>
-          <div
+          <button
+            type="button"
+            aria-label={t("common.close", { defaultValue: "Close" })}
             className="fixed inset-0 z-[120]"
             onClick={() => setIsOpen(false)}
           />
@@ -184,6 +182,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
             {/* Header / Tabs */}
             <div className="flex border-b shrink-0">
               <button
+                type="button"
                 onClick={() => setActiveTab("tasks")}
                 className={cn(
                   "flex-1 py-3 text-sm font-black uppercase tracking-widest transition-all relative",
@@ -201,6 +200,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                 )}
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("notifications")}
                 className={cn(
                   "flex-1 py-3 text-sm font-black uppercase tracking-widest transition-all relative",
@@ -219,6 +219,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
               </button>
               {enableChat && (
                 <button
+                  type="button"
                   onClick={() => setActiveTab("chat")}
                   className={cn(
                     "flex-1 py-3 text-sm font-black uppercase tracking-widest transition-all relative",
@@ -238,6 +239,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
               )}
               {enableEmail && (
                 <button
+                  type="button"
                   onClick={() => setActiveTab("emails")}
                   className={cn(
                     "flex-1 py-3 text-sm font-black uppercase tracking-widest transition-all relative",
@@ -293,6 +295,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
             {activeTab === "notifications" && notifications.length > 0 && (
               <div className="p-2 border-t flex justify-between bg-muted/30">
                 <button
+                  type="button"
                   onClick={() => markAllAsRead()}
                   className="text-sm font-black uppercase opacity-40 hover:opacity-100 transition-all flex items-center gap-1"
                 >
@@ -335,6 +338,7 @@ const ChatList = ({
         ) : (
           rooms.map((room: Room) => (
             <button
+              type="button"
               key={room.id}
               onClick={() => {
                 chat.setActiveTarget(room.id);
@@ -384,6 +388,7 @@ const ChatList = ({
       {/* Chat Tab Footer */}
       <div className="p-3 border-t flex items-center justify-between mt-2">
         <button
+          type="button"
           onClick={() => {
             chat.setIsOpen(true);
             onClose();
@@ -464,6 +469,7 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
         </div>
         {(task.status === "success" || task.status === "failed") && (
           <button
+            type="button"
             onClick={() => removeTask(task.id)}
             className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-destructive transition-all"
           >
@@ -532,6 +538,7 @@ const TaskList = ({
           Active Tasks
         </span>
         <button
+          type="button"
           onClick={clearFinishedTasks}
           className="text-sm text-destructive font-black uppercase opacity-40 hover:opacity-100"
         >
@@ -615,7 +622,6 @@ const NotificationList = ({
                 ? "ring-1 ring-primary/30 bg-primary/5"
                 : "ring-1 ring-primary/20 bg-primary/5"),
           )}
-          onClick={() => !n.is_read && onMarkRead([n.id])}
         >
           {!n.is_read && (
             <div className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-bl-lg" />
@@ -632,7 +638,16 @@ const NotificationList = ({
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex justify-between items-start gap-2">
-                <p className="text-sm font-black truncate">{n.title}</p>
+                <button
+                  type="button"
+                  onClick={() => !n.is_read && onMarkRead([n.id])}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <p className="text-sm font-black truncate">{n.title}</p>
+                  <p className="text-sm opacity-60 mt-1 leading-relaxed line-clamp-2">
+                    {n.content}
+                  </p>
+                </button>
                 <span className="text-[14px] font-black uppercase opacity-30 whitespace-nowrap">
                   {formatDistanceToNow(new Date(n.created_at), {
                     addSuffix: true,
@@ -640,12 +655,10 @@ const NotificationList = ({
                   })}
                 </span>
               </div>
-              <p className="text-sm opacity-60 mt-1 leading-relaxed line-clamp-2">
-                {n.content}
-              </p>
 
               <div className="mt-2 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete([n.id]);
@@ -655,7 +668,7 @@ const NotificationList = ({
                   <Trash2 size={18} />
                 </button>
                 {n.extra_data?.task_id && (
-                  <button className="p-1 rounded hover:bg-primary/10 text-primary">
+                  <button type="button" className="p-1 rounded hover:bg-primary/10 text-primary">
                     <ExternalLink size={18} />
                   </button>
                 )}
@@ -704,7 +717,7 @@ const EmailTabContent = ({
   const [syncingAccountId, setSyncingAccountId] = useState<string | null>(null);
 
   // Fetch email accounts
-  const fetchAccounts = async () => {
+  const fetchAccounts = useCallback(async () => {
     try {
       const data = await extractData<EmailAccount[]>(client.GET("/api/v1/email/accounts"));
       setAccounts(data || []);
@@ -713,11 +726,11 @@ const EmailTabContent = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAccounts();
-  }, []);
+  }, [fetchAccounts]);
 
   const handleSyncAccount = async (id: string) => {
     if (syncingAccountId) return;
@@ -776,17 +789,19 @@ const EmailTabContent = ({
                 account.unread_count && account.unread_count > 0 && (isDark ? "ring-1 ring-primary/30 bg-primary/5" : "ring-1 ring-primary/20 bg-primary/5")
               )}
             >
-              <div 
-                className="min-w-0 flex-1 cursor-pointer"
+              <button
+                type="button"
+                className="min-w-0 flex-1 cursor-pointer text-left"
                 onClick={onOpenEmail}
               >
                 <p className="text-sm font-bold truncate">
                   {account.display_name || account.email_address}
                 </p>
                 <p className="text-sm opacity-60 truncate">{account.email_address}</p>
-              </div>
+              </button>
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSyncAccount(account.id);
@@ -819,6 +834,7 @@ const EmailTabContent = ({
           )}
         </div>
         <button
+          type="button"
           onClick={onOpenEmail}
           className={cn(
             "px-4 py-2 rounded-xl text-sm font-bold transition-all ml-auto",

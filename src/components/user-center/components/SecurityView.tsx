@@ -52,6 +52,8 @@ export const SecurityView = () => {
   const captchaTokenForSubmit = isTurnstileCaptcha ? turnstileToken : (captchaData?.token ?? "");
   
   const [deleteConfirm, setDeleteConfirm] = useState({ password: '', phrase: '' });
+  const verifyTargetInputId = 'security-verify-target';
+  const verifyCodeInputId = 'security-verify-code';
 
   const fetchSecurity = useCallback(async () => {
     try {
@@ -388,13 +390,13 @@ export const SecurityView = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('security.accessKey')}</label>
+                <p className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('security.accessKey')}</p>
                 <div className="bg-black/40 px-4 py-3 rounded-xl font-mono text-sm border border-white/5 select-all">
                   {s3Keys?.access_key || t('security.notGenerated')}
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('security.secretKey')}</label>
+                <p className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('security.secretKey')}</p>
                 <div className="flex gap-2 items-stretch">
                   <div className="bg-black/40 px-4 py-3 rounded-xl font-mono text-sm border border-white/5 select-all flex-1 overflow-hidden">
                     {s3Keys?.secret_key
@@ -464,8 +466,9 @@ export const SecurityView = () => {
         title={t('security.verifyModalTitle', { type: activeModal === 'email' ? 'Email' : 'Phone' })}
       >
         <div className="space-y-6">
-          <FormField label={t('security.targetAddress')}>
+          <FormField label={t('security.targetAddress')} htmlFor={verifyTargetInputId}>
             <Input
+              id={verifyTargetInputId}
               value={bindForm.target}
               onChange={(e) => setBindForm({ ...bindForm, target: e.target.value })}
               onBlur={() => {
@@ -495,15 +498,15 @@ export const SecurityView = () => {
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('common.verificationCode')}</label>
+            <label htmlFor={verifyCodeInputId} className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('common.verificationCode')}</label>
             <div className="flex gap-2">
-              <Input value={bindForm.code} onChange={e => setBindForm({ ...bindForm, code: e.target.value })} placeholder={t('common.codePlaceholder')} className="flex-1 font-mono tracking-widest" />
-              <Button variant="outline" className="px-4 h-12 whitespace-nowrap" disabled={bindForm.timer > 0 || !bindForm.target || (needCaptcha && !captchaTokenForSubmit)} onClick={() => activeModal && handleSendCode(activeModal as 'email' | 'phone')}>
+              <Input id={verifyCodeInputId} value={bindForm.code} onChange={e => setBindForm({ ...bindForm, code: e.target.value })} placeholder={t('common.codePlaceholder')} className="flex-1 font-mono tracking-widest" />
+              <Button type="button" variant="outline" className="px-4 h-12 whitespace-nowrap" disabled={bindForm.timer > 0 || !bindForm.target || (needCaptcha && !captchaTokenForSubmit)} onClick={() => activeModal && handleSendCode(activeModal as 'email' | 'phone')}>
                 {bindForm.timer > 0 ? `${bindForm.timer}s` : <><Send size={16} className="mr-2" /> {t('security.send')}</>}
               </Button>
             </div>
           </div>
-          <Button className="w-full h-14" disabled={!bindForm.code || !bindForm.token} onClick={() => activeModal && handleVerify(activeModal as 'email' | 'phone')}>
+          <Button type="button" className="w-full h-14" disabled={!bindForm.code || !bindForm.token} onClick={() => activeModal && handleVerify(activeModal as 'email' | 'phone')}>
             {t('security.completeVerify')}
           </Button>
         </div>

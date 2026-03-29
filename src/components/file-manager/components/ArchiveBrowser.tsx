@@ -54,7 +54,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
     };
 
     fetchContents();
-  }, [archivePath, password]);
+  }, [archivePath, onClose, password]);
 
   // Filter and organize current level files
   const currentEntries = useMemo(() => {
@@ -141,7 +141,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
       {/* Top Navigation */}
       <div className="h-16 border-b border-border bg-card/50 backdrop-blur-md px-4 flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1 min-w-0">
-          <Button variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0">
+          <Button type="button" variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0">
             <ArrowLeft size={20} />
           </Button>
           
@@ -149,7 +149,8 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
             {breadcrumbs.map((bc, i) => (
               <React.Fragment key={bc.path}>
                 {i > 0 && <span className="opacity-20 mx-1">/</span>}
-                <button 
+                <button
+                  type="button"
                   onClick={() => { setCurrentSubPath(bc.path); setSearchKeyword(''); }}
                   className={cn(
                     "text-sm font-bold transition-all hover:text-primary",
@@ -177,7 +178,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
             <Badge variant="ghost" className="bg-primary/10 text-primary border-0 font-black hidden sm:flex">
                 {entries.length} {t('common.items')}
             </Badge>
-            <Button variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0 text-muted-foreground hover:text-destructive">
+            <Button type="button" variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0 text-muted-foreground hover:text-destructive">
                 <X size={20} />
             </Button>
         </div>
@@ -193,7 +194,8 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
         ) : (
           <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4">
             {currentEntries.map((entry) => (
-              <div 
+              <button
+                type="button"
                 key={entry.path}
                 onDoubleClick={() => handleEntryClick(entry)}
                 className="group flex flex-col items-center p-4 rounded-[2rem] hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all cursor-pointer text-center relative"
@@ -218,14 +220,15 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
                   </span>
                 )}
                 {!entry.is_dir && (
-                    <button 
+                    <button
+                        type="button"
                         onClick={(e) => { e.stopPropagation(); handleDownload(entry.path); }}
                         className="absolute top-2 right-2 p-1.5 rounded-full bg-background border border-border opacity-0 group-hover:opacity-100 transition-all hover:bg-primary hover:text-white"
                     >
                         <Download size={10} />
                     </button>
                 )}
-              </div>
+              </button>
             ))}
             
             {currentEntries.length === 0 && (

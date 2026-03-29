@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { FileIcon } from './FileIcon.tsx';
@@ -56,7 +56,39 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
 
   const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-  const fetchShare = async () => {
+  const fetchContents = useCallback(async (path: string) => {
+    if (!token) return;
+    setContentLoading(true);
+    try {
+      const data = await extractData<ShareEntry[]>(client.GET('/api/v1/file/public/share/{id}/list', {
+        params: {
+          path: { id: token },
+          query: {
+            password: password || undefined,
+            path: path
+          }
+        }
+      }));
+
+      setContents(data);
+
+      // Sync sub_path via navigate; set to undefined for root to avoid redundant params
+      if (path !== currentPath) {
+        navigate({ sub_path: path === '/' ? undefined : path });
+      }
+      setPasswordRequired(false);
+    } catch (e: unknown) {
+      if (isApiError(e) && e.msg?.includes('PASSWORD_REQUIRED')) {
+        setPasswordRequired(true);
+        setShareInfo(null);
+      }
+      console.error("Failed to load folder contents:", e);
+    } finally {
+      setContentLoading(false);
+    }
+  }, [currentPath, navigate, password, token]);
+
+  const fetchShare = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     setErrorMessage(null);
@@ -94,50 +126,18 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchContents = async (path: string) => {
-    if (!token) return;
-    setContentLoading(true);
-    try {
-      const data = await extractData<ShareEntry[]>(client.GET('/api/v1/file/public/share/{id}/list', {
-        params: {
-          path: { id: token },
-          query: { 
-            password: password || undefined,
-            path: path
-          }
-        }
-      }));
-
-      setContents(data);
-      
-      // Sync sub_path via navigate; set to undefined for root to avoid redundant params
-      if (path !== currentPath) {
-        navigate({ sub_path: path === '/' ? undefined : path });
-      }
-      setPasswordRequired(false);
-    } catch (e: unknown) {
-      if (isApiError(e) && e.msg?.includes('PASSWORD_REQUIRED')) {
-        setPasswordRequired(true);
-        setShareInfo(null);
-      }
-      console.error("Failed to load folder contents:", e);
-    } finally {
-      setContentLoading(false);
-    }
-  };
+  }, [currentPath, fetchContents, password, t, token]);
 
   useEffect(() => { 
     if (token) fetchShare(); 
-  }, [token]);
+  }, [fetchShare, token]);
 
   // Reload directory when sub_path changes
   useEffect(() => {
     if (shareInfo?.is_dir && token) {
       fetchContents(currentPath);
     }
-  }, [currentPath, shareInfo?.is_dir]);
+  }, [currentPath, fetchContents, shareInfo?.is_dir, token]);
 
   const downloadItem = (path: string = '/') => {
     const backendUrl = BASE_URL || window.location.origin;
@@ -177,7 +177,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
           </div>
           <h1 className={cn("text-3xl font-black mb-2 italic uppercase", isDark ? "text-white" : "text-gray-900")}>{t('filemanager.publicShare.accessDenied')}</h1>
           <p className="text-sm opacity-50 font-bold mb-8 uppercase tracking-[0.2em]">{errorMessage}</p>
-          <Button variant="outline" className="w-full h-16 text-lg uppercase font-black rounded-2xl" onClick={() => fetchShare()}>{t('filemanager.publicShare.tryAgain')}</Button>
+          <Button type="button" variant="outline" className="w-full h-16 text-lg uppercase font-black rounded-2xl" onClick={() => fetchShare()}>{t('filemanager.publicShare.tryAgain')}</Button>
         </div>
       </div>
     );
@@ -204,7 +204,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
               placeholder={t('filemanager.publicShare.enterPassword')}
               inputClassName={cn("h-16 text-center text-xl tracking-widest font-black rounded-2xl", isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200")}
             />
-            <Button className="w-full h-16 text-lg font-black uppercase rounded-2xl" onClick={fetchShare}>{t('filemanager.publicShare.unlockBtn')}</Button>
+             <Button type="button" className="w-full h-16 text-lg font-black uppercase rounded-2xl" onClick={fetchShare}>{t('filemanager.publicShare.unlockBtn')}</Button>
           </div>
         </div>
       </div>
@@ -233,7 +233,8 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
           isDark ? "bg-white/[0.02] border-white/10" : "bg-gray-50/50 border-gray-100"
         )}>
           {/* QR Toggle Button */}
-          <button 
+          <button
+            type="button"
             onClick={() => setShowQr(!showQr)}
             className={cn(
               "absolute top-6 right-6 p-2 rounded-xl transition-all z-20",
@@ -253,7 +254,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                 <p className="text-sm font-black uppercase tracking-[0.2em] text-primary">{t('filemanager.publicShare.qrMobileAccess')}</p>
                 <p className="text-[14px] font-bold opacity-40 uppercase tracking-widest px-4">{t('filemanager.publicShare.qrScanDesc')}</p>
               </div>
-              <Button variant="ghost" className="text-sm font-black uppercase opacity-40" onClick={() => setShowQr(false)}>{t('filemanager.publicShare.qrBackToInfo')}</Button>
+              <Button type="button" variant="ghost" className="text-sm font-black uppercase opacity-40" onClick={() => setShowQr(false)}>{t('filemanager.publicShare.qrBackToInfo')}</Button>
             </div>
           ) : (
             <>
@@ -288,7 +289,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
 
               {!isBaseDir && (
                 <div className="w-full mt-auto">
-                  <Button className="w-full h-16 text-lg font-black uppercase rounded-2xl shadow-lg shadow-primary/20 group" onClick={() => downloadItem('/')}>
+                  <Button type="button" className="w-full h-16 text-lg font-black uppercase rounded-2xl shadow-lg shadow-primary/20 group" onClick={() => downloadItem('/')}>
                     <Download size={24} className="mr-3 group-hover:animate-bounce" /> {t('filemanager.publicShare.downloadNow')}
                   </Button>
                 </div>
@@ -304,7 +305,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
               <div className={cn("px-8 py-6 border-b flex items-center justify-between", isDark ? "border-white/10 bg-white/[0.01]" : "border-gray-100 bg-gray-50/50")}>
                 <div className="flex items-center gap-3 min-w-0">
                   {currentPath !== '/' && (
-                    <button onClick={handleBack} className={cn("p-2 rounded-xl transition-colors shrink-0", isDark ? "bg-white/5 hover:bg-white/10" : "bg-white border border-gray-200 hover:bg-gray-100")}>
+                    <button type="button" onClick={handleBack} className={cn("p-2 rounded-xl transition-colors shrink-0", isDark ? "bg-white/5 hover:bg-white/10" : "bg-white border border-gray-200 hover:bg-gray-100")}>
                       <ArrowLeft size={18} />
                     </button>
                   )}
@@ -318,44 +319,63 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
 
               <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
                 <div className="space-y-1">
-                  {contents.map((item) => (
-                    <div 
-                      key={item.path}
-                      onClick={() => item.is_dir ? navigate({ sub_path: item.path }) : null}
-                      className={cn(
-                        "flex items-center justify-between p-4 rounded-2xl border border-transparent transition-all group",
-                        item.is_dir ? "cursor-pointer hover:bg-white/5 hover:border-white/5" : "hover:bg-white/[0.02]",
-                        !isDark && item.is_dir && "hover:bg-gray-100 hover:border-gray-200",
-                        !isDark && !item.is_dir && "hover:bg-gray-50"
-                      )}
-                    >
-                      <div className="flex items-center gap-4 min-w-0">
-                        <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-inner",
-                          item.is_dir ? "bg-yellow-500/10 text-yellow-500" : "bg-blue-500/10 text-blue-500"
-                        )}>
-                          <FileIcon name={item.name} isDir={item.is_dir} size={20} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className={cn("text-sm font-bold truncate", isDark ? "text-white/90" : "text-gray-900")}>{item.name}</p>
-                          <div className="flex items-center gap-3 text-[14px] font-black uppercase tracking-widest opacity-30">
-                            {!item.is_dir && <span>{formatSize(item.size)}</span>}
-                            <span>{new Date(item.modified).toLocaleDateString()}</span>
+                  {contents.map((item) => {
+                    const content = (
+                      <>
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className={cn(
+                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-inner",
+                            item.is_dir ? "bg-yellow-500/10 text-yellow-500" : "bg-blue-500/10 text-blue-500"
+                          )}>
+                            <FileIcon name={item.name} isDir={item.is_dir} size={20} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className={cn("text-sm font-bold truncate", isDark ? "text-white/90" : "text-gray-900")}>{item.name}</p>
+                            <div className="flex items-center gap-3 text-[14px] font-black uppercase tracking-widest opacity-30">
+                              {!item.is_dir && <span>{formatSize(item.size)}</span>}
+                              <span>{new Date(item.modified).toLocaleDateString()}</span>
+                            </div>
                           </div>
                         </div>
+
+                        <div className="flex items-center gap-2 shrink-0 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                          {item.is_dir ? (
+                            <ChevronRight size={18} className="opacity-30" />
+                          ) : (
+                            <Button type="button" variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-lg hover:bg-primary/20 hover:text-primary" onClick={() => downloadItem(item.path)}>
+                              <Download size={16} />
+                            </Button>
+                          )}
+                        </div>
+                      </>
+                    );
+
+                    const rowClassName = cn(
+                      "flex items-center justify-between p-4 rounded-2xl border border-transparent transition-all group",
+                      item.is_dir ? "cursor-pointer hover:bg-white/5 hover:border-white/5" : "hover:bg-white/[0.02]",
+                      !isDark && item.is_dir && "hover:bg-gray-100 hover:border-gray-200",
+                      !isDark && !item.is_dir && "hover:bg-gray-50"
+                    );
+
+                    if (item.is_dir) {
+                      return (
+                        <button
+                          key={item.path}
+                          type="button"
+                          onClick={() => navigate({ sub_path: item.path })}
+                          className={rowClassName}
+                        >
+                          {content}
+                        </button>
+                      );
+                    }
+
+                    return (
+                      <div key={item.path} className={rowClassName}>
+                        {content}
                       </div>
-                      
-                      <div className="flex items-center gap-2 shrink-0 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                        {item.is_dir ? (
-                          <ChevronRight size={18} className="opacity-30" />
-                        ) : (
-                          <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-lg hover:bg-primary/20 hover:text-primary" onClick={() => downloadItem(item.path)}>
-                            <Download size={16} />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   
                   {!listLoading && contents.length === 0 && (
                     <div className="h-64 flex flex-col items-center justify-center opacity-20">
