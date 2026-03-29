@@ -51,6 +51,7 @@ const MarqueeTitle = ({ text }: { text: string }) => {
   const [isLong, setIsLong] = useState(false);
 
   useLayoutEffect(() => {
+    void text;
     if (containerRef.current && textRef.current) {
       setIsLong(textRef.current.offsetWidth > containerRef.current.offsetWidth - 10);
     }
@@ -190,7 +191,6 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
         isDark ? "bg-zinc-900/95 border-white/10" : "bg-white/95 border-gray-200"
       )}
       style={{ top: coords.top, left: coords.left }}
-      onClick={(e) => e.stopPropagation()}
     >
       <div className="max-h-[80vh] overflow-y-auto custom-scrollbar px-1">
         {target && (

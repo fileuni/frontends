@@ -114,8 +114,8 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
       <Modal isOpen={showImportModal} onClose={() => setShowImportModal(false)} title={t("email.importAccounts")} maxWidth="max-w-lg">
         <div className="space-y-4 py-2 text-foreground">
           <div className="flex gap-2 p-1 bg-muted/20 rounded-xl">
-            <button onClick={() => setImportMode("text")} className={cn("flex-1 py-2 text-sm font-black uppercase rounded-lg transition-all", importMode === "text" ? "bg-background shadow-sm text-primary" : "text-muted-foreground opacity-60")}>{t("email.importModeText")}</button>
-            <button onClick={() => setImportMode("file")} className={cn("flex-1 py-2 text-sm font-black uppercase rounded-lg transition-all", importMode === "file" ? "bg-background shadow-sm text-primary" : "text-muted-foreground opacity-60")}>{t("email.importModeFile")}</button>
+            <button type="button" onClick={() => setImportMode("text")} className={cn("flex-1 py-2 text-sm font-black uppercase rounded-lg transition-all", importMode === "text" ? "bg-background shadow-sm text-primary" : "text-muted-foreground opacity-60")}>{t("email.importModeText")}</button>
+            <button type="button" onClick={() => setImportMode("file")} className={cn("flex-1 py-2 text-sm font-black uppercase rounded-lg transition-all", importMode === "file" ? "bg-background shadow-sm text-primary" : "text-muted-foreground opacity-60")}>{t("email.importModeFile")}</button>
           </div>
           {importMode === "text" ? (
             <div><label className="text-sm font-black uppercase opacity-40 mb-1 block">{t("email.encryptedData")}</label><textarea value={importData} onChange={e => setImportData(e.target.value)} className="w-full h-32 p-3 rounded-xl border border-input bg-background font-mono text-sm resize-none custom-scrollbar text-foreground" placeholder={t("email.pasteEncryptedData")} /></div>

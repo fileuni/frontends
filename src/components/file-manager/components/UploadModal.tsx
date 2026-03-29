@@ -58,7 +58,7 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
+      <button type="button" className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
       
       <div className="bg-zinc-900 border border-white/10 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden relative z-10 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
         {/* Header */}
@@ -83,7 +83,8 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
         {/* Content */}
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-8">
           {/* Drag & Drop Area */}
-          <div 
+          <button
+            type="button"
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
@@ -122,11 +123,12 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
               className="hidden" 
               onChange={(e) => handleFiles(e.target.files)} 
             />
-          </div>
+          </button>
 
           {/* Manual Selection Buttons */}
           <div className="grid grid-cols-2 gap-4 mt-8">
             <button 
+              type="button"
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center justify-center gap-3 h-14 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all active:scale-95 group"
             >
@@ -134,6 +136,7 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
               <span className="text-sm font-bold text-white/80">{t('filemanager.actions.uploadFiles') || "Select Files"}</span>
             </button>
             <button 
+              type="button"
               onClick={() => dirInputRef.current?.click()}
               className="flex items-center justify-center gap-3 h-14 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all active:scale-95 group"
             >

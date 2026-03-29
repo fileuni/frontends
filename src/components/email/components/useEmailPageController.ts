@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from 'i18next';
 import { toast } from '@/stores/toast';
@@ -21,6 +21,8 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
   }
   return error instanceof Error ? error.message : fallback;
 };
+
+const NO_SUBJECT_KEYS = new Set(["nosubject", "无主题"]);
 
 interface UseEmailPageController {
   t: TFunction;
@@ -211,18 +213,17 @@ export const useEmailPageController = (): UseEmailPageController => {
   const CONTACTS_KEY = `fileuni_email_contacts_${currentUserId}`;
   const normalizeMessageId = (rawValue?: string): string => rawValue?.trim().replace(/^<|>$/g, "").toLowerCase() || "";
   const normalizeSubject = (rawValue?: string): string => rawValue?.trim().replace(/\s+/g, " ").toLowerCase() || "";
-  const NO_SUBJECT_KEYS = new Set(["nosubject", "无主题"]);
   const CONTACTS_LIMIT = 500;
   const CONTACT_ALIASES_LIMIT = 6;
   const CONTACT_ALIAS_NAME_MAX = 12;
-  const trimAliasName = (rawValue: string): string => {
+  const trimAliasName = useCallback((rawValue: string): string => {
     const normalized = rawValue.trim().replace(/\s+/g, " ");
     if (normalized.length <= CONTACT_ALIAS_NAME_MAX) {
       return normalized;
     }
     return `${normalized.slice(0, CONTACT_ALIAS_NAME_MAX)}...`;
-  };
-  const parseAddressWithOptionalName = (rawValue: string): { addr: string; name: string } => {
+  }, []);
+  const parseAddressWithOptionalName = useCallback((rawValue: string): { addr: string; name: string } => {
     const normalized = rawValue.trim();
     if (!normalized) {
       return { addr: "", name: "" };
@@ -238,18 +239,18 @@ export const useEmailPageController = (): UseEmailPageController => {
       addr: normalized.trim().toLowerCase(),
       name: "",
     };
-  };
-  const composeContactLabel = (addr: string, aliases: string[]): string => {
+  }, []);
+  const composeContactLabel = useCallback((addr: string, aliases: string[]): string => {
     if (aliases.length === 0) {
       return `<${addr}>`;
     }
     return `${aliases.join("|")}<${addr}>`;
-  };
-  const toContactScore = (record: ContactRecord): number => {
+  }, []);
+  const toContactScore = useCallback((record: ContactRecord): number => {
     const frequencyWeight = record.usage_count * 3 * 24 * 60 * 60 * 1000;
     return record.last_used_at + frequencyWeight;
-  };
-  const toDisplayContacts = (records: ContactRecord[]): { name: string; addr: string }[] => {
+  }, []);
+  const toDisplayContacts = useCallback((records: ContactRecord[]): { name: string; addr: string }[] => {
     return [...records]
       .sort((left, right) => {
         const scoreDiff = toContactScore(right) - toContactScore(left);
@@ -267,8 +268,8 @@ export const useEmailPageController = (): UseEmailPageController => {
         addr: record.addr,
         name: composeContactLabel(record.addr, record.aliases),
       }));
-  };
-  const loadContactRecords = async (): Promise<ContactRecord[]> => {
+  }, [composeContactLabel, toContactScore]);
+  const loadContactRecords = useCallback(async (): Promise<ContactRecord[]> => {
     const rawValue = await storageHub.getItem(CONTACTS_KEY);
     if (!rawValue) {
       return [];
@@ -289,12 +290,12 @@ export const useEmailPageController = (): UseEmailPageController => {
     } catch { }
 
     return [];
-  };
-  const persistContactRecords = async (records: ContactRecord[]): Promise<void> => {
+  }, [CONTACTS_KEY, trimAliasName]);
+  const persistContactRecords = useCallback(async (records: ContactRecord[]): Promise<void> => {
     const payload: ContactStorageV2 = { version: 2, records: records.slice(0, CONTACTS_LIMIT) };
     await storageHub.setItem(CONTACTS_KEY, JSON.stringify(payload));
-  };
-  const mergeContactRecords = (previousRecords: ContactRecord[], incomingEntries: ContactEntryInput[]): ContactRecord[] => {
+  }, [CONTACTS_KEY]);
+  const mergeContactRecords = useCallback((previousRecords: ContactRecord[], incomingEntries: ContactEntryInput[]): ContactRecord[] => {
     if (incomingEntries.length === 0) {
       return previousRecords;
     }
@@ -342,8 +343,8 @@ export const useEmailPageController = (): UseEmailPageController => {
         return right.last_used_at - left.last_used_at;
       })
       .slice(0, CONTACTS_LIMIT);
-  };
-  const applyContactEntries = (incomingEntries: ContactEntryInput[]) => {
+  }, [toContactScore, trimAliasName]);
+  const applyContactEntries = useCallback((incomingEntries: ContactEntryInput[]) => {
     if (incomingEntries.length === 0) {
       return;
     }
@@ -352,8 +353,8 @@ export const useEmailPageController = (): UseEmailPageController => {
       void persistContactRecords(merged);
       return merged;
     });
-  };
-  const extractMessageContactEntry = (fromName: string, fromAddr: string): { addr: string; name: string } | null => {
+  }, [mergeContactRecords, persistContactRecords]);
+  const extractMessageContactEntry = useCallback((fromName: string, fromAddr: string): { addr: string; name: string } | null => {
     const parsedAddr = parseAddressWithOptionalName(fromAddr);
     const parsedName = parseAddressWithOptionalName(fromName);
     const addr = parsedAddr.addr || parsedName.addr;
@@ -362,8 +363,8 @@ export const useEmailPageController = (): UseEmailPageController => {
     }
     const candidateName = parsedName.name || parsedAddr.name;
     return { addr, name: candidateName };
-  };
-  const extractRecipientsFromComposeField = (rawValue: string): Array<{ addr: string; name: string }> => {
+  }, [parseAddressWithOptionalName]);
+  const extractRecipientsFromComposeField = useCallback((rawValue: string): Array<{ addr: string; name: string }> => {
     if (!rawValue.trim()) {
       return [];
     }
@@ -371,9 +372,9 @@ export const useEmailPageController = (): UseEmailPageController => {
       .split(/[,\n;]+/)
       .map((token) => parseAddressWithOptionalName(token))
       .filter((entry) => entry.addr.length > 0);
-  };
-  const contacts = useMemo(() => toDisplayContacts(contactRecords), [contactRecords]);
-  const buildSubjectKey = (rawValue?: string): string => {
+  }, [parseAddressWithOptionalName]);
+  const contacts = useMemo(() => toDisplayContacts(contactRecords), [contactRecords, toDisplayContacts]);
+  const buildSubjectKey = useCallback((rawValue?: string): string => {
     const normalized = normalizeSubject(rawValue);
     if (!normalized) {
       return "";
@@ -386,8 +387,8 @@ export const useEmailPageController = (): UseEmailPageController => {
       return "";
     }
     return key;
-  };
-  const extractMailboxAddress = (rawValue?: string): string => {
+  }, []);
+  const extractMailboxAddress = useCallback((rawValue?: string): string => {
     if (!rawValue) {
       return "";
     }
@@ -397,12 +398,12 @@ export const useEmailPageController = (): UseEmailPageController => {
       return bracketMatch[1].trim();
     }
     return trimmedValue;
-  };
-  const toTimestamp = (rawValue: string): number | null => {
+  }, []);
+  const toTimestamp = useCallback((rawValue: string): number | null => {
     const timestamp = new Date(rawValue).getTime();
     return Number.isFinite(timestamp) ? timestamp : null;
-  };
-  const isPendingMatchedByRemote = (localMessage: EmailMessage, remoteMessage: EmailMessage): boolean => {
+  }, []);
+  const isPendingMatchedByRemote = useCallback((localMessage: EmailMessage, remoteMessage: EmailMessage): boolean => {
     const localSmtpMessageId = normalizeMessageId(localMessage.smtp_message_id);
     const remoteMessageId = normalizeMessageId(remoteMessage.message_id);
     if (localSmtpMessageId && remoteMessageId && localSmtpMessageId === remoteMessageId) {
@@ -469,8 +470,8 @@ export const useEmailPageController = (): UseEmailPageController => {
       return !!(remoteFrom && localFrom && remoteFrom === localFrom);
     }
     return false;
-  };
-  const filterUnmatchedPending = (pendingList: EmailMessage[], remoteMessages: EmailMessage[]): EmailMessage[] => {
+  }, [buildSubjectKey, extractMailboxAddress, toTimestamp]);
+  const filterUnmatchedPending = useCallback((pendingList: EmailMessage[], remoteMessages: EmailMessage[]): EmailMessage[] => {
     if (pendingList.length === 0 || remoteMessages.length === 0) {
       return pendingList;
     }
@@ -487,7 +488,7 @@ export const useEmailPageController = (): UseEmailPageController => {
     }
 
     return unmatched;
-  };
+  }, [isPendingMatchedByRemote]);
 
   const uploadAttachmentToTempVfs = async (attachment: ComposeAttachment): Promise<string> => {
     if (attachment.uploadedPath) {
@@ -508,19 +509,19 @@ export const useEmailPageController = (): UseEmailPageController => {
     return uploadedPath;
   };
 
-  const fetchAccounts = async () => {
+  const fetchAccounts = useCallback(async () => {
     try {
       const data = await extractData<EmailAccount[]>(client.GET("/api/v1/email/accounts"));
       setAccounts(data || []);
     } catch { }
-  };
+  }, []);
 
-  const fetchDrafts = async () => {
+  const fetchDrafts = useCallback(async () => {
     try {
       const data = await extractData<EmailDraft[]>(client.GET("/api/v1/email/drafts"));
       setDrafts(data || []);
     } catch { }
-  };
+  }, []);
 
   const fetchFolders = async (accountId: string): Promise<EmailFolder[]> => {
     try {
@@ -533,7 +534,7 @@ export const useEmailPageController = (): UseEmailPageController => {
     return [];
   };
 
-  const fetchMessages = async (folderId: string, retryCount: number = 0) => {
+  const fetchMessages = useCallback(async (folderId: string, retryCount: number = 0) => {
     setLoading(true);
     try {
       const data = await extractData<EmailMessage[]>(client.GET("/api/v1/email/folders/{folder_id}/messages", {
@@ -571,7 +572,7 @@ export const useEmailPageController = (): UseEmailPageController => {
       }
     }
     finally { setLoading(false); }
-  };
+  }, [applyContactEntries, extractMessageContactEntry, filterUnmatchedPending, toTimestamp]);
 
   const fetchMessageDetail = async (messageId: string) => {
     if (messageId.startsWith("local-sent-")) {
@@ -601,7 +602,7 @@ export const useEmailPageController = (): UseEmailPageController => {
     finally { setLoadingDetail(false); }
   };
 
-  const handleSaveDraft = async () => {
+  const handleSaveDraft = useCallback(async () => {
     if (!composeBody || composeBody === lastSavedBody || !showComposeModal) return;
     if (!currentUserData?.access_token) return;
     try {
@@ -626,13 +627,13 @@ export const useEmailPageController = (): UseEmailPageController => {
     } catch (error: unknown) {
       if (typeof error === 'object' && error !== null && 'code' in error && (error as { code?: unknown }).code === 401) return;
     }
-  };
+  }, [activeRefId, composeBcc, composeBody, composeCc, composeFromAccount, composeSubject, composeTo, currentDraftId, currentUserData?.access_token, fetchDrafts, lastSavedBody, showComposeModal]);
 
   useEffect(() => {
     if (!showComposeModal || !composeBody) return undefined;
     const timer = setTimeout(() => handleSaveDraft(), 3000);
     return () => clearTimeout(timer);
-  }, [composeBody, composeTo, composeSubject, showComposeModal]);
+  }, [composeBody, composeTo, composeSubject, showComposeModal, handleSaveDraft]);
 
   const resumeDraft = (d: EmailDraft) => {
     setCurrentDraftId(d.id);
@@ -680,7 +681,7 @@ export const useEmailPageController = (): UseEmailPageController => {
     return () => {
       cancelled = true;
     };
-  }, [currentUserId]);
+  }, [currentUserId, fetchAccounts, fetchDrafts, loadContactRecords, persistContactRecords]);
 
   useEffect(() => {
     if (selectedAccount) {
@@ -694,14 +695,14 @@ export const useEmailPageController = (): UseEmailPageController => {
       setMessages([]); setSelectedMessage(null); setMessageDetail(null);
       fetchMessages(selectedFolder);
     }
-  }, [selectedFolder]);
+  }, [fetchMessages, selectedFolder]);
 
   useEffect(() => {
     if (isDraftsView) {
       setMessages([]); setSelectedMessage(null); setMessageDetail(null);
       fetchDrafts();
     }
-  }, [isDraftsView]);
+  }, [fetchDrafts, isDraftsView]);
 
   useEffect(() => {
     const handleRefreshEvent = () => {
@@ -713,7 +714,7 @@ export const useEmailPageController = (): UseEmailPageController => {
     return () => {
       window.removeEventListener("fileuni:email-refresh", handleRefreshEvent as EventListener);
     };
-  }, [isDraftsView, selectedFolder]);
+  }, [fetchMessages, isDraftsView, selectedFolder]);
 
   useEffect(() => {
     if (!selectedFolder || isDraftsView) {
@@ -784,7 +785,7 @@ export const useEmailPageController = (): UseEmailPageController => {
       window.removeEventListener("focus", handleWakeUp);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [activeView, folders, isDraftsView, selectedFolder]);
+  }, [activeView, fetchMessages, folders, isDraftsView, selectedFolder]);
 
   const handleSendEmail = async () => {
     setSending(true);
@@ -990,7 +991,7 @@ export const useEmailPageController = (): UseEmailPageController => {
     const localPending = pendingSentByFolder[selectedFolder] || [];
     const dedupedPending = filterUnmatchedPending(localPending, messages);
     return [...dedupedPending, ...messages];
-  }, [messages, pendingSentByFolder, selectedFolder]);
+  }, [filterUnmatchedPending, messages, pendingSentByFolder, selectedFolder]);
 
   const filteredMessages = useMemo(() => {
     if (!searchQuery) return mergedMessages;

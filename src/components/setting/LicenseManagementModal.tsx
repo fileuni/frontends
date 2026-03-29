@@ -91,12 +91,14 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
       role="dialog"
       aria-modal="true"
     >
-      <div
+      <button
+        type="button"
         className={cn(
           "absolute inset-0 backdrop-blur-2xl transition-all duration-300",
           isDark ? "bg-black/95" : "bg-slate-900/80",
         )}
         onClick={onClose}
+        aria-label={t("common.close")}
       />
 
       <div
@@ -368,10 +370,10 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
           </div>
 
           <div className="space-y-3">
-            <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-1 flex items-center gap-2">
+            <div className="text-xs font-black uppercase tracking-widest opacity-40 ml-1 flex items-center gap-2">
               <Key size={14} />
               {t("admin.config.quickSettings.fields.licenseKey")}
-            </label>
+            </div>
             <textarea
               className={cn(
                 "w-full min-h-[80px] rounded-xl border p-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-inner",

@@ -168,16 +168,16 @@ export const ToolPanel = (props: ToolProps) => {
         </div>
 
         {!props.installed ? (
-          <div className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 md:px-10 text-center border-2 border-dashed border-white/10 rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] bg-white/[0.01] group hover:bg-white/[0.02] transition-all cursor-pointer" onClick={triggerInstallHint}>
+          <button type="button" className="w-full py-12 sm:py-16 md:py-24 px-4 sm:px-6 md:px-10 text-center border-2 border-dashed border-white/10 rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] bg-white/[0.01] group hover:bg-white/[0.02] transition-all cursor-pointer" onClick={triggerInstallHint}>
             <Terminal size={40} className="sm:w-12 sm:h-12 md:w-20 md:h-20 mx-auto mb-4 sm:mb-6 md:mb-10 opacity-10 group-hover:opacity-20 transition-opacity" />
             <p className="text-lg sm:text-xl md:text-2xl font-bold opacity-40">{t('admin.extensions.installFirstHint')}</p>
             <p className="text-xs sm:text-sm md:text-base opacity-20 mt-2 sm:mt-3 md:mt-4 uppercase tracking-wider sm:tracking-[0.2em] font-black">{t('admin.extensions.clickSettingsToInstall')}</p>
-          </div>
+          </button>
         ) : (
           <div className="space-y-8 sm:space-y-12 md:space-y-16">
             {showServiceActions && (
               <div className="space-y-4 sm:space-y-6 md:space-y-8">
-                <label className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-[0.2em]">{t('admin.extensions.serviceControl')}</label>
+                <div className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-[0.2em]">{t('admin.extensions.serviceControl')}</div>
                 <div className="grid grid-cols-1 min-[450px]:grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 md:gap-8">
                   <Button 
                     variant={props.running ? 'ghost' : 'primary'} 
@@ -223,11 +223,11 @@ export const ToolPanel = (props: ToolProps) => {
 
             {props.extraActions && props.extraActions.length > 0 && (
               <div className="space-y-4 sm:space-y-6 md:space-y-8">
-                <label className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-[0.2em]">{t('admin.extensions.toolActions')}</label>
+                <div className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-[0.2em]">{t('admin.extensions.toolActions')}</div>
                 <div className="grid grid-cols-1 min-[450px]:grid-cols-2 gap-3 sm:gap-4 md:gap-8">
-                  {props.extraActions.map((action, idx) => (
+                  {props.extraActions.map((action) => (
                     <Button 
-                      key={idx} 
+                      key={action.label} 
                       variant={action.variant === 'primary' ? 'primary' : 'ghost'} 
                       className={`h-14 sm:h-16 md:h-24 lg:h-28 rounded-xl sm:rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase tracking-widest text-xs sm:text-sm md:text-lg gap-2 sm:gap-3 md:gap-4 shadow-lg md:shadow-xl transition-all active:scale-95 whitespace-nowrap ${action.variant !== 'primary' ? 'bg-white/5 border border-white/10 hover:bg-white/10' : ''}`}
                       onClick={() => handleExtraAction(action)}
@@ -284,19 +284,19 @@ export const ToolPanel = (props: ToolProps) => {
           <div className="space-y-4 sm:space-y-6 md:space-y-8">
             <div className="grid grid-cols-1 min-[450px]:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
               <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] bg-white/5 border border-white/10 space-y-2 sm:space-y-3 overflow-hidden">
-                <label className="text-xs sm:text-sm font-black uppercase opacity-50 tracking-wider sm:tracking-widest">{t('admin.extensions.installDir')}</label>
+                <div className="text-xs sm:text-sm font-black uppercase opacity-50 tracking-wider sm:tracking-widest">{t('admin.extensions.installDir')}</div>
                 <div className="text-sm sm:text-base md:text-xl font-mono font-bold opacity-80 truncate" title={props.installDir}>{props.installDir || '--'}</div>
               </div>
               <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] bg-white/5 border border-white/10 space-y-2 sm:space-y-3 overflow-hidden">
-                <label className="text-xs sm:text-sm font-black uppercase opacity-50 tracking-wider sm:tracking-widest">{t('admin.extensions.binPath')}</label>
+                <div className="text-xs sm:text-sm font-black uppercase opacity-50 tracking-wider sm:tracking-widest">{t('admin.extensions.binPath')}</div>
                 <div className="text-sm sm:text-base md:text-xl font-mono font-bold text-primary truncate" title={props.binPath}>{props.binPath || '--'}</div>
               </div>
               <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] bg-white/5 border border-white/10 space-y-2 sm:space-y-3 overflow-hidden">
-                <label className="text-xs sm:text-sm font-black uppercase opacity-50 tracking-wider sm:tracking-widest">{t('admin.extensions.version')}</label>
+                <div className="text-xs sm:text-sm font-black uppercase opacity-50 tracking-wider sm:tracking-widest">{t('admin.extensions.version')}</div>
                 <div className="text-sm sm:text-base md:text-xl font-mono font-bold text-primary truncate" title={props.version}>{props.version || '--'}</div>
               </div>
               <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] bg-white/5 border border-white/10 space-y-2 sm:space-y-3 overflow-hidden flex flex-col justify-center">
-                <label className="text-xs sm:text-sm font-black uppercase opacity-50 tracking-wider sm:tracking-widest">{t('admin.extensions.followStart')}</label>
+                <div className="text-xs sm:text-sm font-black uppercase opacity-50 tracking-wider sm:tracking-widest">{t('admin.extensions.followStart')}</div>
                 <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-2">
                   <Badge variant={props.followStart ? 'success' : 'secondary'} className="rounded-lg sm:rounded-xl px-3 sm:px-4 py-1 text-xs sm:text-sm font-bold uppercase tracking-widest whitespace-nowrap">
                     {props.followStart ? t('common.enabled') : t('common.disabled')}
@@ -306,20 +306,20 @@ export const ToolPanel = (props: ToolProps) => {
             </div>
 
             <div className="space-y-2 sm:space-y-3">
-              <label className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-widest">{t('admin.extensions.githubProxy')}</label>
+              <div className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-widest">{t('admin.extensions.githubProxy')}</div>
               <Input value={props.proxy} onChange={(e) => props.setProxy(e.target.value)} placeholder={t('admin.extensions.githubMirrorPlaceholder')} className="h-10 sm:h-12 md:h-16 rounded-lg sm:rounded-xl md:rounded-[1.5rem] bg-white/5 border border-white/10 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 font-medium" />
             </div>
 
             <div className="space-y-2 sm:space-y-3">
-              <label className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-widest">{t('admin.extensions.customDownloadUrl')}</label>
+              <div className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-widest">{t('admin.extensions.customDownloadUrl')}</div>
               <Input value={props.downloadUrl} onChange={(e) => props.setDownloadUrl(e.target.value)} className="h-10 sm:h-12 md:h-16 rounded-lg sm:rounded-xl md:rounded-[1.5rem] bg-white/5 border border-white/10 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 font-medium" />
             </div>
 
             {props.extraFields && props.extraFields.length > 0 && (
               <div className="pt-6 sm:pt-8 md:pt-10 space-y-6 sm:space-y-8 md:space-y-10 border-t border-white/10">
-                {props.extraFields.map((field, idx) => (
-                  <div key={idx} className="space-y-2 sm:space-y-4">
-                    <label className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-widest">{field.label}</label>
+                {props.extraFields.map((field) => (
+                  <div key={field.label} className="space-y-2 sm:space-y-4">
+                    <div className="text-xs sm:text-sm md:text-base font-black uppercase opacity-50 ml-2 tracking-wider sm:tracking-widest">{field.label}</div>
                     {field.isTextArea ? (
                       <textarea
                         className="w-full min-h-[120px] sm:min-h-[160px] md:min-h-[200px] rounded-xl sm:rounded-[1.5rem] md:rounded-[2.5rem] border border-white/10 bg-white/5 p-4 sm:p-6 md:p-8 text-sm sm:text-base md:text-lg font-mono focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-primary/20 transition-all leading-relaxed"

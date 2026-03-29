@@ -201,6 +201,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           <div className="flex flex-wrap gap-1 max-h-[160px] overflow-y-auto custom-scrollbar">
             {COMMON_EMOJIS.map((e) => (
               <button
+                type="button"
                 key={e}
                 onClick={() => handleEmojiClick(e)}
                 className="w-8 h-8 flex items-center justify-center hover:bg-muted rounded-lg text-lg transition-colors"

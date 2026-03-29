@@ -238,6 +238,7 @@ export const LogViewer = ({
 
         <div className="flex items-center gap-1.5 shrink-0">
           <button
+            type="button"
             onClick={() => setShowSearch(!showSearch)}
             className={cn(
               "p-2 rounded-lg transition-all",
@@ -253,6 +254,7 @@ export const LogViewer = ({
             <Search size={18} />
           </button>
           <button
+            type="button"
             onClick={() => setAutoScroll(!autoScroll)}
             className={cn(
               "p-2 rounded-lg transition-all",
@@ -268,6 +270,7 @@ export const LogViewer = ({
             <Scroll size={18} />
           </button>
           <button
+            type="button"
             onClick={() => setIsPaused(!isPaused)}
             className={cn(
               "p-2 rounded-lg transition-all",
@@ -283,6 +286,7 @@ export const LogViewer = ({
             {isPaused ? <Play size={18} /> : <Pause size={18} />}
           </button>
           <button
+            type="button"
             onClick={handleCopy}
             className={cn(
               "p-2 rounded-lg transition-all relative",
@@ -299,6 +303,7 @@ export const LogViewer = ({
             )}
           </button>
           <button
+            type="button"
             onClick={handleDownload}
             className={cn(
               "p-2 rounded-lg transition-all",
@@ -311,6 +316,7 @@ export const LogViewer = ({
           </button>
           {onClear && (
             <button
+              type="button"
               onClick={onClear}
               className={cn(
                 "p-2 rounded-lg transition-all",
@@ -323,6 +329,7 @@ export const LogViewer = ({
             </button>
           )}
           <button
+            type="button"
             onClick={() => setIsExpanded(!isExpanded)}
             className={cn(
               "p-2 rounded-lg transition-all",
@@ -364,6 +371,7 @@ export const LogViewer = ({
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery("")}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
               >
@@ -387,6 +395,7 @@ export const LogViewer = ({
           (level) => (
             <button
               key={level}
+              type="button"
               onClick={() => setFilterLevel(level)}
               className={cn(
                 "px-2.5 py-1 rounded-md text-sm font-bold transition-all tracking-wide",

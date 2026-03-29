@@ -154,7 +154,7 @@ export const WebSiteModal = ({
 
           <div className="space-y-3">
             {draft.bindings.map((binding, index) => (
-              <div key={`binding-${index}`} className="grid grid-cols-12 gap-2 rounded-xl border border-border p-3">
+              <div key={`${binding.listen_ip}:${binding.listen_port}:${binding.hostnames.join('|')}:${binding.is_default ? 'default' : 'normal'}`} className="grid grid-cols-12 gap-2 rounded-xl border border-border p-3">
                 <div className="col-span-12 md:col-span-3 space-y-1">
                   <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.ip')}</label>
                   <Input

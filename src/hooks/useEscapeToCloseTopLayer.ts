@@ -68,15 +68,16 @@ export const useEscapeToCloseTopLayer = (options: UseEscapeToCloseTopLayerOption
   const layerIdRef = useRef<string>(nextId());
 
   useEffect(() => {
+    const layerId = layerIdRef.current;
     if (!active) {
-      removeLayer(layerIdRef.current);
+      removeLayer(layerId);
       return undefined;
     }
 
-    upsertLayer({ id: layerIdRef.current, enabled, onEscape });
+    upsertLayer({ id: layerId, enabled, onEscape });
 
     return () => {
-      removeLayer(layerIdRef.current);
+      removeLayer(layerId);
     };
   }, [active, enabled, onEscape]);
 };

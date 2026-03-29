@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { Search, X } from 'lucide-react';
@@ -18,6 +18,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const store = useFileStore();
   const { searchFiles, clearSearch } = useFileActions();
   const [keyword, setKeyword] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const currentSearchKeyword = store.getSearchKeyword();
   const isSearchMode = store.getIsSearchMode();
 
@@ -47,6 +48,11 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     }
   }, [currentSearchKeyword, isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    inputRef.current?.focus();
+  }, [isOpen]);
+
   return (
     <Modal 
       isOpen={isOpen} 
@@ -57,12 +63,12 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
           <Input
+            ref={inputRef}
             className="pl-10 pr-10"
             placeholder={t('filemanager.searchPlaceholder')}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={handleKeyDown}
-            autoFocus
           />
           {keyword && (
             <button

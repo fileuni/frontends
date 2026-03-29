@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@/stores/toast';
@@ -48,10 +48,6 @@ export const UserManagement = () => {
   const isPasswordMismatch = newPassword !== '' && confirmPassword !== '' && newPassword !== confirmPassword;
 
   useEffect(() => {
-    fetchUsers();
-  }, [page, pageSize, includeDeleted]);
-
-  useEffect(() => {
     const loadRoles = async () => {
       try {
         const data = await fetchRolesAndPermissions();
@@ -63,7 +59,7 @@ export const UserManagement = () => {
     void loadRoles();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const data = await extractData<unknown>(
@@ -103,12 +99,16 @@ export const UserManagement = () => {
       addToast(t('admin.users.fetchError'), 'error');
     }
     finally { setLoading(false); }
-  };
+  }, [page, pageSize, includeDeleted, search, addToast, t]);
+
+  useEffect(() => {
+    void fetchUsers();
+  }, [fetchUsers]);
 
   const handleSearch = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPage(1);
-    fetchUsers();
+    void fetchUsers();
   };
 
   const handleDelete = async () => {
@@ -120,7 +120,7 @@ export const UserManagement = () => {
       });
       addToast(t('admin.users.deleteSuccess'), 'success');
       setDeleteUser(null);
-      fetchUsers();
+      void fetchUsers();
     } catch (e) {
       /* Handled by interceptor */
     } finally {
@@ -134,7 +134,7 @@ export const UserManagement = () => {
         params: { path: { user_id: user.id } }
       });
       addToast(t('admin.users.restoreSuccess'), 'success');
-      fetchUsers();
+      void fetchUsers();
     } catch (e) {
       /* Handled */
     }
@@ -290,6 +290,7 @@ export const UserManagement = () => {
                       <div className="flex justify-end gap-2">
                         {user.is_deleted ? (
                           <button 
+                            type="button"
                             onClick={() => handleRestore(user)}
                             title={t('admin.users.restore')}
                             className="p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-green-500 hover:text-white transition-all hover:border-green-500 shadow-inner"
@@ -299,6 +300,7 @@ export const UserManagement = () => {
                         ) : (
                           <>
                             <button 
+                              type="button"
                               onClick={() => setResetPwdUser(user)}
                               title={t('admin.users.resetPassword')}
                               className="p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-yellow-500 hover:text-white transition-all hover:border-yellow-500 shadow-inner"
@@ -306,6 +308,7 @@ export const UserManagement = () => {
                               <Key size={16} />
                             </button>
                             <button 
+                              type="button"
                               onClick={() => window.location.hash = `mod=admin&page=user-edit&id=${user.id}`}
                               title={t('admin.users.edit')}
                               className="p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-primary hover:text-white transition-all hover:border-primary shadow-inner"
@@ -313,6 +316,7 @@ export const UserManagement = () => {
                               <Edit3 size={16} />
                             </button>
                             <button 
+                              type="button"
                               onClick={() => setDeleteUser(user)}
                               title={t('admin.users.delete')}
                               className="p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500 hover:text-white transition-all hover:border-red-500 shadow-inner"
@@ -359,7 +363,7 @@ export const UserManagement = () => {
           </p>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.newPassword')}</label>
+              <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.newPassword')}</div>
               <PasswordInput
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
@@ -368,7 +372,7 @@ export const UserManagement = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.confirmPassword')}</label>
+              <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.confirmPassword')}</div>
               <PasswordInput
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}

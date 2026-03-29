@@ -51,7 +51,7 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
 
   return (
     <div className="fixed inset-0 z-[250] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
+      <button type="button" className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
       
       <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-in zoom-in-95 duration-300 flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
         {/* Header */}
@@ -72,24 +72,24 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
 
         {/* Content */}
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-          {sections.map((section, idx) => (
-            <div key={idx} className="space-y-4">
+          {sections.map((section) => (
+            <div key={section.title} className="space-y-4">
               <h4 className="text-sm font-black uppercase tracking-[0.2em] text-primary/60 border-b border-white/5 pb-2">
                 {section.title}
               </h4>
               <div className="space-y-3">
-                {section.items.map((item, i) => (
-                  <div key={i} className="flex items-start justify-between gap-4 group">
+                {section.items.map((item) => (
+                  <div key={`${section.title}-${item.desc}`} className="flex items-start justify-between gap-4 group">
                     <p className="text-sm text-white/60 group-hover:text-white/90 transition-colors leading-tight py-1">
                       {item.desc}
                     </p>
                     <div className="flex items-center gap-1 shrink-0">
-                      {item.keys.map((key, ki) => (
-                        <React.Fragment key={ki}>
+                       {item.keys.map((key, keyIndex) => (
+                         <React.Fragment key={`${item.desc}-${key}`}>
                           <kbd className="min-w-[32px] h-6 px-1.5 flex items-center justify-center bg-white/5 border border-white/10 rounded-md text-sm font-black font-mono text-white/40 group-hover:text-primary transition-colors">
                             {key}
                           </kbd>
-                          {ki < item.keys.length - 1 && <span className="text-sm opacity-20">+</span>}
+                          {keyIndex < item.keys.length - 1 && <span className="text-sm opacity-20">+</span>}
                         </React.Fragment>
                       ))}
                     </div>

@@ -101,9 +101,9 @@ export const EmailComposeModal: React.FC<EmailComposeModalProps> = ({
             <div className="flex items-center gap-3 relative"><label className="w-16 text-sm font-black uppercase opacity-40">{t("email.bcc")}</label><Input value={composeBcc} onChange={e => setComposeBcc(e.target.value)} placeholder={t("email.bccPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm" list="email-contacts" /></div>
             <div className="flex items-center gap-3"><label className="w-16 text-sm font-black uppercase opacity-40">{t("email.subject")}</label><Input value={composeSubject} onChange={e => setComposeSubject(e.target.value)} placeholder={t("email.subjectPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm font-bold" /></div>
             <datalist id="email-contacts">
-              {contacts.map((c, i) => {
+              {contacts.map((c) => {
                 const contactValue = c.name && c.name.trim().length > 0 ? c.name : `<${c.addr}>`;
-                return <option key={i} value={contactValue} />;
+                return <option key={`${c.addr}-${c.name ?? ""}`} value={contactValue} />;
               })}
             </datalist>
           </div>
@@ -115,7 +115,7 @@ export const EmailComposeModal: React.FC<EmailComposeModalProps> = ({
               {composeAttachments.map((att) => (
                 <div key={att.id} className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/10 group">
                   <div className="flex items-center gap-2 min-w-0"><Paperclip size={18} className="text-primary" /><div className="truncate text-sm font-bold">{att.name}</div></div>
-                  <button onClick={() => setComposeAttachments(prev => prev.filter((item) => item.id !== att.id))} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/10 text-destructive rounded-md"><X size={18} /></button>
+                  <button type="button" onClick={() => setComposeAttachments(prev => prev.filter((item) => item.id !== att.id))} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/10 text-destructive rounded-md"><X size={18} /></button>
                 </div>
               ))}
             </div>

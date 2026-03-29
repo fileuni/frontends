@@ -61,7 +61,7 @@ export const KeyValueForm: React.FC<{
     <div className={cn('space-y-3', className)}>
       <div className="space-y-2">
         {items.map((item, idx) => (
-          <div key={`${item.key}-${idx}`} className="grid grid-cols-1 md:grid-cols-[200px_1fr_44px] gap-2">
+          <div key={`${item.key}:${item.value || 'empty'}:${idx}`} className="grid grid-cols-1 md:grid-cols-[200px_1fr_44px] gap-2">
             <Input
               value={item.key}
               placeholder={keyPlaceholder}

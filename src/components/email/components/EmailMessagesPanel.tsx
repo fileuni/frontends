@@ -40,14 +40,14 @@ export const EmailMessagesPanel: React.FC<EmailMessagesPanelProps> = ({
       {(selectedFolder || isDraftsView) ? (
         <>
           <div className="h-14 border-b border-border/40 px-3 flex items-center gap-2 bg-muted/5">
-            <button className="lg:hidden p-1 hover:bg-muted rounded-lg" onClick={onBack}><ArrowLeft size={16} /></button>
+            <button type="button" className="lg:hidden p-1 hover:bg-muted rounded-lg" onClick={onBack}><ArrowLeft size={16} /></button>
             <div className="flex-1 relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={18} /><Input placeholder={t("email.searchMessages")} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 rounded-xl bg-background/50 border-none text-sm" />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {isDraftsView ? drafts.map(draft => (
-              <div key={draft.id} onClick={() => onResumeDraft(draft)} className="w-full p-3.5 border-b border-border/30 text-left hover:bg-orange-500/5 cursor-pointer transition-all">
+              <button type="button" key={draft.id} onClick={() => onResumeDraft(draft)} className="w-full p-3.5 border-b border-border/30 text-left hover:bg-orange-500/5 cursor-pointer transition-all">
                 <div className="flex justify-between items-start gap-2 text-foreground">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2"><span className="text-sm font-black uppercase text-orange-600 bg-orange-500/10 px-1.5 rounded">{t("email.draft")}</span><span className="font-bold text-sm truncate">{draft.to_addr || t("email.noRecipient")}</span></div>
@@ -55,9 +55,9 @@ export const EmailMessagesPanel: React.FC<EmailMessagesPanelProps> = ({
                   </div>
                   <span className="text-[14px] opacity-40 whitespace-nowrap">{formatDate(draft.updated_at)}</span>
                 </div>
-              </div>
+              </button>
             )) : filteredMessages.map((message) => (
-              <div key={message.id} onClick={() => onOpenMessage(message)} className={cn("w-full p-3.5 border-b border-border/30 text-left transition-all cursor-pointer relative", selectedMessageId === message.id ? "bg-primary/5 shadow-inner" : "hover:bg-muted/20", !message.is_read && "bg-primary/[0.02]")}>
+              <button type="button" key={message.id} onClick={() => onOpenMessage(message)} className={cn("w-full p-3.5 border-b border-border/30 text-left transition-all cursor-pointer relative", selectedMessageId === message.id ? "bg-primary/5 shadow-inner" : "hover:bg-muted/20", !message.is_read && "bg-primary/[0.02]")}>
                 {!message.is_read && <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-full" />}
                 <div className="flex items-start justify-between gap-2 text-sm text-foreground">
                   <div className="flex-1 min-w-0">
@@ -78,7 +78,7 @@ export const EmailMessagesPanel: React.FC<EmailMessagesPanelProps> = ({
                   </div>
                   <span className="text-[14px] opacity-40 whitespace-nowrap pt-0.5">{formatDate(message.date)}</span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </>

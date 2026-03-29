@@ -213,7 +213,8 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 >
                   {/* Quoted message display */}
                   {msg.replyTo && (
-                    <div
+                    <button
+                      type="button"
                       onClick={() => {
                         const target = document.getElementById(
                           `msg_${msg.replyTo}`,
@@ -253,7 +254,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                         {messages.find((m) => m.id === msg.replyTo)?.content ||
                           t("chat.noMessages")}
                       </div>
-                    </div>
+                    </button>
                   )}
 
                   {isFile ? (
@@ -286,6 +287,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                           {msg.fileInfo.mime.startsWith("audio/") ? (
                             <div className="flex items-center gap-2 w-full pt-1">
                               <button
+                                type="button"
                                 onClick={() => {
                                   const audio = audioRefs.current[msg.id];
                                   if (audio) {
@@ -303,7 +305,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                                 }}
                                 src={msg.fileInfo.localUrl}
                                 className="hidden"
-                              />
+                              >
+                                <track kind="captions" />
+                              </audio>
                               <div className="flex-1 h-1 bg-background/20 rounded-full" />
                             </div>
                           ) : (
@@ -329,6 +333,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     <div className="mt-2 pt-2 border-t border-white/20 flex flex-col gap-2">
                       <DecryptFailedBadge />
                       <button
+                        type="button"
                         onClick={handleSetSessionKey}
                         className="text-sm flex items-center gap-1 opacity-80 hover:opacity-100"
                       >
@@ -344,6 +349,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     )}
                   >
                     <button
+                      type="button"
                       onClick={() => handleCopy(msg.content)}
                       className="p-1.5 bg-muted hover:bg-muted/80 rounded-lg shadow-sm"
                       title={t("chat.copy")}
@@ -351,6 +357,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                       <Copy size={18} />
                     </button>
                     <button
+                      type="button"
                       onClick={() => setQuotingMessage(msg)}
                       className="p-1.5 bg-muted hover:bg-muted/80 rounded-lg shadow-sm"
                       title={t("chat.reply")}
@@ -358,6 +365,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                       <Reply size={18} />
                     </button>
                     <button
+                      type="button"
                       onClick={() => deleteMessage(msg.id)}
                       className="p-1.5 bg-muted hover:bg-destructive/10 text-destructive rounded-lg shadow-sm"
                       title={t("chat.delete")}
@@ -408,6 +416,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                       {msg.status === "read" && <CheckCheck size={18} />}
                       {msg.status === "failed" && (
                         <button
+                          type="button"
                           onClick={() => onRetry?.(msg)}
                           className="flex items-center gap-1 hover:underline"
                         >

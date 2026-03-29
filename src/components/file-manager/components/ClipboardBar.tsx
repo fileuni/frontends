@@ -109,6 +109,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
       {/* Right Side: Actions */}
       <div className="flex items-center gap-1 shrink-0">
         <button 
+          type="button"
           onClick={() => pasteSingleItem(item, currentPath, 'copy')}
           className={cn(
             "p-1.5 rounded-lg transition-all",
@@ -119,6 +120,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
           <Copy size={13} />
         </button>
         <button 
+          type="button"
           onClick={() => pasteSingleItem(item, currentPath, 'cut')}
           className={cn(
             "p-1.5 rounded-lg transition-all",
@@ -130,6 +132,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
         </button>
         <div className={cn("w-px h-3 mx-0.5", isDark ? "bg-white/5" : "bg-zinc-200")} />
         <button 
+          type="button"
           onClick={() => onRemove(item.path)}
           className={cn(
             "p-1.5 rounded-lg transition-all",
@@ -190,7 +193,8 @@ export const ClipboardBar = () => {
       isExpanded ? "h-[450px] rounded-[2rem]" : "h-14 rounded-full overflow-hidden"
     )}>
       {/* Header / Summary Bar */}
-      <div 
+      <button
+        type="button"
         className={cn(
           "h-14 px-5 flex items-center justify-between cursor-pointer shrink-0 transition-colors",
           isExpanded ? "border-b border-white/5 bg-white/[0.02]" : "hover:bg-white/[0.03]"
@@ -233,7 +237,7 @@ export const ClipboardBar = () => {
             {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
           </div>
         </div>
-      </div>
+      </button>
 
       {/* Expanded List with Sortable */}
       {isExpanded && (
@@ -262,6 +266,7 @@ export const ClipboardBar = () => {
             isDark ? "border-white/5" : "border-gray-100"
           )}>
             <button 
+              type="button"
               onClick={clearClipboard}
               className="text-sm font-black text-red-400/60 hover:text-red-500 hover:underline uppercase tracking-tighter flex items-center gap-1.5 transition-all"
             >

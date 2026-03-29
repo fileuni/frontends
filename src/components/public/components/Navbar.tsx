@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useContext } from 'react';
 import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo } from '@/components/modals/AboutModal';
 import { useThemeStore, type Theme } from '@/stores/theme';
 import { useLanguageStore, type Language } from '@/stores/language';
@@ -15,7 +15,7 @@ import {
 import { cn } from '@/lib/utils.ts';
 import { StatusIndicator } from './StatusIndicator.tsx';
 import { ThemeLanguageControls } from './ThemeLanguageControls.tsx';
-import { useChat } from '@/components/chat/context/ChatContext';
+import { ChatContext } from '@/components/chat/context/ChatContext';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
 
 
@@ -27,14 +27,9 @@ export const Navbar = () => {
   const { capabilities, fetchCapabilities } = useConfigStore();
   const { t } = useTranslation();
   
-  // Safe useChat for cases where provider might not be initialized yet
-  let setChatOpen: ((open: boolean) => void) | null = null;
-  let isChatActive = false;
-  try {
-    const chat = useChat();
-    setChatOpen = chat.setIsOpen;
-    isChatActive = chat.isOpen;
-  } catch {}
+  const chat = useContext(ChatContext);
+  const setChatOpen = chat?.setIsOpen ?? null;
+  const isChatActive = chat?.isOpen ?? false;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -55,7 +50,7 @@ export const Navbar = () => {
       .catch((error) => {
         console.error('Failed to fetch runtime version', error);
       });
-  }, []);
+  }, [fetchCapabilities]);
 
   useEffect(() => {
     const handleOpenAboutEvent = () => {
@@ -112,7 +107,7 @@ export const Navbar = () => {
       }
     }
     return items;
-  }, [isLoggedIn, canAccessAdmin, canUseChat, mod, page, t, mounted, capabilities, setChatOpen, isChatActive]);
+  }, [isLoggedIn, canAccessAdmin, canUseChat, mod, page, t, capabilities, setChatOpen, isChatActive]);
 
   if (!mounted) return null;
 
@@ -170,6 +165,7 @@ export const Navbar = () => {
           <ThemeLanguageControls />
            
           <button 
+            type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className={cn(
               "p-2 rounded-xl text-primary border transition-all",
@@ -198,7 +194,8 @@ export const Navbar = () => {
       {/* Unified Dropdown Menu */}
       {isMenuOpen && (
         <>
-          <div 
+          <button
+            type="button"
             className="fixed inset-0 z-[100]"
             onClick={() => setIsMenuOpen(false)}
           />
@@ -251,7 +248,7 @@ export const Navbar = () => {
 
                     if (item.onClick) {
                       return (
-                        <button key={item.name} onClick={item.onClick} className={commonClass}>
+                        <button type="button" key={item.name} onClick={item.onClick} className={commonClass}>
                           {content}
                         </button>
                       );
@@ -275,6 +272,7 @@ export const Navbar = () => {
                 <div>
                   <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('about.open')}</p>
                   <button
+                    type="button"
                     onClick={handleOpenAbout}
                     className={cn(
                       'w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-black transition-all text-left',
@@ -291,6 +289,7 @@ export const Navbar = () => {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
                     {(['auto', 'zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'] as Language[]).map((lang) => (
                       <button 
+                        type="button"
                         key={lang}
                         onClick={() => setLanguage(lang)}
                         className={cn(
@@ -316,6 +315,7 @@ export const Navbar = () => {
                       { id: 'dark', icon: Moon }
                     ] as { id: Theme, icon: React.ElementType }[]).map((mode) => (
                       <button 
+                        type="button"
                         key={mode.id}
                         onClick={() => setTheme(mode.id)}
                         className={cn(
@@ -337,6 +337,7 @@ export const Navbar = () => {
               {isLoggedIn && (
                 <div className="pt-4">
                   <button 
+                    type="button"
                     onClick={handleLogout}
                     className={cn(
                       "w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl text-sm font-black transition-all border shadow-sm",

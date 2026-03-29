@@ -43,8 +43,13 @@ export const AdminUserCreateView = () => {
       try {
         const data = await fetchRolesAndPermissions();
         setRoles(data.roles);
-        if (data.roles.length > 0 && !data.roles.some((role) => role.role_id === form.role_id)) {
-          setForm((prev) => ({ ...prev, role_id: data.roles[0]?.role_id || 100 }));
+        if (data.roles.length > 0) {
+          setForm((prev) => {
+            if (data.roles.some((role) => role.role_id === prev.role_id)) {
+              return prev;
+            }
+            return { ...prev, role_id: data.roles[0]?.role_id || 100 };
+          });
         }
       } catch (error) {
         console.error(error);
@@ -109,9 +114,9 @@ export const AdminUserCreateView = () => {
         <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.username")} *
-              </label>
+              </div>
               <Input
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
@@ -120,9 +125,9 @@ export const AdminUserCreateView = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.fullName")}
-              </label>
+              </div>
               <Input
                 value={form.full_name}
                 onChange={(e) =>
@@ -133,9 +138,9 @@ export const AdminUserCreateView = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.initialPassword")} *
-              </label>
+              </div>
               <PasswordInput
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -144,9 +149,9 @@ export const AdminUserCreateView = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.confirmPassword")} *
-              </label>
+              </div>
               <PasswordInput
                 value={form.confirmPassword}
                 onChange={(e) =>
@@ -160,9 +165,9 @@ export const AdminUserCreateView = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.role")}
-              </label>
+              </div>
               <select
                 value={form.role_id}
                 onChange={(e) =>
@@ -185,9 +190,9 @@ export const AdminUserCreateView = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.status")}
-              </label>
+              </div>
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
@@ -209,9 +214,9 @@ export const AdminUserCreateView = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {capabilities?.enable_email_auth !== false && (
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+                <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                   {t("pages.admin.userCreate.email")}
-                </label>
+                </div>
                 <Input
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -222,9 +227,9 @@ export const AdminUserCreateView = () => {
             )}
             {capabilities?.enable_mobile_auth !== false && (
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+                <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
                   {t("pages.admin.userCreate.phone")}
-                </label>
+                </div>
                 <Input
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}

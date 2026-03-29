@@ -60,9 +60,9 @@ export const CertCheckModal = ({
             </div>
 
             <div className="mt-6 space-y-3">
-              {(result.items || []).map((it, idx) => (
+              {(result.items || []).map((it) => (
                 <div
-                  key={`${it.key}-${idx}`}
+                  key={`${it.key}-${it.status}-${it.message}`}
                   className={cn(
                     'rounded-2xl border p-4',
                     it.status === 'fail'

@@ -110,7 +110,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
       return () => clearInterval(interval);
     }
     return undefined;
-  }, [toast?.id, toast?.duration]);
+  }, [toast]);
 
   if (!toast) return null;
 
@@ -155,6 +155,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
           {toast.details && (
             <div className="mt-2">
               <button
+                type="button"
                 onClick={() => toggleDetails(toast.id)}
                 className={`
                   flex items-center gap-1 text-sm font-medium
@@ -187,6 +188,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
                     {toast.details}
                   </div>
                   <button
+                    type="button"
                     onClick={copyDetails}
                     className={`
                       flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium
@@ -205,6 +207,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
           {/* "Do not show again" option */}
           {toast.showDoNotShowAgain && (
             <button
+              type="button"
               onClick={() => setDoNotShowAndClose(toast.id)}
               className={`
                 mt-3 text-sm underline underline-offset-2
@@ -221,6 +224,7 @@ const ToastItem: React.FC<{ toastId: string }> = ({ toastId }) => {
         <div className="flex flex-col items-end gap-2">
           {/* Close button */}
           <button
+            type="button"
             onClick={handleClose}
             className={`
               p-1.5 rounded-lg transition-all hover:scale-110

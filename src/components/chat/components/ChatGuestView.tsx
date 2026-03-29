@@ -20,7 +20,7 @@ export const ChatGuestView: React.FC<{ inviteCode?: string }> = ({ inviteCode })
     useEffect(() => {
       // Auto-open chat UI in guest mode
       setIsOpen(true);
-    }, []);
+    }, [setIsOpen]);
     return <ChatUnifiedUI />;
   };
 

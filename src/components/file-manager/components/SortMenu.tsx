@@ -85,6 +85,7 @@ export const SortMenu = ({ className }: SortMenuProps) => {
   return (
     <div className={cn("relative", className)} ref={menuRef}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-2 h-10 rounded-xl border border-white/5 bg-white/5 opacity-40 hover:opacity-100 transition-all"
       >
@@ -100,6 +101,7 @@ export const SortMenu = ({ className }: SortMenuProps) => {
           {sortOptions.map((option) => (
             <button
               key={option.field}
+              type="button"
               onClick={() => handleSelectSort(option.field)}
               className={cn(
                 "w-full flex items-center justify-between px-4 py-2 text-sm font-bold hover:bg-white/5 text-left transition-colors",

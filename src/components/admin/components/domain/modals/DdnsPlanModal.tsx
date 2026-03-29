@@ -101,7 +101,6 @@ export const DdnsPlanModal = ({
 
       if (!started) {
         if (inflight.length === 0) break;
-        // eslint-disable-next-line no-await-in-loop
         await Promise.race(inflight);
       }
     }
@@ -262,6 +261,7 @@ export const DdnsPlanModal = ({
                         <td className="py-3">
                           <div className="flex gap-2 justify-end">
                             <button
+                              type="button"
                               onClick={async () => { await onInspect(it.id); }}
                               className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm"
                               title={t('admin.domain.ddnsInspect') || 'Inspect'}
@@ -269,6 +269,7 @@ export const DdnsPlanModal = ({
                               <Activity size={16} className="opacity-70" />
                             </button>
                             <button
+                              type="button"
                               onClick={async () => { await onCheck(it.id); }}
                               className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm"
                               title={t('common.check') || 'Check'}
@@ -276,6 +277,7 @@ export const DdnsPlanModal = ({
                               <Search size={16} className="opacity-70" />
                             </button>
                             <button
+                              type="button"
                               onClick={() => onOpenLogs(it.id)}
                               className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
                               title={t('admin.domain.ddnsLogs') || 'Logs'}

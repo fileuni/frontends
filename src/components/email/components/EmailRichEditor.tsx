@@ -39,21 +39,21 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 
   return (
     <div className="flex flex-wrap items-center gap-1 p-1 mb-2 border-b border-border/40 bg-muted/5">
-      <button onClick={() => editor.chain().focus().toggleBold().run()} className={cn(btnClass, editor.isActive('bold') && activeClass)}><Bold size={16} /></button>
-      <button onClick={() => editor.chain().focus().toggleItalic().run()} className={cn(btnClass, editor.isActive('italic') && activeClass)}><Italic size={16} /></button>
-      <button onClick={() => editor.chain().focus().toggleBlockquote().run()} className={cn(btnClass, editor.isActive('blockquote') && activeClass)}><Quote size={16} /></button>
+      <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={cn(btnClass, editor.isActive('bold') && activeClass)}><Bold size={16} /></button>
+      <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={cn(btnClass, editor.isActive('italic') && activeClass)}><Italic size={16} /></button>
+      <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={cn(btnClass, editor.isActive('blockquote') && activeClass)}><Quote size={16} /></button>
       <div className="w-px h-4 bg-border/40 mx-1" />
-      <button onClick={() => editor.chain().focus().toggleBulletList().run()} className={cn(btnClass, editor.isActive('bulletList') && activeClass)}><List size={16} /></button>
-      <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={cn(btnClass, editor.isActive('orderedList') && activeClass)}><ListOrdered size={16} /></button>
+      <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={cn(btnClass, editor.isActive('bulletList') && activeClass)}><List size={16} /></button>
+      <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={cn(btnClass, editor.isActive('orderedList') && activeClass)}><ListOrdered size={16} /></button>
       <div className="w-px h-4 bg-border/40 mx-1" />
-      <button onClick={setLink} className={cn(btnClass, editor.isActive('link') && activeClass)}><LinkIcon size={16} /></button>
-      <button onClick={addImage} className={btnClass}><ImageIcon size={16} /></button>
-      <button onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} className={btnClass}><TableIcon size={16} /></button>
+      <button type="button" onClick={setLink} className={cn(btnClass, editor.isActive('link') && activeClass)}><LinkIcon size={16} /></button>
+      <button type="button" onClick={addImage} className={btnClass}><ImageIcon size={16} /></button>
+      <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} className={btnClass}><TableIcon size={16} /></button>
       <div className="w-px h-4 bg-border/40 mx-1" />
-      <button onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} className={btnClass}><Eraser size={16} /></button>
+      <button type="button" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} className={btnClass}><Eraser size={16} /></button>
       <div className="flex-1" />
-      <button onClick={() => editor.chain().focus().undo().run()} className={btnClass}><Undo size={16} /></button>
-      <button onClick={() => editor.chain().focus().redo().run()} className={btnClass}><Redo size={16} /></button>
+      <button type="button" onClick={() => editor.chain().focus().undo().run()} className={btnClass}><Undo size={16} /></button>
+      <button type="button" onClick={() => editor.chain().focus().redo().run()} className={btnClass}><Redo size={16} /></button>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
 import { useToastStore } from '@/stores/toast';
@@ -33,7 +33,7 @@ export const PermissionAdmin = () => {
   const [draftQuota, setDraftQuota] = useState<string>("0");
   const [saving, setSaving] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const data = await fetchRolesAndPermissions();
@@ -47,11 +47,11 @@ export const PermissionAdmin = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [addToast, t]);
 
   useEffect(() => {
     void loadData();
-  }, []);
+  }, [loadData]);
 
   const activeRole = useMemo(() => roles.find((role) => role.role_id === activeRoleId) ?? null, [roles, activeRoleId]);
 
@@ -179,9 +179,9 @@ export const PermissionAdmin = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40">
+                <div className="text-sm font-black uppercase tracking-widest opacity-40">
                   {t("admin.edit.quota")} ({bytesToText(Number(draftQuota) || 0)})
-                </label>
+                </div>
                 <Input value={draftQuota} onChange={(event) => setDraftQuota(event.target.value)} />
               </div>
 
@@ -194,7 +194,7 @@ export const PermissionAdmin = () => {
                         const checked = draftPermissions.includes(item.perm_key);
                         const description = i18n.language === "zh" ? item.desc_zh : item.desc_en;
                         return (
-                          <label
+                          <div
                             key={item.perm_key}
                             className={`p-3 rounded-xl border cursor-pointer transition-all ${
                               checked ? "border-primary bg-primary/10" : "border-white/10 hover:border-primary/30"
@@ -205,6 +205,7 @@ export const PermissionAdmin = () => {
                                 type="checkbox"
                                 checked={checked}
                                 onChange={() => togglePermission(item.perm_key)}
+                                aria-label={item.perm_key}
                                 className="mt-1"
                               />
                               <div className="min-w-0">
@@ -212,7 +213,7 @@ export const PermissionAdmin = () => {
                                 <p className="text-sm opacity-50 mt-1">{description}</p>
                               </div>
                             </div>
-                          </label>
+                          </div>
                         );
                       })}
                     </div>

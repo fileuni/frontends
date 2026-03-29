@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { client, extractData, handleApiError } from '@/lib/api.ts';
@@ -178,32 +178,32 @@ export const WebAdmin: React.FC = () => {
     };
   }, [sites]);
 
-  const loadSites = async () => {
+  const loadSites = useCallback(async () => {
     try {
       const data = await extractData<SiteView[]>(client.GET('/api/v1/admin/web/sites'));
       setSites(Array.isArray(data) ? data : []);
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     }
-  };
+  }, [addToast, t]);
 
-  const loadDomainCertAssets = async () => {
+  const loadDomainCertAssets = useCallback(async () => {
     try {
       const data = await extractData<DomainCertAssetView[]>(client.GET('/api/v1/admin/domain-acme-ddns/assets/certs'));
       setDomainCertAssets(Array.isArray(data) ? data : []);
     } catch {
       setDomainCertAssets([]);
     }
-  };
+  }, []);
 
-  const loadDomainAssets = async () => {
+  const loadDomainAssets = useCallback(async () => {
     try {
       const data = await extractData<DomainAssetView[]>(client.GET('/api/v1/admin/domain-acme-ddns/assets/domains'));
       setDomainAssets(Array.isArray(data) ? data : []);
     } catch {
       setDomainAssets([]);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const run = async () => {
@@ -213,8 +213,8 @@ export const WebAdmin: React.FC = () => {
       await loadDomainAssets();
       setLoading(false);
     };
-    run();
-  }, []);
+    void run();
+  }, [loadSites, loadDomainCertAssets, loadDomainAssets]);
 
   const openCreateModal = () => {
     setDraft(defaultDraft());

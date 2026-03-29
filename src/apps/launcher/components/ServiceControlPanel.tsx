@@ -133,6 +133,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
         {supportService && (
           <div className="relative z-30" ref={serviceMenuRef}>
             <button
+              type="button"
               onClick={() => setShowServiceMenu((prev) => !prev)}
               disabled={isLoading}
               className={cn(
@@ -161,6 +162,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                 )}
               >
                 <button
+                  type="button"
                   onClick={() => {
                     onInstall();
                     setShowServiceMenu(false);
@@ -181,6 +183,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                   </span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     onUninstall();
                     setShowServiceMenu(false);
@@ -219,6 +222,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                   </div>
                   <div className="flex gap-2">
                     <button
+                      type="button"
                       onClick={() => onInstallLevelChange("system")}
                       className={cn(
                         "flex-1 px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all",
@@ -232,6 +236,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                       {installLevelSystemLabel}
                     </button>
                     <button
+                      type="button"
                       onClick={() => onInstallLevelChange("user")}
                       className={cn(
                         "flex-1 px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all",
@@ -278,6 +283,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
 
       <div className="flex items-center gap-4">
         <button
+          type="button"
           onClick={onToggleService}
           disabled={isLoading || disableToggle}
           className={cn(

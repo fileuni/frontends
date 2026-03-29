@@ -32,7 +32,7 @@ export const FileSidebar = () => {
   const { loadStorageStats } = useFileActions();
   useEffect(() => {
     loadStorageStats();
-  }, []); // Only on mount
+  }, [loadStorageStats]);
 
   const mod = params.mod || 'public';
   const page = params.page || 'index';

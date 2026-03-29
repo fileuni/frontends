@@ -44,7 +44,7 @@ export const EmailDetailPanel: React.FC<EmailDetailPanelProps> = ({
       {selectedMessage ? (
         <div className="flex-1 flex flex-col overflow-hidden text-foreground">
           <div className="h-14 border-b border-border/40 px-4 flex items-center justify-between bg-muted/10">
-            <div className="flex items-center gap-2"><button className="lg:hidden p-1 hover:bg-muted rounded-lg" onClick={onBack}><ArrowLeft size={18} /></button><span className="text-sm font-black uppercase tracking-widest opacity-40">{t("email.messageThread")}</span></div>
+            <div className="flex items-center gap-2"><button type="button" className="lg:hidden p-1 hover:bg-muted rounded-lg" onClick={onBack}><ArrowLeft size={18} /></button><span className="text-sm font-black uppercase tracking-widest opacity-40">{t("email.messageThread")}</span></div>
             <div className="flex gap-1">
               <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black uppercase" onClick={onReply}><Edit3 size={18} />{t("email.reply")}</Button>
               <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black uppercase" onClick={onReplyAll}><RefreshCw size={18} />{t("email.replyAll")}</Button>

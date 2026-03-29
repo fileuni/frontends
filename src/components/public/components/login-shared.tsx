@@ -36,7 +36,8 @@ export const SavedAccountsShortcut = ({
   if (count <= 0) return null;
 
   return (
-    <div
+    <button
+      type="button"
       className={cn(
         'mb-8 p-4 rounded-3xl border flex items-center justify-between group cursor-pointer transition-all',
         isDark ? 'bg-primary/5 border-primary/10 hover:bg-primary/10' : 'bg-primary/5 border-primary/20 hover:bg-primary/10',
@@ -55,6 +56,6 @@ export const SavedAccountsShortcut = ({
         </div>
       </div>
       <ChevronRight size={18} className="opacity-20 group-hover:opacity-100 transition-opacity" />
-    </div>
+    </button>
   );
 };

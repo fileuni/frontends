@@ -1148,9 +1148,10 @@ export const CompressionDependencyConfigModal: React.FC<
               : "border-slate-200 bg-slate-50",
           )}
         >
-          <label className="flex items-start gap-3">
+          <div className="flex items-start gap-3">
             <input
               type="checkbox"
+              aria-label={t("admin.config.compression.enable")}
               className="mt-1 h-4 w-4 rounded border-slate-300"
               checked={draft.enabled}
               onChange={(event) =>
@@ -1173,7 +1174,7 @@ export const CompressionDependencyConfigModal: React.FC<
                 {t("admin.config.compression.enableHint")}
               </div>
             </div>
-          </label>
+          </div>
 
           <div>
             <label

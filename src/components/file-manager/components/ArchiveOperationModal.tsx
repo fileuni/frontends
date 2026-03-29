@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Input } from '@/components/ui/Input.tsx';
@@ -81,6 +81,8 @@ export function ArchiveOperationModal({
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const targetPathRef = useRef<HTMLInputElement>(null);
+  const targetNameRef = useRef<HTMLInputElement>(null);
 
   const needs7zForDecompress = useMemo(() => {
     if (mode !== 'decompress' || !paths.length) return false;
@@ -114,6 +116,12 @@ export function ArchiveOperationModal({
     setLevel(Math.min(6, maxLevel));
     setError(null);
   }, [isOpen, defaultTargetPath, defaultArchiveName, defaultFormat, capabilities?.has_7z, maxLevel]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const nextRef = mode === 'decompress' ? targetPathRef : targetNameRef;
+    nextRef.current?.focus();
+  }, [isOpen, mode]);
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -177,15 +185,15 @@ export function ArchiveOperationModal({
         {mode === 'decompress' ? (
           <>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase opacity-60">
+              <div className="text-sm font-black uppercase opacity-60">
                 {t('filemanager.archive.targetPath')}
-              </label>
+              </div>
               <Input
+                ref={targetPathRef}
                 value={targetPath}
                 onChange={(e) => setTargetPath(e.target.value)}
                 placeholder={t('filemanager.archive.targetPathPlaceholder')}
                 className="font-mono"
-                autoFocus
               />
               <p className="text-sm opacity-50">
                 {t('filemanager.archive.targetPathHint')}
@@ -219,9 +227,9 @@ export function ArchiveOperationModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase opacity-60">
+              <div className="text-sm font-black uppercase opacity-60">
                 {t('filemanager.archive.passwordOptional')}
-              </label>
+              </div>
               <PasswordInput
                 value={decompressPassword}
                 onChange={(e) => setDecompressPassword(e.target.value)}
@@ -233,15 +241,15 @@ export function ArchiveOperationModal({
         ) : (
           <>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase opacity-60">
+              <div className="text-sm font-black uppercase opacity-60">
                 {t('filemanager.archive.archiveName')}
-              </label>
+              </div>
               <Input
+                ref={targetNameRef}
                 value={targetName}
                 onChange={(e) => setTargetName(e.target.value)}
                 placeholder={t('filemanager.archive.archiveNamePlaceholder')}
                 className="font-mono"
-                autoFocus
               />
               {isBatch && (
                 <p className="text-sm opacity-50">
@@ -252,9 +260,9 @@ export function ArchiveOperationModal({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase opacity-60 text-foreground">
+                <div className="text-sm font-black uppercase opacity-60 text-foreground">
                   {t('filemanager.archive.format')}
-                </label>
+                </div>
                 <select
                   className="h-10 w-full rounded-xl bg-background border border-border px-3 text-sm font-bold text-foreground"
                   value={format}
@@ -267,9 +275,9 @@ export function ArchiveOperationModal({
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase opacity-60 text-foreground">
+                <div className="text-sm font-black uppercase opacity-60 text-foreground">
                   {t('filemanager.archive.level')} (Max: {maxLevel})
-                </label>
+                </div>
                 <Input
                   type="number"
                   min={1}
@@ -315,9 +323,9 @@ export function ArchiveOperationModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase opacity-60">
+              <div className="text-sm font-black uppercase opacity-60">
                 {t('filemanager.archive.passwordOptional')}
-              </label>
+              </div>
               <PasswordInput
                 value={compressPassword}
                 onChange={(e) => setCompressPassword(e.target.value)}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@/stores/toast';
@@ -41,11 +41,7 @@ export const AuditLogAdmin = () => {
   const [actionFilter, setActionFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  useEffect(() => {
-    fetchLogs();
-  }, [page, pageSize]);
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     try {
       const res = await extractData<PaginatedData<JournalLogEntry>>(
@@ -70,12 +66,16 @@ export const AuditLogAdmin = () => {
       addToast(t('admin.audit.fetchError') || 'Failed to fetch audit logs', 'error');
     }
     finally { setLoading(false); }
-  };
+  }, [page, pageSize, userIdFilter, typeFilter, actionFilter, statusFilter, addToast, t]);
+
+  useEffect(() => {
+    void fetchLogs();
+  }, [fetchLogs]);
 
   const handleSearch = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPage(1);
-    fetchLogs();
+    void fetchLogs();
   };
 
   const getStatusBadge = (status: string) => {

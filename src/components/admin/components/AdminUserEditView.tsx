@@ -396,7 +396,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
               </div>
               <div className="space-y-3">
                 {(form.other_phones || []).map((phone, idx) => (
-                  <div key={idx} className="flex gap-2">
+                  <div key={`phone-${idx}-${phone}`} className="flex gap-2">
                     <Input
                       value={phone}
                       onChange={e => {
@@ -660,8 +660,9 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setResetPwdOpen(false)}>{t('common.cancel')}</Button>
+            <Button type="button" variant="outline" onClick={() => setResetPwdOpen(false)}>{t('common.cancel')}</Button>
             <Button 
+              type="button"
               disabled={isResetting || newPassword !== confirmPassword || newPassword.length < 6}
               onClick={handleResetPassword}
             >
@@ -686,8 +687,9 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
             </p>
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button>
+            <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button>
             <Button 
+              type="button"
               variant="destructive"
               disabled={isDeleting}
               onClick={handleDelete}

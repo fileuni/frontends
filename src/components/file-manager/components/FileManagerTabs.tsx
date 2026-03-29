@@ -38,10 +38,10 @@ const TabContextMenu = ({ x, y, tabId, onClose }: { x: number; y: number; tabId:
 
   return (
     <>
-      <div className="fixed inset-0 z-[100]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+      <button type="button" className="fixed inset-0 z-[100]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div className="fixed z-[101] w-56 bg-background/95 backdrop-blur-xl border border-border shadow-2xl rounded-2xl p-1.5 animate-in fade-in zoom-in-95 duration-100" style={{ left: x, top: y }}>
         {actions.map((action) => (
-          <button key={action.id} onClick={() => { action.onClick(); onClose(); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary/10 hover:text-primary transition-all text-sm font-bold group">
+          <button type="button" key={action.id} onClick={() => { action.onClick(); onClose(); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary/10 hover:text-primary transition-all text-sm font-bold group">
             <action.icon size={16} className="opacity-40 group-hover:opacity-100" />
             {action.label}
           </button>
@@ -65,18 +65,19 @@ const SortableTab = ({ tab, isActive, onRemove, onActivate, onContextMenu }: Sor
   const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 50 : isActive ? 20 : 1 };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} data-active={isActive} onClick={() => onActivate(tab.id)} onContextMenu={(e) => onContextMenu(e, tab.id)}
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} data-active={isActive}
       className={cn(
         "group h-9 px-3 rounded-lg flex items-center gap-2 cursor-grab active:cursor-grabbing transition-all min-w-[120px] max-w-[200px] relative shrink-0 select-none border",
         isActive ? "bg-background text-foreground border-zinc-200 dark:border-white/10 shadow-sm z-20 scale-[1.01]" : "bg-transparent border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground opacity-80 hover:opacity-100",
         isDragging && "opacity-50 scale-95 z-50 bg-background shadow-2xl",
       )}>
+      <button type="button" className="absolute inset-0 rounded-lg" onClick={() => onActivate(tab.id)} onContextMenu={(e) => onContextMenu(e, tab.id)} />
       {isActive && <div className="absolute left-1 top-2 bottom-2 w-0.5 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.6)]" />}
-      <div className={cn("transition-colors", isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary")}>
+      <div className={cn("relative z-10 transition-colors", isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary")}>
         {tab.path === "/" || !tab.path.includes(".") ? <Folder size={18} /> : <FileIconLucide size={18} />}
       </div>
-      <span className={cn("text-sm font-black uppercase tracking-widest truncate flex-1 pointer-events-none", isActive ? "text-foreground" : "text-inherit")}>{tab.title}</span>
-      <button onClick={(e) => { e.stopPropagation(); onRemove(tab.id); }} className={cn("p-1 rounded-md transition-all shrink-0 hover:bg-destructive/10 hover:text-destructive", isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100")}>
+      <span className={cn("relative z-10 text-sm font-black uppercase tracking-widest truncate flex-1 pointer-events-none", isActive ? "text-foreground" : "text-inherit")}>{tab.title}</span>
+      <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(tab.id); }} className={cn("relative z-10 p-1 rounded-md transition-all shrink-0 hover:bg-destructive/10 hover:text-destructive", isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100")}>
         <X size={10} />
       </button>
     </div>
@@ -108,7 +109,7 @@ export const FileManagerTabs = () => {
     checkScroll();
     window.addEventListener("resize", checkScroll);
     return () => window.removeEventListener("resize", checkScroll);
-  }, [checkScroll, tabs]);
+  }, [checkScroll]);
 
   const handleScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -142,7 +143,7 @@ export const FileManagerTabs = () => {
     <div className="relative h-11 flex items-center shrink-0 overflow-hidden bg-muted/10 px-2 transition-colors border-b border-border/30">
       {showScrollLeft && (
         <div className="absolute left-0 inset-y-0 w-12 bg-gradient-to-r from-background to-transparent z-30 flex items-center justify-start pl-1 pointer-events-none">
-          <button onClick={() => handleScroll("left")} className="pointer-events-auto w-8 h-8 rounded-full bg-background shadow-md border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
+          <button type="button" onClick={() => handleScroll("left")} className="pointer-events-auto w-8 h-8 rounded-full bg-background shadow-md border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
             <ScrollLeft size={16} strokeWidth={3} />
           </button>
         </div>
@@ -158,14 +159,14 @@ export const FileManagerTabs = () => {
             </div>
           </SortableContext>
         </DndContext>
-        <button className="p-1 h-8 w-8 rounded-md opacity-30 hover:opacity-100 hover:bg-muted hover:text-primary shrink-0 transition-all ml-1" onClick={() => addTab(currentPath)}>
+        <button type="button" className="p-1 h-8 w-8 rounded-md opacity-30 hover:opacity-100 hover:bg-muted hover:text-primary shrink-0 transition-all ml-1" onClick={() => addTab(currentPath)}>
           <Plus size={18} />
         </button>
       </div>
 
       {showScrollRight && (
         <div className="absolute right-0 inset-y-0 w-12 bg-gradient-to-l from-background to-transparent z-30 flex items-center justify-end pr-1 pointer-events-none">
-          <button onClick={() => handleScroll("right")} className="pointer-events-auto w-8 h-8 rounded-full bg-background shadow-md border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
+          <button type="button" onClick={() => handleScroll("right")} className="pointer-events-auto w-8 h-8 rounded-full bg-background shadow-md border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
             <ScrollRight size={16} strokeWidth={3} />
           </button>
         </div>

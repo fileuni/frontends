@@ -146,7 +146,7 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
   const officeLimitBytes = resolveLimitBytes(capabilities?.preview_size_limits?.office_mb);
   const isLargeFile = fileSize > officeLimitBytes;
 
-  const renderPreview = async (buffer: ArrayBuffer) => {
+  const renderPreview = useCallback(async (buffer: ArrayBuffer) => {
     if (!previewRef.current) return;
     previewRef.current.innerHTML = '';
     await renderAsync(buffer, previewRef.current, undefined, {
@@ -161,7 +161,7 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
       ignoreFonts: false,
       useBase64URL: true
     });
-  };
+  }, []);
 
   const loadDocx = useCallback(async () => {
     const loadId = loadIdRef.current + 1;
@@ -208,9 +208,10 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
         setLoading(false);
       }
     }
-  }, [path, forceOpen]);
+  }, [path, forceOpen, officeLimitBytes, renderPreview]);
 
   useEffect(() => {
+    void path;
     setForceOpen(false);
     setEditorText('');
     setIsComplex(false);

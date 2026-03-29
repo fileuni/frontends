@@ -8,7 +8,6 @@ import type { FileInfo } from '../types/index.ts';
 
 export function useUploadActions() {
   const { updateTask, setUploading } = useUploadStore();
-  const { appendFiles } = useFileStore();
   const { loadStorageStats } = useFileActions();
   const { currentUserData } = useAuthStore();
   
@@ -85,7 +84,7 @@ export function useUploadActions() {
     };
 
     xhr.send(task.file);
-  }, [updateTask, setUploading, appendFiles, loadStorageStats, currentUserData]);
+  }, [updateTask, setUploading, loadStorageStats, currentUserData]);
 
   return { uploadFile };
 }

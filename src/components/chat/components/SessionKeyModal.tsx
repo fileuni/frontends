@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShieldCheck, X, Key, Info } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
@@ -11,12 +11,18 @@ export const SessionKeyModal: React.FC = () => {
   const { t } = useTranslation();
   const { isKeyModalOpen, closeKeyModal, keyTargetId, sessionKeys, setSessionKey, nicknames } = useChat();
   const [keyValue, setKeyValue] = useState('');
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isKeyModalOpen) {
       setKeyValue(sessionKeys[keyTargetId] || '');
     }
   }, [isKeyModalOpen, keyTargetId, sessionKeys]);
+
+  useEffect(() => {
+    if (!isKeyModalOpen) return;
+    contentRef.current?.querySelector('input')?.focus();
+  }, [isKeyModalOpen]);
 
   useEscapeToCloseTopLayer({
     active: isKeyModalOpen,
@@ -37,7 +43,8 @@ export const SessionKeyModal: React.FC = () => {
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-2 sm:p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200" role="dialog" aria-modal="true">
       <div className="w-full max-w-md bg-background border border-border rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
         <div className="p-5 sm:p-8 border-b border-border bg-muted/10 relative shrink-0">
-          <button 
+          <button
+            type="button"
             onClick={closeKeyModal}
             className="absolute right-6 top-6 p-2 hover:bg-muted rounded-full transition-colors"
           >
@@ -62,7 +69,7 @@ export const SessionKeyModal: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-8 space-y-6">
+        <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-8 space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-black uppercase opacity-40 tracking-[0.2em] ml-1">
               {t('chat.conversationWith', { name: targetName })}
@@ -73,7 +80,6 @@ export const SessionKeyModal: React.FC = () => {
               onChange={(e) => setKeyValue(e.target.value)}
               placeholder={t('chat.enterSessionKeyPlaceholder')}
               inputClassName="h-14 text-base rounded-2xl bg-muted/20 border-none shadow-inner focus-visible:ring-2 focus-visible:ring-primary/20"
-              autoFocus
               onKeyDown={(e) => e.key === 'Enter' && handleSave()}
             />
           </div>

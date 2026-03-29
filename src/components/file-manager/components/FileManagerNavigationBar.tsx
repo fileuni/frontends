@@ -84,9 +84,11 @@ export const FileManagerNavigationBar = () => {
         <div className={cn(
           "flex-1 h-9 rounded-xl flex items-center px-3 transition-all relative overflow-hidden",
           isEditMode ? "bg-white/10 border border-primary/30" : "hover:bg-white/5 border border-transparent cursor-text"
-        )} onClick={() => !isEditMode && setIsEditMode(true)}>
+        )}>
           {!isEditMode ? (
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar font-bold text-sm w-full h-full">
+            <>
+              <button type="button" className="absolute inset-0" onClick={() => setIsEditMode(true)} />
+              <div className="relative z-10 flex items-center gap-1 overflow-x-auto no-scrollbar font-bold text-sm w-full h-full">
               <Button variant="ghost" className="p-1.5 h-9 rounded-lg text-primary/60 hover:text-primary shrink-0" onClick={(e) => { e.stopPropagation(); setCurrentPath("/"); }}>
                 <HardDrive size={18} />
               </Button>
@@ -96,7 +98,7 @@ export const FileManagerNavigationBar = () => {
               {pathSegments.map((segment, i) => {
                 if (pathSegments.length > 4 && i < pathSegments.length - 4) return null;
                 return (
-                  <React.Fragment key={i}>
+                  <React.Fragment key={`/${pathSegments.slice(0, i + 1).join('/')}`}>
                     <span className="opacity-10 shrink-0">/</span>
                     <Button variant="ghost" className="px-2 h-9 rounded-lg whitespace-nowrap shrink-0 opacity-60 hover:opacity-100 max-w-[120px]" onClick={(e) => { e.stopPropagation(); navigateTo(i); }}>
                       <span className="truncate">{segment}</span>
@@ -105,7 +107,8 @@ export const FileManagerNavigationBar = () => {
                 );
               })}
               <div className="flex-1 h-full min-w-[20px]" />
-            </div>
+              </div>
+            </>
           ) : (
             <form onSubmit={handleAddressSubmit} className="flex items-center w-full gap-2">
               <Input ref={addressInputRef} className="bg-transparent border-none p-0 h-full text-sm font-mono focus-visible:ring-0 focus-visible:ring-offset-0" value={pathInput} onChange={(e) => setPathInput(e.target.value)} onBlur={() => setTimeout(() => setIsEditMode(false), 200)} />

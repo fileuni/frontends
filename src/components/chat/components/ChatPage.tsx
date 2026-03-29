@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   MessageSquare,
@@ -148,7 +148,7 @@ export const ChatPage: React.FC = () => {
     [rooms, activeTarget],
   );
 
-  const refreshInvites = async () => {
+  const refreshInvites = useCallback(async () => {
     try {
       const { data } = await client.GET("/api/v1/chat/invites");
       if (data?.['success']) {
@@ -164,9 +164,9 @@ export const ChatPage: React.FC = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
-  const refreshGroups = async () => {
+  const refreshGroups = useCallback(async () => {
     try {
       const { data } = await client.GET("/api/v1/chat/groups");
       if (data?.['success']) {
@@ -175,17 +175,17 @@ export const ChatPage: React.FC = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     refreshInvites();
     refreshGroups();
-  }, []);
+  }, [refreshGroups, refreshInvites]);
 
   useEffect(() => {
     if (!activeTarget) return;
     markConversationRead(activeTarget);
-  }, [markConversationRead, activeTarget, messages.length]);
+  }, [markConversationRead, activeTarget]);
 
   const handleSearchUsers = async () => {
     if (!userSearchKeyword.trim()) return;
@@ -475,7 +475,8 @@ export const ChatPage: React.FC = () => {
           </div>
           <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-2">
             {userSearchResults.map((u) => (
-              <div
+              <button
+                type="button"
                 key={u.user_id}
                 className="p-4 border border-border rounded-2xl flex items-center justify-between hover:bg-primary/5 hover:border-primary/20 transition-all cursor-pointer group"
                 onClick={() => {
@@ -501,7 +502,7 @@ export const ChatPage: React.FC = () => {
                   size={16}
                   className="text-primary opacity-0 group-hover:opacity-100 transition-opacity"
                 />
-              </div>
+              </button>
             ))}
           </div>
         </div>

@@ -98,6 +98,7 @@ const CompactUploadItem = ({ task, isDark, onRemove }: SortableItemProps) => {
             {task.progress}%
           </span>
           <button
+            type="button"
             onClick={() => onRemove(task.id)}
             className="p-1 rounded-md hover:bg-red-500/10 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
           >
@@ -182,7 +183,7 @@ export const GlobalUploader = () => {
     ) {
       setActiveTab("uploading");
     }
-  }, [uploadingTasks.length, completedTasks.length]);
+  }, [activeTab, uploadingTasks.length, completedTasks.length]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -218,12 +219,11 @@ export const GlobalUploader = () => {
       {/* Header */}
       <div
         className={cn(
-          "h-16 px-5 border-b flex items-center justify-between cursor-pointer shrink-0",
+          "h-16 px-5 border-b flex items-center justify-between shrink-0",
           isDark ? "bg-white/[0.02]" : "bg-gray-50/50",
         )}
-        onClick={() => setMinimized(!isMinimized)}
       >
-        <div className="flex items-center gap-3">
+        <button type="button" className="flex items-center gap-3 text-left" onClick={() => setMinimized(!isMinimized)}>
           <div className="w-9 h-9 rounded-xl bg-primary/20 text-primary flex items-center justify-center shadow-inner">
             {uploadingTasks.length === 0 ? (
               <CheckCircle size={20} />
@@ -253,12 +253,15 @@ export const GlobalUploader = () => {
               </span>
             </div>
           </div>
-        </div>
+        </button>
         <div className="flex items-center gap-1">
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
-              tasks.forEach((t) => removeTask(t.id));
+              tasks.forEach((t) => {
+                removeTask(t.id);
+              });
             }}
             className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-xl opacity-20 hover:opacity-100 transition-all"
           >
@@ -272,6 +275,7 @@ export const GlobalUploader = () => {
         <>
           <div className="flex border-b border-white/5 p-1 bg-white/[0.01]">
             <button
+              type="button"
               onClick={() => setActiveTab("uploading")}
               className={cn(
                 "flex-1 py-2 text-sm font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2",
@@ -293,6 +297,7 @@ export const GlobalUploader = () => {
               })}
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab("completed")}
               className={cn(
                 "flex-1 py-2 text-sm font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2",
@@ -346,6 +351,7 @@ export const GlobalUploader = () => {
             )}
           >
             <button
+              type="button"
               onClick={clearCompleted}
               disabled={completedTasks.length === 0}
               className="text-sm font-black text-primary hover:underline uppercase tracking-widest disabled:opacity-20 disabled:no-underline"

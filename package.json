@@ -9,14 +9,16 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "lint": "eslint \"src/**/*.{ts,tsx,astro}\" --max-warnings=0",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx,astro}\" --fix --max-warnings=0",
     "gen-api": "bunx openapi-typescript openapi.json -o src/types/api.ts && bunx openapi-typescript openapi-config-set.json -o src/types/config_set_api.ts"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",
     "@codemirror/commands": "^6.10.1",
-    "@codemirror/language-data": "^6.5.1",
     "@codemirror/lang-markdown": "^6.5.0",
     "@codemirror/language": "^6.12.1",
+    "@codemirror/language-data": "^6.5.1",
     "@codemirror/legacy-modes": "^6.5.2",
     "@codemirror/state": "^6.5.4",
     "@codemirror/view": "^6.39.11",
@@ -81,9 +83,19 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
+    "@eslint/js": "^9.39.4",
     "@types/crypto-js": "^4.2.2",
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.57.2",
+    "@typescript-eslint/parser": "^8.57.2",
+    "astro-eslint-parser": "^1.4.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-astro": "^1.6.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
     "typescript": "^5.9.3"
   },
   "overrides": {

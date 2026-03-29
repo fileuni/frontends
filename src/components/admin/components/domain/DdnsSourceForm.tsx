@@ -98,7 +98,7 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
       setConfig(fallback);
       onChange(JSON.stringify(fallback));
     }
-  }, [sourceJson]);
+  }, [sourceJson, isIpv6, onChange]);
 
   const updateConfig = (newConfig: SourceConfig) => {
     const normalized: SourceConfig =
@@ -174,7 +174,7 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-4 items-center">
               <div className="space-y-1.5">
-                <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.detectionSource')}</label>
+                <div className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.detectionSource')}</div>
                 <div className="relative text-foreground">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40 dark:text-white/40 pointer-events-none">
                     {getIcon(config.type)}
@@ -195,12 +195,12 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                <div className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
                   {config.type === 'url' ? t('admin.domain.endpointUrl') : 
                    config.type === 'interface' ? t('admin.domain.interfaceName') :
                    config.type === 'static' ? t('admin.domain.fixedAddress') :
                    config.type === 'command' ? t('admin.domain.bashCommand') : 'Configuration'}
-                </label>
+                </div>
                 
                 {config.type === 'url' && (
                   <div className="space-y-2">

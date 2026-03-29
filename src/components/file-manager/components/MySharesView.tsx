@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from "react-i18next";
 import { Button } from '@/components/ui/Button.tsx';
 import { Share2, Zap, RefreshCcw, LayoutGrid, List } from 'lucide-react';
@@ -32,12 +32,11 @@ export const MySharesView = () => {
   const pagination = store.getPagination();
   const shareFilter = store.getShareFilter();
 
-  const fetchShares = async (page: number = 1, size: number = pagination.pageSize) => {
+  const fetchShares = useCallback(async (page: number = 1, size: number = pagination.pageSize) => {
     setLoading(true);
-    // Explicitly specify mode to avoid async state sync issues
     await loadFiles(undefined, page, size, 'shares');
     setLoading(false);
-  };
+  }, [loadFiles, pagination.pageSize]);
 
   useEffect(() => {
     setFmMode('shares');
@@ -46,7 +45,7 @@ export const MySharesView = () => {
     return () => {
       setShareFilter({ hasPassword: null, enableDirect: null });
     };
-  }, []);
+  }, [fetchShares, setFmMode, setShareFilter]);
 
   const handleAction = (action: string, target: FileInfo | null) => {
     setContextMenu(null);
@@ -84,7 +83,8 @@ export const MySharesView = () => {
   };
 
   return (
-    <div className="flex flex-col bg-background h-screen relative overflow-hidden" onClick={() => setContextMenu(null)}>
+    <div className="flex flex-col bg-background h-screen relative overflow-hidden">
+      {contextMenu && <button type="button" className="absolute inset-0 z-10" onClick={() => setContextMenu(null)} />}
       {/* Toolbar Area - Unified Style */}
       <div className="h-16 border-b border-white/5 bg-white/[0.01] flex items-center justify-between px-4 md:px-6 shrink-0">
         <div className="flex items-center gap-4">
@@ -95,6 +95,7 @@ export const MySharesView = () => {
           <div className="h-4 w-px bg-white/10 mx-2" />
           <div className="flex items-center gap-2">
             <button 
+              type="button"
               onClick={() => { setShareFilter({ enableDirect: null }); fetchShares(1); }}
               className={cn(
                 "px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-widest transition-all",
@@ -104,6 +105,7 @@ export const MySharesView = () => {
               {t('filemanager.shares.allShares')}
             </button>
             <button 
+              type="button"
               onClick={toggleDirectFilter}
               className={cn(
                 "px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-widest transition-all flex items-center gap-2",

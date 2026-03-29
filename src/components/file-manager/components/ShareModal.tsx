@@ -278,6 +278,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
         {isEditing && (
           <div className="flex border-b border-white/5 bg-black/20 shrink-0">
             <button 
+              type="button"
               onClick={() => setMainTab('view')}
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-black uppercase tracking-[0.2em] transition-all border-b-2",
@@ -287,6 +288,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
               <Info size={18} /> {t('filemanager.shareModal.viewTab')}
             </button>
             <button 
+              type="button"
               onClick={() => setMainTab('edit')}
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-black uppercase tracking-[0.2em] transition-all border-b-2",
@@ -321,6 +323,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                     <span className="text-[14px] font-black uppercase opacity-40 tracking-widest">{t('filemanager.shareModal.sharePackage')}</span>
                   </div>
                   <button
+                    type="button"
                     onClick={() => setShowQr(!showQr)}
                     className={cn(
                       "p-1.5 rounded-lg transition-all",
@@ -396,6 +399,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                 )}
 
                 <button 
+                  type="button"
                   onClick={() => copyToClipboard(getCombinedAllInfo())}
                   className="w-full py-3 bg-primary text-white text-sm font-black uppercase tracking-[0.2em] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
@@ -411,8 +415,8 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
         ) : (
           <div className="flex flex-col h-full">
             <div className="flex border-b border-white/5 px-4">
-              <button onClick={() => setActiveTab('basic')} className={cn("px-4 py-2.5 text-[14px] font-black uppercase tracking-widest transition-all border-b-2", activeTab === 'basic' ? "border-primary text-primary" : "border-transparent opacity-40 hover:opacity-100")}>{t('filemanager.shareModal.basicTab')}</button>
-              <button onClick={() => setActiveTab('advanced')} className={cn("px-4 py-2.5 text-[14px] font-black uppercase tracking-widest transition-all border-b-2", activeTab === 'advanced' ? "border-primary text-primary" : "border-transparent opacity-40 hover:opacity-100")}>{t('filemanager.shareModal.advancedTab')}</button>
+              <button type="button" onClick={() => setActiveTab('basic')} className={cn("px-4 py-2.5 text-[14px] font-black uppercase tracking-widest transition-all border-b-2", activeTab === 'basic' ? "border-primary text-primary" : "border-transparent opacity-40 hover:opacity-100")}>{t('filemanager.shareModal.basicTab')}</button>
+              <button type="button" onClick={() => setActiveTab('advanced')} className={cn("px-4 py-2.5 text-[14px] font-black uppercase tracking-widest transition-all border-b-2", activeTab === 'advanced' ? "border-primary text-primary" : "border-transparent opacity-40 hover:opacity-100")}>{t('filemanager.shareModal.advancedTab')}</button>
             </div>
 
             <div className="p-4 space-y-4 overflow-y-auto max-h-[50vh] custom-scrollbar">

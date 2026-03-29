@@ -305,6 +305,34 @@ export const ChatProvider: React.FC<{
   }, [inviterId, inviterIdKey]);
 
   const [isOpen, setIsOpenInternal] = useState(false);
+  const setIsOpen = useCallback((open: boolean) => {
+    if (typeof window === "undefined") return;
+    setIsOpenInternal(open);
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.replace(/^#/, ""));
+    if (open) {
+      if (params.get("modalPage") !== "chat") {
+        params.set("modalPage", "chat");
+        params.delete("OpenChat");
+        window.location.hash = params.toString();
+      }
+    } else {
+      let changed = false;
+      if (params.get("modalPage") === "chat") {
+        params.delete("modalPage");
+        changed = true;
+      }
+      if (params.has("OpenChat")) {
+        params.delete("OpenChat");
+        changed = true;
+      }
+      if (changed) {
+        const newHash = params.toString();
+        window.location.hash = newHash ? `#${newHash}` : "";
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const handleHashChange = () => {
       if (typeof window === "undefined") return;
@@ -333,35 +361,7 @@ export const ChatProvider: React.FC<{
       window.removeEventListener("hashchange", handleHashChange);
       window.removeEventListener("keydown", handleEsc, true);
     };
-  }, []);
-
-  const setIsOpen = useCallback((open: boolean) => {
-    if (typeof window === "undefined") return;
-    setIsOpenInternal(open);
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.replace(/^#/, ""));
-    if (open) {
-      if (params.get("modalPage") !== "chat") {
-        params.set("modalPage", "chat");
-        params.delete("OpenChat"); // Clean legacy
-        window.location.hash = params.toString();
-      }
-    } else {
-      let changed = false;
-      if (params.get("modalPage") === "chat") {
-        params.delete("modalPage");
-        changed = true;
-      }
-      if (params.has("OpenChat")) {
-        params.delete("OpenChat");
-        changed = true;
-      }
-      if (changed) {
-        const newHash = params.toString();
-        window.location.hash = newHash ? `#${newHash}` : "";
-      }
-    }
-  }, []);
+  }, [setIsOpen]);
 
   const [activeTarget, setActiveTarget] = useState("");
   const [userGroups, setUserGroups] = useState<string[]>([]);
@@ -561,6 +561,67 @@ export const ChatProvider: React.FC<{
 
   const pendingMessagesRef = useRef<string[]>([]);
 
+  const { currentUserData } = useAuthStore();
+  const accessToken = currentUserData?.access_token;
+
+  const setupWebSocket = useCallback(() => {
+    if (!isChatEnabled) return;
+
+    const token = auth.type === "system" ? accessToken : "";
+    if (auth.type === "system" && !token) {
+      console.log("[Chat] WS: System user has no token yet, skipping...");
+      return;
+    }
+
+    const inviteId = auth.type === "guest" ? auth.inviteCode : "";
+    const url = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/api/v1/chat/ws?${auth.type === "guest" ? `invite_id=${inviteId}` : `token=${token}`}`;
+
+    if (
+      wsRef.current &&
+      (wsRef.current.readyState === WebSocket.CONNECTING ||
+        wsRef.current.readyState === WebSocket.OPEN)
+    ) {
+      if (wsRef.current.url === new URL(url, window.location.href).href) {
+        return;
+      }
+      console.log("[Chat] WS: URL changed, reconnecting...");
+      wsRef.current.onclose = null;
+      wsRef.current.close();
+    }
+
+    console.log("[Chat] WS: Connecting to", url.split("?")[0]);
+    const ws = new WebSocket(url);
+    wsRef.current = ws;
+    ws.onopen = () => {
+      console.log(
+        "[Chat] WebSocket connected, flushing queue:",
+        pendingMessagesRef.current.length,
+      );
+      setIsConnected(true);
+      while (pendingMessagesRef.current.length > 0) {
+        const msg = pendingMessagesRef.current.shift();
+        if (msg) ws.send(msg);
+      }
+    };
+    ws.onclose = (e) => {
+      console.log("[Chat] WebSocket closed:", e.code, e.reason);
+      setIsConnected(false);
+      if (e.code !== 1000 && e.code !== 1001) {
+        console.log("[Chat] WS: Unexpected close, scheduling reconnect...");
+        setTimeout(() => {
+          if (wsRef.current === ws) setupWebSocket();
+        }, 3000);
+      }
+    };
+    ws.onmessage = (e) => {
+      if (handleWireMessageRef.current)
+        handleWireMessageRef.current(e.data, "ws");
+    };
+    ws.onerror = (err) => {
+      console.error("[Chat] WebSocket error:", err);
+    };
+  }, [auth, isChatEnabled, accessToken]);
+
   const sendWireMessage = useCallback(
     (message: WireMessage) => {
       const json = JSON.stringify(message);
@@ -596,7 +657,7 @@ export const ChatProvider: React.FC<{
           );
       }
     },
-    [chatConfig],
+    [chatConfig, setupWebSocket],
   );
 
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -1061,7 +1122,6 @@ export const ChatProvider: React.FC<{
       chatConfig.groupEncryptionKeys,
       systemDefaultKey,
       sessionKeys,
-      selfId,
     ],
   );
 
@@ -1148,78 +1208,12 @@ export const ChatProvider: React.FC<{
         }
       }
     },
-    [addMessage, handleAck, handleIncomingText, rtc],
+    [addMessage, handleAck, handleIncomingText, handleRead, handleRecall, rtc, selfId],
   );
 
   useEffect(() => {
     handleWireMessageRef.current = handleWireMessage;
   });
-
-  const { currentUserData } = useAuthStore();
-  const accessToken = currentUserData?.access_token;
-
-  const setupWebSocket = useCallback(() => {
-    if (!isChatEnabled) return;
-
-    // Don't connect if system user has no token yet
-    const token = auth.type === "system" ? accessToken : "";
-    if (auth.type === "system" && !token) {
-      console.log("[Chat] WS: System user has no token yet, skipping...");
-      return;
-    }
-
-    const inviteId = auth.type === "guest" ? auth.inviteCode : "";
-    const url = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/api/v1/chat/ws?${auth.type === "guest" ? `invite_id=${inviteId}` : `token=${token}`}`;
-
-    // If already connecting/open, don't recreate
-    if (
-      wsRef.current &&
-      (wsRef.current.readyState === WebSocket.CONNECTING ||
-        wsRef.current.readyState === WebSocket.OPEN)
-    ) {
-      // Check if URL is different, reconnect if so
-      if (wsRef.current.url === new URL(url, window.location.href).href) {
-        return;
-      }
-      console.log("[Chat] WS: URL changed, reconnecting...");
-      wsRef.current.onclose = null;
-      wsRef.current.close();
-    }
-
-    console.log("[Chat] WS: Connecting to", url.split("?")[0]);
-    const ws = new WebSocket(url);
-    wsRef.current = ws;
-    ws.onopen = () => {
-      console.log(
-        "[Chat] WebSocket connected, flushing queue:",
-        pendingMessagesRef.current.length,
-      );
-      setIsConnected(true);
-      // Flush pending messages
-      while (pendingMessagesRef.current.length > 0) {
-        const msg = pendingMessagesRef.current.shift();
-        if (msg) ws.send(msg);
-      }
-    };
-    ws.onclose = (e) => {
-      console.log("[Chat] WebSocket closed:", e.code, e.reason);
-      setIsConnected(false);
-      // Attempt auto-reconnect
-      if (e.code !== 1000 && e.code !== 1001) {
-        console.log("[Chat] WS: Unexpected close, scheduling reconnect...");
-        setTimeout(() => {
-          if (wsRef.current === ws) setupWebSocket();
-        }, 3000);
-      }
-    };
-    ws.onmessage = (e) => {
-      if (handleWireMessageRef.current)
-        handleWireMessageRef.current(e.data, "ws");
-    };
-    ws.onerror = (err) => {
-      console.error("[Chat] WebSocket error:", err);
-    };
-  }, [auth, isChatEnabled, accessToken]);
 
   const setupMqtt = useCallback(() => {
     if (
@@ -1455,6 +1449,7 @@ export const ChatProvider: React.FC<{
       sendWireMessage,
       selfId,
       isConnected,
+      isInitializing,
       updateMessageStatus,
       sessionKeys,
       quotingMessage,

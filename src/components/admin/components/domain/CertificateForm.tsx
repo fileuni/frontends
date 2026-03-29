@@ -187,15 +187,15 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
               className={controlBase}
               onKeyDown={(e) => e.key === 'Enter' && addDomain()}
             />
-            <Button onClick={addDomain} variant="outline" className="h-11 px-6 border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 shrink-0 shadow-sm font-bold">
+            <Button type="button" onClick={addDomain} variant="outline" className="h-11 px-6 border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 shrink-0 shadow-sm font-bold">
               <Plus size={16} className="mr-2" /> Add
             </Button>
           </div>
           <div className="flex flex-wrap gap-2 min-h-[44px] p-3 rounded-xl bg-gray-200/50 dark:bg-black/20 border border-gray-200 dark:border-white/5 shadow-inner text-foreground">
             {domains.map((d, i) => (
-              <Badge key={i} variant="outline" className="h-8 pl-3 pr-1 rounded-lg bg-primary/10 text-primary border-primary/20 flex items-center gap-2 group shadow-sm">
+              <Badge key={`${d}-${i}`} variant="outline" className="h-8 pl-3 pr-1 rounded-lg bg-primary/10 text-primary border-primary/20 flex items-center gap-2 group shadow-sm">
                 <span className="text-sm font-mono font-bold">{d}</span>
-                <button onClick={() => removeDomain(i)} className="p-1 rounded-md hover:bg-red-500 hover:text-white transition-all opacity-40 group-hover:opacity-100">
+                <button type="button" onClick={() => removeDomain(i)} className="p-1 rounded-md hover:bg-red-500 hover:text-white transition-all opacity-40 group-hover:opacity-100">
                   <Trash2 size={18} />
                 </button>
               </Badge>

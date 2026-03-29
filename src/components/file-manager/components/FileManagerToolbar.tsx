@@ -174,9 +174,10 @@ export const FileManagerToolbar = () => {
 
                 {showNewMenu && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowNewMenu(false)} />
+                    <button type="button" className="fixed inset-0 z-40" onClick={() => setShowNewMenu(false)} />
                     <div className={cn(dropdownClasses, "left-0 top-12 w-44")}>
                       <button 
+                        type="button"
                         onClick={() => { openActionModal("create_file", t("filemanager.newFile"), "NewFile.md"); setShowNewMenu(false); }}
                         className={menuItemClasses}
                       >
@@ -184,6 +185,7 @@ export const FileManagerToolbar = () => {
                         <span>{t('filemanager.newFile')}</span>
                       </button>
                       <button 
+                        type="button"
                         onClick={() => { openActionModal("create_dir", t("filemanager.newFolder"), "NewFolder"); setShowNewMenu(false); }}
                         className={menuItemClasses}
                       >
@@ -350,17 +352,19 @@ export const FileManagerToolbar = () => {
 
               {showRefreshMenu && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowRefreshMenu(false)} />
+                  <button type="button" className="fixed inset-0 z-40" onClick={() => setShowRefreshMenu(false)} />
                   <div className={cn(dropdownClasses, "right-0 top-12 w-48")}>
-                    <button 
-                      onClick={handleRefresh}
+                     <button 
+                       type="button"
+                       onClick={handleRefresh}
                       className={menuItemClasses}
                     >
                       <RefreshCw size={16} className="opacity-50" />
                       <span>{t('filemanager.refresh')}</span>
                     </button>
-                    <button 
-                      onClick={handleForceRefresh}
+                     <button 
+                       type="button"
+                       onClick={handleForceRefresh}
                       className={cn(menuItemClasses, "text-primary hover:bg-primary/10")}
                     >
                       <RefreshCcw size={16} />
@@ -369,23 +373,26 @@ export const FileManagerToolbar = () => {
                     {enableThumbnails && (
                       <>
                         <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
-                        <button 
-                          onClick={() => { clearThumbnailCache(currentPath); setShowRefreshMenu(false); }}
+                         <button 
+                           type="button"
+                           onClick={() => { clearThumbnailCache(currentPath); setShowRefreshMenu(false); }}
                           className={menuItemClasses}
                         >
                           <Image size={16} className="opacity-60" />
                           <span>{t('filemanager.thumbnail.clearDir')}</span>
                         </button>
-                        <button 
-                          onClick={() => { clearThumbnailCache(); setShowRefreshMenu(false); }}
+                         <button 
+                           type="button"
+                           onClick={() => { clearThumbnailCache(); setShowRefreshMenu(false); }}
                           className={menuItemClasses}
                         >
                           <Trash2 size={16} className="opacity-60" />
                           <span>{t('filemanager.thumbnail.clearAll')}</span>
                         </button>
                         {isAdmin && (
-                          <button 
-                            onClick={() => { clearThumbnailCacheAllUsers(); setShowRefreshMenu(false); }}
+                           <button 
+                             type="button"
+                             onClick={() => { clearThumbnailCacheAllUsers(); setShowRefreshMenu(false); }}
                             className={cn(menuItemClasses, "text-red-500 hover:bg-red-500/10")}
                           >
                             <Trash2 size={16} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
@@ -18,12 +18,18 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
   const { t } = useTranslation();
   const { actionModal, closeActionModal } = useFileStore();
   const [value, setValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (actionModal.isOpen) {
       setValue(actionModal.defaultValue);
     }
   }, [actionModal.isOpen, actionModal.defaultValue]);
+
+  useEffect(() => {
+    if (!actionModal.isOpen) return;
+    inputRef.current?.focus();
+  }, [actionModal.isOpen]);
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,7 +61,7 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
         <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
           {getIcon()}
           <Input
-            autoFocus
+            ref={inputRef}
             className="flex-1 bg-transparent border-none text-lg p-0 focus-visible:ring-0"
             placeholder={t('filemanager.messages.enterNewName')}
             value={value}

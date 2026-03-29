@@ -58,49 +58,50 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
           <div 
             key={auth.user.id}
             className={cn(
-              "group relative flex items-center justify-between p-4 rounded-[1.5rem] transition-all cursor-pointer border",
+              "group relative rounded-[1.5rem] transition-all border",
               auth.user.id === currentUserId 
                 ? (isDark ? "bg-primary/10 border-primary/30 shadow-lg shadow-primary/5" : "bg-primary/5 border-primary/20 shadow-sm")
                 : (isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10" : "bg-white border-gray-100 hover:bg-gray-50 shadow-sm")
             )}
-            onClick={() => handleSelect(auth.user.id)}
           >
-            <div className="flex items-center gap-4">
-              <div className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner",
-                auth.user.id === currentUserId 
-                  ? "bg-primary text-white" 
-                  : (isDark ? "bg-white/5 text-primary/60" : "bg-primary/10 text-primary")
-              )}>
-                {auth.user.username.charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className={cn("font-black truncate", isDark ? "text-white" : "text-gray-900")}>{auth.user.username}</p>
-                  {auth.user.id === currentUserId && (
-                    <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-primary text-white font-black uppercase tracking-tighter">
-                      {t('auth.activeAccount')}
-                    </span>
-                  )}
+            <button type="button" className="w-full flex items-center justify-between p-4 pr-14 text-left rounded-[1.5rem]" onClick={() => handleSelect(auth.user.id)}>
+              <div className="flex items-center gap-4">
+                <div className={cn(
+                  "w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner",
+                  auth.user.id === currentUserId 
+                    ? "bg-primary text-white" 
+                    : (isDark ? "bg-white/5 text-primary/60" : "bg-primary/10 text-primary")
+                )}>
+                  {auth.user.username.charAt(0).toUpperCase()}
                 </div>
-                <p className="text-sm opacity-40 font-bold uppercase tracking-tighter">
-                  {auth.user.email || t('auth.member')}
-                </p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className={cn("font-black truncate", isDark ? "text-white" : "text-gray-900")}>{auth.user.username}</p>
+                    {auth.user.id === currentUserId && (
+                      <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-primary text-white font-black uppercase tracking-tighter">
+                        {t('auth.activeAccount')}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm opacity-40 font-bold uppercase tracking-tighter">
+                    {auth.user.email || t('auth.member')}
+                  </p>
+                </div>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-1">
+              <ChevronRight size={18} className={cn(
+                "transition-opacity shrink-0",
+                auth.user.id === currentUserId ? "opacity-40" : "opacity-0 group-hover:opacity-20"
+              )} />
+            </button>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
               <button 
+                type="button"
                 onClick={(e) => handleDelete(e, auth.user.id)}
                 className="p-2 rounded-xl text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"
                 title={t('auth.removeAccount')}
               >
                 <Trash2 size={16} />
               </button>
-              <ChevronRight size={18} className={cn(
-                "transition-opacity",
-                auth.user.id === currentUserId ? "opacity-40" : "opacity-0 group-hover:opacity-20"
-              )} />
             </div>
           </div>
         ))}
@@ -108,6 +109,7 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
 
       {showAddButton && (
         <button 
+          type="button"
           onClick={onAddAccount}
           className={cn(
             "w-full h-14 rounded-2xl border-2 border-dashed transition-all flex items-center justify-center gap-3 font-black text-sm opacity-60 hover:opacity-100",

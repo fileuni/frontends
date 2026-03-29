@@ -154,7 +154,9 @@ const VideoCallOverlay: React.FC<{
             autoPlay
             playsInline
             className="w-full h-full object-cover"
-          />
+          >
+            <track kind="captions" />
+          </video>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
             <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center animate-pulse">
@@ -174,13 +176,16 @@ const VideoCallOverlay: React.FC<{
             playsInline
             muted
             className="w-full h-full object-cover mirror"
-          />
+          >
+            <track kind="captions" />
+          </video>
         </div>
 
         {/* Controls */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-6 px-8 py-4 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl">
           <div className="flex flex-col items-center gap-1">
             <button
+              type="button"
               onClick={onClose}
               className="w-14 h-14 rounded-2xl bg-destructive text-destructive-foreground flex items-center justify-center hover:scale-110 active:scale-90 transition-all shadow-lg hover:bg-destructive/90"
             >
@@ -325,6 +330,10 @@ export const ChatUnifiedUI: React.FC = () => {
     }
   }, []);
 
+  const inviteUrl = useCallback((id: string) => {
+    return `${window.location.origin}/#mod=chat&page=guest&invite=${encodeURIComponent(id)}`;
+  }, []);
+
   const handleSaveInvite = useCallback(async () => {
     const expiresAt = new Date(
       Date.now() + inviteDays * 24 * 60 * 60 * 1000,
@@ -359,7 +368,7 @@ export const ChatUnifiedUI: React.FC = () => {
         fetchInvites();
       }
     }
-  }, [editingInvite, inviteDays, inviteDefaultNickname, fetchInvites, t]);
+  }, [editingInvite, inviteDays, inviteDefaultNickname, fetchInvites, inviteUrl, t]);
 
   const handleSoftDelete = useCallback(
     async (id: string) => {
@@ -442,10 +451,6 @@ export const ChatUnifiedUI: React.FC = () => {
     [activeTarget, setActiveTarget, fetchGroups, t],
   );
 
-  const inviteUrl = useCallback((id: string) => {
-    return `${window.location.origin}/#mod=chat&page=guest&invite=${encodeURIComponent(id)}`;
-  }, []);
-
   useEscapeToCloseTopLayer({
     active: isOpen,
     onEscape: () => {
@@ -467,7 +472,7 @@ export const ChatUnifiedUI: React.FC = () => {
   useEffect(() => {
     if (!activeTarget || !isOpen) return;
     markConversationRead(activeTarget);
-  }, [markConversationRead, activeTarget, messages.length, isOpen]);
+  }, [markConversationRead, activeTarget, isOpen]);
 
   useEffect(() => {
     if (activeTarget && window.innerWidth < 768) {
@@ -526,6 +531,7 @@ export const ChatUnifiedUI: React.FC = () => {
             />
             {auth.type !== "guest" && (
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
                 className="w-full aspect-square rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500/20 transition-all mt-2"
               >
@@ -546,6 +552,7 @@ export const ChatUnifiedUI: React.FC = () => {
           <div className="h-16 lg:h-18 border-b border-border flex items-center justify-between px-4 lg:px-5 bg-background shrink-0">
             <div className="flex items-center gap-3">
               <button
+                type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-2 -ml-2 hover:bg-muted rounded-xl transition-colors"
               >
@@ -566,6 +573,7 @@ export const ChatUnifiedUI: React.FC = () => {
             </div>
 
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
               className="md:hidden p-2 hover:bg-muted rounded-xl transition-colors"
             >
@@ -656,6 +664,7 @@ export const ChatUnifiedUI: React.FC = () => {
                       className="h-11 pr-12"
                     />
                     <button
+                      type="button"
                       onClick={handleUpdateNickname}
                       disabled={isUpdatingNickname || !nicknameInput.trim()}
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-primary hover:bg-primary/10 rounded-lg disabled:opacity-30 transition-all"
@@ -750,6 +759,7 @@ export const ChatUnifiedUI: React.FC = () => {
                       </div>
 
                       <button
+                        type="button"
                         onClick={() => {
                           navigator.clipboard.writeText(inviteUrl(inv.id));
                           toast.success(t("chat.copied"));
@@ -930,6 +940,7 @@ export const ChatUnifiedUI: React.FC = () => {
               <div className="h-14 sm:h-16 border-b border-border px-3 sm:px-5 flex items-center justify-between bg-background shrink-0">
                 <div className="flex items-center gap-2 sm:gap-4">
                   <button
+                    type="button"
                     onClick={() => setActiveTarget("")}
                     className="md:hidden p-2 -ml-1 hover:bg-muted rounded-xl transition-colors"
                   >
@@ -937,6 +948,7 @@ export const ChatUnifiedUI: React.FC = () => {
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => setShowSidebar(!showSidebar)}
                     className="hidden md:flex p-2 hover:bg-muted rounded-xl transition-colors"
                   >
@@ -1001,6 +1013,7 @@ export const ChatUnifiedUI: React.FC = () => {
 
                 <div className="flex items-center gap-0.5 sm:gap-1">
                   <button
+                    type="button"
                     onClick={() => openKeyModal(activeTarget)}
                     className={cn(
                       "p-2 sm:p-2.5 rounded-xl transition-all",
@@ -1020,6 +1033,7 @@ export const ChatUnifiedUI: React.FC = () => {
                   {!activeRoom?.isGroup && (
                     <>
                       <button
+                        type="button"
                         onClick={() => handleMediaCall("voice")}
                         disabled={isCalling}
                         className={cn(
@@ -1041,6 +1055,7 @@ export const ChatUnifiedUI: React.FC = () => {
                       </button>
 
                       <button
+                        type="button"
                         onClick={() => handleMediaCall("video")}
                         disabled={isCalling}
                         className={cn(
@@ -1064,6 +1079,7 @@ export const ChatUnifiedUI: React.FC = () => {
                   )}
 
                   <button
+                    type="button"
                     onClick={() => {
                       if (window.confirm(t("chat.confirmClearTargetHistory"))) {
                         clearHistory(activeTarget);
@@ -1075,7 +1091,7 @@ export const ChatUnifiedUI: React.FC = () => {
                     <Trash2 size={16} />
                   </button>
 
-                  <button className="p-2 sm:p-2.5 text-muted-foreground hover:bg-muted rounded-xl transition-all">
+                  <button type="button" className="p-2 sm:p-2.5 text-muted-foreground hover:bg-muted rounded-xl transition-all">
                     <MoreVertical size={16} />
                   </button>
                 </div>
@@ -1104,6 +1120,7 @@ export const ChatUnifiedUI: React.FC = () => {
                       </div>
                     </div>
                     <button
+                      type="button"
                       onClick={() => setQuotingMessage(null)}
                       className="p-1.5 hover:bg-muted rounded-lg shrink-0"
                     >
@@ -1217,6 +1234,7 @@ export const ChatUnifiedUI: React.FC = () => {
           <div className="space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
             {userSearchResults.map((u) => (
               <button
+                type="button"
                 key={u.user_id}
                 onClick={() => {
                   setActiveTarget(u.user_id);
@@ -1332,6 +1350,7 @@ interface NavIconProps {
 
 const NavIcon: React.FC<NavIconProps> = ({ active, onClick, icon }) => (
   <button
+    type="button"
     onClick={onClick}
     className={cn(
       "w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-200",
@@ -1358,6 +1377,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
   label,
 }) => (
   <button
+    type="button"
     onClick={onClick}
     className={cn(
       "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left",
@@ -1389,6 +1409,7 @@ const ActionBtn: React.FC<ActionBtnProps> = ({
 
   return (
     <button
+      type="button"
       onClick={onClick}
       className={cn("p-2 rounded-lg transition-all", variantStyles[variant])}
     >

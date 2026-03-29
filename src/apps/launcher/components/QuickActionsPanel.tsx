@@ -112,6 +112,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
       </h3>
       <div className="flex flex-col gap-2.5">
         <button
+          type="button"
           onClick={onOpenWebUi}
           className={cn(
             "flex items-center gap-3.5 p-3 rounded-xl transition-all duration-300 group border shadow-sm",
@@ -140,6 +141,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
 
         <div className="relative" ref={configMenuRef}>
           <button
+            type="button"
             onClick={() => {
               if (isConfigDisabled) {
                 onConfigDisabled?.();
@@ -187,6 +189,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
               )}
             >
               <button
+                type="button"
                 onClick={() => {
                   onOpenRuntimeDir();
                   setShowConfigMenu(false);
@@ -206,6 +209,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
                 </span>
               </button>
               <button
+                type="button"
                 onClick={() => {
                   onEditConfig();
                   setShowConfigMenu(false);
@@ -226,6 +230,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
               </button>
               {onResetAdminPassword && (
                 <button
+                  type="button"
                   onClick={() => {
                     onResetAdminPassword();
                     setShowConfigMenu(false);
@@ -279,6 +284,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
 
         {onOpenAbout && aboutLabel && (
           <button
+            type="button"
             onClick={onOpenAbout}
             className={cn(
               "flex items-center gap-3.5 p-3 rounded-xl transition-all duration-300 group border shadow-sm",
@@ -316,6 +322,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
               )}
             >
               <button
+                type="button"
                 onClick={onOpenSettingsCenter}
                 disabled={settingsCenterLoading}
                 className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-xs uppercase tracking-[0.2em] transition-all duration-500 shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:grayscale disabled:hover:translate-y-0"

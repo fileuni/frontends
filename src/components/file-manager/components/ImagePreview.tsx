@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BASE_URL } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
@@ -24,16 +24,11 @@ interface Props {
 export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onClose }: Props) => {
   const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const activeFile = playlist[currentIndex];
-  if (!activeFile) {
-    return null;
-  }
-
   const [imgSrc, setImgSrc] = useState<string>('');
   const imgRef = useRef<HTMLImageElement>(null);
-  
   const [showList, setShowList] = useState(true);
   const [transform, setTransform] = useState({ scale: 1, rotate: 0, flipH: false });
+  const activeFile = playlist[currentIndex];
 
   useEscapeToCloseTopLayer({
     active: true,
@@ -49,10 +44,24 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     },
   });
 
-  useEffect(() => {
-    if (!activeFile) return;
+  const handleNavigate = useCallback((idx: number) => {
+    if (idx >= 0 && idx < playlist.length && idx !== currentIndex) {
+      const nextFile = playlist[idx];
+      if (!nextFile) return;
+      setCurrentIndex(idx);
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      params.set('preview_path', nextFile.path);
+      window.location.hash = params.toString();
+    }
+  }, [currentIndex, playlist]);
 
-    // Clear current image first
+  useEffect(() => {
+    if (!activeFile) {
+      setImgSrc('');
+      return;
+    }
+
     setImgSrc('');
     
     const fetchToken = async () => {
@@ -68,20 +77,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     fetchToken();
     document.title = `${activeFile.name} - FileUni`;
     setTransform({ scale: 1, rotate: 0, flipH: false });
-  }, [currentIndex]); // Only depend on currentIndex since activeFile is derived
-
-  const handleNavigate = (idx: number) => {
-    if (idx >= 0 && idx < playlist.length && idx !== currentIndex) {
-      const nextFile = playlist[idx];
-      if (!nextFile) return;
-      setCurrentIndex(idx);
-      // Update URL hash for SPA
-      const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      params.set('preview_path', nextFile.path);
-      window.location.hash = params.toString();
-    }
-  };
+  }, [activeFile]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -90,7 +86,11 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [currentIndex, playlist.length, onClose]);
+  }, [currentIndex, handleNavigate]);
+
+  if (!activeFile) {
+    return null;
+  }
 
   return (
     <div className={cn("h-screen flex flex-col", isDark ? "dark bg-[#050505] text-white" : "bg-white text-zinc-900")}>
@@ -128,6 +128,7 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
             <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
               {playlist.map((f, i) => (
                 <button 
+                    type="button"
                     key={f.path} 
                     onClick={() => handleNavigate(i)} 
                     className={cn(
@@ -167,26 +168,28 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
           <div className="flex-1 flex items-center justify-center overflow-hidden relative p-4 select-none">
             {/* Left Navigation Area */}
             {playlist.length > 1 && currentIndex > 0 && (
-              <div 
-                className="absolute left-0 top-0 bottom-0 w-1/3 flex items-center justify-start pl-4 opacity-0 hover:opacity-100 transition-opacity cursor-pointer z-10"
+              <button
+                type="button"
+                className="absolute left-0 top-0 bottom-0 w-1/3 flex items-center justify-start pl-4 opacity-0 hover:opacity-100 transition-opacity z-10"
                 onClick={() => handleNavigate(currentIndex - 1)}
               >
                 <div className="bg-black/40 backdrop-blur-md p-3 rounded-full hover:bg-black/60 transition-colors">
                   <ChevronLeft size={32} className="text-white" />
                 </div>
-              </div>
+              </button>
             )}
 
             {/* Right Navigation Area */}
             {playlist.length > 1 && currentIndex < playlist.length - 1 && (
-              <div 
-                className="absolute right-0 top-0 bottom-0 w-1/3 flex items-center justify-end pr-4 opacity-0 hover:opacity-100 transition-opacity cursor-pointer z-10"
+              <button
+                type="button"
+                className="absolute right-0 top-0 bottom-0 w-1/3 flex items-center justify-end pr-4 opacity-0 hover:opacity-100 transition-opacity z-10"
                 onClick={() => handleNavigate(currentIndex + 1)}
               >
                 <div className="bg-black/40 backdrop-blur-md p-3 rounded-full hover:bg-black/60 transition-colors">
                   <ChevronRight size={32} className="text-white" />
                 </div>
-              </div>
+              </button>
             )}
 
             {/* Image */}

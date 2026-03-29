@@ -13,7 +13,7 @@ export const Button = React.forwardRef<
     variant?: ButtonVariant;
     size?: ButtonSize;
   }
->(({ className, variant = 'primary', size = 'md', ...props }, ref) => {
+>(({ className, variant = 'primary', size = 'md', type, ...props }, ref) => {
   const variants: Record<ButtonVariant, string> = {
     primary: 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
@@ -31,6 +31,7 @@ export const Button = React.forwardRef<
   return (
     <button
       ref={ref}
+      type={type === 'submit' ? 'submit' : type === 'reset' ? 'reset' : 'button'}
       className={cn(
         'inline-flex items-center justify-center font-black transition-all disabled:opacity-50 disabled:pointer-events-none',
         variants[variant],

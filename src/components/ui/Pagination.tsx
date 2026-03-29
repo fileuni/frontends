@@ -41,6 +41,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   const [showOptions, setShowOptions] = useState(false);
   const [showAllPages, setShowAllPages] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
+  const jumpInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -52,6 +53,11 @@ export const Pagination: React.FC<PaginationProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!showOptions) return;
+    jumpInputRef.current?.focus();
+  }, [showOptions]);
 
   const handleJump = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -117,6 +123,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
               {pageSizeOptions.slice(0, 3).map((size) => (
                 <button
+                  type="button"
                   key={size}
                   onClick={() => onPageSizeChange(size)}
                   className={cn(
@@ -147,13 +154,14 @@ export const Pagination: React.FC<PaginationProps> = ({
           </Button>
 
           <div className="hidden lg:flex items-center gap-1 mx-2">
-            {getPageRange().map((p, i) =>
+            {getPageRange().map((p, i, range) =>
               p === '...' ? (
-                <span key={`sep-${i}`} className="w-8 text-center text-sm font-black opacity-20">
+                <span key={`sep-${current}-${String(range[i - 1] ?? 'start')}-${String(range[i + 1] ?? 'end')}`} className="w-8 text-center text-sm font-black opacity-20">
                   •••
                 </span>
               ) : (
                 <button
+                  type="button"
                   key={`page-${p}`}
                   onClick={() => onPageChange(p as number)}
                   className={cn(
@@ -213,7 +221,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                   </div>
                   <form onSubmit={handleJump} className="flex gap-2">
                     <input
-                      autoFocus
+                      ref={jumpInputRef}
                       value={jumpPage}
                       onChange={(e) => setJumpPage(e.target.value)}
                       placeholder={`1 - ${totalPages}`}
@@ -238,6 +246,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                   <div className="grid grid-cols-4 gap-2">
                     {pageSizeOptions.map((size) => (
                       <button
+                        type="button"
                         key={size}
                         onClick={() => {
                           onPageSizeChange?.(size);
@@ -257,6 +266,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setShowAllPages(!showAllPages)}
                   className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center gap-3 transition-all group"
                 >
@@ -271,6 +281,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 <div className="mt-4 pt-4 border-t border-white/5 max-h-48 overflow-y-auto no-scrollbar grid grid-cols-5 gap-1.5 animate-in fade-in slide-in-from-top-2">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                     <button
+                      type="button"
                       key={`grid-page-${p}`}
                       onClick={() => {
                         onPageChange(p);

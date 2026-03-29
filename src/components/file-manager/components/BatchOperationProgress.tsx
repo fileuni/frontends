@@ -627,9 +627,9 @@ export function BatchOperationProgress({
 
                 {showFailedDetails && (
                   <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {statistics.failed_items.map((item, index) => (
+                    {statistics.failed_items.map((item) => (
                       <div
-                        key={index}
+                        key={`${item.file_path}-${item.error_message}`}
                         className="bg-red-50 dark:bg-red-900/20 rounded p-3"
                       >
                         <div className="text-sm font-medium text-red-700 dark:text-red-300">

@@ -153,7 +153,7 @@ export function useFileActions() {
   }, [
     currentPath, setFiles, setLoading, deselectAll, showShareStatus, fmMode, 
     favoriteFilterColor, sortConfig.field, sortConfig.order, isSearchMode, 
-    searchKeyword, pageSize, store.setPagination, store.getShareFilter, store.getRecentFiles
+    searchKeyword, pageSize, store
   ]);
 
   const toggleFavorite = async (paths: string[], color: number) => {

@@ -24,6 +24,7 @@ export const ProfileView = () => {
   const { addToast } = useToastStore();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [otherPhoneKeys, setOtherPhoneKeys] = useState<string[]>([]);
   
   const [form, setForm] = useState({
     full_name: '',
@@ -49,6 +50,7 @@ export const ProfileView = () => {
           phone: me.phone || '',
           other_phones: me.other_phones || [],
         });
+        setOtherPhoneKeys((me.other_phones || []).map(() => crypto.randomUUID()));
       } catch (e) {
         console.error(e);
         addToast(handleApiError(e, t), 'error');
@@ -57,7 +59,7 @@ export const ProfileView = () => {
       }
     };
     fetchProfile();
-  }, []);
+  }, [addToast, t]);
 
   /**
    * 校验备用电话列表中的非法索引 / Validate invalid indexes in the extra phones list
@@ -107,6 +109,7 @@ export const ProfileView = () => {
         phone: updated.phone || '',
         other_phones: serverOtherPhones,
       });
+      setOtherPhoneKeys(serverOtherPhones.map(() => crypto.randomUUID()));
 
       const changed =
         serverOtherPhones.length !== inputOtherPhones.length ||
@@ -125,6 +128,7 @@ export const ProfileView = () => {
   const addPhone = () => {
     if (form.other_phones.length < 10) {
       setForm({ ...form, other_phones: [...form.other_phones, ''] });
+      setOtherPhoneKeys([...otherPhoneKeys, crypto.randomUUID()]);
     }
   };
 
@@ -144,6 +148,7 @@ export const ProfileView = () => {
 
   const removePhone = (index: number) => {
     setForm({ ...form, other_phones: form.other_phones.filter((_, i) => i !== index) });
+    setOtherPhoneKeys(otherPhoneKeys.filter((_, i) => i !== index));
   };
 
   if (loading) return <DashboardLoading label={t('profile.loading')} className="animate-pulse" />;
@@ -186,14 +191,14 @@ export const ProfileView = () => {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between ml-1">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('profile.extraPhones')}</label>
+                <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('profile.extraPhones')}</div>
                 <button type="button" onClick={addPhone} className="text-sm font-black text-primary flex items-center gap-1 hover:underline">
                   <Plus size={18} /> {t('profile.addNew')}
                 </button>
               </div>
               <div className="space-y-3">
                 {form.other_phones.map((phone, idx) => (
-                  <div key={idx} className="animate-in slide-in-from-left-2">
+                  <div key={otherPhoneKeys[idx] || phone} className="animate-in slide-in-from-left-2">
                     <div className="flex gap-2">
                       <Input 
                         value={phone} 

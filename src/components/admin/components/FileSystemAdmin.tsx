@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@/stores/toast';
@@ -310,7 +310,7 @@ export const FileSystemAdmin = () => {
   const [diagnosticsLoadingId, setDiagnosticsLoadingId] = useState<number | null>(null);
   const [walDiagnostics, setWalDiagnostics] = useState<WalIssueDiagnosticsResponse | null>(null);
 
-  const fetchOverview = async () => {
+  const fetchOverview = useCallback(async () => {
     const [statsRes, maintenanceRes] = await Promise.allSettled([
       extractData<unknown>(client.GET('/api/v1/file/admin/storage-stats')),
       extractData<unknown>(client.GET('/api/v1/file/admin/maintenance/status')),
@@ -323,9 +323,9 @@ export const FileSystemAdmin = () => {
       setMaintenanceStatus(null);
       setLockedUsers([]);
     }
-  };
+  }, []);
 
-  const fetchWalEntries = async () => {
+  const fetchWalEntries = useCallback(async () => {
     setIssuesLoading(true);
     try {
       const data = await extractData<unknown>(
@@ -345,20 +345,23 @@ export const FileSystemAdmin = () => {
         }),
       );
       if (isWalIssueListResponse(data)) {
+        setSelectedWalIds([]);
         setWalEntries(data.items);
         setWalTotal(data.total);
       } else {
+        setSelectedWalIds([]);
         setWalEntries([]);
         setWalTotal(0);
       }
     } catch (e) {
+      setSelectedWalIds([]);
       setWalEntries([]);
       setWalTotal(0);
       addToast(handleApiError(e, t), 'error');
     } finally {
       setIssuesLoading(false);
     }
-  };
+  }, [walPage, walPageSize, walScope, walStatusFilter, walUserFilter, walOperationFilter, walUpdatedFrom, walUpdatedTo, addToast, t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -374,16 +377,12 @@ export const FileSystemAdmin = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [fetchOverview, fetchWalEntries]);
 
   useEffect(() => {
     if (loading) return;
     void fetchWalEntries();
-  }, [loading, walPage, walPageSize, walScope, walStatusFilter, walUserFilter, walOperationFilter, walUpdatedFrom, walUpdatedTo]);
-
-  useEffect(() => {
-    setSelectedWalIds([]);
-  }, [walEntries, walScope, walPage, walPageSize, walStatusFilter, walUserFilter, walOperationFilter, walUpdatedFrom, walUpdatedTo]);
+  }, [loading, fetchWalEntries]);
 
   const refreshAll = async () => {
     setLoading(true);
@@ -825,6 +824,7 @@ export const FileSystemAdmin = () => {
                   { value: 'history' as const, label: t('admin.fs.wal_scope_history') },
                 ].map((item) => (
                   <button
+                    type="button"
                     key={item.value}
                     onClick={() => {
                       setWalScope(item.value);
@@ -843,14 +843,15 @@ export const FileSystemAdmin = () => {
 
               <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
                 <div className="xl:col-span-2 space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_user')}</label>
+                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_user')}</div>
                   <Input value={walUserFilterDraft} onChange={(e) => setWalUserFilterDraft(e.target.value)} placeholder={t('admin.fs.wal_user_filter_placeholder')} className="h-11 font-mono" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_status')}</label>
+                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_status')}</div>
                   <div className="flex flex-wrap gap-2">
                     {walStatusButtons.map((item) => (
                       <button
+                        type="button"
                         key={item.value}
                         onClick={() => {
                           setWalStatusFilter(item.value);
@@ -867,7 +868,7 @@ export const FileSystemAdmin = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_operation')}</label>
+                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_operation')}</div>
                   <select value={walOperationFilter} onChange={(e) => { setWalOperationFilter(e.target.value); setWalPage(1); }} className="w-full h-11 rounded-xl bg-background border border-border px-4 font-bold text-sm">
                     {WAL_OPERATION_OPTIONS.map((item) => (
                       <option key={item} value={item}>{item === 'all' ? t('admin.fs.wal_operation_all') : item}</option>
@@ -875,11 +876,11 @@ export const FileSystemAdmin = () => {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_updated_from')}</label>
+                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_updated_from')}</div>
                   <Input type="datetime-local" value={walUpdatedFromDraft} onChange={(e) => setWalUpdatedFromDraft(e.target.value)} className="h-11" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_updated_to')}</label>
+                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_updated_to')}</div>
                   <Input type="datetime-local" value={walUpdatedToDraft} onChange={(e) => setWalUpdatedToDraft(e.target.value)} className="h-11" />
                 </div>
               </div>
@@ -905,10 +906,10 @@ export const FileSystemAdmin = () => {
               {walScope === 'issues' ? (
                 <div className="rounded-[2rem] border border-white/8 bg-black/20 p-4 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
                   <div className="flex flex-wrap items-center gap-3 text-sm font-bold">
-                    <label className="inline-flex items-center gap-2 opacity-80 cursor-pointer">
-                      <input type="checkbox" checked={allVisibleSelected} onChange={toggleSelectAllVisible} className="h-4 w-4 rounded border-white/20 bg-transparent" />
+                    <div className="inline-flex items-center gap-2 opacity-80">
+                      <input type="checkbox" aria-label={t('admin.fs.wal_select_all_visible')} checked={allVisibleSelected} onChange={toggleSelectAllVisible} className="h-4 w-4 rounded border-white/20 bg-transparent" />
                       <span>{t('admin.fs.wal_select_all_visible')}</span>
-                    </label>
+                    </div>
                     <span className="opacity-40 uppercase tracking-widest">{t('admin.fs.wal_selected_count', { count: selectedWalIds.length })}</span>
                   </div>
                   <div className="flex flex-wrap gap-3">
@@ -1021,9 +1022,9 @@ export const FileSystemAdmin = () => {
                         <div className="space-y-2 min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             {walScope === 'issues' ? (
-                              <label className="inline-flex items-center gap-2 cursor-pointer opacity-80 mr-1">
-                                <input type="checkbox" checked={selected} onChange={() => toggleWalSelection(issue.id)} className="h-4 w-4 rounded border-white/20 bg-transparent" />
-                              </label>
+                              <div className="inline-flex items-center gap-2 opacity-80 mr-1">
+                                <input type="checkbox" aria-label={`${t('admin.fs.wal_select_issue') || 'Select issue'} #${issue.id}`} checked={selected} onChange={() => toggleWalSelection(issue.id)} className="h-4 w-4 rounded border-white/20 bg-transparent" />
+                              </div>
                             ) : null}
                             <Badge variant={badgeVariant}>{issue.status.toUpperCase()}</Badge>
                             <Badge variant="ghost">#{issue.id}</Badge>

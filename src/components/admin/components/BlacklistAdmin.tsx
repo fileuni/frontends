@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@/stores/toast';
@@ -44,11 +44,7 @@ export const BlacklistAdmin = () => {
   // Delete State
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchBlacklist();
-  }, [page, pageSize, guardType, blacklistType]);
-
-  const fetchBlacklist = async () => {
+  const fetchBlacklist = useCallback(async () => {
     setLoading(true);
     try {
       const res = await extractData<PaginatedData<BlacklistItemResponse>>(
@@ -70,7 +66,11 @@ export const BlacklistAdmin = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize, guardType, blacklistType, addToast, t]);
+
+  useEffect(() => {
+    void fetchBlacklist();
+  }, [fetchBlacklist]);
 
   const handleAdd = async () => {
     if (!newValue.trim()) return;
@@ -93,7 +93,7 @@ export const BlacklistAdmin = () => {
       setNewValue('');
       setNewReason('');
       setNewExpiresAt('');
-      fetchBlacklist();
+      void fetchBlacklist();
     } catch (e) {
       addToast(handleApiError(e, t), 'error');
     } finally {
@@ -114,7 +114,7 @@ export const BlacklistAdmin = () => {
         }),
       );
       addToast(t('admin.blacklist.removeSuccess') || 'Removed successfully', 'success');
-      fetchBlacklist();
+      void fetchBlacklist();
     } catch (e) {
       addToast(handleApiError(e, t), 'error');
     } finally {
@@ -156,6 +156,7 @@ export const BlacklistAdmin = () => {
           <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
           <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
             <button 
+              type="button"
               onClick={() => setGuardType('blacklist')}
               className={cn(
                 "px-4 py-2 rounded-lg text-sm font-black uppercase tracking-widest transition-all",
@@ -165,6 +166,7 @@ export const BlacklistAdmin = () => {
               {t('admin.blacklist.tabBlacklist') || 'Blacklist'}
             </button>
             <button 
+              type="button"
               onClick={() => setGuardType('high_risk')}
               className={cn(
                 "px-4 py-2 rounded-lg text-sm font-black uppercase tracking-widest transition-all",
@@ -289,6 +291,7 @@ export const BlacklistAdmin = () => {
                     </td>
                     <td className="px-8 py-6 text-right">
                       <button 
+                        type="button"
                         onClick={() => handleDelete(item)}
                         disabled={isDeleting === item.id}
                         className="p-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all shadow-inner disabled:opacity-50"
@@ -322,7 +325,7 @@ export const BlacklistAdmin = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.guardLevel') || 'Guard Level'}</label>
+              <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.guardLevel') || 'Guard Level'}</div>
               <select 
                 value={newGuardType}
                 onChange={e => setNewGuardType(e.target.value)}
@@ -333,7 +336,7 @@ export const BlacklistAdmin = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.subjectType') || 'Subject Type'}</label>
+              <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.subjectType') || 'Subject Type'}</div>
               <select 
                 value={newBlacklistType}
                 onChange={e => setNewBlacklistType(e.target.value)}
@@ -347,7 +350,7 @@ export const BlacklistAdmin = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.identifierValue') || 'Identifier Value'}</label>
+            <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.identifierValue') || 'Identifier Value'}</div>
             <Input 
               value={newValue}
               onChange={e => setNewValue(e.target.value)}
@@ -357,7 +360,7 @@ export const BlacklistAdmin = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.reason') || 'Reason / Note'}</label>
+            <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.reason') || 'Reason / Note'}</div>
             <Input 
               value={newReason}
               onChange={e => setNewReason(e.target.value)}
@@ -367,7 +370,7 @@ export const BlacklistAdmin = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.expiration') || 'Expiration (Optional)'}</label>
+            <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.expiration') || 'Expiration (Optional)'}</div>
             <Input 
               type="datetime-local"
               value={newExpiresAt}

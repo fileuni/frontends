@@ -47,7 +47,6 @@ export const CertPlanModal = ({
     try {
       const targets = (data.items || []).filter((it) => it.action === 'renew');
       for (const it of targets) {
-        // eslint-disable-next-line no-await-in-loop
         await onRun(it.id);
       }
     } finally {
@@ -166,6 +165,7 @@ export const CertPlanModal = ({
                         <td className="py-3">
                           <div className="flex gap-2 justify-end">
                             <button
+                              type="button"
                               onClick={() => onOpenLogs(it.id)}
                               className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/5 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
                               title={t('admin.domain.certLogs') || 'Logs'}
