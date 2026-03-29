@@ -61,14 +61,14 @@ const ensureLatexJs = (src: string): Promise<LatexJsGlobal> => {
     return Promise.reject(new Error('Latex.js requires a browser environment'));
   }
   const w = window as Window & {
-    __latexJsReadyMap?: Record<string, Promise<LatexJsGlobal>>;
+    __latexJsReadyMap?: Partial<Record<string, Promise<LatexJsGlobal>>>;
     latexjs?: LatexJsGlobal;
   };
-  if (!w.__latexJsReadyMap) {
-    w.__latexJsReadyMap = {};
-  }
-  if (w.__latexJsReadyMap[src]) return w.__latexJsReadyMap[src];
-  w.__latexJsReadyMap[src] = (async () => {
+  const readyMap = w.__latexJsReadyMap ?? {};
+  w.__latexJsReadyMap = readyMap;
+  const existing = readyMap[src];
+  if (existing) return existing;
+  const nextPromise = (async () => {
     await loadLatexScript(src);
     const latexjs = w.latexjs;
     if (!latexjs) {
@@ -76,7 +76,8 @@ const ensureLatexJs = (src: string): Promise<LatexJsGlobal> => {
     }
     return latexjs;
   })();
-  return w.__latexJsReadyMap[src];
+  readyMap[src] = nextPromise;
+  return nextPromise;
 };
 
 export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
@@ -111,7 +112,9 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     if (enableCodeMirror) modes.push('codemirror');
     return modes.length > 0 ? modes : ['codemirror'];
   }, [enableCodeMirror, enableLatexmk, enableLatexjs]);
-  const initialMode = availableModes.includes(defaultMode) ? defaultMode : availableModes[0];
+  const initialMode = availableModes.includes(defaultMode)
+    ? defaultMode
+    : (availableModes[0] ?? 'codemirror');
   const [previewMode, setPreviewMode] = useState<LatexPreviewMode>(initialMode);
   const [modeOpen, setModeOpen] = useState(false);
   const canRender = previewMode === 'latexmk' || previewMode === 'latexjs';
@@ -166,7 +169,10 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
 
   useEffect(() => {
     if (!availableModes.includes(previewMode)) {
-      setPreviewMode(availableModes[0]);
+      const fallbackMode = availableModes[0];
+      if (fallbackMode) {
+        setPreviewMode(fallbackMode);
+      }
     }
   }, [availableModes, previewMode]);
 

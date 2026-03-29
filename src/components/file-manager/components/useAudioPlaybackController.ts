@@ -233,6 +233,7 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
     if (lyricsState.status !== 'ready' || !lyricsState.synced) return -1;
     for (let index = lyricsState.lines.length - 1; index >= 0; index -= 1) {
       const line = lyricsState.lines[index];
+      if (!line) continue;
       if (line.time !== null && currentTime + 0.12 >= line.time) {
         return index;
       }

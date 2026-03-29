@@ -70,12 +70,14 @@ const loadScript = (src: string): Promise<void> => {
 };
 
 const ensurePptxAssets = (cdnBase: string): Promise<void> => {
-  const w = window as Window & { __pptxAssetsReadyMap?: Record<string, Promise<void>> };
-  if (!w.__pptxAssetsReadyMap) {
-    w.__pptxAssetsReadyMap = {};
-  }
-  if (w.__pptxAssetsReadyMap[cdnBase]) return w.__pptxAssetsReadyMap[cdnBase];
-  w.__pptxAssetsReadyMap[cdnBase] = (async () => {
+  const w = window as Window & {
+    __pptxAssetsReadyMap?: Partial<Record<string, Promise<void>>>;
+  };
+  const readyMap = w.__pptxAssetsReadyMap ?? {};
+  w.__pptxAssetsReadyMap = readyMap;
+  const existing = readyMap[cdnBase];
+  if (existing) return existing;
+  const nextPromise = (async () => {
     for (const href of getPptxStyles(cdnBase)) {
       await loadStyle(href);
     }
@@ -83,7 +85,8 @@ const ensurePptxAssets = (cdnBase: string): Promise<void> => {
       await loadScript(src);
     }
   })();
-  return w.__pptxAssetsReadyMap[cdnBase];
+  readyMap[cdnBase] = nextPromise;
+  return nextPromise;
 };
 
 export const PptxLitePreview: React.FC<Props> = ({ path, onClose }) => {
@@ -143,9 +146,10 @@ export const PptxLitePreview: React.FC<Props> = ({ path, onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [path, forceOpen, pptxCdnBase]);
+  }, [forceOpen, officeLimitBytes, path, pptxCdnBase]);
 
   useEffect(() => {
+    if (!path) return;
     setForceOpen(false);
   }, [path]);
 

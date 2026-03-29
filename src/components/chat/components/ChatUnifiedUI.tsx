@@ -791,7 +791,7 @@ export const ChatUnifiedUI: React.FC = () => {
                       className="p-4 bg-background border border-border rounded-xl flex items-center gap-4 group hover:border-primary/30 transition-all shadow-sm"
                     >
                       <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary font-semibold text-lg shrink-0 ring-1 ring-primary/10">
-                        {group.name[0].toUpperCase()}
+                        {group.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{group.name}</p>
@@ -952,7 +952,7 @@ export const ChatUnifiedUI: React.FC = () => {
                     ) : (
                       <span className="text-sm sm:text-base font-semibold">
                         {(nicknames[activeTarget] ||
-                          activeTarget)[0].toUpperCase()}
+                          activeTarget).charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
@@ -1227,7 +1227,7 @@ export const ChatUnifiedUI: React.FC = () => {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary font-semibold text-base ring-1 ring-primary/10">
-                    {(u.nickname || u.username)[0].toUpperCase()}
+                    {(u.nickname || u.username).charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <p className="font-medium">{u.nickname || u.username}</p>

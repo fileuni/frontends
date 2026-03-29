@@ -103,11 +103,15 @@ function applyTextToDocx(xml: string, content: string): string {
     const originalLengths = textNodes.map((node) => (node.textContent ? node.textContent.length : 0));
     let remaining = paragraphText;
     for (let j = 0; j < textNodes.length; j += 1) {
+      const textNode = textNodes[j];
+      if (!textNode) {
+        continue;
+      }
       const isLast = j === textNodes.length - 1;
       const takeLength = isLast ? remaining.length : originalLengths[j] || 0;
       const segment = remaining.slice(0, takeLength);
-      textNodes[j].textContent = segment;
-      textNodes[j].setAttribute('xml:space', 'preserve');
+      textNode.textContent = segment;
+      textNode.setAttribute('xml:space', 'preserve');
       remaining = remaining.slice(segment.length);
     }
   }

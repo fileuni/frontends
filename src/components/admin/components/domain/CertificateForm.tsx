@@ -18,7 +18,7 @@ interface CertificateFormProps {
   onChangeCaProvider: (provider: string) => void;
   accountEmail: string;
   onChangeAccountEmail: (email: string) => void;
-  dnsConfigJson: string;
+  dnsConfigJson?: string;
   onChangeDnsConfig: (json: string) => void;
   providerAccountId?: string;
   onChangeProviderAccountId: (id: string) => void;

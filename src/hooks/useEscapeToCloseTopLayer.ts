@@ -95,7 +95,7 @@ const handleKeyDownCapture = (event: KeyboardEvent) => {
     return;
   }
 
-  // Swallow Escape if any top-layer is open; only the top one can handle it.
+  // Swallow Escape when a top-layer is open; only the top one can handle it.
   event.preventDefault();
   event.stopImmediatePropagation();
 

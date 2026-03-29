@@ -312,9 +312,14 @@ export const ConfigSetEditor: React.FC = () => {
     } catch (e) {
       const errData = extractValidationErrorsFromException(e);
       if (errData.length > 0) {
+        const firstError = errData[0];
+        if (!firstError) {
+          addToast(handleApiError(e, t), "error");
+          return;
+        }
         setValidationErrors(errData);
         addToast(
-          `${t("admin.config.testFailed")}: ${errData[0].message}`,
+          `${t("admin.config.testFailed")}: ${firstError.message}`,
           "error",
         );
       } else {
@@ -356,9 +361,14 @@ export const ConfigSetEditor: React.FC = () => {
     } catch (e) {
       const errData = extractValidationErrorsFromException(e);
       if (errData.length > 0) {
+        const firstError = errData[0];
+        if (!firstError) {
+          addToast(handleApiError(e, t), "error");
+          return;
+        }
         setValidationErrors(errData);
         addToast(
-          `${t("systemConfig.configSet.logs.failed")}: ${errData[0].message}`,
+          `${t("systemConfig.configSet.logs.failed")}: ${firstError.message}`,
           "error",
         );
       } else {

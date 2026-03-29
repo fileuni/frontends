@@ -26,6 +26,7 @@ import {
   isRecord,
   type ConfigObject,
 } from "@/lib/configObject";
+import { getNavigatorPlatformSource } from "@/lib/browserPlatform";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { PerformanceProfilePickerModal } from "./PerformanceProfilePickerModal";
@@ -1332,14 +1333,7 @@ const inferClientRuntimeOs = ():
   if (typeof navigator === "undefined") {
     return "unknown";
   }
-  const navWithUAData = navigator as Navigator & {
-    userAgentData?: { platform?: string };
-  };
-  const platform = (
-    navWithUAData.userAgentData?.platform ??
-    navigator.platform ??
-    navigator.userAgent
-  ).toLowerCase();
+  const platform = getNavigatorPlatformSource().toLowerCase();
   if (platform.includes("linux")) return "linux";
   if (platform.includes("win")) return "windows";
   if (platform.includes("mac") || platform.includes("darwin")) return "macos";

@@ -1081,8 +1081,8 @@ export const ChatProvider: React.FC<{
           // Format B: Welcome, {nickname}
           const ownMatch = welcomeText.match(/^(.*?) \(ID: (.*?) \|/);
           if (ownMatch) {
-            const myNickname = ownMatch[1].trim();
-            const myId = ownMatch[2].trim();
+            const myNickname = ownMatch[1]?.trim() ?? "";
+            const myId = ownMatch[2]?.trim() ?? "";
             if (myNickname && myId)
               setNicknames((prev) => ({ ...prev, [myId]: myNickname }));
           } else if (!welcomeText.includes("(")) {
@@ -1095,8 +1095,8 @@ export const ChatProvider: React.FC<{
             /Inviter: (.*?) \| Name: (.*?)\)/,
           );
           if (inviterMatch) {
-            const iId = inviterMatch[1].trim().toLowerCase();
-            const iName = inviterMatch[2].trim();
+            const iId = inviterMatch[1]?.trim().toLowerCase() ?? "";
+            const iName = inviterMatch[2]?.trim() ?? "";
             if (iId) setInviterId(iId);
             if (iId && iName)
               setNicknames((prev) => ({ ...prev, [iId]: iName }));

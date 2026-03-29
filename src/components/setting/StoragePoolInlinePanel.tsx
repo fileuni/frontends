@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { PasswordInput } from "@/components/common/PasswordInput";
+import { ensureRecord, isRecord, type ConfigObject } from "@/lib/configObject";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
 import { SettingSegmentedControl } from "./SettingSegmentedControl";
 import { useConfigDraftBinding } from "./useConfigDraftBinding";
@@ -109,6 +110,10 @@ const getFieldHintKey = (driver: RemoteDriver, key: string): string => {
     : `systemConfig.setup.storagePool.${driver}Hints.${key}`;
 };
 
+const asRecord = (value: unknown): ConfigObject => {
+  return isRecord(value) ? value : {};
+};
+
 export const StoragePoolInlinePanel: React.FC<Props> = ({
   tomlAdapter,
   content,
@@ -136,26 +141,45 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
     return next;
   }, [normalizedOs]);
   const defaultDriver = driverOptions[0] ?? "fs";
+  const isSupportedDriver = useCallback(
+    (value: unknown): value is Driver => {
+      return (
+        typeof value === "string" &&
+        driverOptions.some((driver) => driver === value)
+      );
+    },
+    [driverOptions],
+  );
 
   const createDraft = useCallback(
     (source: string): PoolItem[] => {
-      const root = tomlAdapter.parse(source) as Record<string, any>;
-      const hub = root?.vfs_storage_hub ?? {};
-      const connectors = Array.isArray(hub.connectors) ? hub.connectors : [];
-      const pools = Array.isArray(hub.pools) ? hub.pools : [];
-      const nextItems: PoolItem[] = pools.map((pool: any, index: number) => {
+      const parsed = tomlAdapter.parse(source);
+      const root = asRecord(parsed);
+      const hub = asRecord(root.vfs_storage_hub);
+      const connectors = Array.isArray(hub.connectors)
+        ? hub.connectors.filter(isRecord)
+        : [];
+      const pools = Array.isArray(hub.pools) ? hub.pools.filter(isRecord) : [];
+      const nextItems: PoolItem[] = pools.map((pool, index) => {
         const connector =
-          connectors.find(
-            (item: any) => item.name === pool.primary_connector,
-          ) ?? {};
-        const optionsRaw = connector.options ?? {};
+          connectors.find((item) => item.name === pool.primary_connector) ?? {};
+        const optionsRaw = asRecord(connector.options);
         return {
-          id: `${pool.name || index}`,
-          name: pool.name ?? `pool-${index + 1}`,
-          driver: driverOptions.includes(connector.driver as Driver)
-            ? (connector.driver as Driver)
+          id:
+            typeof pool.name === "string" && pool.name.length > 0
+              ? pool.name
+              : `${index}`,
+          name:
+            typeof pool.name === "string" && pool.name.length > 0
+              ? pool.name
+              : `pool-${index + 1}`,
+          driver: isSupportedDriver(connector.driver)
+            ? connector.driver
             : defaultDriver,
-          root: connector.root ?? "{RUNTIMEDIR}/vfs",
+          root:
+            typeof connector.root === "string"
+              ? connector.root
+              : "{RUNTIMEDIR}/vfs",
           enabled: typeof pool.enable === "boolean" ? pool.enable : true,
           options: Object.fromEntries(
             Object.entries(optionsRaw).map(([key, value]) => [
@@ -178,14 +202,14 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
             },
           ];
     },
-    [defaultDriver, driverOptions, tomlAdapter],
+    [defaultDriver, isSupportedDriver, tomlAdapter],
   );
 
   const buildContent = useCallback(
     (source: string, nextItems: PoolItem[]) => {
-      const root = tomlAdapter.parse(source) as Record<string, any>;
-      const hub = root.vfs_storage_hub ?? {};
-      root.vfs_storage_hub = hub;
+      const parsed = tomlAdapter.parse(source);
+      const root: ConfigObject = isRecord(parsed) ? parsed : {};
+      const hub = ensureRecord(root, "vfs_storage_hub");
       hub.connectors = nextItems.map((item) => ({
         name: `${item.name}-connector`,
         driver: item.driver,

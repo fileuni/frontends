@@ -84,6 +84,10 @@ export const DdnsPlanModal = ({
 
       for (let i = 0; i < pending.length && inflight.length < max; ) {
         const it = pending[i];
+        if (!it) {
+          i += 1;
+          continue;
+        }
         const pk = it.provider_key || 'unknown';
         const providerBusy = (inflightByProvider.get(pk) || 0) >= 1;
         if (!providerBusy) {

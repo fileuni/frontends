@@ -100,42 +100,46 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
       <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-1 custom-scrollbar">
         {filteredRooms.length > 0 ? (
-          filteredRooms.map((room) => (
-            <button
-              key={room.id}
-              onClick={() => {
-                setActiveTarget(room.id);
-                markConversationRead(room.id);
-              }}
-              className={cn(
-                "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group",
-                activeTarget === room.id
-                  ? "bg-primary/10 border border-primary/20"
-                  : "hover:bg-muted/50 border border-transparent",
-              )}
-            >
-              <div className="relative shrink-0">
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium",
-                    activeTarget === room.id
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {room.isGroup ? (
-                    <Users size={18} />
-                  ) : nicknames[room.id] ? (
-                    nicknames[room.id][0].toUpperCase()
-                  ) : (
-                    <User size={18} />
-                  )}
+          filteredRooms.map((room) => {
+            const nicknameInitial = nicknames[room.id]?.charAt(0).toUpperCase() ?? null;
+
+            return (
+              <button
+                key={room.id}
+                type="button"
+                onClick={() => {
+                  setActiveTarget(room.id);
+                  markConversationRead(room.id);
+                }}
+                className={cn(
+                  "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group",
+                  activeTarget === room.id
+                    ? "bg-primary/10 border border-primary/20"
+                    : "hover:bg-muted/50 border border-transparent",
+                )}
+              >
+                <div className="relative shrink-0">
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium",
+                      activeTarget === room.id
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {room.isGroup ? (
+                      <Users size={18} />
+                    ) : nicknameInitial ? (
+                      nicknameInitial
+                    ) : (
+                      <User size={18} />
+                    )}
+                  </div>
+                  {!room.isGroup &&
+                    onlineUsers.includes(room.id.toLowerCase()) && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />
+                    )}
                 </div>
-                {!room.isGroup &&
-                  onlineUsers.includes(room.id.toLowerCase()) && (
-                    <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />
-                  )}
-              </div>
 
               <div className="flex-1 min-w-0 text-left">
                 <div className="flex items-center justify-between mb-0.5">
@@ -167,8 +171,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                   )}
                 </div>
               </div>
-            </button>
-          ))
+              </button>
+            );
+          })
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-center p-8">
             <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">

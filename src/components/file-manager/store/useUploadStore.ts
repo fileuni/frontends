@@ -66,6 +66,9 @@ export const useUploadStore = create<UploadState>((set) => ({
   reorderTasks: (oldIndex, newIndex) => set(state => {
     const newTasks = [...state.tasks];
     const [removed] = newTasks.splice(oldIndex, 1);
+    if (!removed) {
+      return { tasks: newTasks };
+    }
     newTasks.splice(newIndex, 0, removed);
     return { tasks: newTasks };
   }),

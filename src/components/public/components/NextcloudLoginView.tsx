@@ -21,6 +21,10 @@ type LoginSubmitResult = {
   message?: string;
 };
 
+type FormSubmitEvent = Parameters<
+  NonNullable<React.ComponentProps<'form'>['onSubmit']>
+>[0];
+
 const parseErrorMessage = async (response: Response, fallback: string) => {
   try {
     const data = (await response.json()) as { message?: string };
@@ -62,7 +66,7 @@ export const NextcloudLoginView: React.FC = () => {
     return '/index.php/login/flow';
   }, [mode, token]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormSubmitEvent) => {
     event.preventDefault();
     setSubmitting(true);
     setError('');

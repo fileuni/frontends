@@ -75,6 +75,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
       const relative = entry.path.slice(prefix.length);
       const parts = relative.split('/');
       const name = parts[0];
+      if (!name) continue;
       const isDir = parts.length > 1 || entry.is_dir;
 
       if (!result.has(name)) {

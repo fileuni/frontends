@@ -43,7 +43,7 @@ export const ThemeLanguageControls: React.FC<ThemeLanguageControlsProps> = ({ co
   const langMenuRef = useRef<HTMLDivElement>(null);
 
   const isDark = resolvedTheme === 'dark';
-  const currentI18nLang = (i18n.language || 'en').split('-')[0].toLowerCase();
+  const currentI18nLang = ((i18n.language || 'en').split('-')[0] ?? 'en').toLowerCase();
   const resolvedLang = supportedLanguages.includes(currentI18nLang as typeof supportedLanguages[number])
     ? currentI18nLang as typeof supportedLanguages[number]
     : 'en';

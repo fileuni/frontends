@@ -169,7 +169,7 @@ export const TextPreviewAndEditor = ({
     savingRef.current = true;
     setSaving(true);
     try {
-      let result: { path?: string; fileName?: string } | void;
+      let result: { path?: string; fileName?: string } | void = undefined;
       if (saveContentRequest) {
         result = await saveContentRequest({ path, content: snapshot });
       } else {

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { PasswordInput } from "@/components/common/PasswordInput";
+import { ensureRecord, isRecord, type ConfigObject } from "@/lib/configObject";
 import type {
   CompressionDraft,
   ThumbnailDraft,
@@ -23,6 +24,10 @@ interface BaseProps {
   content: string;
   onContentChange: (value: string) => void;
 }
+
+const asRecord = (value: unknown): ConfigObject => {
+  return isRecord(value) ? value : {};
+};
 
 export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
   tomlAdapter,
@@ -515,20 +520,27 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
   const isDark = useResolvedTheme() === "dark";
   const createDraft = useCallback(
     (source: string): CacheAccelerationDraft => {
-      const root = tomlAdapter.parse(source) as Record<string, any>;
-      const hub = root?.vfs_storage_hub ?? {};
-      const readCache = hub.read_cache ?? {};
-      const writeCache = hub.write_cache ?? {};
+      const parsed = tomlAdapter.parse(source);
+      const root = asRecord(parsed);
+      const hub = asRecord(root.vfs_storage_hub);
+      const readCache = asRecord(hub.read_cache);
+      const writeCache = asRecord(hub.write_cache);
       return {
         readEnable: Boolean(readCache.enable),
         readBackend: readCache.backend === "local_dir" ? "local_dir" : "memory",
-        readLocalDir: readCache.local_dir ?? "{RUNTIMEDIR}/cache/vfs-read",
+        readLocalDir:
+          typeof readCache.local_dir === "string"
+            ? readCache.local_dir
+            : "{RUNTIMEDIR}/cache/vfs-read",
         readCapacityBytes: String(readCache.capacity_bytes ?? 134217728),
         readMaxFileSizeBytes: String(readCache.max_file_size_bytes ?? 2097152),
         readTtlSecs: String(readCache.ttl_secs ?? 1800),
         writeEnable: Boolean(writeCache.enable),
         writeBackend: writeCache.backend === "memory" ? "memory" : "local_dir",
-        writeLocalDir: writeCache.local_dir ?? "{RUNTIMEDIR}/cache/vfs-write",
+        writeLocalDir:
+          typeof writeCache.local_dir === "string"
+            ? writeCache.local_dir
+            : "{RUNTIMEDIR}/cache/vfs-write",
         writeCapacityBytes: String(writeCache.capacity_bytes ?? 100663296),
         writeMaxFileSizeBytes: String(writeCache.max_file_size_bytes ?? 262144),
         writeFlushConcurrency: String(writeCache.flush_concurrency ?? 2),
@@ -541,9 +553,9 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
 
   const buildContent = useCallback(
     (source: string, next: CacheAccelerationDraft) => {
-      const root = tomlAdapter.parse(source) as Record<string, any>;
-      const hub = root.vfs_storage_hub ?? {};
-      root.vfs_storage_hub = hub;
+      const parsed = tomlAdapter.parse(source);
+      const root: ConfigObject = isRecord(parsed) ? parsed : {};
+      const hub = ensureRecord(root, "vfs_storage_hub");
       hub.read_cache = {
         enable: next.readEnable,
         backend: next.readBackend,

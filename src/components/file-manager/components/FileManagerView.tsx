@@ -50,16 +50,15 @@ export const FileManagerView = () => {
 
   const store = useFileStore();
   const {
-    setCurrentPath, files, showShareStatus, openActionModal, closeActionModal,
-    fmMode, setFmMode, favoriteFilterColor, addToRecentFiles, pagination, actionModal
+    setCurrentPath, files, openActionModal, closeActionModal,
+    fmMode, setFmMode, addToRecentFiles, pagination, actionModal,
+    addToClipboard,
   } = store;
 
   const currentPath = store.getCurrentPath();
   const clipboard = store.getClipboard();
-  const sortConfig = store.getSortConfig();
   const isSearchMode = store.getIsSearchMode();
   const searchKeyword = store.getSearchKeyword();
-  const pageSize = store.getPageSize();
   const { addToast } = useToastStore();
   const { selectedIds, deselectAll, selectAll } = useSelectionStore();
   const { play: playAudio } = useAudioStore();
@@ -92,6 +91,9 @@ export const FileManagerView = () => {
   const [pendingDeletePaths, setPendingDeletePaths] = useState<string[]>([]);
   const [propertiesFile, setPropertiesFile] = useState<FileInfo | null>(null);
   const isSyncingRef = useRef(false);
+  const handleActionRef = useRef<
+    (action: string, target: FileInfo | null) => void
+  >(() => undefined);
 
   useEffect(() => {
     isSyncingRef.current = true;
@@ -166,17 +168,13 @@ export const FileManagerView = () => {
   useEffect(() => {
     if (!isReady) return;
     loadFiles(fmMode === 'files' ? currentPath : '');
-  }, [
-    fmMode, currentPath, showShareStatus, favoriteFilterColor, 
-    sortConfig.field, sortConfig.order, isSearchMode, 
-    searchKeyword, pageSize, isReady
-  ]);
+  }, [currentPath, fmMode, isReady, loadFiles]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      // If any top-layer modal/overlay is open, let it handle Escape (and other keys).
+      // If a top-layer modal or overlay is open, let it handle Escape and related keys.
       if (isAnyEscLayerOpen()) return;
 
       const isAnyModalOpen = actionModal.isOpen || activeShareFile || propertiesFile || browsingArchivePath || archiveOpModal.isOpen;
@@ -202,7 +200,7 @@ export const FileManagerView = () => {
             delete_behavior: f?.delete_behavior,
           };
         });
-        store.addToClipboard(copyItems);
+        addToClipboard(copyItems);
         addToast(t('filemanager.messages.addedToClipboardCopy'), "success");
         deselectAll();
       }
@@ -221,30 +219,30 @@ export const FileManagerView = () => {
             delete_behavior: f?.delete_behavior,
           };
         });
-        store.addToClipboard(cutItems);
+        addToClipboard(cutItems);
         addToast(t('filemanager.messages.addedToClipboardCut'), "success");
         deselectAll();
       }
       if (isMod && e.key.toLowerCase() === 'v' && clipboard.length > 0 && fmMode === 'files') {
         e.preventDefault();
-        handleAction("paste", null);
+        handleActionRef.current("paste", null);
       }
       if (e.key === 'F2' && selectedIds.size === 1) {
         const path = Array.from(selectedIds)[0];
         const targetFile = files.find(f => f.path === path);
-        if (targetFile) handleAction("rename", targetFile);
+        if (targetFile) handleActionRef.current("rename", targetFile);
       }
       if ((e.key === 'Delete' || (e.key === 'Backspace' && isMod)) && paths.length > 0) {
         e.preventDefault();
-        handleAction("delete", null);
+        handleActionRef.current("delete", null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
-    selectedIds, files, clipboard, currentPath, fmMode, 
+    selectedIds, files, clipboard, fmMode,
     actionModal, activeShareFile, propertiesFile, browsingArchivePath, archiveOpModal,
-    selectAll, deselectAll, addToast, t
+    selectAll, deselectAll, addToast, t, addToClipboard
   ]);
 
   const handleAction = (action: string, target: FileInfo | null) => {
@@ -325,7 +323,7 @@ export const FileManagerView = () => {
             delete_behavior: f?.delete_behavior,
           };
         });
-        store.addToClipboard(items);
+        addToClipboard(items);
         deselectAll();
         break;
       }
@@ -369,9 +367,10 @@ export const FileManagerView = () => {
       case "thumb_disable": if (target) setThumbnailDisabled(target.path, true); break;
       case "thumb_enable": if (target) setThumbnailDisabled(target.path, false); break;
       case "toggle_favorite": if (target) toggleFavorite([target.path], target.favorite_color === 0 ? 1 : 0); break;
-      default: if (action.startsWith("favorite_")) { const color = parseInt(action.split("_")[1]); toggleFavorite(paths, color); } break;
+      default: if (action.startsWith("favorite_")) { const colorText = action.split("_")[1]; if (!colorText) break; const color = parseInt(colorText, 10); toggleFavorite(paths, color); } break;
     }
   };
+  handleActionRef.current = handleAction;
 
   const handleModalSubmit = (value: string) => {
     if (actionModal.type === "create_file") createFile(value);
@@ -396,7 +395,8 @@ export const FileManagerView = () => {
   };
 
   const openArchiveOperationModal = (mode: 'compress' | 'decompress', paths: string[]) => {
-    setArchiveOpModal({ isOpen: true, mode, paths, defaultTargetPath: currentPath, defaultArchiveName: mode === 'compress' ? (paths.length === 1 ? paths[0].split('/').pop()?.replace(/\.[^.]+$/, '') || 'archive' : 'archive') : 'archive' });
+    const firstPath = paths[0];
+    setArchiveOpModal({ isOpen: true, mode, paths, defaultTargetPath: currentPath, defaultArchiveName: mode === 'compress' ? (paths.length === 1 && firstPath ? firstPath.split('/').pop()?.replace(/\.[^.]+$/, '') || 'archive' : 'archive') : 'archive' });
   };
 
   const handleArchiveOperationSubmit = async (payload: ArchiveOperationSubmitPayload) => {
@@ -537,7 +537,7 @@ export const FileManagerView = () => {
   }
 
   return (
-    <div className="flex flex-col bg-background h-screen relative overflow-hidden" onClick={() => setContextMenu(null)}>
+    <div className="flex flex-col bg-background h-screen relative overflow-hidden">
       {!isMinimal && <FileManagerTabs />}
       <div className="flex flex-col flex-1 overflow-hidden bg-background px-4">
         <FileManagerToolbar />
@@ -579,6 +579,14 @@ export const FileManagerView = () => {
         </div>
         {contextMenu && <FileManagerContextMenu x={contextMenu.x} y={contextMenu.y} target={contextMenu.target} onClose={() => setContextMenu(null)} onAction={handleAction} />}
       </div>
+      {contextMenu && (
+        <button
+          type="button"
+          aria-label={t('common.close')}
+          className="absolute inset-0 z-[190] cursor-default bg-transparent"
+          onClick={() => setContextMenu(null)}
+        />
+      )}
 
       <FilePropertiesModal file={propertiesFile} onClose={() => setPropertiesFile(null)} />
       <ShareModal isOpen={!!activeShareFile} onClose={() => setActiveShareFile(null)} file={activeShareFile} />

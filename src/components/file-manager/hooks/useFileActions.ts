@@ -212,10 +212,13 @@ export function useFileActions() {
         if (task.status === 'success') {
           await loadFiles();
           if (expectedPaths && expectedPaths.length > 0) {
+            const firstExpectedPath = expectedPaths[0];
             // Give some time for list to load
-            setTimeout(() => {
-              store.setHighlightedPath(expectedPaths[0]);
-            }, 100);
+            if (firstExpectedPath) {
+              setTimeout(() => {
+                store.setHighlightedPath(firstExpectedPath);
+              }, 100);
+            }
           }
           return true;
         } else if (task.status === 'failed' || task.status === 'interrupted') {
@@ -334,7 +337,8 @@ export function useFileActions() {
           removeFiles(paths);
           // If target is current directory, refresh
           if (targetDir === currentPath) await loadFiles();
-          if (expectedPaths.length > 0) store.setHighlightedPath(expectedPaths[0]);
+          const firstExpectedPath = expectedPaths[0];
+          if (firstExpectedPath) store.setHighlightedPath(firstExpectedPath);
         }
       }
     } catch (e) {
@@ -367,7 +371,8 @@ export function useFileActions() {
           waitForTask(taskId, expectedPaths);
         } else {
           await loadFiles();
-          if (expectedPaths.length > 0) store.setHighlightedPath(expectedPaths[0]);
+          const firstExpectedPath = expectedPaths[0];
+          if (firstExpectedPath) store.setHighlightedPath(firstExpectedPath);
         }
       }
     } catch (e) {

@@ -106,7 +106,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
         const prevMsg = idx > 0 ? filteredMessages[idx - 1] : undefined;
         const showDate = shouldShowDate(msg, prevMsg);
         const showAvatar =
-          idx === 0 || filteredMessages[idx - 1].from !== msg.from || showDate;
+          idx === 0 || prevMsg?.from !== msg.from || showDate;
 
         if (isSystem) {
           const isTransportSwitch = msg.id.startsWith("trans_");
@@ -183,7 +183,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                   !showAvatar && "opacity-0",
                 )}
               >
-                {(nicknames[msg.from] || msg.from)[0].toUpperCase()}
+                {(nicknames[msg.from] || msg.from).charAt(0).toUpperCase()}
               </div>
 
               <div

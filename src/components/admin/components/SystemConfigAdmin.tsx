@@ -277,9 +277,14 @@ export const SystemConfigAdmin = () => {
       console.error("Config test exception:", e);
       const errData = extractValidationErrorsFromException(e);
       if (errData.length > 0) {
+        const firstError = errData[0];
+        if (!firstError) {
+          addToast(handleApiError(e, t), "error");
+          return;
+        }
         setValidationErrors(errData);
         addToast(
-          `${t("admin.config.testFailed")}: ${errData[0].message}`,
+          `${t("admin.config.testFailed")}: ${firstError.message}`,
           "error",
         );
       } else {
@@ -377,8 +382,16 @@ export const SystemConfigAdmin = () => {
       console.error("Config reload exception:", e);
       const errData = extractValidationErrorsFromException(e);
       if (errData.length > 0) {
+        const firstError = errData[0];
+        if (!firstError) {
+          const summary = handleApiError(e, t);
+          setReloadSummary(summary);
+          setReloadSummaryLevel("error");
+          addToast(summary, "error");
+          return;
+        }
         setValidationErrors(errData);
-        const summary = `${t("admin.config.reloadFailed")}: ${errData[0].message}`;
+        const summary = `${t("admin.config.reloadFailed")}: ${firstError.message}`;
         setReloadSummary(summary);
         setReloadSummaryLevel("error");
         addToast(summary, "error");

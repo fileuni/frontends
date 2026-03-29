@@ -5,7 +5,12 @@ import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { PasswordInput } from "@/components/common/PasswordInput";
-import { ensureRecord, type ConfigObject } from "@/lib/configObject";
+import {
+  deepClone,
+  ensureRecord,
+  isRecord,
+  type ConfigObject,
+} from "@/lib/configObject";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
 import { PerformanceProfilePickerModal } from "./PerformanceProfilePickerModal";
 import { useConfigDraftBinding } from "./useConfigDraftBinding";
@@ -85,6 +90,8 @@ type FeatureToggleKey =
   | "bloomWarmup";
 
 type FeatureToggleState = Record<FeatureToggleKey, boolean>;
+type PreviewEntry = { label: string; path: string; value: string };
+type ConfigItem = { path: string; value: unknown };
 
 const featureToggleOrder: FeatureToggleKey[] = [
   "compression",
@@ -96,6 +103,56 @@ const featureToggleOrder: FeatureToggleKey[] = [
   "webdav",
   "bloomWarmup",
 ];
+
+const asRecord = (value: unknown): ConfigObject => {
+  return isRecord(value) ? value : {};
+};
+
+const displayValue = (value: unknown): string => {
+  return value === null || typeof value === "undefined" ? "-" : String(value);
+};
+
+const applyNestedConfigValue = (
+  target: ConfigObject,
+  keys: string[],
+  rawValue: string,
+): void => {
+  let current = target;
+  for (let index = 0; index < keys.length - 1; index += 1) {
+    const key = keys[index];
+    if (!key || key === "*") {
+      continue;
+    }
+    current = ensureRecord(current, key);
+  }
+
+  const lastKey = keys[keys.length - 1];
+  if (!lastKey || lastKey === "*") {
+    return;
+  }
+
+  const numericValue = Number(rawValue);
+  current[lastKey] = Number.isNaN(numericValue) ? rawValue : numericValue;
+};
+
+const flattenConfigValues = (
+  source: unknown,
+  prefix: string,
+  result: Map<string, string>,
+): void => {
+  if (!isRecord(source)) {
+    return;
+  }
+
+  for (const [key, value] of Object.entries(source)) {
+    const fullPath = prefix ? `${prefix}.${key}` : key;
+    if (isRecord(value)) {
+      flattenConfigValues(value, fullPath, result);
+      continue;
+    }
+    result.set(fullPath, String(value));
+  }
+};
 
 const deriveFeatureToggleState = (draft: FriendlyDraft): FeatureToggleState => {
   const preset = getPresetByTier(draft.performanceTier);
@@ -118,34 +175,38 @@ const readFeatureToggleStateFromConfig = (
   config: ConfigObject | null | undefined,
   fallback: FeatureToggleState,
 ): FeatureToggleState => {
-  const source = (config ?? {}) as any;
-  const vfs = source.vfs_storage_hub ?? {};
-  const taskRegistry = source.task_registry ?? {};
+  const source: ConfigObject = config ?? {};
+  const vfs = asRecord(source.vfs_storage_hub);
+  const fileCompress = asRecord(vfs.file_compress);
+  const taskRegistry = asRecord(source.task_registry);
+  const bloomFilterWarmup = asRecord(taskRegistry.bloom_filter_warmup);
+  const chatManager = asRecord(source.chat_manager);
+  const emailManager = asRecord(source.email_manager);
 
   return {
     compression:
-      typeof vfs.file_compress?.enable === "boolean"
-        ? vfs.file_compress.enable
+      typeof fileCompress.enable === "boolean"
+        ? fileCompress.enable
         : fallback.compression,
     sftp:
       typeof vfs.enable_sftp === "boolean" ? vfs.enable_sftp : fallback.sftp,
     ftp: typeof vfs.enable_ftp === "boolean" ? vfs.enable_ftp : fallback.ftp,
     s3: typeof vfs.enable_s3 === "boolean" ? vfs.enable_s3 : fallback.s3,
     chat:
-      typeof source.chat_manager?.enabled === "boolean"
-        ? source.chat_manager.enabled
+      typeof chatManager.enabled === "boolean"
+        ? chatManager.enabled
         : fallback.chat,
     email:
-      typeof source.email_manager?.enabled === "boolean"
-        ? source.email_manager.enabled
+      typeof emailManager.enabled === "boolean"
+        ? emailManager.enabled
         : fallback.email,
     webdav:
       typeof vfs.enable_webdav === "boolean"
         ? vfs.enable_webdav
         : fallback.webdav,
     bloomWarmup:
-      typeof taskRegistry.bloom_filter_warmup?.enabled === "boolean"
-        ? taskRegistry.bloom_filter_warmup.enabled
+      typeof bloomFilterWarmup.enabled === "boolean"
+        ? bloomFilterWarmup.enabled
         : fallback.bloomWarmup,
   };
 };
@@ -155,7 +216,7 @@ const applyFeatureToggleStateToConfig = (
   toggles: FeatureToggleState,
   draft: FriendlyDraft,
 ): ConfigObject => {
-  const next = config as any;
+  const next = config;
   const vfs = ensureRecord(next, "vfs_storage_hub");
   const fileCompress = ensureRecord(vfs, "file_compress");
   const taskRegistry = ensureRecord(next, "task_registry");
@@ -300,7 +361,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
   const toggleFeature = (key: FeatureToggleKey, enabled: boolean) => {
     if (!parsed.value) return;
     const next = applyFeatureToggleStateToConfig(
-      JSON.parse(JSON.stringify(parsed.value)) as ConfigObject,
+      deepClone(parsed.value),
       { ...currentFeatureToggles, [key]: enabled },
       {
         performanceTier: selectedTier ?? "lightweight",
@@ -349,17 +410,23 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
 
   const extractSummaryFromConfig = useMemo(
     () =>
-      (cfg: any): Array<{ label: string; path: string; value: string }> => {
-        const db = cfg?.database ?? {};
-        const kv = cfg?.fast_kv_storage_hub ?? {};
-        const middleware = cfg?.middleware ?? {};
-        const bruteForce = middleware.brute_force ?? {};
-        const captcha = cfg?.captcha_code ?? {};
+      (cfg: ConfigObject | null | undefined): PreviewEntry[] => {
+        const source: ConfigObject = cfg ?? {};
+        const db = asRecord(source.database);
+        const sqliteConfig = asRecord(db.sqlite_config);
+        const postgresConfig = asRecord(db.postgres_config);
+        const kv = asRecord(source.fast_kv_storage_hub);
+        const middleware = asRecord(source.middleware);
+        const bruteForce = asRecord(middleware.brute_force);
+        const captcha = asRecord(source.captcha_code);
+        const sftpServ = asRecord(source.file_manager_serv_sftp);
+        const ftpServ = asRecord(source.file_manager_serv_ftp);
+        const s3Serv = asRecord(source.file_manager_serv_s3);
         return [
           {
             label: t("admin.config.quickSettings.performance.preview.dbPool"),
             path: "database.*.max_connections",
-            value: `${db.sqlite_config?.max_connections ?? db.postgres_config?.max_connections ?? "-"} / ${db.sqlite_config?.min_connections ?? db.postgres_config?.min_connections ?? "-"}`,
+            value: `${displayValue(sqliteConfig.max_connections ?? postgresConfig.max_connections)} / ${displayValue(sqliteConfig.min_connections ?? postgresConfig.min_connections)}`,
           },
           {
             label: t(
@@ -373,42 +440,42 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
               "admin.config.quickSettings.performance.preview.bruteForceLockout",
             ),
             path: "middleware.brute_force.lockout_secs",
-            value: `${bruteForce.lockout_secs ?? "-"}`,
+            value: displayValue(bruteForce.lockout_secs),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.captchaPreheatPool",
             ),
             path: "captcha_code.graphic_cache_size",
-            value: `${captcha.graphic_cache_size ?? "-"}`,
+            value: displayValue(captcha.graphic_cache_size),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.captchaGenConcurrency",
             ),
             path: "captcha_code.graphic_gen_concurrency",
-            value: `${captcha.graphic_gen_concurrency ?? "-"}/${captcha.max_gen_concurrency ?? "-"}`,
+            value: `${displayValue(captcha.graphic_gen_concurrency)}/${displayValue(captcha.max_gen_concurrency)}`,
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.sftpMaxConnections",
             ),
             path: "file_manager_serv_sftp.max_connections",
-            value: `${cfg?.file_manager_serv_sftp?.max_connections ?? "-"}`,
+            value: displayValue(sftpServ.max_connections),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.ftpMaxConnections",
             ),
             path: "file_manager_serv_ftp.max_connections",
-            value: `${cfg?.file_manager_serv_ftp?.max_connections ?? "-"}`,
+            value: displayValue(ftpServ.max_connections),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.s3MaxConnections",
             ),
             path: "file_manager_serv_s3.max_connections",
-            value: `${cfg?.file_manager_serv_s3?.max_connections ?? "-"}`,
+            value: displayValue(s3Serv.max_connections),
           },
         ];
       },
@@ -418,10 +485,10 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
   const summaryEntries: SummaryEntry[] = useMemo(() => {
     const currentEntries = extractSummaryFromConfig(parsed.value);
     if (!selectedTier || !parsed.value) {
-      return currentEntries.map((e) => ({
+      return currentEntries.map<SummaryEntry>((e) => ({
         ...e,
         currentValue: e.value,
-        templateValue: null as string | null,
+        templateValue: null,
       }));
     }
     const templateId =
@@ -442,7 +509,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
     );
     const templateFeatures = deriveFeatureToggleState(templateDraft);
     const templateFull = applyFeatureToggleStateToConfig(
-      templateConfig as ConfigObject,
+      templateConfig,
       templateFeatures,
       templateDraft,
     );
@@ -511,40 +578,30 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
 
   const applyParamEdit = () => {
     if (!editingParam || !parsed.value) return;
-    const cfg = JSON.parse(JSON.stringify(parsed.value));
+    const cfg = deepClone(parsed.value);
     const parts = editingParam.path.split(".");
-    const setNestedValue = (obj: any, keys: string[], val: string) => {
-      for (let i = 0; i < keys.length - 1; i++) {
-        const k = keys[i];
-        if (k === "*") continue;
-        if (!obj[k] || typeof obj[k] !== "object") obj[k] = {};
-        obj = obj[k];
-      }
-      const lastKey = keys[keys.length - 1];
-      const numVal = Number(val);
-      obj[lastKey] = Number.isNaN(numVal) ? val : numVal;
-    };
     if (!editingParam.path.includes("*")) {
-      setNestedValue(cfg, parts, editingValue);
+      applyNestedConfigValue(cfg, parts, editingValue);
     }
     onContentChange(tomlAdapter.stringify(cfg));
     closeParamEditor();
   };
 
   const allConfigItems = useMemo(() => {
-    const cfg = (parsed.value ?? {}) as any;
-    const database = cfg.database ?? {};
-    const kv = cfg.fast_kv_storage_hub ?? {};
-    const vfs = cfg.vfs_storage_hub ?? {};
-    const plus = (cfg.extension_manager ?? {}).plus ?? {};
-    const captcha = cfg.captcha_code ?? {};
-    const middleware = cfg.middleware ?? {};
-    const bruteForce = middleware.brute_force ?? {};
-    const ipRate = middleware.ip_rate_limit ?? {};
-    const clientRate = middleware.client_id_rate_limit ?? {};
-    const userRate = middleware.user_id_rate_limit ?? {};
-    const sqlite = database.sqlite_config ?? {};
-    const postgres = database.postgres_config ?? {};
+    const cfg: ConfigObject = parsed.value ?? {};
+    const database = asRecord(cfg.database);
+    const kv = asRecord(cfg.fast_kv_storage_hub);
+    const vfs = asRecord(cfg.vfs_storage_hub);
+    const extensionManager = asRecord(cfg.extension_manager);
+    const plus = asRecord(extensionManager.plus);
+    const captcha = asRecord(cfg.captcha_code);
+    const middleware = asRecord(cfg.middleware);
+    const bruteForce = asRecord(middleware.brute_force);
+    const ipRate = asRecord(middleware.ip_rate_limit);
+    const clientRate = asRecord(middleware.client_id_rate_limit);
+    const userRate = asRecord(middleware.user_id_rate_limit);
+    const sqlite = asRecord(database.sqlite_config);
+    const postgres = asRecord(database.postgres_config);
     return [
       { path: "database.db_type", value: database.db_type },
       {
@@ -607,15 +664,15 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
       },
       {
         path: "internal_notify.unread_count_cache_ttl",
-        value: cfg.internal_notify?.unread_count_cache_ttl,
+        value: asRecord(cfg.internal_notify).unread_count_cache_ttl,
       },
       {
         path: "internal_notify.retention_days",
-        value: cfg.internal_notify?.retention_days,
+        value: asRecord(cfg.internal_notify).retention_days,
       },
       {
         path: "system_backup.max_backup_size_mb",
-        value: cfg.system_backup?.max_backup_size_mb,
+        value: asRecord(cfg.system_backup).max_backup_size_mb,
       },
       {
         path: "middleware.ip_rate_limit.window_secs",
@@ -683,24 +740,27 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
         path: "middleware.brute_force.enable_exponential_backoff",
         value: bruteForce.enable_exponential_backoff,
       },
-      { path: "memory_allocator.policy", value: cfg.memory_allocator?.policy },
+      {
+        path: "memory_allocator.policy",
+        value: asRecord(cfg.memory_allocator).policy,
+      },
       {
         path: "safeaccess_guard.bloom_filter_capacity",
-        value: cfg.safeaccess_guard?.bloom_filter_capacity,
+        value: asRecord(cfg.safeaccess_guard).bloom_filter_capacity,
       },
       {
         path: "file_manager_serv_sftp.max_connections",
-        value: cfg.file_manager_serv_sftp?.max_connections,
+        value: asRecord(cfg.file_manager_serv_sftp).max_connections,
       },
       {
         path: "file_manager_serv_ftp.max_connections",
-        value: cfg.file_manager_serv_ftp?.max_connections,
+        value: asRecord(cfg.file_manager_serv_ftp).max_connections,
       },
       {
         path: "file_manager_serv_s3.max_connections",
-        value: cfg.file_manager_serv_s3?.max_connections,
+        value: asRecord(cfg.file_manager_serv_s3).max_connections,
       },
-    ].filter((item) => item.value !== undefined);
+    ].filter((item): item is ConfigItem => item.value !== undefined);
   }, [parsed.value]);
 
   const groupLabelMap: Record<string, string> = useMemo(
@@ -777,24 +837,13 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
     );
     const templateFeatures = deriveFeatureToggleState(templateDraft);
     const templateFull = applyFeatureToggleStateToConfig(
-      templateConfig as ConfigObject,
+      templateConfig,
       templateFeatures,
       templateDraft,
-    ) as any;
+    );
 
     const result = new Map<string, string>();
-    const extract = (obj: any, prefix: string) => {
-      if (!obj || typeof obj !== "object") return;
-      for (const [k, v] of Object.entries(obj)) {
-        const fullPath = prefix ? `${prefix}.${k}` : k;
-        if (v !== null && typeof v === "object" && !Array.isArray(v)) {
-          extract(v, fullPath);
-        } else {
-          result.set(fullPath, String(v));
-        }
-      }
-    };
-    extract(templateFull, "");
+    flattenConfigValues(templateFull, "", result);
     return result;
   }, [selectedTier, selectedLoadProfile, parsed.value, fallbackPolicy]);
 
@@ -1695,11 +1744,11 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
             : "border-slate-200 bg-slate-100",
         )}
       >
-        {[
+        {([
           ["database", "systemConfig.setup.config.kvSqlHint"],
           ["dashmap", "systemConfig.setup.config.kvDashmapHint"],
           ["external", "systemConfig.setup.config.kvRedisHint"],
-        ].map(([type, hintKey]) => (
+        ] as const).map(([type, hintKey]) => (
           <button
             key={type}
             type="button"

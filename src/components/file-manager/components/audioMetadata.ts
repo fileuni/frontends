@@ -77,7 +77,9 @@ const removeUnsynchronisation = (bytes: Uint8Array) => {
       index += 1;
       continue;
     }
-    output.push(bytes[index]);
+    const byte = bytes[index];
+    if (typeof byte !== 'number') continue;
+    output.push(byte);
   }
   return new Uint8Array(output);
 };

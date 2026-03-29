@@ -13,6 +13,13 @@ export type ToolState = {
 
 export type PersistedToolState = Omit<ToolState, 'version' | 'downloadUrl'>;
 
+export const createEmptyToolState = (): ToolState => ({
+  version: '',
+  downloadUrl: '',
+  binPath: '',
+  proxy: '',
+});
+
 export const extOverridesKey = (userId: string): string => `ext-ui-overrides-v2:${userId}`;
 
 export const restoreToolStateMap = (
@@ -30,8 +37,9 @@ export const restoreToolStateMap = (
     Object.keys(payload).forEach((tool) => {
       const v = payload[tool];
       if (!v || typeof v !== 'object') return;
+      const currentState = next[tool] ?? createEmptyToolState();
       next[tool] = {
-        ...next[tool],
+        ...currentState,
         ...(v as Partial<PersistedToolState>),
         version: '',
         downloadUrl: '',

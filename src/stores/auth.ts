@@ -5,8 +5,8 @@ import { storageHub } from '@/lib/storageHub';
 interface User {
   id: string;
   username: string;
-  email?: string;
-  full_name?: string;
+  email?: string | null;
+  full_name?: string | null;
   role_id: number;
 }
 

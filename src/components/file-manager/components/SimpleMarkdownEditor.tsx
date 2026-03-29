@@ -152,6 +152,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
   const readyNotifiedRef = useRef(false);
 
   useEffect(() => {
+    if (!path) return;
     setIsEditing(defaultEditing);
     readyNotifiedRef.current = false;
   }, [path, defaultEditing]);
@@ -228,7 +229,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
     savingRef.current = true;
     setSaving(true);
     try {
-      let result: SaveResult | void;
+      let result: SaveResult | void = undefined;
       if (saveContentRequest) {
         result = await saveContentRequest({ path, content: snapshot });
       } else {
@@ -385,6 +386,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                 isDark ? 'bg-white/5 border-white/10' : 'bg-zinc-100 border-zinc-200',
               )}>
                 <button
+                  type="button"
                   onClick={() => {
                     setIsEditing(false);
                     setLayoutMode('preview');
@@ -400,6 +402,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                   <Eye size={16} /> {!isCompactLayout && t('filemanager.actions.preview')}
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     setIsEditing(true);
                     setLayoutMode('edit');
@@ -416,6 +419,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                 </button>
                 {canSplit && (
                   <button
+                    type="button"
                     onClick={() => {
                       setIsEditing(true);
                       setLayoutMode('split');

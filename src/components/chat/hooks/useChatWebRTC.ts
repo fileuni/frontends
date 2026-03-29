@@ -197,6 +197,9 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
       pc.ontrack = (e) => {
         console.log(`[Chat] Received remote track from ${targetId}`);
         const stream = e.streams[0];
+        if (!stream) {
+          return;
+        }
         remoteStreamsRef.current.set(targetId, stream);
         onRemoteStream?.(targetId, stream);
 

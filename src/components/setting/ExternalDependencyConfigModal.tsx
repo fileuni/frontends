@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { deepClone, ensureRecord, isRecord } from "@/lib/configObject";
+import { getNavigatorPlatformSource } from "@/lib/browserPlatform";
 import { useToastStore } from "@/stores/toast";
 import { SettingSegmentedControl } from "./SettingSegmentedControl";
 
@@ -103,14 +104,7 @@ const normalizeRuntimeOs = (runtimeOs?: string): string => {
   if (typeof navigator === "undefined") {
     return "linux";
   }
-  const nav = navigator as Navigator & {
-    userAgentData?: { platform?: string };
-  };
-  const platform = (
-    nav.userAgentData?.platform ??
-    navigator.platform ??
-    navigator.userAgent
-  ).toLowerCase();
+  const platform = getNavigatorPlatformSource().toLowerCase();
   if (platform.includes("android")) return "android";
   if (
     platform.includes("iphone") ||
@@ -840,25 +834,34 @@ export const ThumbnailDependencyConfigModal: React.FC<
 
           {toolInputs.map((input) => (
             <div key={input.labelKey}>
-              <label
-                className={cn(
-                  "text-xs font-black uppercase tracking-wide",
-                  isDark ? "text-slate-400" : "text-slate-600",
-                )}
-              >
-                {t(input.labelKey)}
-              </label>
-              <input
-                value={input.value}
-                onChange={(event) => input.onChange(event.target.value)}
-                className={cn(
-                  "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
-                  isDark
-                    ? "border-white/10 bg-black/30 text-white"
-                    : "border-slate-300 bg-white text-slate-900",
-                )}
-                placeholder={t(input.placeholderKey)}
-              />
+              {(() => {
+                const inputId = `thumbnail-tool-${input.labelKey.replace(/\./g, "-")}`;
+                return (
+                  <>
+                    <label
+                      htmlFor={inputId}
+                      className={cn(
+                        "text-xs font-black uppercase tracking-wide",
+                        isDark ? "text-slate-400" : "text-slate-600",
+                      )}
+                    >
+                      {t(input.labelKey)}
+                    </label>
+                    <input
+                      id={inputId}
+                      value={input.value}
+                      onChange={(event) => input.onChange(event.target.value)}
+                      className={cn(
+                        "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+                        isDark
+                          ? "border-white/10 bg-black/30 text-white"
+                          : "border-slate-300 bg-white text-slate-900",
+                      )}
+                      placeholder={t(input.placeholderKey)}
+                    />
+                  </>
+                );
+              })()}
             </div>
           ))}
         </div>
@@ -873,6 +876,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
         >
           <div>
             <label
+              htmlFor="thumbnail-video-seek-seconds"
               className={cn(
                 "text-xs font-black uppercase tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
@@ -881,6 +885,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
               {t("admin.config.thumbnail.videoSeekSeconds")}
             </label>
             <input
+              id="thumbnail-video-seek-seconds"
               value={draft.videoSeekSeconds}
               onChange={(event) =>
                 setDraft((state) => ({
@@ -900,6 +905,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
           </div>
           <div>
             <label
+              htmlFor="thumbnail-video-seek-ratio"
               className={cn(
                 "text-xs font-black uppercase tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
@@ -908,6 +914,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
               {t("admin.config.thumbnail.videoSeekRatio")}
             </label>
             <input
+              id="thumbnail-video-seek-ratio"
               value={draft.videoSeekRatio}
               onChange={(event) =>
                 setDraft((state) => ({
@@ -1170,6 +1177,7 @@ export const CompressionDependencyConfigModal: React.FC<
 
           <div>
             <label
+              htmlFor="compression-7zip-path"
               className={cn(
                 "text-xs font-black uppercase tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
@@ -1178,6 +1186,7 @@ export const CompressionDependencyConfigModal: React.FC<
               7-Zip
             </label>
             <input
+              id="compression-7zip-path"
               value={draft.exe7zPath}
               onChange={(event) =>
                 setDraft((state) => ({

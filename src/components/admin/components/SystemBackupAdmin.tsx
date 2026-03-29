@@ -81,7 +81,7 @@ export const SystemBackupAdmin: React.FC = () => {
 
   const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    setPendingFile(e.target.files[0]);
+    setPendingFile(e.target.files[0] ?? null);
     setIsImportModalOpen(true);
     // Reset input so same file can be selected again
     e.target.value = '';

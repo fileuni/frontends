@@ -68,7 +68,9 @@ export const KeyValueForm: React.FC<{
               className={cn(controlBase, 'font-mono')}
               onChange={(e) => {
                 const next = [...items];
-                next[idx] = { ...next[idx], key: e.target.value };
+                const currentItem = next[idx];
+                if (!currentItem) return;
+                next[idx] = { ...currentItem, key: e.target.value };
                 updateItems(next);
               }}
             />
@@ -79,7 +81,9 @@ export const KeyValueForm: React.FC<{
                 inputClassName={cn(controlBase)}
                 onChange={(e) => {
                   const next = [...items];
-                  next[idx] = { ...next[idx], value: e.target.value };
+                  const currentItem = next[idx];
+                  if (!currentItem) return;
+                  next[idx] = { ...currentItem, value: e.target.value };
                   updateItems(next);
                 }}
               />
@@ -91,7 +95,9 @@ export const KeyValueForm: React.FC<{
                 type="text"
                 onChange={(e) => {
                   const next = [...items];
-                  next[idx] = { ...next[idx], value: e.target.value };
+                  const currentItem = next[idx];
+                  if (!currentItem) return;
+                  next[idx] = { ...currentItem, value: e.target.value };
                   updateItems(next);
                 }}
               />

@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { persistToolStateMap, restoreToolStateMap, type ToolState } from '../uiState';
+import {
+  createEmptyToolState,
+  persistToolStateMap,
+  restoreToolStateMap,
+  type ToolState,
+} from '../uiState';
 
 export const usePersistedToolStates = (userId?: string) => {
   const [toolStates, setToolStates] = useState<Record<string, ToolState>>({});
@@ -18,7 +23,7 @@ export const usePersistedToolStates = (userId?: string) => {
     return (tool: string, patch: Partial<ToolState>) => {
       setToolStates((prev) => ({
         ...prev,
-        [tool]: { ...prev[tool], ...patch },
+        [tool]: { ...(prev[tool] ?? createEmptyToolState()), ...patch },
       }));
     };
   }, []);

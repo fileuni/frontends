@@ -162,7 +162,9 @@ export const UserManagement = () => {
   const getStatusBadge = (user: UserResponse) => {
     // Determine status from user object
     // user.status might be an object or string depending on SeaORM serialize
-    const status = typeof user.status === 'object' ? Object.keys(user.status)[0].toLowerCase() : String(user.status).toLowerCase();
+    const status = typeof user.status === 'object'
+      ? (Object.keys(user.status)[0] ?? '').toLowerCase()
+      : String(user.status).toLowerCase();
     
     if (user.is_deleted) return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 whitespace-nowrap">{t('admin.users.status.deleted')}</Badge>;
     
@@ -254,7 +256,7 @@ export const UserManagement = () => {
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 font-black text-sm group-hover:border-primary/30 transition-colors">
-                          {user.username[0].toUpperCase()}
+                          {user.username.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="font-bold text-sm">{user.username}</p>

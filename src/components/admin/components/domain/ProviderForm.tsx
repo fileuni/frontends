@@ -29,7 +29,7 @@ interface ProviderFormProps {
       placeholder?: string | null;
       helper?: string | null;
     }> | null;
-  };
+  } | null;
 }
 
 interface FieldDef {
@@ -102,11 +102,12 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
     const confObj: Record<string, string> = {};
 
     fieldDefs.forEach(def => {
-      if (newFields[def.key]) {
+      const fieldValue = newFields[def.key];
+      if (fieldValue) {
         if (def.isConfig) {
-          confObj[def.key] = newFields[def.key];
+          confObj[def.key] = fieldValue;
         } else {
-          credObj[def.key] = newFields[def.key];
+          credObj[def.key] = fieldValue;
         }
       }
     });

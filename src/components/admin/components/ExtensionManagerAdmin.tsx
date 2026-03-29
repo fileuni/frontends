@@ -53,7 +53,10 @@ export const ExtensionManagerAdmin = () => {
 
   useEffect(() => {
     if (!params.ext && extItems.length > 0) {
-      navigate({ mod: 'admin', page: 'extensions', ext: extItems[0].key });
+      const firstItem = extItems[0];
+      if (firstItem) {
+        navigate({ mod: 'admin', page: 'extensions', ext: firstItem.key });
+      }
     }
   }, [params.ext, navigate, extItems]);
 

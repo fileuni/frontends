@@ -158,7 +158,7 @@ export const Navbar = () => {
           {isLoggedIn && (
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5">
               <div className="w-6 h-6 rounded-lg bg-primary/20 text-primary flex items-center justify-center font-black text-sm">
-                {currentUserData?.user.username[0].toUpperCase()}
+                {currentUserData?.user.username.charAt(0).toUpperCase()}
               </div>
               <span className="text-sm font-black opacity-70">{currentUserData?.user.username}</span>
             </div>
@@ -211,7 +211,7 @@ export const Navbar = () => {
               {isLoggedIn && (
                 <div className="flex items-center gap-4 p-4 rounded-[2rem] bg-primary/10 border border-primary/20 relative group">
                   <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-primary/20 shrink-0">
-                    {currentUserData?.user.username[0].toUpperCase()}
+                    {currentUserData?.user.username.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-black text-lg truncate leading-tight">{currentUserData?.user.username}</p>

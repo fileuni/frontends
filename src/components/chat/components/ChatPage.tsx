@@ -302,7 +302,7 @@ export const ChatPage: React.FC = () => {
                   {activeRoom?.isGroup ? (
                     <Users size={24} />
                   ) : nicknames[activeTarget] ? (
-                    nicknames[activeTarget][0].toUpperCase()
+                    nicknames[activeTarget].charAt(0).toUpperCase()
                   ) : (
                     <User size={24} />
                   )}
@@ -486,7 +486,7 @@ export const ChatPage: React.FC = () => {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black group-hover:scale-110 transition-transform shadow-sm">
-                    {(u.nickname || u.username)[0].toUpperCase()}
+                    {(u.nickname || u.username).charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <p className="font-black text-sm tracking-tight">
@@ -713,7 +713,7 @@ export const ChatPage: React.FC = () => {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-[1.3rem] bg-primary/10 text-primary flex items-center justify-center font-black shadow-inner group-hover:scale-105 transition-transform">
-                    {group.name[0].toUpperCase()}
+                    {group.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <p className="font-black tracking-tight">{group.name}</p>

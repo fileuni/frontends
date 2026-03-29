@@ -668,7 +668,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
         // Best-practice: show diagnostics immediately after creation.
         if (createdIds.length > 0) {
-          await inspectDdns(createdIds[0]);
+          const firstCreatedId = createdIds[0];
+          if (firstCreatedId) {
+            await inspectDdns(firstCreatedId);
+          }
         }
 
         if (createdIds.length > 0 && window.confirm(t('admin.domain.ddnsSavedRunNowConfirm') || 'Saved successfully. Run once now?')) {

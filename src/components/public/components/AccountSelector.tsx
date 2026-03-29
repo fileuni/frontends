@@ -72,7 +72,7 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
                   ? "bg-primary text-white" 
                   : (isDark ? "bg-white/5 text-primary/60" : "bg-primary/10 text-primary")
               )}>
-                {auth.user.username[0].toUpperCase()}
+                {auth.user.username.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">

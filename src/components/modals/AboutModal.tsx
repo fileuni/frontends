@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Download,
   ExternalLink,
-  Github,
   Globe,
   Info,
   Loader2,
@@ -23,6 +22,22 @@ import { docsHomeUrl } from '@/lib/docs';
 
 const PROJECT_HOMEPAGE_URL = 'https://fileuni.com';
 const PROJECT_REPOSITORY_URL = 'https://github.com/FileUni/FileUni-Project';
+
+const GitHubMark: React.FC<{ size?: number; className?: string }> = ({
+  size = 20,
+  className,
+}) => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    className={className}
+    fill="currentColor"
+  >
+    <path d="M12 1.5a10.5 10.5 0 0 0-3.32 20.46c.53.1.72-.23.72-.51v-1.78c-2.94.64-3.56-1.25-3.56-1.25-.48-1.21-1.16-1.53-1.16-1.53-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.13 3.04.86.09-.68.36-1.13.65-1.39-2.35-.27-4.82-1.18-4.82-5.23 0-1.15.41-2.08 1.08-2.81-.11-.27-.47-1.37.1-2.85 0 0 .88-.28 2.88 1.07A9.98 9.98 0 0 1 12 6.57c.89 0 1.79.12 2.62.35 2-1.35 2.88-1.07 2.88-1.07.57 1.48.21 2.58.1 2.85.67.73 1.08 1.66 1.08 2.81 0 4.06-2.47 4.96-4.83 5.22.37.32.7.94.7 1.89v2.8c0 .29.19.62.73.51A10.5 10.5 0 0 0 12 1.5Z" />
+  </svg>
+);
 
 export interface AboutUpdateInfo {
   current_version: string;
@@ -233,6 +248,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
   getUpdateGuideUrl,
   zIndex = 130,
 }) => {
+  const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
 
   useEscapeToCloseTopLayer({
@@ -253,12 +269,14 @@ export const AboutModal: React.FC<AboutModalProps> = ({
       style={{ zIndex }}
     >
       {/* Background Overlay: Strong isolation */}
-      <div
+      <button
+        type="button"
         className={cn(
           'absolute inset-0 backdrop-blur-2xl transition-opacity',
           isDark ? 'bg-black/95' : 'bg-slate-900/80',
         )}
         onClick={onClose}
+        aria-label={t('common.close')}
       />
 
       <AboutView
@@ -322,6 +340,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
       >
         {showCloseButton && onClose && (
           <button
+            type="button"
             onClick={onClose}
             className={cn(
               'absolute right-4 top-4 rounded-full p-2 transition-all',
@@ -419,7 +438,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
           <LinkCard
             href={PROJECT_REPOSITORY_URL}
             label="GitHub"
-            icon={Github}
+            icon={GitHubMark}
             isDark={isDark}
             {...(onOpenLink ? { onOpenLink } : {})}
           />

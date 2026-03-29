@@ -25,6 +25,9 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
   const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const activeFile = playlist[currentIndex];
+  if (!activeFile) {
+    return null;
+  }
 
   const [imgSrc, setImgSrc] = useState<string>('');
   const imgRef = useRef<HTMLImageElement>(null);
@@ -69,11 +72,13 @@ export const ImagePreview = ({ playlist, initialIndex, isDark, headerExtra, onCl
 
   const handleNavigate = (idx: number) => {
     if (idx >= 0 && idx < playlist.length && idx !== currentIndex) {
+      const nextFile = playlist[idx];
+      if (!nextFile) return;
       setCurrentIndex(idx);
       // Update URL hash for SPA
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
-      params.set('preview_path', playlist[idx].path);
+      params.set('preview_path', nextFile.path);
       window.location.hash = params.toString();
     }
   };

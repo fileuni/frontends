@@ -67,6 +67,7 @@ interface FileState {
   // Internal helpers
   _getUid: () => string;
   _ensureUser: (uid: string) => void;
+  _getUserData: (uid: string) => UserFileData;
 
   // Public getters
   getCurrentPath: () => string;
@@ -185,59 +186,67 @@ export const useFileStore = create<FileState>()(
         }
       },
 
+      _getUserData: (uid) => {
+        const existing = get().userStates[uid];
+        if (existing) return existing;
+
+        get()._ensureUser(uid);
+        return get().userStates[uid] ?? getInitialUserData();
+      },
+
       getCurrentPath: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.currentPath || '/';
+        return get()._getUserData(uid).currentPath;
       },
 
       getClipboard: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.clipboard || [];
+        return get()._getUserData(uid).clipboard;
       },
 
       getTabs: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.tabs || [{ id: DEFAULT_TAB_ID, path: '/', title: 'Home' }];
+        return get()._getUserData(uid).tabs;
       },
 
       getActiveTabId: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.activeTabId || DEFAULT_TAB_ID;
+        return get()._getUserData(uid).activeTabId;
       },
 
       getRecentFiles: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.recentFiles || [];
+        return get()._getUserData(uid).recentFiles;
       },
 
       getViewMode: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.viewMode || 'grid';
+        return get()._getUserData(uid).viewMode;
       },
 
       getSortConfig: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.sortConfig || { field: 'name', order: 'asc' };
+        return get()._getUserData(uid).sortConfig;
       },
 
       getSearchKeyword: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.searchKeyword || '';
+        return get()._getUserData(uid).searchKeyword;
       },
 
       getIsSearchMode: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.isSearchMode || false;
+        return get()._getUserData(uid).isSearchMode;
       },
 
       getShareFilter: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.shareFilter || { hasPassword: null, enableDirect: null };
+        return get()._getUserData(uid).shareFilter;
       },
 
       getPageSize: () => {
         const uid = get()._getUid();
-        return get().userStates[uid]?.pageSize || 20;
+        return get()._getUserData(uid).pageSize;
       },
 
       getPagination: () => {
@@ -254,8 +263,7 @@ export const useFileStore = create<FileState>()(
 
       setCurrentPath: (path) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         
         const normalizedPath = path.replace(/\/+/g, '/').replace(/(.+)\/$/, '$1') || '/';
         if (normalizedPath === userData.currentPath) return;
@@ -290,8 +298,7 @@ export const useFileStore = create<FileState>()(
 
       addToRecentFiles: (file) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
 
         const existing = userData.recentFiles || [];
         const record = { ...file, accessed_at: new Date().toISOString() };
@@ -308,8 +315,7 @@ export const useFileStore = create<FileState>()(
 
       clearRecentFiles: () => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
@@ -320,8 +326,7 @@ export const useFileStore = create<FileState>()(
 
       removeFromRecent: (paths) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         const pathSet = new Set(paths);
         set(state => ({
           userStates: {
@@ -336,8 +341,7 @@ export const useFileStore = create<FileState>()(
       
       setViewMode: (mode) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
@@ -360,8 +364,7 @@ export const useFileStore = create<FileState>()(
       
       setPageSize: (pageSize) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
@@ -374,8 +377,7 @@ export const useFileStore = create<FileState>()(
 
       setSortConfig: (config) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
@@ -386,8 +388,7 @@ export const useFileStore = create<FileState>()(
 
       setSearchKeyword: (keyword) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
@@ -398,8 +399,7 @@ export const useFileStore = create<FileState>()(
 
       setIsSearchMode: (isSearchMode) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
@@ -410,8 +410,7 @@ export const useFileStore = create<FileState>()(
 
       setShareFilter: (filter) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
@@ -438,8 +437,7 @@ export const useFileStore = create<FileState>()(
 
       addTab: (path, title) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         const id = Math.random().toString(36).substring(2, 9);
         const newTab = { id, path, title: title || (path === '/' ? 'Home' : path.split('/').pop() || 'Folder') };
         set(state => ({
@@ -452,8 +450,7 @@ export const useFileStore = create<FileState>()(
 
       removeTab: (id) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         if (userData.tabs.length <= 1) return;
         const newTabs = userData.tabs.filter(t => t.id !== id);
         let newActiveId = userData.activeTabId;
@@ -472,8 +469,7 @@ export const useFileStore = create<FileState>()(
 
       setActiveTabId: (id) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         const tab = userData.tabs.find(t => t.id === id);
         if (tab) {
           set(state => ({
@@ -487,8 +483,7 @@ export const useFileStore = create<FileState>()(
 
       setTabs: (newTabs) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
@@ -499,7 +494,7 @@ export const useFileStore = create<FileState>()(
 
       closeOtherTabs: (id) => {
         const uid = get()._getUid();
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         const tab = userData.tabs.find(t => t.id === id);
         if (!tab) return;
         set(state => ({
@@ -512,9 +507,11 @@ export const useFileStore = create<FileState>()(
 
       closeLeftTabs: (id) => {
         const uid = get()._getUid();
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         const idx = userData.tabs.findIndex(t => t.id === id);
         if (idx === -1) return;
+        const targetTab = userData.tabs[idx];
+        if (!targetTab) return;
         const newTabs = userData.tabs.slice(idx);
         const stillHasActive = newTabs.some(t => t.id === userData.activeTabId);
         set(state => ({
@@ -524,7 +521,7 @@ export const useFileStore = create<FileState>()(
               ...userData, 
               tabs: newTabs, 
               activeTabId: stillHasActive ? userData.activeTabId : id,
-              currentPath: stillHasActive ? userData.currentPath : userData.tabs[idx].path
+              currentPath: stillHasActive ? userData.currentPath : targetTab.path
             } as UserFileData
           }
         }));
@@ -532,9 +529,11 @@ export const useFileStore = create<FileState>()(
 
       closeRightTabs: (id) => {
         const uid = get()._getUid();
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         const idx = userData.tabs.findIndex(t => t.id === id);
         if (idx === -1) return;
+        const targetTab = userData.tabs[idx];
+        if (!targetTab) return;
         const newTabs = userData.tabs.slice(0, idx + 1);
         const stillHasActive = newTabs.some(t => t.id === userData.activeTabId);
         set(state => ({
@@ -544,7 +543,7 @@ export const useFileStore = create<FileState>()(
               ...userData, 
               tabs: newTabs, 
               activeTabId: stillHasActive ? userData.activeTabId : id,
-              currentPath: stillHasActive ? userData.currentPath : userData.tabs[idx].path
+              currentPath: stillHasActive ? userData.currentPath : targetTab.path
             } as UserFileData
           }
         }));
@@ -553,8 +552,7 @@ export const useFileStore = create<FileState>()(
       // Clipboard Actions
       addToClipboard: (newItems) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         const existingPaths = new Set(userData.clipboard.map(i => i.path));
         let merged = [...userData.clipboard, ...newItems.filter(i => !existingPaths.has(i.path))];
         if (merged.length > 100) merged = merged.slice(-100);
@@ -568,24 +566,24 @@ export const useFileStore = create<FileState>()(
 
       clearClipboard: () => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
-            [uid]: { ...state.userStates[uid], clipboard: [] } as UserFileData
+            [uid]: { ...userData, clipboard: [] } as UserFileData
           }
         }));
       },
 
       removeFromClipboard: (path) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
+        const userData = get()._getUserData(uid);
         set(state => ({
           userStates: {
             ...state.userStates,
-            [uid]: { 
-              ...state.userStates[uid], 
-              clipboard: state.userStates[uid].clipboard.filter(i => i.path !== path) 
+            [uid]: {
+              ...userData,
+              clipboard: userData.clipboard.filter(i => i.path !== path)
             } as UserFileData
           }
         }));
@@ -593,8 +591,7 @@ export const useFileStore = create<FileState>()(
 
       reorderClipboard: (oldIndex, newIndex) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         const newClipboard = [...userData.clipboard];
         const [movedItem] = newClipboard.splice(oldIndex, 1);
         if (movedItem) newClipboard.splice(newIndex, 0, movedItem);
@@ -608,8 +605,7 @@ export const useFileStore = create<FileState>()(
 
       addTask: (task) => {
         const uid = get()._getUid();
-        get()._ensureUser(uid);
-        const userData = get().userStates[uid];
+        const userData = get()._getUserData(uid);
         const tasks = userData.activeTasks || [];
         const updatedUser: UserFileData = { ...userData, activeTasks: [task, ...tasks] };
         set(state => ({
@@ -622,8 +618,7 @@ export const useFileStore = create<FileState>()(
 
       updateTask: (id, updates) => {
         const uid = get()._getUid();
-        const userData = get().userStates[uid];
-        if (!userData) return;
+        const userData = get()._getUserData(uid);
         const tasks = userData.activeTasks || [];
         const updatedUser: UserFileData = { 
           ...userData, 
@@ -639,8 +634,7 @@ export const useFileStore = create<FileState>()(
 
       removeTask: (id) => {
         const uid = get()._getUid();
-        const userData = get().userStates[uid];
-        if (!userData) return;
+        const userData = get()._getUserData(uid);
         const tasks = userData.activeTasks || [];
         const updatedUser: UserFileData = { 
           ...userData, 
@@ -656,8 +650,7 @@ export const useFileStore = create<FileState>()(
 
       clearFinishedTasks: () => {
         const uid = get()._getUid();
-        const userData = get().userStates[uid];
-        if (!userData) return;
+        const userData = get()._getUserData(uid);
         const tasks = userData.activeTasks || [];
         const updatedUser: UserFileData = { 
           ...userData, 
@@ -673,8 +666,7 @@ export const useFileStore = create<FileState>()(
 
       getActiveTasks: () => {
         const uid = get()._getUid();
-        const userData = get().userStates[uid];
-        return userData?.activeTasks || [];
+        return get()._getUserData(uid).activeTasks;
       },
     }),
     {

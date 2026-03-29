@@ -88,7 +88,10 @@ export const FileThumbnail = ({ file, size = 64, className }: FileThumbnailProps
   useEffect(() => {
     if (!containerRef.current) return undefined;
     const observer = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
+      ([entry]) => {
+        if (!entry) return;
+        setInView(entry.isIntersecting);
+      },
       { rootMargin: '200px' }
     );
     observer.observe(containerRef.current);

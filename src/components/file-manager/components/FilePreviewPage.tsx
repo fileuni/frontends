@@ -236,6 +236,15 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
   );
 
   const activeFile = data.playlist[data.index];
+  if (!activeFile) {
+    return (
+      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4 bg-background text-red-500">
+        <AlertCircle size={64} />
+        <p className="text-xl font-black uppercase tracking-widest">{t('filemanager.errors.loadFailed') || 'Preview target not found'}</p>
+        <Button variant="outline" onClick={onClose} className="mt-4 rounded-2xl h-12 px-8 uppercase font-black">{t('common.close')}</Button>
+      </div>
+    );
+  }
   const isStreamable = ['video', 'audio'].includes(data.type);
   const limits = capabilities?.preview_size_limits;
   const resolveLimitMb = (value?: number, fallback = FALLBACK_PREVIEW_LIMIT_MB) => (value && value > 0 ? value : fallback);

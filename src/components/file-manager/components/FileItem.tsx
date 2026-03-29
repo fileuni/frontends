@@ -111,6 +111,20 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
     toggleSelection(selectId, e.ctrlKey || e.metaKey, e.shiftKey, allIds);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleDoubleClick();
+      return;
+    }
+
+    if (e.key === ' ') {
+      e.preventDefault();
+      const allIds = files.map(f => (store.fmMode === 'shares' && f.id) ? f.id : f.path);
+      toggleSelection(selectId, e.ctrlKey || e.metaKey, e.shiftKey, allIds);
+    }
+  };
+
   const handleDoubleClick = () => {
     if (longPressTimer.current) clearTimeout(longPressTimer.current);
     if (onAction) {
@@ -123,8 +137,6 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
       } else {
         // Fallback logic
         store.addToRecentFiles(file);
-        // Based on user request, double clicking file should show properties
-        onAction?.('properties', file);
       }
     }
   };
@@ -192,8 +204,12 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
       <div
         ref={setRefs} style={style} {...attributes} {...listeners}
         onClick={handleClick} onDoubleClick={handleDoubleClick}
+        onKeyDown={handleKeyDown}
         onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
         onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); onContextMenu(e, file); }}
+        role="option"
+        aria-selected={selected}
+        tabIndex={0}
         className={cn(
           "flex flex-col items-center p-3 rounded-3xl min-h-[140px] justify-start text-center",
           commonClasses,
@@ -240,8 +256,12 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
     <div
       ref={setRefs} style={style} {...attributes} {...listeners}
       onClick={handleClick} onDoubleClick={handleDoubleClick}
+      onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
       onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); onContextMenu(e, file); }}
+      role="option"
+      aria-selected={selected}
+      tabIndex={0}
       className={cn(
         "flex items-center gap-3 md:gap-4 px-3 md:px-4 py-3 border-b border-white/5",
         commonClasses,

@@ -127,7 +127,7 @@ export const UserHomeView = () => {
         <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
           <div className="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur-xl flex items-center justify-center text-4xl font-black border border-white/20 shadow-inner">
             {mounted && currentUserData?.user.username
-              ? currentUserData.user.username[0].toUpperCase()
+              ? currentUserData.user.username.charAt(0).toUpperCase()
               : "?"}
           </div>
 

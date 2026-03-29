@@ -465,7 +465,11 @@ export const ConnectorCard = memo(
           onUpdate={(pairIndex, patch) => {
             onUpdateConnector(connector.id, (prev) => {
               const next = prev.options.slice();
-              next[pairIndex] = { ...next[pairIndex], ...patch };
+              const currentPair = next[pairIndex];
+              if (!currentPair) {
+                return prev;
+              }
+              next[pairIndex] = { ...currentPair, ...patch };
               return { ...prev, options: next };
             });
           }}
@@ -671,7 +675,11 @@ export const PoolCard = memo(
           onUpdate={(pairIndex, patch) => {
             onUpdatePool(pool.id, (prev) => {
               const next = prev.options.slice();
-              next[pairIndex] = { ...next[pairIndex], ...patch };
+              const currentPair = next[pairIndex];
+              if (!currentPair) {
+                return prev;
+              }
+              next[pairIndex] = { ...currentPair, ...patch };
               return { ...prev, options: next };
             });
           }}

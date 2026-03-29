@@ -77,8 +77,8 @@ export const parseLrc = (source: string): Omit<LyricsState, 'status' | 'sourcePa
 
     const metaMatch = line.match(/^\[(ti|ar|al):([^\]]*)\]$/i);
     if (metaMatch) {
-      const key = metaMatch[1].toLowerCase();
-      const value = metaMatch[2].trim();
+      const key = (metaMatch[1] ?? '').toLowerCase();
+      const value = metaMatch[2]?.trim() ?? '';
       if (!value) continue;
       if (key === 'ti') meta.title = value;
       if (key === 'ar') meta.artist = value;

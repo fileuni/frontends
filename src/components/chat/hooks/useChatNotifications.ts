@@ -10,6 +10,7 @@ export const useChatNotifications = (messages: Message[], selfId: string) => {
     setUnreadCount(unread.length);
     if (unread.length > 0) {
       const latest = unread[unread.length - 1];
+      if (!latest) return;
       setLastMessage(latest);
       // Browser notification
       if (Notification.permission === 'granted') {

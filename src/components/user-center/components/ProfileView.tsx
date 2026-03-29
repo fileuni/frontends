@@ -136,7 +136,9 @@ export const ProfileView = () => {
 
   const normalizePhoneAt = (index: number) => {
     const next = [...form.other_phones];
-    next[index] = normalizePhoneInput(next[index]);
+    const currentValue = next[index];
+    if (typeof currentValue !== 'string') return;
+    next[index] = normalizePhoneInput(currentValue);
     setForm({ ...form, other_phones: next });
   };
 

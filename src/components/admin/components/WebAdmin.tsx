@@ -358,7 +358,11 @@ export const WebAdmin: React.FC = () => {
   const updateBinding = (index: number, patch: Partial<SiteBinding>) => {
     setDraft((prev) => {
       const nextBindings = [...prev.bindings];
-      const current = { ...nextBindings[index], ...patch };
+      const currentBinding = nextBindings[index];
+      if (!currentBinding) {
+        return prev;
+      }
+      const current = { ...currentBinding, ...patch };
       nextBindings[index] = current;
       if (patch.is_default === true) {
         const targetKey = listenerKey(current, prev.tls_enabled);
@@ -366,9 +370,13 @@ export const WebAdmin: React.FC = () => {
           if (i === index) {
             continue;
           }
-          const otherKey = listenerKey(nextBindings[i], prev.tls_enabled);
+          const otherBinding = nextBindings[i];
+          if (!otherBinding) {
+            continue;
+          }
+          const otherKey = listenerKey(otherBinding, prev.tls_enabled);
           if (otherKey === targetKey) {
-            nextBindings[i] = { ...nextBindings[i], is_default: false };
+            nextBindings[i] = { ...otherBinding, is_default: false };
           }
         }
       }

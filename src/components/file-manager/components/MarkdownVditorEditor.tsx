@@ -82,7 +82,7 @@ export const MarkdownVditorEditor = ({
   const { t, i18n } = useTranslation();
   const { addToast } = useToastStore();
   const vditorRef = useRef<HTMLDivElement>(null);
-  const [vd, setVd] = useState<Vditor>();
+  const vditorInstanceRef = useRef<Vditor | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
@@ -99,8 +99,12 @@ export const MarkdownVditorEditor = ({
   const savingRef = useRef(false);
   const lastAutoSaveErrorAtRef = useRef<number>(0);
   const readyNotifiedRef = useRef(false);
+  const placeholderText = contentMode === 'markdown'
+    ? t('filemanager.preview.markdownPlaceholder')
+    : (t('filemanager.preview.textPlaceholder') || 'Write plain text here');
 
   useEffect(() => {
+    if (!path) return;
     setIsEditing(defaultEditing);
     readyNotifiedRef.current = false;
   }, [path, defaultEditing]);
@@ -136,7 +140,7 @@ export const MarkdownVditorEditor = ({
         lastSavedAtRef.current = Date.now();
         loadedPathRef.current = path;
         // If Vditor is already initialized, set value directly
-        if (vd) vd.setValue(normalized);
+        vditorInstanceRef.current?.setValue(normalized);
       } catch (e) {
         if (!canceled) {
           console.error("Load failed:", e);
@@ -152,7 +156,7 @@ export const MarkdownVditorEditor = ({
     return () => {
       canceled = true;
     };
-  }, [path, loadContent]);
+  }, [addToast, loadContent, path, t]);
 
   const resolvedCdnBase = getPreferredVditorBase();
   const previewMode = contentMode === 'plain'
@@ -179,16 +183,14 @@ export const MarkdownVditorEditor = ({
     const vditorOptions: ConstructorParameters<typeof Vditor>[1] = {
       height: '100%',
       width: '100%',
-      value: content, // Use loaded content at initialization
+      value: lastSavedContentRef.current,
       mode: 'sv', 
       theme: isDark ? 'dark' : 'classic',
       icon: 'material',
       lang: getVditorLang(i18n.language),
        cdn: resolvedCdnBase,
       cache: { enable: false },
-      placeholder: contentMode === 'markdown'
-        ? t('filemanager.preview.markdownPlaceholder')
-        : (t('filemanager.preview.textPlaceholder') || 'Write plain text here'),
+      placeholder: placeholderText,
       preview: {
         theme: { current: isDark ? 'dark' : 'light' },
         hljs: { style: isDark ? 'github-dark' : 'github', lineNumber: true },
@@ -203,7 +205,7 @@ export const MarkdownVditorEditor = ({
         lastEditAtRef.current = Date.now();
       },
       after: () => {
-        setVd(vditor);
+        vditorInstanceRef.current = vditor;
         setIsInitializing(false);
       }
     };
@@ -214,9 +216,12 @@ export const MarkdownVditorEditor = ({
 
     const vditor = new Vditor(vditorRef.current, vditorOptions);
 
-    return () => { vditor?.destroy(); };
+    return () => {
+      vditorInstanceRef.current = null;
+      vditor?.destroy();
+    };
     // Only reinitialize Vditor when editing state or theme changes
-  }, [contentMode, loading, isEditing, isDark, i18n.language, previewMode, previewTransform, resolvedCdnBase, uploadOptions]);
+  }, [i18n.language, isDark, isEditing, loading, placeholderText, previewMode, previewTransform, resolvedCdnBase, uploadOptions]);
 
   useEffect(() => {
     if (!loading && !isInitializing && !readyNotifiedRef.current) {
@@ -228,7 +233,7 @@ export const MarkdownVditorEditor = ({
   const saveContent = async (reason: 'manual' | 'auto') => {
     if (savingRef.current) return;
     if (loadedPathRef.current !== path) return;
-    const snapshot = vd ? vd.getValue() : content;
+    const snapshot = vditorInstanceRef.current?.getValue() ?? content;
 
     if (reason === 'auto') {
       if (snapshot === lastSavedContentRef.current) return;
@@ -242,7 +247,7 @@ export const MarkdownVditorEditor = ({
     savingRef.current = true;
     setSaving(true);
     try {
-      let result: SaveResult | void;
+      let result: SaveResult | void = undefined;
       if (saveContentRequest) {
         result = await saveContentRequest({ path, content: snapshot });
       } else {
@@ -321,8 +326,9 @@ export const MarkdownVditorEditor = ({
                 "flex items-center p-1 rounded-2xl",
                 isDark ? "bg-white/5 border border-white/5 shadow-inner" : "bg-zinc-100 border border-zinc-200"
               )}>
-                 <button 
-                  onClick={() => setIsEditing(false)}
+                 <button
+                  type="button"
+                   onClick={() => setIsEditing(false)}
                   className={cn(
                     "px-5 h-9 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2", 
                     !isEditing 
@@ -332,8 +338,9 @@ export const MarkdownVditorEditor = ({
                  >
                    <Eye size={18} /> {t('filemanager.actions.preview')}
                  </button>
-                 <button 
-                  onClick={() => setIsEditing(true)}
+                  <button
+                  type="button"
+                   onClick={() => setIsEditing(true)}
                   className={cn(
                     "px-5 h-9 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2", 
                     isEditing 

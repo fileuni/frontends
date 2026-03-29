@@ -8,7 +8,7 @@ export interface Notification {
   msg_type: string;
   level: 'info' | 'warning' | 'error' | 'success';
   sender_id?: string;
-  extra_data?: Record<string, unknown>;
+  extra_data?: ({ task_id?: string } & Record<string, unknown>) | undefined;
   created_at: string;
   is_read: boolean;
   read_at?: string;

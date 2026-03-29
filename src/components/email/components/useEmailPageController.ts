@@ -230,7 +230,7 @@ export const useEmailPageController = (): UseEmailPageController => {
     if (bracketMatch && bracketMatch[2]) {
       return {
         addr: bracketMatch[2].trim().toLowerCase(),
-        name: bracketMatch[1].trim(),
+        name: bracketMatch[1]?.trim() ?? "",
       };
     }
     return {
