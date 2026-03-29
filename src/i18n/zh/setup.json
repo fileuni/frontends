@@ -27,7 +27,12 @@
     "locationDesc": "这里只是告诉您安装内容会保存到哪里，不需要手动创建文件。",
     "commonActionsTitle": "常用配置",
     "openAction": "打开此项",
-    "requiredPrompt": "FileUni 尚未完成首次设置，是否现在打开设置中心？"
+    "requiredPrompt": "FileUni 尚未完成首次设置，是否现在打开设置中心？",
+    "existingConfigTitle": "检测到已有配置",
+    "existingConfigDesc": "当前运行目录下已存在 config.toml，直接应用即可完成设置。如需修改管理员密码，请在下方设置。",
+    "existingConfigApply": "直接应用当前配置",
+    "existingConfigCustomize": "调整配置",
+    "runtimeDirChangeHint": "如需更换运行目录，请重新启动 FileUni 并使用 -R 参数指定新目录。"
   },
   "editor": {
     "title": "设置中心",

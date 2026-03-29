@@ -27,7 +27,12 @@
     "locationDesc": "This is only where FileUni will save things for you. You do not need to create any files by hand.",
     "commonActionsTitle": "Common settings",
     "openAction": "Open this item",
-    "requiredPrompt": "FileUni has not finished the initial settings yet. Open Settings Center now?"
+    "requiredPrompt": "FileUni has not finished the initial settings yet. Open Settings Center now?",
+    "existingConfigTitle": "Existing configuration detected",
+    "existingConfigDesc": "A config.toml already exists in the runtime directory. You can apply it directly to finish the settings. To change the admin password, use the form below.",
+    "existingConfigApply": "Apply current configuration",
+    "existingConfigCustomize": "Customize settings",
+    "runtimeDirChangeHint": "To change the runtime directory, restart FileUni with the -R argument."
   },
   "editor": {
     "title": "Settings Center",

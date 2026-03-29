@@ -15,10 +15,18 @@ import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionBut
 import type { ExternalToolDiagnosisResponse } from "@/components/setting/ExternalDependencyConfigModal";
 import { buildSettingCommonActions } from "@/components/setting/SettingCommonActions";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
+import { AdminPasswordInlinePanel } from "@/components/setting/SettingInlineExternalPanels";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useToastStore } from "@/stores/toast";
 import { client, extractData, handleApiError } from "@/lib/api";
-import { CheckCircle, ShieldAlert } from "lucide-react";
+import {
+  CheckCircle,
+  FileCheck,
+  KeyRound,
+  Settings,
+  ShieldAlert,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type ConfigSetStatusResponse =
   ConfigSetComponents["schemas"]["ConfigSetStatusResponse"];
@@ -74,6 +82,7 @@ export const ConfigSetEditor: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [testing, setTesting] = useState(false);
   const [configPath, setConfigPath] = useState("");
+  const [configExists, setConfigExists] = useState(false);
   const [content, setContent] = useState("");
   const [savedContent, setSavedContent] = useState("");
   const [runtimeOs, setRuntimeOs] = useState<string>("");
@@ -81,6 +90,9 @@ export const ConfigSetEditor: React.FC = () => {
     useState<SystemHardwareInfo | null>(null);
   const [notes, setNotes] = useState<Record<string, ConfigNoteEntry>>({});
   const [validationErrors, setValidationErrors] = useState<ConfigError[]>([]);
+
+  // When config exists, user can choose to customize instead of one-click apply
+  const [showCustomize, setShowCustomize] = useState(false);
 
   type ConfigSetLicenseStatusResponse = {
     is_valid: boolean;
@@ -129,6 +141,7 @@ export const ConfigSetEditor: React.FC = () => {
       setConfigPath(data.current_config_path);
       setContent(data.current_config_content);
       setSavedContent(data.current_config_content);
+      setConfigExists(data.config_exists === true);
 
       try {
         const parsed = toml.parse(data.current_config_content) as unknown;
@@ -306,7 +319,7 @@ export const ConfigSetEditor: React.FC = () => {
     }
   };
 
-  const handleApplyWithoutPassword = useCallback(async () => {
+  const handleApply = useCallback(async () => {
     if (testing) return;
     setTesting(true);
     setValidationErrors([]);
@@ -484,7 +497,7 @@ export const ConfigSetEditor: React.FC = () => {
         },
         storage: {
           onPrimaryAction: () => {
-            void handleApplyWithoutPassword();
+            void handleApply();
           },
           primaryActionLabel: t("setup.guide.card3Action"),
         },
@@ -503,7 +516,7 @@ export const ConfigSetEditor: React.FC = () => {
       licenseKey,
       licenseSaving,
       applyLicenseKey,
-      handleApplyWithoutPassword,
+      handleApply,
     ],
   );
 
@@ -585,6 +598,126 @@ export const ConfigSetEditor: React.FC = () => {
     );
   }
 
+  // When config already exists and user has not chosen to customize,
+  // show a streamlined one-click apply view.
+  if (configExists && !showCustomize && !loading) {
+    return (
+      <ConfigWorkbenchShell
+        title={t("setup.editor.title")}
+        configPath={configPath}
+        configPathAction={
+          <ConfigPathActionButton
+            onClick={handleConfigPathAction}
+            label={t([
+              "setup.guide.card1Action",
+              "launcher.modify_runtime_dirs",
+            ])}
+          />
+        }
+        headerActions={headerActions}
+      >
+        <div className="max-w-2xl mx-auto space-y-6 p-2 sm:p-4">
+          <div
+            className={cn(
+              "rounded-3xl border p-6 sm:p-8 text-center",
+              isDark
+                ? "border-white/10 bg-slate-950"
+                : "border-sky-200/70 bg-gradient-to-br from-sky-50 via-cyan-50 to-white",
+            )}
+          >
+            <FileCheck
+              size={64}
+              className={cn(
+                "mx-auto mb-6",
+                isDark ? "text-sky-300" : "text-sky-600",
+              )}
+            />
+            <h2
+              className={cn(
+                "text-2xl font-black mb-3",
+                isDark ? "text-slate-100" : "text-slate-900",
+              )}
+            >
+              {t("setup.guide.existingConfigTitle")}
+            </h2>
+            <p
+              className={cn(
+                "text-sm leading-7 max-w-lg mx-auto mb-8",
+                isDark ? "text-slate-300" : "text-slate-600",
+              )}
+            >
+              {t("setup.guide.existingConfigDesc")}
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  void handleApply();
+                }}
+                disabled={testing}
+                className="h-11 px-8 rounded-2xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {testing
+                  ? t("common.processing")
+                  : t("setup.guide.existingConfigApply")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCustomize(true)}
+                className={cn(
+                  "h-11 px-6 rounded-2xl border text-sm font-black transition-colors",
+                  isDark
+                    ? "border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10"
+                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+                )}
+              >
+                <Settings size={15} className="inline mr-2" />
+                {t("setup.guide.existingConfigCustomize")}
+              </button>
+            </div>
+          </div>
+
+          <div
+            className={cn(
+              "rounded-3xl border p-5 sm:p-6",
+              isDark
+                ? "border-white/10 bg-white/[0.03]"
+                : "border-slate-200 bg-white",
+            )}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                className={cn(
+                  "flex h-10 w-10 items-center justify-center rounded-2xl",
+                  isDark
+                    ? "bg-cyan-500/15 text-cyan-200"
+                    : "bg-cyan-100 text-cyan-700",
+                )}
+              >
+                <KeyRound size={18} />
+              </div>
+              <h3
+                className={cn(
+                  "text-lg font-black",
+                  isDark ? "text-slate-100" : "text-slate-900",
+                )}
+              >
+                {t("setup.admin.changePassword")}
+              </h3>
+            </div>
+            <AdminPasswordInlinePanel
+              onApply={async (password) =>
+                handleQuickSettingsResetAdminPassword(password)
+              }
+              loading={resettingAdminPassword}
+              hint={t("setup.admin.resetRuleHint")}
+            />
+          </div>
+        </div>
+      </ConfigWorkbenchShell>
+    );
+  }
+
   return (
     <SettingWorkbenchSurface
       title={t("admin.config.title")}
@@ -607,7 +740,7 @@ export const ConfigSetEditor: React.FC = () => {
       primaryAction={{
         label: t("setup.guide.card3Action"),
         onClick: () => {
-          void handleApplyWithoutPassword();
+          void handleApply();
         },
         disabled: testing,
       }}
@@ -622,7 +755,7 @@ export const ConfigSetEditor: React.FC = () => {
         busy: testing,
         onChange: setContent,
         onTest: handleTest,
-        onSave: handleApplyWithoutPassword,
+        onSave: handleApply,
         onCancel: handleResetToSaved,
         showCancel: false,
         allowSaveWithoutChanges: true,
