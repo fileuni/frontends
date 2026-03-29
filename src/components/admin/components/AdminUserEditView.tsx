@@ -395,8 +395,13 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 </button>
               </div>
               <div className="space-y-3">
-                {(form.other_phones || []).map((phone, idx) => (
-                  <div key={`phone-${idx}-${phone}`} className="flex gap-2">
+                {(form.other_phones || []).map((phone, idx) => {
+                  const duplicateCount = (form.other_phones || [])
+                    .slice(0, idx + 1)
+                    .filter((item) => item === phone).length;
+
+                  return (
+                  <div key={`${phone || 'empty'}-${duplicateCount}`} className="flex gap-2">
                     <Input
                       value={phone}
                       onChange={e => {
@@ -420,7 +425,8 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                       <Trash2 size={18} />
                     </button>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

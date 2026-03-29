@@ -192,14 +192,20 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
             </Button>
           </div>
           <div className="flex flex-wrap gap-2 min-h-[44px] p-3 rounded-xl bg-gray-200/50 dark:bg-black/20 border border-gray-200 dark:border-white/5 shadow-inner text-foreground">
-            {domains.map((d, i) => (
-              <Badge key={`${d}-${i}`} variant="outline" className="h-8 pl-3 pr-1 rounded-lg bg-primary/10 text-primary border-primary/20 flex items-center gap-2 group shadow-sm">
+            {domains.map((d, i) => {
+              const duplicateCount = domains
+                .slice(0, i + 1)
+                .filter((item) => item === d).length;
+
+              return (
+              <Badge key={`${d}-${duplicateCount}`} variant="outline" className="h-8 pl-3 pr-1 rounded-lg bg-primary/10 text-primary border-primary/20 flex items-center gap-2 group shadow-sm">
                 <span className="text-sm font-mono font-bold">{d}</span>
                 <button type="button" onClick={() => removeDomain(i)} className="p-1 rounded-md hover:bg-red-500 hover:text-white transition-all opacity-40 group-hover:opacity-100">
                   <Trash2 size={18} />
                 </button>
               </Badge>
-            ))}
+              );
+            })}
             {domains.length === 0 && <div className="w-full flex items-center justify-center text-[14px] font-black uppercase tracking-widest opacity-40 dark:opacity-20 py-2 italic">{t('admin.domain.noDomainAssets')}</div>}
           </div>
         </div>

@@ -60,8 +60,14 @@ export const KeyValueForm: React.FC<{
   return (
     <div className={cn('space-y-3', className)}>
       <div className="space-y-2">
-        {items.map((item, idx) => (
-          <div key={`${item.key}:${item.value || 'empty'}:${idx}`} className="grid grid-cols-1 md:grid-cols-[200px_1fr_44px] gap-2">
+        {items.map((item, idx) => {
+          const itemSignature = `${item.key}:${item.value || 'empty'}`;
+          const duplicateCount = items
+            .slice(0, idx + 1)
+            .filter((current) => `${current.key}:${current.value || 'empty'}` === itemSignature).length;
+
+          return (
+          <div key={`${itemSignature}:${duplicateCount}`} className="grid grid-cols-1 md:grid-cols-[200px_1fr_44px] gap-2">
             <Input
               value={item.key}
               placeholder={keyPlaceholder}
@@ -116,7 +122,8 @@ export const KeyValueForm: React.FC<{
               <Trash2 size={16} />
             </Button>
           </div>
-        ))}
+          );
+        })}
       </div>
       <div>
         <Button
