@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAudioStore } from '@/stores/audio.ts';
 import { useThemeStore } from '@/stores/theme';
-import { BASE_URL } from '@/lib/api.ts';
-import { getFileDownloadToken } from '@/lib/fileTokens.ts';
+import { downloadFileByPath } from '@/lib/fileTokens.ts';
 import {
   ChevronDown,
   Download,
@@ -54,14 +53,10 @@ export const GlobalAudioPlayer = () => {
   const handleDownload = async () => {
     if (!controller.activeFile) return;
     try {
-      const token = await getFileDownloadToken(controller.activeFile.path);
-      const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}`;
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = controller.display.title || controller.activeFile.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      await downloadFileByPath(
+        controller.activeFile.path,
+        controller.display.title || controller.activeFile.name,
+      );
     } catch (error) {
       console.error('Download failed', error);
     }

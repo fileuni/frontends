@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
-import { getFileDownloadToken } from '@/lib/fileTokens.ts';
+import { getFileContentUrl } from '@/lib/fileTokens.ts';
 import {
   Loader2,
   AlertCircle,
@@ -80,11 +80,10 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
     return () => observer.disconnect();
   }, []);
 
-  const executeLoad = useCallback(async (authToken: string) => {
+  const executeLoad = useCallback(async (filePath: string) => {
     setProcessing(true);
     try {
-      const { BASE_URL } = await import("@/lib/api.ts");
-      const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(authToken)}&inline=true`;
+      const url = await getFileContentUrl(filePath, { inline: true });
       const response = await fetch(url);
       if (response.ok) {
         const blob = await response.blob();
@@ -104,9 +103,7 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
     const init = async () => {
       setLoading(true);
       try {
-        const authToken = await getFileDownloadToken(path);
-        // Parent (FilePreviewPage) already checked size, so we proceed directly
-        await executeLoad(authToken);
+        await executeLoad(path);
       } catch (_error) {
         setError("Metadata fetch failed");
       } finally {

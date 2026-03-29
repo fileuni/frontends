@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, X, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
-import { BASE_URL, client, extractData } from '@/lib/api.ts';
+import { downloadFileByPath } from '@/lib/fileTokens.ts';
 import { useThemeStore } from '@/stores/theme';
 
 interface FilePreviewHeaderProps {
@@ -48,19 +48,9 @@ export const FilePreviewHeader = ({
       return;
     }
     try {
-      const data = await extractData<{ token: string }>(client.GET('/api/v1/file/get-file-download-token', { 
-        params: { query: { path } } 
-      }));
-      
-      const downloadUrl = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.token)}`;
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (e) {
-      console.error('Download failed:', e);
+      await downloadFileByPath(path, fileName);
+    } catch (error) {
+      console.error('Download failed:', error);
     }
   };
 

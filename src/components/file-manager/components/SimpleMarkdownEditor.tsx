@@ -7,8 +7,7 @@ import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirro
 import { tags } from '@lezer/highlight';
 import { useTranslation } from 'react-i18next';
 import { Edit3, Eye, LayoutPanelLeft, Loader2, Save } from 'lucide-react';
-import { BASE_URL } from '@/lib/api';
-import { getFileDownloadToken } from '@/lib/fileTokens';
+import { fetchTextFileContent } from '@/lib/fileTokens';
 import { Button } from '@/components/ui/Button';
 import { useToastStore } from '@/stores/toast';
 import { cn } from '@/lib/utils';
@@ -176,16 +175,10 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
     let cancelled = false;
     const run = async () => {
       setLoading(true);
-      try {
+        try {
         const next = loadContent
           ? await loadContent(path)
-          : await (async () => {
-              const token = await getFileDownloadToken(path);
-              if (cancelled) return '';
-              const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
-              const response = await fetch(url);
-              return await response.text();
-            })();
+          : await fetchTextFileContent(path);
         if (cancelled) return;
         const normalized = next || '';
         setContent(normalized);

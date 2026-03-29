@@ -20,6 +20,7 @@ import { LargeFileWarning } from './LargeFileWarning.tsx';
 import { OpenWithMenu } from './OpenWithMenu.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { useToastStore } from '@/stores/toast';
+import { extractFileListItems } from '../utils/fileListResponse.ts';
 
 // Lazy load PdfPreview to avoid SSR build errors
 const PdfPreview = React.lazy(() => import('./PdfPreview.tsx').then(m => ({ default: m.PdfPreview })));
@@ -109,13 +110,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
                     params: { query: { path: parent } } 
                 });
                 
-                let allFiles: FileInfo[] = [];
-                if (Array.isArray(res?.['data'])) {
-                  allFiles = res['data'];
-                } else if (res?.['data'] && typeof res['data'] === 'object') {
-                  const obj = res['data'] as Record<string, unknown>;
-                  allFiles = (obj['items'] || obj['data'] || []) as FileInfo[];
-                }
+                const allFiles = extractFileListItems(res?.['data']);
 
                 if (allFiles.length > 0) {
                     const siblings = allFiles.filter((f) => {

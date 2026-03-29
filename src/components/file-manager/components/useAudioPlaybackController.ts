@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { TFunction } from 'i18next';
 import type { FileInfo } from '../types/index.ts';
-import { BASE_URL } from '@/lib/api.ts';
-import { getFileDownloadToken } from '@/lib/fileTokens.ts';
+import { getFileContentUrl } from '@/lib/fileTokens.ts';
 import { resolveMediaResumePosition, upsertMediaPlaybackRecord } from '@/lib/mediaPlaybackHistory.ts';
 import { loadAudioMetadata, type AudioMetadata } from './audioMetadata.ts';
 import {
@@ -49,8 +48,7 @@ const getAudioUrl = async (path: string) => {
   const pending = audioUrlPromiseCache.get(path);
   if (pending) return pending;
 
-  const promise = getFileDownloadToken(path)
-    .then((token) => `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true`)
+  const promise = getFileContentUrl(path, { inline: true })
     .then((url) => {
       audioUrlCache.set(path, url);
       audioUrlPromiseCache.delete(path);

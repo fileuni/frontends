@@ -5,11 +5,12 @@ import { FileIcon } from './FileIcon.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Download, Lock, ShieldAlert, Clock, Calendar, ChevronRight, ArrowLeft, ExternalLink, ShieldCheck, Share2, QrCode, File as FileIconLucide } from 'lucide-react';
-import { client, extractData, isApiError, BASE_URL } from '@/lib/api.ts';
+import { client, extractData, isApiError } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
 import { QRCodeSVG } from 'qrcode.react';
 import { useNavigationStore } from '@/stores/navigation.ts';
 import { useThemeStore } from '@/stores/theme';
+import { buildDirectShareItemUrl, buildShareHashUrl } from '../utils/shareHelpers.ts';
 
 import type { components } from '@/types/api.ts';
 
@@ -140,8 +141,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
   }, [currentPath, fetchContents, shareInfo?.is_dir, token]);
 
   const downloadItem = (path: string = '/') => {
-    const backendUrl = BASE_URL || window.location.origin;
-    const downloadUrl = `${backendUrl}/api/v1/file/public/direct/${token}${path.startsWith('/') ? path : '/' + path}${password ? `?password=${password}` : ''}`;
+    const downloadUrl = buildDirectShareItemUrl(token, path, password || undefined);
     window.open(downloadUrl, '_blank');
   };
 
@@ -155,12 +155,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
 
   // Generate correct QR code URL with hash routing
   const getQrUrl = () => {
-    const baseUrl = window.location.origin + window.location.pathname;
-    let url = `${baseUrl}#mod=file-manager&page=share&token=${token}`;
-    if (currentPath && currentPath !== '/') {
-      url += `&sub_path=${encodeURIComponent(currentPath)}`;
-    }
-    return url;
+    return buildShareHashUrl(token, currentPath);
   };
 
   if (!mounted || loading) return <div className="min-h-screen flex items-center justify-center font-black animate-pulse opacity-50 uppercase tracking-widest text-primary">{t('filemanager.publicShare.verifying')}</div>;

@@ -3,8 +3,8 @@ import { CodeMirrorEditor } from '@/components/editors/CodeMirrorEditor';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
-import { BASE_URL, client } from '@/lib/api.ts';
-import { getFileDownloadToken } from '@/lib/fileTokens.ts';
+import { client } from '@/lib/api.ts';
+import { fetchTextFileContent } from '@/lib/fileTokens.ts';
 import { useToastStore } from '@/stores/toast';
 import { useConfigStore } from '@/stores/config.ts';
 import { cn } from '@/lib/utils.ts';
@@ -133,11 +133,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     const fetchContent = async () => {
       setLoading(true);
       try {
-        const token = await getFileDownloadToken(path);
-        if (canceled) return;
-        const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
-        const res = await fetch(url);
-        const text = await res.text();
+        const text = await fetchTextFileContent(path);
         if (canceled) return;
         const next = text || '';
         setContent(next);

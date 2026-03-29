@@ -1,4 +1,5 @@
 import { BASE_URL, client, extractData } from '@/lib/api.ts';
+import { getFileContentUrl } from '@/lib/fileTokens.ts';
 
 export const OFFICE_COMPLEX_SIZE_HINT = 2 * 1024 * 1024;
 
@@ -89,10 +90,7 @@ export async function fetchFileStatSize(path: string): Promise<number> {
 }
 
 export async function fetchFileArrayBuffer(path: string): Promise<ArrayBuffer> {
-  const data = await extractData<{ token: string }>(
-    client.GET('/api/v1/file/get-file-download-token', { params: { query: { path } } })
-  );
-  const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.token)}`;
+  const url = await getFileContentUrl(path);
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Download failed: ${response.status} ${response.statusText}`);
@@ -101,12 +99,10 @@ export async function fetchFileArrayBuffer(path: string): Promise<ArrayBuffer> {
 }
 
 export async function fetchFileDownloadUrl(path: string, inline = true): Promise<string> {
-  const data = await extractData<{ token: string }>(
-    client.GET('/api/v1/file/get-file-download-token', { params: { query: { path } } })
-  );
-  const base = resolvePublicBaseUrl();
-  const inlineParam = inline ? '&inline=true' : '';
-  return `${base}/api/v1/file/get-content?file_download_token=${encodeURIComponent(data.token)}${inlineParam}`;
+  return getFileContentUrl(path, {
+    inline,
+    baseUrl: resolvePublicBaseUrl(),
+  });
 }
 
 export async function uploadBase64File(path: string, base64: string): Promise<void> {

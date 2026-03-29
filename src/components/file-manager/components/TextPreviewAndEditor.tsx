@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CodeMirrorEditor } from '@/components/editors/CodeMirrorEditor';
-import { BASE_URL } from '@/lib/api.ts';
-import { getFileDownloadToken } from '@/lib/fileTokens.ts';
+import { fetchTextFileContent } from '@/lib/fileTokens.ts';
 import { 
   Loader2, Save, Edit3, Eye
 } from 'lucide-react';
@@ -116,13 +115,7 @@ export const TextPreviewAndEditor = ({
         try {
         const text = loadContent
           ? await loadContent(path)
-          : await (async () => {
-              const token = await getFileDownloadToken(path);
-              if (canceled) return '';
-              const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
-              const res = await fetch(url);
-              return await res.text();
-            })();
+          : await fetchTextFileContent(path);
         if (canceled) return;
         const next = text || '';
         setContent(next);

@@ -3,8 +3,7 @@ import Vditor from 'vditor';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils.ts';
 import { Loader2, Save, Eye, Edit3 } from 'lucide-react';
-import { BASE_URL } from '@/lib/api.ts';
-import { getFileDownloadToken } from '@/lib/fileTokens.ts';
+import { fetchTextFileContent } from '@/lib/fileTokens.ts';
 import { useToastStore } from '@/stores/toast';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { Button } from '@/components/ui/Button.tsx';
@@ -128,13 +127,7 @@ export const MarkdownVditorEditor = ({
       try {
         const next = loadContent
           ? await loadContent(path)
-          : await (async () => {
-              const token = await getFileDownloadToken(path);
-              if (canceled) return '';
-              const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true&mode=text`;
-              const res = await fetch(url);
-              return await res.text();
-            })();
+          : await fetchTextFileContent(path);
         if (canceled) return;
         const normalized = next || '';
         setContent(normalized);

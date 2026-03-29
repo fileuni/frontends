@@ -4,7 +4,7 @@ import {
   Loader2, Folder, File, Download, 
   ArrowLeft, Search, Archive, X
 } from 'lucide-react';
-import { client, BASE_URL } from '@/lib/api.ts';
+import { client, BASE_URL, extractData } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
@@ -36,14 +36,10 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
     const fetchContents = async () => {
       setLoading(true);
       try {
-        const { data, error } = await client.GET('/api/v1/file/archive/list', {
+        const nextEntries = await extractData<ArchiveEntry[]>(client.GET('/api/v1/file/archive/list', {
           params: { query: { path: archivePath, password } }
-        });
-
-        if (error) throw error;
-        if (data?.['success']) {
-          setEntries(data['data'] as ArchiveEntry[]);
-        }
+        }));
+        setEntries(nextEntries);
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : "Failed to load archive contents";
         toast.error(msg);

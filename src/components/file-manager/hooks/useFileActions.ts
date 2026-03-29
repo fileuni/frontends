@@ -1,28 +1,19 @@
 import { useCallback } from 'react';
-import { client, BASE_URL, extractData, handleApiError } from '@/lib/api.ts';
-import { getFileDownloadToken } from '@/lib/fileTokens.ts';
+import { client, extractData, handleApiError } from '@/lib/api.ts';
+import { downloadFileByPath } from '@/lib/fileTokens.ts';
 import { useFileStore, type StorageStats, type TaskState, type FileManagerMode } from '../store/useFileStore.ts';
 import { useSelectionStore } from '../store/useSelectionStore.ts';
 import { useTranslation } from 'react-i18next';
 import type { FileInfo, ClipboardItem } from '../types/index.ts';
 import { useToastStore } from '@/stores/toast';
 import { isMountRootEntry } from '../utils/mounts.ts';
+import { parseFileListResult } from '../utils/fileListResponse.ts';
 
 interface TaskData {
   status: TaskState['status'];
   message?: string;
   progress?: number;
   task_id?: string;
-}
-
-interface FileListResponse {
-  items?: FileInfo[];
-  data?: FileInfo[];
-  pagination?: {
-    total?: number;
-    total_pages?: number;
-  };
-  total?: number;
 }
 
 export function useFileActions() {
@@ -115,32 +106,27 @@ export function useFileActions() {
         if (shareFilter.enableDirect !== null) query['enable_direct'] = shareFilter.enableDirect ?? null;
       }
 
-      const result = await extractData<FileInfo[] | FileListResponse>(
+      const result = await extractData<FileInfo[] | unknown>(
         client.GET(endpoint, {
           params: { query: query as unknown as never }
         })
       );
 
-      let filesArray: FileInfo[] = [];
-      
-      // Intelligently extract files array
-      if (Array.isArray(result)) {
-        filesArray = result;
+      const parsedResult = parseFileListResult(result);
+      const filesArray = parsedResult.items;
+
+      if (parsedResult.totalPages !== null) {
+        store.setPagination(
+          parsedResult.total ?? filesArray.length,
+          parsedResult.totalPages,
+          page,
+          overridePageSize,
+        );
+      } else if (parsedResult.total !== null) {
+        const totalPages = Math.ceil(parsedResult.total / overridePageSize);
+        store.setPagination(parsedResult.total, totalPages || 1, page, overridePageSize);
+      } else {
         store.setPagination(filesArray.length, 1, 1, overridePageSize);
-      } else if (result && typeof result === 'object') {
-        // Compatible with items or data wrapped structures
-        filesArray = (result.items || result.data || []) as FileInfo[];
-        
-        if (result.pagination) {
-          const p = result.pagination;
-          store.setPagination(p.total || 0, p.total_pages || 1, page, overridePageSize);
-        } else if (result.total !== undefined) {
-          const total = Number(result.total) || 0;
-          const totalPages = Math.ceil(total / overridePageSize);
-          store.setPagination(total, totalPages || 1, page, overridePageSize);
-        } else {
-          store.setPagination(filesArray.length, 1, 1, overridePageSize);
-        }
       }
       
       setFiles(filesArray);
@@ -432,17 +418,8 @@ export function useFileActions() {
       const file = store.files.find(f => f.path === path);
       if (file) store.addToRecentFiles(file);
 
-      const token = await getFileDownloadToken(path);
-      const url = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}`;
-
-      // Create hidden link and trigger download, more reliable than window.open
-      const link = document.createElement('a');
-      link.href = url;
       const fileName = path.split('/').pop() || 'file';
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      await downloadFileByPath(path, fileName);
     } catch (_error) {
       console.error('Download failed:', _error);
       addToast(t('common.error') || "Download failed", "error");

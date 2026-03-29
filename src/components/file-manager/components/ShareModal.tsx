@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@/stores/toast';
@@ -8,11 +8,25 @@ import { Input } from '@/components/ui/Input.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Link as LinkIcon, Copy, CheckCircle2, Lock, Clock, Dices, Download, Zap, Settings, Info, User, QrCode, X, Upload, FilePenLine, Trash2 } from 'lucide-react';
 import type { FileInfo } from '../types/index.ts';
-import { client, BASE_URL } from '@/lib/api.ts';
+import { client, extractData, handleApiError } from '@/lib/api.ts';
 import { useThemeStore } from '@/stores/theme';
 import { cn } from '@/lib/utils.ts';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import { QRCodeSVG } from 'qrcode.react';
+import {
+  buildDirectShareUrl,
+  buildShareClipboardText,
+  buildShareCreateBody,
+  buildShareHashUrl,
+  buildShareUpdateBody,
+  createEditingShareForm,
+  createNewShareForm,
+  currentShareHasPassword,
+  EMPTY_SHARE_FORM,
+  formatShareDateForInput,
+  hasVisibleSharePassword,
+  type ShareFormState,
+} from '../utils/shareHelpers.ts';
 
 interface Props {
   isOpen: boolean;
@@ -20,17 +34,13 @@ interface Props {
   file: FileInfo | null;
 }
 
-import type { components } from '@/types/api.ts';
-
-type ShareData = components["schemas"]["Resp"] & { data: { id: string } };
-
 export const ShareModal = ({ isOpen, onClose, file }: Props) => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
   const { theme } = useThemeStore();
   const { loadFiles } = useFileActions();
   const [loading, setLoading] = useState(false);
-  const [shareData, setShareData] = useState<ShareData | null>(null);
+  const [completedShareId, setCompletedShareId] = useState<string | null>(null);
   
   const [mainTab, setMainTab] = useState<'view' | 'edit'>('view');
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
@@ -38,54 +48,20 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
   
   const isEditing = !!(file && file.id && file.view_count !== undefined);
 
-  const [form, setForm] = useState({
-    password: '',
-    expireDate: '',
-    maxDownloads: 0,
-    enableDirect: false,
-    canUpload: false,
-    canUpdateNoCreate: false,
-    canDelete: false,
-    passwordMode: 'keep' as 'keep' | 'change' | 'remove',
-  });
+  const [form, setForm] = useState<ShareFormState>(EMPTY_SHARE_FORM);
 
-  const formatDateForInput = useCallback((date: Date) => {
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-  }, []);
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen && isEditing && file) {
-      setForm({
-        password: '',
-        expireDate: file.expire_at ? formatDateForInput(new Date(file.expire_at)) : '',
-        maxDownloads: file.max_downloads || 0,
-        enableDirect: file.enable_direct || false,
-        canUpload: file.can_upload || false,
-        canUpdateNoCreate: file.can_update_no_create || false,
-        canDelete: file.can_delete || false,
-        passwordMode: 'keep',
-      });
+      setForm(createEditingShareForm(file));
       setMainTab('view');
     } else if (isOpen && !isEditing) {
-      const defaultDate = new Date();
-      defaultDate.setDate(defaultDate.getDate() + 7);
-      setForm({
-        password: '',
-        expireDate: formatDateForInput(defaultDate),
-        maxDownloads: 0,
-        enableDirect: false,
-        canUpload: false,
-        canUpdateNoCreate: false,
-        canDelete: false,
-        passwordMode: 'change', 
-      });
+      setForm(createNewShareForm());
       setMainTab('edit');
     }
-    setShareData(null);
+    setCompletedShareId(null);
     setActiveTab('basic');
     setShowQr(false);
-  }, [isOpen, isEditing, file, formatDateForInput]);
+  }, [isOpen, isEditing, file]);
 
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -113,148 +89,91 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     }
     const date = new Date();
     date.setDate(date.getDate() + days);
-    setForm({ ...form, expireDate: formatDateForInput(date) });
-  };
-
-  const getExpireDays = () => {
-    if (!form.expireDate) return undefined;
-    const now = new Date();
-    const target = new Date(form.expireDate);
-    const diffTime = target.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? diffDays : undefined;
+    setForm({ ...form, expireDate: formatShareDateForInput(date) });
   };
 
   const handleCreateShare = async () => {
     if (!file) return;
     setLoading(true);
     try {
-      const createBody: Record<string, unknown> = {
-        path: file.path,
-        password: form.password || undefined,
-        expire_days: getExpireDays(),
-        max_downloads: form.maxDownloads > 0 ? form.maxDownloads : undefined,
-        enable_direct: form.enableDirect,
-        can_upload: file.is_dir ? form.canUpload : undefined,
-        can_update_no_create: file.is_dir ? form.canUpdateNoCreate : undefined,
-        can_delete: file.is_dir ? form.canDelete : undefined,
-      };
-      const { data: res } = await client.POST('/api/v1/file/shares/create', {
-        body: createBody as unknown as never
-      });
-      if (res?.['success']) {
-        setShareData(res as ShareData);
-        addToast(t('filemanager.shareModal.successTitle'), 'success');
-        loadFiles();
-        setMainTab('view');
-      }
-    } catch (_error: unknown) { void _error; } finally { setLoading(false); }
+      const shareResult = await extractData<{ id: string }>(client.POST('/api/v1/file/shares/create', {
+        body: buildShareCreateBody(file, form) as unknown as never,
+      }));
+      setCompletedShareId(shareResult.id);
+      addToast(t('filemanager.shareModal.successTitle'), 'success');
+      void loadFiles();
+      setMainTab('view');
+    } catch (error: unknown) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleUpdateShare = async () => {
     if (!file || !file.id) return;
     setLoading(true);
     try {
-      const days = getExpireDays();
-      const body: Record<string, unknown> = {
-        enable_direct: form.enableDirect,
-        expire_days: form.expireDate === '' ? null : (days !== undefined ? days : null),
-        max_downloads: form.maxDownloads > 0 ? form.maxDownloads : null,
-        can_upload: file.is_dir ? form.canUpload : undefined,
-        can_update_no_create: file.is_dir ? form.canUpdateNoCreate : undefined,
-        can_delete: file.is_dir ? form.canDelete : undefined,
-      };
-
-      if (form.passwordMode === 'change') {
-        body['password'] = form.password || null;
-      } else if (form.passwordMode === 'remove') {
-        body['password'] = null;
-      }
-
-      const { data: res } = await client.PATCH('/api/v1/file/shares/{id}', {
+      await extractData(client.PATCH('/api/v1/file/shares/{id}', {
         params: { path: { id: file.id } },
-        body: body as unknown as never
-      });
+        body: buildShareUpdateBody(file, form) as unknown as never,
+      }));
 
-      if (res?.['success']) {
-        addToast(t('common.manage') || 'Updated successfully', 'success');
-        loadFiles();
-        
-        // Construct full ShareData response
-        const newShareData = { 
-          ...res, 
-          data: { id: file.id } 
-        } as unknown as ShareData;
-        
-        setShareData(newShareData);
-        setMainTab('view');
-      }
-    } catch (_error: unknown) { void _error; } finally { setLoading(false); }
+      addToast(t('common.manage') || 'Updated successfully', 'success');
+      void loadFiles();
+      setCompletedShareId(file.id);
+      setMainTab('view');
+    } catch (error: unknown) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
-    setShareData(null);
-    setForm({
-      password: '',
-      expireDate: '',
-      maxDownloads: 0,
-      enableDirect: false,
-      canUpload: false,
-      canUpdateNoCreate: false,
-      canDelete: false,
-      passwordMode: 'keep',
-    });
+    setCompletedShareId(null);
+    setForm(EMPTY_SHARE_FORM);
     onClose();
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    addToast(t('filemanager.shareModal.copySuccess'), 'success');
-  };
-
-  // Unified logic to get share ID
-  const shareId = shareData?.data.id || (isEditing ? file?.id : null);
-
-  const getFullBaseUrl = () => {
-    const origin = window.location.origin;
-    const path = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
-    return origin + path;
-  };
-
-  const shareUrl = shareId 
-    ? `${getFullBaseUrl()}#mod=file-manager&page=share&token=${shareId}`
-    : "";
-  
-  const directUrl = shareId
-    ? `${BASE_URL || window.location.origin}/api/v1/file/public/direct/${shareId}/`
-    : '';
-
-  const getCombinedAllInfo = () => {
-    let info = `${t('filemanager.shareModal.copyFormat.title')}\n${t('filemanager.shareModal.copyFormat.file')}: ${file?.name}\n${t('filemanager.shareModal.copyFormat.link')}: ${shareUrl}`;
-    const hasVisiblePwd = (form.passwordMode === 'change' || (!isEditing && form.password)) && form.password;
-    
-    if (hasVisiblePwd) {
-      info += `\n${t('filemanager.shareModal.copyFormat.password')}: ${form.password}`;
-    } else if (file?.has_password && form.passwordMode === 'keep') {
-      info += `\n${t('filemanager.shareModal.copyFormat.password')}: ${t('filemanager.shareModal.copyFormat.existingPassword')}`;
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      addToast(t('filemanager.shareModal.copySuccess'), 'success');
+    } catch (error: unknown) {
+      addToast(handleApiError(error, t), 'error');
     }
-
-    if (form.enableDirect || file?.enable_direct) {
-      info += `\n\n${t('filemanager.shareModal.copyFormat.directTitle')}\n${t('filemanager.shareModal.copyFormat.url')}: ${directUrl}\n${t('filemanager.shareModal.copyFormat.user')}: fileuni`;
-      if (hasVisiblePwd) {
-        info += `\n${t('filemanager.shareModal.copyFormat.pass')}: ${form.password}`;
-      } else if (file?.has_password && form.passwordMode === 'keep') {
-        info += `\n${t('filemanager.shareModal.copyFormat.pass')}: ${t('filemanager.shareModal.copyFormat.existingPassword')}`;
-      }
-    }
-    return info;
   };
 
-  const currentHasPassword = () => {
-    if (form.passwordMode === 'remove') return false;
-    if (form.passwordMode === 'change') return !!form.password;
-    return !!file?.has_password;
-  };
+  const shareId = completedShareId || (isEditing ? file?.id || null : null);
+  const shareUrl = shareId ? buildShareHashUrl(shareId) : '';
+  const directUrl = shareId ? buildDirectShareUrl(shareId) : '';
+  const hasVisiblePassword = hasVisibleSharePassword(form, isEditing);
+  const hasCurrentPassword = currentShareHasPassword(form, file);
+  const directEnabled = form.enableDirect || file?.enable_direct === true;
+  const combinedAllInfo = useMemo(
+    () => buildShareClipboardText({
+      labels: {
+        title: t('filemanager.shareModal.copyFormat.title'),
+        file: t('filemanager.shareModal.copyFormat.file'),
+        link: t('filemanager.shareModal.copyFormat.link'),
+        password: t('filemanager.shareModal.copyFormat.password'),
+        existingPassword: t('filemanager.shareModal.copyFormat.existingPassword'),
+        directTitle: t('filemanager.shareModal.copyFormat.directTitle'),
+        directUrl: t('filemanager.shareModal.copyFormat.url'),
+        directUser: t('filemanager.shareModal.copyFormat.user'),
+        directPass: t('filemanager.shareModal.copyFormat.pass'),
+      },
+      fileName: file?.name || '',
+      shareUrl,
+      directUrl,
+      password: form.password,
+      hasVisiblePassword,
+      hasExistingPassword: Boolean(file?.has_password && form.passwordMode === 'keep'),
+      directEnabled,
+    }),
+    [directEnabled, directUrl, file?.has_password, file?.name, form.password, form.passwordMode, hasVisiblePassword, shareUrl, t],
+  );
 
   const PresetTag = ({ label, days }: { label: string, days: number }) => (
     <button
@@ -302,7 +221,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
 
         {mainTab === 'view' ? (
           <div className="p-5 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            {shareData && (
+            {completedShareId && (
               <div className="flex flex-col items-center text-center space-y-1 mb-1">
                 <div className="w-10 h-10 rounded-2xl bg-green-500/10 text-green-500 flex items-center justify-center shadow-inner">
                   <CheckCircle2 size={20} />
@@ -338,7 +257,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                 {showQr ? (
                   <div className="p-6 flex flex-col items-center justify-center bg-white space-y-3 animate-in zoom-in-95 duration-300">
                     <QRCodeSVG 
-                      value={getCombinedAllInfo()} 
+                      value={combinedAllInfo} 
                       size={140}
                       level="H"
                     />
@@ -349,7 +268,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                     <div className="p-3 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-[14px] font-black uppercase opacity-40 tracking-widest">{t('filemanager.shareModal.shareUrlLabel')}</span>
-                        {currentHasPassword() && (
+                        {hasCurrentPassword && (
                           <div className="px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 text-[14px] font-black uppercase border border-yellow-500/20">
                             <Lock size={10} className="inline mr-1" /> {t('filemanager.shareModal.protected')}
                           </div>
@@ -372,7 +291,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                       </div>
                     )}
 
-                    {(form.enableDirect || file?.enable_direct) && (
+                    {directEnabled && (
                       <div className="p-3 bg-primary/5 border-t border-white/5 space-y-3">
                         <div className="flex items-center gap-2">
                           <Zap size={18} className="text-yellow-500" />
@@ -400,10 +319,10 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
 
                 <button 
                   type="button"
-                  onClick={() => copyToClipboard(getCombinedAllInfo())}
+                  onClick={() => { void copyToClipboard(combinedAllInfo); }}
                   className="w-full py-3 bg-primary text-white text-sm font-black uppercase tracking-[0.2em] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
-                  <Copy size={18} /> {currentHasPassword() || form.enableDirect || file?.enable_direct ? t('filemanager.shareModal.copyAllInfo') : t('filemanager.shareModal.copyLink')}
+                  <Copy size={18} /> {hasCurrentPassword || directEnabled ? t('filemanager.shareModal.copyAllInfo') : t('filemanager.shareModal.copyLink')}
                 </button>
               </div>
             </div>

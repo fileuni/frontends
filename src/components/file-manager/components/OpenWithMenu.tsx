@@ -3,10 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { ChevronDown, ExternalLink, Play, Monitor, Download, Loader2, FileCode, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
-import { BASE_URL, client } from '@/lib/api.ts';
-import { getFileDownloadToken } from '@/lib/fileTokens.ts';
+import { BASE_URL } from '@/lib/api.ts';
+import { downloadFileByPath, getFileContentUrl } from '@/lib/fileTokens.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { OFFICE_DOCX_EXTS, OFFICE_PPTX_EXTS, OFFICE_XLSX_EXTS } from '../utils/officeLite.ts';
+import {
+  fetchFileIntegrationApps,
+  fetchWopiOpenUrl,
+  type FileIntegrationAppInfo,
+} from '../utils/fileIntegration.ts';
 import { useConfigStore } from '@/stores/config.ts';
 
 interface Props {
@@ -16,20 +21,11 @@ interface Props {
   variant?: 'ghost' | 'primary' | 'outline';
 }
 
-interface AppInfo {
-  id: string;
-  name: string;
-  app_type: 'internal' | 'web' | 'local';
-  protocol?: string;
-  url_template?: string;
-  icon?: string;
-}
-
 export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'ghost' }: Props) => {
   const { t } = useTranslation();
   const { capabilities } = useConfigStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [apps, setApps] = useState<AppInfo[]>([]);
+  const [apps, setApps] = useState<FileIntegrationAppInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   
@@ -42,26 +38,21 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
   const fetchApps = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await client.GET('/api/v1/file/integration/apps', {
-        params: { query: { ext } }
-      });
-      if (data?.['data']) {
-        let nextApps = data['data'] as AppInfo[];
-        if (isOffice) {
-          nextApps = nextApps.filter(app => app.id !== 'internal');
-          if (!nextApps.some(app => app.id === 'office-lite')) {
-            nextApps = nextApps.concat({
-              id: 'office-lite',
-              name: t('filemanager.officeLite.name'),
-              app_type: 'internal'
-            });
-          }
+      let nextApps = await fetchFileIntegrationApps(ext);
+      if (isOffice) {
+        nextApps = nextApps.filter(app => app.id !== 'internal');
+        if (!nextApps.some(app => app.id === 'office-lite')) {
+          nextApps = nextApps.concat({
+            id: 'office-lite',
+            name: t('filemanager.officeLite.name'),
+            app_type: 'internal'
+          });
         }
-        if (!enableWopi) {
-          nextApps = nextApps.filter(app => app.id !== 'wopi-office');
-        }
-        setApps(nextApps);
       }
+      if (!enableWopi) {
+        nextApps = nextApps.filter(app => app.id !== 'wopi-office');
+      }
+      setApps(nextApps);
     } catch (e) {
       console.error("Failed to fetch apps", e);
       // Fallback when API fails
@@ -81,7 +72,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
     }
   }, [apps.length, fetchApps, isOpen]);
 
-  const handleAppClick = async (app: AppInfo) => {
+  const handleAppClick = async (app: FileIntegrationAppInfo) => {
     setIsOpen(false);
     
     if (app.id === 'office-lite') {
@@ -107,15 +98,8 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
         // Must fetch URL from backend because endpoint is JWT-protected
         // Direct window.open(api_url) would fail with 401
         try {
-            const { data } = await client.GET('/api/v1/file/integration/wopi/open', {
-                params: { query: { path: file.path, mode: 'edit' } }
-            });
-            if (data?.['success'] && data['data']) {
-              const resData = data['data'] as unknown as { url: string };
-              if (resData.url) {
-                  window.open(resData.url, '_blank');
-              }
-            }
+            const url = await fetchWopiOpenUrl(file.path, 'edit');
+            window.open(url, '_blank');
         } catch (e) {
             console.error("Failed to get WOPI URL", e);
         }
@@ -125,10 +109,10 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
     if (app.app_type === 'local' && app.protocol) {
         // Local protocol
         try {
-            const token = await getFileDownloadToken(file.path);
-            // If BASE_URL is already absolute (dev), don't add origin
-            const apiPath = `/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true`;
-            const downloadUrl = BASE_URL ? `${BASE_URL}${apiPath}` : `${window.location.origin}${apiPath}`;
+            const downloadUrl = await getFileContentUrl(file.path, {
+                inline: true,
+                baseUrl: BASE_URL || window.location.origin,
+            });
             window.location.href = `${app.protocol}${downloadUrl}`;
         } catch (e) {
             console.error("Failed to generate link", e);
@@ -136,7 +120,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
     }
   };
 
-  const getIcon = (app: AppInfo) => {
+  const getIcon = (app: FileIntegrationAppInfo) => {
       if (app.id === 'office-lite') return <FileText size={18} />;
       if (app.app_type === 'internal') return <Monitor size={18} />;
       if (app.app_type === 'web') return <ExternalLink size={18} />;
@@ -198,19 +182,12 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
             <button
               type="button"
               className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-white/5 text-left transition-colors text-zinc-300 hover:text-white"
-               onClick={async () => {
-                  setIsOpen(false);
-                  try {
-                     const token = await getFileDownloadToken(file.path);
-                     const downloadUrl = `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}`;
-                     const link = document.createElement('a');
-                     link.href = downloadUrl;
-                     link.download = file.name;
-                     document.body.appendChild(link);
-                     link.click();
-                     document.body.removeChild(link);
-                  } catch (e) { console.error(e); }
-              }}
+                onClick={async () => {
+                   setIsOpen(false);
+                   try {
+                     await downloadFileByPath(file.path, file.name);
+                   } catch (e) { console.error(e); }
+               }}
             >
              <Download size={18} />
              <span>{t('filemanager.previewModal.downloadFile')}</span>

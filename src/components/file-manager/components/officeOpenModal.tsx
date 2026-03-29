@@ -2,30 +2,28 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ExternalLink, FileText, Download, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
-import { client } from '@/lib/api.ts';
+import { downloadFileByPath } from '@/lib/fileTokens.ts';
 import { useConfigStore } from '@/stores/config.ts';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { useThemeStore } from '@/stores/theme';
 import { cn } from '@/lib/utils.ts';
 import { fetchFileDownloadUrl, fetchFileStatSize, getFileExtension, isComplexOfficeFile, OFFICE_PPTX_EXTS, resolveLimitBytes } from '../utils/officeLite.ts';
+import {
+  fetchFileIntegrationApps,
+  fetchWopiOpenUrl,
+  type FileIntegrationAppInfo,
+} from '../utils/fileIntegration.ts';
 
 interface Props {
   path: string;
   onClose: () => void;
 }
 
-interface AppInfo {
-  id: string;
-  name: string;
-  app_type: 'internal' | 'web' | 'local';
-  url_template?: string;
-}
-
 export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const { capabilities } = useConfigStore();
-  const [apps, setApps] = useState<AppInfo[]>([]);
+  const [apps, setApps] = useState<FileIntegrationAppInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [statSize, setStatSize] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -43,18 +41,15 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const loadApps = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const size = await fetchFileStatSize(path);
-      setStatSize(size);
-      const { data } = await client.GET('/api/v1/file/integration/apps', {
-        params: { query: { ext } }
-      });
-      const list = (data?.['data'] as AppInfo[]) || [];
-      const merged = list.some(app => app.id === 'office-lite')
-        ? list
-        : list.concat({ id: 'office-lite', name: t('filemanager.officeLite.name'), app_type: 'internal' });
+      setLoading(true);
+      setError(null);
+      try {
+        const size = await fetchFileStatSize(path);
+        setStatSize(size);
+        const list = await fetchFileIntegrationApps(ext);
+        const merged = list.some(app => app.id === 'office-lite')
+          ? list
+          : list.concat({ id: 'office-lite', name: t('filemanager.officeLite.name'), app_type: 'internal' });
       setApps(merged.filter(app => app.id === 'office-lite' || (enableWopi && app.id === 'wopi-office')));
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load apps');
@@ -85,18 +80,9 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
   const openWopi = async () => {
     try {
       const mode = isPreviewOnly ? 'view' : 'edit';
-      const { data } = await client.GET('/api/v1/file/integration/wopi/open', {
-        params: { query: { path, mode } }
-      });
-      if (data?.['success'] && data['data']) {
-        const resData = data['data'] as unknown as { url: string };
-        if (resData.url) {
-          window.open(resData.url, '_blank');
-          onClose();
-          return;
-        }
-      }
-      setError('Failed to open Office Online');
+      const url = await fetchWopiOpenUrl(path, mode);
+      window.open(url, '_blank');
+      onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to open Office Online');
     }
@@ -117,13 +103,7 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
 
   const downloadFile = async () => {
     try {
-      const downloadUrl = await fetchFileDownloadUrl(path, false);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      await downloadFileByPath(path, fileName, { inline: false });
       onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Download failed');
