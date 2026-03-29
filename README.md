@@ -27,9 +27,43 @@ This project builds a single static dist that is used by:
 bun install
 bun run dev
 bun run dev:tauri
+bun run lint
+bun run typecheck
 bun run check
 bun run build
+bun run verify
 bun run gen-api
+```
+
+## Quality Gates
+
+- `bun run lint`
+  - Runs ESLint on `src/**/*.{ts,tsx,astro}`
+  - Enforces React hooks, key a11y rules, button typing, stable list keys, and selected safety rules
+- `bun run typecheck`
+  - Runs `tsc --noEmit` with strict frontend settings
+- `bun run check`
+  - Runs `astro check`
+- `bun run build`
+  - Builds the production static bundle
+- `bun run verify`
+  - Runs `lint`, `typecheck`, `check`, and `build` in sequence
+
+## Recommended Workflow
+
+Use this order during frontend work:
+
+```bash
+bun run lint:fix
+bun run typecheck
+bun run check
+bun run build
+```
+
+Before opening a PR or creating a commit for frontend changes, run:
+
+```bash
+bun run verify
 ```
 
 ## Constraints
@@ -37,4 +71,6 @@ bun run gen-api
 - Runtime: Bun only; Node.js not supported
 - Rendering: SSG only; SSR not supported
 - Types: `any` is forbidden; use `bun run gen-api` to generate types from OpenAPI
+- TypeScript: strict mode, exact optional property types, unchecked indexed access checks, and index-signature access checks are enabled
+- Lint: hooks and a11y gates are required; `button` elements must declare `type`, and array index keys are forbidden
 - Tauri isolation: keep Tauri-only imports under `src/apps/launcher/` (or future app-specific folders) and load them via dynamic import
