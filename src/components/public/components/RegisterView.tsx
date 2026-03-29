@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
-import { client, handleApiError } from '@/lib/api.ts';
+import { client } from '@/lib/api.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { UserPlus, User, Lock, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
+import { showApiErrorToast } from '@/lib/feedback.ts';
 import { FormField } from '@/components/common/FormField.tsx';
 import { IconInput } from '@/components/common/IconInput.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
@@ -36,22 +37,14 @@ export const RegisterView = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await client.POST("/api/v1/users/public/register", {
+      await client.POST("/api/v1/users/public/register", {
         body: { username, password },
       });
-      
-      if (error) {
-        addToast(handleApiError(error, t), "error");
-        return;
-      }
-      
-      if (data?.['success']) {
-        addToast(t('auth.registerSuccess'), 'success');
-        window.location.hash = 'mod=public&page=login';
-      }
-    } catch (e: unknown) {
-      console.error("Register catch error:", e);
-      addToast(t("errors.INTERNAL_ERROR"), "error");
+
+      addToast(t('auth.registerSuccess'), 'success');
+      window.location.hash = 'mod=public&page=login';
+    } catch (error: unknown) {
+      showApiErrorToast(addToast, t, error);
     } finally {
       setLoading(false);
     }

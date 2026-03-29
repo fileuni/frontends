@@ -13,6 +13,7 @@ import { useThemeStore } from '@/stores/theme';
 import { cn } from '@/lib/utils.ts';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import { QRCodeSVG } from 'qrcode.react';
+import { copyTextWithToast, showApiErrorToast } from '@/lib/feedback.ts';
 import {
   buildDirectShareUrl,
   buildShareClipboardText,
@@ -104,7 +105,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
       void loadFiles();
       setMainTab('view');
     } catch (error: unknown) {
-      addToast(handleApiError(error, t), 'error');
+      showApiErrorToast(addToast, t, error);
     } finally {
       setLoading(false);
     }
@@ -124,7 +125,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
       setCompletedShareId(file.id);
       setMainTab('view');
     } catch (error: unknown) {
-      addToast(handleApiError(error, t), 'error');
+      showApiErrorToast(addToast, t, error);
     } finally {
       setLoading(false);
     }
@@ -137,12 +138,12 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
   };
 
   const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      addToast(t('filemanager.shareModal.copySuccess'), 'success');
-    } catch (error: unknown) {
-      addToast(handleApiError(error, t), 'error');
-    }
+    await copyTextWithToast({
+      text,
+      addToast,
+      t,
+      successMessage: t('filemanager.shareModal.copySuccess'),
+    });
   };
 
   const shareId = completedShareId || (isEditing ? file?.id || null : null);

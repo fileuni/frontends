@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button.tsx";
 import { Modal } from "@/components/ui/Modal.tsx";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
+import { showApiErrorToast } from '@/lib/feedback.ts';
 import { PublicCenteredCard } from "./public-ui/PublicCenteredCard.tsx";
 import { SavedAccountsShortcut, normalizeLoginIdentifierInput } from './login-shared';
 import { FormField } from "@/components/common/FormField.tsx";
@@ -208,14 +209,15 @@ export const LoginView = () => {
         current: Number(resData.total) || 0,
         max: Number(resData.max_devices) || 0,
       });
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
+      showApiErrorToast(addToast, t, error);
     }
   };
 
   const handleRevokeSession = async (sessionId: string) => {
     try {
-      const { data } = await client.POST(
+      await extractData(client.POST(
         "/api/v1/users/public/sessions/delete",
         {
           body: {
@@ -224,15 +226,13 @@ export const LoginView = () => {
             session_id: sessionId,
           },
         },
-      );
-      if (data?.['success']) {
-        addToast(t("sessions.revokeAccess"), "success");
-        // After successful removal, attempt to login again
-        setShowDeviceLimit(false);
-        handleLogin();
-      }
-    } catch (e) {
-      console.error(e);
+      ));
+      addToast(t("sessions.revokeAccess"), "success");
+      setShowDeviceLimit(false);
+      void handleLogin();
+    } catch (error) {
+      console.error(error);
+      showApiErrorToast(addToast, t, error);
     }
   };
 

@@ -7,9 +7,11 @@ import {
   Laptop, Smartphone, Tablet, Monitor, Globe, 
   XCircle, Clock, ShieldCheck, Trash2, CheckSquare, Square
 } from 'lucide-react';
-import { client } from '@/lib/api.ts';
+import { client, extractData } from '@/lib/api.ts';
+import { showApiErrorToast } from '@/lib/feedback.ts';
 import { cn } from '@/lib/utils.ts';
 import { DashboardCard, DashboardLoading, DashboardSection } from './dashboard-ui';
+import { useToastStore } from '@/stores/toast';
 
 import type { components } from '@/types/api.ts';
 
@@ -18,6 +20,7 @@ type SessionListData = components["schemas"]["SessionListResponse"];
 
 export const SessionsView = () => {
   const { t } = useTranslation();
+  const { addToast } = useToastStore();
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -28,15 +31,16 @@ export const SessionsView = () => {
 
   const fetchSessions = useCallback(async () => {
     try {
-      const { data: res } = await client.GET('/api/v1/users/auth/sessions');
-      if (res?.['success'] && res['data']) {
-        const sessionData = res['data'] as SessionListData;
-        setSessions(sessionData.sessions || []);
-        setLimitInfo({ total: sessionData.total, max: sessionData.max_devices });
-      }
-    } catch (e: unknown) { console.error(e); }
-    finally { setLoading(false); }
-  }, []);
+      const sessionData = await extractData<SessionListData>(client.GET('/api/v1/users/auth/sessions'));
+      setSessions(sessionData.sessions || []);
+      setLimitInfo({ total: sessionData.total, max: sessionData.max_devices });
+    } catch (error: unknown) {
+      console.error(error);
+      showApiErrorToast(addToast, t, error);
+    } finally {
+      setLoading(false);
+    }
+  }, [addToast, t]);
 
   useEffect(() => { fetchSessions(); }, [fetchSessions]);
 
@@ -50,11 +54,18 @@ export const SessionsView = () => {
   const handleLogout = async (id: string) => {
     if (!confirm(t('sessions.revokeConfirm'))) return;
     try {
-      await client.DELETE('/api/v1/users/auth/sessions/{session_id}', {
+      const { error } = await client.DELETE('/api/v1/users/auth/sessions/{session_id}', {
         params: { path: { session_id: id } }
       });
-      fetchSessions();
-    } catch (e: unknown) { alert(e instanceof Error ? e.message : String(e)); }
+      if (error) {
+        showApiErrorToast(addToast, t, error);
+        return;
+      }
+      addToast(t('sessions.revokeAccess'), 'success');
+      void fetchSessions();
+    } catch (error: unknown) {
+      showApiErrorToast(addToast, t, error);
+    }
   };
 
   const handleBatchLogout = async () => {
@@ -62,12 +73,20 @@ export const SessionsView = () => {
     if (!confirm(`${t('sessions.revokeConfirm')} (${selectedIds.size})`)) return;
     
     try {
-      await client.POST('/api/v1/users/auth/sessions/batch-delete', {
+      const { error } = await client.POST('/api/v1/users/auth/sessions/batch-delete', {
         body: { session_ids: Array.from(selectedIds) }
       });
+      if (error) {
+        showApiErrorToast(addToast, t, error);
+        return;
+      }
       setSelectedIds(new Set());
-      fetchSessions();
-    } catch (e) { console.error(e); }
+      addToast(t('sessions.revokeAccess'), 'success');
+      void fetchSessions();
+    } catch (error) {
+      console.error(error);
+      showApiErrorToast(addToast, t, error);
+    }
   };
 
   const getDeviceIcon = (name: string) => {

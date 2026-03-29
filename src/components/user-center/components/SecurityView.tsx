@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/Input.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { ShieldCheck, Mail, Phone, HelpCircle, AlertTriangle, Trash2, Send, ChevronRight, Cloud, RefreshCw, Key, Eye, EyeOff } from 'lucide-react';
-import { client, isApiError, postCaptchaPolicy } from '@/lib/api.ts';
+import { client, extractData, isApiError, postCaptchaPolicy } from '@/lib/api.ts';
+import { showApiErrorToast } from '@/lib/feedback.ts';
 import { isPhoneInputValid, normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 import type { components } from '@/types/api.ts';
 import { CaptchaChallenge, type CaptchaPayload } from '@/components/common/CaptchaChallenge.tsx';
@@ -57,19 +58,19 @@ export const SecurityView = () => {
 
   const fetchSecurity = useCallback(async () => {
     try {
-      const { data: res } = await client.GET('/api/v1/users/auth/me');
-      if (res?.['success'] && res['data']) setSecurity(res['data'] as SecurityUserResponse);
+      const me = await extractData<SecurityUserResponse>(client.GET('/api/v1/users/auth/me'));
+      setSecurity(me);
 
       if (capabilities?.enable_s3) {
-        const { data: s3Res } = await client.GET('/api/v1/file/s3-keys');
-        if (s3Res?.['success'] && s3Res['data']) {
-          setS3Keys(s3Res['data'] as { access_key: string, secret_key: string });
-          setShowS3SecretKey(false);
-        }
+        const s3KeysData = await extractData<{ access_key: string; secret_key: string }>(client.GET('/api/v1/file/s3-keys'));
+        setS3Keys(s3KeysData);
+        setShowS3SecretKey(false);
       }
-    } catch (_error) { console.error(_error); }
-    finally { setLoading(false); }
-  }, [capabilities]);
+    } catch (error) {
+      console.error(error);
+      showApiErrorToast(addToast, t, error);
+    } finally { setLoading(false); }
+  }, [addToast, capabilities, t]);
 
   useEffect(() => { fetchSecurity(); }, [fetchSecurity]);
 
@@ -95,14 +96,12 @@ export const SecurityView = () => {
         risk_user_id: currentUserData?.user.id,
       };
         
-      const { data: res } = await client.GET("/api/v1/users/public/captcha", {
+      const payload = await extractData<CaptchaPayload>(client.GET("/api/v1/users/public/captcha", {
         params: { query }
-      });
-      if (res?.['success'] && res['data']) {
-        setCaptchaData(res['data'] as CaptchaPayload);
-        setCaptchaCode("");
-        setTurnstileToken("");
-      }
+      }));
+      setCaptchaData(payload);
+      setCaptchaCode("");
+      setTurnstileToken("");
     } catch (_error) {
       console.error("Failed to fetch captcha", _error);
     }
@@ -112,13 +111,14 @@ export const SecurityView = () => {
     if (!confirm(t('security.rotateConfirm'))) return;
     setRegenerating(true);
     try {
-      const { data: res } = await client.POST('/api/v1/file/s3-keys/regenerate');
-      if (res?.['success'] && res['data']) {
-        setS3Keys(res['data'] as { access_key: string, secret_key: string });
-        setShowS3SecretKey(false);
-        addToast(t('security.rotateSuccess'), 'success');
-      }
-    } catch (_error) { console.error(_error); }
+      const nextKeys = await extractData<{ access_key: string; secret_key: string }>(client.POST('/api/v1/file/s3-keys/regenerate'));
+      setS3Keys(nextKeys);
+      setShowS3SecretKey(false);
+      addToast(t('security.rotateSuccess'), 'success');
+    } catch (error) {
+      console.error(error);
+      showApiErrorToast(addToast, t, error);
+    }
     finally { setRegenerating(false); }
   };
 
@@ -174,7 +174,7 @@ export const SecurityView = () => {
         setTurnstileToken("");
       }
 
-      const { data: res, error } = await client.POST('/api/v1/users/public/send-code', {
+      const payload = await extractData<{ token: string; target?: string | null }>(client.POST('/api/v1/users/public/send-code', {
         body: { 
           target: normalizedTarget, 
           target_type: type as "email" | "phone", 
@@ -182,29 +182,27 @@ export const SecurityView = () => {
           captcha_token: captchaTokenForSubmit || null,
           captcha_code: isTurnstileCaptcha ? null : (captchaCode || null),
         }
-      });
-      
-      if (res?.['success'] && res['data']) {
-        const payload = res['data'] as { token: string; target?: string | null };
-        const normalizedTarget = payload.target?.trim() || '';
-        const inputTarget = bindForm.target.trim();
-        setBindForm((f) => ({
-          ...f,
-          token: payload.token,
-          timer: 60,
-          target: normalizedTarget || f.target,
-        }));
-        if (normalizedTarget && normalizedTarget !== inputTarget) {
-          addToast(t('security.targetNormalized'), 'warning');
-        }
-        addToast(t('auth.loginSuccess'), 'success');
-        setNeedCaptcha(false);
-      } else if (error && isApiError(error) && error.biz_code === 'CAPTCHA_REQUIRED') {
-        setNeedCaptcha(true);
-        fetchCaptcha();
+      }));
+      const serverTarget = payload.target?.trim() || '';
+      const inputTarget = bindForm.target.trim();
+      setBindForm((f) => ({
+        ...f,
+        token: payload.token,
+        timer: 60,
+        target: serverTarget || f.target,
+      }));
+      if (serverTarget && serverTarget !== inputTarget) {
+        addToast(t('security.targetNormalized'), 'warning');
       }
-    } catch (_error) {
-      void _error;
+      addToast(t('auth.loginSuccess'), 'success');
+      setNeedCaptcha(false);
+    } catch (error) {
+      if (isApiError(error) && error.biz_code === 'CAPTCHA_REQUIRED') {
+        setNeedCaptcha(true);
+        void fetchCaptcha();
+        return;
+      }
+      showApiErrorToast(addToast, t, error);
     }
   };
 
@@ -212,29 +210,18 @@ export const SecurityView = () => {
     try {
       if (!currentUserData?.user.id) return;
       
-      const { data: res, error } = type === 'email' 
-        ? await client.POST('/api/v1/users/public/{user_id}/verify-email', {
+      const payload = await extractData<{ phone?: string; email?: string }>(type === 'email' 
+        ? client.POST('/api/v1/users/public/{user_id}/verify-email', {
             params: { path: { user_id: currentUserData.user.id } },
             body: { token: bindForm.token, code: bindForm.code }
           })
-        : await client.POST('/api/v1/users/public/{user_id}/verify-phone', {
+        : client.POST('/api/v1/users/public/{user_id}/verify-phone', {
             params: { path: { user_id: currentUserData.user.id } },
             body: { token: bindForm.token, code: bindForm.code }
-          });
-
-      if (error) {
-        // Verification failed: clear code but keep modal open.
-        setBindForm(f => ({ ...f, code: '' }));
-        return;
-      }
+          }));
 
       const inputTarget = bindForm.target.trim();
-      const resRec = typeof res === 'object' && res !== null ? (res as Record<string, unknown>) : null;
-      const innerRec =
-        resRec && typeof resRec['data'] === 'object' && resRec['data'] !== null
-          ? (resRec['data'] as Record<string, unknown>)
-          : null;
-      const rawTarget = type === 'phone' ? innerRec?.['phone'] : innerRec?.['email'];
+      const rawTarget = type === 'phone' ? payload.phone : payload.email;
       const serverTarget = typeof rawTarget === 'string' ? rawTarget.trim() : '';
       if (serverTarget && serverTarget !== inputTarget) {
         addToast(t('security.targetNormalized'), 'warning');

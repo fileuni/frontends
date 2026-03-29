@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { useAuthStore } from '@/stores/auth.ts';
-import { client, handleApiError } from '@/lib/api.ts';
+import { client, extractData } from '@/lib/api.ts';
+import { showApiErrorToast } from '@/lib/feedback.ts';
 import { useToastStore } from '@/stores/toast';
 import { Lock, Key, CheckCircle2, XCircle } from 'lucide-react';
 import { FormField } from '@/components/common/FormField.tsx';
@@ -40,28 +41,20 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
     setLoading(true);
     try {
       if (!currentUserData?.user.id) return;
-      const { data, error } = await client.POST('/api/v1/users/auth/{user_id}/change-password', {
+      await extractData(client.POST('/api/v1/users/auth/{user_id}/change-password', {
         params: { path: { user_id: currentUserData.user.id } },
         body: {
           old_password: oldPassword,
           new_password: newPassword,
         }
-      });
+      }));
 
-      if (error) {
-        addToast(handleApiError(error, t), 'error');
-        return;
-      }
-
-      if (data?.['success']) {
-        addToast(t('forgotPassword.resetSuccess'), 'success');
-        setNewPassword('');
-        setConfirmPassword('');
-        if (onSuccess) onSuccess();
-      }
-    } catch (e) {
-      console.error(e);
-      addToast(t('errors.INTERNAL_ERROR'), 'error');
+      addToast(t('forgotPassword.resetSuccess'), 'success');
+      setNewPassword('');
+      setConfirmPassword('');
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      showApiErrorToast(addToast, t, error);
     } finally {
       setLoading(false);
     }

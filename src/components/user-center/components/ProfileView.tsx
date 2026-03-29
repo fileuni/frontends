@@ -5,7 +5,8 @@ import { useAuthStore } from '@/stores/auth.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { User, Mail, FileText, Plus, Trash2, Save, CheckCircle2 } from 'lucide-react';
-import { client, extractData, handleApiError } from '@/lib/api.ts';
+import { client, extractData } from '@/lib/api.ts';
+import { showApiErrorToast } from '@/lib/feedback.ts';
 import { isPhoneInputValid, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 import { FormField } from '@/components/common/FormField.tsx';
 import { IconInput } from '@/components/common/IconInput.tsx';
@@ -51,9 +52,9 @@ export const ProfileView = () => {
           other_phones: me.other_phones || [],
         });
         setOtherPhoneKeys((me.other_phones || []).map(() => crypto.randomUUID()));
-      } catch (e) {
-        console.error(e);
-        addToast(handleApiError(e, t), 'error');
+      } catch (error) {
+        console.error(error);
+        showApiErrorToast(addToast, t, error);
       } finally {
         setLoading(false);
       }
@@ -118,8 +119,8 @@ export const ProfileView = () => {
         addToast(t('profile.phoneListSynced'), 'warning');
       }
       addToast(t('profile.success'), 'success');
-    } catch (e: unknown) {
-      addToast(handleApiError(e, t), 'error');
+    } catch (error: unknown) {
+      showApiErrorToast(addToast, t, error);
     } finally {
       setSaving(false);
     }
