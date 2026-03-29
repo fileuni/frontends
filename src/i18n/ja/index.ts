@@ -5,9 +5,6 @@ import blacklist from './blacklist.json';
 import cacheManager from './cacheManager.json';
 import chat from './chat.json';
 import common from './common.json';
-import configGuard from './configGuard.json';
-import configSet from './configSet.json';
-import config_selector from './config_selector.json';
 import email from './email.json';
 import errors from './errors.json';
 import filemanager from './filemanager.json';
@@ -21,7 +18,7 @@ import privacy from './privacy.json';
 import profile from './profile.json';
 import security from './security.json';
 import sessions from './sessions.json';
-import setup from './setup.json';
+import systemConfig from './system_config.json';
 import themes from './themes.json';
 import tos from './tos.json';
 import welcome from './welcome.json';
@@ -34,9 +31,6 @@ const translation = {
   "cacheManager": cacheManager,
   "chat": chat,
   "common": common,
-  "configGuard": configGuard,
-  "configSet": configSet,
-  "config_selector": config_selector,
   "email": email,
   "errors": errors,
   "filemanager": filemanager,
@@ -50,7 +44,7 @@ const translation = {
   "profile": profile,
   "security": security,
   "sessions": sessions,
-  "setup": setup,
+  "systemConfig": systemConfig,
   "themes": themes,
   "tos": tos,
   "welcome": welcome,

@@ -149,8 +149,7 @@ export const SystemConfigAdmin = () => {
     null,
   );
   const [licenseKey, setLicenseKey] = useState("");
-  const [isResettingAdminPassword, setIsResettingAdminPassword] =
-    useState(false);
+  const [pendingAdminPassword, setPendingAdminPassword] = useState("");
   const [reloadSummary, setReloadSummary] = useState("");
   const [reloadSummaryLevel, setReloadSummaryLevel] = useState<
     "success" | "warning" | "error" | "info"
@@ -291,8 +290,29 @@ export const SystemConfigAdmin = () => {
     }
   };
 
+  const validatePendingAdminPassword = useCallback(() => {
+    const trimmed = pendingAdminPassword.trim();
+    if (trimmed.length === 0) {
+      return null;
+    }
+    if (trimmed.length < 8) {
+      return t([
+        "systemConfig.setup.admin.passwordTooShort",
+        "launcher.messages.password_too_short",
+      ]);
+    }
+    return null;
+  }, [pendingAdminPassword, t]);
+
   const handleReload = useCallback(async () => {
     if (reloading || testing) return;
+    const passwordError = validatePendingAdminPassword();
+    if (passwordError) {
+      addToast(passwordError, "error");
+      setReloadSummary(passwordError);
+      setReloadSummaryLevel("error");
+      return;
+    }
     setReloading(true);
     setValidationErrors([]);
     setReloadSummary("");
@@ -323,6 +343,22 @@ export const SystemConfigAdmin = () => {
       setConfigPath(serverPath);
       setSavedContent(serverContent);
       setContent(serverContent);
+
+      const trimmedPendingAdminPassword = pendingAdminPassword.trim();
+      if (trimmedPendingAdminPassword.length > 0 && currentUserData?.user.id) {
+        await withTimeout(
+          extractData(
+            client.POST("/api/v1/users/admin/users/{user_id}/reset-password", {
+              params: { path: { user_id: currentUserData.user.id } },
+              body: { new_password: trimmedPendingAdminPassword },
+            }),
+          ),
+          20_000,
+          "Admin password reset request timeout",
+        );
+        addToast(t("launcher.reset_admin_password_success"), "success");
+        setPendingAdminPassword("");
+      }
 
       addToast(t("admin.config.reloadSuccess"), "success");
       const diffSummary = formatLineDiffSummary(
@@ -355,7 +391,17 @@ export const SystemConfigAdmin = () => {
     } finally {
       setReloading(false);
     }
-  }, [addToast, configPath, content, reloading, t, testing]);
+  }, [
+    addToast,
+    configPath,
+    content,
+    currentUserData?.user.id,
+    pendingAdminPassword,
+    reloading,
+    t,
+    testing,
+    validatePendingAdminPassword,
+  ]);
 
   const handleUpdateLicense = useCallback(async () => {
     if (!licenseKey.trim()) return;
@@ -380,31 +426,6 @@ export const SystemConfigAdmin = () => {
     setContent(savedContent);
     setValidationErrors([]);
   };
-
-  const handleQuickSettingsResetAdminPassword = useCallback(
-    async (password: string) => {
-      if (!currentUserData?.user.id) {
-        throw new Error("Current user context unavailable");
-      }
-      setIsResettingAdminPassword(true);
-      try {
-        await extractData(
-          client.POST("/api/v1/users/admin/users/{user_id}/reset-password", {
-            params: { path: { user_id: currentUserData.user.id } },
-            body: { new_password: password },
-          }),
-        );
-        addToast(t("launcher.reset_admin_password_success"), "success");
-        return currentUserData.user.username || "admin";
-      } catch (e) {
-        addToast(handleApiError(e, t), "error");
-        throw e;
-      } finally {
-        setIsResettingAdminPassword(false);
-      }
-    },
-    [addToast, currentUserData?.user.id, currentUserData?.user.username, t],
-  );
 
   const normalizedNotes: Record<string, SharedConfigNoteEntry> =
     Object.fromEntries(
@@ -450,10 +471,9 @@ export const SystemConfigAdmin = () => {
         runtimeOs,
         systemHardware,
         adminPassword: {
-          onApply: async (password) =>
-            handleQuickSettingsResetAdminPassword(password),
-          loading: isResettingAdminPassword,
-          hint: t("setup.admin.resetRuleHint"),
+          value: pendingAdminPassword,
+          onValueChange: setPendingAdminPassword,
+          hint: t("systemConfig.setup.admin.resetRuleHint"),
         },
         license: {
           status: licenseStatus,
@@ -475,10 +495,9 @@ export const SystemConfigAdmin = () => {
       t,
       isDark,
       content,
+      pendingAdminPassword,
       runtimeOs,
       systemHardware,
-      handleQuickSettingsResetAdminPassword,
-      isResettingAdminPassword,
       licenseStatus,
       licenseKey,
       handleUpdateLicense,
@@ -490,7 +509,7 @@ export const SystemConfigAdmin = () => {
   const handleConfigPathAction = () => {
     void addToast(
       t([
-        "setup.guide.runtimeDirChangeHint",
+        "systemConfig.setup.guide.runtimeDirChangeHint",
         "launcher.runtime_dir_change_hint",
       ]),
       { type: "info", duration: "long" },
@@ -506,14 +525,14 @@ export const SystemConfigAdmin = () => {
           <ConfigPathActionButton
             onClick={handleConfigPathAction}
             label={t([
-              "setup.guide.card1Action",
+              "systemConfig.setup.guide.card1Action",
               "launcher.modify_runtime_dirs",
             ])}
           />
         }
         settingActions={settingActions}
         testAction={{
-          label: t("setup.editor.check"),
+          label: t("systemConfig.setup.editor.check"),
           onClick: () => {
             void handleTest();
           },
@@ -564,10 +583,8 @@ export const SystemConfigAdmin = () => {
               void handleUpdateLicense();
             },
           },
-          onResetAdminPassword: handleQuickSettingsResetAdminPassword,
-          isResettingAdminPassword,
           editorTitle: t("admin.config.title"),
-          testLabel: t("setup.editor.check"),
+          testLabel: t("systemConfig.setup.editor.check"),
         }}
       />
     </AdminPage>

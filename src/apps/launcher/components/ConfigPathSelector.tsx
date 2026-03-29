@@ -129,7 +129,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
     try {
       const validation = await onValidatePath(payload);
       if (!validation.valid) {
-        setError(validation.error || t("config_selector.invalid_config"));
+        setError(validation.error || t("systemConfig.configSelector.invalid_config"));
         return;
       }
       await onPreparePath(payload);
@@ -175,10 +175,10 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold tracking-tight">
-                {t("config_selector.title")}
+                {t("systemConfig.configSelector.title")}
               </h2>
               <p className="text-sm text-blue-100/80">
-                {t("config_selector.subtitle")}
+                {t("systemConfig.configSelector.subtitle")}
               </p>
             </div>
           </div>
@@ -213,10 +213,10 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
               )}
             >
               <p className="text-sm font-semibold">
-                {t("config_selector.no_config_warning")}
+                {t("systemConfig.configSelector.no_config_warning")}
               </p>
               <p className="text-sm leading-6 opacity-80">
-                {t("config_selector.default_hint")}
+                {t("systemConfig.configSelector.default_hint")}
               </p>
             </div>
           </div>
@@ -243,7 +243,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                 isDark ? "text-slate-500" : "text-slate-400",
               )}
             >
-              {t("config_selector.config_path")}
+              {t("systemConfig.configSelector.config_path")}
             </label>
             <p
               className={cn(
@@ -251,7 +251,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >
-              {t("config_selector.config_path_desc")}
+              {t("systemConfig.configSelector.config_path_desc")}
             </p>
             <div className="flex gap-2">
               <input
@@ -259,7 +259,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                 type="text"
                 value={runtimeDir}
                 onChange={(event) => setRuntimeDir(event.target.value)}
-                placeholder={t("config_selector.path_placeholder")}
+                placeholder={t("systemConfig.configSelector.path_placeholder")}
                 className={cn(
                   "flex-1 px-4 py-3 border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all",
                   isDark
@@ -277,7 +277,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                     : "bg-gray-100 hover:bg-gray-200 text-slate-700",
                 )}
               >
-                {t("config_selector.browse")}
+                {t("systemConfig.configSelector.browse")}
               </button>
             </div>
           </div>
@@ -300,7 +300,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                     : "bg-white text-slate-400",
                 )}
               >
-                {t("config_selector.or")}
+                {t("systemConfig.configSelector.or")}
               </span>
             </div>
           </div>
@@ -324,7 +324,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                   isDark ? "text-slate-400" : "text-slate-600",
                 )}
               >
-                {t("config_selector.current_dir")}
+                {t("systemConfig.configSelector.current_dir")}
               </span>
               <span
                 className={cn(
@@ -332,7 +332,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                   isDark ? "text-slate-500" : "text-slate-500",
                 )}
               >
-                {t("config_selector.current_dir_desc")}
+                {t("systemConfig.configSelector.current_dir_desc")}
               </span>
               {currentPresetLines.map((line) => (
                 <span
@@ -364,7 +364,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                   isDark ? "text-slate-400" : "text-slate-600",
                 )}
               >
-                {t("config_selector.default_dir")}
+                {t("systemConfig.configSelector.default_dir")}
               </span>
               <span
                 className={cn(
@@ -372,7 +372,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                   isDark ? "text-slate-500" : "text-slate-500",
                 )}
               >
-                {t("config_selector.default_dir_desc")}
+                {t("systemConfig.configSelector.default_dir_desc")}
               </span>
               {defaultPresetLines.map((line) => (
                 <span
@@ -421,7 +421,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             ) : (
               <Check size={18} />
             )}
-            {t("config_selector.confirm")}
+            {t("systemConfig.configSelector.confirm")}
           </button>
         </div>
       </div>

@@ -1624,7 +1624,7 @@ export const DatabaseInlinePanel: React.FC<DatabasePanelProps> = ({
               : "border-cyan-300 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
           )}
         >
-          {t("setup.editor.check")}
+          {t("systemConfig.setup.editor.check")}
         </button>
       )}
     </div>
@@ -1696,9 +1696,9 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
         )}
       >
         {[
-          ["database", "setup.config.kvSqlHint"],
-          ["dashmap", "setup.config.kvDashmapHint"],
-          ["external", "setup.config.kvRedisHint"],
+          ["database", "systemConfig.setup.config.kvSqlHint"],
+          ["dashmap", "systemConfig.setup.config.kvDashmapHint"],
+          ["external", "systemConfig.setup.config.kvRedisHint"],
         ].map(([type, hintKey]) => (
           <button
             key={type}
@@ -1725,10 +1725,10 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
           >
             <div>
               {type === "database"
-                ? t("setup.config.kvType") + " · DB"
+                ? t("systemConfig.setup.config.kvType") + " · DB"
                 : type === "dashmap"
-                  ? t("setup.config.kvType") + " · DashMap"
-                  : t("setup.cache.externalServer")}
+                  ? t("systemConfig.setup.config.kvType") + " · DashMap"
+                  : t("systemConfig.setup.cache.externalServer")}
             </div>
             <div
               className={cn(
@@ -1784,7 +1784,7 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
               : "border-cyan-200 bg-cyan-50 text-cyan-900",
           )}
         >
-          {t(`setup.cache.externalHints.${local.cacheType}`)}
+          {t(`systemConfig.setup.cache.externalHints.${local.cacheType}`)}
         </div>
       )}
       {isRedisLike && (
@@ -1875,7 +1875,7 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
               : "border-cyan-300 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
           )}
         >
-          {t("setup.editor.check")}
+          {t("systemConfig.setup.editor.check")}
         </button>
       )}
     </div>

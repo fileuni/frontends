@@ -105,8 +105,8 @@ const isRemoteDriver = (driver: Driver): driver is RemoteDriver => {
 
 const getFieldHintKey = (driver: RemoteDriver, key: string): string => {
   return driver === "s3"
-    ? `setup.storagePool.s3Hints.${key}`
-    : `setup.storagePool.${driver}Hints.${key}`;
+    ? `systemConfig.setup.storagePool.s3Hints.${key}`
+    : `systemConfig.setup.storagePool.${driver}Hints.${key}`;
 };
 
 export const StoragePoolInlinePanel: React.FC<Props> = ({
@@ -246,7 +246,7 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
     return (
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {remoteDriverFields[driver].map((field) => {
-          const label = t(`setup.storagePool.${driver}.${field.key}`);
+          const label = t(`systemConfig.setup.storagePool.${driver}.${field.key}`);
           const hint = t(getFieldHintKey(driver, field.key));
           const inputId = `${item.id}-${field.key}`;
 
@@ -333,10 +333,10 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
                 isDark ? "text-slate-100" : "text-slate-900",
               )}
             >
-              {t("setup.storagePool.title")}
+              {t("systemConfig.setup.storagePool.title")}
             </div>
             <div className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              {t("setup.storagePool.desc")}
+              {t("systemConfig.setup.storagePool.desc")}
             </div>
           </div>
           <button
@@ -494,7 +494,7 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
                   }
                 />
                 <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                  {t("setup.storagePool.rootHint", {
+                  {t("systemConfig.setup.storagePool.rootHint", {
                     value: driverDefaults[item.driver].root,
                   })}
                 </div>

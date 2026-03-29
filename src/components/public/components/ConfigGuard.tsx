@@ -29,10 +29,10 @@ export const ConfigGuard = ({ children, feature }: ConfigGuardProps) => {
           
           <div className="space-y-2">
             <h1 className="text-2xl font-black tracking-tight">
-              {t('configGuard.featureDisabledTitle')}
+              {t('systemConfig.configGuard.featureDisabledTitle')}
             </h1>
             <p className="text-sm opacity-50 font-medium">
-              {t('configGuard.featureDisabledDesc')}
+              {t('systemConfig.configGuard.featureDisabledDesc')}
             </p>
           </div>
 

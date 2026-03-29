@@ -109,10 +109,10 @@ const formatDateTime = (value?: string | null): string => {
 };
 
 const driverLabelKey = (driver: Driver) => `admin.config.storage.drivers.${driver}`;
-const fieldLabelKey = (driver: Driver, key: string) => `setup.storagePool.${driver}.${key}`;
+const fieldLabelKey = (driver: Driver, key: string) => `systemConfig.setup.storagePool.${driver}.${key}`;
 const fieldHintKey = (driver: Driver, key: string) => driver === 's3'
-  ? `setup.storagePool.s3Hints.${key}`
-  : `setup.storagePool.${driver}Hints.${key}`;
+  ? `systemConfig.setup.storagePool.s3Hints.${key}`
+  : `systemConfig.setup.storagePool.${driver}Hints.${key}`;
 
 const createDraft = (currentPath: string, policy?: PolicyDto | null, mountCount?: number): Draft => {
   const baseName = currentPath === '/' ? '/remote-mount' : `${currentPath.replace(/\/$/, '')}/remote-mount`;

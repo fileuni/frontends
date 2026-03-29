@@ -59,16 +59,16 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
       {
         id: "performance",
         icon: Sparkles,
-        title: t("setup.steps.performance"),
+        title: t("systemConfig.setup.steps.performance"),
       },
       {
         id: "database-cache",
         icon: Database,
-        title: t("setup.steps.databaseCache"),
+        title: t("systemConfig.setup.steps.databaseCache"),
       },
-      { id: "storage", icon: FolderCog, title: t("setup.steps.storage") },
-      { id: "admin", icon: ShieldCheck, title: t("setup.steps.adminPassword") },
-      { id: "finish", icon: Zap, title: t("setup.steps.finishSimple") },
+      { id: "storage", icon: FolderCog, title: t("systemConfig.setup.steps.storage") },
+      { id: "admin", icon: ShieldCheck, title: t("systemConfig.setup.steps.adminPassword") },
+      { id: "finish", icon: Zap, title: t("systemConfig.setup.steps.finishSimple") },
     ],
     [t],
   );
@@ -109,7 +109,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                 isDark ? "text-slate-100" : "text-slate-900",
               )}
             >
-              {t("setup.steps.step")}
+              {t("systemConfig.setup.steps.step")}
             </h2>
           </div>
         </div>
@@ -333,7 +333,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                       )}
                     >
                       <span>
-                        {activeItem.actionLabel ?? t("setup.guide.openAction")}
+                        {activeItem.actionLabel ?? t("systemConfig.setup.guide.openAction")}
                       </span>
                       <ArrowRight size={15} />
                     </button>

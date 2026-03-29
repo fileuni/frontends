@@ -257,10 +257,8 @@ interface BuildSettingCommonActionsParams {
   onTestDatabase?: (payload: DatabaseCheckPayload) => Promise<void>;
   onTestCache?: (payload: CacheCheckPayload) => Promise<void>;
   adminPassword: {
-    onApply: (
-      password: string,
-    ) => Promise<void | string | { username?: string }>;
-    loading?: boolean;
+    value: string;
+    onValueChange: (password: string) => void;
     hint: string;
   };
   license: {
@@ -308,7 +306,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "db-cache",
-      label: t("setup.steps.databaseCache"),
+      label: t("systemConfig.setup.steps.databaseCache"),
       description: "",
       icon: settingCommonIcons.database,
       renderPanel: () => (
@@ -320,7 +318,7 @@ export const buildSettingCommonActions = ({
                 isDark ? "text-slate-100" : "text-slate-900",
               )}
             >
-              {t("setup.config.dbType")}
+              {t("systemConfig.setup.config.dbType")}
             </h4>
             <DatabaseInlinePanel
               tomlAdapter={tomlAdapter}
@@ -337,7 +335,7 @@ export const buildSettingCommonActions = ({
                 isDark ? "text-slate-100" : "text-slate-900",
               )}
             >
-              {t("setup.config.kvType")}
+              {t("systemConfig.setup.config.kvType")}
             </h4>
             <CacheInlinePanel
               tomlAdapter={tomlAdapter}
@@ -352,7 +350,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "storage",
-      label: t("setup.storagePool.title"),
+      label: t("systemConfig.setup.storagePool.title"),
       description: "",
       icon: settingCommonIcons.storage,
       renderPanel: () => (
@@ -382,13 +380,13 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "admin-password",
-      label: t("setup.admin.changePassword"),
+      label: t("systemConfig.setup.admin.changePassword"),
       description: "",
       icon: settingCommonIcons.admin,
       renderPanel: () => (
         <AdminPasswordInlinePanel
-          onApply={adminPassword.onApply}
-          loading={adminPassword.loading}
+          value={adminPassword.value}
+          onValueChange={adminPassword.onValueChange}
           hint={adminPassword.hint}
         />
       ),
@@ -409,7 +407,7 @@ export const buildSettingCommonActions = ({
       actions: [
         {
           id: "save",
-          label: t("setup.guide.card3Action"),
+          label: t("systemConfig.setup.guide.card3Action"),
           onClick: license.onApplyLicense,
           variant: "primary",
           disabled: license.saving,
@@ -418,7 +416,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "cache-acceleration",
-      label: t("setup.storageCache.title"),
+      label: t("systemConfig.setup.storageCache.title"),
       description: "",
       icon: settingCommonIcons.cache,
       renderPanel: () => (

@@ -125,13 +125,13 @@ export const getConnectorOptionFields = (driver: VfsDriver): ConnectorOptionFiel
 };
 
 export const getConnectorFieldLabelKey = (driver: RemoteConnectorDriver, key: string): string => {
-  return `setup.storagePool.${driver}.${key}`;
+  return `systemConfig.setup.storagePool.${driver}.${key}`;
 };
 
 export const getConnectorFieldHintKey = (driver: RemoteConnectorDriver, key: string): string => {
   return driver === 's3'
-    ? `setup.storagePool.s3Hints.${key}`
-    : `setup.storagePool.${driver}Hints.${key}`;
+    ? `systemConfig.setup.storagePool.s3Hints.${key}`
+    : `systemConfig.setup.storagePool.${driver}Hints.${key}`;
 };
 
 export const getOption = (pairs: KvPair[], key: string): string => {

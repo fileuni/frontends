@@ -13,11 +13,9 @@ import {
   ImagePlus,
   Key,
   Settings2,
-  Shield,
   WandSparkles,
 } from "lucide-react";
 import { ConfigEditorPanel } from "./ConfigEditorPanel";
-import { AdminPasswordPanel } from "./AdminPasswordPanel";
 import {
   ConfigQuickSettingsModal,
   type ConfigQuickSettingsModalProps,
@@ -110,14 +108,6 @@ export interface SystemConfigWorkbenchProps {
   runtimeOs?: string;
   systemHardware?: ConfigQuickSettingsModalProps["systemHardware"];
   onClearValidationErrors?: () => void;
-  onResetAdminPassword?: (
-    password: string,
-  ) => Promise<void | string | { username?: string }>;
-  isResettingAdminPassword?: boolean;
-  adminPasswordLabel?: string;
-  adminPasswordPanelProps?: Partial<
-    import("./AdminPasswordPanel").AdminPasswordPanelProps
-  >;
   onPickStorageDirectory?: import("./VfsStorageConfigModal").VfsStorageConfigModalProps["onPickDirectory"];
   onDiagnoseExternalTools?: (
     configuredValues: Record<string, string>,
@@ -134,7 +124,6 @@ export interface SystemConfigWorkbenchProps {
 }
 
 export interface SetupActionHandles {
-  openAdminPassword?: () => void;
   openLicenseManagement?: () => void;
   openStorageConfig: () => void;
   openThumbnailTools: () => void;
@@ -166,10 +155,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   runtimeOs,
   systemHardware,
   onClearValidationErrors,
-  onResetAdminPassword,
-  isResettingAdminPassword,
-  adminPasswordLabel,
-  adminPasswordPanelProps,
   onPickStorageDirectory,
   onDiagnoseExternalTools,
   settingsCenterMode = false,
@@ -187,7 +172,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const [quickSettingsInitialStep, setQuickSettingsInitialStep] = useState<
     FriendlyStep | undefined
   >(undefined);
-  const [isAdminPasswordOpen, setIsAdminPasswordOpen] = useState(false);
   const [isLicenseOpen, setIsLicenseOpen] = useState(false);
   const [isStorageOpen, setIsStorageOpen] = useState(false);
   const [isThumbnailToolsOpen, setIsThumbnailToolsOpen] = useState(false);
@@ -242,16 +226,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
     setIsQuickSettingsOpen(true);
   }, []);
 
-  const openAdminPassword = useCallback(() => {
-    setIsLicenseOpen(false);
-    setIsStorageOpen(false);
-    setIsThumbnailToolsOpen(false);
-    setIsCompressionToolsOpen(false);
-    setIsAdminPasswordOpen(true);
-  }, []);
-
   const openLicenseManagement = useCallback(() => {
-    setIsAdminPasswordOpen(false);
     setIsStorageOpen(false);
     setIsThumbnailToolsOpen(false);
     setIsCompressionToolsOpen(false);
@@ -259,7 +234,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   }, []);
 
   const openStorageConfig = useCallback(() => {
-    setIsAdminPasswordOpen(false);
     setIsLicenseOpen(false);
     setIsThumbnailToolsOpen(false);
     setIsCompressionToolsOpen(false);
@@ -267,7 +241,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   }, []);
 
   const openThumbnailTools = useCallback(() => {
-    setIsAdminPasswordOpen(false);
     setIsLicenseOpen(false);
     setIsStorageOpen(false);
     setIsCompressionToolsOpen(false);
@@ -275,7 +248,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   }, []);
 
   const openCompressionTools = useCallback(() => {
-    setIsAdminPasswordOpen(false);
     setIsLicenseOpen(false);
     setIsStorageOpen(false);
     setIsThumbnailToolsOpen(false);
@@ -284,17 +256,14 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
 
   useEffect(() => {
     onSetupActionsReady?.({
-      ...(onResetAdminPassword ? { openAdminPassword } : {}),
       ...(quickSettingsLicense ? { openLicenseManagement } : {}),
       openStorageConfig,
       openThumbnailTools,
       openCompressionTools,
     });
   }, [
-    onResetAdminPassword,
     quickSettingsLicense,
     onSetupActionsReady,
-    openAdminPassword,
     openCompressionTools,
     openLicenseManagement,
     openStorageConfig,
@@ -329,7 +298,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         >
           <WandSparkles size={18} className="text-primary" />
           {settingsCenterMode
-            ? t("setup.editor.quickSettings")
+            ? t("systemConfig.setup.editor.quickSettings")
             : t("admin.config.quickSettings.title")}
         </button>
       )}
@@ -417,26 +386,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
               className={isDark ? "text-emerald-300" : "text-emerald-700"}
             />
             {t("admin.config.quickSettings.steps.cache")}
-          </button>
-        )}
-
-        {onResetAdminPassword && !settingsCenterMode && (
-          <button
-            type="button"
-            className={cn(
-              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-              isDark
-                ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15"
-                : "border-cyan-500/30 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
-            )}
-            onClick={openAdminPassword}
-          >
-            <Shield
-              size={18}
-              className={isDark ? "text-cyan-300" : "text-cyan-700"}
-            />
-            {adminPasswordLabel ||
-              t("admin.config.quickSettings.actions.setAdminPassword")}
           </button>
         )}
 
@@ -534,7 +483,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                   isDark ? "text-slate-100" : "text-slate-900",
                 )}
               >
-                {t("setup.editor.moreActionsTitle")}
+                {t("systemConfig.setup.editor.moreActionsTitle")}
               </div>
               <div
                 className={cn(
@@ -542,7 +491,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                   isDark ? "text-slate-400" : "text-slate-600",
                 )}
               >
-                {t("setup.editor.moreActionsDesc")}
+                {t("systemConfig.setup.editor.moreActionsDesc")}
               </div>
             </div>
             <button
@@ -556,8 +505,8 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
               onClick={() => setShowSetupAdvancedActions((prev) => !prev)}
             >
               {showSetupAdvancedActions
-                ? t("setup.editor.hideMoreActions")
-                : t("setup.editor.showMoreActions")}
+                ? t("systemConfig.setup.editor.hideMoreActions")
+                : t("systemConfig.setup.editor.showMoreActions")}
             </button>
           </div>
 
@@ -893,9 +842,6 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                   onContentChange={onChange}
                   runtimeOs={runtimeOs}
                   systemHardware={systemHardware}
-                  onOpenAdminPassword={
-                    onResetAdminPassword ? openAdminPassword : undefined
-                  }
                   onOpenLicenseManagement={
                     quickSettingsLicense ? openLicenseManagement : undefined
                   }
@@ -948,29 +894,11 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
             : {})}
           {...(runtimeOs ? { runtimeOs } : {})}
           {...(systemHardware ? { systemHardware } : {})}
-          {...(onResetAdminPassword
-            ? { onOpenAdminPassword: openAdminPassword }
-            : {})}
           {...(quickSettingsLicense
             ? { onOpenLicenseManagement: openLicenseManagement }
             : {})}
           onOpenStorageConfig={openStorageConfig}
           settingsCenterMode={settingsCenterMode}
-        />
-      )}
-
-      {onResetAdminPassword && (
-        <AdminPasswordPanel
-          mode="modal"
-          isOpen={isAdminPasswordOpen}
-          onClose={() => setIsAdminPasswordOpen(false)}
-          onConfirm={onResetAdminPassword}
-          loading={Boolean(isResettingAdminPassword)}
-          showWarning={true}
-          showRandomGenerator={true}
-          minPasswordLength={8}
-          zIndex={150}
-          {...adminPasswordPanelProps}
         />
       )}
 

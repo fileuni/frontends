@@ -1,0 +1,461 @@
+{
+  "setup": {
+    "center": {
+      "title": "Welcome to FileUni Settings Center",
+      "subtitle": "Finish the first-time settings to get started"
+    },
+    "guide": {
+      "badge": "First-Time Settings",
+      "title": "FileUni first-time setup",
+      "desc": "You can start directly with the default configuration. It fits most first-time users. You can also choose Customize settings to change the database and other options.",
+      "card1Title": "Choose where things are saved",
+      "card1Desc": "Pick the single runtime directory where FileUni should keep its settings and data.",
+      "card1Action": "Change location",
+      "runtimeDirChangeHint": "To change this location, restart FileUni with --runtime-dir <DIR>. Service installation uses the same flag.",
+      "card1Hint": "Restart FileUni after changing the runtime directory.",
+      "card2Title": "Create your sign-in password",
+      "card2Desc": "Set a password for the administrator account you will use later.",
+      "card2Action": "Set password",
+      "card2Hint": "Set the admin sign-in password.",
+      "card3Title": "Finish and start using FileUni",
+      "card3Desc": "When the initial settings are done, return to the launcher and start FileUni.",
+      "card3Action": "Apply",
+      "defaultApplyAction": "Apply default configuration",
+      "card3Hint": "Start directly with the default configuration.",
+      "recommendedTitle": "Recommended for first-time users",
+      "recommendedDesc": "If you are unsure, keep the current defaults. They are the easiest choice for personal use, home use, and quick trials.",
+      "locationTitle": "Current install locations",
+      "runtimeDirLabel": "Runtime directory",
+      "configPathLabel": "Current config file",
+      "locationDesc": "This is only where FileUni will save things for you. You do not need to create any files by hand.",
+      "commonActionsTitle": "Common settings",
+      "openAction": "Open this item",
+      "requiredPrompt": "FileUni has not finished the initial settings yet. Open Settings Center now?",
+      "existingConfigTitle": "Existing configuration detected",
+      "existingConfigDesc": "A config.toml already exists in the runtime directory. You can apply it directly to finish the settings. To change the admin password, use the form below.",
+      "existingConfigApply": "Apply current configuration",
+      "existingConfigCustomize": "Customize settings"
+    },
+    "editor": {
+      "title": "Settings Center",
+      "check": "Check Settings",
+      "quickSettings": "Continue Quick Settings",
+      "showAdvanced": "Show Advanced Settings",
+      "hideAdvanced": "Hide Advanced Settings",
+      "visualMode": "Visual Editor",
+      "sourceMode": "Text Editor",
+      "rawHiddenTitle": "Edit the config text only if you need more control",
+      "rawHiddenDesc": "During the initial settings, the quick settings flow above is usually enough. Open advanced settings only if you need more detailed control.",
+      "finishHint": "Confirm to finish the initial settings.",
+      "backToQuickSettings": "Back to Quick Settings",
+      "moreActionsTitle": "Other advanced entries",
+      "moreActionsDesc": "License, storage, and external tool checks can usually wait until after setup is finished.",
+      "showMoreActions": "Show more advanced entries",
+      "hideMoreActions": "Hide advanced entries"
+    },
+    "steps": {
+      "step": "Step",
+      "performance": "Tune performance",
+      "databaseCache": "Configure database and cache",
+      "storage": "Configure storage",
+      "adminPassword": "Set admin password",
+      "finishSimple": "Finish",
+      "profile": "Profile",
+      "database": "Database",
+      "cache": "Cache",
+      "advanced": "Tuning",
+      "config": "Review",
+      "admin": "Admin Setup",
+      "final": "Complete",
+      "review": "Review"
+    },
+    "locked": {
+      "title": "Settings Center Unavailable",
+      "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
+      "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
+    },
+    "profile": {
+      "title": "Select Performance Profile",
+      "subtitle": "Choose a starting point based on your hardware. You can customize everything in the next step.",
+      "low": {
+        "name": "Eco / IoT",
+        "desc": "Perfect for Raspberry Pi or 1GB VPS. Lightweight SQLite & In-memory cache."
+      },
+      "medium": {
+        "name": "Standard",
+        "desc": "Balanced setting for Home NAS. Reliable and efficient metadata handling."
+      },
+      "high": {
+        "name": "Performance",
+        "desc": "Production grade. Best with PostgreSQL & Redis for massive file clusters."
+      }
+    },
+    "config": {
+      "title": "Environment Settings",
+      "subtitle": "Configure your database and cache. DSN strings will be built automatically.",
+      "changeProfile": "Change Profile",
+      "dbDsn": "Database DSN",
+      "dsnNote": "Note: Manual edits to the DSN will override form values.",
+      "rawToml": "Configuration Preview (TOML)",
+      "useTls": "Use Secure Connection (TLS/SSL)",
+      "dbType": "Database",
+      "host": "Host",
+      "port": "Port",
+      "username": "Username",
+      "password": "Password",
+      "dbName": "Database Name",
+      "dbPath": "SQLite File Path",
+      "kvUsername": "Redis UserName",
+      "kvType": "Cache",
+      "kvRedisHint": "Redis-compatible backends (Redis/KeyDB/Valkey)",
+      "kvDashmapHint": "Note: In-memory cache is volatile and cleared on restart.",
+      "kvSqlHint": "Note: Will reuse primary database for cache storage.",
+      "versionWarning": {
+        "keydb": "KeyDB 6.3.4+ required",
+        "redis": "Redis 7.4.0+ required",
+        "valkey": "Valkey 9.0.0+ required"
+      },
+      "advanced": {
+        "toggle": "Expert Settings (Database, Pool, System Performance)",
+        "userCenterTitle": "User Center",
+        "enableReg": "Enable Registration",
+        "plusTitle": "Plus Plugin System",
+        "plusEnabled": "Enable Plugin System",
+        "plusCaptureLogs": "Capture Plugin Logs",
+        "captchaTitle": "Captcha Configuration",
+        "captchaLength": "Code Length",
+        "captchaExpires": "Expires In (s)",
+        "captchaSecret": "Captcha Secret Key",
+        "captchaMaxFailures": "Max Retries / Failures",
+        "captchaCooldown": "Failure Cooldown (s)",
+        "captchaGlobalLimit": "Global Hourly Limit",
+        "captchaCacheSize": "Captcha Pre-gen Pool Size",
+        "captchaConcurrency": "Background Gen Concurrency",
+        "accessTokenSecret": "Access Token Secret (JWT)",
+        "refreshTokenSecret": "Refresh Token Secret (JWT)",
+        "genSecret": "Generate 64-char Secret",
+        "poolTitle": "Pool & Health Check",
+        "maxConn": "Max Connections",
+        "minConn": "Min Connections",
+        "connectTimeout": "Connect Timeout (s)",
+        "idleTimeout": "Idle Timeout (s)",
+        "maxLifetime": "Max Lifetime (s)",
+        "healthCheck": "Health Check Timeout (s)",
+        "pgTitle": "PostgreSQL Engine Tuning",
+        "statementTimeout": "Statement Timeout (s)",
+        "lockTimeout": "Lock Timeout (ms)",
+        "poolSizeLimit": "Enable Pool Size Limit",
+        "tcpKeepalive": "TCPEngine Tuning (Pragmas)",
+        "walMode": "Enable WAL Mode (High Perf Write)",
+        "busyTimeout": "Busy Timeout (ms)",
+        "cacheSize": "Cache Size (KB, neg=abs RAM)",
+        "tempStore": "Temp Store (0=Def, 1=File, 2=RAM)",
+        "mmapSize": "Mmap Size (Bytes, 0=Off)",
+        "pageSize": "Page Size (Bytes)",
+        "syncLevel": "Sync Level (0=OFF, 1=NORM, 2=FULL)",
+        "sharedCache": "Enable Shared Cache (shared_cache)"
+      }
+    },
+    "cache": {
+      "externalServer": "External Cache Server",
+      "externalHints": {
+        "redis": "Use Redis when you already operate a Redis deployment.",
+        "valkey": "Valkey is the recommended first-install choice for an external cache server.",
+        "keydb": "KeyDB fits high-concurrency and multithreaded workloads better."
+      }
+    },
+    "storagePool": {
+      "title": "Storage Pool Settings",
+      "desc": "Choose a backend type for each pool, then fill only the fields that backend really needs.",
+      "rootHint": "Recommended default: {{value}}",
+      "s3": {
+        "endpoint": "Endpoint",
+        "region": "Region",
+        "bucket": "Bucket",
+        "access_key_id": "Access Key ID",
+        "secret_access_key": "Secret Access Key"
+      },
+      "s3Hints": {
+        "endpoint": "Enter the S3 or compatible object storage endpoint.",
+        "region": "Enter the service region or provider-specific region value.",
+        "bucket": "Enter the bucket used as the root for this storage pool.",
+        "access_key_id": "The access key identifier used to sign requests.",
+        "secret_access_key": "The secret key used to sign requests."
+      },
+      "webdav": {
+        "endpoint": "WebDAV Endpoint",
+        "username": "Username",
+        "password": "Password"
+      },
+      "dropbox": {
+        "access_token": "Access Token",
+        "refresh_token": "Refresh Token",
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      },
+      "dropboxHints": {
+        "access_token": "Optional short-lived token. Prefer refresh_token for long-term use.",
+        "refresh_token": "Recommended for long-term Dropbox access. OpenDAL refreshes access tokens automatically.",
+        "client_id": "Dropbox app client ID used with refresh_token.",
+        "client_secret": "Dropbox app client secret used with refresh_token."
+      },
+      "onedrive": {
+        "access_token": "Access Token",
+        "refresh_token": "Refresh Token",
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      },
+      "onedriveHints": {
+        "access_token": "Optional short-lived Microsoft Graph token. Prefer refresh_token for long-term use.",
+        "refresh_token": "Recommended for long-term OneDrive access. Include offline_access when obtaining it.",
+        "client_id": "Microsoft Graph app client ID used with refresh_token.",
+        "client_secret": "Optional for public clients; required for confidential clients."
+      },
+      "gdrive": {
+        "access_token": "Access Token",
+        "refresh_token": "Refresh Token",
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      },
+      "gdriveHints": {
+        "access_token": "Optional short-lived token. Prefer refresh_token for long-term use.",
+        "refresh_token": "Recommended for long-term Google Drive access. OpenDAL refreshes access tokens automatically.",
+        "client_id": "Google OAuth client ID used with refresh_token.",
+        "client_secret": "Google OAuth client secret used with refresh_token."
+      },
+      "webdavHints": {
+        "endpoint": "Enter the base WebDAV service endpoint.",
+        "username": "The account used to sign in to WebDAV.",
+        "password": "The password used to sign in to WebDAV."
+      }
+    },
+    "storageCache": {
+      "title": "Read / Write Cache Acceleration",
+      "writeRisk": "Warning: when write cache is enabled, data is cached first and flushed back asynchronously. Sudden power loss, cache cleanup, or flush failure may cause file loss or delayed persistence."
+    },
+    "admin": {
+      "title": "Set up the administrator account",
+      "subtitle": "This is the account you will use to sign in to the admin console.",
+      "username": "Admin Username",
+      "password": "Secure Password",
+      "suggestPassword": "Generate Random Password",
+      "generate_password": "Generate Random Password",
+      "pendingHint": "Applies when the initial settings are finished",
+      "resetRuleHint": "If no administrator exists yet, apply will create an admin user named admin. If an administrator already exists, apply will reset the first administrator password to the password entered here.",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "resetSuccessWithUser": "Admin password applied. Current admin username: {{username}}",
+      "finalConfirm": "Ready to finish settings",
+      "finalConfirmDesc": "Confirm to save your settings and finish the initial settings. You can adjust more options later.",
+      "finish": "Finish Settings",
+      "changePassword": "Admin Settings",
+      "passwordHintTitle": "Set the administrator sign-in password before finishing",
+      "passwordHintDesc": "You will use this password the first time you sign in to the admin console.",
+      "passwordHintAction": "Set Sign-In Password"
+    },
+    "final": {
+      "title": "Settings complete",
+      "subtitle": "Administrator account {{user}} is ready.",
+      "adminCreatedDefault": "Created administrator {{user}} with the temporary password {{password}}. Please change it after your first sign-in.",
+      "adminCreatedWithPassword": "Created administrator {{user}} with the password {{password}}.",
+      "adminReset": "Updated the sign-in password for administrator {{user}} to {{password}}.",
+      "adminExisting": "Administrator {{user}} already exists, so the password was left unchanged.",
+      "nextSteps": "What to do next:",
+      "step1": "Return to the launcher and start FileUni.",
+      "step2": "Open the Web UI and sign in with the administrator account.",
+      "step3": "Use the admin console later if you want to adjust more settings.",
+      "startNow": "Start FileUni",
+      "started": "FileUni is running",
+      "openWebUi": "Open Web UI",
+      "finishLater": "Maybe later",
+      "openHint": "Start FileUni, then open the Web UI to sign in.",
+      "runningHint": "FileUni is already running, so you can open the Web UI right away.",
+      "reload": "Return to Launcher",
+      "docs": "View Documentation"
+    },
+    "logs": {
+      "title": "Real-time Deployment Log",
+      "selectingProfile": "Applying profile: {{profile}}...",
+      "templateLoadFailed": "Template load failed: {{error}}",
+      "testingDb": "Testing database connection...",
+      "dbError": "DB Error",
+      "dbSuccess": "Database connection success!",
+      "applyingConfig": "Applying configuration and syncing DB schema...",
+      "setupFailed": "Deployment failed",
+      "setupSuccess": "Settings complete. Confirm to continue."
+    }
+  },
+  "configGuard": {
+    "featureDisabledTitle": "Feature Disabled",
+    "featureDisabledDesc": "This feature has been disabled by the administrator. Please contact your system administrator for more information."
+  },
+  "configSet": {
+    "center": {
+      "title": "FileUni Settings Center",
+      "subtitle": "Finish the initial system settings"
+    },
+    "steps": {
+      "step": "Step",
+      "profile": "Profile",
+      "database": "Database",
+      "cache": "Cache",
+      "advanced": "Tuning",
+      "config": "Review",
+      "admin": "Admin Setup",
+      "final": "Complete",
+      "review": "Review"
+    },
+    "locked": {
+      "title": "Settings Center Unavailable",
+      "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
+      "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
+    },
+    "profile": {
+      "title": "Select Performance Profile",
+      "subtitle": "Choose a starting point based on your hardware. You can customize everything in the next step.",
+      "low": {
+        "name": "Eco / IoT",
+        "desc": "Perfect for Raspberry Pi or 1GB VPS. Lightweight SQLite & In-memory cache."
+      },
+      "medium": {
+        "name": "Standard",
+        "desc": "Balanced setting for Home NAS. Reliable and efficient metadata handling."
+      },
+      "high": {
+        "name": "Performance",
+        "desc": "Production grade. Best with PostgreSQL & Redis for massive file clusters."
+      }
+    },
+    "config": {
+      "title": "Environment Settings",
+      "subtitle": "Configure your database and cache. DSN strings will be built automatically.",
+      "changeProfile": "Change Profile",
+      "dbDsn": "Database DSN",
+      "dsnNote": "Note: Manual edits to the DSN will override form values.",
+      "rawToml": "Configuration Preview (TOML)",
+      "useTls": "Use Secure Connection (TLS/SSL)",
+      "dbType": "Database Type",
+      "host": "Host",
+      "port": "Port",
+      "username": "Username",
+      "password": "Password",
+      "dbName": "Database Name",
+      "dbPath": "SQLite File Path",
+      "kvUsername": "Redis UserName",
+      "kvType": "Cache Backend",
+      "kvRedisHint": "Redis-compatible backends (Redis/KeyDB/Valkey)",
+      "kvDashmapHint": "Note: In-memory cache is volatile and cleared on restart.",
+      "kvSqlHint": "Note: Will reuse primary database for cache storage.",
+      "versionWarning": {
+        "keydb": "KeyDB 6.3.4+ required",
+        "redis": "Redis 7.4.0+ required",
+        "valkey": "Valkey 9.0.0+ required"
+      },
+      "advanced": {
+        "toggle": "Expert Settings (Database, Pool, System Performance)",
+        "userCenterTitle": "User Center",
+        "enableReg": "Enable Registration",
+        "plusTitle": "Plus Plugin System",
+        "plusEnabled": "Enable Plugin System",
+        "plusCaptureLogs": "Capture Plugin Logs",
+        "captchaTitle": "Captcha Configuration",
+        "captchaLength": "Code Length",
+        "captchaExpires": "Expires In (s)",
+        "captchaSecret": "Captcha Secret Key",
+        "captchaMaxFailures": "Max Retries / Failures",
+        "captchaCooldown": "Failure Cooldown (s)",
+        "captchaGlobalLimit": "Global Hourly Limit",
+        "captchaCacheSize": "Captcha Pre-gen Pool Size",
+        "captchaConcurrency": "Background Gen Concurrency",
+        "accessTokenSecret": "Access Token Secret (JWT)",
+        "refreshTokenSecret": "Refresh Token Secret (JWT)",
+        "genSecret": "Generate 64-char Secret",
+        "poolTitle": "Pool & Health Check",
+        "maxConn": "Max Connections",
+        "minConn": "Min Connections",
+        "connectTimeout": "Connect Timeout (s)",
+        "idleTimeout": "Idle Timeout (s)",
+        "maxLifetime": "Max Lifetime (s)",
+        "healthCheck": "Health Check Timeout (s)",
+        "pgTitle": "PostgreSQL Engine Tuning",
+        "statementTimeout": "Statement Timeout (s)",
+        "lockTimeout": "Lock Timeout (ms)",
+        "poolSizeLimit": "Enable Pool Size Limit",
+        "tcpKeepalive": "TCP Keepalive (s, 0=def)",
+        "sqliteTitle": "SQLite Engine Tuning (Pragmas)",
+        "walMode": "Enable WAL Mode (High Perf Write)",
+        "busyTimeout": "Busy Timeout (ms)",
+        "cacheSize": "Cache Size (KB, neg=abs RAM)",
+        "tempStore": "Temp Store (0=Def, 1=File, 2=RAM)",
+        "mmapSize": "Mmap Size (Bytes, 0=Off)",
+        "pageSize": "Page Size (Bytes)",
+        "syncLevel": "Sync Level (0=OFF, 1=NORM, 2=FULL)",
+        "sharedCache": "Enable Shared Cache (shared_cache)"
+      }
+    },
+    "admin": {
+      "title": "Create Super Admin",
+      "subtitle": "This account will have full control over the system.",
+      "username": "Admin Username",
+      "password": "Secure Password",
+      "suggestPassword": "Generate Random Password",
+      "finalConfirm": "Final Settings Review",
+      "finalConfirmDesc": "Confirm to save your settings and finish the initial system settings.",
+      "finish": "Apply Configuration",
+      "changePassword": "Set Admin Password",
+      "pendingHint": "Takes effect after final apply",
+      "passwordHintTitle": "Admin password required to finish setup",
+      "passwordHintDesc": "Set or update the admin password to apply the configuration. You can do this at any time.",
+      "passwordHintAction": "Set Admin Password"
+    },
+    "final": {
+      "title": "System settings complete",
+      "subtitle": "Administrator {{user}} has been granted full access.",
+      "adminCreatedDefault": "Created administrator {{user}}. Default password: {{password}}.",
+      "adminCreatedWithPassword": "Created administrator {{user}}. Password: {{password}}.",
+      "adminReset": "Updated password for administrator {{user}}: {{password}}.",
+      "adminExisting": "Existing administrator {{user}} detected. Password unchanged.",
+      "nextSteps": "What to do next:",
+      "step1": "Sign in with your administrator account.",
+      "step2": "Edit and save configuration online in the Admin Console.",
+      "step3": "Confirm to return to the home page.",
+      "reload": "Return Home",
+      "docs": "View Documentation"
+    },
+    "logs": {
+      "title": "Real-time Deployment Log",
+      "selectingProfile": "Applying profile: {{profile}}...",
+      "templateLoadFailed": "Template load failed: {{error}}",
+      "testingDb": "Testing database connection...",
+      "dbError": "DB Error",
+      "dbSuccess": "Database connection success!",
+      "applyingConfig": "Applying configuration and syncing DB schema...",
+      "setupFailed": "Deployment failed",
+      "setupSuccess": "System settings complete. Confirm to return home.",
+      "failed": "Failed",
+      "success": "Success"
+    }
+  },
+  "configSelector": {
+    "title": "Choose Install Location",
+    "subtitle": "Pick the single runtime directory FileUni should use for settings and data",
+    "config_path": "Runtime directory",
+    "config_path_desc": "FileUni saves setup state, system settings, databases, cache, and runtime data in this single directory.",
+    "path_placeholder": "Enter or choose the runtime directory...",
+    "browse": "Choose Folder",
+    "create_example": "Create Example Config",
+    "creating": "Creating...",
+    "or": "Quick choices",
+    "current_dir": "Use current selection",
+    "current_dir_desc": "Keep the location you already chose before.",
+    "default_dir": "Use recommended location",
+    "default_dir_desc": "Use the default location recommended for this device.",
+    "confirm": "Save location and continue",
+    "cancel": "Cancel",
+    "default_hint": "If you are unsure, the recommended location is the easiest choice. You can change it later.",
+    "no_config_warning": "This is the first step of the initial setup.",
+    "path_required": "Please choose a runtime directory",
+    "select_error": "Failed to select directory",
+    "invalid_config": "This location cannot be used right now. Please choose another one.",
+    "file_not_exist": "This location is unavailable, missing, or not accessible."
+  }
+}

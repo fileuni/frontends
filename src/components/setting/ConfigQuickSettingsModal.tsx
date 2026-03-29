@@ -16,7 +16,6 @@ import {
   Key,
   PenLine,
   Settings2,
-  Shield,
   Wand2,
   X,
 } from "lucide-react";
@@ -1914,7 +1913,6 @@ export interface ConfigQuickSettingsModalProps {
   runtimeOs?: string;
   systemHardware?: SystemHardwareInfo | null;
   initialStep?: FriendlyStep;
-  onOpenAdminPassword?: () => void;
   onOpenLicenseManagement?: () => void;
   onOpenStorageConfig?: () => void;
   settingsCenterMode?: boolean;
@@ -1933,7 +1931,6 @@ export const ConfigQuickSettingsModal: React.FC<
   runtimeOs,
   systemHardware,
   initialStep,
-  onOpenAdminPassword,
   onOpenLicenseManagement,
   onOpenStorageConfig,
   settingsCenterMode = false,
@@ -3103,20 +3100,6 @@ export const ConfigQuickSettingsModal: React.FC<
               {t("admin.config.quickSettings.setupHintDesc")}
             </p>
           </div>
-          {onOpenAdminPassword && (
-            <button
-              type="button"
-              onClick={onOpenAdminPassword}
-              className={cn(
-                "inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border px-4 text-sm font-black transition-all",
-                isDark
-                  ? "border-cyan-400/35 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20"
-                  : "border-cyan-300 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
-              )}
-            >
-              {t("admin.config.quickSettings.actions.setAdminPassword")}
-            </button>
-          )}
         </div>
       </section>
 
@@ -3875,7 +3858,7 @@ export const ConfigQuickSettingsModal: React.FC<
                 isDark ? "text-slate-300" : "text-slate-600",
               )}
             >
-              {t("setup.admin.finalConfirmDesc")}
+              {t("systemConfig.setup.admin.finalConfirmDesc")}
             </p>
             <button
               type="button"
@@ -3931,21 +3914,6 @@ export const ConfigQuickSettingsModal: React.FC<
               </p>
             </div>
             <div className="flex items-center gap-2">
-              {onOpenAdminPassword && (
-                <button
-                  type="button"
-                  onClick={onOpenAdminPassword}
-                  className={cn(
-                    "h-8 px-3 rounded-lg border text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 transition-all",
-                    isDark
-                      ? "border-cyan-400/40 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20"
-                      : "border-cyan-500/50 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
-                  )}
-                >
-                  <Shield size={14} />
-                  {t("admin.config.quickSettings.actions.setAdminPassword")}
-                </button>
-              )}
               <button
                 type="button"
                 onClick={onClose}
@@ -5295,29 +5263,6 @@ export const ConfigQuickSettingsModal: React.FC<
                       {t("admin.config.quickSettings.otherActions.intro")}
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {onOpenAdminPassword && (
-                        <button
-                          type="button"
-                          className={cn(
-                            "h-12 rounded-lg border text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
-                            isDark
-                              ? "border-cyan-400/40 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20"
-                              : "border-cyan-500/50 bg-cyan-50 text-cyan-900 hover:bg-cyan-100",
-                          )}
-                          onClick={onOpenAdminPassword}
-                        >
-                          <Shield
-                            size={18}
-                            className={
-                              isDark ? "text-cyan-300" : "text-cyan-700"
-                            }
-                          />
-                          {t(
-                            "admin.config.quickSettings.actions.setAdminPassword",
-                          )}
-                        </button>
-                      )}
-
                       {onOpenLicenseManagement && (
                         <button
                           type="button"
@@ -5424,7 +5369,7 @@ export const ConfigQuickSettingsModal: React.FC<
                           isDark ? "text-slate-400" : "text-slate-600",
                         )}
                       >
-                        {t("setup.editor.finishHint")}
+                        {t("systemConfig.setup.editor.finishHint")}
                       </div>
                     ) : null}
                   </div>

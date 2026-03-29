@@ -15,18 +15,11 @@ import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionBut
 import type { ExternalToolDiagnosisResponse } from "@/components/setting/ExternalDependencyConfigModal";
 import { buildSettingCommonActions } from "@/components/setting/SettingCommonActions";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
-import { AdminPasswordInlinePanel } from "@/components/setting/SettingInlineExternalPanels";
+import { SettingSetupEntryView } from "@/components/setting/SettingSetupEntryView";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useToastStore } from "@/stores/toast";
 import { client, extractData, handleApiError } from "@/lib/api";
-import {
-  CheckCircle,
-  FileCheck,
-  KeyRound,
-  Settings,
-  ShieldAlert,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { CheckCircle, ShieldAlert } from "lucide-react";
 
 type ConfigSetStatusResponse =
   ConfigSetComponents["schemas"]["ConfigSetStatusResponse"];
@@ -115,7 +108,6 @@ export const ConfigSetEditor: React.FC = () => {
   const [adminAction, setAdminAction] = useState<string>("existing_admin");
   const [passwordHint, setPasswordHint] = useState<string | null>(null);
   const [pendingAdminPassword, setPendingAdminPassword] = useState("");
-  const [resettingAdminPassword, setResettingAdminPassword] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [finishing, setFinishing] = useState(false);
 
@@ -292,6 +284,20 @@ export const ConfigSetEditor: React.FC = () => {
     }
   };
 
+  const validatePendingAdminPassword = useCallback(() => {
+    const trimmed = pendingAdminPassword.trim();
+    if (trimmed.length === 0) {
+      return null;
+    }
+    if (trimmed.length < 8) {
+      return t([
+        "systemConfig.setup.admin.passwordTooShort",
+        "launcher.messages.password_too_short",
+      ]);
+    }
+    return null;
+  }, [pendingAdminPassword, t]);
+
   const handleTest = async () => {
     if (testing) return;
     setTesting(true);
@@ -321,6 +327,11 @@ export const ConfigSetEditor: React.FC = () => {
 
   const handleApply = useCallback(async () => {
     if (testing) return;
+    const passwordError = validatePendingAdminPassword();
+    if (passwordError) {
+      addToast(passwordError, "error");
+      return;
+    }
     setTesting(true);
     setValidationErrors([]);
     try {
@@ -338,7 +349,7 @@ export const ConfigSetEditor: React.FC = () => {
       setPasswordHint(res?.password_hint ?? null);
       setPendingAdminPassword("");
       addToast(
-        t("configSet.logs.success") || "Configuration saved successfully",
+        t("systemConfig.configSet.logs.success") || "Configuration saved successfully",
         "success",
       );
       setCompleted(true);
@@ -347,7 +358,7 @@ export const ConfigSetEditor: React.FC = () => {
       if (errData.length > 0) {
         setValidationErrors(errData);
         addToast(
-          `${t("configSet.logs.failed")}: ${errData[0].message}`,
+          `${t("systemConfig.configSet.logs.failed")}: ${errData[0].message}`,
           "error",
         );
       } else {
@@ -356,25 +367,20 @@ export const ConfigSetEditor: React.FC = () => {
     } finally {
       setTesting(false);
     }
-  }, [addToast, configPath, content, pendingAdminPassword, t, testing]);
+  }, [
+    addToast,
+    configPath,
+    content,
+    pendingAdminPassword,
+    t,
+    testing,
+    validatePendingAdminPassword,
+  ]);
 
   const handleResetToSaved = () => {
     setContent(savedContent);
     setValidationErrors([]);
   };
-
-  const handleQuickSettingsResetAdminPassword = useCallback(
-    async (password: string) => {
-      setResettingAdminPassword(true);
-      try {
-        setPendingAdminPassword(password);
-        return adminUsername;
-      } finally {
-        setResettingAdminPassword(false);
-      }
-    },
-    [adminUsername],
-  );
 
   const handleDiagnoseExternalTools = useCallback(
     async (
@@ -438,30 +444,36 @@ export const ConfigSetEditor: React.FC = () => {
 
   const headerActions = <SettingSurfaceControls compact={true} />;
 
+  const settingsCenterTitle = t([
+    "systemConfig.setup.editor.title",
+    "systemConfig.setup.center.title",
+    "admin.config.title",
+  ]);
+
   const finalMessage =
     adminAction === "created_default"
-      ? t("configSet.final.adminCreatedDefault", {
+      ? t("systemConfig.configSet.final.adminCreatedDefault", {
           user: adminUsername,
           password: passwordHint || "admin888",
         })
       : adminAction === "created_with_password"
-        ? t("configSet.final.adminCreatedWithPassword", {
+        ? t("systemConfig.configSet.final.adminCreatedWithPassword", {
             user: adminUsername,
             password: passwordHint || "",
           })
         : adminAction === "reset_password"
-          ? t("configSet.final.adminReset", {
+          ? t("systemConfig.configSet.final.adminReset", {
               user: adminUsername,
               password: passwordHint || "",
             })
           : adminAction === "existing_admin"
-            ? t("configSet.final.adminExisting", { user: adminUsername })
+            ? t("systemConfig.configSet.final.adminExisting", { user: adminUsername })
             : "";
 
   const handleConfigPathAction = () => {
     void addToast(
       t([
-        "setup.guide.runtimeDirChangeHint",
+        "systemConfig.setup.guide.runtimeDirChangeHint",
         "launcher.runtime_dir_change_hint",
       ]),
       { type: "info", duration: "long" },
@@ -481,10 +493,9 @@ export const ConfigSetEditor: React.FC = () => {
         onTestDatabase: handleCheckDatabase,
         onTestCache: handleCheckCache,
         adminPassword: {
-          onApply: async (password) =>
-            handleQuickSettingsResetAdminPassword(password),
-          loading: resettingAdminPassword,
-          hint: t("setup.admin.resetRuleHint"),
+          value: pendingAdminPassword,
+          onValueChange: setPendingAdminPassword,
+          hint: t("systemConfig.setup.admin.resetRuleHint"),
         },
         license: {
           status: licenseStatus,
@@ -499,7 +510,7 @@ export const ConfigSetEditor: React.FC = () => {
           onPrimaryAction: () => {
             void handleApply();
           },
-          primaryActionLabel: t("setup.guide.card3Action"),
+          primaryActionLabel: t("systemConfig.setup.guide.card3Action"),
         },
       }),
     [
@@ -510,8 +521,7 @@ export const ConfigSetEditor: React.FC = () => {
       systemHardware,
       handleCheckDatabase,
       handleCheckCache,
-      handleQuickSettingsResetAdminPassword,
-      resettingAdminPassword,
+      pendingAdminPassword,
       licenseStatus,
       licenseKey,
       licenseSaving,
@@ -529,7 +539,7 @@ export const ConfigSetEditor: React.FC = () => {
         <div className="max-w-2xl mx-auto p-6 sm:p-8 bg-card border-2 border-destructive/20 rounded-3xl sm:rounded-[2.5rem] text-center shadow-2xl">
           <ShieldAlert size={80} className="mx-auto text-destructive mb-8" />
           <h2 className="text-4xl font-black mb-6">
-            {t("configSet.locked.title")}
+            {t("systemConfig.configSet.locked.title")}
           </h2>
           <p className="text-xl opacity-70 mb-10">{permissionMessage}</p>
           <button
@@ -549,13 +559,13 @@ export const ConfigSetEditor: React.FC = () => {
   if (completed) {
     return (
       <ConfigWorkbenchShell
-        title={t("admin.config.title")}
+        title={settingsCenterTitle}
         configPath={configPath}
         configPathAction={
           <ConfigPathActionButton
             onClick={handleConfigPathAction}
             label={t([
-              "setup.guide.card1Action",
+              "systemConfig.setup.guide.card1Action",
               "launcher.modify_runtime_dirs",
             ])}
           />
@@ -565,20 +575,20 @@ export const ConfigSetEditor: React.FC = () => {
         <div className="max-w-2xl mx-auto p-6 sm:p-8 bg-card border-2 border-emerald-500/20 rounded-3xl sm:rounded-[2.5rem] text-center shadow-2xl">
           <CheckCircle size={80} className="mx-auto text-emerald-500 mb-8" />
           <h2 className="text-4xl font-black mb-6">
-            {t("configSet.final.title")}
+            {t("systemConfig.configSet.final.title")}
           </h2>
           <p className="text-xl opacity-70 mb-10">
             {finalMessage ||
-              t("configSet.final.subtitle", { user: adminUsername })}
+              t("systemConfig.configSet.final.subtitle", { user: adminUsername })}
           </p>
           <div className="max-w-md mx-auto p-4 sm:p-5 bg-muted/50 rounded-xl text-left space-y-3 border border-border mb-8">
             <p className="text-sm font-semibold uppercase tracking-wide opacity-60">
-              {t("configSet.final.nextSteps")}
+              {t("systemConfig.configSet.final.nextSteps")}
             </p>
             <div className="space-y-2">
               {[1, 2, 3].map((i) => (
                 <p key={i} className="text-sm leading-6">
-                  {i}. {t(`configSet.final.step${i}`)}
+                  {i}. {t(`systemConfig.configSet.final.step${i}`)}
                 </p>
               ))}
             </div>
@@ -598,122 +608,66 @@ export const ConfigSetEditor: React.FC = () => {
     );
   }
 
-  // When config already exists and user has not chosen to customize,
-  // show a streamlined one-click apply view.
-  if (configExists && !showCustomize && !loading) {
+  if (!configExists && !showCustomize && !loading) {
     return (
       <ConfigWorkbenchShell
-        title={t("setup.editor.title")}
+        title={settingsCenterTitle}
         configPath={configPath}
         configPathAction={
           <ConfigPathActionButton
             onClick={handleConfigPathAction}
             label={t([
-              "setup.guide.card1Action",
+              "systemConfig.setup.guide.card1Action",
               "launcher.modify_runtime_dirs",
             ])}
           />
         }
         headerActions={headerActions}
       >
-        <div className="max-w-2xl mx-auto space-y-6 p-2 sm:p-4">
-          <div
-            className={cn(
-              "rounded-3xl border p-6 sm:p-8 text-center",
-              isDark
-                ? "border-white/10 bg-slate-950"
-                : "border-sky-200/70 bg-gradient-to-br from-sky-50 via-cyan-50 to-white",
-            )}
-          >
-            <FileCheck
-              size={64}
-              className={cn(
-                "mx-auto mb-6",
-                isDark ? "text-sky-300" : "text-sky-600",
-              )}
-            />
-            <h2
-              className={cn(
-                "text-2xl font-black mb-3",
-                isDark ? "text-slate-100" : "text-slate-900",
-              )}
-            >
-              {t("setup.guide.existingConfigTitle")}
-            </h2>
-            <p
-              className={cn(
-                "text-sm leading-7 max-w-lg mx-auto mb-8",
-                isDark ? "text-slate-300" : "text-slate-600",
-              )}
-            >
-              {t("setup.guide.existingConfigDesc")}
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  void handleApply();
-                }}
-                disabled={testing}
-                className="h-11 px-8 rounded-2xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {testing
-                  ? t("common.processing")
-                  : t("setup.guide.existingConfigApply")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowCustomize(true)}
-                className={cn(
-                  "h-11 px-6 rounded-2xl border text-sm font-black transition-colors",
-                  isDark
-                    ? "border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
-                )}
-              >
-                <Settings size={15} className="inline mr-2" />
-                {t("setup.guide.existingConfigCustomize")}
-              </button>
-            </div>
-          </div>
+        <SettingSetupEntryView
+          mode="first-start"
+          busy={testing}
+          onPrimary={() => {
+            void handleApply();
+          }}
+          onCustomize={() => setShowCustomize(true)}
+          pendingAdminPassword={pendingAdminPassword}
+          onPendingAdminPasswordChange={setPendingAdminPassword}
+          passwordHint={t("systemConfig.setup.admin.resetRuleHint")}
+        />
+      </ConfigWorkbenchShell>
+    );
+  }
 
-          <div
-            className={cn(
-              "rounded-3xl border p-5 sm:p-6",
-              isDark
-                ? "border-white/10 bg-white/[0.03]"
-                : "border-slate-200 bg-white",
-            )}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-2xl",
-                  isDark
-                    ? "bg-cyan-500/15 text-cyan-200"
-                    : "bg-cyan-100 text-cyan-700",
-                )}
-              >
-                <KeyRound size={18} />
-              </div>
-              <h3
-                className={cn(
-                  "text-lg font-black",
-                  isDark ? "text-slate-100" : "text-slate-900",
-                )}
-              >
-                {t("setup.admin.changePassword")}
-              </h3>
-            </div>
-            <AdminPasswordInlinePanel
-              onApply={async (password) =>
-                handleQuickSettingsResetAdminPassword(password)
-              }
-              loading={resettingAdminPassword}
-              hint={t("setup.admin.resetRuleHint")}
-            />
-          </div>
-        </div>
+  // When config already exists and user has not chosen to customize,
+  // show a streamlined one-click apply view.
+  if (configExists && !showCustomize && !loading) {
+    return (
+      <ConfigWorkbenchShell
+        title={settingsCenterTitle}
+        configPath={configPath}
+        configPathAction={
+          <ConfigPathActionButton
+            onClick={handleConfigPathAction}
+            label={t([
+              "systemConfig.setup.guide.card1Action",
+              "launcher.modify_runtime_dirs",
+            ])}
+          />
+        }
+        headerActions={headerActions}
+      >
+        <SettingSetupEntryView
+          mode="existing-config"
+          busy={testing}
+          onPrimary={() => {
+            void handleApply();
+          }}
+          onCustomize={() => setShowCustomize(true)}
+          pendingAdminPassword={pendingAdminPassword}
+          onPendingAdminPasswordChange={setPendingAdminPassword}
+          passwordHint={t("systemConfig.setup.admin.resetRuleHint")}
+        />
       </ConfigWorkbenchShell>
     );
   }
@@ -725,20 +679,20 @@ export const ConfigSetEditor: React.FC = () => {
       configPathAction={
         <ConfigPathActionButton
           onClick={handleConfigPathAction}
-          label={t(["setup.guide.card1Action", "launcher.modify_runtime_dirs"])}
+          label={t(["systemConfig.setup.guide.card1Action", "launcher.modify_runtime_dirs"])}
         />
       }
       headerExtras={headerActions}
       settingActions={settingActions}
       testAction={{
-        label: t("setup.editor.check"),
+        label: t("systemConfig.setup.editor.check"),
         onClick: () => {
           void handleTest();
         },
         disabled: testing,
       }}
       primaryAction={{
-        label: t("setup.guide.card3Action"),
+        label: t("systemConfig.setup.guide.card3Action"),
         onClick: () => {
           void handleApply();
         },
@@ -760,8 +714,8 @@ export const ConfigSetEditor: React.FC = () => {
         showCancel: false,
         allowSaveWithoutChanges: true,
         forceEnableSave: true,
-        editorTitle: t("setup.editor.title"),
-        testLabel: t("setup.editor.check"),
+        editorTitle: t("systemConfig.setup.editor.title"),
+        testLabel: t("systemConfig.setup.editor.check"),
         onClearValidationErrors: () => setValidationErrors([]),
         runtimeOs,
         systemHardware,

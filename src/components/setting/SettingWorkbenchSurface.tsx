@@ -86,7 +86,7 @@ export const SettingWorkbenchSurface: React.FC<
               : "text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/10"
           }`}
         >
-          {t("setup.editor.visualMode")}
+          {t("systemConfig.setup.editor.visualMode")}
         </button>
         <button
           type="button"
@@ -97,7 +97,7 @@ export const SettingWorkbenchSurface: React.FC<
               : "text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/10"
           }`}
         >
-          {t("setup.editor.sourceMode")}
+          {t("systemConfig.setup.editor.sourceMode")}
         </button>
       </div>
       {headerExtras}

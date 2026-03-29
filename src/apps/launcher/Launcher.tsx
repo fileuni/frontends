@@ -15,6 +15,8 @@ import type {
   ConfigError,
   ConfigNoteEntry,
 } from "@/components/setting/ConfigRawEditor";
+import { ConfigWorkbenchShell } from "@/components/setting/ConfigWorkbenchShell";
+import { SettingSetupEntryView } from "@/components/setting/SettingSetupEntryView";
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { SettingSurfaceControls } from "@/components/setting/SettingSurfaceControls";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
@@ -181,7 +183,6 @@ export function Launcher() {
   const [configErrors, setConfigErrors] = useState<ConfigError[]>([]);
   const [configFetching, setConfigFetching] = useState(false);
   const [configBusy, setConfigBusy] = useState(false);
-  const [resettingAdminPassword, setResettingAdminPassword] = useState(false);
   const [configSummary, setConfigSummary] = useState("");
   const [configSummaryLevel, setConfigSummaryLevel] = useState<
     "success" | "warning" | "error" | "info"
@@ -201,6 +202,10 @@ export function Launcher() {
   const [initialSettingsStatus, setInitialSettingsStatus] =
     useState<InstallationStatus | null>(null);
   const [initialSettingsRequired, setInitialSettingsRequired] = useState(false);
+  const [initialSettingsHadExistingConfig, setInitialSettingsHadExistingConfig] =
+    useState(false);
+  const [showInitialSettingsCustomize, setShowInitialSettingsCustomize] =
+    useState(false);
   const [settingsCenterAdminUsername, setSettingsCenterAdminUsername] =
     useState("admin");
   const [settingsCenterAdminAction, setSettingsCenterAdminAction] =
@@ -394,6 +399,7 @@ export function Launcher() {
           runtimeDir: inspected.runtime_dir,
         },
       );
+      const hadExistingConfig = status.config_exists;
 
       if (!status.config_exists) {
         const ensured = await safeInvoke<RuntimeDirInspection>(
@@ -418,13 +424,16 @@ export function Launcher() {
       }
 
       setInitialSettingsStatus(status);
+      setInitialSettingsHadExistingConfig(hadExistingConfig);
       if (status.is_setup_required) {
         await loadSettingsCenterWorkbench();
+        setShowInitialSettingsCustomize(false);
         setInitialSettingsRequired(true);
         setVersionUpgradeStatus(null);
         setIsVersionUpgradePromptOpen(false);
       } else {
         setInitialSettingsRequired(false);
+        setShowInitialSettingsCustomize(false);
         await refreshVersionUpgradeStatus();
       }
       return status;
@@ -655,26 +664,6 @@ export function Launcher() {
     setConfigBusy(false);
   };
 
-  const handleResetAdminPassword = async (
-    password: string,
-  ): Promise<string> => {
-    setResettingAdminPassword(true);
-    try {
-      const username = await safeInvoke<string>("reset_admin_password", {
-        new_password: password,
-      });
-      toast.success(t("launcher.reset_admin_password_success"));
-      return typeof username === "string" && username.trim().length > 0
-        ? username
-        : "admin";
-    } catch (e: unknown) {
-      toast.error(extractErrorMessage(e));
-      throw e;
-    } finally {
-      setResettingAdminPassword(false);
-    }
-  };
-
   const handleSettingsCenterRuntimeAction = async () => {
     if (!isTauriRuntime()) {
       await toast.info(
@@ -703,9 +692,9 @@ export function Launcher() {
     onTestDatabase: handleCheckDatabase,
     onTestCache: handleCheckCache,
     adminPassword: {
-      onApply: async (password) => handleStoreAdminPassword(password),
-      loading: settingsCenterApplying,
-      hint: t("setup.admin.resetRuleHint"),
+      value: pendingAdminPassword,
+      onValueChange: setPendingAdminPassword,
+      hint: t("systemConfig.setup.admin.resetRuleHint"),
     },
     license: {
       status: licenseStatus,
@@ -720,9 +709,23 @@ export function Launcher() {
       onPrimaryAction: () => {
         void handleFinalizeSettingsCenter();
       },
-      primaryActionLabel: t("setup.guide.card3Action"),
+      primaryActionLabel: t("systemConfig.setup.guide.card3Action"),
     },
   });
+
+  const validatePendingAdminPassword = useCallback(() => {
+    const trimmed = pendingAdminPassword.trim();
+    if (trimmed.length === 0) {
+      return null;
+    }
+    if (trimmed.length < 8) {
+      return t([
+        "systemConfig.setup.admin.passwordTooShort",
+        "launcher.messages.password_too_short",
+      ]);
+    }
+    return null;
+  }, [pendingAdminPassword, t]);
 
   const handleTestConfig = async () => {
     setConfigBusy(true);
@@ -1102,28 +1105,16 @@ export function Launcher() {
       }
       setSettingsCenterPasswordHint(res?.password_hint ?? null);
       setSavedConfigContent(configContent);
-      setConfigSummary(t("setup.logs.setupSuccess"));
+      setConfigSummary(t("systemConfig.setup.logs.setupSuccess"));
       setConfigSummaryLevel("success");
       setConfigErrors([]);
-      toast.success(t("setup.logs.setupSuccess"));
+      toast.success(t("systemConfig.setup.logs.setupSuccess"));
       setIsSettingsCenterCompletedPromptOpen(true);
       setPendingAdminPassword("");
       return username;
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
       throw e;
-    } finally {
-      setSettingsCenterApplying(false);
-    }
-  };
-
-  const handleStoreAdminPassword = async (
-    password: string,
-  ): Promise<string> => {
-    setSettingsCenterApplying(true);
-    try {
-      setPendingAdminPassword(password);
-      return settingsCenterAdminUsername;
     } finally {
       setSettingsCenterApplying(false);
     }
@@ -1152,6 +1143,14 @@ export function Launcher() {
   const handleFinalizeSettingsCenter = async () => {
     setConfigBusy(true);
     try {
+      const passwordError = validatePendingAdminPassword();
+      if (passwordError) {
+        toast.error(passwordError);
+        setConfigSummary(passwordError);
+        setConfigSummaryLevel("error");
+        return;
+      }
+
       // Enforce the same structured validation model used by "Test".
       const errors = await safeInvoke<ConfigError[]>("test_config", {
         content: configContent,
@@ -1191,25 +1190,31 @@ export function Launcher() {
 
   const settingsCenterFinalMessage =
     settingsCenterAdminAction === "created_default"
-      ? t("setup.final.adminCreatedDefault", {
+      ? t("systemConfig.setup.final.adminCreatedDefault", {
           user: settingsCenterAdminUsername,
           password: settingsCenterPasswordHint || "admin888",
         })
       : settingsCenterAdminAction === "created_with_password"
-        ? t("setup.final.adminCreatedWithPassword", {
+        ? t("systemConfig.setup.final.adminCreatedWithPassword", {
             user: settingsCenterAdminUsername,
             password: settingsCenterPasswordHint || "",
           })
         : settingsCenterAdminAction === "reset_password"
-          ? t("setup.final.adminReset", {
+          ? t("systemConfig.setup.final.adminReset", {
               user: settingsCenterAdminUsername,
               password: settingsCenterPasswordHint || "",
             })
           : settingsCenterAdminAction === "existing_admin"
-            ? t("setup.final.adminExisting", {
+            ? t("systemConfig.setup.final.adminExisting", {
                 user: settingsCenterAdminUsername,
               })
             : "";
+
+  const settingsCenterTitle = t([
+    "systemConfig.setup.editor.title",
+    "systemConfig.setup.center.title",
+    "admin.config.title",
+  ]);
 
   // Format uptime
   const formatUptime = (seconds: number) => {
@@ -1225,66 +1230,101 @@ export function Launcher() {
         <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col overflow-y-auto overscroll-contain touch-pan-y">
           <div className="flex-1 min-h-0 p-3 pt-[calc(1rem+var(--safe-area-top))] pb-[calc(1rem+var(--safe-area-bottom))] sm:p-6 sm:pt-[calc(1.25rem+var(--safe-area-top))] lg:p-8 lg:pt-[calc(1.5rem+var(--safe-area-top))]">
             <div className="max-w-6xl mx-auto space-y-4">
-              <SettingWorkbenchSurface
-                title={t("admin.config.title")}
-                configPath={configFilePath}
-                configPathAction={
-                  <ConfigPathActionButton
-                    onClick={() => {
-                      void handleSettingsCenterRuntimeAction();
+              {showInitialSettingsCustomize ? (
+                <SettingWorkbenchSurface
+                  title={settingsCenterTitle}
+                  configPath={configFilePath}
+                  configPathAction={
+                    <ConfigPathActionButton
+                      onClick={() => {
+                        void handleSettingsCenterRuntimeAction();
+                      }}
+                      label={t([
+                        "systemConfig.setup.guide.card1Action",
+                        "launcher.modify_runtime_dirs",
+                      ])}
+                    />
+                  }
+                  headerExtras={<SettingSurfaceControls compact={true} />}
+                  settingActions={settingActions}
+                  testAction={{
+                    label: t("systemConfig.setup.editor.check"),
+                    onClick: () => {
+                      void handleTestConfig();
+                    },
+                    disabled: configBusy || settingsCenterApplying,
+                  }}
+                  primaryAction={{
+                    label: t("systemConfig.setup.guide.card3Action"),
+                    onClick: () => {
+                      void handleFinalizeSettingsCenter();
+                    },
+                    disabled: configBusy || settingsCenterApplying,
+                  }}
+                  workbenchProps={{
+                    tomlAdapter: toml,
+                    loading: configFetching,
+                    configPath: configFilePath,
+                    content: configContent,
+                    savedContent: savedConfigContent,
+                    notes: configNotes,
+                    validationErrors: configErrors,
+                    busy: configBusy,
+                    onChange: setConfigContent,
+                    onTest: handleTestConfig,
+                    onSave: handleFinalizeSettingsCenter,
+                    saveLabel: t("systemConfig.setup.admin.finish"),
+                    onCancel: handleResetToSavedConfig,
+                    allowSaveWithoutChanges: true,
+                    forceEnableSave: true,
+                    editorTitle: t("systemConfig.setup.editor.title"),
+                    testLabel: t("systemConfig.setup.editor.check"),
+                    onClearValidationErrors: () => setConfigErrors([]),
+                    showCancel: false,
+                    reloadSummary: configSummary,
+                    reloadSummaryLevel: configSummaryLevel,
+                    runtimeOs: osInfo?.os_type,
+                    systemHardware: osInfo,
+                    onDiagnoseExternalTools: handleDiagnoseExternalTools,
+                    ...(osInfo?.is_mobile
+                      ? { onPickStorageDirectory: pickExternalStorageDirectory }
+                      : {}),
+                  }}
+                />
+              ) : (
+                <ConfigWorkbenchShell
+                  title={settingsCenterTitle}
+                  configPath={configFilePath}
+                  configPathAction={
+                    <ConfigPathActionButton
+                      onClick={() => {
+                        void handleSettingsCenterRuntimeAction();
+                      }}
+                      label={t([
+                        "systemConfig.setup.guide.card1Action",
+                        "launcher.modify_runtime_dirs",
+                      ])}
+                    />
+                  }
+                  headerActions={<SettingSurfaceControls compact={true} />}
+                >
+                  <SettingSetupEntryView
+                    mode={
+                      initialSettingsHadExistingConfig
+                        ? "existing-config"
+                        : "first-start"
+                    }
+                    busy={configBusy || settingsCenterApplying}
+                    onPrimary={() => {
+                      void handleFinalizeSettingsCenter();
                     }}
-                    label={t([
-                      "setup.guide.card1Action",
-                      "launcher.modify_runtime_dirs",
-                    ])}
+                    onCustomize={() => setShowInitialSettingsCustomize(true)}
+                    pendingAdminPassword={pendingAdminPassword}
+                    onPendingAdminPasswordChange={setPendingAdminPassword}
+                    passwordHint={t("systemConfig.setup.admin.resetRuleHint")}
                   />
-                }
-                headerExtras={<SettingSurfaceControls compact={true} />}
-                settingActions={settingActions}
-                testAction={{
-                  label: t("setup.editor.check"),
-                  onClick: () => {
-                    void handleTestConfig();
-                  },
-                  disabled: configBusy || settingsCenterApplying,
-                }}
-                primaryAction={{
-                  label: t("setup.guide.card3Action"),
-                  onClick: () => {
-                    void handleFinalizeSettingsCenter();
-                  },
-                  disabled: configBusy || settingsCenterApplying,
-                }}
-                workbenchProps={{
-                  tomlAdapter: toml,
-                  loading: configFetching,
-                  configPath: configFilePath,
-                  content: configContent,
-                  savedContent: savedConfigContent,
-                  notes: configNotes,
-                  validationErrors: configErrors,
-                  busy: configBusy,
-                  onChange: setConfigContent,
-                  onTest: handleTestConfig,
-                  onSave: handleFinalizeSettingsCenter,
-                  saveLabel: t("setup.admin.finish"),
-                  onCancel: handleResetToSavedConfig,
-                  allowSaveWithoutChanges: true,
-                  forceEnableSave: true,
-                  editorTitle: t("setup.editor.title"),
-                  testLabel: t("setup.editor.check"),
-                  onClearValidationErrors: () => setConfigErrors([]),
-                  showCancel: false,
-                  reloadSummary: configSummary,
-                  reloadSummaryLevel: configSummaryLevel,
-                  runtimeOs: osInfo?.os_type,
-                  systemHardware: osInfo,
-                  onDiagnoseExternalTools: handleDiagnoseExternalTools,
-                  ...(osInfo?.is_mobile
-                    ? { onPickStorageDirectory: pickExternalStorageDirectory }
-                    : {}),
-                }}
-              />
+                </ConfigWorkbenchShell>
+              )}
             </div>
           </div>
 
@@ -1297,24 +1337,24 @@ export function Launcher() {
               <div className="w-full max-w-md rounded-3xl border border-emerald-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
                 <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
                   <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
-                    {t("setup.final.title")}
+                    {t("systemConfig.setup.final.title")}
                   </h2>
                 </div>
                 <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
                   <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
                     {settingsCenterFinalMessage ||
-                      t("setup.final.subtitle", {
+                      t("systemConfig.setup.final.subtitle", {
                         user: settingsCenterAdminUsername,
                       })}
                   </p>
                   <div className="mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-slate-700/60 dark:bg-slate-950/40">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                      {t("setup.final.nextSteps")}
+                      {t("systemConfig.setup.final.nextSteps")}
                     </p>
                     <div className="mt-3 space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
                       {[1, 2, 3].map((i) => (
                         <p key={i}>
-                          {i}. {t(`setup.final.step${i}`)}
+                          {i}. {t(`systemConfig.setup.final.step${i}`)}
                         </p>
                       ))}
                     </div>
@@ -1331,8 +1371,8 @@ export function Launcher() {
                       className="px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 transition-all"
                     >
                       {status === "Running"
-                        ? t("setup.final.started")
-                        : t("setup.final.startNow")}
+                        ? t("systemConfig.setup.final.started")
+                        : t("systemConfig.setup.final.startNow")}
                     </button>
                     <button
                       type="button"
@@ -1342,7 +1382,7 @@ export function Launcher() {
                       disabled={loading}
                       className="px-5 py-2.5 rounded-xl text-sm font-bold border border-cyan-300 text-cyan-700 hover:bg-cyan-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-cyan-500/30 dark:text-cyan-200 dark:hover:bg-cyan-500/10 transition-all"
                     >
-                      {t("setup.final.openWebUi")}
+                      {t("systemConfig.setup.final.openWebUi")}
                     </button>
                     <button
                       type="button"
@@ -1351,13 +1391,13 @@ export function Launcher() {
                       }}
                       className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all"
                     >
-                      {t("setup.final.finishLater")}
+                      {t("systemConfig.setup.final.finishLater")}
                     </button>
                   </div>
                   <p className="text-xs leading-5 text-slate-500 dark:text-slate-400 sm:text-right">
                     {status === "Running"
-                      ? t("setup.final.runningHint")
-                      : t("setup.final.openHint")}
+                      ? t("systemConfig.setup.final.runningHint")
+                      : t("systemConfig.setup.final.openHint")}
                   </p>
                 </div>
               </div>
@@ -1669,12 +1709,19 @@ export function Launcher() {
             <div className="w-full max-w-lg rounded-3xl border border-amber-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
               <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
                 <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
-                  {t("setup.center.title")}
+                  {t([
+                    "systemConfig.setup.guide.title",
+                    "systemConfig.setup.center.title",
+                  ])}
                 </h2>
               </div>
               <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5 space-y-4">
                 <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  {t("setup.guide.requiredPrompt")}
+                  {t([
+                    "systemConfig.setup.guide.desc",
+                    "systemConfig.setup.guide.requiredPrompt",
+                    "systemConfig.setup.center.subtitle",
+                  ])}
                 </p>
                 {initialSettingsStatus && (
                   <div className="space-y-3">
@@ -1745,7 +1792,7 @@ export function Launcher() {
                     void handleSettingsCenterRuntimeAction();
                   }}
                   label={t([
-                    "setup.guide.card1Action",
+                    "systemConfig.setup.guide.card1Action",
                     "launcher.modify_runtime_dirs",
                   ])}
                 />
@@ -1755,7 +1802,7 @@ export function Launcher() {
               closeAriaLabel={t("common.close")}
               settingActions={settingActions}
               testAction={{
-                label: t("setup.editor.check"),
+                label: t("systemConfig.setup.editor.check"),
                 onClick: () => {
                   void handleTestConfig();
                 },
@@ -1788,12 +1835,10 @@ export function Launcher() {
                 reloadSummaryLevel: configSummaryLevel,
                 runtimeOs: osInfo?.os_type,
                 systemHardware: osInfo,
-                onDiagnoseExternalTools: handleDiagnoseExternalTools,
-                onResetAdminPassword: handleResetAdminPassword,
-                isResettingAdminPassword: resettingAdminPassword,
-                ...(osInfo?.is_mobile
-                  ? { onPickStorageDirectory: pickExternalStorageDirectory }
-                  : {}),
+                  onDiagnoseExternalTools: handleDiagnoseExternalTools,
+                  ...(osInfo?.is_mobile
+                    ? { onPickStorageDirectory: pickExternalStorageDirectory }
+                    : {}),
                 quickSettingsLicense: {
                   isValid: Boolean(licenseStatus?.is_valid),
                   ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),

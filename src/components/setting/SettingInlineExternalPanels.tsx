@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
@@ -392,56 +392,55 @@ export const CompressionInlinePanel: React.FC<BaseProps> = ({
 };
 
 interface AdminPasswordInlinePanelProps {
-  onApply: (password: string) => Promise<void | string | { username?: string }>;
-  loading?: boolean;
+  value: string;
+  onValueChange: (password: string) => void;
   hint?: string;
+  minPasswordLength?: number;
 }
 
 export const AdminPasswordInlinePanel: React.FC<
   AdminPasswordInlinePanelProps
-> = ({ onApply, loading = false, hint }) => {
+> = ({ value, onValueChange, hint, minPasswordLength = 8 }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === "dark";
-  const [password, setPassword] = useState("");
+  const trimmedPassword = value.trim();
+  const showLengthError =
+    trimmedPassword.length > 0 && trimmedPassword.length < minPasswordLength;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-      <div>
-        <div
-          className={cn(
-            "text-xs font-black uppercase tracking-wide",
-            isDark ? "text-slate-400" : "text-slate-600",
-          )}
-        >
-          {t("setup.admin.password")}
-        </div>
-        <PasswordInput
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          inputClassName={cn(
-            "mt-2 h-11 w-full rounded-xl border px-3 text-sm",
-            isDark
-              ? "border-white/10 bg-black/30 text-white"
-              : "border-slate-300 bg-white text-slate-900",
-          )}
-          placeholder={t("setup.admin.password")}
-        />
-        {hint && (
-          <div className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">
-            {hint}
-          </div>
+    <div>
+      <div
+        className={cn(
+          "text-xs font-black uppercase tracking-wide",
+          isDark ? "text-slate-400" : "text-slate-600",
         )}
-      </div>
-      <button
-        type="button"
-        onClick={() => {
-          void onApply(password);
-        }}
-        disabled={loading || password.trim().length < 8}
-        className="h-11 px-4 rounded-xl bg-primary text-white text-sm font-black hover:opacity-90 disabled:opacity-50"
       >
-        {t("setup.guide.card3Action")}
-      </button>
+        {t("systemConfig.setup.admin.password")}
+      </div>
+      <PasswordInput
+        value={value}
+        onChange={(event) => onValueChange(event.target.value)}
+        inputClassName={cn(
+          "mt-2 h-11 w-full rounded-xl border px-3 text-sm",
+          isDark
+            ? "border-white/10 bg-black/30 text-white"
+            : "border-slate-300 bg-white text-slate-900",
+        )}
+        placeholder={t("systemConfig.setup.admin.password")}
+      />
+      {showLengthError && (
+        <div className="mt-2 text-xs leading-6 text-destructive">
+          {t([
+            "systemConfig.setup.admin.passwordTooShort",
+            "launcher.messages.password_too_short",
+          ])}
+        </div>
+      )}
+      {hint && (
+        <div className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">
+          {hint}
+        </div>
+      )}
     </div>
   );
 };
@@ -692,7 +691,7 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
                 : "border-rose-200 bg-rose-50 text-rose-900",
             )}
           >
-            {t("setup.storageCache.writeRisk")}
+            {t("systemConfig.setup.storageCache.writeRisk")}
           </div>
         )}
         <InlineSegmentCard
