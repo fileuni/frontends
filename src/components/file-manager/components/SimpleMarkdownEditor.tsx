@@ -7,7 +7,7 @@ import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirro
 import { tags } from '@lezer/highlight';
 import { useTranslation } from 'react-i18next';
 import { Edit3, Eye, LayoutPanelLeft, Loader2, Save } from 'lucide-react';
-import { BASE_URL, client } from '@/lib/api';
+import { BASE_URL } from '@/lib/api';
 import { getFileDownloadToken } from '@/lib/fileTokens';
 import { Button } from '@/components/ui/Button';
 import { useToastStore } from '@/stores/toast';
@@ -15,6 +15,12 @@ import { cn } from '@/lib/utils';
 import { FilePreviewHeader } from './FilePreviewHeader';
 import { MarkdownPreviewSurface } from './MarkdownPreviewSurface';
 import { PlainTextPreviewSurface } from './PlainTextPreviewSurface';
+import {
+  notifyEditorSaveError,
+  saveTextFileContent,
+  shouldSkipAutoSave,
+  TEXT_EDITOR_AUTO_SAVE,
+} from './editorSaveShared';
 import { useAutoSave } from '../hooks/useAutoSave';
 
 interface SaveResult {
@@ -41,10 +47,6 @@ interface Props {
 
 type LayoutMode = 'edit' | 'preview' | 'split';
 
-const AUTO_SAVE_TICK_MS = 5_000;
-const AUTO_SAVE_IDLE_MS = 1_500;
-const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
-const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 const MOBILE_BREAKPOINT = '(max-width: 960px)';
 
 const darkMarkdownHighlight = HighlightStyle.define([
@@ -218,12 +220,15 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
     if (loadedPathRef.current !== path) return;
     const snapshot = editorRef.current ? editorRef.current.state.doc.toString() : content;
 
-    if (reason === 'auto') {
-      if (snapshot === lastSavedContentRef.current) return;
-      const now = Date.now();
-      const idleOk = now - lastEditAtRef.current >= AUTO_SAVE_IDLE_MS;
-      const forceOk = now - lastSavedAtRef.current >= AUTO_SAVE_MAX_INTERVAL_MS;
-      if (!idleOk && !forceOk) return;
+    if (shouldSkipAutoSave({
+      reason,
+      hasChanges: snapshot !== lastSavedContentRef.current,
+      lastEditAt: lastEditAtRef.current,
+      lastSavedAt: lastSavedAtRef.current,
+      idleMs: TEXT_EDITOR_AUTO_SAVE.idleMs,
+      maxIntervalMs: TEXT_EDITOR_AUTO_SAVE.maxIntervalMs,
+    })) {
+      return;
     }
 
     savingRef.current = true;
@@ -233,18 +238,11 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
       if (saveContentRequest) {
         result = await saveContentRequest({ path, content: snapshot });
       } else {
-        const { data, error } = await client.PUT('/api/v1/file/content', {
-          body: { path, content: snapshot, is_base64: false },
+        await saveTextFileContent({
+          path,
+          content: snapshot,
+          fallbackMessage: t('filemanager.editor.autoSaveFailed'),
         });
-        if (error) {
-          const errObj = error as Record<string, unknown>;
-          throw new Error((errObj['msg'] as string) || t('filemanager.editor.autoSaveFailed'));
-        }
-        if (!data?.['success']) {
-          const msgRaw = data?.['msg'];
-          const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
-          throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
-        }
       }
 
       if (result && result.path) {
@@ -257,16 +255,14 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         addToast(t('filemanager.previewModal.saveSuccess'), 'success');
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : t('filemanager.editor.autoSaveFailed');
-      if (reason === 'manual') {
-        addToast(message, 'error');
-      } else {
-        const now = Date.now();
-        if (now - lastAutoSaveErrorAtRef.current >= AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS) {
-          lastAutoSaveErrorAtRef.current = now;
-          addToast(message, 'error');
-        }
-      }
+      notifyEditorSaveError({
+        reason,
+        error,
+        fallbackMessage: t('filemanager.editor.autoSaveFailed'),
+        addToast,
+        lastAutoSaveErrorAtRef,
+        cooldownMs: TEXT_EDITOR_AUTO_SAVE.errorToastCooldownMs,
+      });
     } finally {
       setSaving(false);
       savingRef.current = false;
@@ -275,7 +271,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
 
   useAutoSave({
     enabled: true,
-    intervalMs: AUTO_SAVE_TICK_MS,
+    intervalMs: TEXT_EDITOR_AUTO_SAVE.tickMs,
     task: async () => {
       if (loading || savingRef.current || loadedPathRef.current !== path) return;
       const snapshot = editorRef.current ? editorRef.current.state.doc.toString() : content;

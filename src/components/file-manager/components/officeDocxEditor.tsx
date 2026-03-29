@@ -10,14 +10,14 @@ import { useThemeStore } from '@/stores/theme';
 import { useToastStore } from '@/stores/toast';
 import { useConfigStore } from '@/stores/config.ts';
 import { blobToBase64, fetchFileArrayBuffer, fetchFileStatSize, getFileExtension, isComplexOfficeFile, resolveLimitBytes, uploadBase64File } from '../utils/officeLite.ts';
+import {
+  notifyEditorSaveError,
+  OFFICE_EDITOR_AUTO_SAVE,
+  shouldSkipAutoSave,
+} from './editorSaveShared.ts';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
 
 const WORD_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
-
-const AUTO_SAVE_TICK_MS = 10_000;
-const AUTO_SAVE_IDLE_MS = 3_000;
-const AUTO_SAVE_MAX_INTERVAL_MS = 60_000;
-const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 
 interface Props {
   path: string;
@@ -232,13 +232,15 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
     if (loadedPathRef.current !== path) return;
 
     const snapshot = editorText;
-    if (reason === 'auto') {
-      if (snapshot === lastSavedTextRef.current) return;
-
-      const now = Date.now();
-      const idleOk = now - lastEditAtRef.current >= AUTO_SAVE_IDLE_MS;
-      const forceOk = now - lastSavedAtRef.current >= AUTO_SAVE_MAX_INTERVAL_MS;
-      if (!idleOk && !forceOk) return;
+    if (shouldSkipAutoSave({
+      reason,
+      hasChanges: snapshot !== lastSavedTextRef.current,
+      lastEditAt: lastEditAtRef.current,
+      lastSavedAt: lastSavedAtRef.current,
+      idleMs: OFFICE_EDITOR_AUTO_SAVE.idleMs,
+      maxIntervalMs: OFFICE_EDITOR_AUTO_SAVE.maxIntervalMs,
+    })) {
+      return;
     }
 
     savingRef.current = true;
@@ -266,18 +268,15 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
         await renderPreview(normalizedBytes.buffer as ArrayBuffer);
         addToast(t('filemanager.officeLite.saveSuccess'), 'success');
       }
-    } catch (e) {
-      const message = e instanceof Error ? e.message : t('filemanager.officeLite.saveFailed');
-
-      if (reason === 'manual') {
-        addToast(message, 'error');
-      } else {
-        const now = Date.now();
-        if (now - lastAutoSaveErrorAtRef.current >= AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS) {
-          lastAutoSaveErrorAtRef.current = now;
-          addToast(message, 'error');
-        }
-      }
+    } catch (error) {
+      notifyEditorSaveError({
+        reason,
+        error,
+        fallbackMessage: t('filemanager.officeLite.saveFailed'),
+        addToast,
+        lastAutoSaveErrorAtRef,
+        cooldownMs: OFFICE_EDITOR_AUTO_SAVE.errorToastCooldownMs,
+      });
     } finally {
       setSaving(false);
       savingRef.current = false;
@@ -286,7 +285,7 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
 
   useAutoSave({
     enabled: true,
-    intervalMs: AUTO_SAVE_TICK_MS,
+    intervalMs: OFFICE_EDITOR_AUTO_SAVE.tickMs,
     task: async () => {
       if (loading || error) return;
       if (savingRef.current) return;

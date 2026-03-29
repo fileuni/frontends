@@ -742,7 +742,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/web/reload": {
+    "/api/v1/admin/website-manage/reload": {
         parameters: {
             query?: never;
             header?: never;
@@ -758,7 +758,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/web/sites": {
+    "/api/v1/admin/website-manage/sites": {
         parameters: {
             query?: never;
             header?: never;
@@ -774,7 +774,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/web/sites/{id}": {
+    "/api/v1/admin/website-manage/sites/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -6514,7 +6514,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Reload web runtime */
+            /** @description Reload website runtime */
             200: {
                 headers: {
                     [name: string]: unknown;

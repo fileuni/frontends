@@ -3,11 +3,17 @@ import Vditor from 'vditor';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils.ts';
 import { Loader2, Save, Eye, Edit3 } from 'lucide-react';
-import { client, BASE_URL } from '@/lib/api.ts';
+import { BASE_URL } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { useToastStore } from '@/stores/toast';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { Button } from '@/components/ui/Button.tsx';
+import {
+  notifyEditorSaveError,
+  saveTextFileContent,
+  shouldSkipAutoSave,
+  TEXT_EDITOR_AUTO_SAVE,
+} from './editorSaveShared.ts';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
 import { PlainTextPreviewSurface } from './PlainTextPreviewSurface';
 
@@ -44,10 +50,6 @@ const getVditorLang = (lang: string): "zh_CN" | "en_US" | "ja_JP" | "ko_KR" => {
   return 'en_US';
 };
 
-const AUTO_SAVE_TICK_MS = 5_000;
-const AUTO_SAVE_IDLE_MS = 1_500;
-const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
-const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 const MOBILE_SPLIT_BREAKPOINT = '(max-width: 960px)';
 const LOCAL_VDITOR_BASE = `${import.meta.env.BASE_URL}vendor/vditor`.replace(/\/$/, '');
 
@@ -235,13 +237,15 @@ export const MarkdownVditorEditor = ({
     if (loadedPathRef.current !== path) return;
     const snapshot = vditorInstanceRef.current?.getValue() ?? content;
 
-    if (reason === 'auto') {
-      if (snapshot === lastSavedContentRef.current) return;
-
-      const now = Date.now();
-      const idleOk = now - lastEditAtRef.current >= AUTO_SAVE_IDLE_MS;
-      const forceOk = now - lastSavedAtRef.current >= AUTO_SAVE_MAX_INTERVAL_MS;
-      if (!idleOk && !forceOk) return;
+    if (shouldSkipAutoSave({
+      reason,
+      hasChanges: snapshot !== lastSavedContentRef.current,
+      lastEditAt: lastEditAtRef.current,
+      lastSavedAt: lastSavedAtRef.current,
+      idleMs: TEXT_EDITOR_AUTO_SAVE.idleMs,
+      maxIntervalMs: TEXT_EDITOR_AUTO_SAVE.maxIntervalMs,
+    })) {
+      return;
     }
 
     savingRef.current = true;
@@ -251,19 +255,11 @@ export const MarkdownVditorEditor = ({
       if (saveContentRequest) {
         result = await saveContentRequest({ path, content: snapshot });
       } else {
-        const { data, error } = await client.PUT('/api/v1/file/content', {
-          body: { path, content: snapshot, is_base64: false }
+        await saveTextFileContent({
+          path,
+          content: snapshot,
+          fallbackMessage: t('filemanager.editor.autoSaveFailed'),
         });
-
-        if (error) {
-          const errObj = error as Record<string, unknown>;
-          throw new Error((errObj['msg'] as string) || t('filemanager.editor.autoSaveFailed'));
-        }
-        if (!data?.['success']) {
-          const msgRaw = data?.['msg'];
-          const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
-          throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
-        }
       }
 
       if (result && result.path && result.path !== loadedPathRef.current) {
@@ -276,18 +272,15 @@ export const MarkdownVditorEditor = ({
       if (reason === 'manual') {
         addToast(t('filemanager.previewModal.saveSuccess'), 'success');
       }
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : t('filemanager.editor.autoSaveFailed');
-
-      if (reason === 'manual') {
-        addToast(msg, 'error');
-      } else {
-        const now = Date.now();
-        if (now - lastAutoSaveErrorAtRef.current >= AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS) {
-          lastAutoSaveErrorAtRef.current = now;
-          addToast(msg, 'error');
-        }
-      }
+    } catch (error: unknown) {
+      notifyEditorSaveError({
+        reason,
+        error,
+        fallbackMessage: t('filemanager.editor.autoSaveFailed'),
+        addToast,
+        lastAutoSaveErrorAtRef,
+        cooldownMs: TEXT_EDITOR_AUTO_SAVE.errorToastCooldownMs,
+      });
     } finally {
       setSaving(false);
       savingRef.current = false;
@@ -296,7 +289,7 @@ export const MarkdownVditorEditor = ({
 
   useAutoSave({
     enabled: true,
-    intervalMs: AUTO_SAVE_TICK_MS,
+    intervalMs: TEXT_EDITOR_AUTO_SAVE.tickMs,
     task: async () => {
       if (loading) return;
       if (savingRef.current) return;

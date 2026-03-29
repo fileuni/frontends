@@ -9,6 +9,12 @@ import { useToastStore } from '@/stores/toast';
 import { useConfigStore } from '@/stores/config.ts';
 import { cn } from '@/lib/utils.ts';
 import { Loader2, Save, Eye, ChevronDown } from 'lucide-react';
+import {
+  notifyEditorSaveError,
+  saveTextFileContent,
+  shouldSkipAutoSave,
+  TEXT_EDITOR_AUTO_SAVE,
+} from './editorSaveShared.ts';
 import { buildJsdelivrNpmUrl } from '../utils/officeLite.ts';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
 
@@ -29,11 +35,6 @@ type LatexJsGlobal = {
 };
 
 const LATEXJS_VERSION = '0.12.6';
-
-const AUTO_SAVE_TICK_MS = 5_000;
-const AUTO_SAVE_IDLE_MS = 1_500;
-const AUTO_SAVE_MAX_INTERVAL_MS = 30_000;
-const AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS = 30_000;
 
 const loadLatexScript = (src: string): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -181,31 +182,25 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     if (loadedPathRef.current !== path) return;
     const snapshot = content;
 
-    if (reason === 'auto') {
-      if (snapshot === lastSavedContentRef.current) return;
-
-      const now = Date.now();
-      const idleOk = now - lastEditAtRef.current >= AUTO_SAVE_IDLE_MS;
-      const forceOk = now - lastSavedAtRef.current >= AUTO_SAVE_MAX_INTERVAL_MS;
-      if (!idleOk && !forceOk) return;
+    if (shouldSkipAutoSave({
+      reason,
+      hasChanges: snapshot !== lastSavedContentRef.current,
+      lastEditAt: lastEditAtRef.current,
+      lastSavedAt: lastSavedAtRef.current,
+      idleMs: TEXT_EDITOR_AUTO_SAVE.idleMs,
+      maxIntervalMs: TEXT_EDITOR_AUTO_SAVE.maxIntervalMs,
+    })) {
+      return;
     }
 
     savingRef.current = true;
     setSaving(true);
     try {
-      const { data, error } = await client.PUT('/api/v1/file/content', {
-        body: { path, content: snapshot, is_base64: false }
+      await saveTextFileContent({
+        path,
+        content: snapshot,
+        fallbackMessage: t('filemanager.editor.autoSaveFailed'),
       });
-
-      if (error) {
-        const errObj = error as Record<string, unknown>;
-        throw new Error((errObj['msg'] as string) || t('filemanager.editor.autoSaveFailed'));
-      }
-      if (!data?.['success']) {
-        const msgRaw = data?.['msg'];
-        const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
-        throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
-      }
 
       lastSavedContentRef.current = snapshot;
       lastSavedAtRef.current = Date.now();
@@ -213,18 +208,15 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
       if (reason === 'manual') {
         addToast(t('filemanager.previewModal.saveSuccess'), 'success');
       }
-    } catch (_error: unknown) {
-      const msg = _error instanceof Error ? _error.message : t('filemanager.editor.autoSaveFailed');
-
-      if (reason === 'manual') {
-        addToast(msg, 'error');
-      } else {
-        const now = Date.now();
-        if (now - lastAutoSaveErrorAtRef.current >= AUTO_SAVE_ERROR_TOAST_COOLDOWN_MS) {
-          lastAutoSaveErrorAtRef.current = now;
-          addToast(msg, 'error');
-        }
-      }
+    } catch (error: unknown) {
+      notifyEditorSaveError({
+        reason,
+        error,
+        fallbackMessage: t('filemanager.editor.autoSaveFailed'),
+        addToast,
+        lastAutoSaveErrorAtRef,
+        cooldownMs: TEXT_EDITOR_AUTO_SAVE.errorToastCooldownMs,
+      });
     } finally {
       setSaving(false);
       savingRef.current = false;
@@ -233,7 +225,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
 
   useAutoSave({
     enabled: true,
-    intervalMs: AUTO_SAVE_TICK_MS,
+    intervalMs: TEXT_EDITOR_AUTO_SAVE.tickMs,
     task: async () => {
       if (loading) return;
       if (savingRef.current) return;
