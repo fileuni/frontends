@@ -135,13 +135,12 @@ export const FileManagerView = () => {
     }
 
     const newParams: NavParams = { mod: 'file-manager', page: fmMode };
-    newParams.path = fmMode === "files" ? currentPath : undefined;
+    if (fmMode === "files") {
+      newParams.path = currentPath;
+    }
     if (isSearchMode && searchKeyword.trim()) {
       newParams.search = '1';
       newParams.keyword = searchKeyword.trim();
-    } else {
-      newParams.search = undefined;
-      newParams.keyword = undefined;
     }
     
     if (
@@ -165,6 +164,27 @@ export const FileManagerView = () => {
     searchKeyword,
   ]);
 
+  const buildClipboardItem = (
+    path: string,
+    type: ClipboardItem['type'],
+  ): ClipboardItem => {
+    const file = files.find((item) => item.path === path);
+    return {
+      path,
+      type,
+      name: file?.name || path.split('/').pop() || '',
+      is_dir: file?.is_dir || false,
+      ...(file?.mount_id ? { mount_id: file.mount_id } : {}),
+      ...(file?.mount_dir ? { mount_dir: file.mount_dir } : {}),
+      ...(typeof file?.is_mount_root === 'boolean'
+        ? { is_mount_root: file.is_mount_root }
+        : {}),
+      ...(file?.delete_behavior
+        ? { delete_behavior: file.delete_behavior }
+        : {}),
+    };
+  };
+
   useEffect(() => {
     if (!isReady) return;
     loadFiles(fmMode === 'files' ? currentPath : '');
@@ -187,38 +207,18 @@ export const FileManagerView = () => {
       if (isMod && e.key.toLowerCase() === 'a') { e.preventDefault(); selectAll(files.map(f => f.path)); }
       if (isMod && e.key.toLowerCase() === 'c' && paths.length > 0) {
         e.preventDefault();
-        const copyItems: ClipboardItem[] = paths.map(p => {
-          const f = files.find(file => file.path === p);
-          return {
-            path: p,
-            type: 'copy',
-            name: f?.name || p.split('/').pop() || '',
-            is_dir: f?.is_dir || false,
-            mount_id: f?.mount_id,
-            mount_dir: f?.mount_dir,
-            is_mount_root: f?.is_mount_root,
-            delete_behavior: f?.delete_behavior,
-          };
-        });
+        const copyItems: ClipboardItem[] = paths.map((p) =>
+          buildClipboardItem(p, 'copy'),
+        );
         addToClipboard(copyItems);
         addToast(t('filemanager.messages.addedToClipboardCopy'), "success");
         deselectAll();
       }
       if (isMod && e.key.toLowerCase() === 'x' && paths.length > 0) {
         e.preventDefault();
-        const cutItems: ClipboardItem[] = paths.map(p => {
-          const f = files.find(file => file.path === p);
-          return {
-            path: p,
-            type: 'cut',
-            name: f?.name || p.split('/').pop() || '',
-            is_dir: f?.is_dir || false,
-            mount_id: f?.mount_id,
-            mount_dir: f?.mount_dir,
-            is_mount_root: f?.is_mount_root,
-            delete_behavior: f?.delete_behavior,
-          };
-        });
+        const cutItems: ClipboardItem[] = paths.map((p) =>
+          buildClipboardItem(p, 'cut'),
+        );
         addToClipboard(cutItems);
         addToast(t('filemanager.messages.addedToClipboardCut'), "success");
         deselectAll();
@@ -242,7 +242,7 @@ export const FileManagerView = () => {
   }, [
     selectedIds, files, clipboard, fmMode,
     actionModal, activeShareFile, propertiesFile, browsingArchivePath, archiveOpModal,
-    selectAll, deselectAll, addToast, t, addToClipboard
+    selectAll, deselectAll, addToast, t, addToClipboard, buildClipboardItem
   ]);
 
   const handleAction = (action: string, target: FileInfo | null) => {
@@ -310,19 +310,9 @@ export const FileManagerView = () => {
       case "share": if (target) setActiveShareFile(target); break;
       case "cancel_share": if (selectedIds.size > 0) { for (const id of Array.from(selectedIds)) cancelShare(id); deselectAll(); } else if (target?.id) cancelShare(target.id); break;
       case "copy": case "cut": {
-        const items: ClipboardItem[] = paths.map(p => {
-          const f = files.find(file => file.path === p);
-          return {
-            path: p,
-            type: action as 'copy' | 'cut',
-            name: f?.name || p.split('/').pop() || '',
-            is_dir: f?.is_dir || false,
-            mount_id: f?.mount_id,
-            mount_dir: f?.mount_dir,
-            is_mount_root: f?.is_mount_root,
-            delete_behavior: f?.delete_behavior,
-          };
-        });
+        const items: ClipboardItem[] = paths.map((p) =>
+          buildClipboardItem(p, action as 'copy' | 'cut'),
+        );
         addToClipboard(items);
         deselectAll();
         break;

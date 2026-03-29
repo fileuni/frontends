@@ -15,7 +15,7 @@ interface ArchiveEntry {
   path: string;
   is_dir: boolean;
   size: number;
-  modified?: string;
+  modified?: string | undefined;
 }
 
 interface Props {

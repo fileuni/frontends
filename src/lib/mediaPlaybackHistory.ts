@@ -7,9 +7,9 @@ export interface MediaPlaybackRecord {
   path: string;
   name: string;
   kind: MediaPlaybackKind;
-  title?: string;
-  subtitle?: string;
-  album?: string;
+  title?: string | undefined;
+  subtitle?: string | undefined;
+  album?: string | undefined;
   position: number;
   duration: number;
   progressPercent: number;
@@ -21,12 +21,12 @@ interface MediaPlaybackInput {
   path: string;
   name: string;
   kind: MediaPlaybackKind;
-  title?: string;
-  subtitle?: string;
-  album?: string;
+  title?: string | undefined;
+  subtitle?: string | undefined;
+  album?: string | undefined;
   position: number;
   duration: number;
-  completed?: boolean;
+  completed?: boolean | undefined;
 }
 
 const STORAGE_KEY = 'fileuni-media-playback-history-v1';

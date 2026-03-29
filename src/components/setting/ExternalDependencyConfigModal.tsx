@@ -595,8 +595,8 @@ export interface ThumbnailDependencyConfigModalProps {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
-  runtimeOs?: string;
-  onDiagnoseExternalTools?: DiagnoseExternalTools;
+  runtimeOs?: string | undefined;
+  onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
 }
 
 export const ThumbnailDependencyConfigModal: React.FC<
@@ -1006,8 +1006,8 @@ export interface CompressionDependencyConfigModalProps {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
-  runtimeOs?: string;
-  onDiagnoseExternalTools?: DiagnoseExternalTools;
+  runtimeOs?: string | undefined;
+  onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
 }
 
 export const CompressionDependencyConfigModal: React.FC<

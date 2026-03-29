@@ -142,14 +142,14 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
   ), [engine, handleEngineChange, isCompactLayout, props.contentMode, props.headerExtra, props.isDark]);
 
   if (engine === 'textarea') {
-    return (
+      return (
         <TextPreviewAndEditor
           {...props}
           headerExtra={engineExtra}
-          languageOverride={props.contentMode === 'plain' ? undefined : 'markdown'}
           markdownPreview={props.contentMode !== 'plain'}
           preferCodeEditor={false}
           hideInternalEngineToggle={true}
+          {...(props.contentMode === 'plain' ? {} : { languageOverride: 'markdown' })}
         />
     );
   }
@@ -159,14 +159,14 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
   }
 
   if (engine === 'codemirror') {
-    return (
+      return (
         <TextPreviewAndEditor
           {...props}
           headerExtra={engineExtra}
-          languageOverride={props.contentMode === 'plain' ? undefined : 'markdown'}
           markdownPreview={props.contentMode !== 'plain'}
           preferCodeEditor={true}
           hideInternalEngineToggle={true}
+          {...(props.contentMode === 'plain' ? {} : { languageOverride: 'markdown' })}
         />
     );
   }

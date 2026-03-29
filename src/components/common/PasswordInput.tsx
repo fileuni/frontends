@@ -5,11 +5,11 @@ import { IconInput } from '@/components/common/IconInput.tsx';
 import { PasswordStrengthMeter } from '@/components/common/PasswordStrengthMeter.tsx';
 
 type Props = Omit<React.ComponentProps<typeof IconInput>, 'type' | 'right'> & {
-  defaultVisible?: boolean;
-  rightExtra?: React.ReactNode;
-  showStrength?: boolean;
-  strengthClassName?: string;
-  toggleButtonTabIndex?: number;
+  defaultVisible?: boolean | undefined;
+  rightExtra?: React.ReactNode | undefined;
+  showStrength?: boolean | undefined;
+  strengthClassName?: string | undefined;
+  toggleButtonTabIndex?: number | undefined;
 };
 
 export const PasswordInput: React.FC<Props> = ({

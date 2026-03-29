@@ -32,7 +32,7 @@ export const normalizeStatus = (
   return 'idle';
 };
 
-export const StatusBadge = ({ status }: { status?: string | null }) => {
+export const StatusBadge = ({ status }: { status?: string | null | undefined }) => {
   const { t } = useTranslation();
   const s = normalizeStatus(status);
   if (s === 'success') {

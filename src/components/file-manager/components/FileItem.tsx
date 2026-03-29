@@ -23,7 +23,7 @@ const COLOR_MAP: Record<number, string> = {
 interface FileItemProps {
   file: FileInfo;
   onContextMenu: (e: React.MouseEvent, file: FileInfo) => void;
-  onAction?: (action: string, target: FileInfo | null) => void;
+  onAction?: ((action: string, target: FileInfo | null) => void) | undefined;
 }
 
 /**

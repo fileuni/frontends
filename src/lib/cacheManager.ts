@@ -197,7 +197,7 @@ const clearUserSessionForOwnUser = async (userId: string): Promise<CacheClearRes
   const remainingIds = Object.keys(usersMap);
   if (stateObj.currentUserId === userId) {
     const nextId = remainingIds.length > 0 ? remainingIds[0] : null;
-    stateObj.currentUserId = nextId;
+    stateObj.currentUserId = nextId ?? null;
     stateObj.currentUserData = nextId ? usersMap[nextId] || null : null;
     stateObj.isLoggedIn = !!nextId;
     const authStore = useAuthStore.getState();

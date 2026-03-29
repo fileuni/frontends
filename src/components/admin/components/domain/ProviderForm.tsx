@@ -35,11 +35,11 @@ interface ProviderFormProps {
 interface FieldDef {
   key: string;
   label: string;
-  placeholder?: string;
-  type?: 'text' | 'password';
-  required?: boolean;
-  isConfig?: boolean; // if true, maps to config_json
-  helper?: string;
+  placeholder?: string | undefined;
+  type?: 'text' | 'password' | undefined;
+  required?: boolean | undefined;
+  isConfig?: boolean | undefined; // if true, maps to config_json
+  helper?: string | undefined;
 }
 
 // Reuse standard high-visibility control base

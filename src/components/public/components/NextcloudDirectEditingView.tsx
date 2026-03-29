@@ -189,11 +189,18 @@ export const NextcloudDirectEditingView: React.FC = () => {
         setState(prev => prev ? ({
           ...prev,
           title: data.title || prev.title,
-          path: nextPath || prev.path,
+          ...(nextPath || prev.path ? { path: nextPath || prev.path } : {}),
           note_path: nextPath || prev.note_path,
         }) : prev);
       }
-      return { path: nextPath || path, fileName: data.title || state?.title };
+      const nextResult: { path: string; fileName?: string } = {
+        path: nextPath || path,
+      };
+      const nextFileName = data.title || state?.title;
+      if (nextFileName) {
+        nextResult.fileName = nextFileName;
+      }
+      return nextResult;
     },
     [directEditBase, state?.title],
   );

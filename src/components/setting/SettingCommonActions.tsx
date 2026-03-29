@@ -252,7 +252,7 @@ interface BuildSettingCommonActionsParams {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
-  runtimeOs?: string;
+  runtimeOs?: string | undefined;
   systemHardware?: SystemHardwareInfo | null;
   onTestDatabase?: (payload: DatabaseCheckPayload) => Promise<void>;
   onTestCache?: (payload: CacheCheckPayload) => Promise<void>;

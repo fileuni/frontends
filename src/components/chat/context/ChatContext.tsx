@@ -762,14 +762,19 @@ export const ChatProvider: React.FC<{
     let active = true;
     const retryAll = async () => {
       let changed = false;
-      const nextMessages = await Promise.all(
+      const nextMessages: Message[] = await Promise.all(
         messages.map(async (msg) => {
           if (!msg.decryptFailed || !msg.rawContent) return msg;
           
           // If content no longer looks encrypted, clear the failure badge
           if (!ChatCrypto.isEncrypted(msg.rawContent)) {
             changed = true;
-            return { ...msg, decryptFailed: false, rawContent: undefined };
+            const { rawContent: _removedRawContent, ...rest } = msg;
+            const recoveredMessage: Message = {
+              ...rest,
+              decryptFailed: false,
+            };
+            return recoveredMessage;
           }
 
           const targetId = msg.isGroup
@@ -789,7 +794,13 @@ export const ChatProvider: React.FC<{
               const decrypted = await ChatCrypto.decrypt(msg.rawContent, key);
               if (decrypted !== msg.rawContent) { 
                 changed = true;
-                return { ...msg, content: decrypted, decryptFailed: false, rawContent: undefined };
+                const { rawContent: _removedRawContent, ...rest } = msg;
+                const recoveredMessage: Message = {
+                  ...rest,
+                  content: decrypted,
+                  decryptFailed: false,
+                };
+                return recoveredMessage;
               }
             } catch {
               continue;
@@ -821,7 +832,6 @@ export const ChatProvider: React.FC<{
         name: nicknames[inviterId] || inviterId.slice(0, 8),
         isGroup: false,
         unreadCount: 0,
-        lastMessage: undefined,
       };
     }
     messages.forEach((msg) => {
@@ -860,7 +870,6 @@ export const ChatProvider: React.FC<{
             name: isGuest ? `${rawName} [Guest]` : rawName,
             isGroup: false,
             unreadCount: 0,
-            lastMessage: undefined,
           };
         }
       });
@@ -871,7 +880,6 @@ export const ChatProvider: React.FC<{
             name: `${guest.nickname} [Pending]`,
             isGroup: false,
             unreadCount: 0,
-            lastMessage: undefined,
             isPending: true,
             inviteCode: guest.inviteCode,
           };
@@ -1036,15 +1044,15 @@ export const ChatProvider: React.FC<{
         from: payload.from,
         to: payload.to,
         content,
-        rawContent: decryptFailed ? payload.content : undefined,
         isEncrypted: isEncrypted,
         isGroup: payload.is_group,
-        replyTo: payload.reply_to,
         timestamp: payload.timestamp,
         transport: source,
         status: "delivered",
         type: payload.file_info ? "file" : "text",
-        fileInfo: payload.file_info,
+        ...(decryptFailed ? { rawContent: payload.content } : {}),
+        ...(payload.reply_to ? { replyTo: payload.reply_to } : {}),
+        ...(payload.file_info ? { fileInfo: payload.file_info } : {}),
         decryptFailed,
       });
     },
@@ -1372,8 +1380,8 @@ export const ChatProvider: React.FC<{
           to,
           content: finalContent,
           is_group: isGroup,
-          reply_to: quotingMessage?.id || undefined,
           timestamp: Date.now(),
+          ...(quotingMessage?.id ? { reply_to: quotingMessage.id } : {}),
         },
       };
       addMessage({
@@ -1383,10 +1391,10 @@ export const ChatProvider: React.FC<{
         content,
         isEncrypted: !!encryptionKey,
         isGroup,
-        replyTo: quotingMessage?.id || undefined,
         timestamp: Date.now(),
         transport: isP2P ? "webrtc" : chatConfig.transportBackend,
         status: "sending",
+        ...(quotingMessage?.id ? { replyTo: quotingMessage.id } : {}),
         type: "text",
       });
       setQuotingMessage(null);

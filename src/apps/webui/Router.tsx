@@ -334,7 +334,7 @@ const PageRenderer: React.FC<{
       case "user-edit":
         return (
           <DashboardLayout title={t("pages.admin.userEdit.title")}>
-            <AdminUserEditView userId={params.id} />
+            <AdminUserEditView {...(params.id ? { userId: params.id } : {})} />
           </DashboardLayout>
         );
       case "config":
@@ -444,7 +444,7 @@ const PageRenderer: React.FC<{
   // Chat module
   if (mod === "chat") {
     if (page === "guest") {
-      return <ChatGuestView inviteCode={params.invite} />;
+      return <ChatGuestView {...(params.invite ? { inviteCode: params.invite } : {})} />;
     }
     if (!hasPermission("feature.chat.use")) {
       return (

@@ -142,7 +142,9 @@ export const SecurityView = () => {
         scene: "SEND_CODE",
         risk_target: normalizedTarget,
         risk_target_type: type,
-        risk_user_id: currentUserData?.user.id,
+        ...(currentUserData?.user.id
+          ? { risk_user_id: currentUserData.user.id }
+          : {}),
       });
       if (policy.deny_request) {
         addToast(t("errors.TOO_MANY_ATTEMPTS") || "Too many attempts", "error");

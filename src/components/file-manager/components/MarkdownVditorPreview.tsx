@@ -18,8 +18,8 @@ export const MarkdownVditorPreview = ({ path, isDark, headerExtra }: Props) => {
   return (
     <MarkdownVditorEditor
       path={path}
-      isDark={isDark}
-      headerExtra={headerExtra}
+      {...(typeof isDark === 'boolean' ? { isDark } : {})}
+      {...(headerExtra ? { headerExtra } : {})}
       cdnBase={jsdelivrBase}
     />
   );

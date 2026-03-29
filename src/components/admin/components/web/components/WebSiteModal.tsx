@@ -2,6 +2,7 @@ import { Modal } from '@/components/ui/Modal.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
+import type { TFunction } from 'i18next';
 import { Network, Plus, RefreshCw, Save, Trash2 } from 'lucide-react';
 import type {
   DomainAssetView,
@@ -11,8 +12,6 @@ import type {
   SiteDraft,
 } from '../types';
 import { normalizeHostnames } from '../draft';
-
-type TFunc = (key: string, options?: Record<string, unknown>) => string;
 
 export const WebSiteModal = ({
   isOpen,
@@ -42,7 +41,7 @@ export const WebSiteModal = ({
   domainCertAssets: DomainCertAssetView[];
   listenerDiagnostics: ListenerDiagnostic[];
   draftWarnings: string[];
-  t: TFunc;
+  t: TFunction;
   onClose: () => void;
   onSave: () => Promise<void> | void;
   onTestConnection: () => Promise<void> | void;

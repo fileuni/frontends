@@ -28,11 +28,11 @@ type Props = {
   refreshTitle: string;
   turnstileSiteKeyMissingText: string;
 
-  showTypeHint?: boolean;
-  typeHintPrefix?: string;
+  showTypeHint?: boolean | undefined;
+  typeHintPrefix?: string | undefined;
 
-  size?: 'default' | 'compact';
-  inputTabIndex?: number;
+  size?: 'default' | 'compact' | undefined;
+  inputTabIndex?: number | undefined;
 };
 
 export const CaptchaChallenge: React.FC<Props> = ({

@@ -22,22 +22,22 @@ export interface ConfigError {
   line: number;
   column: number;
   message: string;
-  key?: string | null;
+  key?: string | null | undefined;
 }
 
 export interface EditorJumpPosition {
   line: number;
-  column?: number;
+  column?: number | undefined;
 }
 
 interface ConfigRawEditorProps {
   content: string;
   onChange: (value: string) => void;
-  embeddedTemplate?: string;
+  embeddedTemplate?: string | undefined;
   notes: Record<string, ConfigNoteEntry>;
-  errors?: ConfigError[];
-  jumpTo?: EditorJumpPosition | null;
-  height?: string;
+  errors?: ConfigError[] | undefined;
+  jumpTo?: EditorJumpPosition | null | undefined;
+  height?: string | undefined;
   activePath?: string;
   hideNotes?: boolean;
   isDark?: boolean;

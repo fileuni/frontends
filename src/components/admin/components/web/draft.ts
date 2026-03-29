@@ -68,12 +68,22 @@ export const toPayload = (draft: SiteDraft): SitePayload => ({
     is_default: item.is_default,
   })),
   tls_enabled: draft.tls_enabled,
-  tls_acme_cert_id: draft.tls_acme_cert_id.trim() || undefined,
-  tls_cert_path: draft.tls_cert_path.trim() || undefined,
-  tls_key_path: draft.tls_key_path.trim() || undefined,
   route_mode: draft.route_mode,
-  static_root: draft.route_mode === 'static' ? (draft.static_root.trim() || undefined) : undefined,
-  proxy_upstream: draft.route_mode === 'proxy' ? (draft.proxy_upstream.trim() || undefined) : undefined,
+  ...(draft.tls_acme_cert_id.trim()
+    ? { tls_acme_cert_id: draft.tls_acme_cert_id.trim() }
+    : {}),
+  ...(draft.tls_cert_path.trim()
+    ? { tls_cert_path: draft.tls_cert_path.trim() }
+    : {}),
+  ...(draft.tls_key_path.trim()
+    ? { tls_key_path: draft.tls_key_path.trim() }
+    : {}),
+  ...(draft.route_mode === 'static' && draft.static_root.trim()
+    ? { static_root: draft.static_root.trim() }
+    : {}),
+  ...(draft.route_mode === 'proxy' && draft.proxy_upstream.trim()
+    ? { proxy_upstream: draft.proxy_upstream.trim() }
+    : {}),
   proxy_tls_insecure_skip_verify:
     draft.route_mode === 'proxy' && draft.proxy_upstream.trim().startsWith('https://')
       ? draft.proxy_tls_insecure_skip_verify

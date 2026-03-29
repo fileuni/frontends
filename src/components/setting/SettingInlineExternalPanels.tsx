@@ -399,8 +399,8 @@ export const CompressionInlinePanel: React.FC<BaseProps> = ({
 interface AdminPasswordInlinePanelProps {
   value: string;
   onValueChange: (password: string) => void;
-  hint?: string;
-  minPasswordLength?: number;
+  hint?: string | undefined;
+  minPasswordLength?: number | undefined;
 }
 
 export const AdminPasswordInlinePanel: React.FC<

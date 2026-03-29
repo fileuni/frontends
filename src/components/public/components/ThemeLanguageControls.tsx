@@ -7,8 +7,8 @@ import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { cn } from '@/lib/utils';
 
 interface ThemeLanguageControlsProps {
-  compact?: boolean;
-  className?: string;
+  compact?: boolean | undefined;
+  className?: string | undefined;
 }
 
 const languageOptions: { id: Language; label: string }[] = [

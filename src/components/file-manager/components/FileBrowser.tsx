@@ -11,7 +11,7 @@ import type { FileInfo } from '../types/index.ts';
 
 interface Props {
   onContextMenu: (e: React.MouseEvent, file: FileInfo) => void;
-  onAction?: (action: string, target: FileInfo | null) => void;
+  onAction?: ((action: string, target: FileInfo | null) => void) | undefined;
 }
 
 /**

@@ -81,46 +81,46 @@ export interface SystemConfigWorkbenchProps {
   onChange: (value: string) => void;
   onTest: () => void;
   onSave: () => void;
-  saveLabel?: string;
-  onCancel?: () => void;
-  showCancel?: boolean;
-  allowSaveWithoutChanges?: boolean;
-  forceEnableSave?: boolean;
-  reloadSummary?: string;
-  reloadSummaryLevel?: "success" | "warning" | "error" | "info";
-  restartNotice?: string;
+  saveLabel?: string | undefined;
+  onCancel?: (() => void) | undefined;
+  showCancel?: boolean | undefined;
+  allowSaveWithoutChanges?: boolean | undefined;
+  forceEnableSave?: boolean | undefined;
+  reloadSummary?: string | undefined;
+  reloadSummaryLevel?: "success" | "warning" | "error" | "info" | undefined;
+  restartNotice?: string | undefined;
   quickSettingsLicense?: {
     isValid: boolean;
-    msg?: string;
+    msg?: string | undefined;
     currentUsers: number;
     maxUsers: number;
     deviceCode: string;
-    hwId?: string;
-    auxId?: string;
-    expiresAt?: string | null;
-    features?: string[];
+    hwId?: string | undefined;
+    auxId?: string | undefined;
+    expiresAt?: string | null | undefined;
+    features?: string[] | undefined;
     licenseKey: string;
     saving: boolean;
     onLicenseKeyChange: (value: string) => void;
     onApplyLicense: () => void;
   };
-  quickSettingsEnabled?: boolean;
-  runtimeOs?: string;
-  systemHardware?: ConfigQuickSettingsModalProps["systemHardware"];
-  onClearValidationErrors?: () => void;
+  quickSettingsEnabled?: boolean | undefined;
+  runtimeOs?: string | undefined;
+  systemHardware?: ConfigQuickSettingsModalProps["systemHardware"] | undefined;
+  onClearValidationErrors?: (() => void) | undefined;
   onPickStorageDirectory?: import("./VfsStorageConfigModal").VfsStorageConfigModalProps["onPickDirectory"];
-  onDiagnoseExternalTools?: (
+  onDiagnoseExternalTools?: ((
     configuredValues: Record<string, string>,
-  ) => Promise<ExternalToolDiagnosisResponse>;
-  settingsCenterMode?: boolean;
-  editorTitle?: string;
-  testLabel?: string;
-  onSetupActionsReady?: (actions: SetupActionHandles) => void;
-  setupViewMode?: "visual" | "raw";
-  onSetupViewChange?: (mode: "visual" | "raw") => void;
-  hideShortcuts?: boolean;
-  hideEditorToolbar?: boolean;
-  hideEditorPath?: boolean;
+  ) => Promise<ExternalToolDiagnosisResponse>) | undefined;
+  settingsCenterMode?: boolean | undefined;
+  editorTitle?: string | undefined;
+  testLabel?: string | undefined;
+  onSetupActionsReady?: ((actions: SetupActionHandles) => void) | undefined;
+  setupViewMode?: "visual" | "raw" | undefined;
+  onSetupViewChange?: ((mode: "visual" | "raw") => void) | undefined;
+  hideShortcuts?: boolean | undefined;
+  hideEditorToolbar?: boolean | undefined;
+  hideEditorPath?: boolean | undefined;
 }
 
 export interface SetupActionHandles {

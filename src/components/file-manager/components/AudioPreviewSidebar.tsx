@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type React from 'react';
+import type { TFunction } from 'i18next';
 import type { FileInfo } from '../types/index.ts';
 import { formatMediaPlaybackUpdatedAt, type MediaPlaybackKind, type MediaPlaybackRecord } from '@/lib/mediaPlaybackHistory.ts';
 import { ListMusic, Loader2, Mic2, Pause, Trash2 } from 'lucide-react';
@@ -11,7 +12,7 @@ interface AudioPreviewSidebarProps {
   activeLyricRef: React.RefObject<HTMLButtonElement | null>;
   currentIndex: number;
   currentLyricLine: string | null;
-  isDark?: boolean;
+  isDark?: boolean | undefined;
   isPlaying: boolean;
   lyricsState: LyricsState;
   onLyricSeek: (time: number) => void;
@@ -22,7 +23,7 @@ interface AudioPreviewSidebarProps {
   playlist: FileInfo[];
   recentLocale?: string;
   recentRecords: MediaPlaybackRecord[];
-  t: (key: string, options?: Record<string, unknown>) => string;
+  t: TFunction;
 }
 
 export const AudioPreviewSidebar = ({

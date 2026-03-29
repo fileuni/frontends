@@ -1342,7 +1342,7 @@ const inferClientRuntimeOs = ():
 };
 
 export const recommendedAllocatorPolicyForRuntime = (
-  runtimeOs?: string,
+  runtimeOs?: string | undefined,
 ): FriendlyDraft["allocatorPolicy"] => {
   const normalized = normalizeRuntimeOs(runtimeOs);
   if (normalized === "linux") {
@@ -1904,14 +1904,14 @@ export interface ConfigQuickSettingsModalProps {
   onClose: () => void;
   content: string;
   onContentChange: (value: string) => void;
-  runtimeOs?: string;
-  systemHardware?: SystemHardwareInfo | null;
-  initialStep?: FriendlyStep;
-  onOpenLicenseManagement?: () => void;
-  onOpenStorageConfig?: () => void;
-  settingsCenterMode?: boolean;
-  embedded?: boolean;
-  showDoneAction?: boolean;
+  runtimeOs?: string | undefined;
+  systemHardware?: SystemHardwareInfo | null | undefined;
+  initialStep?: FriendlyStep | undefined;
+  onOpenLicenseManagement?: (() => void) | undefined;
+  onOpenStorageConfig?: (() => void) | undefined;
+  settingsCenterMode?: boolean | undefined;
+  embedded?: boolean | undefined;
+  showDoneAction?: boolean | undefined;
 }
 
 export const ConfigQuickSettingsModal: React.FC<

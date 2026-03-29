@@ -21,16 +21,16 @@ interface EditorOptions {
 }
 
 interface Props {
-  height?: string;
-  width?: string;
-  language?: string;
-  value?: string;
-  theme?: string;
-  options?: EditorOptions;
-  extensions?: Extension[];
-  className?: string;
-  onChange?: (value: string) => void;
-  onCreateEditor?: (view: EditorView) => void;
+  height?: string | undefined;
+  width?: string | undefined;
+  language?: string | undefined;
+  value?: string | undefined;
+  theme?: string | undefined;
+  options?: EditorOptions | undefined;
+  extensions?: Extension[] | undefined;
+  className?: string | undefined;
+  onChange?: ((value: string) => void) | undefined;
+  onCreateEditor?: ((view: EditorView) => void) | undefined;
 }
 
 const DEFAULT_FONT_FAMILY = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
@@ -146,8 +146,8 @@ export const CodeMirrorEditor: React.FC<Props> = ({
         highlightActiveLine,
         highlightActiveLineGutter: highlightActiveLine,
       }}
-      className={className}
-      onCreateEditor={onCreateEditor}
+      {...(className ? { className } : {})}
+      {...(onCreateEditor ? { onCreateEditor } : {})}
       onChange={(nextValue) => onChange?.(nextValue)}
     />
   );

@@ -3,13 +3,13 @@ import { cn } from '@/lib/utils';
 
 type Props = {
   title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  icon?: React.ReactNode;
-  actions?: React.ReactNode;
+  subtitle?: React.ReactNode | undefined;
+  icon?: React.ReactNode | undefined;
+  actions?: React.ReactNode | undefined;
 
-  className?: string;
-  titleClassName?: string;
-  subtitleClassName?: string;
+  className?: string | undefined;
+  titleClassName?: string | undefined;
+  subtitleClassName?: string | undefined;
 };
 
 export const DashboardSectionHeader: React.FC<Props> = ({

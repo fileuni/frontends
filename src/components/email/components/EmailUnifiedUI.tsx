@@ -7,8 +7,8 @@ import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 export interface EmailRouterState {
   isOpen: boolean;
   view: "inbox" | "compose" | "account";
-  accountId?: string;
-  folderName?: string;
+  accountId?: string | undefined;
+  folderName?: string | undefined;
 }
 
 export const EmailUnifiedUI: React.FC = () => {
@@ -46,8 +46,8 @@ export const EmailUnifiedUI: React.FC = () => {
         return {
           isOpen: true,
           view: "account",
-          accountId: parts[1],
-          folderName: parts[3],
+          ...(parts[1] ? { accountId: parts[1] } : {}),
+          ...(parts[3] ? { folderName: parts[3] } : {}),
         };
       }
       
@@ -124,8 +124,8 @@ export const EmailUnifiedUI: React.FC = () => {
         <div className="flex-1 overflow-hidden">
           <EmailPage 
             initialView={routerState.view}
-            initialAccountId={routerState.accountId}
-            initialFolderName={routerState.folderName}
+            {...(routerState.accountId ? { initialAccountId: routerState.accountId } : {})}
+            {...(routerState.folderName ? { initialFolderName: routerState.folderName } : {})}
           />
         </div>
       </div>

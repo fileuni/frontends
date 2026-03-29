@@ -90,7 +90,7 @@ export interface SendEmailResponse {
 }
 
 export interface EmailPageProps {
-  initialView?: "inbox" | "compose" | "account";
-  initialAccountId?: string;
-  initialFolderName?: string;
+  initialView?: "inbox" | "compose" | "account" | undefined;
+  initialAccountId?: string | undefined;
+  initialFolderName?: string | undefined;
 }

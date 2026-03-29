@@ -6,8 +6,8 @@ type Props = Omit<React.ComponentProps<typeof Input>, 'className'> & {
   icon?: React.ReactNode;
   right?: React.ReactNode;
 
-  wrapperClassName?: string;
-  inputClassName?: string;
+  wrapperClassName?: string | undefined;
+  inputClassName?: string | undefined;
 };
 
 export const IconInput = React.forwardRef<HTMLInputElement, Props>(

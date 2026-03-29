@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { TFunction } from 'i18next';
 import type { FileInfo } from '../types/index.ts';
 import { BASE_URL } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
@@ -29,16 +30,16 @@ const metadataPromiseCache = new Map<string, Promise<AudioMetadata>>();
 export interface AudioTrackDisplay {
   title: string;
   artist: string;
-  album?: string;
-  coverUrl?: string;
-  coverMimeType?: string;
+  album?: string | undefined;
+  coverUrl?: string | undefined;
+  coverMimeType?: string | undefined;
 }
 
 interface UseAudioPlaybackControllerOptions {
   playlist: FileInfo[];
   initialIndex?: number;
   onIndexChange?: (index: number) => void;
-  t: (key: string) => string;
+  t: TFunction;
 }
 
 const getAudioUrl = async (path: string) => {
@@ -160,7 +161,7 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
     duration: number;
     title: string;
     artist: string;
-    album?: string;
+    album?: string | undefined;
   }>({ file: null, currentTime: 0, duration: 0, title: 'Audio', artist: 'FileUni' });
 
   const safeInitialIndex = clamp(initialIndex, 0, Math.max(playlist.length - 1, 0));
@@ -590,8 +591,8 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
         mediaSession.metadata = new MediaMetadata({
           title: display.title,
           artist: display.artist,
-          album: display.album,
           artwork: display.coverUrl ? [{ src: display.coverUrl, type: display.coverMimeType || 'image/jpeg' }] : [],
+          ...(display.album ? { album: display.album } : {}),
         });
       }
       mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
@@ -645,7 +646,7 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
       duration,
       title: display.title,
       artist: display.artist,
-      album: display.album,
+      ...(display.album ? { album: display.album } : {}),
     };
   }, [activeFile, currentTime, display.album, display.artist, display.title, duration]);
 

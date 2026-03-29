@@ -6,17 +6,17 @@ import { DashboardSectionHeader } from './DashboardSectionHeader';
 type Props = {
   children: React.ReactNode;
 
-  variant?: DashboardCardVariant;
-  className?: string;
+  variant?: DashboardCardVariant | undefined;
+  className?: string | undefined;
 
-  title?: React.ReactNode;
-  subtitle?: React.ReactNode;
-  icon?: React.ReactNode;
-  actions?: React.ReactNode;
+  title?: React.ReactNode | undefined;
+  subtitle?: React.ReactNode | undefined;
+  icon?: React.ReactNode | undefined;
+  actions?: React.ReactNode | undefined;
 
-  headerClassName?: string;
-  titleClassName?: string;
-  subtitleClassName?: string;
+  headerClassName?: string | undefined;
+  titleClassName?: string | undefined;
+  subtitleClassName?: string | undefined;
 };
 
 export const DashboardSection: React.FC<Props> = ({

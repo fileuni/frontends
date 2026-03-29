@@ -19,14 +19,14 @@ export type ToolProps = {
   tool: string;
   kind: ToolKind;
   installed: boolean;
-  executablePath?: string;
-  installDir?: string;
-  binPathConfig?: string;
+  executablePath?: string | undefined;
+  installDir?: string | undefined;
+  binPathConfig?: string | undefined;
   homepage: string;
   description: string;
-  followStart?: boolean;
-  running?: boolean;
-  pid?: number | null;
+  followStart?: boolean | undefined;
+  running?: boolean | undefined;
+  pid?: number | null | undefined;
   
   // Install fields
   version: string;
@@ -43,27 +43,27 @@ export type ToolProps = {
     label: string;
     value: string;
     onChange: (v: string) => void;
-    placeholder?: string;
-    isTextArea?: boolean;
-  }[];
+    placeholder?: string | undefined;
+    isTextArea?: boolean | undefined;
+  }[] | undefined;
 
   onDownload: () => Promise<void>;
-  onDelete?: () => Promise<void>;
-  onFetchLatest?: () => Promise<void>;
+  onDelete?: (() => Promise<void>) | undefined;
+  onFetchLatest?: (() => Promise<void>) | undefined;
   
   // Standard actions
-  onStartService?: () => Promise<void>;
-  onStopService?: () => Promise<void>;
-  onRestart?: () => Promise<void>;
-  loading?: boolean;
+  onStartService?: (() => Promise<void>) | undefined;
+  onStopService?: (() => Promise<void>) | undefined;
+  onRestart?: (() => Promise<void>) | undefined;
+  loading?: boolean | undefined;
 
   // Extra actions
   extraActions?: {
     label: string;
     onClick: () => Promise<string | void> | void;
-    variant?: 'outline' | 'primary' | 'ghost' | 'destructive';
-    showOutputInModal?: boolean;
-  }[];
+    variant?: 'outline' | 'primary' | 'ghost' | 'destructive' | undefined;
+    showOutputInModal?: boolean | undefined;
+  }[] | undefined;
 };
 
 export const ToolPanel = (props: ToolProps) => {

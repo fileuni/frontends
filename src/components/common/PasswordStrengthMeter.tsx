@@ -13,7 +13,7 @@ const computeStrength = (password: string): number => {
 
 type Props = {
   password: string;
-  className?: string;
+  className?: string | undefined;
 };
 
 export const PasswordStrengthMeter: React.FC<Props> = ({ password, className }) => {

@@ -2,8 +2,8 @@ import React from "react";
 import { ThemeLanguageControls } from "@/components/public/components/ThemeLanguageControls";
 
 interface SettingSurfaceControlsProps {
-  className?: string;
-  compact?: boolean;
+  className?: string | undefined;
+  compact?: boolean | undefined;
 }
 
 export const SettingSurfaceControls: React.FC<SettingSurfaceControlsProps> = ({

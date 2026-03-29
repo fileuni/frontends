@@ -8,13 +8,13 @@ import {
 } from "./ConfigRawEditor";
 
 interface ConfigEditorPanelProps {
-  configPath?: string | null;
+  configPath?: string | null | undefined;
   content: string;
   notes: Record<string, ConfigNoteEntry>;
   errors: ConfigError[];
-  jumpTo?: EditorJumpPosition | null;
+  jumpTo?: EditorJumpPosition | null | undefined;
   loading: boolean;
-  saveDisabled?: boolean;
+  saveDisabled?: boolean | undefined;
   onChange: (value: string) => void;
   onTest: () => void;
   onSave: () => void;
@@ -23,13 +23,13 @@ interface ConfigEditorPanelProps {
   testLabel: string;
   saveLabel: string;
   cancelLabel: string;
-  showCancel?: boolean;
-  actionsPrefix?: React.ReactNode;
-  isDark?: boolean;
-  editorVisible?: boolean;
-  collapsedContent?: React.ReactNode;
-  hideToolbarWhenCollapsed?: boolean;
-  showToolbar?: boolean;
+  showCancel?: boolean | undefined;
+  actionsPrefix?: React.ReactNode | undefined;
+  isDark?: boolean | undefined;
+  editorVisible?: boolean | undefined;
+  collapsedContent?: React.ReactNode | undefined;
+  hideToolbarWhenCollapsed?: boolean | undefined;
+  showToolbar?: boolean | undefined;
 }
 
 export const ConfigEditorPanel: React.FC<ConfigEditorPanelProps> = ({

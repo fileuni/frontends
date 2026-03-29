@@ -18,9 +18,9 @@ interface CertificateFormProps {
   onChangeCaProvider: (provider: string) => void;
   accountEmail: string;
   onChangeAccountEmail: (email: string) => void;
-  dnsConfigJson?: string;
+  dnsConfigJson?: string | undefined;
   onChangeDnsConfig: (json: string) => void;
-  providerAccountId?: string;
+  providerAccountId?: string | undefined;
   onChangeProviderAccountId: (id: string) => void;
   providers: Array<{
     id: string;
@@ -34,10 +34,10 @@ interface CertificateFormProps {
     auth_test_message?: string | null;
   }>;
   zeroSslAccounts: { id: string; name: string }[];
-  exportPath?: string;
+  exportPath?: string | undefined;
   onChangeExportPath: (path: string) => void;
-  onOpenProviderModal?: () => void;
-  onOpenZeroSslModal?: () => void;
+  onOpenProviderModal?: (() => void) | undefined;
+  onOpenZeroSslModal?: (() => void) | undefined;
 }
 
 const SectionHeader = ({ icon: Icon, title, desc }: { icon: LucideIcon, title: string, desc?: string }) => (

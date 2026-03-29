@@ -39,22 +39,22 @@ interface BaseProps {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
-  runtimeOs?: string;
-  systemHardware?: SystemHardwareInfo | null;
+  runtimeOs?: string | undefined;
+  systemHardware?: SystemHardwareInfo | null | undefined;
 }
 
 interface DatabasePanelProps extends BaseProps {
-  onTestDatabase?: (payload: {
+  onTestDatabase?: ((payload: {
     databaseType: DatabaseType;
     connectionString: string;
-  }) => Promise<void>;
+  }) => Promise<void>) | undefined;
 }
 
 interface CachePanelProps extends BaseProps {
-  onTestCache?: (payload: {
+  onTestCache?: ((payload: {
     cacheType: string;
     connectionString: string;
-  }) => Promise<void>;
+  }) => Promise<void>) | undefined;
 }
 
 const tierOptions: Array<{

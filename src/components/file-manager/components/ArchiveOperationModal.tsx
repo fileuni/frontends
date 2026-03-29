@@ -128,8 +128,8 @@ export function ArchiveOperationModal({
           paths,
           targetPath: normalizeLogicalPath(targetPath),
           overwrite,
-          password: decompressPassword.trim() ? decompressPassword.trim() : undefined,
           deleteArchive,
+          ...(decompressPassword.trim() ? { password: decompressPassword.trim() } : {}),
         });
       } else {
         const maxLevelVal = capabilities?.compression_max_level ?? 9;
@@ -140,9 +140,9 @@ export function ArchiveOperationModal({
           targetName: targetName.trim() || 'archive',
           format,
           level: safeLevel,
-          password: compressPassword.trim() ? compressPassword.trim() : undefined,
           encryptFilenames,
           deleteSource,
+          ...(compressPassword.trim() ? { password: compressPassword.trim() } : {}),
         });
       }
     } catch (e: unknown) {

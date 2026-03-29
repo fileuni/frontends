@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { deepClone, ensureRecord, isRecord, type ConfigObject } from '@/lib/configObject';
 import {
   type ArchiveSectionDraft,
@@ -12,7 +13,7 @@ import {
   storageDriverOptions,
 } from './vfsStorageDraftShared';
 
-type Translate = (key: string, params?: Record<string, unknown>) => string;
+type Translate = TFunction;
 
 export interface VfsDraftCollections {
   connectors: ConnectorDraft[];

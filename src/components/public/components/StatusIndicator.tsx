@@ -430,7 +430,7 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
           updateTask(task.id, {
             status: tData.status,
             progress: tData.progress,
-            message: tData.message || undefined,
+            ...(tData.message ? { message: tData.message } : {}),
           });
         }
       } catch (e) {

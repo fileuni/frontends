@@ -5,14 +5,14 @@ import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 
 interface ConfigWorkbenchShellProps {
   title: string;
-  subtitle?: string;
-  configPath?: string | null;
-  configPathAction?: React.ReactNode;
-  onClose?: () => void;
-  closeAriaLabel?: string;
-  headerActions?: React.ReactNode;
-  containerClassName?: string;
-  bodyClassName?: string;
+  subtitle?: string | undefined;
+  configPath?: string | null | undefined;
+  configPathAction?: React.ReactNode | undefined;
+  onClose?: (() => void) | undefined;
+  closeAriaLabel?: string | undefined;
+  headerActions?: React.ReactNode | undefined;
+  containerClassName?: string | undefined;
+  bodyClassName?: string | undefined;
   children: React.ReactNode;
 }
 

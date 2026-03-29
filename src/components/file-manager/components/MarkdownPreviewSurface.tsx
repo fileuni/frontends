@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils';
 
 interface Props {
   content: string;
-  isDark?: boolean;
-  previewTransform?: (html: string) => string;
-  className?: string;
+  isDark?: boolean | undefined;
+  previewTransform?: ((html: string) => string) | undefined;
+  className?: string | undefined;
 }
 
 marked.setOptions({

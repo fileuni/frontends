@@ -4,10 +4,10 @@ import { cn } from '@/lib/utils';
 type Props = {
   icon: React.ReactNode;
   title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  actions?: React.ReactNode;
-  className?: string;
-  iconClassName?: string;
+  subtitle?: React.ReactNode | undefined;
+  actions?: React.ReactNode | undefined;
+  className?: string | undefined;
+  iconClassName?: string | undefined;
 };
 
 export const AdminPageHeader = ({

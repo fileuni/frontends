@@ -1,9 +1,8 @@
 import { AdminCard } from '../../admin-ui';
 import { Button } from '@/components/ui/Button.tsx';
 import { Network, Pencil, Server, ShieldCheck, Trash2 } from 'lucide-react';
+import type { TFunction } from 'i18next';
 import type { SiteView } from '../types';
-
-type TFunc = (key: string, options?: Record<string, unknown>) => string;
 
 export const WebSitesTable = ({
   loading,
@@ -14,7 +13,7 @@ export const WebSitesTable = ({
 }: {
   loading: boolean;
   sites: SiteView[];
-  t: TFunc;
+  t: TFunction;
   onEdit: (site: SiteView) => void;
   onDelete: (site: SiteView) => void;
 }) => {

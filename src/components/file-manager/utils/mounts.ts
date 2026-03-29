@@ -7,10 +7,10 @@ export type RemoteMountSummary = {
   name: string;
   driver: string;
   mount_dir: string;
-  last_sync_status?: string | null;
-  last_sync_at?: string | null;
-  next_sync_at?: string | null;
-  last_error?: string | null;
+  last_sync_status?: string | null | undefined;
+  last_sync_at?: string | null | undefined;
+  next_sync_at?: string | null | undefined;
+  last_error?: string | null | undefined;
 };
 
 export const isMountedEntry = (file: Pick<FileInfo, 'mount_id'> | null | undefined): boolean => {

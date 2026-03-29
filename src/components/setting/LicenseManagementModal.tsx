@@ -13,18 +13,18 @@ export interface LicenseManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   isValid: boolean;
-  statusMessage?: string;
+  statusMessage?: string | undefined;
   currentUsers: number;
   maxUsers: number;
   deviceCode: string;
-  hwId?: string;
-  auxId?: string;
+  hwId?: string | undefined;
+  auxId?: string | undefined;
   licenseKey: string;
   saving: boolean;
   onLicenseKeyChange: (value: string) => void;
   onApplyLicense: () => void;
-  expiresAt?: string | null;
-  features?: string[];
+  expiresAt?: string | null | undefined;
+  features?: string[] | undefined;
 }
 
 export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({

@@ -14,7 +14,7 @@ export const uploadTempVfsAttachment = async (args: {
 
   const response = await fetch(uploadUrl, {
     method: 'POST',
-    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    ...(accessToken ? { headers: { Authorization: `Bearer ${accessToken}` } } : {}),
     body: attachment.file,
   });
 

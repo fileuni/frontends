@@ -57,7 +57,7 @@ interface SubtitleInfo {
 interface AudioTrackInfo {
   index: number;
   label: string;
-  language?: string;
+  language?: string | undefined;
   enabled: boolean;
 }
 

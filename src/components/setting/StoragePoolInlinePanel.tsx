@@ -41,7 +41,7 @@ interface Props {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
-  runtimeOs?: string;
+  runtimeOs?: string | undefined;
 }
 
 const makeId = () => Math.random().toString(36).slice(2, 10);

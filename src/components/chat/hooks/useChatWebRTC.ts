@@ -171,8 +171,8 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
       turnServers.forEach((srv) => {
         iceServers.push({
           urls: formatUrl(srv.url),
-          username: srv.username,
-          credential: srv.credential,
+          ...(srv.username ? { username: srv.username } : {}),
+          ...(srv.credential ? { credential: srv.credential } : {}),
         });
       });
       if (iceServers.length === 0)

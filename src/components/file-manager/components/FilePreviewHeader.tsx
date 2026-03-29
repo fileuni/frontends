@@ -7,16 +7,16 @@ import { useThemeStore } from '@/stores/theme';
 
 interface FilePreviewHeaderProps {
   path: string;
-  fileName?: string;
-  loading?: boolean;
-  extra?: React.ReactNode;
-  icon?: React.ReactNode;
-  subtitle?: string;
-  isDark?: boolean;
-  onClose?: () => void;
-  onDownload?: () => Promise<void> | void;
-  hideDownload?: boolean;
-  closeButtonClassName?: string;
+  fileName?: string | undefined;
+  loading?: boolean | undefined;
+  extra?: React.ReactNode | undefined;
+  icon?: React.ReactNode | undefined;
+  subtitle?: string | undefined;
+  isDark?: boolean | undefined;
+  onClose?: (() => void) | undefined;
+  onDownload?: (() => Promise<void> | void) | undefined;
+  hideDownload?: boolean | undefined;
+  closeButtonClassName?: string | undefined;
 }
 
 /**
@@ -115,6 +115,7 @@ export const FilePreviewHeader = ({
         <div className="flex shrink-0 items-center gap-2">
           {!hideDownload && (
             <button 
+              type="button"
               onClick={() => { void handleDownload(); }}
               disabled={loading}
               title={t('common.download')}
@@ -130,6 +131,7 @@ export const FilePreviewHeader = ({
           )}
 
           <button 
+            type="button"
             onClick={defaultOnClose}
             title={t('common.close')}
             className={cn(

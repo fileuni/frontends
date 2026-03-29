@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import type { TFunction } from 'i18next';
 import { handleApiError } from '@/lib/api.ts';
 import {
   deleteToolApi,
@@ -10,14 +11,12 @@ import {
 } from '../api.ts';
 import type { InstallBody, ServiceStatus, ToolInfo } from '../types.ts';
 
-type TFunc = (key: string, options?: Record<string, unknown>) => string;
-
 export const useExtensionsBackend = ({
   t,
   addToast,
   fetchCapabilities,
 }: {
-  t: TFunc;
+  t: TFunction;
   addToast: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
   fetchCapabilities: () => Promise<void>;
 }) => {

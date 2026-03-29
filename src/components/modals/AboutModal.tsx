@@ -74,10 +74,10 @@ export interface AboutModalProps {
   isCheckingUpdates?: boolean;
   updateInfo?: AboutUpdateInfo | null;
   updateError?: string | null;
-  onCheckUpdates?: () => void | Promise<void>;
-  onOpenLink?: (url: string) => void;
-  getUpdateGuideUrl?: (info: AboutReleaseChannelInfo, updateInfo: AboutUpdateInfo) => string;
-  zIndex?: number;
+  onCheckUpdates?: (() => void | Promise<void>) | undefined;
+  onOpenLink?: ((url: string) => void) | undefined;
+  getUpdateGuideUrl?: ((info: AboutReleaseChannelInfo, updateInfo: AboutUpdateInfo) => string) | undefined;
+  zIndex?: number | undefined;
 }
 
 export interface AboutViewProps {
@@ -87,12 +87,12 @@ export interface AboutViewProps {
   isCheckingUpdates?: boolean;
   updateInfo?: AboutUpdateInfo | null;
   updateError?: string | null;
-  onCheckUpdates?: () => void | Promise<void>;
-  onOpenLink?: (url: string) => void;
-  getUpdateGuideUrl?: (info: AboutReleaseChannelInfo, updateInfo: AboutUpdateInfo) => string;
-  showCloseButton?: boolean;
-  onClose?: () => void;
-  className?: string;
+  onCheckUpdates?: (() => void | Promise<void>) | undefined;
+  onOpenLink?: ((url: string) => void) | undefined;
+  getUpdateGuideUrl?: ((info: AboutReleaseChannelInfo, updateInfo: AboutUpdateInfo) => string) | undefined;
+  showCloseButton?: boolean | undefined;
+  onClose?: (() => void) | undefined;
+  className?: string | undefined;
 }
 
 export function buildAboutUpdateGuideUrl(

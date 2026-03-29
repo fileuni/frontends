@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Disc3, Loader2, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
@@ -5,12 +6,12 @@ import { PLAYBACK_SPEEDS, type LyricsState } from './audioPreviewShared.ts';
 
 interface AudioPreviewMainPanelProps {
   bufferedPercent: number;
-  coverUrl?: string;
+  coverUrl?: string | undefined;
   currentExtension: string;
   currentIndex: number;
   currentTime: number;
   duration: number;
-  isDark?: boolean;
+  isDark?: boolean | undefined;
   isMuted: boolean;
   isPlaying: boolean;
   isTrackLoading: boolean;
@@ -30,9 +31,9 @@ interface AudioPreviewMainPanelProps {
   playlistLength: number;
   progressLabel: string;
   progressValue: number;
-  t: (key: string) => string;
+  t: TFunction;
   timeLabel: (value: number) => string;
-  trackAlbum?: string;
+  trackAlbum?: string | undefined;
   trackArtist: string;
   trackTitle: string;
   volume: number;

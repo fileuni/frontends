@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from 'i18next';
 import { toast } from '@/stores/toast';
 import { BASE_URL, client, extractData } from "@/lib/api.ts";
 import { storageHub } from '@/lib/storageHub';
@@ -22,7 +23,7 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 };
 
 interface UseEmailPageController {
-  t: (key: string, options?: Record<string, unknown>) => string;
+  t: TFunction;
   accounts: EmailAccount[];
   folders: EmailFolder[];
   messages: EmailMessage[];
@@ -495,7 +496,9 @@ export const useEmailPageController = (): UseEmailPageController => {
 
     const uploadedPath = await uploadTempVfsAttachment({
       attachment,
-      accessToken: currentUserData?.access_token,
+      ...(currentUserData?.access_token
+        ? { accessToken: currentUserData.access_token }
+        : {}),
     });
 
     setComposeAttachments((prev) =>
@@ -840,8 +843,8 @@ export const useEmailPageController = (): UseEmailPageController => {
             is_read: true,
             is_flagged: false,
             has_attachments: composeAttachments.length > 0,
-            preview_text: preview || undefined,
             is_local_pending: true,
+            ...(preview ? { preview_text: preview } : {}),
             sync_state: "smtp_accepted",
           };
 
@@ -879,7 +882,9 @@ export const useEmailPageController = (): UseEmailPageController => {
     try {
       const response = await fetch(`${BASE_URL}/api/v1/email/messages/${encodeURIComponent(messageId)}/attachments/${attachmentId}`, {
         method: "GET",
-        headers: currentUserData?.access_token ? { Authorization: `Bearer ${currentUserData.access_token}` } : undefined,
+        ...(currentUserData?.access_token
+          ? { headers: { Authorization: `Bearer ${currentUserData.access_token}` } }
+          : {}),
       });
 
       if (!response.ok) throw new Error("Attachment download failed");

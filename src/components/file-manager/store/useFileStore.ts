@@ -255,7 +255,15 @@ export const useFileStore = create<FileState>()(
 
       actionModal: { isOpen: false, type: 'create_file', title: '', defaultValue: '' },
       openActionModal: (type, title, defaultValue, targetPath, mode, confirmLabel) => set({ 
-        actionModal: { isOpen: true, type, title, defaultValue, targetPath, mode, confirmLabel } 
+        actionModal: {
+          isOpen: true,
+          type,
+          title,
+          defaultValue,
+          ...(targetPath ? { targetPath } : {}),
+          ...(mode ? { mode } : {}),
+          ...(confirmLabel ? { confirmLabel } : {}),
+        },
       }),
       closeActionModal: () => set((state) => ({ 
         actionModal: { ...state.actionModal, isOpen: false } 
