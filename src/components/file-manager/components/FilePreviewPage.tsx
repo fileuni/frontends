@@ -98,8 +98,8 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
               client.GET('/api/v1/file/stat', { params: { query: { path: p } } }),
             );
             size = stat.size;
-        } catch (e) {
-            console.warn("Failed to fetch stat", e);
+        } catch (_error) {
+            console.warn("Failed to fetch stat", _error);
         }
 
         // Media list loading for gallery mode
@@ -132,8 +132,8 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
                         return;
                     }
                 }
-            } catch (err) {
-                console.warn("Falling back to single mode", err);
+            } catch (_error) {
+                console.warn("Falling back to single mode", _error);
             }
         }
 
@@ -144,7 +144,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
             type: currentType 
         });
 
-      } catch (e) {
+      } catch (_error) {
         setError(t('common.error') || "An error occurred");
       } finally {
         setLoading(false);
@@ -208,12 +208,12 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
                 );
               }
             } catch {
-              // ignore json parse errors
+              void 0;
             }
           }
         }
-      } catch (e) {
-        console.warn('Thumbnail warmup failed', e);
+      } catch (_error) {
+        console.warn('Thumbnail warmup failed', _error);
       }
     };
 

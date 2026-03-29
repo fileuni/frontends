@@ -271,7 +271,8 @@ export const ChatPage: React.FC = () => {
       try {
         await startVoiceCall(activeTarget);
         setIsCalling(true);
-      } catch (err) {
+      } catch (_error) {
+        void _error;
         toast.error(t("chat.callFailed"));
       }
     }

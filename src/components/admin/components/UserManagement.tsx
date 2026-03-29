@@ -52,8 +52,8 @@ export const UserManagement = () => {
       try {
         const data = await fetchRolesAndPermissions();
         setRoles(data.roles);
-      } catch (error) {
-        console.error(error);
+      } catch (_error) {
+        console.error(_error);
       }
     };
     void loadRoles();
@@ -94,8 +94,8 @@ export const UserManagement = () => {
 
       setUsers([]);
       setTotal(0);
-    } catch (e) { 
-      console.error(e);
+    } catch (_error) { 
+      console.error(_error);
       addToast(t('admin.users.fetchError'), 'error');
     }
     finally { setLoading(false); }
@@ -121,8 +121,8 @@ export const UserManagement = () => {
       addToast(t('admin.users.deleteSuccess'), 'success');
       setDeleteUser(null);
       void fetchUsers();
-    } catch (e) {
-      /* Handled by interceptor */
+    } catch (_error) {
+      void _error;
     } finally {
       setIsDeleting(false);
     }
@@ -135,8 +135,8 @@ export const UserManagement = () => {
       });
       addToast(t('admin.users.restoreSuccess'), 'success');
       void fetchUsers();
-    } catch (e) {
-      /* Handled */
+    } catch (_error) {
+      void _error;
     }
   };
 
@@ -152,8 +152,8 @@ export const UserManagement = () => {
       setResetPwdUser(null);
       setNewPassword('');
       setConfirmPassword('');
-    } catch (e) {
-      /* Handled */
+    } catch (_error) {
+      void _error;
     } finally {
       setIsResetting(false);
     }

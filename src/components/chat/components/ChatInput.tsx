@@ -130,7 +130,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     try {
       await sendFile(activeTarget, file);
       toast.success(t("chat.fileSending") || "File transfer started...");
-    } catch (err) {
+    } catch (_error) {
+      void _error;
       toast.error(t("chat.fileSendFailed") || "Failed to send file");
     }
     e.target.value = "";
@@ -160,7 +161,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
       recorder.start();
       setIsInitializing(true);
-    } catch (err) {
+    } catch (_error) {
+      void _error;
       toast.error(t("chat.micAccessFailed"));
     }
   };

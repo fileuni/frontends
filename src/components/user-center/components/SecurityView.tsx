@@ -67,7 +67,7 @@ export const SecurityView = () => {
           setShowS3SecretKey(false);
         }
       }
-    } catch (e) { console.error(e); }
+    } catch (_error) { console.error(_error); }
     finally { setLoading(false); }
   }, [capabilities]);
 
@@ -103,8 +103,8 @@ export const SecurityView = () => {
         setCaptchaCode("");
         setTurnstileToken("");
       }
-    } catch (e) {
-      console.error("Failed to fetch captcha", e);
+    } catch (_error) {
+      console.error("Failed to fetch captcha", _error);
     }
   };
 
@@ -118,7 +118,7 @@ export const SecurityView = () => {
         setShowS3SecretKey(false);
         addToast(t('security.rotateSuccess'), 'success');
       }
-    } catch (e) { console.error(e); }
+    } catch (_error) { console.error(_error); }
     finally { setRegenerating(false); }
   };
 
@@ -203,7 +203,9 @@ export const SecurityView = () => {
         setNeedCaptcha(true);
         fetchCaptcha();
       }
-    } catch {}
+    } catch (_error) {
+      void _error;
+    }
   };
 
   const handleVerify = async (type: 'email' | 'phone') => {
@@ -240,7 +242,7 @@ export const SecurityView = () => {
       addToast(t('security.verifySuccess'), 'success');
       handleModalClose();
       fetchSecurity();
-    } catch (e: unknown) {
+    } catch {
       setBindForm(f => ({ ...f, code: '' }));
     }
   };

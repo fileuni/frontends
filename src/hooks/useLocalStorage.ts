@@ -7,7 +7,8 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       if (typeof window === 'undefined') return initialValue;
       const item = storageHub.getLocalItem(key);
       return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
+    } catch (_error) {
+      void _error;
       return initialValue;
     }
   });
@@ -19,8 +20,8 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         storageHub.setLocalItem(key, JSON.stringify(valueToStore));
         return valueToStore;
       });
-    } catch (error) {
-      console.log(error);
+    } catch (_error) {
+      console.log(_error);
     }
   }, [key]);
 

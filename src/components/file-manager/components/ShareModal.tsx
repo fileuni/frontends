@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@/stores/toast';
@@ -49,10 +49,10 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     passwordMode: 'keep' as 'keep' | 'change' | 'remove',
   });
 
-  const formatDateForInput = (date: Date) => {
+  const formatDateForInput = useCallback((date: Date) => {
     const pad = (n: number) => n.toString().padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-  };
+  }, []);
 
   React.useEffect(() => {
     if (isOpen && isEditing && file) {
@@ -85,7 +85,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     setShareData(null);
     setActiveTab('basic');
     setShowQr(false);
-  }, [isOpen, isEditing, file]);
+  }, [isOpen, isEditing, file, formatDateForInput]);
 
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -148,7 +148,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
         loadFiles();
         setMainTab('view');
       }
-    } catch (e: unknown) { } finally { setLoading(false); }
+    } catch (_error: unknown) { void _error; } finally { setLoading(false); }
   };
 
   const handleUpdateShare = async () => {
@@ -189,7 +189,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
         setShareData(newShareData);
         setMainTab('view');
       }
-    } catch (e: unknown) { } finally { setLoading(false); }
+    } catch (_error: unknown) { void _error; } finally { setLoading(false); }
   };
 
   const handleClose = () => {
@@ -424,7 +424,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                 <div className="space-y-4 animate-in fade-in slide-in-from-left-2 duration-200">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between px-1">
-                      <label className="text-[14px] font-black uppercase tracking-widest opacity-40 flex items-center gap-2"><Clock size={10} /> {t('filemanager.shareModal.expirationLabel')}</label>
+                      <div className="text-[14px] font-black uppercase tracking-widest opacity-40 flex items-center gap-2"><Clock size={10} /> {t('filemanager.shareModal.expirationLabel')}</div>
                       <div className="flex items-center gap-1">
                         <PresetTag label="24h" days={1} /><PresetTag label="7D" days={7} /><PresetTag label="30D" days={30} /><PresetTag label="∞" days={0} />
                       </div>
@@ -436,7 +436,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[14px] font-black uppercase tracking-widest opacity-40 ml-1 flex items-center gap-2"><Lock size={10} /> {t('filemanager.shareModal.passwordLabel')}</label>
+                      <div className="text-[14px] font-black uppercase tracking-widest opacity-40 ml-1 flex items-center gap-2"><Lock size={10} /> {t('filemanager.shareModal.passwordLabel')}</div>
                     {isEditing && (
                       <div className="flex flex-wrap gap-1">
                         {(['keep', 'remove', 'change'] as const).map((mode) => (
@@ -465,7 +465,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
 
                   {file?.is_dir && (
                     <div className="space-y-2">
-                      <label className="text-[14px] font-black uppercase tracking-widest opacity-40 ml-1">{t('filemanager.shareModal.writePermissionsLabel')}</label>
+                      <div className="text-[14px] font-black uppercase tracking-widest opacity-40 ml-1">{t('filemanager.shareModal.writePermissionsLabel')}</div>
                       <div className="grid grid-cols-1 gap-2">
                         <button
                           type="button"
@@ -505,7 +505,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
               ) : (
                 <div className="space-y-4 animate-in fade-in slide-in-from-right-2 duration-200">
                   <div className="space-y-2">
-                    <label className="text-[14px] font-black uppercase tracking-widest opacity-40 ml-1 flex items-center gap-2"><Download size={10} /> {t('filemanager.shareModal.maxDownloadsLabel')}</label>
+                    <div className="text-[14px] font-black uppercase tracking-widest opacity-40 ml-1 flex items-center gap-2"><Download size={10} /> {t('filemanager.shareModal.maxDownloadsLabel')}</div>
                     <div className="flex items-center gap-2">
                       <Input type="number" min={0} value={form.maxDownloads} onChange={e => setForm({ ...form, maxDownloads: parseInt(e.target.value) || 0 })} className="h-9 text-sm font-bold w-20" />
                       <button type="button" onClick={() => setForm({ ...form, maxDownloads: 0 })} className={cn("flex-1 h-9 rounded-xl border font-bold text-sm transition-all uppercase", form.maxDownloads === 0 ? "bg-primary border-primary text-white" : "bg-white/5 border-white/5 opacity-40")}>{t('filemanager.shareModal.unlimited')}</button>

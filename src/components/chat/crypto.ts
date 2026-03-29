@@ -19,8 +19,8 @@ export class ChatCrypto {
     try {
       // CryptoJS automatically performs Key derivation (EVPKDF) and IV generation
       return CryptoJS.AES.encrypt(text, password).toString();
-    } catch (e) {
-      console.error("[ChatCrypto] Encryption error:", e);
+    } catch (_error) {
+      console.error("[ChatCrypto] Encryption error:", _error);
       return text;
     }
   }
@@ -38,10 +38,10 @@ export class ChatCrypto {
         return ciphertext;
       }
       return plaintext;
-    } catch (e) {
+    } catch (_error) {
+      void _error;
       // Return original on failure
       return ciphertext;
     }
   }
 }
-

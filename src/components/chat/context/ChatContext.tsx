@@ -393,7 +393,8 @@ export const ChatProvider: React.FC<{
       try {
         const parsed = JSON.parse(rawValue) as Message[];
         setMessages(Array.isArray(parsed) ? parsed : []);
-      } catch {
+      } catch (_error) {
+        void _error;
         setMessages([]);
       } finally {
         setIsHistoryHydrated(true);
@@ -421,7 +422,8 @@ export const ChatProvider: React.FC<{
       try {
         const parsed = JSON.parse(rawValue) as Record<string, string>;
         setNicknames(parsed && typeof parsed === "object" ? parsed : {});
-      } catch {
+      } catch (_error) {
+        void _error;
         setNicknames({});
       } finally {
         setIsNicknamesHydrated(true);
@@ -449,7 +451,8 @@ export const ChatProvider: React.FC<{
       try {
         const parsed = JSON.parse(rawValue) as Array<{ guestId: string; nickname: string; inviteCode: string }>;
         setPendingGuests(Array.isArray(parsed) ? parsed : []);
-      } catch {
+      } catch (_error) {
+        void _error;
         setPendingGuests([]);
       } finally {
         setIsPendingGuestsHydrated(true);
@@ -863,7 +866,8 @@ export const ChatProvider: React.FC<{
                 };
                 return recoveredMessage;
               }
-            } catch {
+            } catch (_error) {
+              void _error;
               continue;
             }
           }
@@ -986,7 +990,9 @@ export const ChatProvider: React.FC<{
               return;
             }
           }
-        } catch {}
+        } catch (_error) {
+          void _error;
+        }
       }
       setNicknames((prev) => ({ ...prev, [id]: id.slice(0, 8) }));
     },
@@ -1089,7 +1095,8 @@ export const ChatProvider: React.FC<{
                 success = true;
                 break;
               }
-            } catch {
+            } catch (_error) {
+              void _error;
               continue;
             }
           }
@@ -1130,7 +1137,8 @@ export const ChatProvider: React.FC<{
       let parsed: WireMessage;
       try {
         parsed = JSON.parse(raw);
-      } catch {
+      } catch (_error) {
+        void _error;
         return;
       }
       if (parsed.type === "Text")
@@ -1190,7 +1198,9 @@ export const ChatProvider: React.FC<{
                 ...prev,
                 [data.guest_id]: data.nickname,
               }));
-          } catch {}
+          } catch (_error) {
+            void _error;
+          }
         } else {
           toast.info(content);
           addMessage({
@@ -1519,7 +1529,9 @@ export const ChatProvider: React.FC<{
                 ...p,
                 enabled: data.data.is_enabled ?? prev.enabled,
               }));
-            } catch {}
+            } catch (_error) {
+              void _error;
+            }
           }
         });
     }

@@ -175,7 +175,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
         thumbnail_disable_text: Boolean(s.thumbnail_disable_text),
         thumbnail_disable_video: Boolean(s.thumbnail_disable_video),
       });
-    } catch (e: unknown) { console.error(e); }
+    } catch (_error: unknown) { console.error(_error); }
     finally { setLoading(false); }
   }, [userId]);
 
@@ -186,8 +186,8 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
       try {
         const data = await fetchRolesAndPermissions();
         setRoles(data.roles);
-      } catch (error) {
-        console.error(error);
+      } catch (_error) {
+        console.error(_error);
       }
     };
     void loadRoles();
@@ -220,7 +220,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
       await updateUserPermissions(userId, overrideList);
       addToast(t('admin.saveSuccess'), 'success');
       fetchData();
-    } catch (e: unknown) { /* handled */ }
+    } catch (_error: unknown) { void _error; }
     finally { setSaving(false); }
   };
 
@@ -235,7 +235,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
       );
       setFileSettings((s) => ({ ...s, storage_used: Number(usageData.storage_used) }));
       addToast(t('admin.edit.recalibrateSuccess'), 'success');
-    } catch (e) { /* handled */ }
+    } catch (_error) { void _error; }
     finally { setRecalibrating(false); }
   };
 
@@ -251,7 +251,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
       setResetPwdOpen(false);
       setNewPassword('');
       setConfirmPassword('');
-    } catch (e) { /* handled */ }
+    } catch (_error) { void _error; }
     finally { setIsResetting(false); }
   };
 
@@ -264,7 +264,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
       });
       addToast(t('admin.users.deleteSuccess'), 'success');
       window.location.hash = 'mod=admin&page=users';
-    } catch (e) { /* handled */ }
+    } catch (_error) { void _error; }
     finally { setIsDeleting(false); }
   };
 

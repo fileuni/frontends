@@ -143,7 +143,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
         lastSavedContentRef.current = next;
         lastSavedAtRef.current = Date.now();
         loadedPathRef.current = path;
-      } catch (e) {
+      } catch (_error) {
         if (!canceled) {
           addToast(t('filemanager.errors.loadFailed') || 'Failed to load file content', 'error');
         }
@@ -213,8 +213,8 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
       if (reason === 'manual') {
         addToast(t('filemanager.previewModal.saveSuccess'), 'success');
       }
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : t('filemanager.editor.autoSaveFailed');
+    } catch (_error: unknown) {
+      const msg = _error instanceof Error ? _error.message : t('filemanager.editor.autoSaveFailed');
 
       if (reason === 'manual') {
         addToast(msg, 'error');
@@ -270,8 +270,8 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
       }
       setPreviewUrl(url);
       setPreviewHtml(null);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Render failed';
+    } catch (_error: unknown) {
+      const msg = _error instanceof Error ? _error.message : 'Render failed';
       addToast(msg, 'error');
     } finally {
       setRendering(false);
@@ -297,8 +297,8 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
         URL.revokeObjectURL(previewUrl);
       }
       setPreviewUrl(null);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Render failed';
+    } catch (_error: unknown) {
+      const msg = _error instanceof Error ? _error.message : 'Render failed';
       addToast(msg, 'error');
     } finally {
       setRendering(false);

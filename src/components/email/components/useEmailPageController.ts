@@ -287,7 +287,9 @@ export const useEmailPageController = (): UseEmailPageController => {
           }))
           .filter((item) => item.addr.length > 0);
       }
-    } catch { }
+    } catch (_error) {
+      void _error;
+    }
 
     return [];
   }, [CONTACTS_KEY, trimAliasName]);
@@ -513,14 +515,18 @@ export const useEmailPageController = (): UseEmailPageController => {
     try {
       const data = await extractData<EmailAccount[]>(client.GET("/api/v1/email/accounts"));
       setAccounts(data || []);
-    } catch { }
+    } catch (_error) {
+      void _error;
+    }
   }, []);
 
   const fetchDrafts = useCallback(async () => {
     try {
       const data = await extractData<EmailDraft[]>(client.GET("/api/v1/email/drafts"));
       setDrafts(data || []);
-    } catch { }
+    } catch (_error) {
+      void _error;
+    }
   }, []);
 
   const fetchFolders = async (accountId: string): Promise<EmailFolder[]> => {
@@ -530,7 +536,9 @@ export const useEmailPageController = (): UseEmailPageController => {
       }));
       setFolders(data || []);
       return data || [];
-    } catch { }
+    } catch (_error) {
+      void _error;
+    }
     return [];
   };
 
@@ -564,7 +572,8 @@ export const useEmailPageController = (): UseEmailPageController => {
           });
         applyContactEntries(incomingEntries);
       }
-    } catch {
+    } catch (_error) {
+      void _error;
       if (retryCount < 1) {
         window.setTimeout(() => {
           void fetchMessages(folderId, retryCount + 1);
@@ -596,9 +605,14 @@ export const useEmailPageController = (): UseEmailPageController => {
           setFolders(prev => prev.map(f => f.id === selectedFolder ? { ...f, unread_count: Math.max(0, f.unread_count - 1) } : f));
           fetchAccounts();
           window.dispatchEvent(new CustomEvent("fileuni:email-refresh"));
-        } catch { }
+        } catch (_error) {
+          void _error;
+        }
       }
-    } catch { toast.error(t("email.loadDetailFailed")); }
+    } catch (_error) {
+      void _error;
+      toast.error(t("email.loadDetailFailed"));
+    }
     finally { setLoadingDetail(false); }
   };
 
@@ -872,8 +886,8 @@ export const useEmailPageController = (): UseEmailPageController => {
         }
       }
       setShowSendSuccessModal(true);
-    } catch (err) {
-      const errMsg = err instanceof Error ? err.message : t("email.sentFailed");
+    } catch (_error) {
+      const errMsg = _error instanceof Error ? _error.message : t("email.sentFailed");
       toast.error(errMsg);
     }
     finally { setSending(false); }
@@ -898,7 +912,8 @@ export const useEmailPageController = (): UseEmailPageController => {
       anchor.download = filename;
       anchor.click();
       URL.revokeObjectURL(downloadUrl);
-    } catch {
+    } catch (_error) {
+      void _error;
       toast.error(t("email.downloadAttachmentFailed"));
     }
   };
@@ -915,7 +930,8 @@ export const useEmailPageController = (): UseEmailPageController => {
         body: { target_path: targetPath },
       }));
       toast.success(t("email.savedToVfs"));
-    } catch {
+    } catch (_error) {
+      void _error;
       toast.error(t("email.saveToVfsFailed"));
     }
   };
@@ -936,7 +952,11 @@ export const useEmailPageController = (): UseEmailPageController => {
               void fetchMessages(selectedFolder);
             }
           }
-        } catch { clearInterval(poll); setSyncingAccountId(null); }
+        } catch (_error) {
+          void _error;
+          clearInterval(poll);
+          setSyncingAccountId(null);
+        }
       }, 3000);
     } catch (err: unknown) { toast.error(getErrorMessage(err, t("email.syncFailed"))); }
   };
@@ -955,7 +975,10 @@ export const useEmailPageController = (): UseEmailPageController => {
     try {
       await extractData(client.DELETE("/api/v1/email/accounts/{id}", { params: { path: { id: id } } }));
       toast.success(t("email.accountDeleted")); fetchAccounts();
-    } catch { toast.error(t("email.deleteFailed")); }
+    } catch (_error) {
+      void _error;
+      toast.error(t("email.deleteFailed"));
+    }
   };
 
   const openLastSentMailbox = async () => {

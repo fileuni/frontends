@@ -52,8 +52,8 @@ export function useFileActions() {
     try {
       const stats = await extractData(client.GET("/api/v1/file/storage-stats"));
       setStorageStats(stats as StorageStats);
-    } catch (e) {
-      console.error('Failed to load storage stats:', e);
+    } catch (_error) {
+      console.error('Failed to load storage stats:', _error);
     }
   }, [setStorageStats]);
 
@@ -145,8 +145,8 @@ export function useFileActions() {
       
       setFiles(filesArray);
       deselectAll();
-    } catch (e) {
-      console.error('Failed to load files:', e);
+    } catch (_error) {
+      console.error('Failed to load files:', _error);
     } finally {
       setLoading(false);
     }
@@ -174,7 +174,7 @@ export function useFileActions() {
         }
       }
       addToast(color > 0 ? t('filemanager.messages.favoriteAdded') : t('filemanager.messages.favoriteRemoved'), "success");
-    } catch (e) { console.error(e); }
+    } catch (_error) { console.error(_error); }
   };
 
   const searchFiles = useCallback(async (keyword: string) => {
@@ -227,8 +227,8 @@ export function useFileActions() {
           return true;
         }
         return false;
-      } catch (e) {
-        console.error("Polling error:", e);
+      } catch (_error) {
+        console.error("Polling error:", _error);
         return true; 
       }
     };
@@ -304,8 +304,8 @@ export function useFileActions() {
           }
         }
       }
-    } catch (e) {
-      addToast(handleApiError(e, t), 'error');
+    } catch (_error) {
+      addToast(handleApiError(_error, t), 'error');
       await loadFiles();
     }
   };
@@ -341,8 +341,8 @@ export function useFileActions() {
           if (firstExpectedPath) store.setHighlightedPath(firstExpectedPath);
         }
       }
-    } catch (e) {
-      addToast(handleApiError(e, t), 'error');
+    } catch (_error) {
+      addToast(handleApiError(_error, t), 'error');
     }
   };
 
@@ -375,8 +375,8 @@ export function useFileActions() {
           if (firstExpectedPath) store.setHighlightedPath(firstExpectedPath);
         }
       }
-    } catch (e) {
-      addToast(handleApiError(e, t), 'error');
+    } catch (_error) {
+      addToast(handleApiError(_error, t), 'error');
     }
   };
 
@@ -402,8 +402,8 @@ export function useFileActions() {
           store.setHighlightedPath(expectedPath);
         }
       }
-    } catch (e) {
-      addToast(handleApiError(e, t), 'error');
+    } catch (_error) {
+      addToast(handleApiError(_error, t), 'error');
     }
   };
 
@@ -422,8 +422,8 @@ export function useFileActions() {
         // Ensure it's highlighted after rename
         store.setHighlightedPath(newPath);
       }
-    } catch (e) {
-      console.error('Rename failed:', e);
+    } catch (_error) {
+      console.error('Rename failed:', _error);
     }
   };
 
@@ -443,8 +443,8 @@ export function useFileActions() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (e) {
-      console.error('Download failed:', e);
+    } catch (_error) {
+      console.error('Download failed:', _error);
       addToast(t('common.error') || "Download failed", "error");
     }
   };
@@ -461,7 +461,7 @@ export function useFileActions() {
       await client.POST("/api/v1/file/recycle-bin/restore", { body: { paths } });
       removeFiles(paths);
       deselectAll();
-    } catch (e) { /* handled */ }
+    } catch (_error) { void _error; }
   };
 
   const deletePermanent = async (paths: string[]) => {
@@ -470,7 +470,7 @@ export function useFileActions() {
       await client.POST("/api/v1/file/recycle-bin/delete-permanent", { body: { paths } });
       removeFiles(paths);
       deselectAll();
-    } catch (e) { /* handled */ }
+    } catch (_error) { void _error; }
   };
 
   const clearRecycleBin = async () => {
@@ -479,7 +479,7 @@ export function useFileActions() {
       await client.POST("/api/v1/file/recycle-bin/clear-all", {});
       loadFiles();
       loadStorageStats();
-    } catch (e) { /* handled */ }
+    } catch (_error) { void _error; }
   };
 
   const clearAllShares = async () => {
@@ -490,7 +490,7 @@ export function useFileActions() {
         setFiles([]);
         addToast(t('filemanager.messages.deleted'), "success");
       }
-    } catch (e) { console.error(e); }
+    } catch (_error) { console.error(_error); }
   };
 
   const clearAllFavorites = async () => {
@@ -501,7 +501,7 @@ export function useFileActions() {
         setFiles([]);
         addToast(t('filemanager.messages.favoriteRemoved'), "success");
       }
-    } catch (e) { console.error(e); }
+    } catch (_error) { console.error(_error); }
   };
 
   const clearThumbnailCache = async (path?: string) => {
@@ -514,7 +514,7 @@ export function useFileActions() {
       if (data?.['success']) {
         addToast(t('filemanager.thumbnail.cleared') || 'Thumbnail cache cleared', "success");
       }
-    } catch (e) { console.error(e); }
+    } catch (_error) { console.error(_error); }
   };
 
   const clearThumbnailCacheAllUsers = async () => {
@@ -524,7 +524,7 @@ export function useFileActions() {
       if (data?.['success']) {
         addToast(t('filemanager.thumbnail.cleared') || 'Thumbnail cache cleared', "success");
       }
-    } catch (e) { console.error(e); }
+    } catch (_error) { console.error(_error); }
   };
 
   const setThumbnailDisabled = async (path: string, disabled: boolean) => {
@@ -536,7 +536,7 @@ export function useFileActions() {
       if (data?.['success']) {
         addToast(disabled ? (t('filemanager.thumbnail.disabled') || 'Thumbnails disabled') : (t('filemanager.thumbnail.enabled') || 'Thumbnails enabled'), "success");
       }
-    } catch (e) { console.error(e); }
+    } catch (_error) { console.error(_error); }
   };
 
   const decompressFile = async (path: string, targetPath?: string) => {
@@ -561,8 +561,8 @@ export function useFileActions() {
           loadFiles();
         }
       }
-    } catch (e) {
-      addToast(handleApiError(e, t), 'error');
+    } catch (_error) {
+      addToast(handleApiError(_error, t), 'error');
     }
   };
 
@@ -573,7 +573,7 @@ export function useFileActions() {
         body: { path }
       }));
       setFiles(data);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
+    } catch (_error) { console.error(_error); } finally { setLoading(false); }
   };
 
   const createDirectory = async (name: string) => {
@@ -585,7 +585,7 @@ export function useFileActions() {
       appendFiles([newItem]);
       store.setHighlightedPath(newItem.path);
       loadStorageStats();
-    } catch (e) { loadFiles(); }
+    } catch (_error) { void _error; loadFiles(); }
   };
 
   const createFile = async (name: string) => {
@@ -597,7 +597,7 @@ export function useFileActions() {
       appendFiles([newItem]);
       store.setHighlightedPath(newItem.path);
       loadStorageStats();
-    } catch (e) { loadFiles(); }
+    } catch (_error) { void _error; loadFiles(); }
   };
 
   const cancelShare = async (shareId: string) => {
@@ -610,8 +610,8 @@ export function useFileActions() {
         store.setFiles(store.files.filter(f => f.id !== shareId));
         addToast(t('filemanager.messages.deleted'), "success");
       }
-    } catch (e) {
-      console.error('Failed to cancel share:', e);
+    } catch (_error) {
+      console.error('Failed to cancel share:', _error);
     }
   };
 

@@ -257,6 +257,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
         <a
           href={resolvedHelpUrl}
           target="_blank"
+          rel="noopener noreferrer"
           className={cn(
             "flex items-center gap-3.5 p-3 rounded-xl transition-all duration-300 group border shadow-sm",
             isDark

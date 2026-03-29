@@ -51,8 +51,8 @@ export const AdminUserCreateView = () => {
             return { ...prev, role_id: data.roles[0]?.role_id || 100 };
           });
         }
-      } catch (error) {
-        console.error(error);
+      } catch (_error) {
+        console.error(_error);
       }
     };
     void loadRoles();
@@ -75,7 +75,8 @@ export const AdminUserCreateView = () => {
       });
       addToast(t("pages.admin.userCreate.createSuccess"), "success");
       window.location.hash = "mod=admin&page=users";
-    } catch {
+    } catch (_error) {
+      void _error;
     } finally {
       setLoading(false);
     }

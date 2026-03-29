@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import {
@@ -80,7 +80,7 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
     return () => observer.disconnect();
   }, []);
 
-  const executeLoad = async (authToken: string) => {
+  const executeLoad = useCallback(async (authToken: string) => {
     setProcessing(true);
     try {
       const { BASE_URL } = await import("@/lib/api.ts");
@@ -93,12 +93,12 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
       } else {
         setError(`Fetch failed: ${response.status}`);
       }
-    } catch (e) {
+    } catch (_error) {
       setError("Failed to fetch PDF data");
     } finally {
       setProcessing(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -107,14 +107,14 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
         const authToken = await getFileDownloadToken(path);
         // Parent (FilePreviewPage) already checked size, so we proceed directly
         await executeLoad(authToken);
-      } catch (e) {
+      } catch (_error) {
         setError("Metadata fetch failed");
       } finally {
         setLoading(false);
       }
     };
     init();
-  }, [path]);
+  }, [executeLoad, path]);
 
   useEffect(() => {
     return () => {

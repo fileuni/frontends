@@ -63,7 +63,7 @@ export function useUploadActions() {
           } else {
             updateTask(task.id, { status: 'error', errorMsg: response.msg || 'Upload failed' });
           }
-        } catch (e) {
+        } catch (_error) {
           updateTask(task.id, { status: 'error', errorMsg: 'Invalid response from server' });
         }
       } else {
