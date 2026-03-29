@@ -522,30 +522,30 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
     (source: string): CacheAccelerationDraft => {
       const parsed = tomlAdapter.parse(source);
       const root = asRecord(parsed);
-      const hub = asRecord(root.vfs_storage_hub);
-      const readCache = asRecord(hub.read_cache);
-      const writeCache = asRecord(hub.write_cache);
+      const hub = asRecord(root["vfs_storage_hub"]);
+      const readCache = asRecord(hub["read_cache"]);
+      const writeCache = asRecord(hub["write_cache"]);
       return {
-        readEnable: Boolean(readCache.enable),
-        readBackend: readCache.backend === "local_dir" ? "local_dir" : "memory",
+        readEnable: Boolean(readCache["enable"]),
+        readBackend: readCache["backend"] === "local_dir" ? "local_dir" : "memory",
         readLocalDir:
-          typeof readCache.local_dir === "string"
-            ? readCache.local_dir
+          typeof readCache["local_dir"] === "string"
+            ? readCache["local_dir"]
             : "{RUNTIMEDIR}/cache/vfs-read",
-        readCapacityBytes: String(readCache.capacity_bytes ?? 134217728),
-        readMaxFileSizeBytes: String(readCache.max_file_size_bytes ?? 2097152),
-        readTtlSecs: String(readCache.ttl_secs ?? 1800),
-        writeEnable: Boolean(writeCache.enable),
-        writeBackend: writeCache.backend === "memory" ? "memory" : "local_dir",
+        readCapacityBytes: String(readCache["capacity_bytes"] ?? 134217728),
+        readMaxFileSizeBytes: String(readCache["max_file_size_bytes"] ?? 2097152),
+        readTtlSecs: String(readCache["ttl_secs"] ?? 1800),
+        writeEnable: Boolean(writeCache["enable"]),
+        writeBackend: writeCache["backend"] === "memory" ? "memory" : "local_dir",
         writeLocalDir:
-          typeof writeCache.local_dir === "string"
-            ? writeCache.local_dir
+          typeof writeCache["local_dir"] === "string"
+            ? writeCache["local_dir"]
             : "{RUNTIMEDIR}/cache/vfs-write",
-        writeCapacityBytes: String(writeCache.capacity_bytes ?? 100663296),
-        writeMaxFileSizeBytes: String(writeCache.max_file_size_bytes ?? 262144),
-        writeFlushConcurrency: String(writeCache.flush_concurrency ?? 2),
-        writeFlushIntervalMs: String(writeCache.flush_interval_ms ?? 30),
-        writeFlushDeadlineSecs: String(writeCache.flush_deadline_secs ?? 360),
+        writeCapacityBytes: String(writeCache["capacity_bytes"] ?? 100663296),
+        writeMaxFileSizeBytes: String(writeCache["max_file_size_bytes"] ?? 262144),
+        writeFlushConcurrency: String(writeCache["flush_concurrency"] ?? 2),
+        writeFlushIntervalMs: String(writeCache["flush_interval_ms"] ?? 30),
+        writeFlushDeadlineSecs: String(writeCache["flush_deadline_secs"] ?? 360),
       };
     },
     [tomlAdapter],
@@ -556,7 +556,7 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
       const parsed = tomlAdapter.parse(source);
       const root: ConfigObject = isRecord(parsed) ? parsed : {};
       const hub = ensureRecord(root, "vfs_storage_hub");
-      hub.read_cache = {
+      hub["read_cache"] = {
         enable: next.readEnable,
         backend: next.readBackend,
         local_dir: next.readLocalDir,
@@ -566,7 +566,7 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
           Number.parseInt(next.readMaxFileSizeBytes, 10) || 2097152,
         ttl_secs: Number.parseInt(next.readTtlSecs, 10) || 1800,
       };
-      hub.write_cache = {
+      hub["write_cache"] = {
         enable: next.writeEnable,
         backend: next.writeBackend,
         local_dir: next.writeLocalDir,

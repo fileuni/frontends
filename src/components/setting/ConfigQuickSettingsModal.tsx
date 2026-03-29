@@ -1149,9 +1149,9 @@ const ensureVfsLocalStorageDefaults = (vfsHub: ConfigObject): void => {
   const defaultPoolName = "default-pool";
   const defaultRoot = "{RUNTIMEDIR}/vfs";
 
-  const connectors = vfsHub.connectors;
+  const connectors = vfsHub["connectors"];
   if (!Array.isArray(connectors) || connectors.length === 0) {
-    vfsHub.connectors = [
+    vfsHub["connectors"] = [
       {
         name: defaultConnectorName,
         driver: "fs",
@@ -1162,9 +1162,9 @@ const ensureVfsLocalStorageDefaults = (vfsHub: ConfigObject): void => {
     ];
   }
 
-  const pools = vfsHub.pools;
+  const pools = vfsHub["pools"];
   if (!Array.isArray(pools) || pools.length === 0) {
-    vfsHub.pools = [
+    vfsHub["pools"] = [
       {
         name: defaultPoolName,
         primary_connector: defaultConnectorName,
@@ -1176,13 +1176,13 @@ const ensureVfsLocalStorageDefaults = (vfsHub: ConfigObject): void => {
     ];
   }
 
-  if (!Array.isArray(vfsHub.policies)) {
-    vfsHub.policies = [];
+  if (!Array.isArray(vfsHub["policies"])) {
+    vfsHub["policies"] = [];
   }
 
-  const defaultPool = vfsHub.default_pool;
+  const defaultPool = vfsHub["default_pool"];
   if (typeof defaultPool !== "string" || defaultPool.trim().length === 0) {
-    vfsHub.default_pool = defaultPoolName;
+    vfsHub["default_pool"] = defaultPoolName;
   }
 };
 
@@ -1382,32 +1382,32 @@ export const buildDraftFromConfig = (
   fallbackPolicy: FriendlyDraft["allocatorPolicy"],
   suggestedTemplate: PerformanceTemplateId | null = null,
 ): FriendlyDraft => {
-  const database = isRecord(config.database) ? config.database : {};
-  const postgresConfig = isRecord(database.postgres_config)
-    ? database.postgres_config
+  const database = isRecord(config["database"]) ? config["database"] : {};
+  const postgresConfig = isRecord(database["postgres_config"])
+    ? database["postgres_config"]
     : {};
-  const sqliteConfig = isRecord(database.sqlite_config)
-    ? database.sqlite_config
+  const sqliteConfig = isRecord(database["sqlite_config"])
+    ? database["sqlite_config"]
     : {};
-  const kvHub = isRecord(config.fast_kv_storage_hub)
-    ? config.fast_kv_storage_hub
+  const kvHub = isRecord(config["fast_kv_storage_hub"])
+    ? config["fast_kv_storage_hub"]
     : {};
-  const userCenter = isRecord(config.user_center) ? config.user_center : {};
-  const extensionManager = isRecord(config.extension_manager)
-    ? config.extension_manager
+  const userCenter = isRecord(config["user_center"]) ? config["user_center"] : {};
+  const extensionManager = isRecord(config["extension_manager"])
+    ? config["extension_manager"]
     : {};
-  const plus = isRecord(extensionManager.plus) ? extensionManager.plus : {};
-  const captchaCode = isRecord(config.captcha_code) ? config.captcha_code : {};
-  const memoryAllocator = isRecord(config.memory_allocator)
-    ? config.memory_allocator
+  const plus = isRecord(extensionManager["plus"]) ? extensionManager["plus"] : {};
+  const captchaCode = isRecord(config["captcha_code"]) ? config["captcha_code"] : {};
+  const memoryAllocator = isRecord(config["memory_allocator"])
+    ? config["memory_allocator"]
     : {};
   const graphicCacheSize =
-    typeof captchaCode.graphic_cache_size === "number"
-      ? captchaCode.graphic_cache_size
+    typeof captchaCode["graphic_cache_size"] === "number"
+      ? captchaCode["graphic_cache_size"]
       : 100;
   const maxGenConcurrency =
-    typeof captchaCode.max_gen_concurrency === "number"
-      ? captchaCode.max_gen_concurrency
+    typeof captchaCode["max_gen_concurrency"] === "number"
+      ? captchaCode["max_gen_concurrency"]
       : 8;
   const captchaPreheatMode: CaptchaPreheatMode =
     graphicCacheSize <= 50 && maxGenConcurrency <= 2
@@ -1417,30 +1417,30 @@ export const buildDraftFromConfig = (
         : "balanced";
 
   const databaseTypeRaw = toStringValue(
-    database.db_type,
+    database["db_type"],
     defaultDraft.databaseType,
   );
   const databaseType: DatabaseType =
     databaseTypeRaw === "sqlite" ? "sqlite" : "postgres";
   const postgresDsn = toStringValue(
-    postgresConfig.database_dsn,
+    postgresConfig["database_dsn"],
     defaultDraft.postgresDsn,
   );
   const sqliteDsn = toStringValue(
-    sqliteConfig.database_dsn,
+    sqliteConfig["database_dsn"],
     defaultDraft.sqliteDsn,
   );
   const dbFields = parsePostgresDsn(postgresDsn);
   const sqlitePath = parseSqlitePath(sqliteDsn);
 
   const cacheRedisUrl = toStringValue(
-    kvHub.redis_url,
+    kvHub["redis_url"],
     defaultDraft.cacheRedisUrl,
   );
   const cacheFields = parseRedisUrl(cacheRedisUrl);
 
   const allocatorPolicyValue = toStringValue(
-    memoryAllocator.policy,
+    memoryAllocator["policy"],
     fallbackPolicy,
   ).toLowerCase();
   const allocatorPolicy: FriendlyDraft["allocatorPolicy"] =
@@ -1453,7 +1453,7 @@ export const buildDraftFromConfig = (
           : fallbackPolicy;
 
   const allocatorProfileValue = toStringValue(
-    memoryAllocator.profile,
+    memoryAllocator["profile"],
     defaultDraft.allocatorProfile,
   ).toLowerCase();
   const allocatorProfile: FriendlyDraft["allocatorProfile"] =
@@ -1481,10 +1481,10 @@ export const buildDraftFromConfig = (
     dbName: dbFields.dbName,
     sqlitePath,
     dbHealthTimeoutSeconds: toNumberString(
-      database.health_check_timeout_seconds,
+      database["health_check_timeout_seconds"],
       defaultDraft.dbHealthTimeoutSeconds,
     ),
-    cacheType: toStringValue(kvHub.kv_type, defaultDraft.cacheType),
+    cacheType: toStringValue(kvHub["kv_type"], defaultDraft.cacheType),
     cacheRedisUrl,
     cacheHost: cacheFields.cacheHost,
     cachePort: cacheFields.cachePort,
@@ -1492,20 +1492,20 @@ export const buildDraftFromConfig = (
     cachePass: cacheFields.cachePass,
     cacheUseTls: cacheFields.cacheUseTls,
     enableRegistration: toBooleanValue(
-      userCenter.enable_registration,
+      userCenter["enable_registration"],
       defaultDraft.enableRegistration,
     ),
-    plusEnabled: toBooleanValue(plus.enabled, defaultDraft.plusEnabled),
+    plusEnabled: toBooleanValue(plus["enabled"], defaultDraft.plusEnabled),
     plusCaptureLogs: toBooleanValue(
-      plus.capture_logs,
+      plus["capture_logs"],
       defaultDraft.plusCaptureLogs,
     ),
     captchaCodeLength: toNumberString(
-      captchaCode.code_length,
+      captchaCode["code_length"],
       defaultDraft.captchaCodeLength,
     ),
     captchaExpiresIn: toNumberString(
-      captchaCode.expires_in,
+      captchaCode["expires_in"],
       defaultDraft.captchaExpiresIn,
     ),
     allocatorPolicy,
@@ -1529,45 +1529,45 @@ export const applyDraftToConfig = (
   const captchaCode = ensureRecord(next, "captcha_code");
   const memoryAllocator = ensureRecord(next, "memory_allocator");
 
-  database.db_type = draft.databaseType;
-  postgresConfig.database_dsn = nonEmptyString(
+  database["db_type"] = draft.databaseType;
+  postgresConfig["database_dsn"] = nonEmptyString(
     draft.postgresDsn,
     defaultDraft.postgresDsn,
   );
-  sqliteConfig.database_dsn = nonEmptyString(
+  sqliteConfig["database_dsn"] = nonEmptyString(
     draft.sqliteDsn,
     defaultDraft.sqliteDsn,
   );
 
   const healthTimeout = Number.parseInt(draft.dbHealthTimeoutSeconds, 10);
-  database.health_check_timeout_seconds =
+  database["health_check_timeout_seconds"] =
     Number.isFinite(healthTimeout) && healthTimeout > 0
       ? healthTimeout
       : Number.parseInt(defaultDraft.dbHealthTimeoutSeconds, 10);
 
-  kvHub.kv_type = nonEmptyString(draft.cacheType, defaultDraft.cacheType);
-  kvHub.redis_url = nonEmptyString(
+  kvHub["kv_type"] = nonEmptyString(draft.cacheType, defaultDraft.cacheType);
+  kvHub["redis_url"] = nonEmptyString(
     draft.cacheRedisUrl,
     defaultDraft.cacheRedisUrl,
   );
 
-  userCenter.enable_registration = draft.enableRegistration;
-  plus.enabled = draft.plusEnabled;
-  plus.capture_logs = draft.plusCaptureLogs;
+  userCenter["enable_registration"] = draft.enableRegistration;
+  plus["enabled"] = draft.plusEnabled;
+  plus["capture_logs"] = draft.plusCaptureLogs;
 
   const captchaCodeLength = Number.parseInt(draft.captchaCodeLength, 10);
-  captchaCode.code_length =
+  captchaCode["code_length"] =
     Number.isFinite(captchaCodeLength) && captchaCodeLength > 0
       ? captchaCodeLength
       : Number.parseInt(defaultDraft.captchaCodeLength, 10);
   const captchaExpiresIn = Number.parseInt(draft.captchaExpiresIn, 10);
-  captchaCode.expires_in =
+  captchaCode["expires_in"] =
     Number.isFinite(captchaExpiresIn) && captchaExpiresIn > 0
       ? captchaExpiresIn
       : Number.parseInt(defaultDraft.captchaExpiresIn, 10);
 
-  memoryAllocator.policy = recommendedPolicy;
-  memoryAllocator.profile = draft.allocatorProfile;
+  memoryAllocator["policy"] = recommendedPolicy;
+  memoryAllocator["profile"] = draft.allocatorProfile;
 
   const preset = PERFORMANCE_PRESETS.find(
     (p) => p.tier === draft.performanceTier,
@@ -1581,23 +1581,23 @@ export const applyDraftToConfig = (
       draft.performanceTier === "performance" &&
       draft.loadProfile === "high-concurrency";
 
-    memoryAllocator.policy = recommendedPolicy;
-    memoryAllocator.profile = isLowFootprintPreset
+    memoryAllocator["policy"] = recommendedPolicy;
+    memoryAllocator["profile"] = isLowFootprintPreset
       ? "low_memory"
       : isPerformanceMultiUser
         ? "throughput"
         : "balanced";
-    captchaCode.graphic_cache_size = tuningPlan.captchaPreheat.graphicCacheSize;
-    captchaCode.graphic_gen_concurrency =
+    captchaCode["graphic_cache_size"] = tuningPlan.captchaPreheat.graphicCacheSize;
+    captchaCode["graphic_gen_concurrency"] =
       tuningPlan.captchaPreheat.graphicGenConcurrency;
-    captchaCode.max_gen_concurrency =
+    captchaCode["max_gen_concurrency"] =
       tuningPlan.captchaPreheat.maxGenConcurrency;
-    captchaCode.pool_check_interval_secs =
+    captchaCode["pool_check_interval_secs"] =
       tuningPlan.captchaPreheat.poolCheckIntervalSecs;
-    captchaCode.emergency_fill_multiplier =
+    captchaCode["emergency_fill_multiplier"] =
       tuningPlan.captchaPreheat.emergencyFillMultiplier;
-    plus.startup_parallelism_low_memory = isLowFootprintPreset ? 1 : 2;
-    plus.startup_parallelism_throughput =
+    plus["startup_parallelism_low_memory"] = isLowFootprintPreset ? 1 : 2;
+    plus["startup_parallelism_throughput"] =
       draft.performanceTier === "performance"
         ? isPerformanceMultiUser
           ? 6
@@ -1605,28 +1605,28 @@ export const applyDraftToConfig = (
         : 2;
 
     if (draft.databaseType === "sqlite") {
-      sqliteConfig.max_connections = tuningPlan.dbMaxConnections;
-      sqliteConfig.max_connections_low_memory =
+      sqliteConfig["max_connections"] = tuningPlan.dbMaxConnections;
+      sqliteConfig["max_connections_low_memory"] =
         tuningPlan.dbMaxConnectionsLowMemory;
-      sqliteConfig.max_connections_throughput =
+      sqliteConfig["max_connections_throughput"] =
         tuningPlan.dbMaxConnectionsThroughput;
-      sqliteConfig.min_connections = tuningPlan.dbMinConnections;
-      sqliteConfig.cache_size = tuningPlan.sqliteCacheSize;
-      sqliteConfig.temp_store = 2;
-      sqliteConfig.mmap_size = tuningPlan.sqliteMmapSize;
+      sqliteConfig["min_connections"] = tuningPlan.dbMinConnections;
+      sqliteConfig["cache_size"] = tuningPlan.sqliteCacheSize;
+      sqliteConfig["temp_store"] = 2;
+      sqliteConfig["mmap_size"] = tuningPlan.sqliteMmapSize;
 
       // Extreme-low tier targets very low-RAM devices (e.g. 32MB).
       // Force mmap off to avoid memory pressure.
       if (draft.performanceTier === "constrained") {
-        sqliteConfig.mmap_size = 0;
+        sqliteConfig["mmap_size"] = 0;
       }
     } else {
-      postgresConfig.max_connections = tuningPlan.dbMaxConnections;
-      postgresConfig.max_connections_low_memory =
+      postgresConfig["max_connections"] = tuningPlan.dbMaxConnections;
+      postgresConfig["max_connections_low_memory"] =
         tuningPlan.dbMaxConnectionsLowMemory;
-      postgresConfig.max_connections_throughput =
+      postgresConfig["max_connections_throughput"] =
         tuningPlan.dbMaxConnectionsThroughput;
-      postgresConfig.min_connections = tuningPlan.dbMinConnections;
+      postgresConfig["min_connections"] = tuningPlan.dbMinConnections;
     }
 
     const dashmapMemBaseMb = Math.max(4, tuningPlan.cacheMemoryMB);
@@ -1635,261 +1635,261 @@ export const applyDraftToConfig = (
       dashmapMemBaseMb,
       Math.floor(dashmapMemBaseMb * 1.5),
     );
-    kvHub.dashmap_mem_max_bytes = dashmapMemBaseMb * 1024 * 1024;
-    kvHub.dashmap_mem_max_bytes_low_memory = dashmapMemLowMb * 1024 * 1024;
-    kvHub.dashmap_mem_max_bytes_throughput =
+    kvHub["dashmap_mem_max_bytes"] = dashmapMemBaseMb * 1024 * 1024;
+    kvHub["dashmap_mem_max_bytes_low_memory"] = dashmapMemLowMb * 1024 * 1024;
+    kvHub["dashmap_mem_max_bytes_throughput"] =
       dashmapMemThroughputMb * 1024 * 1024;
-    kvHub.dashmap_mem_upper_limit_ratio = tuningPlan.kvDashmapUpperLimitRatio;
-    kvHub.default_ttl = tuningPlan.kvDefaultTtlSecs;
-    kvHub.condition_ttl = tuningPlan.kvConditionTtlSecs;
-    if (!Array.isArray(kvHub.dashmap_indexed_prefixes)) {
-      kvHub.dashmap_indexed_prefixes = [];
+    kvHub["dashmap_mem_upper_limit_ratio"] = tuningPlan.kvDashmapUpperLimitRatio;
+    kvHub["default_ttl"] = tuningPlan.kvDefaultTtlSecs;
+    kvHub["condition_ttl"] = tuningPlan.kvConditionTtlSecs;
+    if (!Array.isArray(kvHub["dashmap_indexed_prefixes"])) {
+      kvHub["dashmap_indexed_prefixes"] = [];
     }
     if (
-      typeof kvHub.key_prefix !== "string" ||
-      kvHub.key_prefix.trim().length === 0
+      typeof kvHub["key_prefix"] !== "string" ||
+      kvHub["key_prefix"].trim().length === 0
     ) {
-      kvHub.key_prefix = "fileuni:";
+      kvHub["key_prefix"] = "fileuni:";
     }
 
     const internalNotify = ensureRecord(next, "internal_notify");
-    internalNotify.unread_count_cache_ttl =
+    internalNotify["unread_count_cache_ttl"] =
       tuningPlan.notifyUnreadCountCacheTtlSecs;
-    internalNotify.retention_days = tuningPlan.notifyRetentionDays;
+    internalNotify["retention_days"] = tuningPlan.notifyRetentionDays;
 
     const systemBackup = ensureRecord(next, "system_backup");
-    systemBackup.max_backup_size_mb = tuningPlan.systemBackupMaxSizeMb;
+    systemBackup["max_backup_size_mb"] = tuningPlan.systemBackupMaxSizeMb;
 
     const middleware = ensureRecord(next, "middleware");
     const ipRateLimit = ensureRecord(middleware, "ip_rate_limit");
-    ipRateLimit.window_secs = tuningPlan.middleware.ipWindowSecs;
-    ipRateLimit.max_requests = tuningPlan.middleware.ipMaxRequests;
+    ipRateLimit["window_secs"] = tuningPlan.middleware.ipWindowSecs;
+    ipRateLimit["max_requests"] = tuningPlan.middleware.ipMaxRequests;
 
     const clientRateLimit = ensureRecord(middleware, "client_id_rate_limit");
-    clientRateLimit.window_secs = tuningPlan.middleware.clientWindowSecs;
-    clientRateLimit.max_requests = tuningPlan.middleware.clientMaxRequests;
-    clientRateLimit.max_cid = tuningPlan.middleware.clientMaxCid;
-    clientRateLimit.client_id_blacklist_enabled = false;
+    clientRateLimit["window_secs"] = tuningPlan.middleware.clientWindowSecs;
+    clientRateLimit["max_requests"] = tuningPlan.middleware.clientMaxRequests;
+    clientRateLimit["max_cid"] = tuningPlan.middleware.clientMaxCid;
+    clientRateLimit["client_id_blacklist_enabled"] = false;
 
     const userRateLimit = ensureRecord(middleware, "user_id_rate_limit");
-    userRateLimit.window_secs = tuningPlan.middleware.userWindowSecs;
-    userRateLimit.max_requests = tuningPlan.middleware.userMaxRequests;
-    userRateLimit.max_userid = tuningPlan.middleware.userMaxId;
-    userRateLimit.user_id_blacklist_enabled = false;
+    userRateLimit["window_secs"] = tuningPlan.middleware.userWindowSecs;
+    userRateLimit["max_requests"] = tuningPlan.middleware.userMaxRequests;
+    userRateLimit["max_userid"] = tuningPlan.middleware.userMaxId;
+    userRateLimit["user_id_blacklist_enabled"] = false;
 
     const bruteForce = ensureRecord(middleware, "brute_force");
-    bruteForce.enabled = tuningPlan.middleware.bruteForceEnabled;
-    bruteForce.max_failures_per_user_ip =
+    bruteForce["enabled"] = tuningPlan.middleware.bruteForceEnabled;
+    bruteForce["max_failures_per_user_ip"] =
       tuningPlan.middleware.bruteForceMaxFailuresPerUserIp;
-    bruteForce.max_failures_per_ip_global =
+    bruteForce["max_failures_per_ip_global"] =
       tuningPlan.middleware.bruteForceMaxFailuresPerIpGlobal;
-    bruteForce.lockout_secs = tuningPlan.middleware.bruteForceLockoutSecs;
-    bruteForce.enable_exponential_backoff =
+    bruteForce["lockout_secs"] = tuningPlan.middleware.bruteForceLockoutSecs;
+    bruteForce["enable_exponential_backoff"] =
       tuningPlan.middleware.bruteForceBackoffEnabled;
 
     // Extreme-low tier targets very low-RAM devices (e.g. 32MB).
     // Force a small bloom filter capacity to reduce memory footprint.
     if (draft.performanceTier === "constrained") {
       const safeaccessGuard = ensureRecord(next, "safeaccess_guard");
-      safeaccessGuard.bloom_filter_capacity = 10000;
+      safeaccessGuard["bloom_filter_capacity"] = 10000;
     }
 
     const vfsHub = ensureRecord(next, "vfs_storage_hub");
-    vfsHub.enable_webdav = effectiveFeatures.webdav;
-    vfsHub.enable_sftp = effectiveFeatures.sftp;
-    vfsHub.enable_ftp = effectiveFeatures.ftp;
-    vfsHub.enable_s3 = effectiveFeatures.s3;
+    vfsHub["enable_webdav"] = effectiveFeatures.webdav;
+    vfsHub["enable_sftp"] = effectiveFeatures.sftp;
+    vfsHub["enable_ftp"] = effectiveFeatures.ftp;
+    vfsHub["enable_s3"] = effectiveFeatures.s3;
     ensureVfsLocalStorageDefaults(vfsHub);
     const readCache = ensureRecord(vfsHub, "read_cache");
-    readCache.enable = false;
-    readCache.backend = tuningPlan.readCache.backend;
-    readCache.local_dir = "{RUNTIMEDIR}/cache/vfs-read";
-    readCache.capacity_bytes = tuningPlan.readCache.capacityBytes;
-    readCache.max_file_size_bytes = tuningPlan.readCache.maxFileSizeBytes;
-    readCache.cache_thumbnail_paths = false;
-    readCache.skip_extensions = [];
-    readCache.ttl_secs = tuningPlan.readCache.ttlSecs;
+    readCache["enable"] = false;
+    readCache["backend"] = tuningPlan.readCache.backend;
+    readCache["local_dir"] = "{RUNTIMEDIR}/cache/vfs-read";
+    readCache["capacity_bytes"] = tuningPlan.readCache.capacityBytes;
+    readCache["max_file_size_bytes"] = tuningPlan.readCache.maxFileSizeBytes;
+    readCache["cache_thumbnail_paths"] = false;
+    readCache["skip_extensions"] = [];
+    readCache["ttl_secs"] = tuningPlan.readCache.ttlSecs;
     const writeCache = ensureRecord(vfsHub, "write_cache");
-    writeCache.enable = false;
-    writeCache.backend = tuningPlan.writeCache.backend;
-    writeCache.local_dir = "{RUNTIMEDIR}/cache/vfs-write";
-    writeCache.capacity_bytes = tuningPlan.writeCache.capacityBytes;
-    writeCache.max_file_size_bytes = tuningPlan.writeCache.maxFileSizeBytes;
-    writeCache.cache_thumbnail_paths = false;
-    writeCache.skip_extensions = [];
-    writeCache.flush_concurrency = tuningPlan.writeCache.flushConcurrency;
-    writeCache.flush_interval_ms = tuningPlan.writeCache.flushIntervalMs;
-    writeCache.flush_deadline_secs = tuningPlan.writeCache.flushDeadlineSecs;
-    writeCache.abnormal_spill_dir = "{RUNTIMEDIR}/cache/vfs-write-abnormal";
+    writeCache["enable"] = false;
+    writeCache["backend"] = tuningPlan.writeCache.backend;
+    writeCache["local_dir"] = "{RUNTIMEDIR}/cache/vfs-write";
+    writeCache["capacity_bytes"] = tuningPlan.writeCache.capacityBytes;
+    writeCache["max_file_size_bytes"] = tuningPlan.writeCache.maxFileSizeBytes;
+    writeCache["cache_thumbnail_paths"] = false;
+    writeCache["skip_extensions"] = [];
+    writeCache["flush_concurrency"] = tuningPlan.writeCache.flushConcurrency;
+    writeCache["flush_interval_ms"] = tuningPlan.writeCache.flushIntervalMs;
+    writeCache["flush_deadline_secs"] = tuningPlan.writeCache.flushDeadlineSecs;
+    writeCache["abnormal_spill_dir"] = "{RUNTIMEDIR}/cache/vfs-write-abnormal";
 
     const fileCompress = ensureRecord(vfsHub, "file_compress");
-    fileCompress.enable = effectiveFeatures.compression;
-    fileCompress.process_manager_max_concurrency =
+    fileCompress["enable"] = effectiveFeatures.compression;
+    fileCompress["process_manager_max_concurrency"] =
       tuningPlan.compressionConcurrency;
-    fileCompress.process_manager_max_concurrency_low_memory =
+    fileCompress["process_manager_max_concurrency_low_memory"] =
       tuningPlan.compressionConcurrencyLowMemory;
-    fileCompress.process_manager_max_concurrency_throughput =
+    fileCompress["process_manager_max_concurrency_throughput"] =
       tuningPlan.compressionConcurrencyThroughput;
-    fileCompress.max_cpu_threads = tuningPlan.compressionMaxCpuThreads;
-    fileCompress.max_cpu_threads_low_memory =
+    fileCompress["max_cpu_threads"] = tuningPlan.compressionMaxCpuThreads;
+    fileCompress["max_cpu_threads_low_memory"] =
       tuningPlan.compressionMaxCpuThreadsLowMemory;
-    fileCompress.max_cpu_threads_throughput =
+    fileCompress["max_cpu_threads_throughput"] =
       tuningPlan.compressionMaxCpuThreadsThroughput;
-    vfsHub.max_concurrent_tasks = tuningPlan.vfsBatchMaxConcurrentTasks;
+    vfsHub["max_concurrent_tasks"] = tuningPlan.vfsBatchMaxConcurrentTasks;
     const batchOperation = ensureRecord(vfsHub, "batch_operation");
-    batchOperation.max_concurrent_tasks = tuningPlan.vfsBatchMaxConcurrentTasks;
-    batchOperation.max_concurrent_tasks_low_memory =
+    batchOperation["max_concurrent_tasks"] = tuningPlan.vfsBatchMaxConcurrentTasks;
+    batchOperation["max_concurrent_tasks_low_memory"] =
       tuningPlan.vfsBatchMaxConcurrentTasksLowMemory;
-    batchOperation.max_concurrent_tasks_throughput =
+    batchOperation["max_concurrent_tasks_throughput"] =
       tuningPlan.vfsBatchMaxConcurrentTasksThroughput;
     const fileIndex = ensureRecord(vfsHub, "file_index");
-    fileIndex.max_concurrent_refresh = tuningPlan.fileIndexMaxConcurrentRefresh;
-    fileIndex.max_concurrent_refresh_low_memory =
+    fileIndex["max_concurrent_refresh"] = tuningPlan.fileIndexMaxConcurrentRefresh;
+    fileIndex["max_concurrent_refresh_low_memory"] =
       tuningPlan.fileIndexMaxConcurrentRefreshLowMemory;
-    fileIndex.max_concurrent_refresh_throughput =
+    fileIndex["max_concurrent_refresh_throughput"] =
       tuningPlan.fileIndexMaxConcurrentRefreshThroughput;
-    fileIndex.max_files_per_refresh = tuningPlan.fileIndexMaxFilesPerRefresh;
-    fileIndex.max_files_per_refresh_low_memory =
+    fileIndex["max_files_per_refresh"] = tuningPlan.fileIndexMaxFilesPerRefresh;
+    fileIndex["max_files_per_refresh_low_memory"] =
       tuningPlan.fileIndexMaxFilesPerRefreshLowMemory;
-    fileIndex.max_files_per_refresh_throughput =
+    fileIndex["max_files_per_refresh_throughput"] =
       tuningPlan.fileIndexMaxFilesPerRefreshThroughput;
-    fileIndex.admin_consistency_check_batch_size =
+    fileIndex["admin_consistency_check_batch_size"] =
       tuningPlan.fileIndexAdminConsistencyBatchSize;
-    fileIndex.refresh_timeout = tuningPlan.fileIndexRefreshTimeout;
+    fileIndex["refresh_timeout"] = tuningPlan.fileIndexRefreshTimeout;
 
     const taskRegistry = ensureRecord(next, "task_registry");
     const bloomWarmup = ensureRecord(taskRegistry, "bloom_filter_warmup");
-    bloomWarmup.enabled = effectiveFeatures.bloomWarmup;
-    bloomWarmup.cron_expression = tuningPlan.scheduler.maintenanceCron;
+    bloomWarmup["enabled"] = effectiveFeatures.bloomWarmup;
+    bloomWarmup["cron_expression"] = tuningPlan.scheduler.maintenanceCron;
     const bloomWarmupTuning = ensureRecord(
       taskRegistry,
       "bloom_filter_warmup_tuning",
     );
-    bloomWarmupTuning.reserve_capacity =
+    bloomWarmupTuning["reserve_capacity"] =
       tuningPlan.bloomWarmupTuning.reserveCapacity;
-    bloomWarmupTuning.max_users_per_run =
+    bloomWarmupTuning["max_users_per_run"] =
       tuningPlan.bloomWarmupTuning.maxUsersPerRun;
-    bloomWarmupTuning.yield_every_users =
+    bloomWarmupTuning["yield_every_users"] =
       tuningPlan.bloomWarmupTuning.yieldEveryUsers;
-    bloomWarmupTuning.sleep_ms_per_yield =
+    bloomWarmupTuning["sleep_ms_per_yield"] =
       tuningPlan.bloomWarmupTuning.sleepMsPerYield;
     const quotaCalibrationTuning = ensureRecord(
       taskRegistry,
       "quota_calibration_tuning",
     );
-    quotaCalibrationTuning.max_users_per_run =
+    quotaCalibrationTuning["max_users_per_run"] =
       tuningPlan.quotaCalibrationTuning.maxUsersPerRun;
-    quotaCalibrationTuning.yield_every_users =
+    quotaCalibrationTuning["yield_every_users"] =
       tuningPlan.quotaCalibrationTuning.yieldEveryUsers;
-    quotaCalibrationTuning.sleep_ms_per_user =
+    quotaCalibrationTuning["sleep_ms_per_user"] =
       tuningPlan.quotaCalibrationTuning.sleepMsPerUser;
     const fileIndexSyncTuning = ensureRecord(
       taskRegistry,
       "file_index_sync_tuning",
     );
-    fileIndexSyncTuning.max_users_per_run =
+    fileIndexSyncTuning["max_users_per_run"] =
       tuningPlan.fileIndexSyncTuning.maxUsersPerRun;
-    fileIndexSyncTuning.yield_every_users =
+    fileIndexSyncTuning["yield_every_users"] =
       tuningPlan.fileIndexSyncTuning.yieldEveryUsers;
-    fileIndexSyncTuning.sleep_ms_per_user =
+    fileIndexSyncTuning["sleep_ms_per_user"] =
       tuningPlan.fileIndexSyncTuning.sleepMsPerUser;
-    taskRegistry.task_retention_days = tuningPlan.taskRetentionDays;
+    taskRegistry["task_retention_days"] = tuningPlan.taskRetentionDays;
 
     CRITICAL_TASK_KEYS.forEach((taskName) => {
       const task = ensureRecord(taskRegistry, taskName);
-      task.enabled = true;
-      task.cron_expression = tuningPlan.scheduler.criticalCron;
+      task["enabled"] = true;
+      task["cron_expression"] = tuningPlan.scheduler.criticalCron;
     });
 
     MAINTENANCE_TASK_KEYS.forEach((taskName) => {
       const task = ensureRecord(taskRegistry, taskName);
-      task.enabled = true;
-      task.cron_expression = tuningPlan.scheduler.maintenanceCron;
+      task["enabled"] = true;
+      task["cron_expression"] = tuningPlan.scheduler.maintenanceCron;
     });
 
     LOW_PRIORITY_TASK_KEYS.forEach((taskName) => {
       const task = ensureRecord(taskRegistry, taskName);
-      task.enabled = true;
-      task.cron_expression = tuningPlan.scheduler.lowPriorityCron;
+      task["enabled"] = true;
+      task["cron_expression"] = tuningPlan.scheduler.lowPriorityCron;
     });
 
     const databaseHealthCheck = ensureRecord(
       taskRegistry,
       "database_health_check",
     );
-    databaseHealthCheck.enabled = true;
-    databaseHealthCheck.cron_expression = tuningPlan.scheduler.healthCheckCron;
+    databaseHealthCheck["enabled"] = true;
+    databaseHealthCheck["cron_expression"] = tuningPlan.scheduler.healthCheckCron;
 
     const sftpServ = ensureRecord(next, "file_manager_serv_sftp");
-    sftpServ.max_connections = effectiveFeatures.sftp
+    sftpServ["max_connections"] = effectiveFeatures.sftp
       ? draft.performanceTier === "performance"
         ? 100
         : 20
       : 1;
-    sftpServ.worker_threads = effectiveFeatures.sftp
+    sftpServ["worker_threads"] = effectiveFeatures.sftp
       ? draft.performanceTier === "performance"
         ? 4
         : 2
       : 1;
 
     const ftpServ = ensureRecord(next, "file_manager_serv_ftp");
-    ftpServ.max_connections = effectiveFeatures.ftp
+    ftpServ["max_connections"] = effectiveFeatures.ftp
       ? draft.performanceTier === "performance"
         ? 100
         : 20
       : 1;
 
     const s3Serv = ensureRecord(next, "file_manager_serv_s3");
-    s3Serv.max_connections = effectiveFeatures.s3
+    s3Serv["max_connections"] = effectiveFeatures.s3
       ? draft.performanceTier === "performance"
         ? 100
         : 20
       : 1;
 
     const chatManager = ensureRecord(next, "chat_manager");
-    chatManager.enabled = effectiveFeatures.chat;
-    chatManager.rate_limit_window_secs = tuningPlan.chatRateLimitWindowSecs;
-    chatManager.rate_limit_messages_per_window =
+    chatManager["enabled"] = effectiveFeatures.chat;
+    chatManager["rate_limit_window_secs"] = tuningPlan.chatRateLimitWindowSecs;
+    chatManager["rate_limit_messages_per_window"] =
       tuningPlan.chatRateLimitMessagesPerWindow;
-    chatManager.ws_session_timeout_secs = tuningPlan.chatWsSessionTimeoutSecs;
-    chatManager.max_message_size_bytes = tuningPlan.chatMaxMessageSizeBytes;
-    chatManager.max_groups_per_user = tuningPlan.chatMaxGroupsPerUser;
-    chatManager.max_members_per_group = tuningPlan.chatMaxMembersPerGroup;
-    chatManager.max_groups_joined_per_user =
+    chatManager["ws_session_timeout_secs"] = tuningPlan.chatWsSessionTimeoutSecs;
+    chatManager["max_message_size_bytes"] = tuningPlan.chatMaxMessageSizeBytes;
+    chatManager["max_groups_per_user"] = tuningPlan.chatMaxGroupsPerUser;
+    chatManager["max_members_per_group"] = tuningPlan.chatMaxMembersPerGroup;
+    chatManager["max_groups_joined_per_user"] =
       tuningPlan.chatMaxGroupsJoinedPerUser;
-    chatManager.max_guest_invites_per_user =
+    chatManager["max_guest_invites_per_user"] =
       tuningPlan.chatMaxGuestInvitesPerUser;
 
     const domainAcmeDdns = ensureRecord(next, "domain_acme_ddns");
-    domainAcmeDdns.request_timeout_sec = tuningPlan.domainRequestTimeoutSec;
-    domainAcmeDdns.webhook_timeout_sec = tuningPlan.domainWebhookTimeoutSec;
-    domainAcmeDdns.dns_propagation_wait_sec =
+    domainAcmeDdns["request_timeout_sec"] = tuningPlan.domainRequestTimeoutSec;
+    domainAcmeDdns["webhook_timeout_sec"] = tuningPlan.domainWebhookTimeoutSec;
+    domainAcmeDdns["dns_propagation_wait_sec"] =
       tuningPlan.domainDnsPropagationWaitSec;
-    domainAcmeDdns.challenge_poll_interval_sec =
+    domainAcmeDdns["challenge_poll_interval_sec"] =
       tuningPlan.domainChallengePollIntervalSec;
-    domainAcmeDdns.challenge_max_poll_count =
+    domainAcmeDdns["challenge_max_poll_count"] =
       tuningPlan.domainChallengeMaxPollCount;
     const web = ensureRecord(next, "web");
-    web.refresh_interval_sec = tuningPlan.webRefreshIntervalSec;
+    web["refresh_interval_sec"] = tuningPlan.webRefreshIntervalSec;
 
     const emailManager = ensureRecord(next, "email_manager");
-    emailManager.enabled = effectiveFeatures.email;
+    emailManager["enabled"] = effectiveFeatures.email;
 
     const journalLog = ensureRecord(next, "journal_log");
-    journalLog.log_retention_days = tuningPlan.journalLogRetentionDays;
-    journalLog.batch_size = tuningPlan.journalLogBatchSize;
-    journalLog.batch_size_low_memory = tuningPlan.journalLogBatchSizeLowMemory;
-    journalLog.batch_size_throughput = tuningPlan.journalLogBatchSizeThroughput;
-    journalLog.flush_interval_ms = tuningPlan.journalLogFlushIntervalMs;
-    journalLog.queue_capacity_multiplier =
+    journalLog["log_retention_days"] = tuningPlan.journalLogRetentionDays;
+    journalLog["batch_size"] = tuningPlan.journalLogBatchSize;
+    journalLog["batch_size_low_memory"] = tuningPlan.journalLogBatchSizeLowMemory;
+    journalLog["batch_size_throughput"] = tuningPlan.journalLogBatchSizeThroughput;
+    journalLog["flush_interval_ms"] = tuningPlan.journalLogFlushIntervalMs;
+    journalLog["queue_capacity_multiplier"] =
       tuningPlan.journalLogQueueCapacityMultiplier;
 
     const fileManagerApi = ensureRecord(next, "file_manager_api");
-    fileManagerApi.webapi_upload_max_file_size =
+    fileManagerApi["webapi_upload_max_file_size"] =
       tuningPlan.webApiUploadMaxFileSize;
 
     const logConfig = ensureRecord(next, "log");
-    logConfig.enable_async = tuningPlan.logEnableAsync;
+    logConfig["enable_async"] = tuningPlan.logEnableAsync;
   }
 
   return next;

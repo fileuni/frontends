@@ -38,13 +38,13 @@ const isConfigValidationError = (
 ): value is ConfigValidationError => {
   if (typeof value !== "object" || value === null) return false;
   const candidate = value as Record<string, unknown>;
-  if (typeof candidate.message !== "string") return false;
-  if (typeof candidate.line !== "number") return false;
-  if (typeof candidate.column !== "number") return false;
+  if (typeof candidate["message"] !== "string") return false;
+  if (typeof candidate["line"] !== "number") return false;
+  if (typeof candidate["column"] !== "number") return false;
   if (
-    candidate.key !== undefined &&
-    candidate.key !== null &&
-    typeof candidate.key !== "string"
+    candidate["key"] !== undefined &&
+    candidate["key"] !== null &&
+    typeof candidate["key"] !== "string"
   ) {
     return false;
   }
@@ -60,7 +60,7 @@ const extractValidationErrorsFromException = (
   error: unknown,
 ): ConfigValidationError[] => {
   if (typeof error !== "object" || error === null) return [];
-  const payload = (error as Record<string, unknown>).data;
+  const payload = (error as Record<string, unknown>)["data"];
   return normalizeValidationErrors(payload);
 };
 
@@ -139,10 +139,10 @@ export const ConfigSetEditor: React.FC = () => {
         const parsed = toml.parse(data.current_config_content) as unknown;
         if (typeof parsed === "object" && parsed !== null) {
           const root = parsed as Record<string, unknown>;
-          const license = root.license;
+          const license = root["license"];
           if (typeof license === "object" && license !== null) {
             const licenseKeyInToml = (license as Record<string, unknown>)
-              .license_key;
+              ["license_key"];
             if (
               typeof licenseKeyInToml === "string" &&
               licenseKeyInToml.trim().length > 0

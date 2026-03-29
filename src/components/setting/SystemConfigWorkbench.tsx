@@ -926,7 +926,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                 if (isRecord(parsed)) {
                   const nextConfig = deepClone(parsed);
                   const licenseSection = ensureRecord(nextConfig, "license");
-                  licenseSection.license_key = nextKey;
+                  licenseSection["license_key"] = nextKey;
                   const nextContent = tomlAdapter.stringify(nextConfig);
                   onChange(nextContent);
                 }

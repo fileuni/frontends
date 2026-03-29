@@ -127,15 +127,15 @@ export const parseThumbnailDraft = (
     const parsed = tomlAdapter.parse(content);
     if (!isRecord(parsed)) return DEFAULT_THUMBNAIL_DRAFT;
     const root = parsed;
-    const vfsStorageHub = isRecord(root.vfs_storage_hub)
-      ? root.vfs_storage_hub
+    const vfsStorageHub = isRecord(root["vfs_storage_hub"])
+      ? root["vfs_storage_hub"]
       : {};
-    const thumbnail = isRecord(vfsStorageHub.thumbnail)
-      ? vfsStorageHub.thumbnail
+    const thumbnail = isRecord(vfsStorageHub["thumbnail"])
+      ? vfsStorageHub["thumbnail"]
       : {};
-    const image = isRecord(thumbnail.image) ? thumbnail.image : {};
-    const tools = isRecord(thumbnail.tools) ? thumbnail.tools : {};
-    const video = isRecord(thumbnail.video) ? thumbnail.video : {};
+    const image = isRecord(thumbnail["image"]) ? thumbnail["image"] : {};
+    const tools = isRecord(thumbnail["tools"]) ? thumbnail["tools"] : {};
+    const video = isRecord(thumbnail["video"]) ? thumbnail["video"] : {};
     const asString = (value: unknown, fallback: string) =>
       typeof value === "string" ? value : fallback;
     const asNumberString = (value: unknown, fallback: string) =>
@@ -145,26 +145,26 @@ export const parseThumbnailDraft = (
     const asBackend = (value: unknown): ThumbnailImageBackend =>
       value === "external" ? "external" : "builtin";
     return {
-      imageBackend: asBackend(image.backend),
-      vipsPath: asString(tools.vips_path, DEFAULT_THUMBNAIL_DRAFT.vipsPath),
+      imageBackend: asBackend(image["backend"]),
+      vipsPath: asString(tools["vips_path"], DEFAULT_THUMBNAIL_DRAFT.vipsPath),
       imagemagickPath: asString(
-        tools.imagemagick_path,
+        tools["imagemagick_path"],
         DEFAULT_THUMBNAIL_DRAFT.imagemagickPath,
       ),
       ffmpegPath: asString(
-        tools.ffmpeg_path,
+        tools["ffmpeg_path"],
         DEFAULT_THUMBNAIL_DRAFT.ffmpegPath,
       ),
       libreofficePath: asString(
-        tools.libreoffice_path,
+        tools["libreoffice_path"],
         DEFAULT_THUMBNAIL_DRAFT.libreofficePath,
       ),
       videoSeekSeconds: asNumberString(
-        video.seek_seconds,
+        video["seek_seconds"],
         DEFAULT_THUMBNAIL_DRAFT.videoSeekSeconds,
       ),
       videoSeekRatio: asNumberString(
-        video.seek_ratio,
+        video["seek_ratio"],
         DEFAULT_THUMBNAIL_DRAFT.videoSeekRatio,
       ),
     };
@@ -181,31 +181,31 @@ export const parseCompressionDraft = (
     const parsed = tomlAdapter.parse(content);
     if (!isRecord(parsed)) return DEFAULT_COMPRESSION_DRAFT;
     const root = parsed;
-    const vfsStorageHub = isRecord(root.vfs_storage_hub)
-      ? root.vfs_storage_hub
+    const vfsStorageHub = isRecord(root["vfs_storage_hub"])
+      ? root["vfs_storage_hub"]
       : {};
-    const fileCompress = isRecord(vfsStorageHub.file_compress)
-      ? vfsStorageHub.file_compress
+    const fileCompress = isRecord(vfsStorageHub["file_compress"])
+      ? vfsStorageHub["file_compress"]
       : {};
     return {
       enabled:
-        typeof fileCompress.enable === "boolean"
-          ? fileCompress.enable
+        typeof fileCompress["enable"] === "boolean"
+          ? fileCompress["enable"]
           : DEFAULT_COMPRESSION_DRAFT.enabled,
       exe7zPath:
-        typeof fileCompress.exe_7zip_path === "string"
-          ? fileCompress.exe_7zip_path
+        typeof fileCompress["exe_7zip_path"] === "string"
+          ? fileCompress["exe_7zip_path"]
           : DEFAULT_COMPRESSION_DRAFT.exe7zPath,
       defaultCompressionFormat:
-        typeof fileCompress.default_compression_format === "string"
-          ? fileCompress.default_compression_format
+        typeof fileCompress["default_compression_format"] === "string"
+          ? fileCompress["default_compression_format"]
           : DEFAULT_COMPRESSION_DRAFT.defaultCompressionFormat,
       maxConcurrency: String(
-        fileCompress.process_manager_max_concurrency ??
+        fileCompress["process_manager_max_concurrency"] ??
           DEFAULT_COMPRESSION_DRAFT.maxConcurrency,
       ),
       maxCpuThreads: String(
-        fileCompress.max_cpu_threads ?? DEFAULT_COMPRESSION_DRAFT.maxCpuThreads,
+        fileCompress["max_cpu_threads"] ?? DEFAULT_COMPRESSION_DRAFT.maxCpuThreads,
       ),
     };
   } catch {
@@ -250,19 +250,19 @@ export const applyThumbnailDraft = (
   const image = ensureRecord(thumbnail, "image");
   const tools = ensureRecord(thumbnail, "tools");
   const video = ensureRecord(thumbnail, "video");
-  image.backend = draft.imageBackend;
-  tools.vips_path = draft.vipsPath.trim();
-  tools.imagemagick_path = draft.imagemagickPath.trim();
-  tools.ffmpeg_path = draft.ffmpegPath.trim();
-  tools.libreoffice_path = draft.libreofficePath.trim();
+  image["backend"] = draft.imageBackend;
+  tools["vips_path"] = draft.vipsPath.trim();
+  tools["imagemagick_path"] = draft.imagemagickPath.trim();
+  tools["ffmpeg_path"] = draft.ffmpegPath.trim();
+  tools["libreoffice_path"] = draft.libreofficePath.trim();
 
   const seekSeconds = Number(draft.videoSeekSeconds);
   const seekRatio = Number(draft.videoSeekRatio);
   if (Number.isFinite(seekSeconds) && seekSeconds > 0) {
-    video.seek_seconds = Math.floor(seekSeconds);
+    video["seek_seconds"] = Math.floor(seekSeconds);
   }
   if (Number.isFinite(seekRatio) && seekRatio > 0 && seekRatio <= 1) {
-    video.seek_ratio = seekRatio;
+    video["seek_ratio"] = seekRatio;
   }
 
   return tomlAdapter.stringify(next);
@@ -280,13 +280,13 @@ export const applyCompressionDraft = (
   const next = deepClone(parsed);
   const vfsStorageHub = ensureRecord(next, "vfs_storage_hub");
   const fileCompress = ensureRecord(vfsStorageHub, "file_compress");
-  fileCompress.enable = draft.enabled;
-  fileCompress.exe_7zip_path = draft.exe7zPath.trim();
-  fileCompress.default_compression_format =
+  fileCompress["enable"] = draft.enabled;
+  fileCompress["exe_7zip_path"] = draft.exe7zPath.trim();
+  fileCompress["default_compression_format"] =
     draft.defaultCompressionFormat.trim();
-  fileCompress.process_manager_max_concurrency =
+  fileCompress["process_manager_max_concurrency"] =
     Number.parseInt(draft.maxConcurrency, 10) || 2;
-  fileCompress.max_cpu_threads = Number.parseInt(draft.maxCpuThreads, 10) || 2;
+  fileCompress["max_cpu_threads"] = Number.parseInt(draft.maxCpuThreads, 10) || 2;
   return tomlAdapter.stringify(next);
 };
 

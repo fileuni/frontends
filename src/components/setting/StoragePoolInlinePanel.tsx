@@ -155,32 +155,32 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
     (source: string): PoolItem[] => {
       const parsed = tomlAdapter.parse(source);
       const root = asRecord(parsed);
-      const hub = asRecord(root.vfs_storage_hub);
-      const connectors = Array.isArray(hub.connectors)
-        ? hub.connectors.filter(isRecord)
+      const hub = asRecord(root["vfs_storage_hub"]);
+      const connectors = Array.isArray(hub["connectors"])
+        ? hub["connectors"].filter(isRecord)
         : [];
-      const pools = Array.isArray(hub.pools) ? hub.pools.filter(isRecord) : [];
+      const pools = Array.isArray(hub["pools"]) ? hub["pools"].filter(isRecord) : [];
       const nextItems: PoolItem[] = pools.map((pool, index) => {
         const connector =
-          connectors.find((item) => item.name === pool.primary_connector) ?? {};
-        const optionsRaw = asRecord(connector.options);
+          connectors.find((item) => item["name"] === pool["primary_connector"]) ?? {};
+        const optionsRaw = asRecord(connector["options"]);
         return {
           id:
-            typeof pool.name === "string" && pool.name.length > 0
-              ? pool.name
+            typeof pool["name"] === "string" && pool["name"].length > 0
+              ? pool["name"]
               : `${index}`,
           name:
-            typeof pool.name === "string" && pool.name.length > 0
-              ? pool.name
+            typeof pool["name"] === "string" && pool["name"].length > 0
+              ? pool["name"]
               : `pool-${index + 1}`,
-          driver: isSupportedDriver(connector.driver)
-            ? connector.driver
+          driver: isSupportedDriver(connector["driver"])
+            ? connector["driver"]
             : defaultDriver,
           root:
-            typeof connector.root === "string"
-              ? connector.root
+            typeof connector["root"] === "string"
+              ? connector["root"]
               : "{RUNTIMEDIR}/vfs",
-          enabled: typeof pool.enable === "boolean" ? pool.enable : true,
+          enabled: typeof pool["enable"] === "boolean" ? pool["enable"] : true,
           options: Object.fromEntries(
             Object.entries(optionsRaw).map(([key, value]) => [
               key,
@@ -210,14 +210,14 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
       const parsed = tomlAdapter.parse(source);
       const root: ConfigObject = isRecord(parsed) ? parsed : {};
       const hub = ensureRecord(root, "vfs_storage_hub");
-      hub.connectors = nextItems.map((item) => ({
+      hub["connectors"] = nextItems.map((item) => ({
         name: `${item.name}-connector`,
         driver: item.driver,
         root: item.root,
         enable: item.enabled,
         options: item.options,
       }));
-      hub.pools = nextItems.map((item) => ({
+      hub["pools"] = nextItems.map((item) => ({
         name: item.name,
         primary_connector: `${item.name}-connector`,
         backup_connector: `${item.name}-connector`,
@@ -225,9 +225,9 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
         enable: item.enabled,
         options: {},
       }));
-      hub.default_pool = nextItems[0]?.name ?? "default-pool";
-      if (!Array.isArray(hub.policies)) {
-        hub.policies = [];
+      hub["default_pool"] = nextItems[0]?.name ?? "default-pool";
+      if (!Array.isArray(hub["policies"])) {
+        hub["policies"] = [];
       }
       return tomlAdapter.stringify(root);
     },

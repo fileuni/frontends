@@ -176,37 +176,37 @@ const readFeatureToggleStateFromConfig = (
   fallback: FeatureToggleState,
 ): FeatureToggleState => {
   const source: ConfigObject = config ?? {};
-  const vfs = asRecord(source.vfs_storage_hub);
-  const fileCompress = asRecord(vfs.file_compress);
-  const taskRegistry = asRecord(source.task_registry);
-  const bloomFilterWarmup = asRecord(taskRegistry.bloom_filter_warmup);
-  const chatManager = asRecord(source.chat_manager);
-  const emailManager = asRecord(source.email_manager);
+  const vfs = asRecord(source["vfs_storage_hub"]);
+  const fileCompress = asRecord(vfs["file_compress"]);
+  const taskRegistry = asRecord(source["task_registry"]);
+  const bloomFilterWarmup = asRecord(taskRegistry["bloom_filter_warmup"]);
+  const chatManager = asRecord(source["chat_manager"]);
+  const emailManager = asRecord(source["email_manager"]);
 
   return {
     compression:
-      typeof fileCompress.enable === "boolean"
-        ? fileCompress.enable
+      typeof fileCompress["enable"] === "boolean"
+        ? fileCompress["enable"]
         : fallback.compression,
     sftp:
-      typeof vfs.enable_sftp === "boolean" ? vfs.enable_sftp : fallback.sftp,
-    ftp: typeof vfs.enable_ftp === "boolean" ? vfs.enable_ftp : fallback.ftp,
-    s3: typeof vfs.enable_s3 === "boolean" ? vfs.enable_s3 : fallback.s3,
+      typeof vfs["enable_sftp"] === "boolean" ? vfs["enable_sftp"] : fallback.sftp,
+    ftp: typeof vfs["enable_ftp"] === "boolean" ? vfs["enable_ftp"] : fallback.ftp,
+    s3: typeof vfs["enable_s3"] === "boolean" ? vfs["enable_s3"] : fallback.s3,
     chat:
-      typeof chatManager.enabled === "boolean"
-        ? chatManager.enabled
+      typeof chatManager["enabled"] === "boolean"
+        ? chatManager["enabled"]
         : fallback.chat,
     email:
-      typeof emailManager.enabled === "boolean"
-        ? emailManager.enabled
+      typeof emailManager["enabled"] === "boolean"
+        ? emailManager["enabled"]
         : fallback.email,
     webdav:
-      typeof vfs.enable_webdav === "boolean"
-        ? vfs.enable_webdav
+      typeof vfs["enable_webdav"] === "boolean"
+        ? vfs["enable_webdav"]
         : fallback.webdav,
     bloomWarmup:
-      typeof bloomFilterWarmup.enabled === "boolean"
-        ? bloomFilterWarmup.enabled
+      typeof bloomFilterWarmup["enabled"] === "boolean"
+        ? bloomFilterWarmup["enabled"]
         : fallback.bloomWarmup,
   };
 };
@@ -227,44 +227,44 @@ const applyFeatureToggleStateToConfig = (
   const ftpServ = ensureRecord(next, "file_manager_serv_ftp");
   const s3Serv = ensureRecord(next, "file_manager_serv_s3");
 
-  vfs.enable_webdav = toggles.webdav;
-  vfs.enable_sftp = toggles.sftp;
-  vfs.enable_ftp = toggles.ftp;
-  vfs.enable_s3 = toggles.s3;
-  fileCompress.enable = toggles.compression;
-  bloomFilterWarmup.enabled = toggles.bloomWarmup;
-  chatManager.enabled = toggles.chat;
-  emailManager.enabled = toggles.email;
+  vfs["enable_webdav"] = toggles.webdav;
+  vfs["enable_sftp"] = toggles.sftp;
+  vfs["enable_ftp"] = toggles.ftp;
+  vfs["enable_s3"] = toggles.s3;
+  fileCompress["enable"] = toggles.compression;
+  bloomFilterWarmup["enabled"] = toggles.bloomWarmup;
+  chatManager["enabled"] = toggles.chat;
+  emailManager["enabled"] = toggles.email;
 
   if (!toggles.sftp) {
-    sftpServ.max_connections = 1;
-    sftpServ.worker_threads = 1;
+    sftpServ["max_connections"] = 1;
+    sftpServ["worker_threads"] = 1;
   } else if (
-    typeof sftpServ.max_connections !== "number" ||
-    sftpServ.max_connections <= 1
+    typeof sftpServ["max_connections"] !== "number" ||
+    sftpServ["max_connections"] <= 1
   ) {
-    sftpServ.max_connections =
+    sftpServ["max_connections"] =
       draft.performanceTier === "performance" ? 100 : 20;
-    sftpServ.worker_threads = draft.performanceTier === "performance" ? 4 : 2;
+    sftpServ["worker_threads"] = draft.performanceTier === "performance" ? 4 : 2;
   }
 
   if (!toggles.ftp) {
-    ftpServ.max_connections = 1;
+    ftpServ["max_connections"] = 1;
   } else if (
-    typeof ftpServ.max_connections !== "number" ||
-    ftpServ.max_connections <= 1
+    typeof ftpServ["max_connections"] !== "number" ||
+    ftpServ["max_connections"] <= 1
   ) {
-    ftpServ.max_connections =
+    ftpServ["max_connections"] =
       draft.performanceTier === "performance" ? 100 : 20;
   }
 
   if (!toggles.s3) {
-    s3Serv.max_connections = 1;
+    s3Serv["max_connections"] = 1;
   } else if (
-    typeof s3Serv.max_connections !== "number" ||
-    s3Serv.max_connections <= 1
+    typeof s3Serv["max_connections"] !== "number" ||
+    s3Serv["max_connections"] <= 1
   ) {
-    s3Serv.max_connections = draft.performanceTier === "performance" ? 100 : 20;
+    s3Serv["max_connections"] = draft.performanceTier === "performance" ? 100 : 20;
   }
 
   return next;
@@ -412,70 +412,70 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
     () =>
       (cfg: ConfigObject | null | undefined): PreviewEntry[] => {
         const source: ConfigObject = cfg ?? {};
-        const db = asRecord(source.database);
-        const sqliteConfig = asRecord(db.sqlite_config);
-        const postgresConfig = asRecord(db.postgres_config);
-        const kv = asRecord(source.fast_kv_storage_hub);
-        const middleware = asRecord(source.middleware);
-        const bruteForce = asRecord(middleware.brute_force);
-        const captcha = asRecord(source.captcha_code);
-        const sftpServ = asRecord(source.file_manager_serv_sftp);
-        const ftpServ = asRecord(source.file_manager_serv_ftp);
-        const s3Serv = asRecord(source.file_manager_serv_s3);
+        const db = asRecord(source["database"]);
+        const sqliteConfig = asRecord(db["sqlite_config"]);
+        const postgresConfig = asRecord(db["postgres_config"]);
+        const kv = asRecord(source["fast_kv_storage_hub"]);
+        const middleware = asRecord(source["middleware"]);
+        const bruteForce = asRecord(middleware["brute_force"]);
+        const captcha = asRecord(source["captcha_code"]);
+        const sftpServ = asRecord(source["file_manager_serv_sftp"]);
+        const ftpServ = asRecord(source["file_manager_serv_ftp"]);
+        const s3Serv = asRecord(source["file_manager_serv_s3"]);
         return [
           {
             label: t("admin.config.quickSettings.performance.preview.dbPool"),
             path: "database.*.max_connections",
-            value: `${displayValue(sqliteConfig.max_connections ?? postgresConfig.max_connections)} / ${displayValue(sqliteConfig.min_connections ?? postgresConfig.min_connections)}`,
+            value: `${displayValue(sqliteConfig["max_connections"] ?? postgresConfig["max_connections"])} / ${displayValue(sqliteConfig["min_connections"] ?? postgresConfig["min_connections"])}`,
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.cacheMemory",
             ),
             path: "fast_kv_storage_hub.dashmap_mem_max_bytes",
-            value: `${Math.round(Number(kv.dashmap_mem_max_bytes ?? 0) / 1024 / 1024 || 0)} MB`,
+            value: `${Math.round(Number(kv["dashmap_mem_max_bytes"] ?? 0) / 1024 / 1024 || 0)} MB`,
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.bruteForceLockout",
             ),
             path: "middleware.brute_force.lockout_secs",
-            value: displayValue(bruteForce.lockout_secs),
+            value: displayValue(bruteForce["lockout_secs"]),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.captchaPreheatPool",
             ),
             path: "captcha_code.graphic_cache_size",
-            value: displayValue(captcha.graphic_cache_size),
+            value: displayValue(captcha["graphic_cache_size"]),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.captchaGenConcurrency",
             ),
             path: "captcha_code.graphic_gen_concurrency",
-            value: `${displayValue(captcha.graphic_gen_concurrency)}/${displayValue(captcha.max_gen_concurrency)}`,
+            value: `${displayValue(captcha["graphic_gen_concurrency"] )}/${displayValue(captcha["max_gen_concurrency"])}`,
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.sftpMaxConnections",
             ),
             path: "file_manager_serv_sftp.max_connections",
-            value: displayValue(sftpServ.max_connections),
+            value: displayValue(sftpServ["max_connections"]),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.ftpMaxConnections",
             ),
             path: "file_manager_serv_ftp.max_connections",
-            value: displayValue(ftpServ.max_connections),
+            value: displayValue(ftpServ["max_connections"]),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.s3MaxConnections",
             ),
             path: "file_manager_serv_s3.max_connections",
-            value: displayValue(s3Serv.max_connections),
+            value: displayValue(s3Serv["max_connections"]),
           },
         ];
       },
@@ -589,176 +589,176 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
 
   const allConfigItems = useMemo(() => {
     const cfg: ConfigObject = parsed.value ?? {};
-    const database = asRecord(cfg.database);
-    const kv = asRecord(cfg.fast_kv_storage_hub);
-    const vfs = asRecord(cfg.vfs_storage_hub);
-    const extensionManager = asRecord(cfg.extension_manager);
-    const plus = asRecord(extensionManager.plus);
-    const captcha = asRecord(cfg.captcha_code);
-    const middleware = asRecord(cfg.middleware);
-    const bruteForce = asRecord(middleware.brute_force);
-    const ipRate = asRecord(middleware.ip_rate_limit);
-    const clientRate = asRecord(middleware.client_id_rate_limit);
-    const userRate = asRecord(middleware.user_id_rate_limit);
-    const sqlite = asRecord(database.sqlite_config);
-    const postgres = asRecord(database.postgres_config);
+    const database = asRecord(cfg["database"]);
+    const kv = asRecord(cfg["fast_kv_storage_hub"]);
+    const vfs = asRecord(cfg["vfs_storage_hub"]);
+    const extensionManager = asRecord(cfg["extension_manager"]);
+    const plus = asRecord(extensionManager["plus"]);
+    const captcha = asRecord(cfg["captcha_code"]);
+    const middleware = asRecord(cfg["middleware"]);
+    const bruteForce = asRecord(middleware["brute_force"]);
+    const ipRate = asRecord(middleware["ip_rate_limit"]);
+    const clientRate = asRecord(middleware["client_id_rate_limit"]);
+    const userRate = asRecord(middleware["user_id_rate_limit"]);
+    const sqlite = asRecord(database["sqlite_config"]);
+    const postgres = asRecord(database["postgres_config"]);
     return [
-      { path: "database.db_type", value: database.db_type },
+      { path: "database.db_type", value: database["db_type"] },
       {
         path: "database.health_check_timeout_seconds",
-        value: database.health_check_timeout_seconds,
+        value: database["health_check_timeout_seconds"],
       },
       {
         path: "database.sqlite_config.max_connections",
-        value: sqlite.max_connections,
+        value: sqlite["max_connections"],
       },
       {
         path: "database.sqlite_config.max_connections_low_memory",
-        value: sqlite.max_connections_low_memory,
+        value: sqlite["max_connections_low_memory"],
       },
       {
         path: "database.sqlite_config.max_connections_throughput",
-        value: sqlite.max_connections_throughput,
+        value: sqlite["max_connections_throughput"],
       },
       {
         path: "database.sqlite_config.min_connections",
-        value: sqlite.min_connections,
+        value: sqlite["min_connections"],
       },
-      { path: "database.sqlite_config.cache_size", value: sqlite.cache_size },
-      { path: "database.sqlite_config.temp_store", value: sqlite.temp_store },
-      { path: "database.sqlite_config.mmap_size", value: sqlite.mmap_size },
+      { path: "database.sqlite_config.cache_size", value: sqlite["cache_size"] },
+      { path: "database.sqlite_config.temp_store", value: sqlite["temp_store"] },
+      { path: "database.sqlite_config.mmap_size", value: sqlite["mmap_size"] },
       {
         path: "database.postgres_config.max_connections",
-        value: postgres.max_connections,
+        value: postgres["max_connections"],
       },
       {
         path: "database.postgres_config.max_connections_low_memory",
-        value: postgres.max_connections_low_memory,
+        value: postgres["max_connections_low_memory"],
       },
       {
         path: "database.postgres_config.max_connections_throughput",
-        value: postgres.max_connections_throughput,
+        value: postgres["max_connections_throughput"],
       },
       {
         path: "database.postgres_config.min_connections",
-        value: postgres.min_connections,
+        value: postgres["min_connections"],
       },
-      { path: "fast_kv_storage_hub.kv_type", value: kv.kv_type },
-      { path: "fast_kv_storage_hub.default_ttl", value: kv.default_ttl },
-      { path: "fast_kv_storage_hub.condition_ttl", value: kv.condition_ttl },
+      { path: "fast_kv_storage_hub.kv_type", value: kv["kv_type"] },
+      { path: "fast_kv_storage_hub.default_ttl", value: kv["default_ttl"] },
+      { path: "fast_kv_storage_hub.condition_ttl", value: kv["condition_ttl"] },
       {
         path: "fast_kv_storage_hub.dashmap_mem_upper_limit_ratio",
-        value: kv.dashmap_mem_upper_limit_ratio,
+        value: kv["dashmap_mem_upper_limit_ratio"],
       },
       {
         path: "fast_kv_storage_hub.dashmap_mem_max_bytes",
-        value: kv.dashmap_mem_max_bytes,
+        value: kv["dashmap_mem_max_bytes"],
       },
       {
         path: "fast_kv_storage_hub.dashmap_mem_max_bytes_low_memory",
-        value: kv.dashmap_mem_max_bytes_low_memory,
+        value: kv["dashmap_mem_max_bytes_low_memory"],
       },
       {
         path: "fast_kv_storage_hub.dashmap_mem_max_bytes_throughput",
-        value: kv.dashmap_mem_max_bytes_throughput,
+        value: kv["dashmap_mem_max_bytes_throughput"],
       },
       {
         path: "internal_notify.unread_count_cache_ttl",
-        value: asRecord(cfg.internal_notify).unread_count_cache_ttl,
+        value: asRecord(cfg["internal_notify"])["unread_count_cache_ttl"],
       },
       {
         path: "internal_notify.retention_days",
-        value: asRecord(cfg.internal_notify).retention_days,
+        value: asRecord(cfg["internal_notify"])["retention_days"],
       },
       {
         path: "system_backup.max_backup_size_mb",
-        value: asRecord(cfg.system_backup).max_backup_size_mb,
+        value: asRecord(cfg["system_backup"])["max_backup_size_mb"],
       },
       {
         path: "middleware.ip_rate_limit.window_secs",
-        value: ipRate.window_secs,
+        value: ipRate["window_secs"],
       },
       {
         path: "middleware.ip_rate_limit.max_requests",
-        value: ipRate.max_requests,
+        value: ipRate["max_requests"],
       },
       {
         path: "middleware.client_id_rate_limit.window_secs",
-        value: clientRate.window_secs,
+        value: clientRate["window_secs"],
       },
       {
         path: "middleware.client_id_rate_limit.max_requests",
-        value: clientRate.max_requests,
+        value: clientRate["max_requests"],
       },
       {
         path: "middleware.client_id_rate_limit.max_cid",
-        value: clientRate.max_cid,
+        value: clientRate["max_cid"],
       },
       {
         path: "middleware.user_id_rate_limit.window_secs",
-        value: userRate.window_secs,
+        value: userRate["window_secs"],
       },
       {
         path: "middleware.user_id_rate_limit.max_requests",
-        value: userRate.max_requests,
+        value: userRate["max_requests"],
       },
       {
         path: "middleware.user_id_rate_limit.max_userid",
-        value: userRate.max_userid,
+        value: userRate["max_userid"],
       },
-      { path: "vfs_storage_hub.enable_s3", value: vfs.enable_s3 },
-      { path: "vfs_storage_hub.enable_sftp", value: vfs.enable_sftp },
-      { path: "vfs_storage_hub.enable_ftp", value: vfs.enable_ftp },
-      { path: "extension_manager.plus.enabled", value: plus.enabled },
-      { path: "extension_manager.plus.capture_logs", value: plus.capture_logs },
+      { path: "vfs_storage_hub.enable_s3", value: vfs["enable_s3"] },
+      { path: "vfs_storage_hub.enable_sftp", value: vfs["enable_sftp"] },
+      { path: "vfs_storage_hub.enable_ftp", value: vfs["enable_ftp"] },
+      { path: "extension_manager.plus.enabled", value: plus["enabled"] },
+      { path: "extension_manager.plus.capture_logs", value: plus["capture_logs"] },
       {
         path: "captcha_code.graphic_cache_size",
-        value: captcha.graphic_cache_size,
+        value: captcha["graphic_cache_size"],
       },
       {
         path: "captcha_code.graphic_gen_concurrency",
-        value: captcha.graphic_gen_concurrency,
+        value: captcha["graphic_gen_concurrency"],
       },
       {
         path: "captcha_code.max_gen_concurrency",
-        value: captcha.max_gen_concurrency,
+        value: captcha["max_gen_concurrency"],
       },
-      { path: "middleware.brute_force.enabled", value: bruteForce.enabled },
+      { path: "middleware.brute_force.enabled", value: bruteForce["enabled"] },
       {
         path: "middleware.brute_force.max_failures_per_user_ip",
-        value: bruteForce.max_failures_per_user_ip,
+        value: bruteForce["max_failures_per_user_ip"],
       },
       {
         path: "middleware.brute_force.max_failures_per_ip_global",
-        value: bruteForce.max_failures_per_ip_global,
+        value: bruteForce["max_failures_per_ip_global"],
       },
       {
         path: "middleware.brute_force.lockout_secs",
-        value: bruteForce.lockout_secs,
+        value: bruteForce["lockout_secs"],
       },
       {
         path: "middleware.brute_force.enable_exponential_backoff",
-        value: bruteForce.enable_exponential_backoff,
+        value: bruteForce["enable_exponential_backoff"],
       },
       {
         path: "memory_allocator.policy",
-        value: asRecord(cfg.memory_allocator).policy,
+        value: asRecord(cfg["memory_allocator"])["policy"],
       },
       {
         path: "safeaccess_guard.bloom_filter_capacity",
-        value: asRecord(cfg.safeaccess_guard).bloom_filter_capacity,
+        value: asRecord(cfg["safeaccess_guard"])["bloom_filter_capacity"],
       },
       {
         path: "file_manager_serv_sftp.max_connections",
-        value: asRecord(cfg.file_manager_serv_sftp).max_connections,
+        value: asRecord(cfg["file_manager_serv_sftp"])["max_connections"],
       },
       {
         path: "file_manager_serv_ftp.max_connections",
-        value: asRecord(cfg.file_manager_serv_ftp).max_connections,
+        value: asRecord(cfg["file_manager_serv_ftp"])["max_connections"],
       },
       {
         path: "file_manager_serv_s3.max_connections",
-        value: asRecord(cfg.file_manager_serv_s3).max_connections,
+        value: asRecord(cfg["file_manager_serv_s3"])["max_connections"],
       },
     ].filter((item): item is ConfigItem => item.value !== undefined);
   }, [parsed.value]);

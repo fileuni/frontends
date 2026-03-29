@@ -94,35 +94,35 @@ export const defaultArchiveSection: ArchiveSectionDraft = {
 };
 
 const readCacheSection = (hub: Record<string, unknown>): CacheSectionDraft => {
-  const readCache = isRecord(hub.read_cache) ? hub.read_cache : {};
-  const writeCache = isRecord(hub.write_cache) ? hub.write_cache : {};
+  const readCache = isRecord(hub["read_cache"]) ? hub["read_cache"] : {};
+  const writeCache = isRecord(hub["write_cache"]) ? hub["write_cache"] : {};
   return {
-    readEnable: typeof readCache.enable === 'boolean' ? readCache.enable : defaultCacheSection.readEnable,
-    readBackend: readCache.backend === 'local_dir' ? 'local_dir' : defaultCacheSection.readBackend,
-    readLocalDir: typeof readCache.local_dir === 'string' ? readCache.local_dir : defaultCacheSection.readLocalDir,
-    readCapacityBytes: String(readCache.capacity_bytes ?? defaultCacheSection.readCapacityBytes),
-    readMaxFileSizeBytes: String(readCache.max_file_size_bytes ?? defaultCacheSection.readMaxFileSizeBytes),
-    readTtlSecs: String(readCache.ttl_secs ?? defaultCacheSection.readTtlSecs),
-    writeEnable: typeof writeCache.enable === 'boolean' ? writeCache.enable : defaultCacheSection.writeEnable,
-    writeBackend: writeCache.backend === 'memory' ? 'memory' : defaultCacheSection.writeBackend,
-    writeLocalDir: typeof writeCache.local_dir === 'string' ? writeCache.local_dir : defaultCacheSection.writeLocalDir,
-    writeCapacityBytes: String(writeCache.capacity_bytes ?? defaultCacheSection.writeCapacityBytes),
-    writeMaxFileSizeBytes: String(writeCache.max_file_size_bytes ?? defaultCacheSection.writeMaxFileSizeBytes),
-    writeFlushConcurrency: String(writeCache.flush_concurrency ?? defaultCacheSection.writeFlushConcurrency),
-    writeFlushIntervalMs: String(writeCache.flush_interval_ms ?? defaultCacheSection.writeFlushIntervalMs),
-    writeFlushDeadlineSecs: String(writeCache.flush_deadline_secs ?? defaultCacheSection.writeFlushDeadlineSecs),
+    readEnable: typeof readCache["enable"] === 'boolean' ? readCache["enable"] : defaultCacheSection.readEnable,
+    readBackend: readCache["backend"] === 'local_dir' ? 'local_dir' : defaultCacheSection.readBackend,
+    readLocalDir: typeof readCache["local_dir"] === 'string' ? readCache["local_dir"] : defaultCacheSection.readLocalDir,
+    readCapacityBytes: String(readCache["capacity_bytes"] ?? defaultCacheSection.readCapacityBytes),
+    readMaxFileSizeBytes: String(readCache["max_file_size_bytes"] ?? defaultCacheSection.readMaxFileSizeBytes),
+    readTtlSecs: String(readCache["ttl_secs"] ?? defaultCacheSection.readTtlSecs),
+    writeEnable: typeof writeCache["enable"] === 'boolean' ? writeCache["enable"] : defaultCacheSection.writeEnable,
+    writeBackend: writeCache["backend"] === 'memory' ? 'memory' : defaultCacheSection.writeBackend,
+    writeLocalDir: typeof writeCache["local_dir"] === 'string' ? writeCache["local_dir"] : defaultCacheSection.writeLocalDir,
+    writeCapacityBytes: String(writeCache["capacity_bytes"] ?? defaultCacheSection.writeCapacityBytes),
+    writeMaxFileSizeBytes: String(writeCache["max_file_size_bytes"] ?? defaultCacheSection.writeMaxFileSizeBytes),
+    writeFlushConcurrency: String(writeCache["flush_concurrency"] ?? defaultCacheSection.writeFlushConcurrency),
+    writeFlushIntervalMs: String(writeCache["flush_interval_ms"] ?? defaultCacheSection.writeFlushIntervalMs),
+    writeFlushDeadlineSecs: String(writeCache["flush_deadline_secs"] ?? defaultCacheSection.writeFlushDeadlineSecs),
   };
 };
 
 const readArchiveSection = (hub: Record<string, unknown>): ArchiveSectionDraft => {
-  const fileCompress = isRecord(hub.file_compress) ? hub.file_compress : {};
+  const fileCompress = isRecord(hub["file_compress"]) ? hub["file_compress"] : {};
   return {
-    enable: typeof fileCompress.enable === 'boolean' ? fileCompress.enable : defaultArchiveSection.enable,
-    exe7zipPath: typeof fileCompress.exe_7zip_path === 'string' ? fileCompress.exe_7zip_path : defaultArchiveSection.exe7zipPath,
-    defaultCompressionFormat: typeof fileCompress.default_compression_format === 'string' ? fileCompress.default_compression_format : defaultArchiveSection.defaultCompressionFormat,
-    maxConcurrency: String(fileCompress.process_manager_max_concurrency ?? defaultArchiveSection.maxConcurrency),
-    maxCpuThreads: String(fileCompress.max_cpu_threads ?? defaultArchiveSection.maxCpuThreads),
-    timeoutSecs: String(fileCompress.timeout_secs ?? defaultArchiveSection.timeoutSecs),
+    enable: typeof fileCompress["enable"] === 'boolean' ? fileCompress["enable"] : defaultArchiveSection.enable,
+    exe7zipPath: typeof fileCompress["exe_7zip_path"] === 'string' ? fileCompress["exe_7zip_path"] : defaultArchiveSection.exe7zipPath,
+    defaultCompressionFormat: typeof fileCompress["default_compression_format"] === 'string' ? fileCompress["default_compression_format"] : defaultArchiveSection.defaultCompressionFormat,
+    maxConcurrency: String(fileCompress["process_manager_max_concurrency"] ?? defaultArchiveSection.maxConcurrency),
+    maxCpuThreads: String(fileCompress["max_cpu_threads"] ?? defaultArchiveSection.maxCpuThreads),
+    timeoutSecs: String(fileCompress["timeout_secs"] ?? defaultArchiveSection.timeoutSecs),
   };
 };
 
@@ -213,28 +213,28 @@ export const parseVfsStorageDraftFromContent = (
       return { ...buildDefaultVfsStorageState(), error: 'TOML root must be an object' };
     }
 
-    const vfsHub = isRecord(parsed.vfs_storage_hub) ? parsed.vfs_storage_hub : {};
-    const connectorsRaw = vfsHub.connectors;
-    const poolsRaw = vfsHub.pools;
-    const policiesRaw = vfsHub.policies;
-    const defaultPoolRaw = vfsHub.default_pool;
+    const vfsHub = isRecord(parsed["vfs_storage_hub"]) ? parsed["vfs_storage_hub"] : {};
+    const connectorsRaw = vfsHub["connectors"];
+    const poolsRaw = vfsHub["pools"];
+    const policiesRaw = vfsHub["policies"];
+    const defaultPoolRaw = vfsHub["default_pool"];
     const defaults = buildLocalDefaults();
 
     const connectors: ConnectorDraft[] = Array.isArray(connectorsRaw)
       ? connectorsRaw
         .filter(isRecord)
         .map((connector) => {
-          const driver = typeof connector.driver === 'string' && isVfsDriver(connector.driver)
-            ? connector.driver
+          const driver = typeof connector["driver"] === 'string' && isVfsDriver(connector["driver"])
+            ? connector["driver"]
             : 'fs';
-          const rawRoot = typeof connector.root === 'string' ? connector.root : '';
+          const rawRoot = typeof connector["root"] === 'string' ? connector["root"] : '';
           return {
             id: makeId('connector'),
-            name: typeof connector.name === 'string' ? connector.name : '',
+            name: typeof connector["name"] === 'string' ? connector["name"] : '',
             driver,
             root: driverUsesSlashRoot(driver) && rawRoot.trim().length === 0 ? '/' : rawRoot,
-            enable: typeof connector.enable === 'boolean' ? connector.enable : true,
-            options: normalizeOptionsForDriver(driver, kvFromOptions(connector.options)),
+            enable: typeof connector["enable"] === 'boolean' ? connector["enable"] : true,
+            options: normalizeOptionsForDriver(driver, kvFromOptions(connector["options"])),
           };
         })
       : [];
@@ -244,12 +244,12 @@ export const parseVfsStorageDraftFromContent = (
         .filter(isRecord)
         .map((pool) => ({
           id: makeId('pool'),
-          name: typeof pool.name === 'string' ? pool.name : '',
-          primary_connector: typeof pool.primary_connector === 'string' ? pool.primary_connector : '',
-          backup_connector: typeof pool.backup_connector === 'string' ? pool.backup_connector : '',
-          enable_write_cache: typeof pool.enable_write_cache === 'boolean' ? pool.enable_write_cache : false,
-          enable: typeof pool.enable === 'boolean' ? pool.enable : true,
-          options: kvFromOptions(pool.options),
+          name: typeof pool["name"] === 'string' ? pool["name"] : '',
+          primary_connector: typeof pool["primary_connector"] === 'string' ? pool["primary_connector"] : '',
+          backup_connector: typeof pool["backup_connector"] === 'string' ? pool["backup_connector"] : '',
+          enable_write_cache: typeof pool["enable_write_cache"] === 'boolean' ? pool["enable_write_cache"] : false,
+          enable: typeof pool["enable"] === 'boolean' ? pool["enable"] : true,
+          options: kvFromOptions(pool["options"]),
         }))
       : [];
 
@@ -258,12 +258,12 @@ export const parseVfsStorageDraftFromContent = (
         .filter(isRecord)
         .map((policy) => ({
           id: makeId('policy'),
-          role_id: typeof policy.role_id === 'string' ? policy.role_id : '',
-          pool_name: typeof policy.pool_name === 'string' ? policy.pool_name : '',
-          default_quota: typeof policy.default_quota === 'number' ? String(policy.default_quota) : '',
-          max_private_mounts: typeof policy.max_private_mounts === 'number' ? String(policy.max_private_mounts) : '',
-          min_mount_sync_interval_minutes: typeof policy.min_mount_sync_interval_minutes === 'number' ? String(policy.min_mount_sync_interval_minutes) : '',
-          max_mount_sync_timeout_secs: typeof policy.max_mount_sync_timeout_secs === 'number' ? String(policy.max_mount_sync_timeout_secs) : '',
+          role_id: typeof policy["role_id"] === 'string' ? policy["role_id"] : '',
+          pool_name: typeof policy["pool_name"] === 'string' ? policy["pool_name"] : '',
+          default_quota: typeof policy["default_quota"] === 'number' ? String(policy["default_quota"]) : '',
+          max_private_mounts: typeof policy["max_private_mounts"] === 'number' ? String(policy["max_private_mounts"]) : '',
+          min_mount_sync_interval_minutes: typeof policy["min_mount_sync_interval_minutes"] === 'number' ? String(policy["min_mount_sync_interval_minutes"]) : '',
+          max_mount_sync_timeout_secs: typeof policy["max_mount_sync_timeout_secs"] === 'number' ? String(policy["max_mount_sync_timeout_secs"]) : '',
         }))
       : [];
 
@@ -391,7 +391,7 @@ export const applyVfsDraftToContent = ({
     const nextConfig = deepClone(parsed);
     const vfsHub = ensureRecord(nextConfig, 'vfs_storage_hub');
 
-    vfsHub.connectors = connectors.map((connector) => ({
+    vfsHub["connectors"] = connectors.map((connector) => ({
       name: connector.name.trim(),
       driver: connector.driver,
       root: connector.root.trim(),
@@ -399,7 +399,7 @@ export const applyVfsDraftToContent = ({
       options: kvToOptions(connector.options),
     }));
 
-    vfsHub.pools = pools.map((pool) => {
+    vfsHub["pools"] = pools.map((pool) => {
       const nextPool: ConfigObject = {
         name: pool.name.trim(),
         primary_connector: pool.primary_connector.trim(),
@@ -408,13 +408,13 @@ export const applyVfsDraftToContent = ({
         options: kvToOptions(pool.options),
       };
       if (pool.backup_connector.trim().length > 0) {
-        nextPool.backup_connector = pool.backup_connector.trim();
+        nextPool["backup_connector"] = pool.backup_connector.trim();
       }
       return nextPool;
     });
 
-    vfsHub.default_pool = defaultPool.trim();
-    vfsHub.policies = policies.map((policy) => ({
+    vfsHub["default_pool"] = defaultPool.trim();
+    vfsHub["policies"] = policies.map((policy) => ({
       role_id: policy.role_id.trim(),
       pool_name: policy.pool_name.trim(),
       default_quota: Number.parseInt(policy.default_quota.trim(), 10),
@@ -424,30 +424,30 @@ export const applyVfsDraftToContent = ({
     }));
 
     const readCache = ensureRecord(vfsHub, 'read_cache');
-    readCache.enable = cacheSection.readEnable;
-    readCache.backend = cacheSection.readBackend;
-    readCache.local_dir = cacheSection.readLocalDir;
-    readCache.capacity_bytes = Number.parseInt(cacheSection.readCapacityBytes, 10) || 134217728;
-    readCache.max_file_size_bytes = Number.parseInt(cacheSection.readMaxFileSizeBytes, 10) || 2097152;
-    readCache.ttl_secs = Number.parseInt(cacheSection.readTtlSecs, 10) || 1800;
+    readCache["enable"] = cacheSection.readEnable;
+    readCache["backend"] = cacheSection.readBackend;
+    readCache["local_dir"] = cacheSection.readLocalDir;
+    readCache["capacity_bytes"] = Number.parseInt(cacheSection.readCapacityBytes, 10) || 134217728;
+    readCache["max_file_size_bytes"] = Number.parseInt(cacheSection.readMaxFileSizeBytes, 10) || 2097152;
+    readCache["ttl_secs"] = Number.parseInt(cacheSection.readTtlSecs, 10) || 1800;
 
     const writeCache = ensureRecord(vfsHub, 'write_cache');
-    writeCache.enable = cacheSection.writeEnable;
-    writeCache.backend = cacheSection.writeBackend;
-    writeCache.local_dir = cacheSection.writeLocalDir;
-    writeCache.capacity_bytes = Number.parseInt(cacheSection.writeCapacityBytes, 10) || 100663296;
-    writeCache.max_file_size_bytes = Number.parseInt(cacheSection.writeMaxFileSizeBytes, 10) || 262144;
-    writeCache.flush_concurrency = Number.parseInt(cacheSection.writeFlushConcurrency, 10) || 2;
-    writeCache.flush_interval_ms = Number.parseInt(cacheSection.writeFlushIntervalMs, 10) || 30;
-    writeCache.flush_deadline_secs = Number.parseInt(cacheSection.writeFlushDeadlineSecs, 10) || 360;
+    writeCache["enable"] = cacheSection.writeEnable;
+    writeCache["backend"] = cacheSection.writeBackend;
+    writeCache["local_dir"] = cacheSection.writeLocalDir;
+    writeCache["capacity_bytes"] = Number.parseInt(cacheSection.writeCapacityBytes, 10) || 100663296;
+    writeCache["max_file_size_bytes"] = Number.parseInt(cacheSection.writeMaxFileSizeBytes, 10) || 262144;
+    writeCache["flush_concurrency"] = Number.parseInt(cacheSection.writeFlushConcurrency, 10) || 2;
+    writeCache["flush_interval_ms"] = Number.parseInt(cacheSection.writeFlushIntervalMs, 10) || 30;
+    writeCache["flush_deadline_secs"] = Number.parseInt(cacheSection.writeFlushDeadlineSecs, 10) || 360;
 
     const fileCompress = ensureRecord(vfsHub, 'file_compress');
-    fileCompress.enable = archiveSection.enable;
-    fileCompress.exe_7zip_path = archiveSection.exe7zipPath;
-    fileCompress.default_compression_format = archiveSection.defaultCompressionFormat;
-    fileCompress.process_manager_max_concurrency = Number.parseInt(archiveSection.maxConcurrency, 10) || 2;
-    fileCompress.max_cpu_threads = Number.parseInt(archiveSection.maxCpuThreads, 10) || 2;
-    fileCompress.timeout_secs = Number.parseInt(archiveSection.timeoutSecs, 10) || 300;
+    fileCompress["enable"] = archiveSection.enable;
+    fileCompress["exe_7zip_path"] = archiveSection.exe7zipPath;
+    fileCompress["default_compression_format"] = archiveSection.defaultCompressionFormat;
+    fileCompress["process_manager_max_concurrency"] = Number.parseInt(archiveSection.maxConcurrency, 10) || 2;
+    fileCompress["max_cpu_threads"] = Number.parseInt(archiveSection.maxCpuThreads, 10) || 2;
+    fileCompress["timeout_secs"] = Number.parseInt(archiveSection.timeoutSecs, 10) || 300;
 
     return { ok: true, content: tomlAdapter.stringify(nextConfig) };
   } catch (error) {
