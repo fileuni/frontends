@@ -1,4 +1,3 @@
-import type { MutableRefObject } from 'react';
 import { client } from '@/lib/api.ts';
 
 export const TEXT_EDITOR_AUTO_SAVE = {
@@ -17,6 +16,7 @@ export const OFFICE_EDITOR_AUTO_SAVE = {
 
 type SaveReason = 'manual' | 'auto';
 type ToastFn = (message: string, type: 'success' | 'error') => void;
+type NumberRef = { current: number };
 
 const getRecordMessage = (value: unknown): string | null => {
   if (typeof value !== 'object' || value === null) {
@@ -76,7 +76,7 @@ export const notifyEditorSaveError = ({
   error: unknown;
   fallbackMessage: string;
   addToast: ToastFn;
-  lastAutoSaveErrorAtRef: MutableRefObject<number>;
+  lastAutoSaveErrorAtRef: NumberRef;
   cooldownMs: number;
 }): void => {
   const message = getErrorMessage(error, fallbackMessage);
