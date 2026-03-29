@@ -70,7 +70,7 @@ export const SystemBackupAdmin: React.FC = () => {
         if (error) {
             addToast(t("admin.saveError") + ": " + JSON.stringify(error), "error");
         } else {
-            addToast(t("admin.backup.localSuccess", { path: data?.data }), "success");
+            addToast(t("admin.backup.localSuccess", { path: data?.['data'] }), "success");
         }
     } catch (e: unknown) {
         addToast(t("admin.saveError") + ": " + getErrorMessage(e), "error");

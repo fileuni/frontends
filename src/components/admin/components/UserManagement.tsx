@@ -87,8 +87,8 @@ export const UserManagement = () => {
 
       if (typeof data === 'object' && data !== null) {
         const rec = data as Record<string, unknown>;
-        const usersRaw = rec.users;
-        const totalRaw = rec.total;
+        const usersRaw = rec['users'];
+        const totalRaw = rec['total'];
         if (Array.isArray(usersRaw)) {
           setUsers(usersRaw as UserResponse[]);
           setTotal(typeof totalRaw === 'number' ? totalRaw : usersRaw.length);

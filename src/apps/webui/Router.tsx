@@ -334,7 +334,7 @@ const PageRenderer: React.FC<{
       case "user-edit":
         return (
           <DashboardLayout title={t("pages.admin.userEdit.title")}>
-            <AdminUserEditView {...(params.id ? { userId: params.id } : {})} />
+            <AdminUserEditView {...(params['id'] ? { userId: params['id'] } : {})} />
           </DashboardLayout>
         );
       case "config":
@@ -423,7 +423,7 @@ const PageRenderer: React.FC<{
 
   // File Manager module
   if (mod === "file-manager") {
-    if (page === "share") return <PublicShareView token={params.token || ""} />;
+    if (page === "share") return <PublicShareView token={params['token'] || ""} />;
 
     const layoutTitle =
       page === "shares"
@@ -444,7 +444,7 @@ const PageRenderer: React.FC<{
   // Chat module
   if (mod === "chat") {
     if (page === "guest") {
-      return <ChatGuestView {...(params.invite ? { inviteCode: params.invite } : {})} />;
+      return <ChatGuestView {...(params['invite'] ? { inviteCode: params['invite'] } : {})} />;
     }
     if (!hasPermission("feature.chat.use")) {
       return (

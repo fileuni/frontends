@@ -36,7 +36,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const { params, navigate } = useNavigationStore();
-  const token = propToken || params.token || params.id || '';
+  const token = propToken || params['token'] || params['id'] || '';
   
   const [loading, setLoading] = useState(true);
   const [shareInfo, setShareInfo] = useState<ShareInfoWithMetrics | null>(null);
@@ -46,7 +46,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
   const [showQr, setShowQr] = useState(false);
   const [mounted, setMounted] = useState(false);
   
-  const currentPath = params.sub_path || '/';
+  const currentPath = params['sub_path'] || '/';
   const [contents, setContents] = useState<ShareEntry[]>([]);
   const [listLoading, setContentLoading] = useState(false);
 

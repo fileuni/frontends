@@ -45,8 +45,8 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
       const { data } = await client.GET('/api/v1/file/integration/apps', {
         params: { query: { ext } }
       });
-      if (data?.data) {
-        let nextApps = data.data as AppInfo[];
+      if (data?.['data']) {
+        let nextApps = data['data'] as AppInfo[];
         if (isOffice) {
           nextApps = nextApps.filter(app => app.id !== 'internal');
           if (!nextApps.some(app => app.id === 'office-lite')) {
@@ -110,8 +110,8 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
             const { data } = await client.GET('/api/v1/file/integration/wopi/open', {
                 params: { query: { path: file.path, mode: 'edit' } }
             });
-            if (data?.success && data.data) {
-              const resData = data.data as unknown as { url: string };
+            if (data?.['success'] && data['data']) {
+              const resData = data['data'] as unknown as { url: string };
               if (resData.url) {
                   window.open(resData.url, '_blank');
               }

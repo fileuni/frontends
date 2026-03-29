@@ -86,33 +86,33 @@ export function useFileActions() {
       };
 
       if (sortConfig.field) {
-        query.sort_by = sortConfig.field;
-        query.order = sortConfig.order;
+        query['sort_by'] = sortConfig.field;
+        query['order'] = sortConfig.order;
       }
 
       const keyword = searchKeyword.trim();
       if (isSearchMode && keyword) {
-        query.keyword = keyword;
+        query['keyword'] = keyword;
       }
 
       if (activeMode === 'files' && isSearchMode && keyword) {
         endpoint = "/api/v1/file/search";
-        query.path = path;
-        delete query.check_share;
+        query['path'] = path;
+        delete query['check_share'];
       }
 
       if (activeMode === 'favorites') {
         endpoint = "/api/v1/file/favorites/list";
-        if (favoriteFilterColor !== null) query.color = favoriteFilterColor ?? null;
+        if (favoriteFilterColor !== null) query['color'] = favoriteFilterColor ?? null;
       } else if (activeMode === 'trash') {
         endpoint = "/api/v1/file/recycle-bin/list";
-        delete query.path;
+        delete query['path'];
       } else if (activeMode === 'shares') {
         endpoint = "/api/v1/file/shares/my";
-        delete query.path;
+        delete query['path'];
         const shareFilter = store.getShareFilter();
-        if (shareFilter.hasPassword !== null) query.has_password = shareFilter.hasPassword ?? null;
-        if (shareFilter.enableDirect !== null) query.enable_direct = shareFilter.enableDirect ?? null;
+        if (shareFilter.hasPassword !== null) query['has_password'] = shareFilter.hasPassword ?? null;
+        if (shareFilter.enableDirect !== null) query['enable_direct'] = shareFilter.enableDirect ?? null;
       }
 
       const result = await extractData<FileInfo[] | FileListResponse>(
@@ -162,7 +162,7 @@ export function useFileActions() {
         const { data } = await client.POST("/api/v1/file/favorites/set-color", {
           body: { path, color }
         });
-        if (data?.success) {
+        if (data?.['success']) {
           updateFile(path, { favorite_color: color });
           
           // If in favorites mode and unfavoriting, remove item after animation
@@ -279,7 +279,7 @@ export function useFileActions() {
         const { data } = await client.DELETE("/api/v1/file/delete", {
           body: { path: paths[0] }
         });
-        if (data?.success) {
+        if (data?.['success']) {
           removeFiles(paths);
           loadStorageStats();
         }
@@ -287,8 +287,8 @@ export function useFileActions() {
         const { data } = await client.POST("/api/v1/file/batch-delete", {
           body: { paths }
         });
-        if (data?.success) {
-          const taskId = extractTaskId(data.data);
+        if (data?.['success']) {
+          const taskId = extractTaskId(data['data']);
           if (taskId) {
             store.addTask({
               id: taskId,
@@ -322,8 +322,8 @@ export function useFileActions() {
         body: { paths, target_path: targetDir }
       });
       const expectedPaths = paths.map(p => `${targetDir}/${p.split('/').pop()}`.replace(/\/+/g, '/'));
-      if (data?.success) {
-        const taskId = extractTaskId(data.data);
+      if (data?.['success']) {
+        const taskId = extractTaskId(data['data']);
         if (taskId) {
           store.addTask({
             id: taskId,
@@ -358,8 +358,8 @@ export function useFileActions() {
         body: { paths, target_path: targetDir }
       });
       const expectedPaths = paths.map(p => `${targetDir}/${p.split('/').pop()}`.replace(/\/+/g, '/'));
-      if (data?.success) {
-        const taskId = extractTaskId(data.data);
+      if (data?.['success']) {
+        const taskId = extractTaskId(data['data']);
         if (taskId) {
           store.addTask({
             id: taskId,
@@ -386,8 +386,8 @@ export function useFileActions() {
         body: { paths, format: 'zip', target_name: targetName }
       });
       const expectedPath = `${currentPath}/${targetName}`.replace(/\/+/g, '/');
-      if (data?.success) {
-        const taskId = extractTaskId(data.data);
+      if (data?.['success']) {
+        const taskId = extractTaskId(data['data']);
         if (taskId) {
           store.addTask({
             id: taskId,
@@ -417,7 +417,7 @@ export function useFileActions() {
         body: { old_path: oldPath, new_path: newPath }
       });
       if (error) throw error;
-      if (data?.success) {
+      if (data?.['success']) {
         updateFile(oldPath, { name: newName, path: newPath });
         // Ensure it's highlighted after rename
         store.setHighlightedPath(newPath);
@@ -486,7 +486,7 @@ export function useFileActions() {
     if (!confirm(t('filemanager.messages.confirmClearShares') || "Are you sure you want to cancel all your shares?")) return;
     try {
       const { data } = await client.POST("/api/v1/file/shares/clear-all", {});
-      if (data?.success) {
+      if (data?.['success']) {
         setFiles([]);
         addToast(t('filemanager.messages.deleted'), "success");
       }
@@ -497,7 +497,7 @@ export function useFileActions() {
     if (!confirm(t('filemanager.messages.confirmClearFavorites') || "Are you sure you want to remove all favorites?")) return;
     try {
       const { data } = await client.POST("/api/v1/file/favorites/clear-all", {});
-      if (data?.success) {
+      if (data?.['success']) {
         setFiles([]);
         addToast(t('filemanager.messages.favoriteRemoved'), "success");
       }
@@ -511,7 +511,7 @@ export function useFileActions() {
     try {
       const body = path ? { path } : {};
       const { data } = await client.POST("/api/v1/file/thumbnail/clear", { body });
-      if (data?.success) {
+      if (data?.['success']) {
         addToast(t('filemanager.thumbnail.cleared') || 'Thumbnail cache cleared', "success");
       }
     } catch (e) { console.error(e); }
@@ -521,7 +521,7 @@ export function useFileActions() {
     if (!confirm(t('filemanager.thumbnail.confirmClearAllUsers') || 'Clear all users thumbnail cache?')) return;
     try {
       const { data } = await client.POST("/api/v1/file/admin/thumbnail/clear-all", {});
-      if (data?.success) {
+      if (data?.['success']) {
         addToast(t('filemanager.thumbnail.cleared') || 'Thumbnail cache cleared', "success");
       }
     } catch (e) { console.error(e); }
@@ -533,7 +533,7 @@ export function useFileActions() {
     if (!confirm(t(confirmKey) || defaultMsg)) return;
     try {
       const { data } = await client.POST("/api/v1/file/thumbnail/disable", { body: { path, disabled } });
-      if (data?.success) {
+      if (data?.['success']) {
         addToast(disabled ? (t('filemanager.thumbnail.disabled') || 'Thumbnails disabled') : (t('filemanager.thumbnail.enabled') || 'Thumbnails enabled'), "success");
       }
     } catch (e) { console.error(e); }
@@ -546,8 +546,8 @@ export function useFileActions() {
       const { data } = await client.POST("/api/v1/file/decompress", { 
         body: { archive_path: path, target_path: targetPath || currentPath } 
       });
-      if (data?.success) {
-        const taskId = extractTaskId(data.data);
+      if (data?.['success']) {
+        const taskId = extractTaskId(data['data']);
         if (taskId) {
           store.addTask({
             id: taskId,
@@ -606,7 +606,7 @@ export function useFileActions() {
       const { data } = await client.DELETE("/api/v1/file/shares/{id}", {
         params: { path: { id: shareId } }
       });
-      if (data?.success) {
+      if (data?.['success']) {
         store.setFiles(store.files.filter(f => f.id !== shareId));
         addToast(t('filemanager.messages.deleted'), "success");
       }

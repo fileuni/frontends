@@ -39,8 +39,8 @@ export const NextcloudLoginView: React.FC = () => {
   const { params, navigate } = useNavigationStore();
   const { usersMap } = useAuthStore();
 
-  const mode = params.mode === 'v2' ? 'v2' : 'legacy';
-  const token = params.token || '';
+  const mode = params['mode'] === 'v2' ? 'v2' : 'legacy';
+  const token = params['token'] || '';
 
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');

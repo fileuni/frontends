@@ -144,87 +144,87 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isAdminStorageStats = (value: unknown): value is AdminStorageStats => {
   if (!isRecord(value)) return false;
   return (
-    typeof value.total_users === 'number' &&
-    typeof value.total_used === 'number' &&
-    typeof value.total_quota === 'number'
+    typeof value['total_users'] === 'number' &&
+    typeof value['total_used'] === 'number' &&
+    typeof value['total_quota'] === 'number'
   );
 };
 
 const isMaintenanceStatus = (value: unknown): value is MaintenanceStatus => {
   if (!isRecord(value)) return false;
   return (
-    typeof value.is_global_maintenance === 'boolean' &&
-    Array.isArray(value.locked_users) &&
-    value.locked_users.every((item) => typeof item === 'string')
+    typeof value['is_global_maintenance'] === 'boolean' &&
+    Array.isArray(value['locked_users']) &&
+    value['locked_users'].every((item) => typeof item === 'string')
   );
 };
 
 const isWalIssueEntry = (value: unknown): value is WalIssueEntry => {
   if (!isRecord(value)) return false;
   return (
-    typeof value.id === 'number' &&
-    typeof value.user_id === 'string' &&
-    typeof value.operation_type === 'string' &&
-    typeof value.operation_data === 'string' &&
-    typeof value.status === 'string' &&
-    typeof value.created_at === 'string' &&
-    typeof value.updated_at === 'string'
+    typeof value['id'] === 'number' &&
+    typeof value['user_id'] === 'string' &&
+    typeof value['operation_type'] === 'string' &&
+    typeof value['operation_data'] === 'string' &&
+    typeof value['status'] === 'string' &&
+    typeof value['created_at'] === 'string' &&
+    typeof value['updated_at'] === 'string'
   );
 };
 
 const isWalIssueListResponse = (value: unknown): value is WalIssueListResponse => {
   if (!isRecord(value)) return false;
   return (
-    Array.isArray(value.items) &&
-    value.items.every(isWalIssueEntry) &&
-    typeof value.total === 'number' &&
-    typeof value.page === 'number' &&
-    typeof value.page_size === 'number' &&
-    typeof value.scope === 'string' &&
-    typeof value.status === 'string'
+    Array.isArray(value['items']) &&
+    value['items'].every(isWalIssueEntry) &&
+    typeof value['total'] === 'number' &&
+    typeof value['page'] === 'number' &&
+    typeof value['page_size'] === 'number' &&
+    typeof value['scope'] === 'string' &&
+    typeof value['status'] === 'string'
   );
 };
 
 const isWalIssueBatchActionResponse = (value: unknown): value is WalIssueBatchActionResponse => {
   if (!isRecord(value)) return false;
   return (
-    typeof value.total === 'number' &&
-    typeof value.succeeded === 'number' &&
-    typeof value.failed === 'number' &&
-    Array.isArray(value.items)
+    typeof value['total'] === 'number' &&
+    typeof value['succeeded'] === 'number' &&
+    typeof value['failed'] === 'number' &&
+    Array.isArray(value['items'])
   );
 };
 
 const isWalPathDiagnostic = (value: unknown): value is WalPathDiagnostic => {
   if (!isRecord(value)) return false;
   return (
-    typeof value.role === 'string' &&
-    typeof value.logical_path === 'string' &&
-    typeof value.physical_path === 'string' &&
-    isRecord(value.physical) &&
-    isRecord(value.index) &&
-    Array.isArray(value.mismatch_flags)
+    typeof value['role'] === 'string' &&
+    typeof value['logical_path'] === 'string' &&
+    typeof value['physical_path'] === 'string' &&
+    isRecord(value['physical']) &&
+    isRecord(value['index']) &&
+    Array.isArray(value['mismatch_flags'])
   );
 };
 
 const isWalIssueDiagnosticsResponse = (value: unknown): value is WalIssueDiagnosticsResponse => {
   if (!isRecord(value)) return false;
   return (
-    isWalIssueEntry(value.issue) &&
-    Array.isArray(value.diagnostics) &&
-    value.diagnostics.every(isWalPathDiagnostic) &&
-    Array.isArray(value.recommended_actions)
+    isWalIssueEntry(value['issue']) &&
+    Array.isArray(value['diagnostics']) &&
+    value['diagnostics'].every(isWalPathDiagnostic) &&
+    Array.isArray(value['recommended_actions'])
   );
 };
 
 const summarizeWalOperation = (raw: string) => {
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
-    if (typeof parsed.path === 'string' && typeof parsed.trash_path === 'string') return `${parsed.path} -> ${parsed.trash_path}`;
-    if (typeof parsed.trash_path === 'string' && typeof parsed.original_path === 'string') return `${parsed.trash_path} -> ${parsed.original_path}`;
-    if (typeof parsed.src === 'string' && typeof parsed.dst === 'string') return `${parsed.src} -> ${parsed.dst}`;
-    if (typeof parsed.old_path === 'string' && typeof parsed.new_path === 'string') return `${parsed.old_path} -> ${parsed.new_path}`;
-    if (typeof parsed.path === 'string') return parsed.path;
+    if (typeof parsed['path'] === 'string' && typeof parsed['trash_path'] === 'string') return `${parsed['path']} -> ${parsed['trash_path']}`;
+    if (typeof parsed['trash_path'] === 'string' && typeof parsed['original_path'] === 'string') return `${parsed['trash_path']} -> ${parsed['original_path']}`;
+    if (typeof parsed['src'] === 'string' && typeof parsed['dst'] === 'string') return `${parsed['src']} -> ${parsed['dst']}`;
+    if (typeof parsed['old_path'] === 'string' && typeof parsed['new_path'] === 'string') return `${parsed['old_path']} -> ${parsed['new_path']}`;
+    if (typeof parsed['path'] === 'string') return parsed['path'];
     return raw;
   } catch {
     return raw;

@@ -74,7 +74,7 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
       const result = await transformExcelToFortune(buffer);
       if (loadId !== loadIdRef.current) return;
       const resultObject = (typeof result === 'object' && result !== null) ? result as Record<string, unknown> : null;
-      const nextSheets = Array.isArray(resultObject?.sheets) ? resultObject?.sheets : result;
+      const nextSheets = Array.isArray(resultObject?.['sheets']) ? resultObject?.['sheets'] : result;
       const sheetList = Array.isArray(nextSheets) ? nextSheets as FortuneWorkbook : [];
       const ext = getFileExtension(path);
       setSheets(sheetList);

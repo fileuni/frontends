@@ -43,10 +43,10 @@ export const useUserFileSettingsStore = create<UserFileSettingsState>((set, get)
     set({ isLoading: true });
     try {
       const { data, error } = await client.GET("/api/v1/file/user-settings");
-      if (data?.success && data.data) {
-        set({ settings: data.data as UserFileSettings });
+      if (data?.['success'] && data['data']) {
+        set({ settings: data['data'] as UserFileSettings });
       } else {
-        console.error("Failed to fetch user file settings", error || data?.msg);
+        console.error("Failed to fetch user file settings", error || data?.['msg']);
       }
     } catch (err) {
       console.error("Error fetching user file settings", err);
@@ -59,9 +59,9 @@ export const useUserFileSettingsStore = create<UserFileSettingsState>((set, get)
     set({ settings: previous ? { ...previous, ...patch } : (patch as UserFileSettings) });
     try {
       const { data, error } = await client.PUT("/api/v1/file/user-settings", { body: patch });
-      if (!data?.success) {
+      if (!data?.['success']) {
         set({ settings: previous || null });
-        console.error("Failed to update user file settings", error || data?.msg);
+        console.error("Failed to update user file settings", error || data?.['msg']);
       }
     } catch (err) {
       set({ settings: previous || null });

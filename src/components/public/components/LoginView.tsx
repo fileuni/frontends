@@ -237,7 +237,7 @@ export const LoginView = () => {
           },
         },
       );
-      if (data?.success) {
+      if (data?.['success']) {
         addToast(t("sessions.revokeAccess"), "success");
         // After successful removal, attempt to login again
         setShowDeviceLimit(false);
@@ -506,7 +506,7 @@ export const LoginView = () => {
                         },
                       },
                     );
-                    if (data?.success) {
+                    if (data?.['success']) {
                       setShowDeviceLimit(false);
                       handleLogin();
                     }

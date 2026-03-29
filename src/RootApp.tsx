@@ -22,7 +22,7 @@ const LoadingScreen: React.FC = () => {
 };
 
 /**
- * Single entry for both WebUI (/ui) and Tauri launcher.
+ * Single entry for both WebUI (/) and Tauri launcher.
  */
 export const RootApp: React.FC = () => {
   const [runtime] = React.useState<UiRuntime>(() => detectUiRuntime());

@@ -167,16 +167,16 @@ export async function extractData<T>(
   // Core logic: If it's BaseResponse format (contains success and data fields)
   if (typeof data === 'object' && data !== null && 'success' in data && 'data' in data) {
     const rec = data as Record<string, unknown>;
-    if (rec.success === false) {
+    if (rec['success'] === false) {
       if (isApiError(data)) throw data;
-      const code = typeof rec.code === 'number' ? rec.code : 500;
+      const code = typeof rec['code'] === 'number' ? rec['code'] : 500;
       const bizCode =
-        typeof rec.biz_code === 'string' || rec.biz_code === null ? (rec.biz_code as string | null) : null;
-      const msg = typeof rec.msg === 'string' ? rec.msg : 'API Error';
+        typeof rec['biz_code'] === 'string' || rec['biz_code'] === null ? (rec['biz_code'] as string | null) : null;
+      const msg = typeof rec['msg'] === 'string' ? rec['msg'] : 'API Error';
       throw { success: false, code, biz_code: bizCode, msg } satisfies ApiError;
     }
     // Return internal data content and cast to T
-    return rec.data as T;
+    return rec['data'] as T;
   }
 
   // Edge case: Backend may directly return data (e.g. boolean or raw string)
@@ -189,7 +189,7 @@ export async function extractData<T>(
  */
 export function handleApiError(e: unknown, t: (key: string) => string): string {
   if (isApiError(e)) {
-    return e.msg || t('errors.INTERNAL_ERROR');
+    return e['msg'] || t('errors.INTERNAL_ERROR');
   }
   return e instanceof Error ? e.message : t('errors.INTERNAL_ERROR');
 }
@@ -267,14 +267,14 @@ const refreshTokenAction = async () => {
       throw new Error('Refresh failed');
     }
     const rec = data as Record<string, unknown>;
-    const success = rec.success === true;
-    const msg = typeof rec.msg === 'string' ? rec.msg : 'Refresh failed';
-    const dataObj = typeof rec.data === 'object' && rec.data !== null ? (rec.data as Record<string, unknown>) : null;
-    const tokens = dataObj && typeof dataObj.tokens === 'object' && dataObj.tokens !== null
-      ? (dataObj.tokens as Record<string, unknown>)
+    const success = rec['success'] === true;
+    const msg = typeof rec['msg'] === 'string' ? rec['msg'] : 'Refresh failed';
+    const dataObj = typeof rec['data'] === 'object' && rec['data'] !== null ? (rec['data'] as Record<string, unknown>) : null;
+    const tokens = dataObj && typeof dataObj['tokens'] === 'object' && dataObj['tokens'] !== null
+      ? (dataObj['tokens'] as Record<string, unknown>)
       : null;
-    const accessToken = tokens && typeof tokens.access_token === 'string' ? tokens.access_token : null;
-    const refreshToken = tokens && typeof tokens.refresh_token === 'string' ? tokens.refresh_token : null;
+    const accessToken = tokens && typeof tokens['access_token'] === 'string' ? tokens['access_token'] : null;
+    const refreshToken = tokens && typeof tokens['refresh_token'] === 'string' ? tokens['refresh_token'] : null;
 
     if (success && accessToken && refreshToken) {
       updateTokens(accessToken, refreshToken);
@@ -366,8 +366,8 @@ client.use({
       const clone = response.clone();
       const parsed: unknown = await clone.json().catch((): null => null);
       const rec = typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : {};
-      const msg = typeof rec.msg === 'string' ? rec.msg : undefined;
-      const bizCode = typeof rec.biz_code === 'string' ? rec.biz_code : undefined;
+      const msg = typeof rec['msg'] === 'string' ? rec['msg'] : undefined;
+      const bizCode = typeof rec['biz_code'] === 'string' ? rec['biz_code'] : undefined;
       const { addToast } = useToastStore.getState();
       
       let errorMsg = msg || response.statusText || "Network Error";

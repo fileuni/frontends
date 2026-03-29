@@ -238,10 +238,10 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         });
         if (error) {
           const errObj = error as Record<string, unknown>;
-          throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
+          throw new Error((errObj['msg'] as string) || t('filemanager.editor.autoSaveFailed'));
         }
-        if (!data?.success) {
-          const msgRaw = data?.msg;
+        if (!data?.['success']) {
+          const msgRaw = data?.['msg'];
           const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
           throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
         }

@@ -772,14 +772,14 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           addToast(t('admin.domain.providerRequiredForDns01') || 'DNS-01 requires provider account', 'error');
           return;
         }
-        const zone = String((dnsCfgObj.dns_zone ?? dnsCfgObj.zone ?? '')).trim();
+        const zone = String((dnsCfgObj['dns_zone'] ?? dnsCfgObj['zone'] ?? '')).trim();
         if (!zone) {
           addToast(t('admin.domain.zoneRequired') || 'Zone is required', 'error');
           return;
         }
       }
       if (sslDraft.challenge_type === 'http01') {
-        const webroot = String((dnsCfgObj.webroot ?? dnsCfgObj.http_webroot ?? '')).trim();
+        const webroot = String((dnsCfgObj['webroot'] ?? dnsCfgObj['http_webroot'] ?? '')).trim();
         if (!webroot) {
           addToast(t('admin.domain.webrootRequired') || 'Webroot is required', 'error');
           return;

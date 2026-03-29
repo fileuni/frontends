@@ -35,10 +35,10 @@ async function fetchThumbnailUrl(path: string): Promise<string> {
 
   if (error) {
     const errObj = error as Record<string, unknown>;
-    throw new Error((errObj.msg as string) || 'Token fetch failed');
+    throw new Error((errObj['msg'] as string) || 'Token fetch failed');
   }
 
-  const token = (data?.data as { token?: string } | undefined)?.token;
+  const token = (data?.['data'] as { token?: string } | undefined)?.token;
   if (!token) {
     throw new Error('Token missing');
   }

@@ -41,24 +41,24 @@ const isTaskStatusValue = (value: unknown): value is TaskStatusValue => {
 const isTaskStatus = (value: unknown): value is TaskStatus => {
   if (!isRecord(value)) return false;
   return (
-    typeof value.id === 'string' &&
-    isTaskStatusValue(value.status) &&
-    typeof value.progress === 'number' &&
-    Number.isFinite(value.progress) &&
-    typeof value.created_at === 'string' &&
-    typeof value.updated_at === 'string'
+    typeof value['id'] === 'string' &&
+    isTaskStatusValue(value['status']) &&
+    typeof value['progress'] === 'number' &&
+    Number.isFinite(value['progress']) &&
+    typeof value['created_at'] === 'string' &&
+    typeof value['updated_at'] === 'string'
   );
 };
 
 const isTaskSseUpdateEvent = (value: unknown): value is TaskSseUpdateEvent => {
   if (!isRecord(value)) return false;
-  if (typeof value.id !== 'string') return false;
-  if (value.progress !== undefined && (typeof value.progress !== 'number' || !Number.isFinite(value.progress))) {
+  if (typeof value['id'] !== 'string') return false;
+  if (value['progress'] !== undefined && (typeof value['progress'] !== 'number' || !Number.isFinite(value['progress']))) {
     return false;
   }
-  if (value.status !== undefined && !isTaskStatusValue(value.status)) return false;
-  if (value.message !== undefined && value.message !== null && typeof value.message !== 'string') return false;
-  if (value.updated_at !== undefined && typeof value.updated_at !== 'string') return false;
+  if (value['status'] !== undefined && !isTaskStatusValue(value['status'])) return false;
+  if (value['message'] !== undefined && value['message'] !== null && typeof value['message'] !== 'string') return false;
+  if (value['updated_at'] !== undefined && typeof value['updated_at'] !== 'string') return false;
   return true;
 };
 
@@ -252,8 +252,8 @@ export function BatchOperationProgress({
           { params: { path: { id: taskId } } },
         );
 
-        if (!statsError && statsResp?.success && statsResp.data) {
-          setStatistics(statsResp.data as BatchStatistics);
+        if (!statsError && statsResp?.['success'] && statsResp['data']) {
+          setStatistics(statsResp['data'] as BatchStatistics);
         }
       } catch (error) {
         console.error('Error fetching task statistics:', error);
@@ -286,8 +286,8 @@ export function BatchOperationProgress({
             '/api/v1/file/task/{id}',
             { params: { path: { id: taskId } } },
           );
-          if (taskError || !taskResp?.success || !taskResp.data) return;
-          const task = taskResp.data as TaskStatus;
+          if (taskError || !taskResp?.['success'] || !taskResp['data']) return;
+          const task = taskResp['data'] as TaskStatus;
           applySnapshot(task);
 
           if (task.status === 'running' || task.status === 'success' || task.status === 'failed') {
@@ -368,8 +368,8 @@ export function BatchOperationProgress({
                   '/api/v1/file/task/{id}',
                   { params: { path: { id: taskId } } },
                 );
-                if (taskError || !taskResp?.success || !taskResp.data) return;
-                const task = taskResp.data as TaskStatus;
+                if (taskError || !taskResp?.['success'] || !taskResp['data']) return;
+                const task = taskResp['data'] as TaskStatus;
                 applySnapshot(task);
               } catch {
                 // Ignore resync failures; polling fallback may recover.
@@ -462,11 +462,11 @@ export function BatchOperationProgress({
         const errJson = (await response
           .json()
           .catch(() => ({ msg: 'Request failed' }))) as { msg?: string };
-        throw new Error(errJson.msg || 'Request failed');
+        throw new Error(errJson['msg'] || 'Request failed');
       }
 
       const res = (await response.json()) as ApiResp<{ retry_count: number }>;
-      const retryCount = res.data?.retry_count || 0;
+      const retryCount = res['data']?.['retry_count'] || 0;
 
       toast.success(t('filemanager.batch.continueStarted', { count: retryCount }));
 

@@ -97,10 +97,10 @@ export const FileManagerView = () => {
 
   useEffect(() => {
     isSyncingRef.current = true;
-    const page = params.page as FileManagerMode;
-    const path = params.path;
-    const keyword = params.keyword?.trim() || '';
-    const isSearchFromHash = params.search === '1' && keyword.length > 0;
+    const page = params['page'] as FileManagerMode;
+    const path = params['path'];
+    const keyword = params['keyword']?.trim() || '';
+    const isSearchFromHash = params['search'] === '1' && keyword.length > 0;
     
     if (page && page !== useFileStore.getState().fmMode) {
       useFileStore.getState().setFmMode(page);
@@ -120,7 +120,7 @@ export const FileManagerView = () => {
     
     setIsReady(true);
     setTimeout(() => { isSyncingRef.current = false; }, 100);
-  }, [params.keyword, params.page, params.path, params.search]);
+  }, [params]);
 
 
   useEffect(() => {
@@ -145,9 +145,9 @@ export const FileManagerView = () => {
     
     if (
       params.page !== newParams.page
-      || params.path !== newParams.path
-      || params.search !== newParams.search
-      || params.keyword !== newParams.keyword
+      || params['path'] !== newParams.path
+      || params['search'] !== newParams.search
+      || params['keyword'] !== newParams.keyword
     ) {
       navigate(newParams as unknown as Parameters<typeof navigate>[0]);
     }
@@ -157,10 +157,7 @@ export const FileManagerView = () => {
     isReady,
     isSearchMode,
     navigate,
-    params.keyword,
-    params.page,
-    params.path,
-    params.search,
+    params,
     searchKeyword,
   ]);
 
@@ -414,10 +411,10 @@ export const FileManagerView = () => {
         };
 
     if (!isBatch) { 
-      delete body.paths; 
-    } else { 
-      delete body.archive_path; 
-      delete body.source_path; 
+      delete body['paths'];
+    } else {
+      delete body['archive_path'];
+      delete body['source_path'];
     }
 
     try {
@@ -447,12 +444,12 @@ export const FileManagerView = () => {
       const { data, error } = response;
       if (error) {
         const errObj = error as Record<string, unknown>;
-        throw new Error((errObj.msg as string) || 'Operation failed');
+        throw new Error((errObj['msg'] as string) || 'Operation failed');
       }
 
       // Safely extract taskId
-      const resultData = (data as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined;
-      const taskId = resultData?.task_id as string | undefined;
+      const resultData = (data as Record<string, unknown> | undefined)?.['data'] as Record<string, unknown> | undefined;
+      const taskId = resultData?.['task_id'] as string | undefined;
       
       if (!taskId) throw new Error(t('filemanager.archive.taskIdMissing'));
       
@@ -478,8 +475,8 @@ export const FileManagerView = () => {
   };
 
   const isMinimal = ["favorites", "trash", "recent", "shares"].includes(fmMode);
-  const officePath = params.office_path;
-  const previewPath = params.preview_path;
+        const officePath = params['office_path'];
+        const previewPath = params['preview_path'];
   const isOfficePreview = previewPath ? isOfficeExtension(getFileExtension(previewPath)) : false;
 
   if (officePath) {

@@ -14,7 +14,7 @@ export const AccountsView = () => {
 
   const getRedirectParams = (): Partial<RouteParams> => {
     // Priority parse redirect param from Hash
-    const redirect = params.redirect;
+    const redirect = params['redirect'];
     if (!redirect) return { mod: 'user', page: 'welcome' };
 
     // If it's a full hash string, parse it

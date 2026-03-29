@@ -142,7 +142,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
       const { data: res } = await client.POST('/api/v1/file/shares/create', {
         body: createBody as unknown as never
       });
-      if (res?.success) {
+      if (res?.['success']) {
         setShareData(res as ShareData);
         addToast(t('filemanager.shareModal.successTitle'), 'success');
         loadFiles();
@@ -156,7 +156,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     setLoading(true);
     try {
       const days = getExpireDays();
-      const body: Record<string, unknown> = { 
+      const body: Record<string, unknown> = {
         enable_direct: form.enableDirect,
         expire_days: form.expireDate === '' ? null : (days !== undefined ? days : null),
         max_downloads: form.maxDownloads > 0 ? form.maxDownloads : null,
@@ -164,11 +164,11 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
         can_update_no_create: file.is_dir ? form.canUpdateNoCreate : undefined,
         can_delete: file.is_dir ? form.canDelete : undefined,
       };
-      
-      if (form.passwordMode === 'change') { 
-        body.password = form.password || null; 
-      } else if (form.passwordMode === 'remove') { 
-        body.password = null; 
+
+      if (form.passwordMode === 'change') {
+        body['password'] = form.password || null;
+      } else if (form.passwordMode === 'remove') {
+        body['password'] = null;
       }
 
       const { data: res } = await client.PATCH('/api/v1/file/shares/{id}', {
@@ -176,7 +176,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
         body: body as unknown as never
       });
 
-      if (res?.success) {
+      if (res?.['success']) {
         addToast(t('common.manage') || 'Updated successfully', 'success');
         loadFiles();
         

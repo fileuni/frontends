@@ -115,10 +115,10 @@ export async function uploadBase64File(path: string, base64: string): Promise<vo
   });
   if (error) {
     const errObj = error as Record<string, unknown>;
-    throw new Error((errObj.msg as string) || 'Upload failed');
+    throw new Error((errObj['msg'] as string) || 'Upload failed');
   }
-  if (!data?.success) {
-    const msgRaw = data?.msg;
+  if (!data?.['success']) {
+    const msgRaw = data?.['msg'];
     const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
     throw new Error(msg ?? 'Upload failed');
   }

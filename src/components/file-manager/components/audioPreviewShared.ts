@@ -128,10 +128,10 @@ export const getRandomIndex = (length: number, currentIndex: number) => {
 
 export const listFolderFiles = async (path: string): Promise<FileInfo[]> => {
   const { data: res } = await client.GET('/api/v1/file/list', { params: { query: { path } } });
-  if (Array.isArray(res?.data)) return res.data as FileInfo[];
-  if (res?.data && typeof res.data === 'object') {
-    const payload = res.data as Record<string, unknown>;
-    const items = payload.items ?? payload.data;
+  if (Array.isArray(res?.['data'])) return res['data'] as FileInfo[];
+  if (res?.['data'] && typeof res['data'] === 'object') {
+    const payload = res['data'] as Record<string, unknown>;
+    const items = payload['items'] ?? payload['data'];
     if (Array.isArray(items)) return items as FileInfo[];
   }
   return [];

@@ -307,9 +307,9 @@ export const ChatUnifiedUI: React.FC = () => {
 
   const fetchInvites = useCallback(async () => {
     const { data } = await client.GET("/api/v1/chat/invites");
-    if (data?.success) {
+    if (data?.['success']) {
       setInvites(
-        (data.data as InviteInfo[]).sort((a, b) => {
+        (data['data'] as InviteInfo[]).sort((a, b) => {
           return (
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           );
@@ -320,8 +320,8 @@ export const ChatUnifiedUI: React.FC = () => {
 
   const fetchGroups = useCallback(async () => {
     const { data } = await client.GET("/api/v1/chat/groups");
-    if (data?.success) {
-      setGroups(data.data as GroupInfo[]);
+    if (data?.['success']) {
+      setGroups(data['data'] as GroupInfo[]);
     }
   }, []);
 
@@ -338,7 +338,7 @@ export const ChatUnifiedUI: React.FC = () => {
           nickname: inviteDefaultNickname || undefined,
         },
       });
-      if (data?.success) {
+      if (data?.['success']) {
         toast.success(t("chat.inviteUpdated"));
         setInviteModalOpen(false);
         fetchInvites();
@@ -350,8 +350,8 @@ export const ChatUnifiedUI: React.FC = () => {
           nickname: inviteDefaultNickname || undefined,
         },
       });
-      if (data?.success) {
-        const inviteId = data.data as string;
+      if (data?.['success']) {
+        const inviteId = data['data'] as string;
         navigator.clipboard.writeText(inviteUrl(inviteId));
         toast.success(t("chat.inviteCreatedAndCopied"));
         setInviteModalOpen(false);
@@ -367,7 +367,7 @@ export const ChatUnifiedUI: React.FC = () => {
       const { data } = await client.DELETE("/api/v1/chat/invites/{id}", {
         params: { path: { id } },
       });
-      if (data?.success) {
+      if (data?.['success']) {
         toast.success(t("chat.inviteDeleted"));
         fetchInvites();
       }
@@ -383,7 +383,7 @@ export const ChatUnifiedUI: React.FC = () => {
       const { data, error } = await client.PUT("/api/v1/chat/guests/nickname", {
         body: { id: selfId, nickname: nicknameInput.trim() },
       });
-      if (data?.success) {
+      if (data?.['success']) {
         updateNickname(selfId, nicknameInput.trim());
         setNicknameInput("");
         toast.success(t("chat.nicknameUpdated"));
@@ -400,8 +400,8 @@ export const ChatUnifiedUI: React.FC = () => {
     const { data } = await client.GET("/api/v1/chat/users/search", {
       params: { query: { keyword: userSearchKeyword } },
     });
-    if (data?.success) {
-      setUserSearchResults(data.data as UserSearchResult[]);
+    if (data?.['success']) {
+      setUserSearchResults(data['data'] as UserSearchResult[]);
     }
   }, [userSearchKeyword]);
 
@@ -417,7 +417,7 @@ export const ChatUnifiedUI: React.FC = () => {
     const { data, error } = await client.POST("/api/v1/chat/groups", {
       body: { name: groupName, member_ids: members },
     });
-    if (data?.success) {
+    if (data?.['success']) {
       setGroupName("");
       setGroupMembers("");
       fetchGroups();
@@ -433,7 +433,7 @@ export const ChatUnifiedUI: React.FC = () => {
       const { data } = await client.DELETE("/api/v1/chat/groups/{group_id}", {
         params: { path: { group_id: groupId } },
       });
-      if (data?.success) {
+      if (data?.['success']) {
         fetchGroups();
         if (activeTarget === groupId) setActiveTarget("");
         toast.success(t("chat.groupDisbanded"));

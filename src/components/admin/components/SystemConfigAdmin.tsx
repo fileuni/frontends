@@ -54,15 +54,15 @@ const isConfigValidationError = (
 ): value is ConfigValidationError => {
   if (typeof value !== "object" || value === null) return false;
   const candidate = value as Record<string, unknown>;
-  if (typeof candidate.message !== "string") return false;
-  if (candidate.line !== undefined && typeof candidate.line !== "number")
+  if (typeof candidate['message'] !== "string") return false;
+  if (candidate['line'] !== undefined && typeof candidate['line'] !== "number")
     return false;
-  if (candidate.column !== undefined && typeof candidate.column !== "number")
+  if (candidate['column'] !== undefined && typeof candidate['column'] !== "number")
     return false;
   if (
-    candidate.key !== undefined &&
-    candidate.key !== null &&
-    typeof candidate.key !== "string"
+    candidate['key'] !== undefined &&
+    candidate['key'] !== null &&
+    typeof candidate['key'] !== "string"
   )
     return false;
   return true;
@@ -95,7 +95,7 @@ const extractValidationErrorsFromException = (
   error: unknown,
 ): ConfigValidationError[] => {
   if (typeof error !== "object" || error === null) return [];
-  const payload = (error as Record<string, unknown>).data;
+  const payload = (error as Record<string, unknown>)['data'];
   return normalizeValidationErrors(payload);
 };
 
@@ -423,7 +423,7 @@ export const SystemConfigAdmin = () => {
       const res = await client.POST("/api/v1/users/admin/license/update", {
         body: { license_key: licenseKey.trim() },
       });
-      if (res.data?.success) {
+      if (res.data?.['success']) {
         addToast(t("admin.saveSuccess"), "success");
         setLicenseKey("");
         fetchLicenseStatus();

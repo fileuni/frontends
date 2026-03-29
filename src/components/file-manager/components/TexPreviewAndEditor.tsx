@@ -49,7 +49,7 @@ const loadLatexScript = (src: string): Promise<void> => {
     const script = document.createElement('script');
     script.src = src;
     script.async = false;
-    script.dataset.latexjsScript = src;
+    script.dataset['latexjsScript'] = src;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
     document.body.appendChild(script);
@@ -199,10 +199,10 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
 
       if (error) {
         const errObj = error as Record<string, unknown>;
-        throw new Error((errObj.msg as string) || t('filemanager.editor.autoSaveFailed'));
+        throw new Error((errObj['msg'] as string) || t('filemanager.editor.autoSaveFailed'));
       }
-      if (!data?.success) {
-        const msgRaw = data?.msg;
+      if (!data?.['success']) {
+        const msgRaw = data?.['msg'];
         const msg = typeof msgRaw === 'string' ? msgRaw : undefined;
         throw new Error(msg ?? t('filemanager.editor.autoSaveFailed'));
       }
@@ -249,15 +249,15 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
       const { data, error } = await client.POST('/api/v1/file/preview/latex', {
         body: { path, content }
       });
-      if (error || !data?.success || !data?.data) {
-        const errMsgRaw = (error as Record<string, unknown> | null)?.msg;
+      if (error || !data?.['success'] || !data?.['data']) {
+        const errMsgRaw = (error as Record<string, unknown> | null)?.['msg'];
         const errMsg = typeof errMsgRaw === 'string' ? errMsgRaw : undefined;
-        const dataMsgRaw = data?.msg;
+        const dataMsgRaw = data?.['msg'];
         const dataMsg = typeof dataMsgRaw === 'string' ? dataMsgRaw : undefined;
         addToast(errMsg ?? dataMsg ?? 'Render failed', 'error');
         return;
       }
-      const payload = data.data as unknown as { content_base64: string; content_type: string };
+      const payload = data['data'] as unknown as { content_base64: string; content_type: string };
       const binary = atob(payload.content_base64);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i += 1) {

@@ -45,7 +45,7 @@ export const RegisterView = () => {
         return;
       }
       
-      if (data?.success) {
+      if (data?.['success']) {
         addToast(t('auth.registerSuccess'), 'success');
         window.location.hash = 'mod=public&page=login';
       }

@@ -45,7 +45,7 @@ const loadStyle = (href: string): Promise<void> => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
-    link.dataset.pptxStyle = href;
+    link.dataset['pptxStyle'] = href;
     link.onload = () => resolve();
     link.onerror = () => reject(new Error(`Failed to load style: ${href}`));
     document.head.appendChild(link);
@@ -62,7 +62,7 @@ const loadScript = (src: string): Promise<void> => {
     const script = document.createElement('script');
     script.src = src;
     script.async = false;
-    script.dataset.pptxScript = src;
+    script.dataset['pptxScript'] = src;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
     document.body.appendChild(script);

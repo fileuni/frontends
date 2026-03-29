@@ -151,9 +151,9 @@ export const ChatPage: React.FC = () => {
   const refreshInvites = async () => {
     try {
       const { data } = await client.GET("/api/v1/chat/invites");
-      if (data?.success) {
+      if (data?.['success']) {
         setInviteList(
-          (data.data as InviteInfo[]).sort((a, b) => {
+          (data['data'] as InviteInfo[]).sort((a, b) => {
             return (
               new Date(b.created_at).getTime() -
               new Date(a.created_at).getTime()
@@ -169,8 +169,8 @@ export const ChatPage: React.FC = () => {
   const refreshGroups = async () => {
     try {
       const { data } = await client.GET("/api/v1/chat/groups");
-      if (data?.success) {
-        setGroupList(data.data as GroupInfo[]);
+      if (data?.['success']) {
+        setGroupList(data['data'] as GroupInfo[]);
       }
     } catch (err) {
       console.error(err);
@@ -192,8 +192,8 @@ export const ChatPage: React.FC = () => {
     const { data } = await client.GET("/api/v1/chat/users/search", {
       params: { query: { keyword: userSearchKeyword } },
     });
-    if (data?.success) {
-      setUserSearchResults(data.data as UserSearchResult[]);
+    if (data?.['success']) {
+      setUserSearchResults(data['data'] as UserSearchResult[]);
     }
   };
 
@@ -204,7 +204,7 @@ export const ChatPage: React.FC = () => {
     const { data } = await client.POST("/api/v1/chat/invites", {
       body: { nickname: inviteNickname || undefined, expires_at: expiresAt },
     });
-    if (data?.success) {
+    if (data?.['success']) {
       refreshInvites();
       toast.success(t("chat.inviteCreated"));
       setInviteNickname("");
@@ -216,7 +216,7 @@ export const ChatPage: React.FC = () => {
     const { data } = await client.DELETE("/api/v1/chat/invites/{id}", {
       params: { path: { id } },
     });
-    if (data?.success) {
+    if (data?.['success']) {
       refreshInvites();
       toast.success(t("chat.inviteDeleted"));
     }
@@ -235,7 +235,7 @@ export const ChatPage: React.FC = () => {
       body: { name: groupName, member_ids: members },
     });
 
-    if (data?.success) {
+    if (data?.['success']) {
       setGroupName("");
       setGroupMembers("");
       refreshGroups();
@@ -250,7 +250,7 @@ export const ChatPage: React.FC = () => {
     const { data } = await client.DELETE("/api/v1/chat/groups/{group_id}", {
       params: { path: { group_id: groupId } },
     });
-    if (data?.success) {
+    if (data?.['success']) {
       refreshGroups();
       if (activeTarget === groupId) setActiveTarget("");
       toast.success(t("chat.groupDisbanded"));

@@ -29,13 +29,13 @@ export const parseItemsAndTotal = <T>(value: unknown): ItemsAndTotal<T> => {
   const rec = asRecord(value);
   if (!rec) return { items: [], total: 0 };
 
-  const itemsRaw = rec.items;
+  const itemsRaw = rec['items'];
   if (!Array.isArray(itemsRaw)) return { items: [], total: 0 };
 
-  const pagination = asRecord(rec.pagination);
+  const pagination = asRecord(rec['pagination']);
   const total =
-    asFiniteNumber(rec.total) ??
-    (pagination ? asFiniteNumber(pagination.total) : null) ??
+    asFiniteNumber(rec['total']) ??
+    (pagination ? asFiniteNumber(pagination['total']) : null) ??
     itemsRaw.length;
 
   return { items: itemsRaw as T[], total };

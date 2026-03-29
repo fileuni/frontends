@@ -4,7 +4,7 @@ Single Bun + Astro + React frontend project for FileUni.
 
 This project builds a single static dist that is used by:
 
-- WebUI served by the backend at `/ui`
+- WebUI served by the backend at `/`
 - Tauri GUI (WebView loads the same dist)
 
 ## Structure

@@ -53,7 +53,7 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
         return;
       }
 
-      if (data?.success) {
+      if (data?.['success']) {
         addToast(t('forgotPassword.resetSuccess'), 'success');
         setNewPassword('');
         setConfirmPassword('');

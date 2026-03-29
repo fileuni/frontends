@@ -29,8 +29,8 @@ export const SessionsView = () => {
   const fetchSessions = useCallback(async () => {
     try {
       const { data: res } = await client.GET('/api/v1/users/auth/sessions');
-      if (res?.success && res.data) {
-        const sessionData = res.data as SessionListData;
+      if (res?.['success'] && res['data']) {
+        const sessionData = res['data'] as SessionListData;
         setSessions(sessionData.sessions || []);
         setLimitInfo({ total: sessionData.total, max: sessionData.max_devices });
       }

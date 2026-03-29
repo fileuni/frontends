@@ -421,8 +421,8 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
           params: { path: { id: task.id } },
         });
 
-        if (!error && data?.success) {
-          const tData = data.data as unknown as {
+        if (!error && data?.['success']) {
+          const tData = data['data'] as unknown as {
             status: TaskState["status"];
             progress: number;
             message?: string;

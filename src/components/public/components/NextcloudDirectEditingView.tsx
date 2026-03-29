@@ -28,7 +28,7 @@ export const NextcloudDirectEditingView: React.FC = () => {
   const { addToast } = useToastStore();
   const { params } = useNavigationStore();
   const { theme } = useThemeStore();
-  const token = params.token || '';
+  const token = params['token'] || '';
   const [state, setState] = useState<DirectEditingState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

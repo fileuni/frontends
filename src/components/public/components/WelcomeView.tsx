@@ -34,8 +34,8 @@ export const WelcomeView = () => {
       const { data } = await client.GET(
         "/api/v1/system/backend-capabilities-handshake",
       );
-      if (data?.data) {
-        const caps = data.data as unknown as SystemCapabilities;
+      if (data?.['data']) {
+        const caps = data['data'] as unknown as SystemCapabilities;
         setSettingsCenterMode(!!caps.is_config_set_mode);
       }
     } catch (e) {

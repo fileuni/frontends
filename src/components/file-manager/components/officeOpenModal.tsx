@@ -51,7 +51,7 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
       const { data } = await client.GET('/api/v1/file/integration/apps', {
         params: { query: { ext } }
       });
-      const list = (data?.data as AppInfo[]) || [];
+      const list = (data?.['data'] as AppInfo[]) || [];
       const merged = list.some(app => app.id === 'office-lite')
         ? list
         : list.concat({ id: 'office-lite', name: t('filemanager.officeLite.name'), app_type: 'internal' });
@@ -88,8 +88,8 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
       const { data } = await client.GET('/api/v1/file/integration/wopi/open', {
         params: { query: { path, mode } }
       });
-      if (data?.success && data.data) {
-        const resData = data.data as unknown as { url: string };
+      if (data?.['success'] && data['data']) {
+        const resData = data['data'] as unknown as { url: string };
         if (resData.url) {
           window.open(resData.url, '_blank');
           onClose();

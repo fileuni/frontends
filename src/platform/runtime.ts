@@ -10,10 +10,10 @@ const hasTauriGlobals = (): boolean => {
   // Tauri injects runtime globals in both devUrl and bundled modes.
   // We avoid importing '@tauri-apps/api' in the main web bundle.
   return Boolean(
-    w.__TAURI__ ||
-      w.__TAURI_INTERNALS__ ||
-      w.__TAURI_IPC__ ||
-      w.__TAURI_METADATA__
+    w['__TAURI__'] ||
+      w['__TAURI_INTERNALS__'] ||
+      w['__TAURI_IPC__'] ||
+      w['__TAURI_METADATA__']
   );
 };
 

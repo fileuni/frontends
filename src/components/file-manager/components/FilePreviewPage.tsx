@@ -110,11 +110,11 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
                 });
                 
                 let allFiles: FileInfo[] = [];
-                if (Array.isArray(res?.data)) {
-                  allFiles = res.data;
-                } else if (res?.data && typeof res.data === 'object') {
-                  const obj = res.data as Record<string, unknown>;
-                  allFiles = (obj.items || obj.data || []) as FileInfo[];
+                if (Array.isArray(res?.['data'])) {
+                  allFiles = res['data'];
+                } else if (res?.['data'] && typeof res['data'] === 'object') {
+                  const obj = res['data'] as Record<string, unknown>;
+                  allFiles = (obj['items'] || obj['data'] || []) as FileInfo[];
                 }
 
                 if (allFiles.length > 0) {
@@ -190,8 +190,8 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
           if (contentType.includes('application/json')) {
             try {
               const json = (await res.json()) as Record<string, unknown>;
-              const code = String(json.code || json.error_code || '');
-              const msg = String(json.msg || json.message || '');
+              const code = String(json['code'] || json['error_code'] || '');
+              const msg = String(json['msg'] || json['message'] || '');
               const lowered = msg.toLowerCase();
               const looksLikeDependency =
                 lowered.includes('failed to start') ||

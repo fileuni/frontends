@@ -41,8 +41,8 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
         });
 
         if (error) throw error;
-        if (data?.success) {
-          setEntries(data.data as ArchiveEntry[]);
+        if (data?.['success']) {
+          setEntries(data['data'] as ArchiveEntry[]);
         }
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : "Failed to load archive contents";

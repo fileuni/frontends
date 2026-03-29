@@ -40,7 +40,7 @@ export const ExtensionManagerAdmin = () => {
     controlService,
   } = useExtensionsBackend({ t, addToast, fetchCapabilities });
 
-  const extPage = params.ext || 'openlist';
+  const extPage = params['ext'] || 'openlist';
   
   const currentTool = useMemo(() => tools.find((tool) => tool.name === extPage), [tools, extPage]);
   const extItems = useMemo(() => {
@@ -52,13 +52,13 @@ export const ExtensionManagerAdmin = () => {
   }, [loadAll]);
 
   useEffect(() => {
-    if (!params.ext && extItems.length > 0) {
+    if (!params['ext'] && extItems.length > 0) {
       const firstItem = extItems[0];
       if (firstItem) {
         navigate({ mod: 'admin', page: 'extensions', ext: firstItem.key });
       }
     }
-  }, [params.ext, navigate, extItems]);
+  }, [params, navigate, extItems]);
 
   const installToolQuick = async (tool: string) => {
     const state = toolStates[tool];

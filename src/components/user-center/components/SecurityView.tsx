@@ -56,12 +56,12 @@ export const SecurityView = () => {
   const fetchSecurity = useCallback(async () => {
     try {
       const { data: res } = await client.GET('/api/v1/users/auth/me');
-      if (res?.success && res.data) setSecurity(res.data as SecurityUserResponse);
+      if (res?.['success'] && res['data']) setSecurity(res['data'] as SecurityUserResponse);
 
       if (capabilities?.enable_s3) {
         const { data: s3Res } = await client.GET('/api/v1/file/s3-keys');
-        if (s3Res?.success && s3Res.data) {
-          setS3Keys(s3Res.data as { access_key: string, secret_key: string });
+        if (s3Res?.['success'] && s3Res['data']) {
+          setS3Keys(s3Res['data'] as { access_key: string, secret_key: string });
           setShowS3SecretKey(false);
         }
       }
@@ -96,8 +96,8 @@ export const SecurityView = () => {
       const { data: res } = await client.GET("/api/v1/users/public/captcha", {
         params: { query }
       });
-      if (res?.success && res.data) {
-        setCaptchaData(res.data as CaptchaPayload);
+      if (res?.['success'] && res['data']) {
+        setCaptchaData(res['data'] as CaptchaPayload);
         setCaptchaCode("");
         setTurnstileToken("");
       }
@@ -111,8 +111,8 @@ export const SecurityView = () => {
     setRegenerating(true);
     try {
       const { data: res } = await client.POST('/api/v1/file/s3-keys/regenerate');
-      if (res?.success && res.data) {
-        setS3Keys(res.data as { access_key: string, secret_key: string });
+      if (res?.['success'] && res['data']) {
+        setS3Keys(res['data'] as { access_key: string, secret_key: string });
         setShowS3SecretKey(false);
         addToast(t('security.rotateSuccess'), 'success');
       }
@@ -182,8 +182,8 @@ export const SecurityView = () => {
         }
       });
       
-      if (res?.success && res.data) {
-        const payload = res.data as { token: string; target?: string | null };
+      if (res?.['success'] && res['data']) {
+        const payload = res['data'] as { token: string; target?: string | null };
         const normalizedTarget = payload.target?.trim() || '';
         const inputTarget = bindForm.target.trim();
         setBindForm((f) => ({
@@ -227,10 +227,10 @@ export const SecurityView = () => {
       const inputTarget = bindForm.target.trim();
       const resRec = typeof res === 'object' && res !== null ? (res as Record<string, unknown>) : null;
       const innerRec =
-        resRec && typeof resRec.data === 'object' && resRec.data !== null
-          ? (resRec.data as Record<string, unknown>)
+        resRec && typeof resRec['data'] === 'object' && resRec['data'] !== null
+          ? (resRec['data'] as Record<string, unknown>)
           : null;
-      const rawTarget = type === 'phone' ? innerRec?.phone : innerRec?.email;
+      const rawTarget = type === 'phone' ? innerRec?.['phone'] : innerRec?.['email'];
       const serverTarget = typeof rawTarget === 'string' ? rawTarget.trim() : '';
       if (serverTarget && serverTarget !== inputTarget) {
         addToast(t('security.targetNormalized'), 'warning');

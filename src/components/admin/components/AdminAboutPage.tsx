@@ -32,19 +32,19 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 
 const isSystemOsInfo = (value: unknown): value is SystemOsInfo => {
   if (!isRecord(value)) return false;
-  if (typeof value.os_type !== 'string') return false;
-  if (typeof value.support_service !== 'boolean') return false;
-  if (typeof value.nixos_hint !== 'boolean') return false;
-  if (typeof value.is_mobile !== 'boolean') return false;
-  if (value.os_version !== undefined && value.os_version !== null && typeof value.os_version !== 'string') return false;
-  if (value.kernel_version !== undefined && value.kernel_version !== null && typeof value.kernel_version !== 'string') return false;
+  if (typeof value['os_type'] !== 'string') return false;
+  if (typeof value['support_service'] !== 'boolean') return false;
+  if (typeof value['nixos_hint'] !== 'boolean') return false;
+  if (typeof value['is_mobile'] !== 'boolean') return false;
+  if (value['os_version'] !== undefined && value['os_version'] !== null && typeof value['os_version'] !== 'string') return false;
+  if (value['kernel_version'] !== undefined && value['kernel_version'] !== null && typeof value['kernel_version'] !== 'string') return false;
   return true;
 };
 
 const isTauriLikeRuntime = (): boolean => {
   if (typeof window === 'undefined') return false;
   const w = window as unknown as Record<string, unknown>;
-  return Boolean(w.__TAURI__ || w.__TAURI_INTERNALS__);
+  return Boolean(w['__TAURI__'] || w['__TAURI_INTERNALS__']);
 };
 
 export const AdminAboutPage: React.FC = () => {

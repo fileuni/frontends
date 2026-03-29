@@ -489,19 +489,19 @@ export const ChatProvider: React.FC<{
       try {
         const queryParams: Record<string, string> = {};
         if (auth.type === "guest") {
-          queryParams.invite_id = auth.inviteCode;
+          queryParams['invite_id'] = auth.inviteCode;
         } else {
           const token = useAuthStore.getState().currentUserData?.access_token;
-          if (token) queryParams.token = token;
+          if (token) queryParams['token'] = token;
         }
         const { data } = await client.GET("/api/v1/chat/users/online", {
           params: { query: queryParams },
         });
-        if (data?.success && Array.isArray(data.data)) {
-          const uids = (data.data as string[]).map((id) => id.toLowerCase());
+        if (data?.['success'] && Array.isArray(data['data'])) {
+          const uids = (data['data'] as string[]).map((id) => id.toLowerCase());
           console.log("[Chat] Online users synced:", uids);
           setOnlineUsers(uids);
-        } else if (data?.biz_code === "UNAUTHORIZED") {
+        } else if (data?.['biz_code'] === "UNAUTHORIZED") {
           setOnlineUsers([]);
         }
       } catch (err) {
@@ -712,8 +712,8 @@ export const ChatProvider: React.FC<{
     if (auth.type === "system" && isChatEnabled) {
       try {
         const { data } = await client.GET("/api/v1/chat/groups");
-        if (data?.success && Array.isArray(data.data)) {
-          const ids = (data.data as GroupInfo[]).map((g) => g.group_id);
+        if (data?.['success'] && Array.isArray(data['data'])) {
+          const ids = (data['data'] as GroupInfo[]).map((g) => g.group_id);
           setUserGroups(ids);
         }
       } catch (err) {
@@ -914,8 +914,8 @@ export const ChatProvider: React.FC<{
         const { data } = await client.GET("/api/v1/chat/users/search", {
           params: { query: { keyword: id } },
         });
-        if (data?.success && Array.isArray(data.data)) {
-          const users = data.data as UserSearchInfo[];
+        if (data?.['success'] && Array.isArray(data['data'])) {
+          const users = data['data'] as UserSearchInfo[];
           const user = users.find((u) => u.user_id === id);
           if (user) {
             setNicknames((prev) => ({
