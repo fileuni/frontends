@@ -2,8 +2,11 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Shield, Lock, FolderTree, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal.tsx';
+import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
 import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
+import { useToastStore } from '@/stores/toast.ts';
+import { handleApiError } from '@/lib/api.ts';
 
 interface ProtectedStorageModalProps {
   isOpen: boolean;
@@ -53,7 +56,8 @@ export const ProtectedStorageModal = ({
   isMountPath,
 }: ProtectedStorageModalProps) => {
   const { t } = useTranslation();
-  const { status, isLoading, fetchStatus } = useProtectedStorageStore();
+  const { status, isLoading, fetchStatus, enableRoot } = useProtectedStorageStore();
+  const { addToast } = useToastStore();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -65,6 +69,14 @@ export const ProtectedStorageModal = ({
   const isEmptyDir = fileCount === 0;
   const isRootPath = currentPath === '/';
   const canPrepare = globalMode !== 'disabled' && !isMountPath && isEmptyDir;
+  const handleEnable = async () => {
+    try {
+      await enableRoot(currentPath);
+      addToast(t('filemanager.protectedStorage.enableSuccess') || 'Protected storage enabled', 'success');
+    } catch (error) {
+      addToast(handleApiError(error, t), 'error');
+    }
+  };
 
   return (
     <Modal
@@ -95,6 +107,25 @@ export const ProtectedStorageModal = ({
               : (t('filemanager.protectedStorage.status.notEnabled') || 'Not enabled')}
           />
         </div>
+
+        {status?.enabled && (
+          <div className="grid gap-3 md:grid-cols-2">
+            <InfoCard
+              icon={FolderTree}
+              label={t('filemanager.protectedStorage.protectedRoot') || 'Protected root'}
+              value={status.protected_root || '/'}
+              tone="ok"
+            />
+            <InfoCard
+              icon={Lock}
+              label={t('filemanager.protectedStorage.protectedMode') || 'Protected mode'}
+              value={status.protected_mode
+                ? (t(`filemanager.protectedStorage.modes.${status.protected_mode}`) || status.protected_mode)
+                : currentModeLabel}
+              tone="ok"
+            />
+          </div>
+        )}
 
         {isLoading && (
           <div className="text-sm opacity-60">
@@ -147,6 +178,14 @@ export const ProtectedStorageModal = ({
             value={t('filemanager.protectedStorage.subdirEffects.body') || 'If this subdirectory is protected later, delete will bypass the recycle bin and thumbnail features will be disabled in this subtree.'}
             tone="warn"
           />
+        )}
+
+        {!status?.enabled && (
+          <div className="flex justify-end pt-2">
+            <Button onClick={handleEnable} disabled={!canPrepare || isLoading}>
+              {t('filemanager.protectedStorage.enableAction') || 'Enable for current directory'}
+            </Button>
+          </div>
         )}
       </div>
     </Modal>

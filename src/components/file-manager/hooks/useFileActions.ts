@@ -8,6 +8,8 @@ import type { FileInfo, ClipboardItem } from '../types/index.ts';
 import { useToastStore } from '@/stores/toast';
 import { isMountRootEntry } from '../utils/mounts.ts';
 import { parseFileListResult } from '../utils/fileListResponse.ts';
+import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
+import { shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
 
 interface TaskData {
   status: TaskState['status'];
@@ -22,6 +24,7 @@ export function useFileActions() {
   const store = useFileStore();
   
   const currentPath = store.getCurrentPath();
+  const protectedStatus = useProtectedStorageStore((state) => state.status);
   const showShareStatus = store.showShareStatus;
   const favoriteFilterColor = store.favoriteFilterColor;
   const fmMode = store.fmMode;
@@ -253,7 +256,13 @@ export function useFileActions() {
 
   const deleteFiles = async (paths: string[], skipConfirm: boolean = false) => {
     if (paths.length === 0 || !paths[0]) return;
-    if (!skipConfirm && !confirm(t('filemanager.messages.confirmDelete', { count: paths.length }))) return;
+    const allUsePermanentDelete = paths.every((path) =>
+      shouldUsePermanentDeleteForPath(path, protectedStatus),
+    );
+    const confirmKey = allUsePermanentDelete
+      ? 'filemanager.messages.confirmDeletePermanent'
+      : 'filemanager.messages.confirmDelete';
+    if (!skipConfirm && !confirm(t(confirmKey, { count: paths.length }))) return;
 
     try {
       const selectedFiles = resolveFilesByPaths(paths);
@@ -263,17 +272,27 @@ export function useFileActions() {
       }
 
       if (paths.length === 1) {
-        const { data } = await client.DELETE("/api/v1/file/delete", {
-          body: { path: paths[0] }
-        });
+        const request = allUsePermanentDelete
+          ? client.POST("/api/v1/file/delete-permanent", {
+              body: { path: paths[0] }
+            })
+          : client.DELETE("/api/v1/file/delete", {
+              body: { path: paths[0] }
+            });
+        const { data } = await request;
         if (data?.['success']) {
           removeFiles(paths);
           loadStorageStats();
         }
       } else {
-        const { data } = await client.POST("/api/v1/file/batch-delete", {
-          body: { paths }
-        });
+        const { data } = await client.POST(
+          allUsePermanentDelete
+            ? "/api/v1/file/batch-delete-permanent"
+            : "/api/v1/file/batch-delete",
+          {
+            body: { paths }
+          }
+        );
         if (data?.['success']) {
           const taskId = extractTaskId(data['data']);
           if (taskId) {

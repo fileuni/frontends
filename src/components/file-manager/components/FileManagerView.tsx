@@ -25,6 +25,7 @@ import { isAnyEscLayerOpen } from "@/hooks/useEscapeToCloseTopLayer";
 import { useToastStore } from "@/stores/toast";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { useConfigStore } from "@/stores/config.ts";
+import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { Search, X } from "lucide-react";
 
 import { FileManagerTabs } from "./FileManagerTabs.tsx";
@@ -36,10 +37,12 @@ import { OfficeLitePage } from "./officeLitePage.tsx";
 import { OfficeOpenModal } from "./officeOpenModal.tsx";
 import { getFileExtension, isOfficeExtension } from "../utils/officeLite.ts";
 import { isMountRootEntry, isMountedEntry, summarizeMountedSelection } from "../utils/mounts.ts";
+import { shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
 
 export const FileManagerView = () => {
   const { t } = useTranslation();
   const { capabilities } = useConfigStore();
+  const protectedStatus = useProtectedStorageStore((state) => state.status);
   const { params, navigate } = useNavigationStore();
   const {
     loadFiles, deleteFiles, downloadFile, restoreFiles, deletePermanent,
@@ -334,8 +337,17 @@ export const FileManagerView = () => {
           );
           break;
         }
+        const usePermanentDelete = paths.length > 0
+          && paths.every((path) => shouldUsePermanentDeleteForPath(path, protectedStatus));
         if (fmMode === 'files' || fmMode === 'trash') {
-          openActionModal("delete_confirm", t("filemanager.actions.delete"), t("filemanager.messages.confirmDelete", { count: paths.length }));
+          openActionModal(
+            "delete_confirm",
+            usePermanentDelete ? t("filemanager.actions.deletePermanent") : t("filemanager.actions.delete"),
+            t(usePermanentDelete ? "filemanager.messages.confirmDeletePermanent" : "filemanager.messages.confirmDelete", { count: paths.length }),
+            undefined,
+            undefined,
+            usePermanentDelete ? t("filemanager.actions.deletePermanent") : undefined,
+          );
         } else {
           openActionModal("mode_delete_confirm", t("filemanager.actions.delete"), t("filemanager.messages.confirmDelete", { count: paths.length }), undefined, fmMode);
         }

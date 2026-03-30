@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils.ts";
 import { useFileStore } from "../store/useFileStore.ts";
 import { client, extractData } from "@/lib/api.ts";
 import { useTranslation } from "react-i18next";
+import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { currentPathMountContextFromFiles, findMountByPath, type RemoteMountSummary } from "../utils/mounts.ts";
+import { isProtectedPathUnavailable, pathMatchesProtectedRoot, shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
 
 type MountListResponse = {
   mounts: RemoteMountSummary[];
@@ -18,6 +20,7 @@ export const FileManagerNavigationBar = () => {
   const currentPath = store.getCurrentPath();
   const setCurrentPath = store.setCurrentPath;
   const { files } = store;
+  const protectedStatus = useProtectedStorageStore((state) => state.status);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [pathInput, setPathInput] = useState(currentPath);
@@ -151,6 +154,35 @@ export const FileManagerNavigationBar = () => {
           {mountContext.last_error && (
             <div className="mt-2 text-xs leading-5 text-rose-100/90">{mountContext.last_error}</div>
           )}
+        </div>
+      )}
+
+      {protectedStatus?.enabled && pathMatchesProtectedRoot(currentPath, protectedStatus.protected_root) && (
+        <div className="mt-2 rounded-2xl border border-cyan-500/15 bg-cyan-500/10 px-4 py-3 text-sm">
+          <div className="flex flex-wrap items-center gap-3 text-cyan-100">
+            <div className="flex items-center gap-2 font-black uppercase tracking-widest text-[11px]">
+              <HardDrive size={14} />
+              <span>{t('filemanager.protectedStorage.title') || 'Protected Storage'}</span>
+            </div>
+            <span className="rounded-full border border-white/10 px-2 py-0.5 font-black text-[11px] uppercase tracking-widest">
+              {protectedStatus.protected_root || '/'}
+            </span>
+            <span className="text-[11px] font-black uppercase tracking-widest opacity-70">
+              {t(`filemanager.protectedStorage.modes.${protectedStatus.protected_mode || protectedStatus.global_mode}`)
+                || protectedStatus.protected_mode
+                || protectedStatus.global_mode}
+            </span>
+          </div>
+          <div className="mt-2 flex items-start gap-2 text-cyan-50/90">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+            <span>
+              {isProtectedPathUnavailable(protectedStatus)
+                ? (t('filemanager.protectedStorage.constraints.adminDisabled') || 'This protected directory is temporarily unavailable because the system mode no longer matches it.')
+                : shouldUsePermanentDeleteForPath(currentPath, protectedStatus)
+                  ? (t('filemanager.protectedStorage.subdirEffects.body') || 'Delete bypasses the recycle bin and thumbnails are disabled in this subtree.')
+                  : (t('filemanager.shareModal.protected') || 'Protected')}
+            </span>
+          </div>
         </div>
       )}
     </div>

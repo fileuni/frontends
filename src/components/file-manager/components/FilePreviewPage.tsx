@@ -3,6 +3,7 @@ import { client, BASE_URL, extractData } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { useThemeStore } from '@/stores/theme';
 import { useConfigStore } from '@/stores/config.ts';
+import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { useUserFileSettingsStore } from '@/stores/userFileSettings.ts';
 import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
@@ -21,6 +22,7 @@ import { OpenWithMenu } from './OpenWithMenu.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { useToastStore } from '@/stores/toast';
 import { extractFileListItems } from '../utils/fileListResponse.ts';
+import { shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
 
 // Lazy load PdfPreview to avoid SSR build errors
 const PdfPreview = React.lazy(() => import('./PdfPreview.tsx').then(m => ({ default: m.PdfPreview })));
@@ -54,6 +56,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const { capabilities } = useConfigStore();
+  const protectedStatus = useProtectedStorageStore((state) => state.status);
   const { addToast } = useToastStore();
   const { settings, fetchSettings } = useUserFileSettingsStore();
   const lastThumbPathRef = useRef<string | null>(null);
@@ -153,6 +156,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
     if (!data || capabilities?.thumbnail?.enabled !== true) return undefined;
     const activePath = data.playlist[data.index]?.path;
     if (!activePath || lastThumbPathRef.current === activePath) return undefined;
+    if (shouldDisableThumbnailForPath(activePath, protectedStatus)) return undefined;
     const activeName = data.playlist[data.index]?.name || '';
     const activeExt = activeName.split('.').pop()?.toLowerCase() || '';
     const category = getThumbnailCategory(activeExt);
@@ -220,7 +224,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
 
     triggerThumbnail();
     return () => { canceled = true; };
-  }, [data, capabilities?.thumbnail, settings, addToast, t]);
+  }, [data, capabilities?.thumbnail, protectedStatus, settings, addToast, t]);
 
   if (loading) return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/80 backdrop-blur-md">

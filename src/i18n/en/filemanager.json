@@ -18,9 +18,13 @@
   "protectedStorage": {
     "title": "Protected Storage",
     "loading": "Loading status...",
+    "enableAction": "Enable for Current Directory",
+    "enableSuccess": "Protected storage enabled",
     "globalMode": "System Mode",
     "currentPath": "Current Directory",
     "currentStatus": "Current Status",
+    "protectedRoot": "Protected Root",
+    "protectedMode": "Protected Mode",
     "modes": {
       "disabled": "Disabled by Admin",
       "obfuscate": "Obfuscation Mode",

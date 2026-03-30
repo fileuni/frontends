@@ -18,9 +18,13 @@
   "protectedStorage": {
     "title": "受保护目录",
     "loading": "正在读取状态...",
+    "enableAction": "为当前目录启用",
+    "enableSuccess": "受保护目录已启用",
     "globalMode": "系统模式",
     "currentPath": "当前目录",
     "currentStatus": "当前状态",
+    "protectedRoot": "受保护根目录",
+    "protectedMode": "受保护模式",
     "modes": {
       "disabled": "管理员已关闭",
       "obfuscate": "混淆模式",

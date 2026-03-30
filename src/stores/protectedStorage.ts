@@ -16,6 +16,7 @@ interface ProtectedStorageState {
   isLoading: boolean;
   syncFromCapabilities: (capabilities: SystemCapabilities | null) => void;
   fetchStatus: (force?: boolean) => Promise<void>;
+  enableRoot: (root: string) => Promise<ProtectedStorageStatus>;
 }
 
 const fallbackFromCapabilities = (
@@ -61,5 +62,14 @@ export const useProtectedStorageStore = create<ProtectedStorageState>((set, get)
     } finally {
       set({ isLoading: false });
     }
+  },
+  enableRoot: async (root) => {
+    const data = await extractData<ProtectedStorageStatus>(
+      client.POST("/api/v1/file/protected-storage/enable", {
+        body: { root },
+      }),
+    );
+    set({ status: data });
+    return data;
   },
 }));

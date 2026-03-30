@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useConfigStore } from '@/stores/config.ts';
+import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { BASE_URL } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
@@ -8,6 +9,7 @@ import { getFileExtension, resolvePublicBaseUrl } from '../utils/officeLite.ts';
 import { getThumbnailCategory } from '../utils/thumbnailUtils.ts';
 import { useUserFileSettingsStore } from '@/stores/userFileSettings.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
+import { shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
 
 interface FileThumbnailProps {
   file: FileInfo;
@@ -27,6 +29,7 @@ async function fetchThumbnailUrl(path: string): Promise<string> {
 
 export const FileThumbnail = ({ file, size = 64, className }: FileThumbnailProps) => {
   const { capabilities } = useConfigStore();
+  const protectedStatus = useProtectedStorageStore((state) => state.status);
   const { settings, fetchSettings } = useUserFileSettingsStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -38,6 +41,7 @@ export const FileThumbnail = ({ file, size = 64, className }: FileThumbnailProps
   const category = useMemo(() => getThumbnailCategory(ext), [ext]);
   const thumbCaps = capabilities?.thumbnail;
   const enabled = !!thumbCaps?.enabled && !!category && ((thumbCaps as unknown as Record<string, boolean>)[category]);
+  const isProtectedThumbnailDisabled = shouldDisableThumbnailForPath(file.path, protectedStatus);
 
   const isUserDisabled = (() => {
     if (!settings || !category) return false;
@@ -79,7 +83,7 @@ export const FileThumbnail = ({ file, size = 64, className }: FileThumbnailProps
   }, []);
 
   useEffect(() => {
-    if (!enabled || isUserDisabled || !inView || src || failed || file.is_dir) return undefined;
+    if (!enabled || isUserDisabled || isProtectedThumbnailDisabled || !inView || src || failed || file.is_dir) return undefined;
     let canceled = false;
     fetchThumbnailUrl(file.path)
       .then((url) => {
@@ -89,9 +93,9 @@ export const FileThumbnail = ({ file, size = 64, className }: FileThumbnailProps
         if (!canceled) setFailed(true);
       });
     return () => { canceled = true; };
-  }, [enabled, inView, isUserDisabled, src, failed, file.path, file.is_dir]);
+  }, [enabled, inView, isProtectedThumbnailDisabled, isUserDisabled, src, failed, file.path, file.is_dir]);
 
-  if (!enabled || isUserDisabled || file.is_dir || !category) {
+  if (!enabled || isUserDisabled || isProtectedThumbnailDisabled || file.is_dir || !category) {
     return <FileIcon name={file.name} isDir={file.is_dir} size={Math.round(size * 0.75)} />;
   }
 

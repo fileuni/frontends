@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { useSelectionStore } from '../store/useSelectionStore.ts';
 import { useFileStore } from '../store/useFileStore.ts';
 import { useConfigStore } from '@/stores/config.ts';
+import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { useThemeStore } from '@/stores/theme';
 import {
   FolderOpen, Eye, Download, Share2, Scissors, Copy, Pencil, Trash2,
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
 import { useTranslation } from 'react-i18next';
 import { isMountRootEntry, isMountedEntry, isRemoteDirectDelete, summarizeMountedSelection } from '../utils/mounts.ts';
+import { shouldDisableThumbnailForPath, shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
 
 const FAVORITE_COLORS = [
   { id: 1, name: 'Red', class: 'bg-red-500' },
@@ -96,6 +98,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
   const { theme } = useThemeStore();
   const store = useFileStore();
   const { capabilities } = useConfigStore();
+  const protectedStatus = useProtectedStorageStore((state) => state.status);
   const { fmMode, files } = store;
   const isSearchMode = store.getIsSearchMode();
   const clipboard = store.getClipboard();
@@ -132,8 +135,15 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
   const selectionSummary = summarizeMountedSelection(selectionPaths, files);
   const mountedTarget = target ? isMountedEntry(target) : false;
   const mountRootTarget = target ? isMountRootEntry(target) : false;
+  const usesPermanentDelete = selectionPaths.length > 0
+    && selectionPaths.every((path) => shouldUsePermanentDeleteForPath(path, protectedStatus));
+  const disableThumbnailOps = Boolean(
+    target?.path && shouldDisableThumbnailForPath(target.path, protectedStatus),
+  );
   const deleteLabel = mountRootTarget
     ? (t('filemanager.actions.deleteMountRootBlocked') || 'Manage in Mounts')
+    : usesPermanentDelete
+      ? (t('filemanager.actions.deletePermanent') || 'Delete Permanently')
     : ((target && isRemoteDirectDelete(target)) || selectionSummary.hasRemoteDirectDelete
       ? (t('filemanager.actions.deleteRemote') || 'Delete Remote Object')
       : t('filemanager.actions.delete'));
@@ -250,7 +260,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                           <MenuButton icon={Zap} label={t('filemanager.actions.extract')} action="extract" className="text-yellow-500" />
                         </>
                       )}
-                      {target.is_dir && capabilities?.thumbnail?.enabled && fmMode === 'files' && (
+                      {target.is_dir && capabilities?.thumbnail?.enabled && fmMode === 'files' && !disableThumbnailOps && (
                         <>
                           <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
                           <MenuButton icon={Eye} label={t('filemanager.thumbnail.clearDir')} action="thumb_clear_dir" />

@@ -25,13 +25,14 @@ import { SortMenu } from './SortMenu.tsx';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import { cn } from '@/lib/utils.ts';
 import { currentPathMountContextFromFiles } from '../utils/mounts.ts';
+import { shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
 
 export const FileManagerToolbar = () => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const store = useFileStore();
   const { capabilities } = useConfigStore();
-  const { syncFromCapabilities } = useProtectedStorageStore();
+  const { syncFromCapabilities, fetchStatus, status: protectedStatus } = useProtectedStorageStore();
   const { settings, fetchSettings, updateSettings, isLoading: settingsLoading } = useUserFileSettingsStore();
   const { hasPermission } = useAuthzStore();
   const { 
@@ -68,6 +69,10 @@ export const FileManagerToolbar = () => {
     syncFromCapabilities(capabilities);
   }, [capabilities, syncFromCapabilities]);
 
+  useEffect(() => {
+    void fetchStatus();
+  }, [fetchStatus]);
+
   const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const isMinimal = ["favorites", "trash", "recent", "shares"].includes(fmMode);
@@ -78,6 +83,7 @@ export const FileManagerToolbar = () => {
   const protectedMode = capabilities?.protected_storage?.global_mode || 'disabled';
   const toggleDisabled = settingsLoading || !settings;
   const mountContext = currentPathMountContextFromFiles(currentPath, store.files);
+  const disableThumbnailForCurrentPath = shouldDisableThumbnailForPath(currentPath, protectedStatus);
 
   const handleRefresh = () => {
     loadFiles();
@@ -397,7 +403,7 @@ export const FileManagerToolbar = () => {
                       <RefreshCcw size={16} />
                       <span>{t('filemanager.forceRefresh')}</span>
                     </button>
-                    {enableThumbnails && (
+                    {enableThumbnails && !disableThumbnailForCurrentPath && (
                       <>
                         <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
                          <button 
