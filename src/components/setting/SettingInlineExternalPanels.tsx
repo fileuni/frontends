@@ -7,6 +7,7 @@ import {
   ExternalToolPathField,
   SharedFfmpegField,
   type DiagnoseExternalTools,
+  type ProbeExternalTool,
 } from "./SharedFfmpegField";
 import type {
   CompressionDraft,
@@ -29,6 +30,7 @@ interface BaseProps {
   content: string;
   onContentChange: (value: string) => void;
   onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  onProbeExternalTool?: ProbeExternalTool | undefined;
 }
 
 export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
@@ -36,6 +38,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
   content,
   onContentChange,
   onDiagnoseExternalTools,
+  onProbeExternalTool,
 }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === "dark";
@@ -174,6 +177,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
               label={t("admin.config.thumbnail.vipsPath")}
               placeholder="vips"
               onDiagnoseExternalTools={onDiagnoseExternalTools}
+              onProbeExternalTool={onProbeExternalTool}
             />
             <ExternalToolPathField
               toolId="imagemagick"
@@ -185,6 +189,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
               label={t("admin.config.thumbnail.imagemagickPath")}
               placeholder="convert"
               onDiagnoseExternalTools={onDiagnoseExternalTools}
+              onProbeExternalTool={onProbeExternalTool}
             />
           </div>
         )}
@@ -226,6 +231,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
             label={t("admin.config.thumbnail.ffmpegPath")}
             placeholder="ffmpeg"
             onDiagnoseExternalTools={onDiagnoseExternalTools}
+            onProbeExternalTool={onProbeExternalTool}
             className="mt-3"
           />
         </div>
@@ -314,7 +320,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
         >
           {t("admin.config.thumbnail.helper")}
         </div>
-        <div className="grid gap-4 xl:grid-cols-3">
+        <div className="grid gap-4 xl:grid-cols-4">
           <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
             <label className="flex items-center gap-3">
               <input
@@ -340,6 +346,10 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
                 {t("admin.config.thumbnail.latexDependsOnPdfHint")}
               </div>
             )}
+            <div>
+              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.pdfMaxSizeMb")}</div>
+              <input value={draft.pdfMaxSizeMb} onChange={(event) => setDraft((prev) => ({ ...prev, pdfMaxSizeMb: event.target.value }))} className={inputClass} placeholder="100" />
+            </div>
           </div>
           <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
             <label className="flex items-center gap-3">
@@ -354,6 +364,10 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
               <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.officeEnabled")}</span>
             </label>
             <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.officeUsesLibreofficeHint")}</div>
+            <div>
+              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.officeMaxSizeMb")}</div>
+              <input value={draft.officeMaxSizeMb} onChange={(event) => setDraft((prev) => ({ ...prev, officeMaxSizeMb: event.target.value }))} className={inputClass} placeholder="100" />
+            </div>
             <ExternalToolPathField
               toolId="libreoffice"
               configKey="vfs_storage_hub.thumbnail.tools.libreoffice_path"
@@ -364,6 +378,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
               label={t("admin.config.thumbnail.libreofficePath")}
               placeholder="soffice"
               onDiagnoseExternalTools={onDiagnoseExternalTools}
+              onProbeExternalTool={onProbeExternalTool}
             />
           </div>
           <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
@@ -387,11 +402,40 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
               label={t("admin.config.thumbnail.latexmkPath")}
               placeholder="latexmk"
               onDiagnoseExternalTools={onDiagnoseExternalTools}
+              onProbeExternalTool={onProbeExternalTool}
             />
             <div>
               <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexMaxInputSizeMb")}</div>
               <input value={draft.latexMaxInputSizeMb} onChange={(event) => setDraft((prev) => ({ ...prev, latexMaxInputSizeMb: event.target.value }))} className={inputClass} placeholder="4" />
             </div>
+          </div>
+          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={draft.model3dEnabled}
+                onChange={(event) =>
+                  setDraft((prev) => ({ ...prev, model3dEnabled: event.target.checked }))
+                }
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.model3dEnabled")}</span>
+            </label>
+            <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.model3dUsesBlenderHint")}</div>
+            <div>
+              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.model3dMaxSizeMb")}</div>
+              <input value={draft.model3dMaxSizeMb} onChange={(event) => setDraft((prev) => ({ ...prev, model3dMaxSizeMb: event.target.value }))} className={inputClass} placeholder="100" />
+            </div>
+            <ExternalToolPathField
+              toolId="blender"
+              configKey="vfs_storage_hub.thumbnail.tools.blender_path"
+              value={draft.blenderPath}
+              onChange={(value) => setDraft((prev) => ({ ...prev, blenderPath: value }))}
+              label={t("admin.config.thumbnail.blenderPath")}
+              placeholder="blender"
+              onDiagnoseExternalTools={onDiagnoseExternalTools}
+              onProbeExternalTool={onProbeExternalTool}
+            />
           </div>
         </div>
         {false && (draft.pdfEnabled || draft.latexEnabled) && (
@@ -481,6 +525,7 @@ export const CompressionInlinePanel: React.FC<BaseProps> = ({
   tomlAdapter,
   content,
   onContentChange,
+  onProbeExternalTool,
 }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === "dark";
@@ -542,24 +587,17 @@ export const CompressionInlinePanel: React.FC<BaseProps> = ({
             </div>
           </div>
         </div>
-        <div>
-          <div
-            className={cn(
-              "text-xs font-black uppercase tracking-wide",
-              isDark ? "text-slate-400" : "text-slate-600",
-            )}
-          >
-            7-Zip
-          </div>
-          <input
-            value={draft.exe7zPath}
-            onChange={(event) =>
-              setDraft((prev) => ({ ...prev, exe7zPath: event.target.value }))
-            }
-            className={inputClass}
-            placeholder="7z"
-          />
-        </div>
+        <ExternalToolPathField
+          toolId="7z"
+          configKey="vfs_storage_hub.file_compress.exe_7zip_path"
+          value={draft.exe7zPath}
+          onChange={(value) =>
+            setDraft((prev) => ({ ...prev, exe7zPath: value }))
+          }
+          label="7-Zip"
+          placeholder="7z"
+          onProbeExternalTool={onProbeExternalTool}
+        />
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
             <div

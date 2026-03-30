@@ -23,6 +23,19 @@ export type DiagnoseExternalTools = (
   configuredValues: Record<string, string>,
 ) => Promise<DiagnoseResponse>;
 
+export type ProbeExternalTool = (payload: {
+  toolId: string;
+  value: string;
+}) => Promise<{
+  tool_id: string;
+  display_name: string;
+  available: boolean;
+  current_value: string;
+  resolved_path?: string | null;
+  version_line?: string | null;
+  message: string;
+}>;
+
 interface ExternalToolPathFieldProps {
   toolId: string;
   configKey: string;
@@ -31,6 +44,7 @@ interface ExternalToolPathFieldProps {
   label: string;
   placeholder?: string;
   onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  onProbeExternalTool?: ProbeExternalTool | undefined;
   className?: string;
 }
 
@@ -42,6 +56,7 @@ export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
   label,
   placeholder = "ffmpeg",
   onDiagnoseExternalTools,
+  onProbeExternalTool,
   className,
 }) => {
   const { t } = useTranslation();
@@ -63,11 +78,14 @@ export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
   );
 
   const handleTest = async () => {
-    if (!onDiagnoseExternalTools || testing) return;
+    if ((!onProbeExternalTool && !onDiagnoseExternalTools) || testing) return;
     setTesting(true);
     try {
-      const diagnosis = await onDiagnoseExternalTools({ [configKey]: value.trim() });
-      const item = diagnosis.tools.find((tool) => tool.tool_id === toolId);
+      const item = onProbeExternalTool
+        ? await onProbeExternalTool({ toolId, value: value.trim() })
+        : (await onDiagnoseExternalTools({ [configKey]: value.trim() })).tools.find(
+            (tool) => tool.tool_id === toolId,
+          );
       if (!item) {
         const summary = t("admin.config.externalTools.messages.toolTestFailed", {
           tool: label,
@@ -76,21 +94,16 @@ export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
         addToast(summary, "error");
         return;
       }
-      const detail = item.resolved_path?.trim() || item.message;
-      const hasWarnings = (item.warnings?.length ?? 0) > 0 || item.status_code === "warning";
+      const detail = [item.resolved_path?.trim(), item.version_line?.trim(), item.message]
+        .filter(Boolean)
+        .join(" | ");
+      const hasWarnings = false;
       if (item.available && !hasWarnings) {
         const summary = t("admin.config.externalTools.messages.toolTestOk", {
           tool: label,
         });
         setLastResult({ tone: "success", summary, detail });
         addToast(`${summary}${detail ? `: ${detail}` : ""}`, "success");
-      } else if (item.available) {
-        const summary = t("admin.config.externalTools.messages.toolTestReview", {
-          tool: label,
-        });
-        const warningDetail = item.warnings?.[0]?.trim() || detail;
-        setLastResult({ tone: "warning", summary, detail: warningDetail });
-        addToast(`${summary}${warningDetail ? `: ${warningDetail}` : ""}`, "warning");
       } else {
         const summary = t("admin.config.externalTools.messages.toolTestFailed", {
           tool: label,
@@ -143,7 +156,7 @@ export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
           onClick={() => {
             void handleTest();
           }}
-          disabled={!onDiagnoseExternalTools || testing}
+          disabled={(!onProbeExternalTool && !onDiagnoseExternalTools) || testing}
           className={cn(
             "h-11 shrink-0 rounded-xl border px-4 text-sm font-black transition-colors disabled:opacity-50",
             isDark
@@ -185,6 +198,7 @@ interface SharedFfmpegFieldProps {
   label: string;
   placeholder?: string;
   onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  onProbeExternalTool?: ProbeExternalTool | undefined;
   className?: string;
 }
 

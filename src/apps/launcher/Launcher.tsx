@@ -692,6 +692,7 @@ export function Launcher() {
     onTestDatabase: handleCheckDatabase,
     onTestCache: handleCheckCache,
     onDiagnoseExternalTools: handleDiagnoseExternalTools,
+    onProbeExternalTool: handleProbeExternalTool,
     onProbeMediaBackend: handleProbeMediaBackend,
     adminPassword: {
       value: pendingAdminPassword,
@@ -763,6 +764,29 @@ export function Launcher() {
         payload: { configured_values: configuredValues },
       },
     );
+  }
+
+  async function handleProbeExternalTool({
+    toolId,
+    value,
+  }: {
+    toolId: string;
+    value: string;
+  }) {
+    return safeInvoke<{
+      tool_id: string;
+      display_name: string;
+      available: boolean;
+      current_value: string;
+      resolved_path?: string | null;
+      version_line?: string | null;
+      message: string;
+    }>("probe_external_tool", {
+      payload: {
+        tool_id: toolId,
+        value,
+      },
+    });
   }
 
   async function handleProbeMediaBackend({
@@ -1309,6 +1333,7 @@ export function Launcher() {
                     runtimeOs: osInfo?.os_type,
                     systemHardware: osInfo,
                     onDiagnoseExternalTools: handleDiagnoseExternalTools,
+                    onProbeExternalTool: handleProbeExternalTool,
                     onProbeMediaBackend: handleProbeMediaBackend,
                     ...(osInfo?.is_mobile
                       ? { onPickStorageDirectory: pickExternalStorageDirectory }
@@ -1860,6 +1885,7 @@ export function Launcher() {
                 runtimeOs: osInfo?.os_type,
                 systemHardware: osInfo,
                 onDiagnoseExternalTools: handleDiagnoseExternalTools,
+                onProbeExternalTool: handleProbeExternalTool,
                 onProbeMediaBackend: handleProbeMediaBackend,
                 ...(osInfo?.is_mobile
                   ? { onPickStorageDirectory: pickExternalStorageDirectory }

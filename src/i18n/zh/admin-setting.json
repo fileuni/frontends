@@ -366,10 +366,12 @@
         "pdfEnabled": "启用 PDF 缩略图",
         "officeEnabled": "启用文档缩略图",
         "latexEnabled": "启用 LaTeX 预览缩略图",
+        "model3dEnabled": "启用 3D 模型缩略图",
         "pdfOfficeHint": "PDF、文档、LaTeX 缩略图会复用 raster 工具链；文档还需要 LibreOffice，LaTeX 还需要 latexmk。",
         "pdfUsesRasterToolsHint": "PDF 缩略图会复用上面的 libvips / ImageMagick 光栅化工具链。",
         "officeUsesLibreofficeHint": "文档缩略图会先通过 LibreOffice 转成 PDF，再继续走 PDF 缩略图链路。",
         "latexUsesPdfHint": "LaTeX 预览缩略图会先用 latexmk 生成 PDF，再复用 PDF 缩略图参数继续处理。",
+        "model3dUsesBlenderHint": "3D 模型缩略图使用 Blender 在后台导入模型并渲染静态视图。当前支持 obj、stl、gltf、glb。",
         "pdfTitle": "PDF 缩略图",
         "pdfSmallSkipMb": "PDF 小于此大小跳过缩略图（MB）",
         "pdfMaxSizeMb": "PDF 大于此大小跳过缩略图（MB）",
@@ -381,10 +383,13 @@
         "officeTimeoutSecs": "文档超时（秒）",
         "officeImagemagickMaxMb": "文档 ImageMagick 大小上限（MB）",
         "latexTitle": "LaTeX 预览缩略图",
+        "model3dTitle": "3D 模型缩略图",
         "latexmkTimeoutSecs": "latexmk 超时（秒）",
         "latexMaxInputSizeMb": "LaTeX 源文件大小上限（MB）",
         "latexMaxOutputSizeMb": "LaTeX 输出 PDF 大小上限（MB）",
         "latexAllowShellEscape": "允许 shell-escape",
+        "model3dMaxSizeMb": "3D 模型最大文件大小（MB）",
+        "blenderPath": "Blender 路径",
         "latexDependsOnPdfHint": "LaTeX 预览缩略图会先生成 PDF，再复用上面的 PDF 缩略图参数与工具链继续处理。即使 PDF 缩略图未启用，这组 PDF 参数仍会影响 LaTeX 预览缩略图。",
         "helper": "桌面系统的视频缩略图继续使用 FFmpeg；Android 与 iOS 改走系统媒体框架。外部工具路径仍用于 PDF、Office、文本，以及可选的外部图片渲染。"
       },
@@ -466,14 +471,16 @@
           "imagemagick": "ImageMagick",
           "ffmpeg": "FFmpeg",
           "libreoffice": "LibreOffice",
-          "latexmk": "latexmk"
+          "latexmk": "latexmk",
+          "blender": "Blender"
         },
         "placeholders": {
           "vips": "vips",
           "imagemagick": "convert 或 magick",
           "ffmpeg": "ffmpeg",
           "libreoffice": "soffice",
-          "latexmk": "latexmk"
+          "latexmk": "latexmk",
+          "blender": "blender"
         },
         "messages": {
           "diagnoseFailed": "外部依赖诊断失败",

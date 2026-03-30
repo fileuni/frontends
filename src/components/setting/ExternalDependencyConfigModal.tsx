@@ -15,7 +15,11 @@ import { deepClone, ensureRecord, isRecord } from "@/lib/configObject";
 import { getNavigatorPlatformSource } from "@/lib/browserPlatform";
 import { useToastStore } from "@/stores/toast";
 import { SettingSegmentedControl } from "./SettingSegmentedControl";
-import { ExternalToolPathField, SharedFfmpegField } from "./SharedFfmpegField";
+import {
+  ExternalToolPathField,
+  SharedFfmpegField,
+  type ProbeExternalTool,
+} from "./SharedFfmpegField";
 
 export type ThumbnailImageBackend = "builtin" | "external";
 
@@ -74,6 +78,7 @@ export type ThumbnailDraft = {
   imagemagickPath: string;
   ffmpegPath: string;
   libreofficePath: string;
+  blenderPath: string;
   latexmkPath: string;
   videoSeekSeconds: string;
   videoSeekRatio: string;
@@ -88,6 +93,8 @@ export type ThumbnailDraft = {
   officeImagemagickMaxMb: string;
   officeTimeoutSecs: string;
   latexEnabled: boolean;
+  model3dEnabled: boolean;
+  model3dMaxSizeMb: string;
   latexmkTimeoutSecs: string;
   latexMaxInputSizeMb: string;
   latexMaxOutputSizeMb: string;
@@ -130,6 +137,7 @@ const DEFAULT_THUMBNAIL_DRAFT: ThumbnailDraft = {
   imagemagickPath: "convert",
   ffmpegPath: "ffmpeg",
   libreofficePath: "soffice",
+  blenderPath: "blender",
   latexmkPath: "latexmk",
   videoSeekSeconds: "3",
   videoSeekRatio: "0.3",
@@ -144,6 +152,8 @@ const DEFAULT_THUMBNAIL_DRAFT: ThumbnailDraft = {
   officeImagemagickMaxMb: "20",
   officeTimeoutSecs: "10",
   latexEnabled: true,
+  model3dEnabled: false,
+  model3dMaxSizeMb: "100",
   latexmkTimeoutSecs: "60",
   latexMaxInputSizeMb: "4",
   latexMaxOutputSizeMb: "10",
@@ -206,6 +216,7 @@ export const parseThumbnailDraft = (
     const pdf = isRecord(thumbnail["pdf"]) ? thumbnail["pdf"] : {};
     const office = isRecord(thumbnail["office"]) ? thumbnail["office"] : {};
     const text = isRecord(thumbnail["text"]) ? thumbnail["text"] : {};
+    const model3d = isRecord(thumbnail["model3d"]) ? thumbnail["model3d"] : {};
     const latexPreview = isRecord(fileManagerApi["latex_preview"])
       ? fileManagerApi["latex_preview"]
       : {};
@@ -289,6 +300,10 @@ export const parseThumbnailDraft = (
         tools["libreoffice_path"],
         DEFAULT_THUMBNAIL_DRAFT.libreofficePath,
       ),
+      blenderPath: asString(
+        tools["blender_path"],
+        DEFAULT_THUMBNAIL_DRAFT.blenderPath,
+      ),
       latexmkPath: asString(
         latexPreview["latexmk_path"],
         DEFAULT_THUMBNAIL_DRAFT.latexmkPath,
@@ -335,6 +350,14 @@ export const parseThumbnailDraft = (
       latexEnabled: asBool(
         latexPreview["enable_latexmk"],
         DEFAULT_THUMBNAIL_DRAFT.latexEnabled,
+      ),
+      model3dEnabled: asBool(
+        model3d["enabled"],
+        DEFAULT_THUMBNAIL_DRAFT.model3dEnabled,
+      ),
+      model3dMaxSizeMb: asNumberString(
+        model3d["max_size_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.model3dMaxSizeMb,
       ),
       latexmkTimeoutSecs: asNumberString(
         latexPreview["latexmk_timeout_secs"],
@@ -441,6 +464,7 @@ export const applyThumbnailDraft = (
   const pdf = ensureRecord(thumbnail, "pdf");
   const office = ensureRecord(thumbnail, "office");
   const text = ensureRecord(thumbnail, "text");
+  const model3d = ensureRecord(thumbnail, "model3d");
   const latexPreview = ensureRecord(fileManagerApi, "latex_preview");
   const parsePositiveInt = (value: string, fallback: number) =>
     Number.isFinite(Number.parseInt(value, 10)) && Number.parseInt(value, 10) > 0
@@ -477,6 +501,7 @@ export const applyThumbnailDraft = (
   tools["vips_path"] = draft.vipsPath.trim();
   tools["imagemagick_path"] = draft.imagemagickPath.trim();
   tools["libreoffice_path"] = draft.libreofficePath.trim();
+  tools["blender_path"] = draft.blenderPath.trim();
   externalTools["ffmpeg_path"] = draft.ffmpegPath.trim();
   delete tools["ffmpeg_path"];
 
@@ -561,6 +586,18 @@ export const applyThumbnailDraft = (
     Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.latexMaxOutputSizeMb, 10),
   );
   latexPreview["allow_shell_escape"] = draft.latexAllowShellEscape;
+
+  model3d["enabled"] = draft.model3dEnabled;
+  model3d["max_size_mb"] = parsePositiveInt(
+    draft.model3dMaxSizeMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.model3dMaxSizeMb, 10),
+  );
+  model3d["timeout_secs"] = 60;
+  model3d["small_skip_mb"] = 1;
+  model3d["imagemagick_max_mb"] = 0;
+  model3d["seek_seconds"] = 0;
+  model3d["seek_ratio"] = 0;
+  model3d["max_chars"] = 0;
 
   return tomlAdapter.stringify(next);
 };
@@ -927,6 +964,7 @@ export interface ThumbnailDependencyConfigModalProps {
   onContentChange: (value: string) => void;
   runtimeOs?: string | undefined;
   onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  onProbeExternalTool?: ProbeExternalTool | undefined;
 }
 
 export const ThumbnailDependencyConfigModal: React.FC<
@@ -939,6 +977,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
   onContentChange,
   runtimeOs,
   onDiagnoseExternalTools,
+  onProbeExternalTool,
 }) => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -1118,6 +1157,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                 label={t("admin.config.thumbnail.vipsPath")}
                 placeholder="vips"
                 onDiagnoseExternalTools={onDiagnoseExternalTools}
+                onProbeExternalTool={onProbeExternalTool}
               />
               <ExternalToolPathField
                 toolId="imagemagick"
@@ -1127,6 +1167,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                 label={t("admin.config.thumbnail.imagemagickPath")}
                 placeholder="convert"
                 onDiagnoseExternalTools={onDiagnoseExternalTools}
+                onProbeExternalTool={onProbeExternalTool}
               />
             </div>
           )}
@@ -1160,6 +1201,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
               label={t("admin.config.thumbnail.ffmpegPath")}
               placeholder="ffmpeg"
               onDiagnoseExternalTools={onDiagnoseExternalTools}
+              onProbeExternalTool={onProbeExternalTool}
             />
           </div>
           <div>
@@ -1263,7 +1305,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
           >
             {t("admin.config.thumbnail.helper")}
           </div>
-          <div className="grid gap-4 xl:grid-cols-3">
+          <div className="grid gap-4 xl:grid-cols-4">
             <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
               <label className="flex items-center gap-3">
                 <input
@@ -1289,6 +1331,20 @@ export const ThumbnailDependencyConfigModal: React.FC<
                   {t("admin.config.thumbnail.latexDependsOnPdfHint")}
                 </div>
               )}
+              <div>
+                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.pdfMaxSizeMb")}</div>
+                <input
+                  value={draft.pdfMaxSizeMb}
+                  onChange={(event) => setDraft((state) => ({ ...state, pdfMaxSizeMb: event.target.value }))}
+                  className={cn(
+                    "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+                    isDark
+                      ? "border-white/10 bg-black/30 text-white"
+                      : "border-slate-300 bg-white text-slate-900",
+                  )}
+                  placeholder="100"
+                />
+              </div>
             </div>
             <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
               <label className="flex items-center gap-3">
@@ -1303,6 +1359,20 @@ export const ThumbnailDependencyConfigModal: React.FC<
                 <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.officeEnabled")}</span>
               </label>
               <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.officeUsesLibreofficeHint")}</div>
+              <div>
+                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.officeMaxSizeMb")}</div>
+                <input
+                  value={draft.officeMaxSizeMb}
+                  onChange={(event) => setDraft((state) => ({ ...state, officeMaxSizeMb: event.target.value }))}
+                  className={cn(
+                    "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+                    isDark
+                      ? "border-white/10 bg-black/30 text-white"
+                      : "border-slate-300 bg-white text-slate-900",
+                  )}
+                  placeholder="100"
+                />
+              </div>
               <ExternalToolPathField
                 toolId="libreoffice"
                 configKey="vfs_storage_hub.thumbnail.tools.libreoffice_path"
@@ -1311,6 +1381,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                 label={t("admin.config.thumbnail.libreofficePath")}
                 placeholder="soffice"
                 onDiagnoseExternalTools={onDiagnoseExternalTools}
+                onProbeExternalTool={onProbeExternalTool}
               />
             </div>
             <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
@@ -1334,6 +1405,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                 label={t("admin.config.thumbnail.latexmkPath")}
                 placeholder="latexmk"
                 onDiagnoseExternalTools={onDiagnoseExternalTools}
+                onProbeExternalTool={onProbeExternalTool}
               />
               <div>
                 <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexMaxInputSizeMb")}</div>
@@ -1352,6 +1424,46 @@ export const ThumbnailDependencyConfigModal: React.FC<
                 />
               </div>
             </div>
+            <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={draft.model3dEnabled}
+                  onChange={(event) =>
+                    setDraft((state) => ({ ...state, model3dEnabled: event.target.checked }))
+                  }
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.model3dEnabled")}</span>
+              </label>
+              <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.model3dUsesBlenderHint")}</div>
+              <div>
+                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.model3dMaxSizeMb")}</div>
+                <input
+                  value={draft.model3dMaxSizeMb}
+                  onChange={(event) =>
+                    setDraft((state) => ({ ...state, model3dMaxSizeMb: event.target.value }))
+                  }
+                  className={cn(
+                    "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+                    isDark
+                      ? "border-white/10 bg-black/30 text-white"
+                      : "border-slate-300 bg-white text-slate-900",
+                  )}
+                  placeholder="100"
+                />
+              </div>
+              <ExternalToolPathField
+                toolId="blender"
+                configKey="vfs_storage_hub.thumbnail.tools.blender_path"
+                value={draft.blenderPath}
+                onChange={(value) => setDraft((state) => ({ ...state, blenderPath: value }))}
+                label={t("admin.config.thumbnail.blenderPath")}
+                placeholder="blender"
+                onDiagnoseExternalTools={onDiagnoseExternalTools}
+                onProbeExternalTool={onProbeExternalTool}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -1367,6 +1479,7 @@ export interface CompressionDependencyConfigModalProps {
   onContentChange: (value: string) => void;
   runtimeOs?: string | undefined;
   onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  onProbeExternalTool?: ProbeExternalTool | undefined;
 }
 
 export const CompressionDependencyConfigModal: React.FC<
@@ -1379,6 +1492,7 @@ export const CompressionDependencyConfigModal: React.FC<
   onContentChange,
   runtimeOs,
   onDiagnoseExternalTools,
+  onProbeExternalTool,
 }) => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -1390,52 +1504,11 @@ export const CompressionDependencyConfigModal: React.FC<
   const [draft, setDraft] = useState<CompressionDraft>(
     DEFAULT_COMPRESSION_DRAFT,
   );
-  const [diagnosis, setDiagnosis] =
-    useState<ExternalToolDiagnosisResponse | null>(null);
-  const [diagnosing, setDiagnosing] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
     setDraft(parseCompressionDraft(content, tomlAdapter));
-    setDiagnosis(null);
   }, [content, isOpen, tomlAdapter]);
-
-  const toolItem = useMemo(
-    () =>
-      diagnosis?.tools.find(
-        (item) => item.group === "compression" && item.tool_id === "7z",
-      ) ?? null,
-    [diagnosis],
-  );
-
-  const handleDiagnose = async () => {
-    if (!onDiagnoseExternalTools || diagnosing) return;
-    setDiagnosing(true);
-    try {
-      const data = await onDiagnoseExternalTools(
-        buildCompressionConfiguredValues(draft),
-      );
-      setDiagnosis(data);
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : t("admin.config.externalTools.messages.diagnoseFailed");
-      addToast(message, "error");
-    } finally {
-      setDiagnosing(false);
-    }
-  };
-
-  const handleAutofill = () => {
-    const suggested = toolItem?.suggested_value?.trim();
-    if (!suggested) {
-      addToast(t("admin.config.externalTools.autofillNoChange"), "info");
-      return;
-    }
-    setDraft((state) => ({ ...state, exe7zPath: suggested }));
-    addToast(t("admin.config.externalTools.autofillSuccess"), "success");
-  };
 
   const handleApply = () => {
     try {
@@ -1535,71 +1608,22 @@ export const CompressionDependencyConfigModal: React.FC<
             </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="compression-7zip-path"
-              className={cn(
-                "text-xs font-black uppercase tracking-wide",
-                isDark ? "text-slate-400" : "text-slate-600",
-              )}
-            >
-              7-Zip
-            </label>
-            <input
-              id="compression-7zip-path"
-              value={draft.exe7zPath}
-              onChange={(event) =>
-                setDraft((state) => ({
-                  ...state,
-                  exe7zPath: event.target.value,
-                }))
-              }
-              className={cn(
-                "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
-                isDark
-                  ? "border-white/10 bg-black/30 text-white"
-                  : "border-slate-300 bg-white text-slate-900",
-              )}
-              placeholder="7z"
-            />
-          </div>
+          <ExternalToolPathField
+            toolId="7z"
+            configKey="vfs_storage_hub.file_compress.exe_7zip_path"
+            value={draft.exe7zPath}
+            onChange={(value) =>
+              setDraft((state) => ({
+                ...state,
+                exe7zPath: value,
+              }))
+            }
+            label="7-Zip"
+            placeholder="7z"
+            onDiagnoseExternalTools={onDiagnoseExternalTools}
+            onProbeExternalTool={onProbeExternalTool}
+          />
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => void handleDiagnose()}
-              disabled={
-                !onDiagnoseExternalTools || diagnosing || isMobileRuntime
-              }
-              className={cn(
-                "h-10 px-4 rounded-xl border text-sm font-black inline-flex items-center gap-2 disabled:opacity-50",
-                isDark
-                  ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15"
-                  : "border-cyan-300 bg-cyan-50 text-cyan-800 hover:bg-cyan-100",
-              )}
-            >
-              {diagnosing ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Search size={16} />
-              )}
-              {t("admin.config.externalTools.diagnose")}
-            </button>
-            <button
-              type="button"
-              onClick={handleAutofill}
-              disabled={!toolItem || diagnosing || isMobileRuntime}
-              className={cn(
-                "h-10 px-4 rounded-xl border text-sm font-black inline-flex items-center gap-2 disabled:opacity-50",
-                isDark
-                  ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/15"
-                  : "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100",
-              )}
-            >
-              <Sparkles size={16} />
-              {t("admin.config.externalTools.autofill")}
-            </button>
-          </div>
         </div>
 
         <div
@@ -1641,7 +1665,6 @@ export const CompressionDependencyConfigModal: React.FC<
         </div>
       </div>
 
-      {toolItem && <ToolCard item={toolItem} />}
     </ModalShell>
   );
 };

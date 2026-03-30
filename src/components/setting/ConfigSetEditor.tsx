@@ -405,6 +405,20 @@ export const ConfigSetEditor: React.FC = () => {
     [],
   );
 
+  const handleProbeExternalTool = useCallback(
+    async ({ toolId, value }: { toolId: string; value: string }) => {
+      return extractData(
+        client.POST("/api/v1/config-set/external-tools/probe", {
+          body: {
+            tool_id: toolId,
+            value,
+          },
+        }),
+      );
+    },
+    [],
+  );
+
   const handleProbeMediaBackend = useCallback(
     async ({
       ffmpegPath,
@@ -526,6 +540,7 @@ export const ConfigSetEditor: React.FC = () => {
         onTestDatabase: handleCheckDatabase,
         onTestCache: handleCheckCache,
         onDiagnoseExternalTools: handleDiagnoseExternalTools,
+        onProbeExternalTool: handleProbeExternalTool,
         onProbeMediaBackend: handleProbeMediaBackend,
         adminPassword: {
           value: pendingAdminPassword,
@@ -557,6 +572,7 @@ export const ConfigSetEditor: React.FC = () => {
       handleCheckDatabase,
       handleCheckCache,
       handleDiagnoseExternalTools,
+      handleProbeExternalTool,
       handleProbeMediaBackend,
       pendingAdminPassword,
       licenseStatus,
@@ -757,6 +773,7 @@ export const ConfigSetEditor: React.FC = () => {
         runtimeOs,
         systemHardware,
         onDiagnoseExternalTools: handleDiagnoseExternalTools,
+        onProbeExternalTool: handleProbeExternalTool,
         onProbeMediaBackend: handleProbeMediaBackend,
       }}
     />

@@ -1,10 +1,12 @@
 import { OFFICE_DOCX_EXTS, OFFICE_XLSX_EXTS, OFFICE_PPTX_EXTS } from './officeLite.ts';
 
-export type ThumbnailCategory = 'image' | 'video' | 'pdf' | 'office' | 'text' | 'tex';
+export type ThumbnailCategory = 'image' | 'video' | 'pdf' | 'office' | 'text' | 'tex' | 'model3d';
 
 export const IMAGE_EXTS = new Set([
-  'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'tif', 'svg'
+  'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'tif', 'svg', 'psd', 'ai'
 ]);
+
+export const MODEL3D_EXTS = new Set(['obj', 'stl', 'gltf', 'glb']);
 
 export const VIDEO_EXTS = new Set([
   'mp4', 'mov', 'mkv', 'avi', 'webm', 'm4v', 'mpg', 'mpeg'
@@ -22,6 +24,7 @@ export const TEXT_EXTS = new Set([
 
 export function getThumbnailCategory(ext: string): ThumbnailCategory | null {
   if (IMAGE_EXTS.has(ext)) return 'image';
+  if (MODEL3D_EXTS.has(ext)) return 'model3d';
   if (VIDEO_EXTS.has(ext)) return 'video';
   if (PDF_EXTS.has(ext)) return 'pdf';
   if (TEX_EXTS.has(ext)) return 'tex';

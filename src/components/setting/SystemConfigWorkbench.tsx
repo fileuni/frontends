@@ -29,6 +29,7 @@ import {
   ThumbnailDependencyConfigModal,
   type ExternalToolDiagnosisResponse,
 } from "./ExternalDependencyConfigModal";
+import type { ProbeExternalTool } from "./SharedFfmpegField";
 import {
   MediaTranscodingConfigModal,
   type MediaBackendProbeResponse,
@@ -117,6 +118,7 @@ export interface SystemConfigWorkbenchProps {
   onDiagnoseExternalTools?: ((
     configuredValues: Record<string, string>,
   ) => Promise<ExternalToolDiagnosisResponse>) | undefined;
+  onProbeExternalTool?: ProbeExternalTool | undefined;
   onProbeMediaBackend?: ((payload: {
     ffmpegPath: string;
     backend: string;
@@ -168,6 +170,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   onClearValidationErrors,
   onPickStorageDirectory,
   onDiagnoseExternalTools,
+  onProbeExternalTool,
   onProbeMediaBackend,
   settingsCenterMode = false,
   editorTitle,
@@ -1023,6 +1026,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         onContentChange={onChange}
         runtimeOs={runtimeOs}
         onDiagnoseExternalTools={onDiagnoseExternalTools}
+        onProbeExternalTool={onProbeExternalTool}
       />
 
       <MediaTranscodingConfigModal
@@ -1032,6 +1036,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         content={content}
         onContentChange={onChange}
         onDiagnoseExternalTools={onDiagnoseExternalTools}
+        onProbeExternalTool={onProbeExternalTool}
         onProbeMediaBackend={onProbeMediaBackend}
       />
 
@@ -1043,6 +1048,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         onContentChange={onChange}
         runtimeOs={runtimeOs}
         onDiagnoseExternalTools={onDiagnoseExternalTools}
+        onProbeExternalTool={onProbeExternalTool}
       />
     </div>
   );

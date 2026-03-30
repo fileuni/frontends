@@ -473,6 +473,21 @@ export const SystemConfigAdmin = () => {
     [],
   );
 
+  const handleProbeExternalTool = useCallback(
+    async ({ toolId, value }: { toolId: string; value: string }) => {
+      return extractData(
+        client.POST("/api/v1/admin/system/config/external-tools/probe", {
+          body: {
+            tool_id: toolId,
+            value,
+          },
+          headers: { "X-No-Toast": "true" },
+        }),
+      );
+    },
+    [],
+  );
+
   const handleProbeMediaBackend = useCallback(
     async ({
       ffmpegPath,
@@ -508,6 +523,7 @@ export const SystemConfigAdmin = () => {
         runtimeOs,
         systemHardware,
         onDiagnoseExternalTools: handleDiagnoseExternalTools,
+        onProbeExternalTool: handleProbeExternalTool,
         onProbeMediaBackend: handleProbeMediaBackend,
         adminPassword: {
           value: pendingAdminPassword,
@@ -538,6 +554,7 @@ export const SystemConfigAdmin = () => {
       runtimeOs,
       systemHardware,
       handleDiagnoseExternalTools,
+      handleProbeExternalTool,
       handleProbeMediaBackend,
       licenseStatus,
       licenseKey,
@@ -607,6 +624,7 @@ export const SystemConfigAdmin = () => {
           runtimeOs,
           systemHardware,
           onDiagnoseExternalTools: handleDiagnoseExternalTools,
+          onProbeExternalTool: handleProbeExternalTool,
           onProbeMediaBackend: handleProbeMediaBackend,
           quickSettingsLicense: {
             isValid: Boolean(licenseStatus?.is_valid),

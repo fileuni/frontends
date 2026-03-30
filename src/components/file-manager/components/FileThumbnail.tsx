@@ -66,6 +66,8 @@ export const FileThumbnail = ({ file, size = 64, className }: FileThumbnailProps
     switch (category) {
       case 'image':
         return settings.thumbnail_disable_image;
+      case 'model3d':
+        return settings.thumbnail_disable_image;
       case 'video':
         return settings.thumbnail_disable_video;
       case 'pdf':

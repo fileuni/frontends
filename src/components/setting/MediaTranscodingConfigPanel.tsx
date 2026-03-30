@@ -8,7 +8,11 @@ import { useToastStore } from "@/stores/toast";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { useConfigDraftBinding } from "./useConfigDraftBinding";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
-import { SharedFfmpegField, type DiagnoseExternalTools } from "./SharedFfmpegField";
+import {
+  SharedFfmpegField,
+  type DiagnoseExternalTools,
+  type ProbeExternalTool,
+} from "./SharedFfmpegField";
 
 export type MediaBackendProbeResponse = {
   ffmpeg_available: boolean;
@@ -256,6 +260,7 @@ type PanelProps = {
   content: string;
   onContentChange: (value: string) => void;
   onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  onProbeExternalTool?: ProbeExternalTool | undefined;
   onProbeMediaBackend?: ProbeMediaBackend | undefined;
 };
 
@@ -281,6 +286,7 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
   draft,
   setDraft,
   onDiagnoseExternalTools,
+  onProbeExternalTool,
   onProbeMediaBackend,
 }) => {
   const { t } = useTranslation();
@@ -382,6 +388,7 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
           label={t("admin.config.mediaTranscoding.ffmpegPath")}
           placeholder={t("admin.config.externalTools.placeholders.ffmpeg")}
           onDiagnoseExternalTools={onDiagnoseExternalTools}
+          onProbeExternalTool={onProbeExternalTool}
         />
 
         {[
@@ -541,6 +548,7 @@ export const MediaTranscodingInlinePanel: React.FC<PanelProps> = ({
   content,
   onContentChange,
   onDiagnoseExternalTools,
+  onProbeExternalTool,
   onProbeMediaBackend,
 }) => {
   const createDraft = useCallback(
@@ -566,6 +574,7 @@ export const MediaTranscodingInlinePanel: React.FC<PanelProps> = ({
       draft={draft}
       setDraft={setDraft}
       onDiagnoseExternalTools={onDiagnoseExternalTools}
+      onProbeExternalTool={onProbeExternalTool}
       onProbeMediaBackend={onProbeMediaBackend}
     />
   );
@@ -583,6 +592,7 @@ export const MediaTranscodingConfigModal: React.FC<MediaTranscodingConfigModalPr
   content,
   onContentChange,
   onDiagnoseExternalTools,
+  onProbeExternalTool,
   onProbeMediaBackend,
 }) => {
   const { t } = useTranslation();
@@ -636,6 +646,7 @@ export const MediaTranscodingConfigModal: React.FC<MediaTranscodingConfigModalPr
             draft={draft}
             setDraft={setDraft}
             onDiagnoseExternalTools={onDiagnoseExternalTools}
+            onProbeExternalTool={onProbeExternalTool}
             onProbeMediaBackend={onProbeMediaBackend}
           />
         </div>

@@ -19,7 +19,7 @@ import {
 } from "./SettingInlineQuickPanels";
 import { StoragePoolInlinePanel } from "./StoragePoolInlinePanel";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
-import type { DiagnoseExternalTools } from "./SharedFfmpegField";
+import type { DiagnoseExternalTools, ProbeExternalTool } from "./SharedFfmpegField";
 import type { SystemHardwareInfo } from "./ConfigQuickSettingsModal";
 
 type DatabaseCheckPayload = {
@@ -259,6 +259,7 @@ interface BuildSettingCommonActionsParams {
   onTestDatabase?: (payload: DatabaseCheckPayload) => Promise<void>;
   onTestCache?: (payload: CacheCheckPayload) => Promise<void>;
   onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  onProbeExternalTool?: ProbeExternalTool | undefined;
   onProbeMediaBackend?: ProbeMediaBackend | undefined;
   adminPassword: {
     value: string;
@@ -289,6 +290,7 @@ export const buildSettingCommonActions = ({
   onTestDatabase,
   onTestCache,
   onDiagnoseExternalTools,
+  onProbeExternalTool,
   onProbeMediaBackend,
   adminPassword,
   license,
@@ -444,6 +446,7 @@ export const buildSettingCommonActions = ({
           content={content}
           onContentChange={onContentChange}
           onDiagnoseExternalTools={onDiagnoseExternalTools}
+          onProbeExternalTool={onProbeExternalTool}
         />
       ),
     },
@@ -458,6 +461,7 @@ export const buildSettingCommonActions = ({
           content={content}
           onContentChange={onContentChange}
           onDiagnoseExternalTools={onDiagnoseExternalTools}
+          onProbeExternalTool={onProbeExternalTool}
           onProbeMediaBackend={onProbeMediaBackend}
         />
       ),
@@ -472,6 +476,7 @@ export const buildSettingCommonActions = ({
           tomlAdapter={tomlAdapter}
           content={content}
           onContentChange={onContentChange}
+          onProbeExternalTool={onProbeExternalTool}
         />
       ),
     },

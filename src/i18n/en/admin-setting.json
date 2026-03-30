@@ -367,10 +367,12 @@
         "pdfEnabled": "Enable PDF Thumbnails",
         "officeEnabled": "Enable Document Thumbnails",
         "latexEnabled": "Enable LaTeX Preview Thumbnails",
+        "model3dEnabled": "Enable 3D Model Thumbnails",
         "pdfOfficeHint": "PDF, document, and LaTeX thumbnails reuse the raster toolchain. Documents also need LibreOffice, and LaTeX also needs latexmk.",
         "pdfUsesRasterToolsHint": "PDF thumbnails reuse the shared libvips / ImageMagick raster toolchain above.",
         "officeUsesLibreofficeHint": "Document thumbnails convert the source through LibreOffice first, then continue through the PDF thumbnail path.",
         "latexUsesPdfHint": "LaTeX preview thumbnails use latexmk to generate a PDF first and then reuse the PDF thumbnail parameters for the final thumbnail.",
+        "model3dUsesBlenderHint": "3D model thumbnails use Blender in the background to import the model and render a still view. Current support: obj, stl, gltf, glb.",
         "pdfTitle": "PDF Thumbnails",
         "pdfSmallSkipMb": "Skip PDF Thumbnails Below This Size (MB)",
         "pdfMaxSizeMb": "Skip PDF Thumbnails Above This Size (MB)",
@@ -382,10 +384,13 @@
         "officeTimeoutSecs": "Document Timeout (seconds)",
         "officeImagemagickMaxMb": "Document ImageMagick Size Limit (MB)",
         "latexTitle": "LaTeX Preview Thumbnails",
+        "model3dTitle": "3D Model Thumbnails",
         "latexmkTimeoutSecs": "latexmk Timeout (seconds)",
         "latexMaxInputSizeMb": "LaTeX Source Size Limit (MB)",
         "latexMaxOutputSizeMb": "LaTeX Output PDF Size Limit (MB)",
         "latexAllowShellEscape": "Allow shell-escape",
+        "model3dMaxSizeMb": "3D Model Max File Size (MB)",
+        "blenderPath": "Blender Path",
         "latexDependsOnPdfHint": "LaTeX preview thumbnails generate a PDF first and then reuse the PDF thumbnail parameters and toolchain above. Even if PDF thumbnails are disabled, that PDF parameter group still affects LaTeX preview thumbnails.",
         "helper": "Desktop systems use FFmpeg for video thumbnails. Android and iOS use the system media framework instead. External tool paths are still used for PDF, Office, text, and optional external image rendering."
       },
@@ -467,14 +472,16 @@
           "imagemagick": "ImageMagick",
           "ffmpeg": "FFmpeg",
           "libreoffice": "LibreOffice",
-          "latexmk": "latexmk"
+          "latexmk": "latexmk",
+          "blender": "Blender"
         },
         "placeholders": {
           "vips": "vips",
           "imagemagick": "convert or magick",
           "ffmpeg": "ffmpeg",
           "libreoffice": "soffice",
-          "latexmk": "latexmk"
+          "latexmk": "latexmk",
+          "blender": "blender"
         },
         "messages": {
           "diagnoseFailed": "External dependency diagnosis failed",
