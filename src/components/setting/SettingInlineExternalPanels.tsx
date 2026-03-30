@@ -767,6 +767,14 @@ type CacheAccelerationDraft = {
   writeFlushDeadlineSecs: string;
 };
 
+type ProtectedStorageDraft = {
+  globalMode: "disabled" | "obfuscate" | "encrypt";
+  blockSizeKiB: string;
+  prng: "xorshift" | "pcg";
+  workers: string;
+  cipher: string;
+};
+
 const InlineSegmentCard: React.FC<{
   isDark: boolean;
   title: string;
@@ -810,6 +818,188 @@ const InlineSegmentCard: React.FC<{
     </div>
   </div>
 );
+
+export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
+  tomlAdapter,
+  content,
+  onContentChange,
+}) => {
+  const { t } = useTranslation();
+  const isDark = useResolvedTheme() === "dark";
+  const createDraft = useCallback(
+    (source: string): ProtectedStorageDraft => {
+      const parsed = tomlAdapter.parse(source);
+      const root = asRecord(parsed);
+      const hub = asRecord(root["vfs_storage_hub"]);
+      const protectedStorage = asRecord(hub["protected_storage"]);
+      const obfuscation = asRecord(protectedStorage["obfuscation"]);
+      const encrypt = asRecord(protectedStorage["encrypt"]);
+      const globalMode = protectedStorage["global_mode"];
+      const prng = obfuscation["prng"];
+      return {
+        globalMode:
+          globalMode === "obfuscate" || globalMode === "encrypt"
+            ? globalMode
+            : "disabled",
+        blockSizeKiB: String(obfuscation["block_size_kib"] ?? 256),
+        prng: prng === "pcg" ? "pcg" : "xorshift",
+        workers: String(obfuscation["workers"] ?? 0),
+        cipher:
+          typeof encrypt["cipher"] === "string" && encrypt["cipher"].trim().length > 0
+            ? encrypt["cipher"]
+            : "aes-256-ctr",
+      };
+    },
+    [tomlAdapter],
+  );
+  const buildContent = useCallback(
+    (source: string, next: ProtectedStorageDraft) => {
+      const parsed = tomlAdapter.parse(source);
+      const root: ConfigObject = isRecord(parsed) ? parsed : {};
+      const hub = ensureRecord(root, "vfs_storage_hub");
+      hub["protected_storage"] = {
+        global_mode: next.globalMode,
+        obfuscation: {
+          block_size_kib: Number.parseInt(next.blockSizeKiB, 10) || 256,
+          prng: next.prng,
+          workers: Number.parseInt(next.workers, 10) || 0,
+        },
+        encrypt: {
+          cipher: "aes-256-ctr",
+        },
+      };
+      return tomlAdapter.stringify(root);
+    },
+    [tomlAdapter],
+  );
+  const { draft, setDraft } = useConfigDraftBinding<ProtectedStorageDraft>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+  });
+  const inputClass = cn(
+    "mt-1 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+    isDark
+      ? "border-white/10 bg-black/30 text-white"
+      : "border-slate-300 bg-white text-slate-900",
+  );
+  const riskKey = `admin.config.protectedStorage.risks.${draft.globalMode}`;
+
+  return (
+    <div className="space-y-4">
+      <div
+        className={cn(
+          "rounded-2xl border p-4 text-sm leading-6",
+          isDark
+            ? "border-amber-500/25 bg-amber-500/10 text-amber-100"
+            : "border-amber-200 bg-amber-50 text-amber-900",
+        )}
+      >
+        {t(riskKey)}
+      </div>
+
+      <div
+        className={cn(
+          "rounded-2xl border p-4 space-y-3",
+          isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white",
+        )}
+      >
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t("admin.config.protectedStorage.globalMode")}
+          subtitle={t(`admin.config.protectedStorage.globalModeHint.${draft.globalMode}`)}
+          value={draft.globalMode}
+          options={[
+            { value: "disabled", label: t("admin.config.protectedStorage.modes.disabled") },
+            { value: "obfuscate", label: t("admin.config.protectedStorage.modes.obfuscate") },
+            { value: "encrypt", label: t("admin.config.protectedStorage.modes.encrypt") },
+          ]}
+          onChange={(value) =>
+            setDraft((prev) => ({
+              ...prev,
+              globalMode: value as ProtectedStorageDraft["globalMode"],
+            }))
+          }
+        />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <div
+          className={cn(
+            "rounded-2xl border p-4 space-y-3",
+            isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white",
+          )}
+        >
+          <div className="text-sm font-black">{t("admin.config.protectedStorage.obfuscation.title")}</div>
+          <div>
+            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+              {t("admin.config.protectedStorage.obfuscation.blockSizeKiB")}
+            </div>
+            <input
+              className={inputClass}
+              value={draft.blockSizeKiB}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, blockSizeKiB: event.target.value }))
+              }
+              placeholder="256"
+            />
+          </div>
+          <InlineSegmentCard
+            isDark={isDark}
+            title={t("admin.config.protectedStorage.obfuscation.prng")}
+            subtitle={t("admin.config.protectedStorage.obfuscation.prngHint")}
+            value={draft.prng}
+            options={[
+              { value: "xorshift", label: "xorshift" },
+              { value: "pcg", label: "pcg" },
+            ]}
+            onChange={(value) =>
+              setDraft((prev) => ({
+                ...prev,
+                prng: value as ProtectedStorageDraft["prng"],
+              }))
+            }
+          />
+          <div>
+            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+              {t("admin.config.protectedStorage.obfuscation.workers")}
+            </div>
+            <input
+              className={inputClass}
+              value={draft.workers}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, workers: event.target.value }))
+              }
+              placeholder="0"
+            />
+            <div className={cn("mt-2 text-xs leading-5", isDark ? "text-slate-400" : "text-slate-500")}>
+              {t("admin.config.protectedStorage.obfuscation.workersHint")}
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "rounded-2xl border p-4 space-y-3",
+            isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white",
+          )}
+        >
+          <div className="text-sm font-black">{t("admin.config.protectedStorage.encrypt.title")}</div>
+          <div>
+            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+              {t("admin.config.protectedStorage.encrypt.cipher")}
+            </div>
+            <input className={inputClass} value={draft.cipher} readOnly />
+            <div className={cn("mt-2 text-xs leading-5", isDark ? "text-slate-400" : "text-slate-500")}>
+              {t("admin.config.protectedStorage.encrypt.cipherHint")}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
   tomlAdapter,

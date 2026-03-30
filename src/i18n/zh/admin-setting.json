@@ -453,6 +453,38 @@
         "helper": "建议先检查 7-Zip，再保存设置。",
         "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
       },
+      "protectedStorage": {
+        "title": "加密和混淆储存",
+        "globalMode": "全局模式",
+        "modes": {
+          "disabled": "关闭",
+          "obfuscate": "混淆",
+          "encrypt": "加密"
+        },
+        "globalModeHint": {
+          "disabled": "关闭后，已有混淆和加密文件都会暂时不可访问。",
+          "obfuscate": "仅允许混淆储存继续工作，已有加密数据会暂时不可读。",
+          "encrypt": "仅允许加密储存继续工作，已有混淆数据会暂时不可读。"
+        },
+        "risks": {
+          "disabled": "警告：切到关闭后，系统不会自动迁移或恢复已有受保护数据。重新开启前，这些数据都不可访问。",
+          "obfuscate": "警告：切到混淆模式后，系统不会自动把已有加密数据转换为混淆数据。模式不匹配的数据会暂时不可读。",
+          "encrypt": "警告：切到加密模式后，系统不会自动把已有混淆数据转换为加密数据。模式不匹配的数据会暂时不可读。"
+        },
+        "obfuscation": {
+          "title": "混淆模式参数",
+          "blockSizeKiB": "块大小（KiB）",
+          "prng": "遮罩生成器",
+          "prngHint": "xorshift 更轻量，pcg 更稳定；两者都只用于混淆模式。",
+          "workers": "工作线程数",
+          "workersHint": "填 0 表示自动按 CPU 核心数决定。只影响混淆模式的大文件或大范围读取。"
+        },
+        "encrypt": {
+          "title": "加密模式参数",
+          "cipher": "固定算法",
+          "cipherHint": "第一阶段固定使用 AES-256-CTR，由服务端统一加解密。"
+        }
+      },
       "externalTools": {
         "diagnose": "诊断",
         "autofill": "自动填写",

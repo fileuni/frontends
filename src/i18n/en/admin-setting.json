@@ -454,6 +454,38 @@
         "helper": "Check 7-Zip first, then save your settings.",
         "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
       },
+      "protectedStorage": {
+        "title": "Protected Storage",
+        "globalMode": "Global Mode",
+        "modes": {
+          "disabled": "Disabled",
+          "obfuscate": "Obfuscate",
+          "encrypt": "Encrypt"
+        },
+        "globalModeHint": {
+          "disabled": "Turning this off makes all existing protected data temporarily unavailable.",
+          "obfuscate": "Only obfuscated storage stays available; existing encrypted data becomes temporarily unreadable.",
+          "encrypt": "Only encrypted storage stays available; existing obfuscated data becomes temporarily unreadable."
+        },
+        "risks": {
+          "disabled": "Warning: switching to Disabled does not migrate or restore protected data. Existing protected data stays unavailable until a matching mode is enabled again.",
+          "obfuscate": "Warning: switching to Obfuscate does not convert existing encrypted data. Data written under another mode becomes temporarily unavailable.",
+          "encrypt": "Warning: switching to Encrypt does not convert existing obfuscated data. Data written under another mode becomes temporarily unavailable."
+        },
+        "obfuscation": {
+          "title": "Obfuscation Settings",
+          "blockSizeKiB": "Block Size (KiB)",
+          "prng": "Mask Generator",
+          "prngHint": "xorshift is lighter, pcg is steadier. Both apply to obfuscation mode only.",
+          "workers": "Worker Count",
+          "workersHint": "Use 0 to auto-select based on CPU cores. This only affects large obfuscation reads."
+        },
+        "encrypt": {
+          "title": "Encryption Settings",
+          "cipher": "Fixed Cipher",
+          "cipherHint": "Phase 1 is fixed to AES-256-CTR with server-side encryption and decryption."
+        }
+      },
       "externalTools": {
         "diagnose": "Diagnose",
         "autofill": "Auto Fill",

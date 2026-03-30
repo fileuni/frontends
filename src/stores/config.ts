@@ -65,6 +65,11 @@ export interface SystemCapabilities {
     thumb_size_px: number;
     thumb_format: string;
   };
+  protected_storage: {
+    global_mode: string;
+    subdir_trash_disabled: boolean;
+    subdir_thumbnail_disabled: boolean;
+  };
   compression_max_level?: number;
   default_compression_format?: string;
   decompression_formats?: string[];

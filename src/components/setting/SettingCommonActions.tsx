@@ -9,6 +9,7 @@ import {
   AdminPasswordInlinePanel,
   CacheAccelerationInlinePanel,
   CompressionInlinePanel,
+  ProtectedStorageInlinePanel,
   ThumbnailInlinePanel,
 } from "./SettingInlineExternalPanels";
 import { MediaTranscodingInlinePanel, type ProbeMediaBackend } from "./MediaTranscodingConfigPanel";
@@ -442,6 +443,21 @@ export const buildSettingCommonActions = ({
       icon: settingCommonIcons.cache,
       renderPanel: () => (
         <CacheAccelerationInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "protected-storage",
+      routeKey: "protected_storage",
+      routeAliases: ["protected_storage", "protected-storage", "加密和混淆储存"],
+      label: t("admin.config.protectedStorage.title"),
+      description: "",
+      icon: settingCommonIcons.protectedStorage,
+      renderPanel: () => (
+        <ProtectedStorageInlinePanel
           tomlAdapter={tomlAdapter}
           content={content}
           onContentChange={onContentChange}

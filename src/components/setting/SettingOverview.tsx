@@ -510,6 +510,7 @@ export const settingCommonIcons = {
   admin: KeyRound,
   license: ShieldCheck,
   storage: FolderCog,
+  protectedStorage: ShieldCheck,
   thumbnail: ImagePlus,
   mediaTranscoding: Video,
   compression: Zap,
