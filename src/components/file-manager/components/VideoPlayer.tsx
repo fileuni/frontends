@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Player from 'xgplayer';
 import FlvPlugin from 'xgplayer-flv';
+import HlsPlugin from 'xgplayer-hls';
 import 'xgplayer/dist/index.min.css';
 import type { FileInfo } from '../types/index.ts';
-import { BASE_URL } from '@/lib/api.ts';
+import { BASE_URL, client, extractData } from '@/lib/api.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { clearMediaPlaybackRecords, formatMediaPlaybackUpdatedAt, removeMediaPlaybackRecord, resolveMediaResumePosition, upsertMediaPlaybackRecord, type MediaPlaybackKind, useMediaPlaybackHistory } from '@/lib/mediaPlaybackHistory.ts';
 import { getVideoPlaybackPreference, updateVideoPlaybackPreference } from './videoPlaybackPreferences.ts';
@@ -24,6 +25,7 @@ import {
   History,
   Volume2,
   VolumeX,
+  Loader2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
@@ -73,6 +75,13 @@ interface AudioTrackListLike {
   [index: number]: AudioTrackLike;
 }
 
+interface WebVideoPlaybackResponse {
+  mode: 'direct' | 'pending' | 'hls';
+  url?: string | null;
+  content_type?: string | null;
+  retry_after_ms?: number | null;
+}
+
 type VideoWithOptionalTracks = HTMLVideoElement & {
   audioTracks?: AudioTrackListLike;
 };
@@ -107,6 +116,8 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
   const [currentSubtitle, setCurrentSubtitle] = useState<SubtitleInfo | null>(null);
   const [availableAudioTracks, setAvailableAudioTracks] = useState<AudioTrackInfo[]>([]);
   const [currentAudioTrackIndex, setCurrentAudioTrackIndex] = useState<number | null>(null);
+  const [playbackPreparing, setPlaybackPreparing] = useState(true);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -400,6 +411,23 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
     setSubtitlesLoaded(true);
   }, [activeFile, playlist]);
 
+  const resolvePlaybackEntry = useCallback(async (path: string) => {
+    let attempts = 0;
+    while (attempts < 180) {
+      const playback = await extractData<WebVideoPlaybackResponse>(
+        client.GET('/api/v1/file/web-playback/video', {
+          params: { query: { path } },
+        }),
+      );
+      if (playback.mode !== 'pending') {
+        return playback;
+      }
+      attempts += 1;
+      await new Promise((resolve) => window.setTimeout(resolve, playback.retry_after_ms ?? 1000));
+    }
+    throw new Error(t('filemanager.errors.loadFailed') || 'Load failed');
+  }, [t]);
+
   useEffect(() => {
     if (!playerContainerRef.current || !activeFile) return undefined;
     let mounted = true;
@@ -409,21 +437,26 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
     audioTrackRestorePathRef.current = null;
     setAvailableAudioTracks([]);
     setCurrentAudioTrackIndex(null);
+    setPlaybackPreparing(true);
+    setPlaybackError(null);
 
     const init = async () => {
       playerRef.current?.destroy();
-      const token = await getFileDownloadToken(activeFile.path);
+      const playback = await resolvePlaybackEntry(activeFile.path);
       if (!mounted) return;
+      if (!playback.url) {
+        throw new Error(t('filemanager.errors.loadFailed') || 'Load failed');
+      }
 
       const player = new Player({
         el: playerContainerRef.current!,
-        url: `${BASE_URL}/api/v1/file/get-content?file_download_token=${encodeURIComponent(token)}&inline=true`,
+        url: playback.url,
         width: '100%',
         height: '100%',
         autoplay: true,
         controls: false,
         ignores: ['play', 'progress', 'time', 'volume', 'fullscreen', 'pip', 'playbackrate', 'definition', 'start', 'error', 'loading', 'poster', 'replay', 'mobile'],
-        plugins: isFlv ? [FlvPlugin] : [],
+        plugins: playback.mode === 'hls' ? [HlsPlugin] : isFlv ? [FlvPlugin] : [],
       }) as SubtitleCapablePlayer;
 
       player.on('ended', () => {
@@ -459,9 +492,15 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
       });
       player.on('ratechange', () => setPlaybackRate(player.playbackRate));
       playerRef.current = player;
+      setPlaybackPreparing(false);
     };
 
-    void init();
+    void init().catch((error: unknown) => {
+      if (!mounted) return;
+      console.error('Failed to initialize video playback', error);
+      setPlaybackPreparing(false);
+      setPlaybackError(error instanceof Error ? error.message : (t('filemanager.errors.loadFailed') || 'Load failed'));
+    });
     void loadSubtitles();
 
     return () => {
@@ -479,7 +518,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
       playerRef.current?.destroy();
       playerRef.current = null;
     };
-  }, [activeFile, isFlv, loadSubtitles, playlist.length]);
+  }, [activeFile, isFlv, loadSubtitles, playlist.length, resolvePlaybackEntry, t]);
 
   useEffect(() => {
     if (!playerRef.current) return undefined;
@@ -780,7 +819,20 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
 
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto lg:overflow-hidden">
         <div ref={playerContainerRef} className="flex-1 relative bg-black group min-h-[14rem] lg:min-h-0">
-          {!isPlaying && (
+          {playbackPreparing && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/55 text-white backdrop-blur-sm">
+              <Loader2 className="animate-spin" size={32} />
+              <p className="text-sm font-black uppercase tracking-[0.24em]">{t('filemanager.preview.preparing') || 'Preparing preview...'}</p>
+            </div>
+          )}
+
+          {playbackError && !playbackPreparing && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/65 px-6 text-center text-white backdrop-blur-sm">
+              <p className="text-sm font-black uppercase tracking-[0.2em]">{playbackError}</p>
+            </div>
+          )}
+
+          {!playbackPreparing && !playbackError && !isPlaying && (
             <button type="button" onClick={togglePlay} className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px] z-10">
               <div className="w-20 h-20 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center border border-white/10 shadow-2xl"><Play size={32} className="text-white fill-white ml-1" /></div>
             </button>

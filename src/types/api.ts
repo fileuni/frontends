@@ -2683,6 +2683,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/file/web-media/hls/{session_id}/{asset}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_web_video_hls_asset"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/web-playback/video": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_web_video_playback_entry"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/notifications": {
         parameters: {
             query?: never;
@@ -4905,6 +4937,7 @@ export interface components {
             enable_latexjs: boolean;
             enable_latexmk: boolean;
             enable_markdown_vditor: boolean;
+            enable_media_transcoding: boolean;
             enable_microsoft_viewer: boolean;
             enable_mobile_auth: boolean;
             enable_mqtt_proxy_broker: boolean;
@@ -4912,12 +4945,14 @@ export interface components {
             enable_registration: boolean;
             enable_s3: boolean;
             enable_sftp: boolean;
+            enable_video_transcoding: boolean;
             enable_webdav: boolean;
             enable_wopi: boolean;
             has_7z: boolean;
             is_config_set_mode: boolean;
             jsdelivr_mirror_base: string;
             latex_preview_mode: string;
+            media_transcoding_backend?: string | null;
             preview_size_limits: components["schemas"]["PreviewSizeLimits"];
             runtime_arch: string;
             /** Format: int32 */
@@ -5378,6 +5413,20 @@ export interface components {
             action: string;
             reason_code: string;
             signals: string[];
+        };
+        WebVideoHlsAssetPath: {
+            asset: string;
+            session_id: string;
+        };
+        WebVideoPlaybackQuery: {
+            path: string;
+        };
+        WebVideoPlaybackResponse: {
+            content_type?: string | null;
+            mode: string;
+            /** Format: int64 */
+            retry_after_ms?: number | null;
+            url?: string | null;
         };
         WopiHostResponse: {
             /**
@@ -10189,6 +10238,74 @@ export interface operations {
         };
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    get_web_video_hls_asset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+                asset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get WebUI HLS manifest or segment */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Session or asset not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_web_video_playback_entry: {
+        parameters: {
+            query: {
+                path: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Resolve WebUI video playback entry */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description File not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

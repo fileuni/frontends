@@ -81,6 +81,7 @@
     "vditor": "^3.11.2",
     "xgplayer": "^3.0.23",
     "xgplayer-flv": "^3.0.23",
+    "xgplayer-hls": "^3.0.23",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
