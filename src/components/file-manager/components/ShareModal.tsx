@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Link as LinkIcon, Copy, CheckCircle2, Lock, Clock, Dices, Download, Zap, Settings, Info, User, QrCode, X, Upload, FilePenLine, Trash2 } from 'lucide-react';
 import type { FileInfo } from '../types/index.ts';
-import { client, extractData, handleApiError } from '@/lib/api.ts';
+import { client, extractData } from '@/lib/api.ts';
 import { useThemeStore } from '@/stores/theme';
 import { cn } from '@/lib/utils.ts';
 import { useFileActions } from '../hooks/useFileActions.ts';
