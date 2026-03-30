@@ -158,6 +158,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
     const category = getThumbnailCategory(activeExt);
     if (settings && category) {
       if (category === 'image' && settings.thumbnail_disable_image) return undefined;
+      if (category === 'model3d' && settings.thumbnail_disable_image) return undefined;
       if (category === 'video' && settings.thumbnail_disable_video) return undefined;
       if (category === 'pdf' && settings.thumbnail_disable_pdf) return undefined;
       if (category === 'office' && settings.thumbnail_disable_office) return undefined;

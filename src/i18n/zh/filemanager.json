@@ -279,6 +279,11 @@
     "noTypes": "暂无可用的缩略图类型。",
     "types": {
       "image": "图片",
+      "model3d": "3D 模型",
+      "pdf": "PDF",
+      "office": "文档",
+      "markdown": "Markdown",
+      "tex": "LaTeX",
       "video": "视频",
       "text": "文本"
     },

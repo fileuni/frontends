@@ -288,6 +288,7 @@
     "noTypes": "No thumbnail types available.",
     "types": {
       "image": "Images",
+      "model3d": "3D Models",
       "video": "Videos",
       "pdf": "PDF",
       "office": "Office",

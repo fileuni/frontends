@@ -123,6 +123,7 @@ export const FileManagerToolbar = () => {
 
   const toggleItems: { key: keyof UserFileSettingsUpdate; label: string; enabled: boolean }[] = [
     { key: 'thumbnail_disable_image', label: t('filemanager.thumbnail.types.image') || 'Images', enabled: thumbCaps?.image === true },
+    { key: 'thumbnail_disable_image', label: t('filemanager.thumbnail.types.model3d') || '3D Models', enabled: thumbCaps?.model3d === true },
     { key: 'thumbnail_disable_video', label: t('filemanager.thumbnail.types.video') || 'Videos', enabled: thumbCaps?.video === true },
     { key: 'thumbnail_disable_pdf', label: t('filemanager.thumbnail.types.pdf') || 'PDF', enabled: thumbCaps?.pdf === true },
     { key: 'thumbnail_disable_office', label: t('filemanager.thumbnail.types.office') || 'Office', enabled: thumbCaps?.office === true },
