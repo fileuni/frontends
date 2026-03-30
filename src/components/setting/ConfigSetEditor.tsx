@@ -405,6 +405,29 @@ export const ConfigSetEditor: React.FC = () => {
     [],
   );
 
+  const handleProbeMediaBackend = useCallback(
+    async ({
+      ffmpegPath,
+      backend,
+      device,
+    }: {
+      ffmpegPath: string;
+      backend: string;
+      device?: string;
+    }) => {
+      return extractData(
+        client.POST("/api/v1/config-set/media-backend/probe", {
+          body: {
+            ffmpeg_path: ffmpegPath,
+            backend,
+            ...(device ? { device } : {}),
+          },
+        }),
+      );
+    },
+    [],
+  );
+
   const handleCheckDatabase = useCallback(
     async ({
       databaseType,
@@ -502,6 +525,8 @@ export const ConfigSetEditor: React.FC = () => {
         systemHardware,
         onTestDatabase: handleCheckDatabase,
         onTestCache: handleCheckCache,
+        onDiagnoseExternalTools: handleDiagnoseExternalTools,
+        onProbeMediaBackend: handleProbeMediaBackend,
         adminPassword: {
           value: pendingAdminPassword,
           onValueChange: setPendingAdminPassword,
@@ -531,6 +556,8 @@ export const ConfigSetEditor: React.FC = () => {
       systemHardware,
       handleCheckDatabase,
       handleCheckCache,
+      handleDiagnoseExternalTools,
+      handleProbeMediaBackend,
       pendingAdminPassword,
       licenseStatus,
       licenseKey,
@@ -730,6 +757,7 @@ export const ConfigSetEditor: React.FC = () => {
         runtimeOs,
         systemHardware,
         onDiagnoseExternalTools: handleDiagnoseExternalTools,
+        onProbeMediaBackend: handleProbeMediaBackend,
       }}
     />
   );

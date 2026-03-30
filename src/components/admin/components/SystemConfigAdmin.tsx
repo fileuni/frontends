@@ -473,6 +473,30 @@ export const SystemConfigAdmin = () => {
     [],
   );
 
+  const handleProbeMediaBackend = useCallback(
+    async ({
+      ffmpegPath,
+      backend,
+      device,
+    }: {
+      ffmpegPath: string;
+      backend: string;
+      device?: string;
+    }) => {
+      return extractData(
+        client.POST("/api/v1/admin/system/config/media-backend/probe", {
+          body: {
+            ffmpeg_path: ffmpegPath,
+            backend,
+            ...(device ? { device } : {}),
+          },
+          headers: { "X-No-Toast": "true" },
+        }),
+      );
+    },
+    [],
+  );
+
   const settingActions = useMemo(
     () =>
       buildSettingCommonActions({
@@ -483,6 +507,8 @@ export const SystemConfigAdmin = () => {
         onContentChange: setContent,
         runtimeOs,
         systemHardware,
+        onDiagnoseExternalTools: handleDiagnoseExternalTools,
+        onProbeMediaBackend: handleProbeMediaBackend,
         adminPassword: {
           value: pendingAdminPassword,
           onValueChange: setPendingAdminPassword,
@@ -511,6 +537,8 @@ export const SystemConfigAdmin = () => {
       pendingAdminPassword,
       runtimeOs,
       systemHardware,
+      handleDiagnoseExternalTools,
+      handleProbeMediaBackend,
       licenseStatus,
       licenseKey,
       handleUpdateLicense,
@@ -579,6 +607,7 @@ export const SystemConfigAdmin = () => {
           runtimeOs,
           systemHardware,
           onDiagnoseExternalTools: handleDiagnoseExternalTools,
+          onProbeMediaBackend: handleProbeMediaBackend,
           quickSettingsLicense: {
             isValid: Boolean(licenseStatus?.is_valid),
             msg: licenseStatus?.msg,

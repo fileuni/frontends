@@ -13,6 +13,7 @@ import {
   ImagePlus,
   Key,
   Settings2,
+  Video,
   WandSparkles,
 } from "lucide-react";
 import { ConfigEditorPanel } from "./ConfigEditorPanel";
@@ -28,6 +29,10 @@ import {
   ThumbnailDependencyConfigModal,
   type ExternalToolDiagnosisResponse,
 } from "./ExternalDependencyConfigModal";
+import {
+  MediaTranscodingConfigModal,
+  type MediaBackendProbeResponse,
+} from "./MediaTranscodingConfigPanel";
 import type {
   ConfigError,
   ConfigNoteEntry,
@@ -112,6 +117,11 @@ export interface SystemConfigWorkbenchProps {
   onDiagnoseExternalTools?: ((
     configuredValues: Record<string, string>,
   ) => Promise<ExternalToolDiagnosisResponse>) | undefined;
+  onProbeMediaBackend?: ((payload: {
+    ffmpegPath: string;
+    backend: string;
+    device?: string;
+  }) => Promise<MediaBackendProbeResponse>) | undefined;
   settingsCenterMode?: boolean | undefined;
   editorTitle?: string | undefined;
   testLabel?: string | undefined;
@@ -127,6 +137,7 @@ export interface SetupActionHandles {
   openLicenseManagement?: () => void;
   openStorageConfig: () => void;
   openThumbnailTools: () => void;
+  openMediaTranscodingTools: () => void;
   openCompressionTools: () => void;
 }
 
@@ -157,6 +168,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   onClearValidationErrors,
   onPickStorageDirectory,
   onDiagnoseExternalTools,
+  onProbeMediaBackend,
   settingsCenterMode = false,
   editorTitle,
   testLabel,
@@ -175,6 +187,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const [isLicenseOpen, setIsLicenseOpen] = useState(false);
   const [isStorageOpen, setIsStorageOpen] = useState(false);
   const [isThumbnailToolsOpen, setIsThumbnailToolsOpen] = useState(false);
+  const [isMediaTranscodingOpen, setIsMediaTranscodingOpen] = useState(false);
   const [isCompressionToolsOpen, setIsCompressionToolsOpen] = useState(false);
   const [jumpTo, setJumpTo] = useState<EditorJumpPosition | null>(null);
   const [showRawEditor, setShowRawEditor] = useState(!settingsCenterMode);
@@ -229,6 +242,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const openLicenseManagement = useCallback(() => {
     setIsStorageOpen(false);
     setIsThumbnailToolsOpen(false);
+    setIsMediaTranscodingOpen(false);
     setIsCompressionToolsOpen(false);
     setIsLicenseOpen(true);
   }, []);
@@ -236,6 +250,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const openStorageConfig = useCallback(() => {
     setIsLicenseOpen(false);
     setIsThumbnailToolsOpen(false);
+    setIsMediaTranscodingOpen(false);
     setIsCompressionToolsOpen(false);
     setIsStorageOpen(true);
   }, []);
@@ -243,14 +258,24 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   const openThumbnailTools = useCallback(() => {
     setIsLicenseOpen(false);
     setIsStorageOpen(false);
+    setIsMediaTranscodingOpen(false);
     setIsCompressionToolsOpen(false);
     setIsThumbnailToolsOpen(true);
+  }, []);
+
+  const openMediaTranscodingTools = useCallback(() => {
+    setIsLicenseOpen(false);
+    setIsStorageOpen(false);
+    setIsThumbnailToolsOpen(false);
+    setIsCompressionToolsOpen(false);
+    setIsMediaTranscodingOpen(true);
   }, []);
 
   const openCompressionTools = useCallback(() => {
     setIsLicenseOpen(false);
     setIsStorageOpen(false);
     setIsThumbnailToolsOpen(false);
+    setIsMediaTranscodingOpen(false);
     setIsCompressionToolsOpen(true);
   }, []);
 
@@ -259,12 +284,14 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
       ...(quickSettingsLicense ? { openLicenseManagement } : {}),
       openStorageConfig,
       openThumbnailTools,
+      openMediaTranscodingTools,
       openCompressionTools,
     });
   }, [
     quickSettingsLicense,
     onSetupActionsReady,
     openCompressionTools,
+    openMediaTranscodingTools,
     openLicenseManagement,
     openStorageConfig,
     openThumbnailTools,
@@ -452,6 +479,25 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
             className={cn(
               "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
               isDark
+                ? "border-violet-400/25 bg-violet-500/10 text-violet-100 hover:bg-violet-500/15"
+                : "border-violet-300 bg-violet-50 text-violet-900 hover:bg-violet-100",
+            )}
+            onClick={openMediaTranscodingTools}
+          >
+            <Video
+              size={18}
+              className={isDark ? "text-violet-300" : "text-violet-700"}
+            />
+            {t("admin.config.mediaTranscoding.title")}
+          </button>
+        )}
+
+        {!settingsCenterMode && (
+          <button
+            type="button"
+            className={cn(
+              "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+              isDark
                 ? "border-orange-400/25 bg-orange-500/10 text-orange-100 hover:bg-orange-500/15"
                 : "border-orange-300 bg-orange-50 text-orange-900 hover:bg-orange-100",
             )}
@@ -563,6 +609,23 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
                   className={isDark ? "text-fuchsia-300" : "text-fuchsia-700"}
                 />
                 {t("admin.config.thumbnail.title")}
+              </button>
+
+              <button
+                type="button"
+                className={cn(
+                  "h-11 rounded-xl border px-4 text-sm sm:text-sm font-black transition-all inline-flex items-center justify-center gap-2 shadow-sm",
+                  isDark
+                    ? "border-violet-400/25 bg-violet-500/10 text-violet-100 hover:bg-violet-500/15"
+                    : "border-violet-300 bg-violet-50 text-violet-900 hover:bg-violet-100",
+                )}
+                onClick={openMediaTranscodingTools}
+              >
+                <Video
+                  size={18}
+                  className={isDark ? "text-violet-300" : "text-violet-700"}
+                />
+                {t("admin.config.mediaTranscoding.title")}
               </button>
 
               <button
@@ -960,6 +1023,16 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         onContentChange={onChange}
         runtimeOs={runtimeOs}
         onDiagnoseExternalTools={onDiagnoseExternalTools}
+      />
+
+      <MediaTranscodingConfigModal
+        isOpen={isMediaTranscodingOpen}
+        onClose={() => setIsMediaTranscodingOpen(false)}
+        tomlAdapter={tomlAdapter}
+        content={content}
+        onContentChange={onChange}
+        onDiagnoseExternalTools={onDiagnoseExternalTools}
+        onProbeMediaBackend={onProbeMediaBackend}
       />
 
       <CompressionDependencyConfigModal

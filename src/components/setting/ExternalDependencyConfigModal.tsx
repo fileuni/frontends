@@ -15,6 +15,7 @@ import { deepClone, ensureRecord, isRecord } from "@/lib/configObject";
 import { getNavigatorPlatformSource } from "@/lib/browserPlatform";
 import { useToastStore } from "@/stores/toast";
 import { SettingSegmentedControl } from "./SettingSegmentedControl";
+import { SharedFfmpegField } from "./SharedFfmpegField";
 
 export type ThumbnailImageBackend = "builtin" | "external";
 
@@ -130,6 +131,9 @@ export const parseThumbnailDraft = (
     const vfsStorageHub = isRecord(root["vfs_storage_hub"])
       ? root["vfs_storage_hub"]
       : {};
+    const externalTools = isRecord(vfsStorageHub["external_tools"])
+      ? vfsStorageHub["external_tools"]
+      : {};
     const thumbnail = isRecord(vfsStorageHub["thumbnail"])
       ? vfsStorageHub["thumbnail"]
       : {};
@@ -152,7 +156,7 @@ export const parseThumbnailDraft = (
         DEFAULT_THUMBNAIL_DRAFT.imagemagickPath,
       ),
       ffmpegPath: asString(
-        tools["ffmpeg_path"],
+        externalTools["ffmpeg_path"] ?? tools["ffmpeg_path"],
         DEFAULT_THUMBNAIL_DRAFT.ffmpegPath,
       ),
       libreofficePath: asString(
@@ -219,7 +223,7 @@ const buildThumbnailConfiguredValues = (
   "vfs_storage_hub.thumbnail.tools.vips_path": draft.vipsPath.trim(),
   "vfs_storage_hub.thumbnail.tools.imagemagick_path":
     draft.imagemagickPath.trim(),
-  "vfs_storage_hub.thumbnail.tools.ffmpeg_path": draft.ffmpegPath.trim(),
+  "vfs_storage_hub.external_tools.ffmpeg_path": draft.ffmpegPath.trim(),
   "vfs_storage_hub.thumbnail.tools.libreoffice_path":
     draft.libreofficePath.trim(),
 });
@@ -246,6 +250,7 @@ export const applyThumbnailDraft = (
   }
   const next = deepClone(parsed);
   const vfsStorageHub = ensureRecord(next, "vfs_storage_hub");
+  const externalTools = ensureRecord(vfsStorageHub, "external_tools");
   const thumbnail = ensureRecord(vfsStorageHub, "thumbnail");
   const image = ensureRecord(thumbnail, "image");
   const tools = ensureRecord(thumbnail, "tools");
@@ -253,8 +258,9 @@ export const applyThumbnailDraft = (
   image["backend"] = draft.imageBackend;
   tools["vips_path"] = draft.vipsPath.trim();
   tools["imagemagick_path"] = draft.imagemagickPath.trim();
-  tools["ffmpeg_path"] = draft.ffmpegPath.trim();
   tools["libreoffice_path"] = draft.libreofficePath.trim();
+  externalTools["ffmpeg_path"] = draft.ffmpegPath.trim();
+  delete tools["ffmpeg_path"];
 
   const seekSeconds = Number(draft.videoSeekSeconds);
   const seekRatio = Number(draft.videoSeekRatio);
@@ -647,13 +653,6 @@ export const ThumbnailDependencyConfigModal: React.FC<
       placeholderKey: "admin.config.externalTools.placeholders.imagemagick",
     },
     {
-      labelKey: "admin.config.externalTools.labels.ffmpeg",
-      value: draft.ffmpegPath,
-      onChange: (value) =>
-        setDraft((state) => ({ ...state, ffmpegPath: value })),
-      placeholderKey: "admin.config.externalTools.placeholders.ffmpeg",
-    },
-    {
       labelKey: "admin.config.externalTools.labels.libreoffice",
       value: draft.libreofficePath,
       onChange: (value) =>
@@ -864,6 +863,16 @@ export const ThumbnailDependencyConfigModal: React.FC<
               })()}
             </div>
           ))}
+
+          <SharedFfmpegField
+            value={draft.ffmpegPath}
+            onChange={(value) =>
+              setDraft((state) => ({ ...state, ffmpegPath: value }))
+            }
+            label={t("admin.config.externalTools.labels.ffmpeg")}
+            placeholder={t("admin.config.externalTools.placeholders.ffmpeg")}
+            onDiagnoseExternalTools={onDiagnoseExternalTools}
+          />
         </div>
 
         <div

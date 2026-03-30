@@ -1,0 +1,595 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Loader2, Video } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
+import { useResolvedTheme } from "@/hooks/useResolvedTheme";
+import { deepClone, ensureRecord, isRecord } from "@/lib/configObject";
+import { useToastStore } from "@/stores/toast";
+import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
+import { useConfigDraftBinding } from "./useConfigDraftBinding";
+import type { TomlAdapter } from "./ExternalDependencyConfigModal";
+import { SharedFfmpegField, type DiagnoseExternalTools } from "./SharedFfmpegField";
+
+export type MediaBackendProbeResponse = {
+  ffmpeg_available: boolean;
+  ffmpeg_version_line?: string | null;
+  backend: string;
+  encoder_name?: string | null;
+  backend_supported: boolean;
+  backend_available: boolean;
+  message: string;
+  warnings: string[];
+};
+
+export type ProbeMediaBackend = (payload: {
+  ffmpegPath: string;
+  backend: string;
+  device?: string;
+}) => Promise<MediaBackendProbeResponse>;
+
+export type MediaTranscodingDraft = {
+  enabled: boolean;
+  cacheDir: string;
+  cleanupTtlSecs: string;
+  timeoutSecs: string;
+  maxConcurrentTasks: string;
+  maxConcurrentTasksLowMemory: string;
+  maxConcurrentTasksThroughput: string;
+  allowSoftwareFallback: boolean;
+  videoEnabled: boolean;
+  delivery: string;
+  segmentDurationSecs: string;
+  videoCodec: string;
+  audioCodec: string;
+  preset: string;
+  crf: string;
+  maxWidth: string;
+  maxHeight: string;
+  maxFps: string;
+  audioBitrateKbps: string;
+  hardwareEnabled: boolean;
+  backend: string;
+  device: string;
+  hardwareAllowFallback: boolean;
+  ffmpegPath: string;
+};
+
+const DEFAULT_MEDIA_TRANSCODING_DRAFT: MediaTranscodingDraft = {
+  enabled: false,
+  cacheDir: "{RUNTIMEDIR}/cache/media-transcoding",
+  cleanupTtlSecs: "1800",
+  timeoutSecs: "7200",
+  maxConcurrentTasks: "1",
+  maxConcurrentTasksLowMemory: "1",
+  maxConcurrentTasksThroughput: "2",
+  allowSoftwareFallback: true,
+  videoEnabled: true,
+  delivery: "hls",
+  segmentDurationSecs: "4",
+  videoCodec: "h264",
+  audioCodec: "aac",
+  preset: "veryfast",
+  crf: "23",
+  maxWidth: "1920",
+  maxHeight: "1080",
+  maxFps: "30",
+  audioBitrateKbps: "160",
+  hardwareEnabled: false,
+  backend: "vaapi",
+  device: "/dev/dri/renderD128",
+  hardwareAllowFallback: true,
+  ffmpegPath: "ffmpeg",
+};
+
+const asString = (value: unknown, fallback: string) =>
+  typeof value === "string" ? value : fallback;
+const asBool = (value: unknown, fallback: boolean) =>
+  typeof value === "boolean" ? value : fallback;
+const asNumberString = (value: unknown, fallback: string) =>
+  typeof value === "number" && Number.isFinite(value) ? String(value) : fallback;
+
+export const parseMediaTranscodingDraft = (
+  content: string,
+  tomlAdapter: TomlAdapter,
+): MediaTranscodingDraft => {
+  try {
+    const parsed = tomlAdapter.parse(content);
+    if (!isRecord(parsed)) return DEFAULT_MEDIA_TRANSCODING_DRAFT;
+    const root = parsed;
+    const vfsStorageHub = isRecord(root["vfs_storage_hub"])
+      ? root["vfs_storage_hub"]
+      : {};
+    const externalTools = isRecord(vfsStorageHub["external_tools"])
+      ? vfsStorageHub["external_tools"]
+      : {};
+    const thumbnail = isRecord(vfsStorageHub["thumbnail"])
+      ? vfsStorageHub["thumbnail"]
+      : {};
+    const thumbnailTools = isRecord(thumbnail["tools"])
+      ? thumbnail["tools"]
+      : {};
+    const media = isRecord(vfsStorageHub["media_transcoding"])
+      ? vfsStorageHub["media_transcoding"]
+      : {};
+    const video = isRecord(media["video"]) ? media["video"] : {};
+    const hardware = isRecord(media["hardware"]) ? media["hardware"] : {};
+    return {
+      enabled: asBool(media["enabled"], DEFAULT_MEDIA_TRANSCODING_DRAFT.enabled),
+      cacheDir: asString(media["cache_dir"], DEFAULT_MEDIA_TRANSCODING_DRAFT.cacheDir),
+      cleanupTtlSecs: asNumberString(
+        media["cleanup_ttl_secs"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.cleanupTtlSecs,
+      ),
+      timeoutSecs: asNumberString(
+        media["timeout_secs"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.timeoutSecs,
+      ),
+      maxConcurrentTasks: asNumberString(
+        media["max_concurrent_tasks"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.maxConcurrentTasks,
+      ),
+      maxConcurrentTasksLowMemory: asNumberString(
+        media["max_concurrent_tasks_low_memory"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.maxConcurrentTasksLowMemory,
+      ),
+      maxConcurrentTasksThroughput: asNumberString(
+        media["max_concurrent_tasks_throughput"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.maxConcurrentTasksThroughput,
+      ),
+      allowSoftwareFallback: asBool(
+        media["allow_software_fallback"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.allowSoftwareFallback,
+      ),
+      videoEnabled: asBool(video["enabled"], DEFAULT_MEDIA_TRANSCODING_DRAFT.videoEnabled),
+      delivery: asString(video["delivery"], DEFAULT_MEDIA_TRANSCODING_DRAFT.delivery),
+      segmentDurationSecs: asNumberString(
+        video["segment_duration_secs"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.segmentDurationSecs,
+      ),
+      videoCodec: asString(video["video_codec"], DEFAULT_MEDIA_TRANSCODING_DRAFT.videoCodec),
+      audioCodec: asString(video["audio_codec"], DEFAULT_MEDIA_TRANSCODING_DRAFT.audioCodec),
+      preset: asString(video["preset"], DEFAULT_MEDIA_TRANSCODING_DRAFT.preset),
+      crf: asNumberString(video["crf"], DEFAULT_MEDIA_TRANSCODING_DRAFT.crf),
+      maxWidth: asNumberString(video["max_width"], DEFAULT_MEDIA_TRANSCODING_DRAFT.maxWidth),
+      maxHeight: asNumberString(video["max_height"], DEFAULT_MEDIA_TRANSCODING_DRAFT.maxHeight),
+      maxFps: asNumberString(video["max_fps"], DEFAULT_MEDIA_TRANSCODING_DRAFT.maxFps),
+      audioBitrateKbps: asNumberString(
+        video["audio_bitrate_kbps"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.audioBitrateKbps,
+      ),
+      hardwareEnabled: asBool(
+        hardware["enabled"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.hardwareEnabled,
+      ),
+      backend: asString(hardware["backend"], DEFAULT_MEDIA_TRANSCODING_DRAFT.backend),
+      device: asString(hardware["device"], DEFAULT_MEDIA_TRANSCODING_DRAFT.device),
+      hardwareAllowFallback: asBool(
+        hardware["allow_fallback_to_software"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.hardwareAllowFallback,
+      ),
+      ffmpegPath: asString(
+        externalTools["ffmpeg_path"] ?? thumbnailTools["ffmpeg_path"],
+        DEFAULT_MEDIA_TRANSCODING_DRAFT.ffmpegPath,
+      ),
+    };
+  } catch {
+    return DEFAULT_MEDIA_TRANSCODING_DRAFT;
+  }
+};
+
+const parsePositiveInt = (value: string, fallback: number) => {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+export const applyMediaTranscodingDraft = (
+  content: string,
+  tomlAdapter: TomlAdapter,
+  draft: MediaTranscodingDraft,
+): string => {
+  const parsed = tomlAdapter.parse(content);
+  if (!isRecord(parsed)) {
+    throw new Error("TOML root must be an object");
+  }
+  const next = deepClone(parsed);
+  const vfsStorageHub = ensureRecord(next, "vfs_storage_hub");
+  const externalTools = ensureRecord(vfsStorageHub, "external_tools");
+  externalTools["ffmpeg_path"] = draft.ffmpegPath.trim();
+
+  const media = ensureRecord(vfsStorageHub, "media_transcoding");
+  const video = ensureRecord(media, "video");
+  const hardware = ensureRecord(media, "hardware");
+  media["enabled"] = draft.enabled;
+  media["cache_dir"] = draft.cacheDir.trim();
+  media["cleanup_ttl_secs"] = parsePositiveInt(
+    draft.cleanupTtlSecs,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.cleanupTtlSecs, 10),
+  );
+  media["timeout_secs"] = parsePositiveInt(
+    draft.timeoutSecs,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.timeoutSecs, 10),
+  );
+  media["max_concurrent_tasks"] = parsePositiveInt(
+    draft.maxConcurrentTasks,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.maxConcurrentTasks, 10),
+  );
+  media["max_concurrent_tasks_low_memory"] = parsePositiveInt(
+    draft.maxConcurrentTasksLowMemory,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.maxConcurrentTasksLowMemory, 10),
+  );
+  media["max_concurrent_tasks_throughput"] = parsePositiveInt(
+    draft.maxConcurrentTasksThroughput,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.maxConcurrentTasksThroughput, 10),
+  );
+  media["allow_software_fallback"] = draft.allowSoftwareFallback;
+
+  video["enabled"] = draft.videoEnabled;
+  video["delivery"] = draft.delivery.trim();
+  video["segment_duration_secs"] = parsePositiveInt(
+    draft.segmentDurationSecs,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.segmentDurationSecs, 10),
+  );
+  video["video_codec"] = draft.videoCodec.trim();
+  video["audio_codec"] = draft.audioCodec.trim();
+  video["preset"] = draft.preset.trim();
+  video["crf"] = parsePositiveInt(
+    draft.crf,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.crf, 10),
+  );
+  video["max_width"] = parsePositiveInt(
+    draft.maxWidth,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.maxWidth, 10),
+  );
+  video["max_height"] = parsePositiveInt(
+    draft.maxHeight,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.maxHeight, 10),
+  );
+  video["max_fps"] = parsePositiveInt(
+    draft.maxFps,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.maxFps, 10),
+  );
+  video["audio_bitrate_kbps"] = parsePositiveInt(
+    draft.audioBitrateKbps,
+    Number.parseInt(DEFAULT_MEDIA_TRANSCODING_DRAFT.audioBitrateKbps, 10),
+  );
+
+  hardware["enabled"] = draft.hardwareEnabled;
+  hardware["backend"] = draft.backend.trim();
+  hardware["device"] = draft.device.trim();
+  hardware["allow_fallback_to_software"] = draft.hardwareAllowFallback;
+  return tomlAdapter.stringify(next);
+};
+
+type PanelProps = {
+  tomlAdapter: TomlAdapter;
+  content: string;
+  onContentChange: (value: string) => void;
+  onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  onProbeMediaBackend?: ProbeMediaBackend | undefined;
+};
+
+const sectionCardClass = (isDark: boolean) =>
+  cn(
+    "rounded-2xl border p-4 space-y-4",
+    isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white",
+  );
+
+const fieldLabelClass = (isDark: boolean) =>
+  cn(
+    "text-xs font-black uppercase tracking-wide",
+    isDark ? "text-slate-400" : "text-slate-600",
+  );
+
+const inputClass = (isDark: boolean) =>
+  cn(
+    "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+    isDark ? "border-white/10 bg-black/30 text-white" : "border-slate-300 bg-white text-slate-900",
+  );
+
+const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft; setDraft: React.Dispatch<React.SetStateAction<MediaTranscodingDraft>>; }> = ({
+  draft,
+  setDraft,
+  onDiagnoseExternalTools,
+  onProbeMediaBackend,
+}) => {
+  const { t } = useTranslation();
+  const isDark = useResolvedTheme() === "dark";
+  const { addToast } = useToastStore();
+  const [probing, setProbing] = useState(false);
+
+  const handleProbe = async () => {
+    if (!onProbeMediaBackend || probing) return;
+    setProbing(true);
+    try {
+      const response = await onProbeMediaBackend({
+        ffmpegPath: draft.ffmpegPath.trim(),
+        backend: draft.backend,
+        device: draft.device.trim() || undefined,
+      });
+      const tone = response.backend_available ? "success" : response.backend_supported ? "warning" : "error";
+      const warningText = response.warnings.length > 0 ? ` ${response.warnings.join(" ")}` : "";
+      addToast(`${response.message}${warningText}`, tone);
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("admin.config.mediaTranscoding.probeFailed"), "error");
+    } finally {
+      setProbing(false);
+    }
+  };
+
+  const backendOptions = ["none", "vaapi", "qsv", "nvenc", "videotoolbox", "amf"];
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-[1.05fr_1fr_0.95fr]">
+      <div className={sectionCardClass(isDark)}>
+        <div className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={draft.enabled}
+            onChange={(event) => setDraft((prev) => ({ ...prev, enabled: event.target.checked }))}
+            className="mt-1 h-4 w-4 rounded border-slate-300"
+          />
+          <div>
+            <div className="text-sm font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.enable")}</div>
+            <div className={cn("mt-1 text-sm leading-6", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.mediaTranscoding.enableHint")}</div>
+          </div>
+        </div>
+
+        <SharedFfmpegField
+          value={draft.ffmpegPath}
+          onChange={(value) => setDraft((prev) => ({ ...prev, ffmpegPath: value }))}
+          label={t("admin.config.mediaTranscoding.ffmpegPath")}
+          placeholder={t("admin.config.externalTools.placeholders.ffmpeg")}
+          onDiagnoseExternalTools={onDiagnoseExternalTools}
+        />
+
+        {[
+          ["admin.config.mediaTranscoding.cacheDir", draft.cacheDir, (value: string) => setDraft((prev) => ({ ...prev, cacheDir: value }))],
+          ["admin.config.mediaTranscoding.cleanupTtlSecs", draft.cleanupTtlSecs, (value: string) => setDraft((prev) => ({ ...prev, cleanupTtlSecs: value }))],
+          ["admin.config.mediaTranscoding.timeoutSecs", draft.timeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, timeoutSecs: value }))],
+        ].map(([label, value, onChange]) => (
+          <label key={String(label)} className="block">
+            <span className={fieldLabelClass(isDark)}>{t(String(label))}</span>
+            <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass(isDark)} />
+          </label>
+        ))}
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            ["admin.config.mediaTranscoding.maxConcurrentTasks", draft.maxConcurrentTasks, (value: string) => setDraft((prev) => ({ ...prev, maxConcurrentTasks: value }))],
+            ["admin.config.mediaTranscoding.maxConcurrentTasksLowMemory", draft.maxConcurrentTasksLowMemory, (value: string) => setDraft((prev) => ({ ...prev, maxConcurrentTasksLowMemory: value }))],
+            ["admin.config.mediaTranscoding.maxConcurrentTasksThroughput", draft.maxConcurrentTasksThroughput, (value: string) => setDraft((prev) => ({ ...prev, maxConcurrentTasksThroughput: value }))],
+          ].map(([label, value, onChange]) => (
+            <label key={String(label)} className="block">
+              <span className={fieldLabelClass(isDark)}>{t(String(label))}</span>
+              <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass(isDark)} />
+            </label>
+          ))}
+        </div>
+
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={draft.allowSoftwareFallback}
+            onChange={(event) => setDraft((prev) => ({ ...prev, allowSoftwareFallback: event.target.checked }))}
+            className="h-4 w-4 rounded border-slate-300"
+          />
+          <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.mediaTranscoding.allowSoftwareFallback")}</span>
+        </label>
+      </div>
+
+      <div className={sectionCardClass(isDark)}>
+        <div className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={draft.videoEnabled}
+            onChange={(event) => setDraft((prev) => ({ ...prev, videoEnabled: event.target.checked }))}
+            className="mt-1 h-4 w-4 rounded border-slate-300"
+          />
+          <div>
+            <div className="text-sm font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.videoEnabled")}</div>
+            <div className={cn("mt-1 text-sm leading-6", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.mediaTranscoding.videoHint")}</div>
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          {[
+            ["admin.config.mediaTranscoding.delivery", draft.delivery, (value: string) => setDraft((prev) => ({ ...prev, delivery: value }))],
+            ["admin.config.mediaTranscoding.segmentDurationSecs", draft.segmentDurationSecs, (value: string) => setDraft((prev) => ({ ...prev, segmentDurationSecs: value }))],
+            ["admin.config.mediaTranscoding.videoCodec", draft.videoCodec, (value: string) => setDraft((prev) => ({ ...prev, videoCodec: value }))],
+            ["admin.config.mediaTranscoding.audioCodec", draft.audioCodec, (value: string) => setDraft((prev) => ({ ...prev, audioCodec: value }))],
+            ["admin.config.mediaTranscoding.preset", draft.preset, (value: string) => setDraft((prev) => ({ ...prev, preset: value }))],
+            ["admin.config.mediaTranscoding.crf", draft.crf, (value: string) => setDraft((prev) => ({ ...prev, crf: value }))],
+            ["admin.config.mediaTranscoding.maxWidth", draft.maxWidth, (value: string) => setDraft((prev) => ({ ...prev, maxWidth: value }))],
+            ["admin.config.mediaTranscoding.maxHeight", draft.maxHeight, (value: string) => setDraft((prev) => ({ ...prev, maxHeight: value }))],
+            ["admin.config.mediaTranscoding.maxFps", draft.maxFps, (value: string) => setDraft((prev) => ({ ...prev, maxFps: value }))],
+            ["admin.config.mediaTranscoding.audioBitrateKbps", draft.audioBitrateKbps, (value: string) => setDraft((prev) => ({ ...prev, audioBitrateKbps: value }))],
+          ].map(([label, value, onChange]) => (
+            <label key={String(label)} className="block">
+              <span className={fieldLabelClass(isDark)}>{t(String(label))}</span>
+              <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass(isDark)} />
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className={sectionCardClass(isDark)}>
+        <div className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={draft.hardwareEnabled}
+            onChange={(event) => setDraft((prev) => ({ ...prev, hardwareEnabled: event.target.checked }))}
+            className="mt-1 h-4 w-4 rounded border-slate-300"
+          />
+          <div>
+            <div className="text-sm font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.hardwareEnabled")}</div>
+            <div className={cn("mt-1 text-sm leading-6", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.mediaTranscoding.hardwareHint")}</div>
+          </div>
+        </div>
+
+        <label className="block">
+          <span className={fieldLabelClass(isDark)}>{t("admin.config.mediaTranscoding.backend")}</span>
+          <select
+            value={draft.backend}
+            onChange={(event) => setDraft((prev) => ({ ...prev, backend: event.target.value }))}
+            className={inputClass(isDark)}
+          >
+            {backendOptions.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block">
+          <span className={fieldLabelClass(isDark)}>{t("admin.config.mediaTranscoding.device")}</span>
+          <input value={draft.device} onChange={(event) => setDraft((prev) => ({ ...prev, device: event.target.value }))} className={inputClass(isDark)} />
+        </label>
+
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={draft.hardwareAllowFallback}
+            onChange={(event) => setDraft((prev) => ({ ...prev, hardwareAllowFallback: event.target.checked }))}
+            className="h-4 w-4 rounded border-slate-300"
+          />
+          <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.mediaTranscoding.hardwareAllowFallback")}</span>
+        </label>
+
+        <button
+          type="button"
+          onClick={() => {
+            void handleProbe();
+          }}
+          disabled={!onProbeMediaBackend || probing}
+          className={cn(
+            "h-11 rounded-xl border px-4 text-sm font-black inline-flex items-center gap-2 disabled:opacity-50",
+            isDark
+              ? "border-violet-400/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/15"
+              : "border-violet-300 bg-violet-50 text-violet-800 hover:bg-violet-100",
+          )}
+        >
+          {probing ? <Loader2 size={16} className="animate-spin" /> : <Video size={16} />}
+          {t("admin.config.mediaTranscoding.probeBackend")}
+        </button>
+
+        <div className={cn(
+          "rounded-xl border p-3 text-sm leading-6",
+          isDark ? "border-cyan-500/20 bg-cyan-500/10 text-cyan-100" : "border-cyan-200 bg-cyan-50 text-cyan-900",
+        )}>
+          {t("admin.config.mediaTranscoding.helper")}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const MediaTranscodingInlinePanel: React.FC<PanelProps> = ({
+  tomlAdapter,
+  content,
+  onContentChange,
+  onDiagnoseExternalTools,
+  onProbeMediaBackend,
+}) => {
+  const createDraft = useCallback(
+    (source: string) => parseMediaTranscodingDraft(source, tomlAdapter),
+    [tomlAdapter],
+  );
+  const buildContent = useCallback(
+    (source: string, nextDraft: MediaTranscodingDraft) =>
+      applyMediaTranscodingDraft(source, tomlAdapter, nextDraft),
+    [tomlAdapter],
+  );
+  const { draft, setDraft } = useConfigDraftBinding<MediaTranscodingDraft>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+  });
+  return (
+    <MediaTranscodingForm
+      tomlAdapter={tomlAdapter}
+      content={content}
+      onContentChange={onContentChange}
+      draft={draft}
+      setDraft={setDraft}
+      onDiagnoseExternalTools={onDiagnoseExternalTools}
+      onProbeMediaBackend={onProbeMediaBackend}
+    />
+  );
+};
+
+interface MediaTranscodingConfigModalProps extends PanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const MediaTranscodingConfigModal: React.FC<MediaTranscodingConfigModalProps> = ({
+  isOpen,
+  onClose,
+  tomlAdapter,
+  content,
+  onContentChange,
+  onDiagnoseExternalTools,
+  onProbeMediaBackend,
+}) => {
+  const { t } = useTranslation();
+  const isDark = useResolvedTheme() === "dark";
+  const { addToast } = useToastStore();
+  const [draft, setDraft] = useState<MediaTranscodingDraft>(DEFAULT_MEDIA_TRANSCODING_DRAFT);
+
+  useEscapeToCloseTopLayer({ active: isOpen, enabled: true, onEscape: onClose });
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setDraft(parseMediaTranscodingDraft(content, tomlAdapter));
+  }, [content, isOpen, tomlAdapter]);
+
+  const handleApply = () => {
+    try {
+      onContentChange(applyMediaTranscodingDraft(content, tomlAdapter, draft));
+      addToast(t("admin.config.mediaTranscoding.applied"), "success");
+      onClose();
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("admin.config.mediaTranscoding.applyFailed"), "error");
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
+      <button
+        type="button"
+        aria-label="Close"
+        className={cn("absolute inset-0 backdrop-blur-sm transition-colors", isDark ? "bg-black/95" : "bg-slate-900/80")}
+        onClick={onClose}
+      />
+      <div className={cn(
+        "relative w-full max-w-7xl rounded-2xl border shadow-lg overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
+        isDark ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5" : "bg-white border-gray-200 text-slate-900",
+      )}>
+        <div className={cn("flex items-center justify-between gap-3 border-b px-4 py-4 sm:px-6 shrink-0", isDark ? "border-white/10 bg-slate-900/50" : "border-slate-100 bg-slate-50/50") }>
+          <div>
+            <h3 className="text-sm sm:text-base font-black uppercase tracking-widest">{t("admin.config.mediaTranscoding.title")}</h3>
+            <p className={cn("text-xs font-bold mt-1", isDark ? "text-slate-400" : "text-slate-500")}>{t("admin.config.mediaTranscoding.subtitle")}</p>
+          </div>
+          <button type="button" onClick={onClose} className={cn("h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors shrink-0", isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-gray-200 text-slate-600 hover:bg-gray-100")}>×</button>
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6">
+          <MediaTranscodingForm
+            tomlAdapter={tomlAdapter}
+            content={content}
+            onContentChange={onContentChange}
+            draft={draft}
+            setDraft={setDraft}
+            onDiagnoseExternalTools={onDiagnoseExternalTools}
+            onProbeMediaBackend={onProbeMediaBackend}
+          />
+        </div>
+        <div className={cn("shrink-0 border-t px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-end gap-2", isDark ? "border-white/10 bg-slate-900/60" : "border-slate-100 bg-slate-50/70")}>
+          <button type="button" onClick={onClose} className={cn("h-10 px-4 rounded-xl border text-sm font-black transition-colors", isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-slate-300 text-slate-700 hover:bg-slate-100")}>{t("common.cancel")}</button>
+          <button type="button" onClick={handleApply} className="h-10 px-4 rounded-xl bg-primary text-white text-sm font-black hover:opacity-90">{t("common.confirm")}</button>
+        </div>
+      </div>
+    </div>
+  );
+};

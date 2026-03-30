@@ -11,6 +11,7 @@ import {
   CompressionInlinePanel,
   ThumbnailInlinePanel,
 } from "./SettingInlineExternalPanels";
+import { MediaTranscodingInlinePanel, type ProbeMediaBackend } from "./MediaTranscodingConfigPanel";
 import {
   CacheInlinePanel,
   DatabaseInlinePanel,
@@ -18,6 +19,7 @@ import {
 } from "./SettingInlineQuickPanels";
 import { StoragePoolInlinePanel } from "./StoragePoolInlinePanel";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
+import type { DiagnoseExternalTools } from "./SharedFfmpegField";
 import type { SystemHardwareInfo } from "./ConfigQuickSettingsModal";
 
 type DatabaseCheckPayload = {
@@ -256,6 +258,8 @@ interface BuildSettingCommonActionsParams {
   systemHardware?: SystemHardwareInfo | null;
   onTestDatabase?: (payload: DatabaseCheckPayload) => Promise<void>;
   onTestCache?: (payload: CacheCheckPayload) => Promise<void>;
+  onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  onProbeMediaBackend?: ProbeMediaBackend | undefined;
   adminPassword: {
     value: string;
     onValueChange: (password: string) => void;
@@ -284,6 +288,8 @@ export const buildSettingCommonActions = ({
   systemHardware,
   onTestDatabase,
   onTestCache,
+  onDiagnoseExternalTools,
+  onProbeMediaBackend,
   adminPassword,
   license,
   storage,
@@ -437,6 +443,22 @@ export const buildSettingCommonActions = ({
           tomlAdapter={tomlAdapter}
           content={content}
           onContentChange={onContentChange}
+          onDiagnoseExternalTools={onDiagnoseExternalTools}
+        />
+      ),
+    },
+    {
+      id: "media-transcoding",
+      label: t("admin.config.mediaTranscoding.title"),
+      description: "",
+      icon: settingCommonIcons.mediaTranscoding,
+      renderPanel: () => (
+        <MediaTranscodingInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+          onDiagnoseExternalTools={onDiagnoseExternalTools}
+          onProbeMediaBackend={onProbeMediaBackend}
         />
       ),
     },

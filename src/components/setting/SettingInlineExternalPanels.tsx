@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { PasswordInput } from "@/components/common/PasswordInput";
 import { ensureRecord, isRecord, type ConfigObject } from "@/lib/configObject";
+import { SharedFfmpegField, type DiagnoseExternalTools } from "./SharedFfmpegField";
 import type {
   CompressionDraft,
   ThumbnailDraft,
@@ -23,6 +24,7 @@ interface BaseProps {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
+  onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
 }
 
 const asRecord = (value: unknown): ConfigObject => {
@@ -33,6 +35,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
   tomlAdapter,
   content,
   onContentChange,
+  onDiagnoseExternalTools,
 }) => {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === "dark";
@@ -125,13 +128,6 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
             "convert",
           ],
           [
-            "admin.config.thumbnail.ffmpegPath",
-            draft.ffmpegPath,
-            (value: string) =>
-              setDraft((prev) => ({ ...prev, ffmpegPath: value })),
-            "ffmpeg",
-          ],
-          [
             "admin.config.thumbnail.libreofficePath",
             draft.libreofficePath,
             (value: string) =>
@@ -158,6 +154,16 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
             />
           </div>
         ))}
+
+        <SharedFfmpegField
+          value={draft.ffmpegPath}
+          onChange={(value) =>
+            setDraft((prev) => ({ ...prev, ffmpegPath: value }))
+          }
+          label={t("admin.config.thumbnail.ffmpegPath")}
+          placeholder="ffmpeg"
+          onDiagnoseExternalTools={onDiagnoseExternalTools}
+        />
       </div>
 
       <div

@@ -691,6 +691,8 @@ export function Launcher() {
     systemHardware: osInfo,
     onTestDatabase: handleCheckDatabase,
     onTestCache: handleCheckCache,
+    onDiagnoseExternalTools: handleDiagnoseExternalTools,
+    onProbeMediaBackend: handleProbeMediaBackend,
     adminPassword: {
       value: pendingAdminPassword,
       onValueChange: setPendingAdminPassword,
@@ -752,16 +754,37 @@ export function Launcher() {
     setConfigBusy(false);
   };
 
-  const handleDiagnoseExternalTools = async (
+  async function handleDiagnoseExternalTools(
     configuredValues: Record<string, string>,
-  ): Promise<ExternalToolDiagnosisResponse> => {
+  ): Promise<ExternalToolDiagnosisResponse> {
     return safeInvoke<ExternalToolDiagnosisResponse>(
       "diagnose_external_tools",
       {
         payload: { configured_values: configuredValues },
       },
     );
-  };
+  }
+
+  async function handleProbeMediaBackend({
+    ffmpegPath,
+    backend,
+    device,
+  }: {
+    ffmpegPath: string;
+    backend: string;
+    device?: string;
+  }) {
+    return safeInvoke<import("@/components/setting/MediaTranscodingConfigPanel").MediaBackendProbeResponse>(
+      "probe_media_backend",
+      {
+        payload: {
+          ffmpeg_path: ffmpegPath,
+          backend,
+          ...(device ? { device } : {}),
+        },
+      },
+    );
+  }
 
   async function handleCheckDatabase({
     databaseType,
@@ -1286,6 +1309,7 @@ export function Launcher() {
                     runtimeOs: osInfo?.os_type,
                     systemHardware: osInfo,
                     onDiagnoseExternalTools: handleDiagnoseExternalTools,
+                    onProbeMediaBackend: handleProbeMediaBackend,
                     ...(osInfo?.is_mobile
                       ? { onPickStorageDirectory: pickExternalStorageDirectory }
                       : {}),
@@ -1835,10 +1859,11 @@ export function Launcher() {
                 reloadSummaryLevel: configSummaryLevel,
                 runtimeOs: osInfo?.os_type,
                 systemHardware: osInfo,
-                  onDiagnoseExternalTools: handleDiagnoseExternalTools,
-                  ...(osInfo?.is_mobile
-                    ? { onPickStorageDirectory: pickExternalStorageDirectory }
-                    : {}),
+                onDiagnoseExternalTools: handleDiagnoseExternalTools,
+                onProbeMediaBackend: handleProbeMediaBackend,
+                ...(osInfo?.is_mobile
+                  ? { onPickStorageDirectory: pickExternalStorageDirectory }
+                  : {}),
                 quickSettingsLicense: {
                   isValid: Boolean(licenseStatus?.is_valid),
                   ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),

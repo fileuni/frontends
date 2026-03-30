@@ -8,6 +8,7 @@ import {
   KeyRound,
   ShieldCheck,
   Sparkles,
+  Video,
   Zap,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -452,6 +453,7 @@ export const settingCommonIcons = {
   license: ShieldCheck,
   storage: FolderCog,
   thumbnail: ImagePlus,
+  mediaTranscoding: Video,
   compression: Zap,
   database: Database,
   cache: Database,
