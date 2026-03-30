@@ -13,6 +13,7 @@ export const pathMatchesProtectedRoot = (
   if (!protectedRoot) return false;
   const normalizedPath = normalizePath(path);
   const normalizedRoot = normalizePath(protectedRoot);
+  if (normalizedRoot === '/') return true;
   return normalizedPath === normalizedRoot || normalizedPath.startsWith(`${normalizedRoot}/`);
 };
 
