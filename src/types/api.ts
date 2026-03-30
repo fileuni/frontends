@@ -678,6 +678,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/system/config/media-backend/probe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["probe_media_backend_handler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/system/config/notes": {
         parameters: {
             query?: never;
@@ -4311,6 +4327,21 @@ export interface components {
         MarkReadRequest: {
             is_read: boolean;
         };
+        MediaBackendProbeReq: {
+            backend: string;
+            device?: string | null;
+            ffmpeg_path: string;
+        };
+        MediaBackendProbeResponse: {
+            backend: string;
+            backend_available: boolean;
+            backend_supported: boolean;
+            encoder_name?: string | null;
+            ffmpeg_available: boolean;
+            ffmpeg_version_line?: string | null;
+            message: string;
+            warnings: string[];
+        };
         /** @description Message detail response */
         MessageDetailResponse: components["schemas"]["MessageResponse"] & {
             attachments: components["schemas"]["AttachmentInfo"][];
@@ -6333,6 +6364,39 @@ export interface operations {
         };
         responses: {
             /** @description Diagnose external desktop tools */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    probe_media_backend_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaBackendProbeReq"];
+            };
+        };
+        responses: {
+            /** @description Probe FFmpeg and video hardware backend */
             200: {
                 headers: {
                     [name: string]: unknown;

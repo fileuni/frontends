@@ -8,9 +8,11 @@ import { useToastStore } from "@/stores/toast";
 type DiagnoseToolItem = {
   tool_id: string;
   available: boolean;
+  status_code?: string;
   message: string;
   resolved_path?: string | null;
   version_line?: string | null;
+  warnings?: string[];
 };
 
 type DiagnoseResponse = {
@@ -21,7 +23,9 @@ export type DiagnoseExternalTools = (
   configuredValues: Record<string, string>,
 ) => Promise<DiagnoseResponse>;
 
-interface SharedFfmpegFieldProps {
+interface ExternalToolPathFieldProps {
+  toolId: string;
+  configKey: string;
   value: string;
   onChange: (value: string) => void;
   label: string;
@@ -30,7 +34,9 @@ interface SharedFfmpegFieldProps {
   className?: string;
 }
 
-export const SharedFfmpegField: React.FC<SharedFfmpegFieldProps> = ({
+export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
+  toolId,
+  configKey,
   value,
   onChange,
   label,
@@ -42,6 +48,11 @@ export const SharedFfmpegField: React.FC<SharedFfmpegFieldProps> = ({
   const isDark = useResolvedTheme() === "dark";
   const { addToast } = useToastStore();
   const [testing, setTesting] = useState(false);
+  const [lastResult, setLastResult] = useState<{
+    tone: "success" | "warning" | "error";
+    summary: string;
+    detail?: string;
+  } | null>(null);
   const inputId = useId();
 
   const inputClass = cn(
@@ -55,27 +66,52 @@ export const SharedFfmpegField: React.FC<SharedFfmpegFieldProps> = ({
     if (!onDiagnoseExternalTools || testing) return;
     setTesting(true);
     try {
-      const diagnosis = await onDiagnoseExternalTools({
-        "vfs_storage_hub.external_tools.ffmpeg_path": value.trim(),
-      });
-      const item = diagnosis.tools.find((tool) => tool.tool_id === "ffmpeg");
+      const diagnosis = await onDiagnoseExternalTools({ [configKey]: value.trim() });
+      const item = diagnosis.tools.find((tool) => tool.tool_id === toolId);
       if (!item) {
-        addToast(t("admin.config.externalTools.messages.diagnoseFailed"), "error");
+        const summary = t("admin.config.externalTools.messages.toolTestFailed", {
+          tool: label,
+        });
+        setLastResult({ tone: "error", summary });
+        addToast(summary, "error");
         return;
       }
-      if (item.available) {
-        const summary = item.resolved_path?.trim()
-          ? `${item.message} (${item.resolved_path})`
-          : item.message;
-        addToast(summary, "success");
+      const detail = item.resolved_path?.trim() || item.message;
+      const hasWarnings = (item.warnings?.length ?? 0) > 0 || item.status_code === "warning";
+      if (item.available && !hasWarnings) {
+        const summary = t("admin.config.externalTools.messages.toolTestOk", {
+          tool: label,
+        });
+        setLastResult({ tone: "success", summary, detail });
+        addToast(`${summary}${detail ? `: ${detail}` : ""}`, "success");
+      } else if (item.available) {
+        const summary = t("admin.config.externalTools.messages.toolTestReview", {
+          tool: label,
+        });
+        const warningDetail = item.warnings?.[0]?.trim() || detail;
+        setLastResult({ tone: "warning", summary, detail: warningDetail });
+        addToast(`${summary}${warningDetail ? `: ${warningDetail}` : ""}`, "warning");
       } else {
-        addToast(item.message, "error");
+        const summary = t("admin.config.externalTools.messages.toolTestFailed", {
+          tool: label,
+        });
+        setLastResult({ tone: "error", summary, detail });
+        addToast(`${summary}${detail ? `: ${detail}` : ""}`, "error");
       }
     } catch (error) {
-      addToast(
+      const detail =
         error instanceof Error
           ? error.message
-          : t("admin.config.externalTools.messages.diagnoseFailed"),
+          : t("admin.config.externalTools.messages.diagnoseFailed");
+      setLastResult({
+        tone: "error",
+        summary: t("admin.config.externalTools.messages.toolTestFailed", {
+          tool: label,
+        }),
+        detail,
+      });
+      addToast(
+        `${t("admin.config.externalTools.messages.toolTestFailed", { tool: label })}: ${detail}`,
         "error",
       );
     } finally {
@@ -118,6 +154,44 @@ export const SharedFfmpegField: React.FC<SharedFfmpegFieldProps> = ({
           {testing ? <Loader2 size={16} className="animate-spin" /> : t("common.test")}
         </button>
       </div>
+      {lastResult && (
+        <div
+          className={cn(
+            "mt-2 rounded-xl border px-3 py-2 text-sm leading-6",
+            lastResult.tone === "success"
+              ? isDark
+                ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-100"
+                : "border-emerald-200 bg-emerald-50 text-emerald-900"
+              : lastResult.tone === "warning"
+                ? isDark
+                  ? "border-amber-500/25 bg-amber-500/10 text-amber-100"
+                  : "border-amber-200 bg-amber-50 text-amber-900"
+                : isDark
+                  ? "border-rose-500/25 bg-rose-500/10 text-rose-100"
+                  : "border-rose-200 bg-rose-50 text-rose-900",
+          )}
+        >
+          <div className="font-black uppercase tracking-wide">{lastResult.summary}</div>
+          {lastResult.detail && <div className="mt-1 break-all opacity-90">{lastResult.detail}</div>}
+        </div>
+      )}
     </div>
   );
 };
+
+interface SharedFfmpegFieldProps {
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+  placeholder?: string;
+  onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
+  className?: string;
+}
+
+export const SharedFfmpegField: React.FC<SharedFfmpegFieldProps> = (props) => (
+  <ExternalToolPathField
+    toolId="ffmpeg"
+    configKey="vfs_storage_hub.external_tools.ffmpeg_path"
+    {...props}
+  />
+);

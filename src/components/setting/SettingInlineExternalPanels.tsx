@@ -1,10 +1,13 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { PasswordInput } from "@/components/common/PasswordInput";
-import { ensureRecord, isRecord, type ConfigObject } from "@/lib/configObject";
-import { SharedFfmpegField, type DiagnoseExternalTools } from "./SharedFfmpegField";
+import {
+  ExternalToolPathField,
+  SharedFfmpegField,
+  type DiagnoseExternalTools,
+} from "./SharedFfmpegField";
 import type {
   CompressionDraft,
   ThumbnailDraft,
@@ -17,6 +20,7 @@ import {
   applyThumbnailDraft,
   parseCompressionDraft,
   parseThumbnailDraft,
+  resolveThumbnailHardwareReuseStatus,
 } from "./ExternalDependencyConfigModal";
 import { useConfigDraftBinding } from "./useConfigDraftBinding";
 
@@ -26,10 +30,6 @@ interface BaseProps {
   onContentChange: (value: string) => void;
   onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
 }
-
-const asRecord = (value: unknown): ConfigObject => {
-  return isRecord(value) ? value : {};
-};
 
 export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
   tomlAdapter,
@@ -63,8 +63,18 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
       : "border-slate-300 bg-white text-slate-900",
   );
 
+  const hardwareReuseStatus = useMemo(
+    () => resolveThumbnailHardwareReuseStatus(content, tomlAdapter),
+    [content, tomlAdapter],
+  );
+  const showRasterTools =
+    draft.imageBackend === "external" ||
+    draft.pdfEnabled ||
+    draft.officeEnabled ||
+    draft.latexEnabled;
+
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-4 xl:grid-cols-2">
       <div
         className={cn(
           "rounded-2xl border p-4 space-y-4",
@@ -82,6 +92,19 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
           >
             {t("admin.config.thumbnail.imageBackend")}
           </div>
+          <label className="mt-3 flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={draft.imageEnabled}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, imageEnabled: event.target.checked }))
+              }
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>
+              {t("admin.config.thumbnail.imageEnabled")}
+            </span>
+          </label>
           <div className="mt-2">
             <SettingSegmentedControl<ThumbnailImageBackend>
               value={draft.imageBackend}
@@ -107,33 +130,19 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
               "mt-2 text-xs leading-6",
               isDark ? "text-slate-400" : "text-slate-600",
             )}
-          >
-            {t("admin.config.thumbnail.imageBackendHint")}
+            >
+              {t("admin.config.thumbnail.imageBackendHint")}
+            </div>
           </div>
-        </div>
 
         {[
-          [
-            "admin.config.thumbnail.vipsPath",
-            draft.vipsPath,
-            (value: string) =>
-              setDraft((prev) => ({ ...prev, vipsPath: value })),
-            "vips",
-          ],
-          [
-            "admin.config.thumbnail.imagemagickPath",
-            draft.imagemagickPath,
-            (value: string) =>
-              setDraft((prev) => ({ ...prev, imagemagickPath: value })),
-            "convert",
-          ],
-          [
-            "admin.config.thumbnail.libreofficePath",
-            draft.libreofficePath,
-            (value: string) =>
-              setDraft((prev) => ({ ...prev, libreofficePath: value })),
-            "soffice",
-          ],
+          ["admin.config.thumbnail.thumbSizePx", draft.thumbSizePx, (value: string) => setDraft((prev) => ({ ...prev, thumbSizePx: value })), "256"],
+          ["admin.config.thumbnail.thumbFormat", draft.thumbFormat, (value: string) => setDraft((prev) => ({ ...prev, thumbFormat: value })), "jpg"],
+          ["admin.config.thumbnail.thumbQuality", draft.thumbQuality, (value: string) => setDraft((prev) => ({ ...prev, thumbQuality: value })), "85"],
+          ["admin.config.thumbnail.imageSmallSkipMb", draft.imageSmallSkipMb, (value: string) => setDraft((prev) => ({ ...prev, imageSmallSkipMb: value })), "1"],
+          ["admin.config.thumbnail.imageMaxSizeMb", draft.imageMaxSizeMb, (value: string) => setDraft((prev) => ({ ...prev, imageMaxSizeMb: value })), "100"],
+          ["admin.config.thumbnail.imageTimeoutSecs", draft.imageTimeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, imageTimeoutSecs: value })), "10"],
+          ["admin.config.thumbnail.imageImagemagickMaxMb", draft.imageImagemagickMaxMb, (value: string) => setDraft((prev) => ({ ...prev, imageImagemagickMaxMb: value })), "20"],
         ].map(([label, value, onChange, placeholder]) => (
           <div key={String(label)}>
             <div
@@ -155,15 +164,30 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
           </div>
         ))}
 
-        <SharedFfmpegField
-          value={draft.ffmpegPath}
-          onChange={(value) =>
-            setDraft((prev) => ({ ...prev, ffmpegPath: value }))
-          }
-          label={t("admin.config.thumbnail.ffmpegPath")}
-          placeholder="ffmpeg"
-          onDiagnoseExternalTools={onDiagnoseExternalTools}
-        />
+        {showRasterTools && (
+          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+            <ExternalToolPathField
+              toolId="vips"
+              configKey="vfs_storage_hub.thumbnail.tools.vips_path"
+              value={draft.vipsPath}
+              onChange={(value) => setDraft((prev) => ({ ...prev, vipsPath: value }))}
+              label={t("admin.config.thumbnail.vipsPath")}
+              placeholder="vips"
+              onDiagnoseExternalTools={onDiagnoseExternalTools}
+            />
+            <ExternalToolPathField
+              toolId="imagemagick"
+              configKey="vfs_storage_hub.thumbnail.tools.imagemagick_path"
+              value={draft.imagemagickPath}
+              onChange={(value) =>
+                setDraft((prev) => ({ ...prev, imagemagickPath: value }))
+              }
+              label={t("admin.config.thumbnail.imagemagickPath")}
+              placeholder="convert"
+              onDiagnoseExternalTools={onDiagnoseExternalTools}
+            />
+          </div>
+        )}
       </div>
 
       <div
@@ -181,42 +205,104 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
               isDark ? "text-slate-400" : "text-slate-600",
             )}
           >
-            {t("admin.config.thumbnail.videoSeekSeconds")}
+            {t("admin.config.thumbnail.videoTitle")}
           </div>
-          <input
-            value={draft.videoSeekSeconds}
-            onChange={(event) =>
-              setDraft((prev) => ({
-                ...prev,
-                videoSeekSeconds: event.target.value,
-              }))
-            }
-            className={inputClass}
-            inputMode="numeric"
-            placeholder="3"
+          <label className="mt-3 flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={draft.videoEnabled}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, videoEnabled: event.target.checked }))
+              }
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>
+              {t("admin.config.thumbnail.videoEnabled")}
+            </span>
+          </label>
+          <SharedFfmpegField
+            value={draft.ffmpegPath}
+            onChange={(value) => setDraft((prev) => ({ ...prev, ffmpegPath: value }))}
+            label={t("admin.config.thumbnail.ffmpegPath")}
+            placeholder="ffmpeg"
+            onDiagnoseExternalTools={onDiagnoseExternalTools}
+            className="mt-3"
           />
         </div>
         <div>
-          <div
-            className={cn(
-              "text-xs font-black uppercase tracking-wide",
-              isDark ? "text-slate-400" : "text-slate-600",
-            )}
-          >
-            {t("admin.config.thumbnail.videoSeekRatio")}
+          <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>
+            {t("admin.config.thumbnail.videoSeekMode")}
           </div>
-          <input
-            value={draft.videoSeekRatio}
-            onChange={(event) =>
-              setDraft((prev) => ({
-                ...prev,
-                videoSeekRatio: event.target.value,
-              }))
-            }
-            className={inputClass}
-            inputMode="decimal"
-            placeholder="0.3"
-          />
+          <div className="mt-2">
+            <SettingSegmentedControl<"seconds" | "ratio">
+              value={draft.videoSeekMode}
+              options={[
+                { value: "seconds", label: t("admin.config.thumbnail.videoSeekModeSeconds") },
+                { value: "ratio", label: t("admin.config.thumbnail.videoSeekModeRatio") },
+              ]}
+              onChange={(value) => setDraft((prev) => ({ ...prev, videoSeekMode: value }))}
+              className="w-full justify-between"
+              buttonClassName="flex-1"
+            />
+          </div>
+        </div>
+        {draft.videoSeekMode === "seconds" ? (
+          <div>
+            <div
+              className={cn(
+                "text-xs font-black uppercase tracking-wide",
+                isDark ? "text-slate-400" : "text-slate-600",
+              )}
+            >
+              {t("admin.config.thumbnail.videoSeekSeconds")}
+            </div>
+            <input
+              value={draft.videoSeekSeconds}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, videoSeekSeconds: event.target.value }))
+              }
+              className={inputClass}
+              inputMode="numeric"
+              placeholder="3"
+            />
+          </div>
+        ) : (
+          <div>
+            <div
+              className={cn(
+                "text-xs font-black uppercase tracking-wide",
+                isDark ? "text-slate-400" : "text-slate-600",
+              )}
+            >
+              {t("admin.config.thumbnail.videoSeekRatio")}
+            </div>
+            <input
+              value={draft.videoSeekRatio}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, videoSeekRatio: event.target.value }))
+              }
+              className={inputClass}
+              inputMode="decimal"
+              placeholder="0.3"
+            />
+          </div>
+        )}
+        <div
+          className={cn(
+            "rounded-xl border p-3 text-sm leading-6",
+            isDark
+              ? "border-violet-500/20 bg-violet-500/10 text-violet-100"
+              : "border-violet-200 bg-violet-50 text-violet-900",
+          )}
+        >
+          {hardwareReuseStatus.active
+            ? t("admin.config.thumbnail.videoHardwareReuseActive", {
+                backend: hardwareReuseStatus.backend ?? "unknown",
+                device: hardwareReuseStatus.device?.trim()
+                  ? hardwareReuseStatus.device
+                  : t("admin.config.thumbnail.deviceAuto"),
+              })
+            : t("admin.config.thumbnail.videoHardwareReuseInactive")}
         </div>
         <div
           className={cn(
@@ -228,6 +314,164 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
         >
           {t("admin.config.thumbnail.helper")}
         </div>
+        <div className="grid gap-4 xl:grid-cols-3">
+          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={draft.pdfEnabled}
+                onChange={(event) =>
+                  setDraft((prev) => ({ ...prev, pdfEnabled: event.target.checked }))
+                }
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.pdfEnabled")}</span>
+            </label>
+            <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.pdfUsesRasterToolsHint")}</div>
+            {draft.latexEnabled && (
+              <div
+                className={cn(
+                  "rounded-xl border p-3 text-sm leading-6",
+                  isDark
+                    ? "border-amber-500/20 bg-amber-500/10 text-amber-100"
+                    : "border-amber-200 bg-amber-50 text-amber-900",
+                )}
+              >
+                {t("admin.config.thumbnail.latexDependsOnPdfHint")}
+              </div>
+            )}
+          </div>
+          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={draft.officeEnabled}
+                onChange={(event) =>
+                  setDraft((prev) => ({ ...prev, officeEnabled: event.target.checked }))
+                }
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.officeEnabled")}</span>
+            </label>
+            <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.officeUsesLibreofficeHint")}</div>
+            <ExternalToolPathField
+              toolId="libreoffice"
+              configKey="vfs_storage_hub.thumbnail.tools.libreoffice_path"
+              value={draft.libreofficePath}
+              onChange={(value) =>
+                setDraft((prev) => ({ ...prev, libreofficePath: value }))
+              }
+              label={t("admin.config.thumbnail.libreofficePath")}
+              placeholder="soffice"
+              onDiagnoseExternalTools={onDiagnoseExternalTools}
+            />
+          </div>
+          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={draft.latexEnabled}
+                onChange={(event) =>
+                  setDraft((prev) => ({ ...prev, latexEnabled: event.target.checked }))
+                }
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.latexEnabled")}</span>
+            </label>
+            <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.latexUsesPdfHint")}</div>
+            <ExternalToolPathField
+              toolId="latexmk"
+              configKey="file_manager_api.latex_preview.latexmk_path"
+              value={draft.latexmkPath}
+              onChange={(value) => setDraft((prev) => ({ ...prev, latexmkPath: value }))}
+              label={t("admin.config.thumbnail.latexmkPath")}
+              placeholder="latexmk"
+              onDiagnoseExternalTools={onDiagnoseExternalTools}
+            />
+            <div>
+              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexMaxInputSizeMb")}</div>
+              <input value={draft.latexMaxInputSizeMb} onChange={(event) => setDraft((prev) => ({ ...prev, latexMaxInputSizeMb: event.target.value }))} className={inputClass} placeholder="4" />
+            </div>
+          </div>
+        </div>
+        {false && (draft.pdfEnabled || draft.latexEnabled) && (
+          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.pdfTitle")}</div>
+            {draft.latexEnabled && (
+              <div
+                className={cn(
+                  "rounded-xl border p-3 text-sm leading-6",
+                  isDark
+                    ? "border-amber-500/20 bg-amber-500/10 text-amber-100"
+                    : "border-amber-200 bg-amber-50 text-amber-900",
+                )}
+              >
+                {t("admin.config.thumbnail.latexDependsOnPdfHint")}
+              </div>
+            )}
+            {[
+              ["admin.config.thumbnail.pdfSmallSkipMb", draft.pdfSmallSkipMb, (value: string) => setDraft((prev) => ({ ...prev, pdfSmallSkipMb: value })), "1"],
+              ["admin.config.thumbnail.pdfMaxSizeMb", draft.pdfMaxSizeMb, (value: string) => setDraft((prev) => ({ ...prev, pdfMaxSizeMb: value })), "100"],
+              ["admin.config.thumbnail.pdfTimeoutSecs", draft.pdfTimeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, pdfTimeoutSecs: value })), "10"],
+              ["admin.config.thumbnail.pdfImagemagickMaxMb", draft.pdfImagemagickMaxMb, (value: string) => setDraft((prev) => ({ ...prev, pdfImagemagickMaxMb: value })), "20"],
+            ].map(([label, value, onChange, placeholder]) => (
+              <div key={String(label)}>
+                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t(String(label))}</div>
+                <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass} placeholder={String(placeholder)} />
+              </div>
+            ))}
+          </div>
+        )}
+        {false && draft.officeEnabled && (
+          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.officeTitle")}</div>
+            {[
+              ["admin.config.thumbnail.officeSmallSkipMb", draft.officeSmallSkipMb, (value: string) => setDraft((prev) => ({ ...prev, officeSmallSkipMb: value })), "1"],
+              ["admin.config.thumbnail.officeMaxSizeMb", draft.officeMaxSizeMb, (value: string) => setDraft((prev) => ({ ...prev, officeMaxSizeMb: value })), "100"],
+              ["admin.config.thumbnail.officeTimeoutSecs", draft.officeTimeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, officeTimeoutSecs: value })), "60"],
+              ["admin.config.thumbnail.officeImagemagickMaxMb", draft.officeImagemagickMaxMb, (value: string) => setDraft((prev) => ({ ...prev, officeImagemagickMaxMb: value })), "20"],
+            ].map(([label, value, onChange, placeholder]) => (
+              <div key={String(label)}>
+                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t(String(label))}</div>
+                <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass} placeholder={String(placeholder)} />
+              </div>
+            ))}
+          </div>
+        )}
+        {false && draft.latexEnabled && (
+          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexTitle")}</div>
+            <div
+              className={cn(
+                "rounded-xl border p-3 text-sm leading-6",
+                isDark
+                  ? "border-amber-500/20 bg-amber-500/10 text-amber-100"
+                  : "border-amber-200 bg-amber-50 text-amber-900",
+              )}
+            >
+              {t("admin.config.thumbnail.latexDependsOnPdfHint")}
+            </div>
+            {[
+              ["admin.config.thumbnail.latexmkTimeoutSecs", draft.latexmkTimeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, latexmkTimeoutSecs: value })), "60"],
+              ["admin.config.thumbnail.latexMaxInputSizeMb", draft.latexMaxInputSizeMb, (value: string) => setDraft((prev) => ({ ...prev, latexMaxInputSizeMb: value })), "4"],
+              ["admin.config.thumbnail.latexMaxOutputSizeMb", draft.latexMaxOutputSizeMb, (value: string) => setDraft((prev) => ({ ...prev, latexMaxOutputSizeMb: value })), "10"],
+            ].map(([label, value, onChange, placeholder]) => (
+              <div key={String(label)}>
+                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t(String(label))}</div>
+                <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass} placeholder={String(placeholder)} />
+              </div>
+            ))}
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={draft.latexAllowShellEscape}
+                onChange={(event) => setDraft((prev) => ({ ...prev, latexAllowShellEscape: event.target.checked }))}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.latexAllowShellEscape")}</span>
+            </label>
+          </div>
+        )}
       </div>
     </div>
   );

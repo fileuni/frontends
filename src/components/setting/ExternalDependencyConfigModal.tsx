@@ -15,7 +15,7 @@ import { deepClone, ensureRecord, isRecord } from "@/lib/configObject";
 import { getNavigatorPlatformSource } from "@/lib/browserPlatform";
 import { useToastStore } from "@/stores/toast";
 import { SettingSegmentedControl } from "./SettingSegmentedControl";
-import { SharedFfmpegField } from "./SharedFfmpegField";
+import { ExternalToolPathField, SharedFfmpegField } from "./SharedFfmpegField";
 
 export type ThumbnailImageBackend = "builtin" | "external";
 
@@ -56,13 +56,42 @@ type DiagnoseExternalTools = (
 ) => Promise<ExternalToolDiagnosisResponse>;
 
 export type ThumbnailDraft = {
+  thumbSizePx: string;
+  thumbFormat: string;
+  thumbQuality: string;
+  imageEnabled: boolean;
   imageBackend: ThumbnailImageBackend;
+  imageSmallSkipMb: string;
+  imageMaxSizeMb: string;
+  imageImagemagickMaxMb: string;
+  imageTimeoutSecs: string;
+  videoEnabled: boolean;
+  videoSmallSkipMb: string;
+  videoMaxSizeMb: string;
+  videoTimeoutSecs: string;
+  videoSeekMode: "seconds" | "ratio";
   vipsPath: string;
   imagemagickPath: string;
   ffmpegPath: string;
   libreofficePath: string;
+  latexmkPath: string;
   videoSeekSeconds: string;
   videoSeekRatio: string;
+  pdfEnabled: boolean;
+  pdfSmallSkipMb: string;
+  pdfMaxSizeMb: string;
+  pdfImagemagickMaxMb: string;
+  pdfTimeoutSecs: string;
+  officeEnabled: boolean;
+  officeSmallSkipMb: string;
+  officeMaxSizeMb: string;
+  officeImagemagickMaxMb: string;
+  officeTimeoutSecs: string;
+  latexEnabled: boolean;
+  latexmkTimeoutSecs: string;
+  latexMaxInputSizeMb: string;
+  latexMaxOutputSizeMb: string;
+  latexAllowShellEscape: boolean;
 };
 
 export type CompressionDraft = {
@@ -74,6 +103,8 @@ export type CompressionDraft = {
 };
 
 type ToolInputDescriptor = {
+  toolId: string;
+  configKey: string;
   labelKey: string;
   value: string;
   onChange: (value: string) => void;
@@ -81,13 +112,42 @@ type ToolInputDescriptor = {
 };
 
 const DEFAULT_THUMBNAIL_DRAFT: ThumbnailDraft = {
+  thumbSizePx: "256",
+  thumbFormat: "jpg",
+  thumbQuality: "85",
+  imageEnabled: true,
   imageBackend: "builtin",
+  imageSmallSkipMb: "1",
+  imageMaxSizeMb: "100",
+  imageImagemagickMaxMb: "20",
+  imageTimeoutSecs: "10",
+  videoEnabled: true,
+  videoSmallSkipMb: "1",
+  videoMaxSizeMb: "100",
+  videoTimeoutSecs: "10",
+  videoSeekMode: "ratio",
   vipsPath: "vips",
   imagemagickPath: "convert",
   ffmpegPath: "ffmpeg",
   libreofficePath: "soffice",
+  latexmkPath: "latexmk",
   videoSeekSeconds: "3",
   videoSeekRatio: "0.3",
+  pdfEnabled: true,
+  pdfSmallSkipMb: "1",
+  pdfMaxSizeMb: "100",
+  pdfImagemagickMaxMb: "20",
+  pdfTimeoutSecs: "10",
+  officeEnabled: true,
+  officeSmallSkipMb: "1",
+  officeMaxSizeMb: "100",
+  officeImagemagickMaxMb: "20",
+  officeTimeoutSecs: "10",
+  latexEnabled: true,
+  latexmkTimeoutSecs: "60",
+  latexMaxInputSizeMb: "4",
+  latexMaxOutputSizeMb: "10",
+  latexAllowShellEscape: false,
 };
 
 const DEFAULT_COMPRESSION_DRAFT: CompressionDraft = {
@@ -131,6 +191,9 @@ export const parseThumbnailDraft = (
     const vfsStorageHub = isRecord(root["vfs_storage_hub"])
       ? root["vfs_storage_hub"]
       : {};
+    const fileManagerApi = isRecord(root["file_manager_api"])
+      ? root["file_manager_api"]
+      : {};
     const externalTools = isRecord(vfsStorageHub["external_tools"])
       ? vfsStorageHub["external_tools"]
       : {};
@@ -140,16 +203,79 @@ export const parseThumbnailDraft = (
     const image = isRecord(thumbnail["image"]) ? thumbnail["image"] : {};
     const tools = isRecord(thumbnail["tools"]) ? thumbnail["tools"] : {};
     const video = isRecord(thumbnail["video"]) ? thumbnail["video"] : {};
+    const pdf = isRecord(thumbnail["pdf"]) ? thumbnail["pdf"] : {};
+    const office = isRecord(thumbnail["office"]) ? thumbnail["office"] : {};
+    const text = isRecord(thumbnail["text"]) ? thumbnail["text"] : {};
+    const latexPreview = isRecord(fileManagerApi["latex_preview"])
+      ? fileManagerApi["latex_preview"]
+      : {};
     const asString = (value: unknown, fallback: string) =>
       typeof value === "string" ? value : fallback;
     const asNumberString = (value: unknown, fallback: string) =>
       typeof value === "number" && Number.isFinite(value)
         ? String(value)
         : fallback;
+    const asBool = (value: unknown, fallback: boolean) =>
+      typeof value === "boolean" ? value : fallback;
     const asBackend = (value: unknown): ThumbnailImageBackend =>
       value === "external" ? "external" : "builtin";
+    const videoSeekSeconds = asNumberString(
+      video["seek_seconds"],
+      DEFAULT_THUMBNAIL_DRAFT.videoSeekSeconds,
+    );
+    const videoSeekRatio = asNumberString(
+      video["seek_ratio"],
+      DEFAULT_THUMBNAIL_DRAFT.videoSeekRatio,
+    );
+    const seekRatioValue = Number(video["seek_ratio"]);
     return {
+      thumbSizePx: asNumberString(
+        thumbnail["thumb_size_px"],
+        DEFAULT_THUMBNAIL_DRAFT.thumbSizePx,
+      ),
+      thumbFormat: asString(
+        thumbnail["thumb_format"],
+        DEFAULT_THUMBNAIL_DRAFT.thumbFormat,
+      ),
+      thumbQuality: asNumberString(
+        thumbnail["thumb_quality"],
+        DEFAULT_THUMBNAIL_DRAFT.thumbQuality,
+      ),
+      imageEnabled: asBool(image["enabled"], DEFAULT_THUMBNAIL_DRAFT.imageEnabled),
       imageBackend: asBackend(image["backend"]),
+      imageSmallSkipMb: asNumberString(
+        image["small_skip_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.imageSmallSkipMb,
+      ),
+      imageMaxSizeMb: asNumberString(
+        image["max_size_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.imageMaxSizeMb,
+      ),
+      imageImagemagickMaxMb: asNumberString(
+        image["imagemagick_max_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.imageImagemagickMaxMb,
+      ),
+      imageTimeoutSecs: asNumberString(
+        image["timeout_secs"],
+        DEFAULT_THUMBNAIL_DRAFT.imageTimeoutSecs,
+      ),
+      videoEnabled: asBool(video["enabled"], DEFAULT_THUMBNAIL_DRAFT.videoEnabled),
+      videoSmallSkipMb: asNumberString(
+        video["small_skip_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.videoSmallSkipMb,
+      ),
+      videoMaxSizeMb: asNumberString(
+        video["max_size_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.videoMaxSizeMb,
+      ),
+      videoTimeoutSecs: asNumberString(
+        video["timeout_secs"],
+        DEFAULT_THUMBNAIL_DRAFT.videoTimeoutSecs,
+      ),
+      videoSeekMode:
+        Number.isFinite(seekRatioValue) && seekRatioValue > 0 && seekRatioValue <= 1
+          ? "ratio"
+          : "seconds",
       vipsPath: asString(tools["vips_path"], DEFAULT_THUMBNAIL_DRAFT.vipsPath),
       imagemagickPath: asString(
         tools["imagemagick_path"],
@@ -163,13 +289,68 @@ export const parseThumbnailDraft = (
         tools["libreoffice_path"],
         DEFAULT_THUMBNAIL_DRAFT.libreofficePath,
       ),
-      videoSeekSeconds: asNumberString(
-        video["seek_seconds"],
-        DEFAULT_THUMBNAIL_DRAFT.videoSeekSeconds,
+      latexmkPath: asString(
+        latexPreview["latexmk_path"],
+        DEFAULT_THUMBNAIL_DRAFT.latexmkPath,
       ),
-      videoSeekRatio: asNumberString(
-        video["seek_ratio"],
-        DEFAULT_THUMBNAIL_DRAFT.videoSeekRatio,
+      videoSeekSeconds,
+      videoSeekRatio,
+      pdfEnabled: asBool(pdf["enabled"], DEFAULT_THUMBNAIL_DRAFT.pdfEnabled),
+      pdfSmallSkipMb: asNumberString(
+        pdf["small_skip_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.pdfSmallSkipMb,
+      ),
+      pdfMaxSizeMb: asNumberString(
+        pdf["max_size_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.pdfMaxSizeMb,
+      ),
+      pdfImagemagickMaxMb: asNumberString(
+        pdf["imagemagick_max_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.pdfImagemagickMaxMb,
+      ),
+      pdfTimeoutSecs: asNumberString(
+        pdf["timeout_secs"],
+        DEFAULT_THUMBNAIL_DRAFT.pdfTimeoutSecs,
+      ),
+      officeEnabled: asBool(
+        office["enabled"],
+        DEFAULT_THUMBNAIL_DRAFT.officeEnabled,
+      ),
+      officeSmallSkipMb: asNumberString(
+        office["small_skip_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.officeSmallSkipMb,
+      ),
+      officeMaxSizeMb: asNumberString(
+        office["max_size_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.officeMaxSizeMb,
+      ),
+      officeImagemagickMaxMb: asNumberString(
+        office["imagemagick_max_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.officeImagemagickMaxMb,
+      ),
+      officeTimeoutSecs: asNumberString(
+        office["timeout_secs"],
+        DEFAULT_THUMBNAIL_DRAFT.officeTimeoutSecs,
+      ),
+      latexEnabled: asBool(
+        latexPreview["enable_latexmk"],
+        DEFAULT_THUMBNAIL_DRAFT.latexEnabled,
+      ),
+      latexmkTimeoutSecs: asNumberString(
+        latexPreview["latexmk_timeout_secs"],
+        DEFAULT_THUMBNAIL_DRAFT.latexmkTimeoutSecs,
+      ),
+      latexMaxInputSizeMb: asNumberString(
+        latexPreview["max_input_size_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.latexMaxInputSizeMb,
+      ),
+      latexMaxOutputSizeMb: asNumberString(
+        latexPreview["max_output_size_mb"],
+        DEFAULT_THUMBNAIL_DRAFT.latexMaxOutputSizeMb,
+      ),
+      latexAllowShellEscape: asBool(
+        latexPreview["allow_shell_escape"],
+        DEFAULT_THUMBNAIL_DRAFT.latexAllowShellEscape,
       ),
     };
   } catch {
@@ -226,6 +407,7 @@ const buildThumbnailConfiguredValues = (
   "vfs_storage_hub.external_tools.ffmpeg_path": draft.ffmpegPath.trim(),
   "vfs_storage_hub.thumbnail.tools.libreoffice_path":
     draft.libreofficePath.trim(),
+  "file_manager_api.latex_preview.latexmk_path": draft.latexmkPath.trim(),
 });
 
 const buildCompressionConfiguredValues = (
@@ -250,28 +432,170 @@ export const applyThumbnailDraft = (
   }
   const next = deepClone(parsed);
   const vfsStorageHub = ensureRecord(next, "vfs_storage_hub");
+  const fileManagerApi = ensureRecord(next, "file_manager_api");
   const externalTools = ensureRecord(vfsStorageHub, "external_tools");
   const thumbnail = ensureRecord(vfsStorageHub, "thumbnail");
   const image = ensureRecord(thumbnail, "image");
   const tools = ensureRecord(thumbnail, "tools");
   const video = ensureRecord(thumbnail, "video");
+  const pdf = ensureRecord(thumbnail, "pdf");
+  const office = ensureRecord(thumbnail, "office");
+  const text = ensureRecord(thumbnail, "text");
+  const latexPreview = ensureRecord(fileManagerApi, "latex_preview");
+  const parsePositiveInt = (value: string, fallback: number) =>
+    Number.isFinite(Number.parseInt(value, 10)) && Number.parseInt(value, 10) > 0
+      ? Number.parseInt(value, 10)
+      : fallback;
+
+  thumbnail["thumb_size_px"] = parsePositiveInt(
+    draft.thumbSizePx,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.thumbSizePx, 10),
+  );
+  thumbnail["thumb_format"] = draft.thumbFormat.trim();
+  thumbnail["thumb_quality"] = parsePositiveInt(
+    draft.thumbQuality,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.thumbQuality, 10),
+  );
+  image["enabled"] = draft.imageEnabled;
   image["backend"] = draft.imageBackend;
+  image["small_skip_mb"] = parsePositiveInt(
+    draft.imageSmallSkipMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.imageSmallSkipMb, 10),
+  );
+  image["max_size_mb"] = parsePositiveInt(
+    draft.imageMaxSizeMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.imageMaxSizeMb, 10),
+  );
+  image["imagemagick_max_mb"] = parsePositiveInt(
+    draft.imageImagemagickMaxMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.imageImagemagickMaxMb, 10),
+  );
+  image["timeout_secs"] = parsePositiveInt(
+    draft.imageTimeoutSecs,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.imageTimeoutSecs, 10),
+  );
   tools["vips_path"] = draft.vipsPath.trim();
   tools["imagemagick_path"] = draft.imagemagickPath.trim();
   tools["libreoffice_path"] = draft.libreofficePath.trim();
   externalTools["ffmpeg_path"] = draft.ffmpegPath.trim();
   delete tools["ffmpeg_path"];
 
+  video["enabled"] = draft.videoEnabled;
+  video["small_skip_mb"] = parsePositiveInt(
+    draft.videoSmallSkipMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.videoSmallSkipMb, 10),
+  );
+  video["max_size_mb"] = parsePositiveInt(
+    draft.videoMaxSizeMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.videoMaxSizeMb, 10),
+  );
+  video["timeout_secs"] = parsePositiveInt(
+    draft.videoTimeoutSecs,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.videoTimeoutSecs, 10),
+  );
   const seekSeconds = Number(draft.videoSeekSeconds);
   const seekRatio = Number(draft.videoSeekRatio);
-  if (Number.isFinite(seekSeconds) && seekSeconds > 0) {
-    video["seek_seconds"] = Math.floor(seekSeconds);
-  }
-  if (Number.isFinite(seekRatio) && seekRatio > 0 && seekRatio <= 1) {
-    video["seek_ratio"] = seekRatio;
+  if (draft.videoSeekMode === "seconds") {
+    video["seek_seconds"] = Number.isFinite(seekSeconds) && seekSeconds > 0
+      ? Math.floor(seekSeconds)
+      : Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.videoSeekSeconds, 10);
+    delete video["seek_ratio"];
+  } else {
+    video["seek_ratio"] = Number.isFinite(seekRatio) && seekRatio > 0 && seekRatio <= 1
+      ? seekRatio
+      : Number.parseFloat(DEFAULT_THUMBNAIL_DRAFT.videoSeekRatio);
+    delete video["seek_seconds"];
   }
 
+  pdf["enabled"] = draft.pdfEnabled;
+  pdf["small_skip_mb"] = parsePositiveInt(
+    draft.pdfSmallSkipMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.pdfSmallSkipMb, 10),
+  );
+  pdf["max_size_mb"] = parsePositiveInt(
+    draft.pdfMaxSizeMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.pdfMaxSizeMb, 10),
+  );
+  pdf["imagemagick_max_mb"] = parsePositiveInt(
+    draft.pdfImagemagickMaxMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.pdfImagemagickMaxMb, 10),
+  );
+  pdf["timeout_secs"] = parsePositiveInt(
+    draft.pdfTimeoutSecs,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.pdfTimeoutSecs, 10),
+  );
+
+  office["enabled"] = draft.officeEnabled;
+  office["small_skip_mb"] = parsePositiveInt(
+    draft.officeSmallSkipMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.officeSmallSkipMb, 10),
+  );
+  office["max_size_mb"] = parsePositiveInt(
+    draft.officeMaxSizeMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.officeMaxSizeMb, 10),
+  );
+  office["imagemagick_max_mb"] = parsePositiveInt(
+    draft.officeImagemagickMaxMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.officeImagemagickMaxMb, 10),
+  );
+  office["timeout_secs"] = parsePositiveInt(
+    draft.officeTimeoutSecs,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.officeTimeoutSecs, 10),
+  );
+
+  if (draft.latexEnabled) {
+    text["enabled"] = true;
+  }
+  latexPreview["enable_latexmk"] = draft.latexEnabled;
+  latexPreview["latexmk_path"] = draft.latexmkPath.trim();
+  latexPreview["latexmk_timeout_secs"] = parsePositiveInt(
+    draft.latexmkTimeoutSecs,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.latexmkTimeoutSecs, 10),
+  );
+  latexPreview["max_input_size_mb"] = parsePositiveInt(
+    draft.latexMaxInputSizeMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.latexMaxInputSizeMb, 10),
+  );
+  latexPreview["max_output_size_mb"] = parsePositiveInt(
+    draft.latexMaxOutputSizeMb,
+    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.latexMaxOutputSizeMb, 10),
+  );
+  latexPreview["allow_shell_escape"] = draft.latexAllowShellEscape;
+
   return tomlAdapter.stringify(next);
+};
+
+export const resolveThumbnailHardwareReuseStatus = (
+  content: string,
+  tomlAdapter: TomlAdapter,
+): { active: boolean; backend?: string; device?: string } => {
+  try {
+    const parsed = tomlAdapter.parse(content);
+    if (!isRecord(parsed)) {
+      return { active: false };
+    }
+    const root = parsed;
+    const vfsStorageHub = isRecord(root["vfs_storage_hub"])
+      ? root["vfs_storage_hub"]
+      : {};
+    const media = isRecord(vfsStorageHub["media_transcoding"])
+      ? vfsStorageHub["media_transcoding"]
+      : {};
+    const hardware = isRecord(media["hardware"]) ? media["hardware"] : {};
+    const active =
+      media["enabled"] === true &&
+      hardware["enabled"] === true &&
+      typeof hardware["backend"] === "string" &&
+      hardware["backend"].trim() !== "" &&
+      hardware["backend"].trim().toLowerCase() !== "none";
+    return {
+      active,
+      backend: typeof hardware["backend"] === "string" ? hardware["backend"] : undefined,
+      device: typeof hardware["device"] === "string" ? hardware["device"] : undefined,
+    };
+  } catch {
+    return { active: false };
+  }
 };
 
 export const applyCompressionDraft = (
@@ -624,104 +948,21 @@ export const ThumbnailDependencyConfigModal: React.FC<
   const isMobileRuntime =
     normalizedRuntimeOs === "android" || normalizedRuntimeOs === "ios";
   const [draft, setDraft] = useState<ThumbnailDraft>(DEFAULT_THUMBNAIL_DRAFT);
-  const [diagnosis, setDiagnosis] =
-    useState<ExternalToolDiagnosisResponse | null>(null);
-  const [diagnosing, setDiagnosing] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
     setDraft(parseThumbnailDraft(content, tomlAdapter));
-    setDiagnosis(null);
   }, [content, isOpen, tomlAdapter]);
 
-  const toolItems = useMemo(
-    () => diagnosis?.tools.filter((item) => item.group === "thumbnail") ?? [],
-    [diagnosis],
+  const hardwareReuseStatus = useMemo(
+    () => resolveThumbnailHardwareReuseStatus(content, tomlAdapter),
+    [content, tomlAdapter],
   );
-  const toolInputs: ToolInputDescriptor[] = [
-    {
-      labelKey: "admin.config.externalTools.labels.vips",
-      value: draft.vipsPath,
-      onChange: (value) => setDraft((state) => ({ ...state, vipsPath: value })),
-      placeholderKey: "admin.config.externalTools.placeholders.vips",
-    },
-    {
-      labelKey: "admin.config.externalTools.labels.imagemagick",
-      value: draft.imagemagickPath,
-      onChange: (value) =>
-        setDraft((state) => ({ ...state, imagemagickPath: value })),
-      placeholderKey: "admin.config.externalTools.placeholders.imagemagick",
-    },
-    {
-      labelKey: "admin.config.externalTools.labels.libreoffice",
-      value: draft.libreofficePath,
-      onChange: (value) =>
-        setDraft((state) => ({ ...state, libreofficePath: value })),
-      placeholderKey: "admin.config.externalTools.placeholders.libreoffice",
-    },
-  ];
-
-  const handleDiagnose = async () => {
-    if (!onDiagnoseExternalTools || diagnosing) return;
-    setDiagnosing(true);
-    try {
-      const data = await onDiagnoseExternalTools(
-        buildThumbnailConfiguredValues(draft),
-      );
-      setDiagnosis(data);
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : t("admin.config.externalTools.messages.diagnoseFailed");
-      addToast(message, "error");
-    } finally {
-      setDiagnosing(false);
-    }
-  };
-
-  const handleAutofill = () => {
-    if (!diagnosis?.supported) {
-      addToast(t("admin.config.externalTools.mobileDisabled"), "warning");
-      return;
-    }
-    const next = { ...draft };
-    let changed = 0;
-    for (const item of toolItems) {
-      const suggested = item.suggested_value?.trim();
-      if (!suggested) continue;
-      if (item.tool_id === "vips" && next.vipsPath !== suggested) {
-        next.vipsPath = suggested;
-        changed += 1;
-      }
-      if (
-        item.tool_id === "imagemagick" &&
-        next.imagemagickPath !== suggested
-      ) {
-        next.imagemagickPath = suggested;
-        changed += 1;
-      }
-      if (item.tool_id === "ffmpeg" && next.ffmpegPath !== suggested) {
-        next.ffmpegPath = suggested;
-        changed += 1;
-      }
-      if (
-        item.tool_id === "libreoffice" &&
-        next.libreofficePath !== suggested
-      ) {
-        next.libreofficePath = suggested;
-        changed += 1;
-      }
-    }
-    setDraft(next);
-    addToast(
-      changed > 0
-        ? t("admin.config.externalTools.autofillSuccess")
-        : t("admin.config.externalTools.autofillNoChange"),
-      changed > 0 ? "success" : "info",
-    );
-  };
-
+  const showRasterTools =
+    draft.imageBackend === "external" ||
+    draft.pdfEnabled ||
+    draft.officeEnabled ||
+    draft.latexEnabled;
   const handleApply = () => {
     try {
       const nextContent = applyThumbnailDraft(content, tomlAdapter, draft);
@@ -801,6 +1042,17 @@ export const ThumbnailDependencyConfigModal: React.FC<
             >
               {t("admin.config.thumbnail.imageBackend")}
             </div>
+            <label className="mt-3 flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={draft.imageEnabled}
+                onChange={(event) =>
+                  setDraft((state) => ({ ...state, imageEnabled: event.target.checked }))
+                }
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.imageEnabled")}</span>
+            </label>
             <div className="mt-2">
               <SettingSegmentedControl<ThumbnailImageBackend>
                 value={draft.imageBackend}
@@ -831,48 +1083,53 @@ export const ThumbnailDependencyConfigModal: React.FC<
             </div>
           </div>
 
-          {toolInputs.map((input) => (
-            <div key={input.labelKey}>
-              {(() => {
-                const inputId = `thumbnail-tool-${input.labelKey.replace(/\./g, "-")}`;
-                return (
-                  <>
-                    <label
-                      htmlFor={inputId}
-                      className={cn(
-                        "text-xs font-black uppercase tracking-wide",
-                        isDark ? "text-slate-400" : "text-slate-600",
-                      )}
-                    >
-                      {t(input.labelKey)}
-                    </label>
-                    <input
-                      id={inputId}
-                      value={input.value}
-                      onChange={(event) => input.onChange(event.target.value)}
-                      className={cn(
-                        "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
-                        isDark
-                          ? "border-white/10 bg-black/30 text-white"
-                          : "border-slate-300 bg-white text-slate-900",
-                      )}
-                      placeholder={t(input.placeholderKey)}
-                    />
-                  </>
-                );
-              })()}
+          {[
+            ["admin.config.thumbnail.thumbSizePx", draft.thumbSizePx, (value: string) => setDraft((state) => ({ ...state, thumbSizePx: value })), "256"],
+            ["admin.config.thumbnail.thumbFormat", draft.thumbFormat, (value: string) => setDraft((state) => ({ ...state, thumbFormat: value })), "jpg"],
+            ["admin.config.thumbnail.thumbQuality", draft.thumbQuality, (value: string) => setDraft((state) => ({ ...state, thumbQuality: value })), "85"],
+            ["admin.config.thumbnail.imageSmallSkipMb", draft.imageSmallSkipMb, (value: string) => setDraft((state) => ({ ...state, imageSmallSkipMb: value })), "1"],
+            ["admin.config.thumbnail.imageMaxSizeMb", draft.imageMaxSizeMb, (value: string) => setDraft((state) => ({ ...state, imageMaxSizeMb: value })), "100"],
+            ["admin.config.thumbnail.imageTimeoutSecs", draft.imageTimeoutSecs, (value: string) => setDraft((state) => ({ ...state, imageTimeoutSecs: value })), "10"],
+            ["admin.config.thumbnail.imageImagemagickMaxMb", draft.imageImagemagickMaxMb, (value: string) => setDraft((state) => ({ ...state, imageImagemagickMaxMb: value })), "20"],
+          ].map(([label, value, onChange, placeholder]) => (
+            <div key={String(label)}>
+              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t(String(label))}</div>
+              <input
+                value={String(value)}
+                onChange={(event) => (onChange as (value: string) => void)(event.target.value)}
+                className={cn(
+                  "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+                  isDark
+                    ? "border-white/10 bg-black/30 text-white"
+                    : "border-slate-300 bg-white text-slate-900",
+                )}
+                placeholder={String(placeholder)}
+              />
             </div>
           ))}
 
-          <SharedFfmpegField
-            value={draft.ffmpegPath}
-            onChange={(value) =>
-              setDraft((state) => ({ ...state, ffmpegPath: value }))
-            }
-            label={t("admin.config.externalTools.labels.ffmpeg")}
-            placeholder={t("admin.config.externalTools.placeholders.ffmpeg")}
-            onDiagnoseExternalTools={onDiagnoseExternalTools}
-          />
+          {showRasterTools && (
+            <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+              <ExternalToolPathField
+                toolId="vips"
+                configKey="vfs_storage_hub.thumbnail.tools.vips_path"
+                value={draft.vipsPath}
+                onChange={(value) => setDraft((state) => ({ ...state, vipsPath: value }))}
+                label={t("admin.config.thumbnail.vipsPath")}
+                placeholder="vips"
+                onDiagnoseExternalTools={onDiagnoseExternalTools}
+              />
+              <ExternalToolPathField
+                toolId="imagemagick"
+                configKey="vfs_storage_hub.thumbnail.tools.imagemagick_path"
+                value={draft.imagemagickPath}
+                onChange={(value) => setDraft((state) => ({ ...state, imagemagickPath: value }))}
+                label={t("admin.config.thumbnail.imagemagickPath")}
+                placeholder="convert"
+                onDiagnoseExternalTools={onDiagnoseExternalTools}
+              />
+            </div>
+          )}
         </div>
 
         <div
@@ -884,52 +1141,82 @@ export const ThumbnailDependencyConfigModal: React.FC<
           )}
         >
           <div>
-            <label
-              htmlFor="thumbnail-video-seek-seconds"
-              className={cn(
-                "text-xs font-black uppercase tracking-wide",
-                isDark ? "text-slate-400" : "text-slate-600",
-              )}
-            >
-              {t("admin.config.thumbnail.videoSeekSeconds")}
+            <label className="flex items-center gap-3 mb-3">
+              <input
+                type="checkbox"
+                checked={draft.videoEnabled}
+                onChange={(event) =>
+                  setDraft((state) => ({ ...state, videoEnabled: event.target.checked }))
+                }
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.videoEnabled")}</span>
             </label>
-            <input
-              id="thumbnail-video-seek-seconds"
-              value={draft.videoSeekSeconds}
-              onChange={(event) =>
-                setDraft((state) => ({
-                  ...state,
-                  videoSeekSeconds: event.target.value,
-                }))
+            <SharedFfmpegField
+              value={draft.ffmpegPath}
+              onChange={(value) =>
+                setDraft((state) => ({ ...state, ffmpegPath: value }))
               }
-              className={cn(
-                "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
-                isDark
-                  ? "border-white/10 bg-black/30 text-white"
-                  : "border-slate-300 bg-white text-slate-900",
-              )}
-              inputMode="numeric"
-              placeholder="3"
+              label={t("admin.config.thumbnail.ffmpegPath")}
+              placeholder="ffmpeg"
+              onDiagnoseExternalTools={onDiagnoseExternalTools}
             />
           </div>
           <div>
-            <label
-              htmlFor="thumbnail-video-seek-ratio"
+            <div
               className={cn(
                 "text-xs font-black uppercase tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
               )}
             >
-              {t("admin.config.thumbnail.videoSeekRatio")}
+              {t("admin.config.thumbnail.videoSeekMode")}
+            </div>
+            <div className="mt-2">
+              <SettingSegmentedControl<"seconds" | "ratio">
+                value={draft.videoSeekMode}
+                options={[
+                  {
+                    value: "seconds",
+                    label: t("admin.config.thumbnail.videoSeekModeSeconds"),
+                  },
+                  {
+                    value: "ratio",
+                    label: t("admin.config.thumbnail.videoSeekModeRatio"),
+                  },
+                ]}
+                onChange={(value) =>
+                  setDraft((state) => ({ ...state, videoSeekMode: value }))
+                }
+                className="w-full justify-between"
+                buttonClassName="flex-1"
+              />
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="thumbnail-video-seek-value"
+              className={cn(
+                "text-xs font-black uppercase tracking-wide",
+                isDark ? "text-slate-400" : "text-slate-600",
+              )}
+            >
+              {draft.videoSeekMode === "seconds"
+                ? t("admin.config.thumbnail.videoSeekSeconds")
+                : t("admin.config.thumbnail.videoSeekRatio")}
             </label>
             <input
-              id="thumbnail-video-seek-ratio"
-              value={draft.videoSeekRatio}
+              id="thumbnail-video-seek-value"
+              value={
+                draft.videoSeekMode === "seconds"
+                  ? draft.videoSeekSeconds
+                  : draft.videoSeekRatio
+              }
               onChange={(event) =>
-                setDraft((state) => ({
-                  ...state,
-                  videoSeekRatio: event.target.value,
-                }))
+                setDraft((state) =>
+                  draft.videoSeekMode === "seconds"
+                    ? { ...state, videoSeekSeconds: event.target.value }
+                    : { ...state, videoSeekRatio: event.target.value },
+                )
               }
               className={cn(
                 "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
@@ -937,8 +1224,8 @@ export const ThumbnailDependencyConfigModal: React.FC<
                   ? "border-white/10 bg-black/30 text-white"
                   : "border-slate-300 bg-white text-slate-900",
               )}
-              inputMode="decimal"
-              placeholder="0.3"
+              inputMode={draft.videoSeekMode === "seconds" ? "numeric" : "decimal"}
+              placeholder={draft.videoSeekMode === "seconds" ? "3" : "0.3"}
             />
             <div
               className={cn(
@@ -953,58 +1240,121 @@ export const ThumbnailDependencyConfigModal: React.FC<
             className={cn(
               "rounded-xl border p-3 text-sm leading-6",
               isDark
+                ? "border-violet-500/20 bg-violet-500/10 text-violet-100"
+                : "border-violet-200 bg-violet-50 text-violet-900",
+            )}
+          >
+            {hardwareReuseStatus.active
+              ? t("admin.config.thumbnail.videoHardwareReuseActive", {
+                  backend: hardwareReuseStatus.backend ?? "unknown",
+                  device: hardwareReuseStatus.device?.trim()
+                    ? hardwareReuseStatus.device
+                    : t("admin.config.thumbnail.deviceAuto"),
+                })
+              : t("admin.config.thumbnail.videoHardwareReuseInactive")}
+          </div>
+          <div
+            className={cn(
+              "rounded-xl border p-3 text-sm leading-6",
+              isDark
                 ? "border-cyan-500/20 bg-cyan-500/10 text-cyan-100"
                 : "border-cyan-200 bg-cyan-50 text-cyan-900",
             )}
           >
             {t("admin.config.thumbnail.helper")}
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => void handleDiagnose()}
-              disabled={
-                !onDiagnoseExternalTools || diagnosing || isMobileRuntime
-              }
-              className={cn(
-                "h-10 px-4 rounded-xl border text-sm font-black inline-flex items-center gap-2 disabled:opacity-50",
-                isDark
-                  ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15"
-                  : "border-cyan-300 bg-cyan-50 text-cyan-800 hover:bg-cyan-100",
+          <div className="grid gap-4 xl:grid-cols-3">
+            <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={draft.pdfEnabled}
+                  onChange={(event) =>
+                    setDraft((state) => ({ ...state, pdfEnabled: event.target.checked }))
+                  }
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.pdfEnabled")}</span>
+              </label>
+              <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.pdfUsesRasterToolsHint")}</div>
+              {draft.latexEnabled && (
+                <div
+                  className={cn(
+                    "rounded-xl border p-3 text-sm leading-6",
+                    isDark
+                      ? "border-amber-500/20 bg-amber-500/10 text-amber-100"
+                      : "border-amber-200 bg-amber-50 text-amber-900",
+                  )}
+                >
+                  {t("admin.config.thumbnail.latexDependsOnPdfHint")}
+                </div>
               )}
-            >
-              {diagnosing ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Search size={16} />
-              )}
-              {t("admin.config.externalTools.diagnose")}
-            </button>
-            <button
-              type="button"
-              onClick={handleAutofill}
-              disabled={!diagnosis || diagnosing || isMobileRuntime}
-              className={cn(
-                "h-10 px-4 rounded-xl border text-sm font-black inline-flex items-center gap-2 disabled:opacity-50",
-                isDark
-                  ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/15"
-                  : "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100",
-              )}
-            >
-              <Sparkles size={16} />
-              {t("admin.config.externalTools.autofill")}
-            </button>
+            </div>
+            <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={draft.officeEnabled}
+                  onChange={(event) =>
+                    setDraft((state) => ({ ...state, officeEnabled: event.target.checked }))
+                  }
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.officeEnabled")}</span>
+              </label>
+              <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.officeUsesLibreofficeHint")}</div>
+              <ExternalToolPathField
+                toolId="libreoffice"
+                configKey="vfs_storage_hub.thumbnail.tools.libreoffice_path"
+                value={draft.libreofficePath}
+                onChange={(value) => setDraft((state) => ({ ...state, libreofficePath: value }))}
+                label={t("admin.config.thumbnail.libreofficePath")}
+                placeholder="soffice"
+                onDiagnoseExternalTools={onDiagnoseExternalTools}
+              />
+            </div>
+            <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={draft.latexEnabled}
+                  onChange={(event) =>
+                    setDraft((state) => ({ ...state, latexEnabled: event.target.checked }))
+                  }
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.latexEnabled")}</span>
+              </label>
+              <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.latexUsesPdfHint")}</div>
+              <ExternalToolPathField
+                toolId="latexmk"
+                configKey="file_manager_api.latex_preview.latexmk_path"
+                value={draft.latexmkPath}
+                onChange={(value) => setDraft((state) => ({ ...state, latexmkPath: value }))}
+                label={t("admin.config.thumbnail.latexmkPath")}
+                placeholder="latexmk"
+                onDiagnoseExternalTools={onDiagnoseExternalTools}
+              />
+              <div>
+                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexMaxInputSizeMb")}</div>
+                <input
+                  value={draft.latexMaxInputSizeMb}
+                  onChange={(event) =>
+                    setDraft((state) => ({ ...state, latexMaxInputSizeMb: event.target.value }))
+                  }
+                  className={cn(
+                    "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+                    isDark
+                      ? "border-white/10 bg-black/30 text-white"
+                      : "border-slate-300 bg-white text-slate-900",
+                  )}
+                  placeholder="4"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      {toolItems.length > 0 && (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          {toolItems.map((item) => (
-            <ToolCard key={item.tool_id} item={item} />
-          ))}
-        </div>
-      )}
     </ModalShell>
   );
 };

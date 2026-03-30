@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Loader2, Video } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -36,7 +36,6 @@ export type MediaTranscodingDraft = {
   maxConcurrentTasksLowMemory: string;
   maxConcurrentTasksThroughput: string;
   allowSoftwareFallback: boolean;
-  videoEnabled: boolean;
   delivery: string;
   segmentDurationSecs: string;
   videoCodec: string;
@@ -50,7 +49,6 @@ export type MediaTranscodingDraft = {
   hardwareEnabled: boolean;
   backend: string;
   device: string;
-  hardwareAllowFallback: boolean;
   ffmpegPath: string;
 };
 
@@ -63,7 +61,6 @@ const DEFAULT_MEDIA_TRANSCODING_DRAFT: MediaTranscodingDraft = {
   maxConcurrentTasksLowMemory: "1",
   maxConcurrentTasksThroughput: "2",
   allowSoftwareFallback: true,
-  videoEnabled: true,
   delivery: "hls",
   segmentDurationSecs: "4",
   videoCodec: "h264",
@@ -77,7 +74,6 @@ const DEFAULT_MEDIA_TRANSCODING_DRAFT: MediaTranscodingDraft = {
   hardwareEnabled: false,
   backend: "vaapi",
   device: "/dev/dri/renderD128",
-  hardwareAllowFallback: true,
   ffmpegPath: "ffmpeg",
 };
 
@@ -137,10 +133,9 @@ export const parseMediaTranscodingDraft = (
         DEFAULT_MEDIA_TRANSCODING_DRAFT.maxConcurrentTasksThroughput,
       ),
       allowSoftwareFallback: asBool(
-        media["allow_software_fallback"],
+        media["allow_software_fallback"] ?? hardware["allow_fallback_to_software"],
         DEFAULT_MEDIA_TRANSCODING_DRAFT.allowSoftwareFallback,
       ),
-      videoEnabled: asBool(video["enabled"], DEFAULT_MEDIA_TRANSCODING_DRAFT.videoEnabled),
       delivery: asString(video["delivery"], DEFAULT_MEDIA_TRANSCODING_DRAFT.delivery),
       segmentDurationSecs: asNumberString(
         video["segment_duration_secs"],
@@ -163,10 +158,6 @@ export const parseMediaTranscodingDraft = (
       ),
       backend: asString(hardware["backend"], DEFAULT_MEDIA_TRANSCODING_DRAFT.backend),
       device: asString(hardware["device"], DEFAULT_MEDIA_TRANSCODING_DRAFT.device),
-      hardwareAllowFallback: asBool(
-        hardware["allow_fallback_to_software"],
-        DEFAULT_MEDIA_TRANSCODING_DRAFT.hardwareAllowFallback,
-      ),
       ffmpegPath: asString(
         externalTools["ffmpeg_path"] ?? thumbnailTools["ffmpeg_path"],
         DEFAULT_MEDIA_TRANSCODING_DRAFT.ffmpegPath,
@@ -223,7 +214,7 @@ export const applyMediaTranscodingDraft = (
   );
   media["allow_software_fallback"] = draft.allowSoftwareFallback;
 
-  video["enabled"] = draft.videoEnabled;
+  video["enabled"] = true;
   video["delivery"] = draft.delivery.trim();
   video["segment_duration_secs"] = parsePositiveInt(
     draft.segmentDurationSecs,
@@ -256,7 +247,7 @@ export const applyMediaTranscodingDraft = (
   hardware["enabled"] = draft.hardwareEnabled;
   hardware["backend"] = draft.backend.trim();
   hardware["device"] = draft.device.trim();
-  hardware["allow_fallback_to_software"] = draft.hardwareAllowFallback;
+  hardware["allow_fallback_to_software"] = draft.allowSoftwareFallback;
   return tomlAdapter.stringify(next);
 };
 
@@ -296,6 +287,11 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
   const isDark = useResolvedTheme() === "dark";
   const { addToast } = useToastStore();
   const [probing, setProbing] = useState(false);
+  const [probeResult, setProbeResult] = useState<{
+    tone: "success" | "error";
+    summary: string;
+    detail?: string;
+  } | null>(null);
 
   const handleProbe = async () => {
     if (!onProbeMediaBackend || probing) return;
@@ -306,11 +302,58 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
         backend: draft.backend,
         device: draft.device.trim() || undefined,
       });
-      const tone = response.backend_available ? "success" : response.backend_supported ? "warning" : "error";
-      const warningText = response.warnings.length > 0 ? ` ${response.warnings.join(" ")}` : "";
-      addToast(`${response.message}${warningText}`, tone);
+      const detail = (() => {
+        const constraints = response.message.match(
+          /constraints:\s*width\s*(\d+)-(\d+)\s*height\s*(\d+)-(\d+)/i,
+        );
+        if (constraints) {
+          return t("admin.config.mediaTranscoding.probeConstraintHint", {
+            minWidth: constraints[1],
+            maxWidth: constraints[2],
+            minHeight: constraints[3],
+            maxHeight: constraints[4],
+          });
+        }
+        if (response.warnings.length > 0) {
+          return response.warnings.join(" ");
+        }
+        return response.message;
+      })();
+
+      if (response.backend_available) {
+        const summary = t("admin.config.mediaTranscoding.probeOk", {
+          backend: response.backend,
+          encoder: response.encoder_name ?? response.backend,
+        });
+        setProbeResult({ tone: "success", summary, detail });
+        addToast(summary, "success");
+      } else if (!response.ffmpeg_available) {
+        const summary = t("admin.config.mediaTranscoding.probeFailedFfmpeg");
+        setProbeResult({ tone: "error", summary, detail });
+        addToast(`${summary}: ${detail}`, "error");
+      } else if (!response.backend_supported) {
+        const summary = t("admin.config.mediaTranscoding.probeFailedEncoder", {
+          backend: response.backend,
+          encoder: response.encoder_name ?? response.backend,
+        });
+        setProbeResult({ tone: "error", summary, detail });
+        addToast(`${summary}: ${detail}`, "error");
+      } else {
+        const summary = t("admin.config.mediaTranscoding.probeFailedBackend", {
+          backend: response.backend,
+          encoder: response.encoder_name ?? response.backend,
+        });
+        setProbeResult({ tone: "error", summary, detail });
+        addToast(`${summary}: ${detail}`, "error");
+      }
     } catch (error) {
-      addToast(error instanceof Error ? error.message : t("admin.config.mediaTranscoding.probeFailed"), "error");
+      const detail =
+        error instanceof Error
+          ? error.message
+          : t("admin.config.mediaTranscoding.probeFailed");
+      const summary = t("admin.config.mediaTranscoding.probeFailed");
+      setProbeResult({ tone: "error", summary, detail });
+      addToast(`${summary}: ${detail}`, "error");
     } finally {
       setProbing(false);
     }
@@ -330,7 +373,6 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
           />
           <div>
             <div className="text-sm font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.enable")}</div>
-            <div className={cn("mt-1 text-sm leading-6", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.mediaTranscoding.enableHint")}</div>
           </div>
         </div>
 
@@ -366,30 +408,10 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
           ))}
         </div>
 
-        <label className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={draft.allowSoftwareFallback}
-            onChange={(event) => setDraft((prev) => ({ ...prev, allowSoftwareFallback: event.target.checked }))}
-            className="h-4 w-4 rounded border-slate-300"
-          />
-          <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.mediaTranscoding.allowSoftwareFallback")}</span>
-        </label>
       </div>
 
       <div className={sectionCardClass(isDark)}>
-        <div className="flex items-start gap-3">
-          <input
-            type="checkbox"
-            checked={draft.videoEnabled}
-            onChange={(event) => setDraft((prev) => ({ ...prev, videoEnabled: event.target.checked }))}
-            className="mt-1 h-4 w-4 rounded border-slate-300"
-          />
-          <div>
-            <div className="text-sm font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.videoEnabled")}</div>
-            <div className={cn("mt-1 text-sm leading-6", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.mediaTranscoding.videoHint")}</div>
-          </div>
-        </div>
+        <div className={cn("rounded-xl border p-3 text-sm leading-6", isDark ? "border-white/10 bg-white/[0.03] text-slate-300" : "border-slate-200 bg-slate-50 text-slate-700")}>{t("admin.config.mediaTranscoding.videoHint")}</div>
 
         <div className="grid gap-3 sm:grid-cols-2">
           {[
@@ -422,8 +444,32 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
           />
           <div>
             <div className="text-sm font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.hardwareEnabled")}</div>
-            <div className={cn("mt-1 text-sm leading-6", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.mediaTranscoding.hardwareHint")}</div>
           </div>
+        </div>
+
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={draft.allowSoftwareFallback}
+            onChange={(event) => setDraft((prev) => ({ ...prev, allowSoftwareFallback: event.target.checked }))}
+            className="h-4 w-4 rounded border-slate-300"
+          />
+          <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.mediaTranscoding.allowSoftwareFallback")}</span>
+        </label>
+
+        <div
+          className={cn(
+            "rounded-xl border p-3 text-sm leading-6",
+            isDark ? "border-white/10 bg-white/[0.03] text-slate-300" : "border-slate-200 bg-slate-50 text-slate-700",
+          )}
+        >
+          <div className="font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.platformNotesTitle")}</div>
+          <div className="mt-2">{t("admin.config.mediaTranscoding.platformLinux")}</div>
+          <div>{t("admin.config.mediaTranscoding.platformWindowsIntel")}</div>
+          <div>{t("admin.config.mediaTranscoding.platformWindowsNvidia")}</div>
+          <div>{t("admin.config.mediaTranscoding.platformWindowsAmd")}</div>
+          <div>{t("admin.config.mediaTranscoding.platformMacos")}</div>
+          <div>{t("admin.config.mediaTranscoding.platformFreebsd")}</div>
         </div>
 
         <label className="block">
@@ -442,16 +488,6 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
         <label className="block">
           <span className={fieldLabelClass(isDark)}>{t("admin.config.mediaTranscoding.device")}</span>
           <input value={draft.device} onChange={(event) => setDraft((prev) => ({ ...prev, device: event.target.value }))} className={inputClass(isDark)} />
-        </label>
-
-        <label className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={draft.hardwareAllowFallback}
-            onChange={(event) => setDraft((prev) => ({ ...prev, hardwareAllowFallback: event.target.checked }))}
-            className="h-4 w-4 rounded border-slate-300"
-          />
-          <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.mediaTranscoding.hardwareAllowFallback")}</span>
         </label>
 
         <button
@@ -477,6 +513,24 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
         )}>
           {t("admin.config.mediaTranscoding.helper")}
         </div>
+
+        {probeResult && (
+          <div
+            className={cn(
+              "rounded-xl border p-3 text-sm leading-6",
+              probeResult.tone === "success"
+                ? isDark
+                  ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-100"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-900"
+                : isDark
+                  ? "border-rose-500/25 bg-rose-500/10 text-rose-100"
+                  : "border-rose-200 bg-rose-50 text-rose-900",
+            )}
+          >
+            <div className="font-black uppercase tracking-wide">{probeResult.summary}</div>
+            {probeResult.detail && <div className="mt-1 opacity-90">{probeResult.detail}</div>}
+          </div>
+        )}
       </div>
     </div>
   );
