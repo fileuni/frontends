@@ -6,6 +6,13 @@ import type { FileInfo } from '../types/index.ts';
 import { FileIcon } from './FileIcon.tsx';
 import { Calendar, HardDrive, Hash, Info, Type, Clock, Eye, Globe, AlertTriangle, type LucideIcon } from 'lucide-react';
 import { useFileActions } from '../hooks/useFileActions.ts';
+import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
+import {
+  isProtectedPathUnavailable,
+  pathMatchesProtectedRoot,
+  shouldDisableThumbnailForPath,
+  shouldUsePermanentDeleteForPath,
+} from '../utils/protectedStorage.ts';
 
 interface Props {
   file: FileInfo | null;
@@ -29,8 +36,15 @@ interface PropertyItemProps {
 export const FilePropertiesModal = ({ file, onClose }: Props) => {
   const { t } = useTranslation();
   const { previewFile } = useFileActions();
+  const protectedStatus = useProtectedStorageStore((state) => state.status);
   
   if (!file) return null;
+
+  const isProtected = pathMatchesProtectedRoot(file.path, protectedStatus?.protected_root);
+  const protectedMode = protectedStatus?.protected_mode || protectedStatus?.global_mode || 'disabled';
+  const protectedUnavailable = isProtectedPathUnavailable(protectedStatus);
+  const protectedPermanentDelete = shouldUsePermanentDeleteForPath(file.path, protectedStatus);
+  const protectedThumbnailDisabled = shouldDisableThumbnailForPath(file.path, protectedStatus);
 
   const handlePreview = () => {
     previewFile(file.path);
@@ -100,6 +114,46 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
 
           {file.mount_last_error && (
             <PropertyItem icon={AlertTriangle} label={t('filemanager.mounts.errorLabel') || 'Last Error'} value={file.mount_last_error} />
+          )}
+
+          {isProtected && (
+            <PropertyItem
+              icon={HardDrive}
+              label={t('filemanager.protectedStorage.title') || 'Protected Storage'}
+              value={t(`filemanager.protectedStorage.modes.${protectedMode}`) || protectedMode}
+            />
+          )}
+
+          {isProtected && protectedStatus?.protected_root && (
+            <PropertyItem
+              icon={Info}
+              label={t('filemanager.protectedStorage.protectedRoot') || 'Protected Root'}
+              value={protectedStatus.protected_root}
+            />
+          )}
+
+          {isProtected && protectedUnavailable && (
+            <PropertyItem
+              icon={AlertTriangle}
+              label={t('filemanager.protectedStorage.currentStatus') || 'Current Status'}
+              value={t('filemanager.protectedStorage.constraints.adminDisabled') || 'This protected directory is temporarily unavailable because the system mode no longer matches it.'}
+            />
+          )}
+
+          {isProtected && protectedPermanentDelete && (
+            <PropertyItem
+              icon={AlertTriangle}
+              label={t('filemanager.mounts.deleteBehaviorLabel') || 'Delete Behavior'}
+              value={t('filemanager.protectedStorage.subdirEffects.body') || 'Delete bypasses the recycle bin and thumbnails are disabled in this subtree.'}
+            />
+          )}
+
+          {isProtected && protectedThumbnailDisabled && (
+            <PropertyItem
+              icon={Info}
+              label={t('filemanager.thumbnail.disableAction') || 'Thumbnail'}
+              value={t('filemanager.protectedStorage.subdirEffects.body') || 'Delete bypasses the recycle bin and thumbnails are disabled in this subtree.'}
+            />
           )}
         </div>
 
