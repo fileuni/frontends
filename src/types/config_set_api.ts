@@ -100,6 +100,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/config-set/external-tools/probe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["probe_external_tool"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/config-set/finish": {
         parameters: {
             query?: never;
@@ -305,6 +321,19 @@ export interface components {
             tool_id: string;
             version_line?: string | null;
             warnings: string[];
+        };
+        ExternalToolProbeReq: {
+            tool_id: string;
+            value: string;
+        };
+        ExternalToolProbeResponse: {
+            available: boolean;
+            current_value: string;
+            display_name: string;
+            message: string;
+            resolved_path?: string | null;
+            tool_id: string;
+            version_line?: string | null;
         };
         KvCheckRequest: {
             connection_string: string;
@@ -573,6 +602,39 @@ export interface operations {
         };
         responses: {
             /** @description Diagnose external desktop tools */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    probe_external_tool: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExternalToolProbeReq"];
+            };
+        };
+        responses: {
+            /** @description Probe a configured external tool path */
             200: {
                 headers: {
                     [name: string]: unknown;

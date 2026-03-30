@@ -320,7 +320,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
         >
           {t("admin.config.thumbnail.helper")}
         </div>
-        <div className="grid gap-4 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
             <label className="flex items-center gap-3">
               <input
