@@ -6,11 +6,12 @@ import { useThemeStore } from '@/stores/theme';
 import { useConfigStore } from '@/stores/config.ts';
 import { useUserFileSettingsStore, type UserFileSettingsUpdate } from '@/stores/userFileSettings.ts';
 import { useAuthzStore } from '@/stores/authz.ts';
+import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { 
   ChevronLeft, ChevronRight, RefreshCw, Grid, List, 
   Search, Share2, ChevronDown, RefreshCcw, 
   Lock, Zap, Globe, Plus, Upload, FilePlus, FolderPlus as FolderPlusIcon,
-  HelpCircle, Image, Trash2, Settings
+  HelpCircle, Image, Trash2, Settings, Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
@@ -19,15 +20,18 @@ import { RemoteMountManagerModal } from './RemoteMountManagerModal.tsx';
 import { SearchModal } from './SearchModal.tsx';
 import { UploadModal } from './UploadModal.tsx';
 import { ShortcutsHelpModal } from './ShortcutsHelpModal.tsx';
+import { ProtectedStorageModal } from './ProtectedStorageModal.tsx';
 import { SortMenu } from './SortMenu.tsx';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import { cn } from '@/lib/utils.ts';
+import { currentPathMountContextFromFiles } from '../utils/mounts.ts';
 
 export const FileManagerToolbar = () => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const store = useFileStore();
   const { capabilities } = useConfigStore();
+  const { syncFromCapabilities } = useProtectedStorageStore();
   const { settings, fetchSettings, updateSettings, isLoading: settingsLoading } = useUserFileSettingsStore();
   const { hasPermission } = useAuthzStore();
   const { 
@@ -53,11 +57,16 @@ export const FileManagerToolbar = () => {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showNewMenu, setShowNewMenu] = useState(false);
   const [showThumbnailSettings, setShowThumbnailSettings] = useState(false);
+  const [showProtectedStorage, setShowProtectedStorage] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    syncFromCapabilities(capabilities);
+  }, [capabilities, syncFromCapabilities]);
 
   const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -66,7 +75,9 @@ export const FileManagerToolbar = () => {
   const enableThumbnails = capabilities?.thumbnail?.enabled === true;
   const isAdmin = hasPermission("admin.access");
   const thumbCaps = capabilities?.thumbnail;
+  const protectedMode = capabilities?.protected_storage?.global_mode || 'disabled';
   const toggleDisabled = settingsLoading || !settings;
+  const mountContext = currentPathMountContextFromFiles(currentPath, store.files);
 
   const handleRefresh = () => {
     loadFiles();
@@ -254,6 +265,22 @@ export const FileManagerToolbar = () => {
           >
             <Search size={18} />
           </Button>
+
+          {fmMode === 'files' && (
+            <Button
+              variant="ghost"
+              onClick={() => setShowProtectedStorage(true)}
+              title={t('filemanager.protectedStorage.title') || 'Protected Storage'}
+              className={cn(
+                "p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border transition-all",
+                protectedMode === 'disabled'
+                  ? "border-white/5 opacity-40 hover:opacity-100"
+                  : "border-primary/20 bg-primary/10 text-primary opacity-100 hover:bg-primary/15"
+              )}
+            >
+              <Shield size={18} />
+            </Button>
+          )}
 
           {enableThumbnails && (
             <Button
@@ -465,6 +492,14 @@ export const FileManagerToolbar = () => {
           </div>
         </div>
       </Modal>
+
+      <ProtectedStorageModal
+        isOpen={showProtectedStorage}
+        onClose={() => setShowProtectedStorage(false)}
+        currentPath={currentPath}
+        fileCount={store.files.length}
+        isMountPath={Boolean(mountContext)}
+      />
     </>
   );
 };
