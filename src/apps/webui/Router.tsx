@@ -428,7 +428,7 @@ const PageRenderer: React.FC<{
     const layoutTitle =
       page === "shares"
         ? t("pages.user.shares.title")
-        : t("pages.filemanager.title");
+        : undefined;
 
     return (
       <DashboardLayout

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useConfigStore } from '@/stores/config.ts';
-import { client, BASE_URL } from '@/lib/api.ts';
+import { BASE_URL } from '@/lib/api.ts';
 import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
 import { FileIcon } from './FileIcon.tsx';
 import { getFileExtension, resolvePublicBaseUrl } from '../utils/officeLite.ts';
 import { getThumbnailCategory } from '../utils/thumbnailUtils.ts';
 import { useUserFileSettingsStore } from '@/stores/userFileSettings.ts';
+import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 
 interface FileThumbnailProps {
   file: FileInfo;
@@ -14,36 +15,13 @@ interface FileThumbnailProps {
   className?: string;
 }
 
-const TOKEN_TTL_MS = 55 * 60 * 1000;
-const tokenCache = new Map<string, { token: string; expiresAt: number }>();
-
 function buildThumbnailUrl(token: string): string {
   const base = resolvePublicBaseUrl() || BASE_URL;
   return `${base}/api/v1/file/thumbnail?file_download_token=${encodeURIComponent(token)}`;
 }
 
 async function fetchThumbnailUrl(path: string): Promise<string> {
-  const cached = tokenCache.get(path);
-  const now = Date.now();
-  if (cached && cached.expiresAt > now) {
-    return buildThumbnailUrl(cached.token);
-  }
-
-  const { data, error } = await client.GET('/api/v1/file/get-file-download-token', {
-    params: { query: { path } }
-  });
-
-  if (error) {
-    const errObj = error as Record<string, unknown>;
-    throw new Error((errObj['msg'] as string) || 'Token fetch failed');
-  }
-
-  const token = (data?.['data'] as { token?: string } | undefined)?.token;
-  if (!token) {
-    throw new Error('Token missing');
-  }
-
-  tokenCache.set(path, { token, expiresAt: now + TOKEN_TTL_MS });
+  const token = await getFileDownloadToken(path);
   return buildThumbnailUrl(token);
 }
 

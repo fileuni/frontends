@@ -156,6 +156,11 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
     const activeName = data.playlist[data.index]?.name || '';
     const activeExt = activeName.split('.').pop()?.toLowerCase() || '';
     const category = getThumbnailCategory(activeExt);
+    if (!category) return undefined;
+
+    const thumbnailCapabilities = capabilities?.thumbnail as Record<string, unknown> | undefined;
+    if (thumbnailCapabilities?.[category] !== true) return undefined;
+
     if (settings && category) {
       if (category === 'image' && settings.thumbnail_disable_image) return undefined;
       if (category === 'model3d' && settings.thumbnail_disable_image) return undefined;
@@ -215,7 +220,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
 
     triggerThumbnail();
     return () => { canceled = true; };
-  }, [data, capabilities?.thumbnail?.enabled, settings, addToast, t]);
+  }, [data, capabilities?.thumbnail, settings, addToast, t]);
 
   if (loading) return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/80 backdrop-blur-md">

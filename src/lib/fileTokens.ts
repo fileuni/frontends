@@ -10,6 +10,10 @@ interface FileContentUrlOptions {
   baseUrl?: string;
 }
 
+const TOKEN_TTL_MS = 55 * 60 * 1000;
+const tokenCache = new Map<string, { token: string; expiresAt: number }>();
+const tokenPromiseCache = new Map<string, Promise<string>>();
+
 const normalizeBaseUrl = (baseUrl: string): string => {
   return baseUrl.length === 0 ? '' : baseUrl.replace(/\/+$/, '');
 };
@@ -34,12 +38,34 @@ export const buildFileContentUrl = (
 };
 
 export const getFileDownloadToken = async (path: string): Promise<string> => {
-  const data = await extractData<FileDownloadTokenResponse>(
+  const now = Date.now();
+  const cached = tokenCache.get(path);
+  if (cached && cached.expiresAt > now) {
+    return cached.token;
+  }
+
+  const pending = tokenPromiseCache.get(path);
+  if (pending) {
+    return pending;
+  }
+
+  const promise = extractData<FileDownloadTokenResponse>(
     client.GET('/api/v1/file/get-file-download-token', {
       params: { query: { path } },
     }),
-  );
-  return data.token;
+  )
+    .then((data) => {
+      tokenCache.set(path, { token: data.token, expiresAt: Date.now() + TOKEN_TTL_MS });
+      tokenPromiseCache.delete(path);
+      return data.token;
+    })
+    .catch((error: unknown) => {
+      tokenPromiseCache.delete(path);
+      throw error;
+    });
+
+  tokenPromiseCache.set(path, promise);
+  return promise;
 };
 
 export const getFileContentUrl = async (

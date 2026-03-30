@@ -50,9 +50,10 @@ export function useFileActions() {
 
   const loadFiles = useCallback(async (path: string = currentPath, page: number = 1, overridePageSize: number = pageSize, mode?: FileManagerMode) => {
     const activeMode = mode || fmMode;
+    const fileStore = useFileStore.getState();
     
     if (activeMode === 'recent') {
-      setFiles([...store.getRecentFiles()]);
+      setFiles([...fileStore.getRecentFiles()]);
       deselectAll();
       return;
     }
@@ -101,7 +102,7 @@ export function useFileActions() {
       } else if (activeMode === 'shares') {
         endpoint = "/api/v1/file/shares/my";
         delete query['path'];
-        const shareFilter = store.getShareFilter();
+        const shareFilter = fileStore.getShareFilter();
         if (shareFilter.hasPassword !== null) query['has_password'] = shareFilter.hasPassword ?? null;
         if (shareFilter.enableDirect !== null) query['enable_direct'] = shareFilter.enableDirect ?? null;
       }
@@ -116,7 +117,7 @@ export function useFileActions() {
       const filesArray = parsedResult.items;
 
       if (parsedResult.totalPages !== null) {
-        store.setPagination(
+        fileStore.setPagination(
           parsedResult.total ?? filesArray.length,
           parsedResult.totalPages,
           page,
@@ -124,9 +125,9 @@ export function useFileActions() {
         );
       } else if (parsedResult.total !== null) {
         const totalPages = Math.ceil(parsedResult.total / overridePageSize);
-        store.setPagination(parsedResult.total, totalPages || 1, page, overridePageSize);
+        fileStore.setPagination(parsedResult.total, totalPages || 1, page, overridePageSize);
       } else {
-        store.setPagination(filesArray.length, 1, 1, overridePageSize);
+        fileStore.setPagination(filesArray.length, 1, 1, overridePageSize);
       }
       
       setFiles(filesArray);
@@ -139,7 +140,7 @@ export function useFileActions() {
   }, [
     currentPath, setFiles, setLoading, deselectAll, showShareStatus, fmMode, 
     favoriteFilterColor, sortConfig.field, sortConfig.order, isSearchMode, 
-    searchKeyword, pageSize, store
+    searchKeyword, pageSize
   ]);
 
   const toggleFavorite = async (paths: string[], color: number) => {

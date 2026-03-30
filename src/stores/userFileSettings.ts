@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { client } from "@/lib/api";
 
+let userSettingsPromise: Promise<UserFileSettings | null> | null = null;
+
 export interface UserFileSettings {
   pool_name?: string;
   storage_quota?: number;
@@ -40,17 +42,35 @@ export const useUserFileSettingsStore = create<UserFileSettingsState>((set, get)
   isLoading: false,
   fetchSettings: async (force = false) => {
     if (!force && get().settings) return;
+
+    if (!force && userSettingsPromise) {
+      await userSettingsPromise;
+      return;
+    }
+
     set({ isLoading: true });
     try {
-      const { data, error } = await client.GET("/api/v1/file/user-settings");
-      if (data?.['success'] && data['data']) {
-        set({ settings: data['data'] as UserFileSettings });
-      } else {
-        console.error("Failed to fetch user file settings", error || data?.['msg']);
+      userSettingsPromise = client.GET("/api/v1/file/user-settings")
+        .then(({ data, error }) => {
+          if (data?.['success'] && data['data']) {
+            return data['data'] as UserFileSettings;
+          }
+          console.error("Failed to fetch user file settings", error || data?.['msg']);
+          return null;
+        })
+        .catch((err) => {
+          console.error("Error fetching user file settings", err);
+          return null;
+        });
+
+      const settings = await userSettingsPromise;
+      if (settings) {
+        set({ settings });
       }
     } catch (err) {
       console.error("Error fetching user file settings", err);
     } finally {
+      userSettingsPromise = null;
       set({ isLoading: false });
     }
   },

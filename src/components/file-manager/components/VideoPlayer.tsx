@@ -82,6 +82,13 @@ interface WebVideoPlaybackResponse {
   retry_after_ms?: number | null;
 }
 
+class PlaybackCancelledError extends Error {
+  constructor() {
+    super('Playback initialization cancelled');
+    this.name = 'PlaybackCancelledError';
+  }
+}
+
 type VideoWithOptionalTracks = HTMLVideoElement & {
   audioTracks?: AudioTrackListLike;
 };
@@ -411,14 +418,23 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
     setSubtitlesLoaded(true);
   }, [activeFile, playlist]);
 
-  const resolvePlaybackEntry = useCallback(async (path: string) => {
+  const resolvePlaybackEntry = useCallback(async (path: string, shouldStop: () => boolean) => {
     let attempts = 0;
     while (attempts < 180) {
+      if (shouldStop()) {
+        throw new PlaybackCancelledError();
+      }
+
       const playback = await extractData<WebVideoPlaybackResponse>(
         client.GET('/api/v1/file/web-playback/video', {
           params: { query: { path } },
         }),
       );
+
+      if (shouldStop()) {
+        throw new PlaybackCancelledError();
+      }
+
       if (playback.mode !== 'pending') {
         return playback;
       }
@@ -442,7 +458,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
 
     const init = async () => {
       playerRef.current?.destroy();
-      const playback = await resolvePlaybackEntry(activeFile.path);
+      const playback = await resolvePlaybackEntry(activeFile.path, () => !mounted);
       if (!mounted) return;
       if (!playback.url) {
         throw new Error(t('filemanager.errors.loadFailed') || 'Load failed');
@@ -497,6 +513,9 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
 
     void init().catch((error: unknown) => {
       if (!mounted) return;
+      if (error instanceof PlaybackCancelledError) {
+        return;
+      }
       console.error('Failed to initialize video playback', error);
       setPlaybackPreparing(false);
       setPlaybackError(error instanceof Error ? error.message : (t('filemanager.errors.loadFailed') || 'Load failed'));

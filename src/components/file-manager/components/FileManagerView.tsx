@@ -59,6 +59,8 @@ export const FileManagerView = () => {
   const clipboard = store.getClipboard();
   const isSearchMode = store.getIsSearchMode();
   const searchKeyword = store.getSearchKeyword();
+  const officePath = params['office_path'];
+  const previewPath = params['preview_path'];
   const { addToast } = useToastStore();
   const { selectedIds, deselectAll, selectAll } = useSelectionStore();
   const { play: playAudio } = useAudioStore();
@@ -183,9 +185,9 @@ export const FileManagerView = () => {
   }, [files]);
 
   useEffect(() => {
-    if (!isReady) return;
+    if (!isReady || officePath || previewPath) return;
     loadFiles(fmMode === 'files' ? currentPath : '');
-  }, [currentPath, fmMode, isReady, loadFiles]);
+  }, [currentPath, fmMode, isReady, loadFiles, officePath, previewPath]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -475,9 +477,16 @@ export const FileManagerView = () => {
   };
 
   const isMinimal = ["favorites", "trash", "recent", "shares"].includes(fmMode);
-        const officePath = params['office_path'];
-        const previewPath = params['preview_path'];
   const isOfficePreview = previewPath ? isOfficeExtension(getFileExtension(previewPath)) : false;
+
+  const closePreview = useCallback(() => {
+    const nextPage = params.page || fmMode || 'files';
+    navigate({
+      preview_path: undefined,
+      page: nextPage,
+      path: nextPage === 'files' ? (params.path || currentPath) : undefined,
+    });
+  }, [currentPath, fmMode, navigate, params.page, params.path]);
 
   if (officePath) {
     return (
@@ -498,12 +507,7 @@ export const FileManagerView = () => {
     return (
       <OfficeOpenModal
         path={previewPath}
-        onClose={() => {
-          const hash = window.location.hash.substring(1);
-          const p = new URLSearchParams(hash);
-          p.delete('preview_path');
-          window.location.hash = p.toString();
-        }}
+        onClose={closePreview}
       />
     );
   }
@@ -513,18 +517,13 @@ export const FileManagerView = () => {
     return (
       <FilePreviewPage 
         path={previewPath} 
-        onClose={() => {
-          const hash = window.location.hash.substring(1);
-          const p = new URLSearchParams(hash);
-          p.delete('preview_path');
-          window.location.hash = p.toString();
-        }} 
+        onClose={closePreview} 
       />
     );
   }
 
   return (
-    <div className="flex flex-col bg-background h-screen relative overflow-hidden">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background">
       {!isMinimal && <FileManagerTabs />}
       <div className="flex flex-col flex-1 overflow-hidden bg-background px-4">
         <FileManagerToolbar />
