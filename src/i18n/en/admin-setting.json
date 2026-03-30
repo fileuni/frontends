@@ -483,7 +483,9 @@
         "encrypt": {
           "title": "Encryption Settings",
           "cipher": "Fixed Cipher",
-          "cipherHint": "Phase 1 is fixed to AES-256-CTR with server-side encryption and decryption."
+          "cipherHint": "Phase 1 is fixed to AES-256-CTR with server-side encryption and decryption.",
+          "wrapKey": "Server Wrap Key",
+          "wrapKeyHint": "Used to wrap each user's random protected-directory encryption key. Minimum 32 characters. Changing it makes existing encrypted data temporarily unreadable."
         }
       },
       "externalTools": {

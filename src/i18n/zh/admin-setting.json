@@ -482,7 +482,9 @@
         "encrypt": {
           "title": "加密模式参数",
           "cipher": "固定算法",
-          "cipherHint": "第一阶段固定使用 AES-256-CTR，由服务端统一加解密。"
+          "cipherHint": "第一阶段固定使用 AES-256-CTR，由服务端统一加解密。",
+          "wrapKey": "服务端包装密钥",
+          "wrapKeyHint": "用于包装每个用户受保护目录的随机加密 key。至少 32 个字符，修改后旧数据会暂时不可读。"
         }
       },
       "externalTools": {

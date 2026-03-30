@@ -773,6 +773,7 @@ type ProtectedStorageDraft = {
   prng: "xorshift" | "pcg";
   workers: string;
   cipher: string;
+  wrapKey: string;
 };
 
 const InlineSegmentCard: React.FC<{
@@ -848,6 +849,8 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
           typeof encrypt["cipher"] === "string" && encrypt["cipher"].trim().length > 0
             ? encrypt["cipher"]
             : "aes-256-ctr",
+        wrapKey:
+          typeof encrypt["wrap_key"] === "string" ? encrypt["wrap_key"] : "",
       };
     },
     [tomlAdapter],
@@ -866,6 +869,7 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
         },
         encrypt: {
           cipher: "aes-256-ctr",
+          wrap_key: next.wrapKey,
         },
       };
       return tomlAdapter.stringify(root);
@@ -993,6 +997,27 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
             <input className={inputClass} value={draft.cipher} readOnly />
             <div className={cn("mt-2 text-xs leading-5", isDark ? "text-slate-400" : "text-slate-500")}>
               {t("admin.config.protectedStorage.encrypt.cipherHint")}
+            </div>
+          </div>
+          <div>
+            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+              {t("admin.config.protectedStorage.encrypt.wrapKey")}
+            </div>
+            <PasswordInput
+              value={draft.wrapKey}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, wrapKey: event.target.value }))
+              }
+              wrapperClassName="mt-1"
+              inputClassName={cn(
+                "h-11 rounded-xl border px-3 text-sm font-mono",
+                isDark
+                  ? "border-white/10 bg-black/30 text-white"
+                  : "border-slate-300 bg-white text-slate-900",
+              )}
+            />
+            <div className={cn("mt-2 text-xs leading-5", isDark ? "text-slate-400" : "text-slate-500")}>
+              {t("admin.config.protectedStorage.encrypt.wrapKeyHint")}
             </div>
           </div>
         </div>
