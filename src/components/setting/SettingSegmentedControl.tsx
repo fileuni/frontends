@@ -26,7 +26,7 @@ export function SettingSegmentedControl<T extends string>({
   return (
     <div
       className={cn(
-        "inline-flex min-w-0 items-center rounded-full border p-1",
+        "flex w-full min-w-0 flex-wrap items-stretch rounded-3xl border p-1",
         isDark
           ? "border-white/10 bg-white/[0.03]"
           : "border-slate-200 bg-white",
@@ -41,7 +41,7 @@ export function SettingSegmentedControl<T extends string>({
             type="button"
             onClick={() => onChange(option.value)}
             className={cn(
-              "h-9 rounded-full px-3 text-sm font-black transition-colors",
+              "min-w-0 flex-1 rounded-full px-3 py-2 text-center text-sm font-black leading-5 transition-colors whitespace-normal break-words",
               active
                 ? "bg-primary text-white shadow-lg shadow-primary/20"
                 : isDark

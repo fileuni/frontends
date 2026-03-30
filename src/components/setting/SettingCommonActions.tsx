@@ -299,6 +299,8 @@ export const buildSettingCommonActions = ({
   return [
     {
       id: "performance",
+      routeKey: "Performance",
+      routeAliases: ["Performance", "performance_tuning", "性能调优"],
       label: t("admin.config.quickSettings.performance.performanceTips.title"),
       description: "",
       icon: settingCommonIcons.performance,
@@ -314,6 +316,13 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "db-cache",
+      routeKey: "datebase_and_cache",
+      routeAliases: [
+        "datebase_and_cache",
+        "db_cache",
+        "configure_database_and_cache",
+        "Configure database and cache",
+      ],
       label: t("systemConfig.setup.steps.databaseCache"),
       description: "",
       icon: settingCommonIcons.database,
@@ -358,6 +367,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "storage",
+      routeKey: "storage",
       label: t("systemConfig.setup.storagePool.title"),
       description: "",
       icon: settingCommonIcons.storage,
@@ -388,6 +398,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "admin-password",
+      routeKey: "admin_password",
       label: t("systemConfig.setup.admin.changePassword"),
       description: "",
       icon: settingCommonIcons.admin,
@@ -402,6 +413,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "license",
+      routeKey: "license",
       label: t("admin.config.license.title"),
       description: "",
       icon: settingCommonIcons.license,
@@ -424,6 +436,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "cache-acceleration",
+      routeKey: "cache_acceleration",
       label: t("systemConfig.setup.storageCache.title"),
       description: "",
       icon: settingCommonIcons.cache,
@@ -437,6 +450,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "thumbnail",
+      routeKey: "thumbnail",
       label: t("admin.config.thumbnail.title"),
       description: "",
       icon: settingCommonIcons.thumbnail,
@@ -452,6 +466,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "media-transcoding",
+      routeKey: "media_transcoding",
       label: t("admin.config.mediaTranscoding.title"),
       description: "",
       icon: settingCommonIcons.mediaTranscoding,
@@ -468,6 +483,7 @@ export const buildSettingCommonActions = ({
     },
     {
       id: "compression",
+      routeKey: "compression",
       label: t("admin.config.compression.title"),
       description: "",
       icon: settingCommonIcons.compression,

@@ -137,13 +137,13 @@ export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
       <label
         htmlFor={inputId}
         className={cn(
-          "text-xs font-black uppercase tracking-wide",
+          "text-xs font-black uppercase tracking-wide break-words",
           isDark ? "text-slate-400" : "text-slate-600",
         )}
       >
         {label}
       </label>
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
         <input
           id={inputId}
           value={value}
@@ -158,7 +158,7 @@ export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
           }}
           disabled={(!onProbeExternalTool && !onDiagnoseExternalTools) || testing}
           className={cn(
-            "h-11 shrink-0 rounded-xl border px-4 text-sm font-black transition-colors disabled:opacity-50",
+            "h-11 w-full shrink-0 rounded-xl border px-4 text-sm font-black transition-colors disabled:opacity-50 sm:w-auto",
             isDark
               ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/15"
               : "border-cyan-300 bg-cyan-50 text-cyan-800 hover:bg-cyan-100",

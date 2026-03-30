@@ -4,6 +4,11 @@ import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { PasswordInput } from "@/components/common/PasswordInput";
 import {
+  ensureRecord,
+  isRecord,
+  type ConfigObject,
+} from "@/lib/configObject";
+import {
   ExternalToolPathField,
   SharedFfmpegField,
   type DiagnoseExternalTools,
@@ -24,6 +29,10 @@ import {
   resolveThumbnailHardwareReuseStatus,
 } from "./ExternalDependencyConfigModal";
 import { useConfigDraftBinding } from "./useConfigDraftBinding";
+
+const asRecord = (value: unknown): ConfigObject => {
+  return isRecord(value) ? value : {};
+};
 
 interface BaseProps {
   tomlAdapter: TomlAdapter;
@@ -77,7 +86,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
     draft.latexEnabled;
 
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
+    <div className="space-y-4">
       <div
         className={cn(
           "rounded-2xl border p-4 space-y-4",
@@ -138,6 +147,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
             </div>
           </div>
 
+        <div className="grid gap-4 sm:grid-cols-2">
         {[
           ["admin.config.thumbnail.thumbSizePx", draft.thumbSizePx, (value: string) => setDraft((prev) => ({ ...prev, thumbSizePx: value })), "256"],
           ["admin.config.thumbnail.thumbFormat", draft.thumbFormat, (value: string) => setDraft((prev) => ({ ...prev, thumbFormat: value })), "jpg"],
@@ -166,6 +176,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
             />
           </div>
         ))}
+        </div>
 
         {showRasterTools && (
           <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
@@ -320,7 +331,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
         >
           {t("admin.config.thumbnail.helper")}
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 xl:grid-cols-2">
           <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
             <label className="flex items-center gap-3">
               <input

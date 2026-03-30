@@ -14,9 +14,12 @@ import {
 import { useTranslation } from "react-i18next";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { cn } from "@/lib/utils";
+import { useNavigationStore } from "@/stores/navigation";
 
 export interface SettingActionItem {
   id: string;
+  routeKey?: string;
+  routeAliases?: string[];
   label: string;
   description: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
@@ -40,12 +43,42 @@ interface SettingOverviewProps {
   commonActions?: SettingActionItem[];
 }
 
+const normalizeRouteToken = (value: string): string =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\-/]+/g, "_")
+    .replace(/[^a-z0-9_]/g, "")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+const resolveActionFromRouteItem = (
+  actions: SettingActionItem[],
+  routeItem: string | undefined,
+): SettingActionItem | undefined => {
+  if (!routeItem) return undefined;
+  const normalized = normalizeRouteToken(routeItem);
+  return actions.find((item) => {
+    const candidates = new Set<string>([
+      item.id,
+      item.routeKey ?? item.id,
+      item.label,
+      ...(item.routeAliases ?? []),
+    ]);
+    return Array.from(candidates).some(
+      (candidate) => normalizeRouteToken(candidate) === normalized,
+    );
+  });
+};
+
 export const SettingOverview: React.FC<SettingOverviewProps> = ({
   commonActions = [],
 }) => {
   const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
   const isDark = resolvedTheme === "dark";
+  const params = useNavigationStore((state) => state.params);
+  const navigate = useNavigationStore((state) => state.navigate);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   useEffect(() => {
@@ -74,15 +107,39 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
     [t],
   );
 
-  const [selectedSettingId, setSelectedSettingId] = useState<string>(
+  const [manualSelectedSettingId, setManualSelectedSettingId] = useState<string>(
     commonActions[0]?.id ?? "",
   );
 
   useEffect(() => {
-    if (!commonActions.some((item) => item.id === selectedSettingId)) {
-      setSelectedSettingId(commonActions[0]?.id ?? "");
+    if (params.item) {
+      return;
     }
-  }, [commonActions, selectedSettingId]);
+    if (!commonActions.some((item) => item.id === manualSelectedSettingId)) {
+      setManualSelectedSettingId(commonActions[0]?.id ?? "");
+    }
+  }, [commonActions, manualSelectedSettingId, params.item]);
+
+  const handleSelectSetting = (id: string) => {
+    setManualSelectedSettingId(id);
+    if (params.mod !== "admin" || params.page !== "config") {
+      return;
+    }
+    const active = commonActions.find((item) => item.id === id);
+    if (!active) return;
+    navigate({ item: active.routeKey ?? active.id });
+  };
+
+  const selectedSettingId = useMemo(() => {
+    const routed = resolveActionFromRouteItem(commonActions, params.item);
+    if (routed) {
+      return routed.id;
+    }
+    if (commonActions.some((item) => item.id === manualSelectedSettingId)) {
+      return manualSelectedSettingId;
+    }
+    return commonActions[0]?.id ?? "";
+  }, [commonActions, manualSelectedSettingId, params.item]);
 
   const activeItem = useMemo(
     () =>
@@ -195,16 +252,17 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
         >
           <div
             className={cn(
-              "grid items-start gap-3",
+              "grid gap-3 lg:items-start",
               isSidebarExpanded
-                ? "grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)]"
-                : "grid-cols-[4.25rem_minmax(0,1fr)]",
+                ? "grid-cols-1 lg:[grid-template-columns:minmax(15rem,max-content)_minmax(0,1fr)] xl:[grid-template-columns:minmax(17rem,max-content)_minmax(0,1fr)]"
+                : "grid-cols-1 lg:grid-cols-[4.25rem_minmax(0,1fr)]",
             )}
           >
             <aside
               className={cn(
-                "sticky top-[calc(0.75rem+var(--safe-area-top,0px))] self-start border p-2 z-10 max-h-[calc(100vh-1.5rem-var(--safe-area-top,0px))] overflow-auto overscroll-contain",
+                "self-start border p-2 z-10 overflow-y-auto overflow-x-hidden overscroll-contain lg:sticky lg:top-[calc(0.75rem+var(--safe-area-top,0px))] lg:max-h-[calc(100vh-1.5rem-var(--safe-area-top,0px))] max-w-full",
                 isSidebarExpanded ? "rounded-3xl" : "rounded-2xl",
+                isSidebarExpanded ? "lg:w-fit lg:min-w-[15rem] lg:max-w-[22rem]" : "lg:w-[4.25rem]",
                 isDark
                   ? "border-white/10 bg-black/20"
                   : "border-slate-200 bg-slate-50/70",
@@ -235,11 +293,11 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                     <button
                       key={id}
                       type="button"
-                      onClick={() => setSelectedSettingId(id)}
+                      onClick={() => handleSelectSetting(id)}
                       className={cn(
                         !isSidebarExpanded
                           ? "flex w-full items-center justify-center rounded-xl px-2 py-3 text-left text-sm font-black transition-colors min-h-11"
-                          : "flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-black transition-colors min-h-11",
+                          : "flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left text-sm font-black transition-colors min-h-11",
                         active
                           ? isDark
                             ? "bg-cyan-500/15 text-cyan-100"
@@ -248,13 +306,13 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                             ? "text-slate-200 hover:bg-white/5"
                             : "text-slate-700 hover:bg-white",
                       )}
-                    >
-                      <div
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-2xl",
-                          active
-                            ? isDark
-                              ? "bg-cyan-500/20 text-cyan-100"
+                      >
+                        <div
+                          className={cn(
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl",
+                            active
+                              ? isDark
+                                ? "bg-cyan-500/20 text-cyan-100"
                               : "bg-cyan-100 text-cyan-800"
                             : isDark
                               ? "bg-white/10 text-slate-200"
@@ -262,12 +320,12 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                         )}
                       >
                         <Icon size={15} />
-                      </div>
-                      {isSidebarExpanded && (
-                        <span className="truncate whitespace-nowrap">
-                          {label}
-                        </span>
-                      )}
+                        </div>
+                        {isSidebarExpanded && (
+                          <span className="min-w-0 whitespace-normal break-words leading-5">
+                            {label}
+                          </span>
+                        )}
                     </button>
                   );
                 })}

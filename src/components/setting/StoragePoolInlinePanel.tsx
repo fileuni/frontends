@@ -423,7 +423,7 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <label className="text-sm font-black text-slate-700 dark:text-slate-200">
+              <label className="text-sm font-black text-slate-700 dark:text-slate-200 md:col-span-2">
                 {t("admin.config.storage.fields.name")}
                 <input
                   className={inputClass}
@@ -439,69 +439,33 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
                   }
                 />
               </label>
-              <div className="text-sm font-black text-slate-700 dark:text-slate-200">
+              <label className="text-sm font-black text-slate-700 dark:text-slate-200 md:col-span-2">
                 {t("admin.config.storage.fields.driver")}
-                <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                  {driverOptions.map((driver) => {
-                    const active = item.driver === driver;
-                    return (
-                      <button
-                        key={driver}
-                        type="button"
-                        onClick={() =>
-                          patch((prev) =>
-                            prev.map((entry) =>
-                              entry.id === item.id
-                                ? {
-                                    ...entry,
-                                    driver,
-                                    root: driverDefaults[driver].root,
-                                  }
-                                : entry,
-                            ),
-                          )
-                        }
-                        className={cn(
-                          "rounded-xl border px-3 py-3 text-left transition-colors",
-                          active
-                            ? "border-primary bg-primary/10 shadow-sm shadow-primary/10"
-                            : isDark
-                              ? "border-white/10 bg-black/20 hover:bg-white/[0.05]"
-                              : "border-slate-200 bg-slate-50 hover:bg-slate-100",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "text-sm font-black",
-                            active
-                              ? "text-primary"
-                              : isDark
-                                ? "text-slate-100"
-                                : "text-slate-800",
-                          )}
-                        >
-                          {t(`admin.config.storage.drivers.${driver}`)}
-                        </div>
-                        <div
-                          className={cn(
-                            "mt-1 text-xs font-mono",
-                            active
-                              ? "text-primary/80"
-                              : isDark
-                                ? "text-slate-400"
-                                : "text-slate-500",
-                          )}
-                        >
-                          {driver}
-                        </div>
-                      </button>
+                <select
+                  className={inputClass}
+                  value={item.driver}
+                  onChange={(e) => {
+                    const nextDriver = e.target.value as Driver;
+                    patch((prev) =>
+                      prev.map((entry) =>
+                        entry.id === item.id
+                          ? {
+                              ...entry,
+                              driver: nextDriver,
+                              root: driverDefaults[nextDriver].root,
+                            }
+                          : entry,
+                      ),
                     );
-                  })}
-                </div>
-                <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                  {t(driverDefaults[item.driver].tipsKey)}
-                </div>
-              </div>
+                  }}
+                >
+                  {driverOptions.map((driver) => (
+                    <option key={driver} value={driver}>
+                      {t(`admin.config.storage.drivers.${driver}`)}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label className="text-sm font-black text-slate-700 dark:text-slate-200 md:col-span-2">
                 {t("admin.config.storage.fields.root")}
                 <input

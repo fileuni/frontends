@@ -147,7 +147,7 @@ export const VfsStorageMainSection: React.FC<VfsStorageMainSectionProps> = ({
           </div>
 
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-            <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+            <label className={cn('text-sm font-black md:col-span-2', isDark ? 'text-slate-300' : 'text-slate-700')}>
               {t('admin.config.storage.fields.name')}
               <input
                 className={cn(
@@ -159,7 +159,7 @@ export const VfsStorageMainSection: React.FC<VfsStorageMainSectionProps> = ({
               />
             </label>
 
-            <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>
+            <label className={cn('text-sm font-black md:col-span-2', isDark ? 'text-slate-300' : 'text-slate-700')}>
               {t('admin.config.storage.fields.driver')}
               <select
                 className={cn(

@@ -321,7 +321,7 @@ export const ConnectorCard = memo(
         <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
           <label
             className={cn(
-              "text-sm font-black",
+              "text-sm font-black md:col-span-2",
               isDark ? "text-slate-300" : "text-slate-700",
             )}
           >
@@ -337,7 +337,7 @@ export const ConnectorCard = memo(
 
           <label
             className={cn(
-              "text-sm font-black",
+              "text-sm font-black md:col-span-2",
               isDark ? "text-slate-300" : "text-slate-700",
             )}
           >

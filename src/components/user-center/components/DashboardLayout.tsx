@@ -229,7 +229,7 @@ export const DashboardLayout: React.FC<{
   );
 
   return (
-    <div className={cn("min-h-screen bg-background flex flex-col", isDark ? "" : "bg-gray-50")}>
+    <div className={cn("h-screen min-h-0 bg-background flex flex-col", isDark ? "" : "bg-gray-50")}>
       {/* Mobile Top Bar */}
       <div className={cn("md:hidden fixed top-16 left-0 right-0 h-12 backdrop-blur-md border-b z-40 flex items-center px-4", isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-gray-200")}>
         <button
@@ -276,8 +276,8 @@ export const DashboardLayout: React.FC<{
         </aside>
 
         {/* Main Content */}
-        <main className={cn("flex-1 overflow-y-auto mt-12 md:mt-0 custom-scrollbar", fullWidth ? "p-0" : "p-6 md:p-10")}>
-          <div className={cn("w-full animate-in fade-in slide-in-from-bottom-2 duration-500", fullWidth ? "max-w-none h-full" : "max-w-none")}>
+        <main className={cn("mt-12 flex-1 md:mt-0", fullWidth ? "overflow-hidden p-0" : "overflow-y-auto custom-scrollbar p-6 md:p-10")}>
+          <div className={cn("w-full animate-in fade-in slide-in-from-bottom-2 duration-500", fullWidth ? "max-w-none h-full min-h-0" : "max-w-none")}>
             {title && <h1 className="text-4xl font-black tracking-tight mb-8 hidden md:block">{title}</h1>}
             {children}
           </div>

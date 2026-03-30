@@ -1063,7 +1063,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="space-y-4">
         <div
           className={cn(
             "rounded-2xl border p-4 space-y-4",
@@ -1122,6 +1122,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
             </div>
           </div>
 
+          <div className="grid gap-4 sm:grid-cols-2">
           {[
             ["admin.config.thumbnail.thumbSizePx", draft.thumbSizePx, (value: string) => setDraft((state) => ({ ...state, thumbSizePx: value })), "256"],
             ["admin.config.thumbnail.thumbFormat", draft.thumbFormat, (value: string) => setDraft((state) => ({ ...state, thumbFormat: value })), "jpg"],
@@ -1146,6 +1147,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
               />
             </div>
           ))}
+          </div>
 
           {showRasterTools && (
             <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
@@ -1305,7 +1307,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
           >
             {t("admin.config.thumbnail.helper")}
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 xl:grid-cols-2">
             <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
               <label className="flex items-center gap-3">
                 <input
