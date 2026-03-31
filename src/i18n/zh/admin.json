@@ -103,6 +103,8 @@
     "diagnosticsTitle": "工具健康检查",
     "diagnosticsHint": "运行预定义的自检命令，快速确认工具是否可用并查看版本与状态信息。",
     "noDiagnostics": "当前工具没有可用的自检命令。",
+    "securityWarningTitle": "安全提醒：不要以 root 运行 FileUni 扩展功能",
+    "securityWarningBody": "扩展工具会执行第三方二进制程序（如 rclone、cloudflared、tailscale）。如果 FileUni 以 root 权限运行，被攻破的管理员账号或恶意第三方程序可能获得完整 root 权限。请始终以非特权用户身份运行 FileUni。",
     "cloudflared": {
       "runtimeConfigTitle": "远程托管隧道运行参数",
       "runtimeConfigHint": "先在 Cloudflare Dashboard 创建 remotely-managed tunnel，再把 tunnel token 粘贴到这里。保存后，FileUni 会把 token 写入受管文件，并复用上方的启动 / 停止 / 重启控制。",

@@ -103,6 +103,8 @@
     "diagnosticsTitle": "Tool Health Check",
     "diagnosticsHint": "Run pre-defined self-check commands to quickly confirm tool availability, version, and status.",
     "noDiagnostics": "No diagnostics commands available for this tool.",
+    "securityWarningTitle": "Security Warning: Do not run FileUni extensions as root",
+    "securityWarningBody": "Extension tools execute third-party binaries (e.g., rclone, cloudflared, tailscale). If FileUni runs as root, a compromised admin account or malicious third-party binary may gain full root access. Always run FileUni as an unprivileged user.",
     "cloudflared": {
       "runtimeConfigTitle": "Remotely-managed tunnel runtime",
       "runtimeConfigHint": "Create a remotely-managed tunnel in Cloudflare Dashboard first, then paste the tunnel token here. After saving, FileUni writes the token into a managed file and reuses the service controls above.",

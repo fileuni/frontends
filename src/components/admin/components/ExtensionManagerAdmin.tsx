@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Cpu, Puzzle } from 'lucide-react';
+import { Cpu, Puzzle, ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.ts';
 import { useConfigStore } from '@/stores/config.ts';
@@ -442,6 +442,18 @@ export const ExtensionManagerAdmin = () => {
       />
 
       <ExtensionsTabBar items={extItems} activeKey={extPage} onSelect={(key) => navigate({ mod: 'admin', page: 'extensions', ext: key })} />
+
+      <div className="rounded-[1.5rem] border border-amber-500/20 bg-amber-500/5 p-4 sm:p-5 space-y-2">
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+            <ShieldAlert size={18} />
+          </div>
+          <div className="space-y-1">
+            <div className="text-sm sm:text-base font-black text-amber-300">{t('admin.extensions.securityWarningTitle')}</div>
+            <p className="text-xs sm:text-sm leading-6 opacity-75 text-amber-200/80">{t('admin.extensions.securityWarningBody')}</p>
+          </div>
+        </div>
+      </div>
 
       {currentTool ? (
         <>
