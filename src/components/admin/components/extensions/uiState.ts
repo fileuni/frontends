@@ -3,12 +3,8 @@ import { storageHub } from '@/lib/storageHub';
 export type ToolState = {
   version: string;
   downloadUrl: string;
-  binPath: string;
+  targetBinDir: string;
   proxy: string;
-  dataPath?: string;
-  rcloneConfigPath?: string;
-  rcloneMountCommand?: string;
-  rcloneUnmountCommand?: string;
 };
 
 export type PersistedToolState = Omit<ToolState, 'version' | 'downloadUrl'>;
@@ -16,7 +12,7 @@ export type PersistedToolState = Omit<ToolState, 'version' | 'downloadUrl'>;
 export const createEmptyToolState = (): ToolState => ({
   version: '',
   downloadUrl: '',
-  binPath: '',
+  targetBinDir: '',
   proxy: '',
 });
 

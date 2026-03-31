@@ -6,14 +6,8 @@ export type ExtensionTabItem = {
   installed: boolean;
 };
 
-const labelForTool = (name: string): string => {
-  if (name === 'openlist') return 'OpenList';
-  if (name === 'rclone') return 'Rclone';
-  return name.length > 0 ? `${name.charAt(0).toUpperCase()}${name.slice(1)}` : name;
-};
-
 export const buildExtensionTabItems = (tools: ToolInfo[]): ExtensionTabItem[] => {
-  const order = ['openlist', 'rclone', 'kopia'];
+  const order = ['openlist', 'rclone', 'cloudflared', 'tailscale', 'kopia'];
   return [...tools]
     .sort((a, b) => {
       const idxA = order.indexOf(a.name);
@@ -22,7 +16,7 @@ export const buildExtensionTabItems = (tools: ToolInfo[]): ExtensionTabItem[] =>
     })
     .map((tool) => ({
       key: tool.name,
-      label: labelForTool(tool.name),
+      label: tool.display_name,
       installed: tool.installed,
     }));
 };
