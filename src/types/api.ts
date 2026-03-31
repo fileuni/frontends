@@ -500,6 +500,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/extensions/special/cloudflared/service-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_service_config"];
+        put?: never;
+        post: operations["save_service_config"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/extensions/special/kopia/runtime-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_kopia_runtime_config"];
+        put?: never;
+        post: operations["save_kopia_runtime_config"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/extensions/special/openlist/reset-admin": {
         parameters: {
             query?: never;
@@ -510,6 +542,54 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["openlist_reset_admin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/extensions/special/openlist/runtime-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_openlist_runtime_config"];
+        put?: never;
+        post: operations["save_openlist_runtime_config"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/extensions/special/rclone/runtime-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_rclone_runtime_config"];
+        put?: never;
+        post: operations["save_rclone_runtime_config"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/extensions/special/tailscale/runtime-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_tailscale_runtime_config"];
+        put?: never;
+        post: operations["save_tailscale_runtime_config"];
         delete?: never;
         options?: never;
         head?: never;
@@ -558,6 +638,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["install_tool"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/extensions/tools/{tool}/integration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_tool_integration"];
+        put?: never;
+        post: operations["save_tool_integration"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3882,6 +3978,31 @@ export interface components {
             /** @description Client ID */
             client_id: string;
         };
+        CloudflaredServiceConfigRequest: {
+            edge_ip_version?: string | null;
+            log_file?: string | null;
+            log_level?: string | null;
+            metrics?: string | null;
+            no_autoupdate?: boolean | null;
+            protocol?: string | null;
+            quick_tunnel_url?: string | null;
+            tunnel_token: string;
+        };
+        CloudflaredServiceConfigView: {
+            edge_ip_version: string;
+            log_file: string;
+            log_level: string;
+            metrics: string;
+            no_autoupdate: boolean;
+            protocol: string;
+            quick_tunnel_command: string;
+            quick_tunnel_url: string;
+            service_command: string;
+            state_dir: string;
+            state_file_path: string;
+            token_file_path: string;
+            tunnel_token: string;
+        };
         CompressRequest: {
             delete_source?: boolean | null;
             encrypt_filenames?: boolean | null;
@@ -4111,17 +4232,23 @@ export interface components {
         };
         ExtensionToolInfo: {
             bin_path: string;
+            binaries: components["schemas"]["ToolBinaryView"][];
             description_en: string;
             description_zh: string;
+            display_name: string;
             executable_path: string;
             homepage: string;
             install_dir: string;
             installed: boolean;
+            integration_mode: components["schemas"]["ToolInstallMode"];
             kind: components["schemas"]["ExtensionToolKind"];
             name: string;
+            runtime_profile: components["schemas"]["ExtensionToolRuntimeProfile"];
         };
         /** @enum {string} */
         ExtensionToolKind: "service" | "task" | "both";
+        /** @enum {string} */
+        ExtensionToolRuntimeProfile: "openlist" | "rclone" | "kopia" | "cloudflared" | "tailscale";
         ExternalToolDiagnoseReq: {
             configured_values: {
                 [key: string]: string;
@@ -4353,6 +4480,19 @@ export interface components {
             rt_expires_in: number;
             token_type: string;
         };
+        KopiaRuntimeConfigRequest: {
+            cache_directory: string;
+            config_file_path: string;
+            repository_command_template: string;
+            snapshot_command_template: string;
+        };
+        KopiaRuntimeConfigView: {
+            cache_directory: string;
+            config_file_path: string;
+            repository_command_template: string;
+            snapshot_command_template: string;
+            state_file_path: string;
+        };
         LatexRenderRequest: {
             content: string;
             path: string;
@@ -4496,6 +4636,16 @@ export interface components {
         };
         OpenlistResetAdminRequest: {
             data_path: string;
+        };
+        OpenlistRuntimeConfigRequest: {
+            data_path: string;
+            extra_args: string[];
+        };
+        OpenlistRuntimeConfigView: {
+            data_path: string;
+            extra_args: string[];
+            service_command: string;
+            state_file_path: string;
         };
         PaginatedResponse_FileInfo: {
             data: {
@@ -4711,6 +4861,24 @@ export interface components {
         PublicShareWriteQuery: {
             password?: string | null;
             path: string;
+        };
+        RcloneRuntimeConfigRequest: {
+            config_path: string;
+            extra_args: string[];
+            mount_command_template: string;
+            rc_addr: string;
+            rc_no_auth: boolean;
+            unmount_command_template: string;
+        };
+        RcloneRuntimeConfigView: {
+            config_path: string;
+            extra_args: string[];
+            mount_command_template: string;
+            rc_addr: string;
+            rc_no_auth: boolean;
+            service_command: string;
+            state_file_path: string;
+            unmount_command_template: string;
         };
         RecalibrateQuotaRequest: {
             user_ids?: string[] | null;
@@ -5108,6 +5276,64 @@ export interface components {
             s3_use_https?: boolean | null;
             thumbnail: components["schemas"]["ThumbnailCapabilities"];
         };
+        TailscaleRuntimeConfigRequest: {
+            accept_dns: boolean;
+            accept_routes: boolean;
+            advertise_exit_node: boolean;
+            advertise_routes: string;
+            advertise_tags: string;
+            auth_key: string;
+            debug_addr: string;
+            hostname: string;
+            http_proxy_listen: string;
+            login_server: string;
+            no_logs_no_support: boolean;
+            operator: string;
+            shields_up: boolean;
+            socket_path: string;
+            socks5_server: string;
+            ssh: boolean;
+            state_dir: string;
+            state_file: string;
+            tun_mode: string;
+            /** Format: int32 */
+            udp_port: number;
+            /** Format: int32 */
+            verbose: number;
+        };
+        TailscaleRuntimeConfigView: {
+            accept_dns: boolean;
+            accept_routes: boolean;
+            advertise_exit_node: boolean;
+            advertise_routes: string;
+            advertise_tags: string;
+            auth_key: string;
+            auth_key_file_path: string;
+            daemon_command: string;
+            debug_addr: string;
+            down_args: string[];
+            hostname: string;
+            http_proxy_listen: string;
+            login_server: string;
+            netcheck_args: string[];
+            no_logs_no_support: boolean;
+            operator: string;
+            shields_up: boolean;
+            socket_path: string;
+            socks5_server: string;
+            ssh: boolean;
+            state_dir: string;
+            state_file: string;
+            state_file_path: string;
+            status_args: string[];
+            tun_mode: string;
+            /** Format: int32 */
+            udp_port: number;
+            up_args: string[];
+            up_command: string;
+            /** Format: int32 */
+            verbose: number;
+        };
         /** @enum {string} */
         TargetType: "Phone" | "Email" | "Graphic";
         /** @description Test connection request */
@@ -5161,6 +5387,21 @@ export interface components {
         ThumbnailTokenQuery: {
             file_download_token: string;
         };
+        ToolBinaryPathInput: {
+            key: string;
+            path: string;
+        };
+        ToolBinaryView: {
+            configured_path?: string | null;
+            display_name: string;
+            exists: boolean;
+            file_name: string;
+            is_command_binary: boolean;
+            is_service_binary: boolean;
+            key: string;
+            managed_path: string;
+            resolved_path?: string | null;
+        };
         ToolCommandRequest: {
             args: string[];
             command: string;
@@ -5170,6 +5411,17 @@ export interface components {
             code: number;
             stderr: string;
             stdout: string;
+        };
+        /** @enum {string} */
+        ToolInstallMode: "managed_download" | "existing_binary";
+        ToolIntegrationConfigRequest: {
+            binaries: components["schemas"]["ToolBinaryPathInput"][];
+            install_mode: components["schemas"]["ToolInstallMode"];
+        };
+        ToolIntegrationConfigView: {
+            binaries: components["schemas"]["ToolBinaryView"][];
+            install_mode: components["schemas"]["ToolInstallMode"];
+            tool: string;
         };
         TurnServerConfig: {
             credential: string;
@@ -6153,6 +6405,94 @@ export interface operations {
             };
         };
     };
+    get_service_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get cloudflared managed service config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CloudflaredServiceConfigView"];
+                };
+            };
+        };
+    };
+    save_service_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CloudflaredServiceConfigRequest"];
+            };
+        };
+        responses: {
+            /** @description Save cloudflared managed service config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CloudflaredServiceConfigView"];
+                };
+            };
+        };
+    };
+    get_kopia_runtime_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get kopia runtime config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KopiaRuntimeConfigView"];
+                };
+            };
+        };
+    };
+    save_kopia_runtime_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KopiaRuntimeConfigRequest"];
+            };
+        };
+        responses: {
+            /** @description Save kopia runtime config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KopiaRuntimeConfigView"];
+                };
+            };
+        };
+    };
     openlist_reset_admin: {
         parameters: {
             query?: never;
@@ -6173,6 +6513,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ToolCommandResult"];
+                };
+            };
+        };
+    };
+    get_openlist_runtime_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get openlist runtime config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpenlistRuntimeConfigView"];
+                };
+            };
+        };
+    };
+    save_openlist_runtime_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpenlistRuntimeConfigRequest"];
+            };
+        };
+        responses: {
+            /** @description Save openlist runtime config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpenlistRuntimeConfigView"];
+                };
+            };
+        };
+    };
+    get_rclone_runtime_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get rclone runtime config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RcloneRuntimeConfigView"];
+                };
+            };
+        };
+    };
+    save_rclone_runtime_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RcloneRuntimeConfigRequest"];
+            };
+        };
+        responses: {
+            /** @description Save rclone runtime config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RcloneRuntimeConfigView"];
+                };
+            };
+        };
+    };
+    get_tailscale_runtime_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get tailscale runtime config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TailscaleRuntimeConfigView"];
+                };
+            };
+        };
+    };
+    save_tailscale_runtime_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TailscaleRuntimeConfigRequest"];
+            };
+        };
+        responses: {
+            /** @description Save tailscale runtime config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TailscaleRuntimeConfigView"];
                 };
             };
         };
@@ -6247,6 +6719,56 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_tool_integration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tool name */
+                tool: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get tool integration config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolIntegrationConfigView"];
+                };
+            };
+        };
+    };
+    save_tool_integration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tool name */
+                tool: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToolIntegrationConfigRequest"];
+            };
+        };
+        responses: {
+            /** @description Save tool integration config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolIntegrationConfigView"];
                 };
             };
         };
