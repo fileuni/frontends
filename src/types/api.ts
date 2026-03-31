@@ -1766,6 +1766,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/file/batch-delete-permanent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["delete_files_permanent_direct"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/file/batch-move": {
         parameters: {
             query?: never;
@@ -1905,6 +1921,22 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["delete_file"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/delete-permanent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["delete_file_permanent_direct"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2173,6 +2205,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["preview_latex"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/protected-storage/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["enable_user_protected_storage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/protected-storage/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_user_protected_storage_status"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4559,6 +4623,26 @@ export interface components {
             /** Format: int64 */
             text_mb: number;
         };
+        ProtectedStorageCapabilities: {
+            global_mode: string;
+            subdir_thumbnail_disabled: boolean;
+            subdir_trash_disabled: boolean;
+        };
+        ProtectedStorageEnableRequest: {
+            /** @example /private */
+            root: string;
+        };
+        ProtectedStorageStatusResponse: {
+            enabled: boolean;
+            global_mode: string;
+            protected_enabled_at?: string | null;
+            protected_key_slot_id?: string | null;
+            protected_mode?: string | null;
+            protected_root?: string | null;
+            protected_updated_at?: string | null;
+            subdir_thumbnail_disabled: boolean;
+            subdir_trash_disabled: boolean;
+        };
         ProviderAccountPayload: {
             config_json: string;
             credential_json_enc: string;
@@ -5014,6 +5098,7 @@ export interface components {
             latex_preview_mode: string;
             media_transcoding_backend?: string | null;
             preview_size_limits: components["schemas"]["PreviewSizeLimits"];
+            protected_storage: components["schemas"]["ProtectedStorageCapabilities"];
             runtime_arch: string;
             /** Format: int32 */
             runtime_bits: number;
@@ -5456,6 +5541,9 @@ export interface components {
             is_dir?: boolean | null;
             original_path?: string | null;
             path: string;
+            /** Format: int64 */
+            physical_size?: number | null;
+            protected_meta?: string | null;
             /** Format: int64 */
             size?: number | null;
             storage_id?: string | null;
@@ -8691,6 +8779,30 @@ export interface operations {
             };
         };
     };
+    delete_files_permanent_direct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchDeleteRequest"];
+            };
+        };
+        responses: {
+            /** @description Files deleted permanently */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
     batch_move: {
         parameters: {
             query?: never;
@@ -8910,6 +9022,30 @@ export interface operations {
         };
         responses: {
             /** @description File deleted successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    delete_file_permanent_direct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FilePathQuery"];
+            };
+        };
+        responses: {
+            /** @description File deleted permanently */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9382,6 +9518,48 @@ export interface operations {
             };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    enable_user_protected_storage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProtectedStorageEnableRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    get_user_protected_storage_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
