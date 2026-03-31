@@ -466,6 +466,11 @@
           "obfuscate": "仅允许混淆储存继续工作，已有加密数据会暂时不可读。",
           "encrypt": "仅允许加密储存继续工作，已有混淆数据会暂时不可读。"
         },
+        "modeSummary": {
+          "disabled": "当前仅保留配置，不允许任何用户新建或读取受保护目录。适合临时禁用功能或进入排查阶段。",
+          "obfuscate": "当前以高性能混淆模式工作。适合隐藏文件名、扩展名和明显内容特征，但不提供强加密语义。",
+          "encrypt": "当前以服务端透明加密模式工作。目录 key 会由服务端托管并包装，所有协议统一读取解密后的逻辑明文。"
+        },
         "risks": {
           "disabled": "警告：切到关闭后，系统不会自动迁移或恢复已有受保护数据。重新开启前，这些数据都不可访问。",
           "obfuscate": "警告：切到混淆模式后，系统不会自动把已有加密数据转换为混淆数据。模式不匹配的数据会暂时不可读。",
@@ -473,18 +478,35 @@
         },
         "obfuscation": {
           "title": "混淆模式参数",
+          "blockPreset": "常用块大小",
+          "blockPresetHint": "先选常用预设；只有在特殊设备或 range 行为需要时再手动输入。",
           "blockSizeKiB": "块大小（KiB）",
+          "blockSizeHint": "推荐保持在 128-1024 KiB 范围内。值越大顺序吞吐越高，小范围 range 的处理粒度也越大。",
+          "blockCustom": "自定义",
+          "blockSizeInvalid": "请输入大于 0 的整数块大小。",
+          "blockSizeRecommended": "当前值 {{value}} KiB，位于推荐范围内。",
+          "blockSizeCustom": "当前值 {{value}} KiB 可用，但不在常用推荐范围内。",
           "prng": "遮罩生成器",
           "prngHint": "xorshift 更轻量，pcg 更稳定；两者都只用于混淆模式。",
+          "workersPreset": "常用线程数",
+          "workersPresetHint": "0 表示自动按 CPU 核心数决定；其他值用于手动限制并行度。",
+          "workersAuto": "自动",
           "workers": "工作线程数",
-          "workersHint": "填 0 表示自动按 CPU 核心数决定。只影响混淆模式的大文件或大范围读取。"
+          "workersHint": "填 0 表示自动按 CPU 核心数决定。只影响混淆模式的大文件或大范围读取。",
+          "workersInvalid": "请输入大于或等于 0 的整数线程数。",
+          "workersAutoDetail": "当前为自动模式，将按 CPU 核心数决定并行度。",
+          "workersRecommended": "当前值 {{value}} 在线程数建议范围内。",
+          "workersCustom": "当前值 {{value}} 可用，但建议确认设备负载后再使用。"
         },
         "encrypt": {
           "title": "加密模式参数",
           "cipher": "固定算法",
           "cipherHint": "第一阶段固定使用 AES-256-CTR，由服务端统一加解密。",
           "wrapKey": "服务端包装密钥",
-          "wrapKeyHint": "用于包装每个用户受保护目录的随机加密 key。至少 32 个字符，修改后旧数据会暂时不可读。"
+          "wrapKeyHint": "用于包装每个用户受保护目录的随机加密 key。至少 32 个字符，修改后旧数据会暂时不可读。",
+          "wrapKeyGenerate": "生成新的 64 位密钥",
+          "wrapKeyValid": "当前长度 {{count}}，可用于生产环境。",
+          "wrapKeyInvalid": "当前长度 {{count}}，至少需要 32 个字符。"
         }
       },
       "externalTools": {

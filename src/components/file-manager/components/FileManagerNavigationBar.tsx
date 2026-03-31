@@ -21,6 +21,8 @@ export const FileManagerNavigationBar = () => {
   const setCurrentPath = store.setCurrentPath;
   const { files } = store;
   const protectedStatus = useProtectedStorageStore((state) => state.status);
+  const focusedRootPath = useProtectedStorageStore((state) => state.focusedRootPath);
+  const clearRootHint = useProtectedStorageStore((state) => state.clearRootHint);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [pathInput, setPathInput] = useState(currentPath);
@@ -64,6 +66,12 @@ export const FileManagerNavigationBar = () => {
       cancelled = true;
     };
   }, [currentPath, files]);
+
+  useEffect(() => {
+    if (!focusedRootPath || focusedRootPath !== currentPath) return undefined;
+    const timer = window.setTimeout(() => clearRootHint(), 3200);
+    return () => window.clearTimeout(timer);
+  }, [clearRootHint, currentPath, focusedRootPath]);
 
   const pathSegments = currentPath.split("/").filter(Boolean);
   
@@ -158,7 +166,10 @@ export const FileManagerNavigationBar = () => {
       )}
 
       {protectedStatus?.enabled && pathMatchesProtectedRoot(currentPath, protectedStatus.protected_root) && (
-        <div className="mt-2 rounded-2xl border border-cyan-500/15 bg-cyan-500/10 px-4 py-3 text-sm">
+        <div className={cn(
+          "mt-2 rounded-2xl border border-cyan-500/15 bg-cyan-500/10 px-4 py-3 text-sm transition-all",
+          focusedRootPath === currentPath && "ring-2 ring-cyan-300/60 shadow-[0_0_0_1px_rgba(103,232,249,0.18)] animate-pulse"
+        )}>
           <div className="flex flex-wrap items-center gap-3 text-cyan-100">
             <div className="flex items-center gap-2 font-black uppercase tracking-widest text-[11px]">
               <HardDrive size={14} />
@@ -183,6 +194,11 @@ export const FileManagerNavigationBar = () => {
                   : (t('filemanager.shareModal.protected') || 'Protected')}
             </span>
           </div>
+          {focusedRootPath === currentPath && (
+            <div className="mt-2 text-xs font-bold text-cyan-100/90">
+              {t('filemanager.protectedStorage.focusedHint') || 'You are now in the protected root directory.'}
+            </div>
+          )}
         </div>
       )}
     </div>

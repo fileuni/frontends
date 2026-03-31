@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { PasswordInput } from "@/components/common/PasswordInput";
+import { Button } from "@/components/ui/Button";
 import {
   ensureRecord,
   isRecord,
@@ -776,6 +777,32 @@ type ProtectedStorageDraft = {
   wrapKey: string;
 };
 
+const PROTECTED_STORAGE_BLOCK_PRESETS = [64, 128, 256, 512, 1024] as const;
+const PROTECTED_STORAGE_WORKER_PRESETS = [0, 1, 2, 4, 8] as const;
+const MIN_PROTECTED_BLOCK_SIZE_KIB = 1;
+const MAX_PROTECTED_BLOCK_SIZE_KIB = 16 * 1024;
+const MIN_PROTECTED_WORKERS = 0;
+const MAX_PROTECTED_WORKERS = 256;
+
+const sanitizeUnsignedIntegerInput = (value: string): string => value.replace(/[^0-9]/g, "");
+
+const clampIntegerInput = (
+  value: string,
+  fallback: number,
+  min: number,
+  max: number,
+): number => {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, parsed));
+};
+
+const generateWrapKey = (): string => {
+  const bytes = new Uint8Array(32);
+  globalThis.crypto?.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+};
+
 const InlineSegmentCard: React.FC<{
   isDark: boolean;
   title: string;
@@ -860,12 +887,24 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
       const parsed = tomlAdapter.parse(source);
       const root: ConfigObject = isRecord(parsed) ? parsed : {};
       const hub = ensureRecord(root, "vfs_storage_hub");
+      const nextBlockSize = clampIntegerInput(
+        next.blockSizeKiB,
+        256,
+        MIN_PROTECTED_BLOCK_SIZE_KIB,
+        MAX_PROTECTED_BLOCK_SIZE_KIB,
+      );
+      const nextWorkers = clampIntegerInput(
+        next.workers,
+        0,
+        MIN_PROTECTED_WORKERS,
+        MAX_PROTECTED_WORKERS,
+      );
       hub["protected_storage"] = {
         global_mode: next.globalMode,
         obfuscation: {
-          block_size_kib: Number.parseInt(next.blockSizeKiB, 10) || 256,
+          block_size_kib: nextBlockSize,
           prng: next.prng,
-          workers: Number.parseInt(next.workers, 10) || 0,
+          workers: nextWorkers,
         },
         encrypt: {
           cipher: "aes-256-ctr",
@@ -889,6 +928,15 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
       : "border-slate-300 bg-white text-slate-900",
   );
   const riskKey = `admin.config.protectedStorage.risks.${draft.globalMode}`;
+  const wrapKeyLooksValid = draft.wrapKey.trim().length >= 32;
+  const obfuscationActive = draft.globalMode === "obfuscate";
+  const encryptActive = draft.globalMode === "encrypt";
+  const blockSizeValue = Number.parseInt(draft.blockSizeKiB, 10);
+  const workersValue = Number.parseInt(draft.workers, 10);
+  const blockSizeValid = Number.isFinite(blockSizeValue) && blockSizeValue > 0;
+  const blockSizeRecommended = blockSizeValid && blockSizeValue >= 128 && blockSizeValue <= 1024;
+  const workersValid = Number.isFinite(workersValue) && workersValue >= 0;
+  const workersRecommended = workersValid && workersValue <= 8;
 
   return (
     <div className="space-y-4">
@@ -901,6 +949,25 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
         )}
       >
         {t(riskKey)}
+      </div>
+
+      <div
+        className={cn(
+          "rounded-2xl border p-4 text-sm leading-6",
+          draft.globalMode === "disabled"
+            ? isDark
+              ? "border-white/10 bg-white/[0.03] text-slate-200"
+              : "border-slate-200 bg-slate-50 text-slate-700"
+            : draft.globalMode === "obfuscate"
+              ? isDark
+                ? "border-cyan-500/20 bg-cyan-500/10 text-cyan-100"
+                : "border-cyan-200 bg-cyan-50 text-cyan-900"
+              : isDark
+                ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-100"
+                : "border-emerald-200 bg-emerald-50 text-emerald-900",
+        )}
+      >
+        {t(`admin.config.protectedStorage.modeSummary.${draft.globalMode}`)}
       </div>
 
       <div
@@ -932,22 +999,77 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
         <div
           className={cn(
             "rounded-2xl border p-4 space-y-3",
-            isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white",
+            obfuscationActive
+              ? isDark
+                ? "border-cyan-500/20 bg-cyan-500/5"
+                : "border-cyan-200 bg-cyan-50/60"
+              : isDark
+                ? "border-white/10 bg-white/[0.03]"
+                : "border-slate-200 bg-white",
           )}
         >
           <div className="text-sm font-black">{t("admin.config.protectedStorage.obfuscation.title")}</div>
+          <InlineSegmentCard
+            isDark={isDark}
+            title={t("admin.config.protectedStorage.obfuscation.blockPreset")}
+            subtitle={t("admin.config.protectedStorage.obfuscation.blockPresetHint")}
+            value={PROTECTED_STORAGE_BLOCK_PRESETS.includes(Number(draft.blockSizeKiB) as never)
+              ? draft.blockSizeKiB
+              : "custom"}
+            options={[
+              ...PROTECTED_STORAGE_BLOCK_PRESETS.map((value) => ({ value: String(value), label: `${value} KiB` })),
+              { value: "custom", label: t("admin.config.protectedStorage.obfuscation.blockCustom") },
+            ]}
+            onChange={(value) => {
+              if (value === "custom") return;
+              setDraft((prev) => ({ ...prev, blockSizeKiB: value }));
+            }}
+          />
           <div>
             <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
               {t("admin.config.protectedStorage.obfuscation.blockSizeKiB")}
             </div>
             <input
+              type="number"
+              min={MIN_PROTECTED_BLOCK_SIZE_KIB}
+              max={MAX_PROTECTED_BLOCK_SIZE_KIB}
+              step={1}
+              inputMode="numeric"
               className={inputClass}
               value={draft.blockSizeKiB}
               onChange={(event) =>
-                setDraft((prev) => ({ ...prev, blockSizeKiB: event.target.value }))
+                setDraft((prev) => ({
+                  ...prev,
+                  blockSizeKiB: sanitizeUnsignedIntegerInput(event.target.value),
+                }))
               }
               placeholder="256"
             />
+            <div className={cn("mt-2 text-xs leading-5", isDark ? "text-slate-400" : "text-slate-500")}>
+              {t("admin.config.protectedStorage.obfuscation.blockSizeHint")}
+            </div>
+            <div
+              className={cn(
+                "mt-2 text-xs font-bold",
+                !blockSizeValid
+                  ? isDark
+                    ? "text-amber-300"
+                    : "text-amber-700"
+                  : blockSizeRecommended
+                    ? isDark
+                      ? "text-emerald-300"
+                      : "text-emerald-700"
+                    : isDark
+                      ? "text-cyan-300"
+                      : "text-cyan-700",
+              )}
+            >
+              {!blockSizeValid
+                ? t("admin.config.protectedStorage.obfuscation.blockSizeInvalid")
+                : blockSizeRecommended
+                  ? t("admin.config.protectedStorage.obfuscation.blockSizeRecommended", { value: blockSizeValue })
+                  : t("admin.config.protectedStorage.obfuscation.blockSizeCustom", { value: blockSizeValue })}
+            </div>
           </div>
           <InlineSegmentCard
             isDark={isDark}
@@ -965,20 +1087,71 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
               }))
             }
           />
+          <InlineSegmentCard
+            isDark={isDark}
+            title={t("admin.config.protectedStorage.obfuscation.workersPreset")}
+            subtitle={t("admin.config.protectedStorage.obfuscation.workersPresetHint")}
+            value={PROTECTED_STORAGE_WORKER_PRESETS.includes(Number(draft.workers) as never)
+              ? draft.workers
+              : "custom"}
+            options={[
+              ...PROTECTED_STORAGE_WORKER_PRESETS.map((value) => ({
+                value: String(value),
+                label: value === 0 ? t("admin.config.protectedStorage.obfuscation.workersAuto") : String(value),
+              })),
+              { value: "custom", label: t("admin.config.protectedStorage.obfuscation.blockCustom") },
+            ]}
+            onChange={(value) => {
+              if (value === "custom") return;
+              setDraft((prev) => ({ ...prev, workers: value }));
+            }}
+          />
           <div>
             <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
               {t("admin.config.protectedStorage.obfuscation.workers")}
             </div>
             <input
+              type="number"
+              min={MIN_PROTECTED_WORKERS}
+              max={MAX_PROTECTED_WORKERS}
+              step={1}
+              inputMode="numeric"
               className={inputClass}
               value={draft.workers}
               onChange={(event) =>
-                setDraft((prev) => ({ ...prev, workers: event.target.value }))
+                setDraft((prev) => ({
+                  ...prev,
+                  workers: sanitizeUnsignedIntegerInput(event.target.value),
+                }))
               }
               placeholder="0"
             />
             <div className={cn("mt-2 text-xs leading-5", isDark ? "text-slate-400" : "text-slate-500")}>
               {t("admin.config.protectedStorage.obfuscation.workersHint")}
+            </div>
+            <div
+              className={cn(
+                "mt-2 text-xs font-bold",
+                !workersValid
+                  ? isDark
+                    ? "text-amber-300"
+                    : "text-amber-700"
+                  : workersRecommended
+                    ? isDark
+                      ? "text-emerald-300"
+                      : "text-emerald-700"
+                    : isDark
+                      ? "text-cyan-300"
+                      : "text-cyan-700",
+              )}
+            >
+              {!workersValid
+                ? t("admin.config.protectedStorage.obfuscation.workersInvalid")
+                : workersValue === 0
+                  ? t("admin.config.protectedStorage.obfuscation.workersAutoDetail")
+                  : workersRecommended
+                    ? t("admin.config.protectedStorage.obfuscation.workersRecommended", { value: workersValue })
+                    : t("admin.config.protectedStorage.obfuscation.workersCustom", { value: workersValue })}
             </div>
           </div>
         </div>
@@ -986,7 +1159,13 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
         <div
           className={cn(
             "rounded-2xl border p-4 space-y-3",
-            isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white",
+            encryptActive
+              ? isDark
+                ? "border-emerald-500/20 bg-emerald-500/5"
+                : "border-emerald-200 bg-emerald-50/60"
+              : isDark
+                ? "border-white/10 bg-white/[0.03]"
+                : "border-slate-200 bg-white",
           )}
         >
           <div className="text-sm font-black">{t("admin.config.protectedStorage.encrypt.title")}</div>
@@ -1014,8 +1193,36 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
                 isDark
                   ? "border-white/10 bg-black/30 text-white"
                   : "border-slate-300 bg-white text-slate-900",
-              )}
+                )}
             />
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setDraft((prev) => ({ ...prev, wrapKey: generateWrapKey() }))
+                }
+              >
+                {t("admin.config.protectedStorage.encrypt.wrapKeyGenerate")}
+              </Button>
+              <span
+                className={cn(
+                  "text-xs font-bold",
+                  wrapKeyLooksValid
+                    ? isDark
+                      ? "text-emerald-300"
+                      : "text-emerald-700"
+                    : isDark
+                      ? "text-amber-300"
+                      : "text-amber-700",
+                )}
+              >
+                {wrapKeyLooksValid
+                  ? t("admin.config.protectedStorage.encrypt.wrapKeyValid", { count: draft.wrapKey.trim().length })
+                  : t("admin.config.protectedStorage.encrypt.wrapKeyInvalid", { count: draft.wrapKey.trim().length })}
+              </span>
+            </div>
             <div className={cn("mt-2 text-xs leading-5", isDark ? "text-slate-400" : "text-slate-500")}>
               {t("admin.config.protectedStorage.encrypt.wrapKeyHint")}
             </div>

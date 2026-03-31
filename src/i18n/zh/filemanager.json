@@ -25,10 +25,32 @@
     "currentStatus": "当前状态",
     "protectedRoot": "受保护根目录",
     "protectedMode": "受保护模式",
+    "enabledAt": "启用时间",
+    "updatedAt": "最近更新时间",
+    "copyProtectedRoot": "复制受保护根目录",
+    "copyRootSuccess": "受保护根目录已复制",
+    "openProtectedRoot": "打开受保护根目录",
+    "focusedHint": "已切换到这个账号当前启用的受保护根目录。",
     "modes": {
       "disabled": "管理员已关闭",
       "obfuscate": "混淆模式",
       "encrypt": "加密模式"
+    },
+    "modeDetails": {
+      "title": "当前模式说明",
+      "disabled": "当前系统不允许访问或新建任何受保护目录。已存在的受保护数据会暂时不可读。",
+      "obfuscate": "当前目录将以高性能混淆方式存储，适合隐藏文件名、路径、扩展名和明显内容特征。",
+      "encrypt": "当前目录将以服务端透明加密方式存储，所有协议仍然通过 VFS 读取逻辑明文。"
+    },
+    "advice": {
+      "title": "建议下一步",
+      "adminDisabled": "如果需要继续使用这个功能，请先让管理员在设置中心开启混淆模式或加密模式。",
+      "alreadyEnabledElsewhere": "这个账号已经有受保护目录了。请直接前往已启用目录继续管理，或等后续版本支持迁移。",
+      "currentRootActive": "当前目录已经在受保护模式下工作，可以继续上传、预览和管理这里的文件。",
+      "mountBlocked": "请回到用户自己的普通目录，再选择一个空目录启用受保护目录。",
+      "systemPathBlocked": "请避开系统隐藏目录，改用你自己创建的根目录或子目录。",
+      "emptyDirOnly": "先在普通目录里新建一个空文件夹，或者清空当前目录，再回来启用。",
+      "ready": "当前目录已经满足第一阶段启用条件。启用后，这个账号不能再切换到其他受保护目录。"
     },
     "status": {
       "enabled": "已启用",
@@ -38,9 +60,12 @@
       "title": "启用条件",
       "adminDisabled": "管理员已在全局配置中关闭此功能。当前只能查看状态，不能启用。",
       "mountBlocked": "第一阶段不支持在远程挂载目录上启用受保护目录。",
+      "systemPathBlocked": "系统隐藏目录不能启用受保护目录。请选择用户自己的目录。",
       "emptyDirOnly": "第一阶段只能在空目录上启用受保护目录。",
       "rootReady": "当前根目录符合第一阶段启用前置条件。",
-      "subdirReady": "当前子目录符合第一阶段启用前置条件。"
+      "subdirReady": "当前子目录符合第一阶段启用前置条件。",
+      "alreadyEnabledElsewhere": "当前账号已经在 {{path}} 启用了受保护目录。第一阶段不支持切换到其他目录。",
+      "currentRootActive": "当前目录已经是这个账号的受保护根目录。"
     },
     "subdirEffects": {
       "title": "子目录启用后的影响",

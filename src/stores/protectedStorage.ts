@@ -17,9 +17,12 @@ export interface ProtectedStorageStatus {
 interface ProtectedStorageState {
   status: ProtectedStorageStatus | null;
   isLoading: boolean;
+  focusedRootPath: string | null;
   syncFromCapabilities: (capabilities: SystemCapabilities | null) => void;
   fetchStatus: (force?: boolean) => Promise<void>;
   enableRoot: (root: string) => Promise<ProtectedStorageStatus>;
+  focusRootHint: (path: string) => void;
+  clearRootHint: () => void;
 }
 
 const fallbackFromCapabilities = (
@@ -41,6 +44,7 @@ const fallbackFromCapabilities = (
 export const useProtectedStorageStore = create<ProtectedStorageState>((set, get) => ({
   status: null,
   isLoading: false,
+  focusedRootPath: null,
   syncFromCapabilities: (capabilities) => {
     set((state) => ({
       status: state.status
@@ -78,4 +82,6 @@ export const useProtectedStorageStore = create<ProtectedStorageState>((set, get)
     set({ status: data });
     return data;
   },
+  focusRootHint: (path) => set({ focusedRootPath: path }),
+  clearRootHint: () => set({ focusedRootPath: null }),
 }));

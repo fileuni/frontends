@@ -45,6 +45,12 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
   const protectedUnavailable = isProtectedPathUnavailable(protectedStatus);
   const protectedPermanentDelete = shouldUsePermanentDeleteForPath(file.path, protectedStatus);
   const protectedThumbnailDisabled = shouldDisableThumbnailForPath(file.path, protectedStatus);
+  const protectedEnabledAt = protectedStatus?.protected_enabled_at
+    ? new Date(protectedStatus.protected_enabled_at).toLocaleString()
+    : null;
+  const protectedUpdatedAt = protectedStatus?.protected_updated_at
+    ? new Date(protectedStatus.protected_updated_at).toLocaleString()
+    : null;
 
   const handlePreview = () => {
     previewFile(file.path);
@@ -129,6 +135,22 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
               icon={Info}
               label={t('filemanager.protectedStorage.protectedRoot') || 'Protected Root'}
               value={protectedStatus.protected_root}
+            />
+          )}
+
+          {isProtected && protectedEnabledAt && (
+            <PropertyItem
+              icon={Calendar}
+              label={t('filemanager.protectedStorage.enabledAt') || 'Enabled At'}
+              value={protectedEnabledAt}
+            />
+          )}
+
+          {isProtected && protectedUpdatedAt && (
+            <PropertyItem
+              icon={Clock}
+              label={t('filemanager.protectedStorage.updatedAt') || 'Updated At'}
+              value={protectedUpdatedAt}
             />
           )}
 

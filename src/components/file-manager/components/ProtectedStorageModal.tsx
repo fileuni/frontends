@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Shield, Lock, FolderTree, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Shield, Lock, FolderTree, AlertTriangle, CheckCircle2, Copy, FolderOpen, Lightbulb } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
+import { copyTextWithToast } from '@/lib/feedback.ts';
 import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { useToastStore } from '@/stores/toast.ts';
 import { handleApiError } from '@/lib/api.ts';
+import { useFileStore } from '../store/useFileStore.ts';
 
 interface ProtectedStorageModalProps {
   isOpen: boolean;
@@ -56,8 +58,9 @@ export const ProtectedStorageModal = ({
   isMountPath,
 }: ProtectedStorageModalProps) => {
   const { t } = useTranslation();
-  const { status, isLoading, fetchStatus, enableRoot } = useProtectedStorageStore();
+  const { status, isLoading, fetchStatus, enableRoot, focusRootHint } = useProtectedStorageStore();
   const { addToast } = useToastStore();
+  const setCurrentPath = useFileStore((state) => state.setCurrentPath);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -68,7 +71,42 @@ export const ProtectedStorageModal = ({
   const currentModeLabel = t(`filemanager.protectedStorage.modes.${globalMode}`) || globalMode;
   const isEmptyDir = fileCount === 0;
   const isRootPath = currentPath === '/';
-  const canPrepare = globalMode !== 'disabled' && !isMountPath && isEmptyDir;
+  const isAlreadyEnabled = Boolean(status?.enabled);
+  const isCurrentRootProtected = status?.protected_root === currentPath;
+  const isProtectedElsewhere = Boolean(status?.enabled && status?.protected_root && status.protected_root !== currentPath);
+  const isReservedPath = currentPath === '/.thumbs' || currentPath === '/.recycle_bin' || currentPath === '/.virtual' || currentPath === '/.protected' || currentPath.startsWith('/.thumbs/') || currentPath.startsWith('/.recycle_bin/') || currentPath.startsWith('/.virtual/') || currentPath.startsWith('/.protected/');
+  const isAdminDisabled = globalMode === 'disabled';
+  const canPrepare = !isAdminDisabled && !isMountPath && !isReservedPath && isEmptyDir && !isAlreadyEnabled;
+  const enabledAt = status?.protected_enabled_at ? new Date(status.protected_enabled_at).toLocaleString() : null;
+  const updatedAt = status?.protected_updated_at ? new Date(status.protected_updated_at).toLocaleString() : null;
+  const currentDecisionMessage = (() => {
+    if (isAdminDisabled) return t('filemanager.protectedStorage.constraints.adminDisabled');
+    if (isProtectedElsewhere) return t('filemanager.protectedStorage.constraints.alreadyEnabledElsewhere', { path: status?.protected_root || '/' });
+    if (isCurrentRootProtected) return t('filemanager.protectedStorage.constraints.currentRootActive', { path: currentPath });
+    if (isMountPath) return t('filemanager.protectedStorage.constraints.mountBlocked');
+    if (isReservedPath) return t('filemanager.protectedStorage.constraints.systemPathBlocked');
+    if (!isEmptyDir) return t('filemanager.protectedStorage.constraints.emptyDirOnly');
+    return isRootPath
+      ? t('filemanager.protectedStorage.constraints.rootReady')
+      : t('filemanager.protectedStorage.constraints.subdirReady');
+  })();
+  const currentDecisionTone = isAdminDisabled || isProtectedElsewhere || isMountPath || isReservedPath || !isEmptyDir
+    ? 'warn'
+    : 'ok';
+  const modeDetailMessage = globalMode === 'encrypt'
+    ? t('filemanager.protectedStorage.modeDetails.encrypt')
+    : globalMode === 'obfuscate'
+      ? t('filemanager.protectedStorage.modeDetails.obfuscate')
+      : t('filemanager.protectedStorage.modeDetails.disabled');
+  const currentAdviceMessage = (() => {
+    if (globalMode === 'disabled') return t('filemanager.protectedStorage.advice.adminDisabled');
+    if (isProtectedElsewhere) return t('filemanager.protectedStorage.advice.alreadyEnabledElsewhere');
+    if (isCurrentRootProtected) return t('filemanager.protectedStorage.advice.currentRootActive');
+    if (isMountPath) return t('filemanager.protectedStorage.advice.mountBlocked');
+    if (isReservedPath) return t('filemanager.protectedStorage.advice.systemPathBlocked');
+    if (!isEmptyDir) return t('filemanager.protectedStorage.advice.emptyDirOnly');
+    return t('filemanager.protectedStorage.advice.ready');
+  })();
   const handleEnable = async () => {
     try {
       await enableRoot(currentPath);
@@ -76,6 +114,22 @@ export const ProtectedStorageModal = ({
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     }
+  };
+  const handleJumpToProtectedRoot = () => {
+    if (!status?.protected_root) return;
+    focusRootHint(status.protected_root);
+    setCurrentPath(status.protected_root);
+    onClose();
+  };
+  const handleCopyProtectedRoot = async () => {
+    if (!status?.protected_root) return;
+    await copyTextWithToast({
+      text: status.protected_root,
+      addToast,
+      t,
+      successMessage:
+        t('filemanager.protectedStorage.copyRootSuccess') || 'Protected root copied',
+    });
   };
 
   return (
@@ -91,6 +145,13 @@ export const ProtectedStorageModal = ({
           label={t('filemanager.protectedStorage.globalMode') || 'Global mode'}
           value={currentModeLabel}
           tone={globalMode === 'disabled' ? 'warn' : 'ok'}
+        />
+
+        <InfoCard
+          icon={Shield}
+          label={t('filemanager.protectedStorage.modeDetails.title') || 'Mode Detail'}
+          value={modeDetailMessage || ''}
+          tone={globalMode === 'disabled' ? 'warn' : 'neutral'}
         />
 
         <div className="grid gap-3 md:grid-cols-2">
@@ -124,6 +185,22 @@ export const ProtectedStorageModal = ({
                 : currentModeLabel}
               tone="ok"
             />
+            {enabledAt && (
+              <InfoCard
+                icon={CheckCircle2}
+                label={t('filemanager.protectedStorage.enabledAt') || 'Enabled at'}
+                value={enabledAt}
+                tone="ok"
+              />
+            )}
+            {updatedAt && (
+              <InfoCard
+                icon={CheckCircle2}
+                label={t('filemanager.protectedStorage.updatedAt') || 'Updated at'}
+                value={updatedAt}
+                tone="ok"
+              />
+            )}
           </div>
         )}
 
@@ -133,43 +210,19 @@ export const ProtectedStorageModal = ({
           </div>
         )}
 
-        {globalMode === 'disabled' && (
-          <InfoCard
-            icon={AlertTriangle}
-            label={t('filemanager.protectedStorage.constraints.title') || 'Restrictions'}
-            value={t('filemanager.protectedStorage.constraints.adminDisabled') || 'The administrator has disabled this feature for the whole system.'}
-            tone="warn"
-          />
-        )}
+        <InfoCard
+          icon={currentDecisionTone === 'ok' ? CheckCircle2 : AlertTriangle}
+          label={t('filemanager.protectedStorage.constraints.title') || 'Restrictions'}
+          value={currentDecisionMessage || ''}
+          tone={currentDecisionTone}
+        />
 
-        {globalMode !== 'disabled' && isMountPath && (
-          <InfoCard
-            icon={AlertTriangle}
-            label={t('filemanager.protectedStorage.constraints.title') || 'Restrictions'}
-            value={t('filemanager.protectedStorage.constraints.mountBlocked') || 'Phase 1 does not support mount directories.'}
-            tone="warn"
-          />
-        )}
-
-        {globalMode !== 'disabled' && !isMountPath && !isEmptyDir && (
-          <InfoCard
-            icon={AlertTriangle}
-            label={t('filemanager.protectedStorage.constraints.title') || 'Restrictions'}
-            value={t('filemanager.protectedStorage.constraints.emptyDirOnly') || 'Phase 1 only allows enabling on an empty directory.'}
-            tone="warn"
-          />
-        )}
-
-        {canPrepare && (
-          <InfoCard
-            icon={CheckCircle2}
-            label={t('filemanager.protectedStorage.constraints.title') || 'Restrictions'}
-            value={isRootPath
-              ? (t('filemanager.protectedStorage.constraints.rootReady') || 'The current root directory matches the phase 1 prerequisite for protected storage.')
-              : (t('filemanager.protectedStorage.constraints.subdirReady') || 'The current subdirectory matches the phase 1 prerequisite for protected storage.')}
-            tone="ok"
-          />
-        )}
+        <InfoCard
+          icon={Lightbulb}
+          label={t('filemanager.protectedStorage.advice.title') || 'Next Step'}
+          value={currentAdviceMessage || ''}
+          tone={currentDecisionTone === 'ok' ? 'ok' : 'neutral'}
+        />
 
         {!isRootPath && globalMode !== 'disabled' && (
           <InfoCard
@@ -184,6 +237,21 @@ export const ProtectedStorageModal = ({
           <div className="flex justify-end pt-2">
             <Button onClick={handleEnable} disabled={!canPrepare || isLoading}>
               {t('filemanager.protectedStorage.enableAction') || 'Enable for current directory'}
+            </Button>
+          </div>
+        )}
+
+        {status?.enabled && status.protected_root && (
+          <div className="flex flex-wrap justify-end gap-2 pt-2">
+            {!isCurrentRootProtected && (
+              <Button variant="outline" onClick={handleJumpToProtectedRoot} className="inline-flex items-center gap-2">
+                <FolderOpen size={16} />
+                {t('filemanager.protectedStorage.openProtectedRoot') || 'Open protected root'}
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => void handleCopyProtectedRoot()} className="inline-flex items-center gap-2">
+              <Copy size={16} />
+              {t('filemanager.protectedStorage.copyProtectedRoot') || 'Copy protected root'}
             </Button>
           </div>
         )}

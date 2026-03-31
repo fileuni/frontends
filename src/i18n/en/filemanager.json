@@ -25,10 +25,32 @@
     "currentStatus": "Current Status",
     "protectedRoot": "Protected Root",
     "protectedMode": "Protected Mode",
+    "enabledAt": "Enabled At",
+    "updatedAt": "Updated At",
+    "copyProtectedRoot": "Copy Protected Root",
+    "copyRootSuccess": "Protected root copied",
+    "openProtectedRoot": "Open Protected Root",
+    "focusedHint": "You are now in the protected root directory for this account.",
     "modes": {
       "disabled": "Disabled by Admin",
       "obfuscate": "Obfuscation Mode",
       "encrypt": "Encryption Mode"
+    },
+    "modeDetails": {
+      "title": "Current Mode",
+      "disabled": "The system currently blocks both creating and reading protected directories. Existing protected data stays temporarily unavailable.",
+      "obfuscate": "This directory will be stored with high-performance obfuscation, suitable for hiding names, paths, extensions, and obvious content signatures.",
+      "encrypt": "This directory will be stored with server-side transparent encryption, while every protocol still reads logical plaintext through VFS."
+    },
+    "advice": {
+      "title": "Next Step",
+      "adminDisabled": "Ask an administrator to enable obfuscation mode or encryption mode in Settings Center before using this feature.",
+      "alreadyEnabledElsewhere": "This account already has a protected directory. Open the existing protected root, or wait until a later version adds migration support.",
+      "currentRootActive": "This directory is already protected. You can keep uploading, previewing, and managing files here normally.",
+      "mountBlocked": "Go back to one of your own regular directories, then choose an empty directory there for protected storage.",
+      "systemPathBlocked": "Avoid system-managed hidden directories and choose one of your own root or subdirectories instead.",
+      "emptyDirOnly": "Create a new empty folder first, or clear the current directory, then come back to enable protected storage.",
+      "ready": "This directory already matches the phase 1 requirements. After enabling, this account cannot switch to another protected root."
     },
     "status": {
       "enabled": "Enabled",
@@ -38,9 +60,12 @@
       "title": "Requirements",
       "adminDisabled": "The administrator has disabled this feature globally. You can view the status here, but you cannot enable it now.",
       "mountBlocked": "Phase 1 does not support enabling protected storage on mounted remote directories.",
+      "systemPathBlocked": "System-managed hidden directories cannot be protected. Choose one of your own directories instead.",
       "emptyDirOnly": "Phase 1 only allows enabling protected storage on an empty directory.",
       "rootReady": "The current root directory matches the phase 1 prerequisite.",
-      "subdirReady": "The current subdirectory matches the phase 1 prerequisite."
+      "subdirReady": "The current subdirectory matches the phase 1 prerequisite.",
+      "alreadyEnabledElsewhere": "This account already protects {{path}}. Phase 1 does not support switching to another directory.",
+      "currentRootActive": "This directory is already the protected root for this account."
     },
     "subdirEffects": {
       "title": "Effect After Enabling on a Subdirectory",

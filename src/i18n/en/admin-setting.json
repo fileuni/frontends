@@ -467,6 +467,11 @@
           "obfuscate": "Only obfuscated storage stays available; existing encrypted data becomes temporarily unreadable.",
           "encrypt": "Only encrypted storage stays available; existing obfuscated data becomes temporarily unreadable."
         },
+        "modeSummary": {
+          "disabled": "The system keeps the configuration only. Users cannot create or access protected directories until a mode is enabled again.",
+          "obfuscate": "The system now uses high-performance obfuscation. It hides names, extensions, and obvious content signatures, but it is not strong encryption.",
+          "encrypt": "The system now uses server-side transparent encryption. Directory keys are wrapped on the server, and all protocols still read logical plaintext through VFS."
+        },
         "risks": {
           "disabled": "Warning: switching to Disabled does not migrate or restore protected data. Existing protected data stays unavailable until a matching mode is enabled again.",
           "obfuscate": "Warning: switching to Obfuscate does not convert existing encrypted data. Data written under another mode becomes temporarily unavailable.",
@@ -474,18 +479,35 @@
         },
         "obfuscation": {
           "title": "Obfuscation Settings",
+          "blockPreset": "Common Block Sizes",
+          "blockPresetHint": "Start with a common preset. Only switch to a custom value when your hardware or range access pattern really needs it.",
           "blockSizeKiB": "Block Size (KiB)",
+          "blockSizeHint": "The practical range is usually 128-1024 KiB. Larger values improve sequential throughput but make small range reads coarser.",
+          "blockCustom": "Custom",
+          "blockSizeInvalid": "Enter an integer block size greater than 0.",
+          "blockSizeRecommended": "The current value {{value}} KiB is within the recommended range.",
+          "blockSizeCustom": "The current value {{value}} KiB is valid, but outside the common recommended range.",
           "prng": "Mask Generator",
           "prngHint": "xorshift is lighter, pcg is steadier. Both apply to obfuscation mode only.",
+          "workersPreset": "Common Worker Counts",
+          "workersPresetHint": "0 means auto-select based on CPU cores. Use other values only when you want to cap parallelism manually.",
+          "workersAuto": "Auto",
           "workers": "Worker Count",
-          "workersHint": "Use 0 to auto-select based on CPU cores. This only affects large obfuscation reads."
+          "workersHint": "Use 0 to auto-select based on CPU cores. This only affects large obfuscation reads.",
+          "workersInvalid": "Enter an integer worker count greater than or equal to 0.",
+          "workersAutoDetail": "Auto mode is enabled. Parallelism will be selected from available CPU cores.",
+          "workersRecommended": "The current value {{value}} is within the recommended worker range.",
+          "workersCustom": "The current value {{value}} is valid, but you should confirm device load before using it."
         },
         "encrypt": {
           "title": "Encryption Settings",
           "cipher": "Fixed Cipher",
           "cipherHint": "Phase 1 is fixed to AES-256-CTR with server-side encryption and decryption.",
           "wrapKey": "Server Wrap Key",
-          "wrapKeyHint": "Used to wrap each user's random protected-directory encryption key. Minimum 32 characters. Changing it makes existing encrypted data temporarily unreadable."
+          "wrapKeyHint": "Used to wrap each user's random protected-directory encryption key. Minimum 32 characters. Changing it makes existing encrypted data temporarily unreadable.",
+          "wrapKeyGenerate": "Generate 64-char Key",
+          "wrapKeyValid": "Current length {{count}}. Ready for production use.",
+          "wrapKeyInvalid": "Current length {{count}}. At least 32 characters are required."
         }
       },
       "externalTools": {

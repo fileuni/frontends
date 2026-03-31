@@ -25,7 +25,7 @@ import { SortMenu } from './SortMenu.tsx';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import { cn } from '@/lib/utils.ts';
 import { currentPathMountContextFromFiles } from '../utils/mounts.ts';
-import { shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
+import { pathMatchesProtectedRoot, shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
 
 export const FileManagerToolbar = () => {
   const { t } = useTranslation();
@@ -84,6 +84,14 @@ export const FileManagerToolbar = () => {
   const toggleDisabled = settingsLoading || !settings;
   const mountContext = currentPathMountContextFromFiles(currentPath, store.files);
   const disableThumbnailForCurrentPath = shouldDisableThumbnailForPath(currentPath, protectedStatus);
+  const currentPathProtected = pathMatchesProtectedRoot(currentPath, protectedStatus?.protected_root);
+  const protectedButtonTone = protectedMode === 'disabled'
+    ? 'muted'
+    : protectedStatus?.enabled
+      ? currentPathProtected
+        ? 'active'
+        : 'warn'
+      : 'ready';
 
   const handleRefresh = () => {
     loadFiles();
@@ -279,9 +287,13 @@ export const FileManagerToolbar = () => {
               title={t('filemanager.protectedStorage.title') || 'Protected Storage'}
               className={cn(
                 "p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border transition-all",
-                protectedMode === 'disabled'
+                protectedButtonTone === 'muted'
                   ? "border-white/5 opacity-40 hover:opacity-100"
-                  : "border-primary/20 bg-primary/10 text-primary opacity-100 hover:bg-primary/15"
+                  : protectedButtonTone === 'active'
+                    ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15"
+                    : protectedButtonTone === 'warn'
+                      ? "border-amber-400/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/15"
+                      : "border-primary/20 bg-primary/10 text-primary opacity-100 hover:bg-primary/15"
               )}
             >
               <Shield size={18} />
