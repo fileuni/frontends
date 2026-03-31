@@ -6,6 +6,9 @@ export interface ProtectedStorageStatus {
   enabled: boolean;
   protected_root?: string | null;
   protected_mode?: string | null;
+  protected_key_slot_id?: string | null;
+  protected_enabled_at?: string | null;
+  protected_updated_at?: string | null;
   global_mode: string;
   subdir_trash_disabled: boolean;
   subdir_thumbnail_disabled: boolean;
@@ -25,6 +28,9 @@ const fallbackFromCapabilities = (
   enabled: false,
   protected_root: null,
   protected_mode: null,
+  protected_key_slot_id: null,
+  protected_enabled_at: null,
+  protected_updated_at: null,
   global_mode: capabilities?.protected_storage?.global_mode || "disabled",
   subdir_trash_disabled:
     capabilities?.protected_storage?.subdir_trash_disabled ?? true,
