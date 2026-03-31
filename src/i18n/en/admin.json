@@ -100,6 +100,9 @@
       "saveConfig": "Save Kopia config",
       "saveSuccess": "Kopia config saved"
     },
+    "diagnosticsTitle": "Tool Health Check",
+    "diagnosticsHint": "Run pre-defined self-check commands to quickly confirm tool availability, version, and status.",
+    "noDiagnostics": "No diagnostics commands available for this tool.",
     "cloudflared": {
       "runtimeConfigTitle": "Remotely-managed tunnel runtime",
       "runtimeConfigHint": "Create a remotely-managed tunnel in Cloudflare Dashboard first, then paste the tunnel token here. After saving, FileUni writes the token into a managed file and reuses the service controls above.",

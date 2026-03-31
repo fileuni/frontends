@@ -13,6 +13,7 @@ import type {
   ServiceStatus,
   TailscaleRuntimeConfig,
   TailscaleRuntimeConfigBody,
+  ToolDiagnosticResult,
   ToolIntegrationConfig,
   ToolIntegrationConfigBody,
   ToolInfo,
@@ -92,3 +93,6 @@ export const fetchTailscaleRuntimeConfigApi = async () =>
 
 export const saveTailscaleRuntimeConfigApi = async (body: TailscaleRuntimeConfigBody) =>
   extractData<TailscaleRuntimeConfig>(client.POST('/api/v1/admin/extensions/special/tailscale/runtime-config', { body }));
+
+export const fetchToolDiagnosticsApi = async (tool: string) =>
+  extractData<ToolDiagnosticResult[]>(client.GET('/api/v1/admin/extensions/tools/{tool}/diagnostics', { params: { path: { tool } } }));

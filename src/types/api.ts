@@ -628,6 +628,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/extensions/tools/{tool}/diagnostics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["run_tool_diagnostics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/extensions/tools/{tool}/install": {
         parameters: {
             query?: never;
@@ -5412,6 +5428,15 @@ export interface components {
             stderr: string;
             stdout: string;
         };
+        ToolDiagnosticResult: {
+            /** Format: int32 */
+            code: number;
+            command: string;
+            display_name: string;
+            key: string;
+            stderr: string;
+            stdout: string;
+        };
         /** @enum {string} */
         ToolInstallMode: "managed_download" | "existing_binary";
         ToolIntegrationConfigRequest: {
@@ -6692,6 +6717,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ToolCommandResult"];
+                };
+            };
+        };
+    };
+    run_tool_diagnostics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tool name */
+                tool: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Run tool diagnostics */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolDiagnosticResult"][];
                 };
             };
         };

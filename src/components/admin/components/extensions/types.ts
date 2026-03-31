@@ -69,6 +69,15 @@ export type CmdResult = {
   stderr: string;
 };
 
+export type ToolDiagnosticResult = {
+  key: string;
+  display_name: string;
+  command: string;
+  code: number;
+  stdout: string;
+  stderr: string;
+};
+
 export type OpenlistRuntimeConfig = {
   data_path: string;
   extra_args: string[];

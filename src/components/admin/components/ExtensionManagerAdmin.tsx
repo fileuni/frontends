@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge.tsx';
 import { AdminHero, AdminLoadingState, AdminPage } from './admin-ui';
 import { ToolPanel } from './extensions/ToolPanel.tsx';
 import { ToolIntegrationPanel } from './extensions/ToolIntegrationPanel.tsx';
+import { ToolDiagnosticsPanel } from './extensions/ToolDiagnosticsPanel.tsx';
 import { CloudflaredConfigPanel } from './extensions/CloudflaredConfigPanel.tsx';
 import { CommandResultModal } from './extensions/CommandResultModal.tsx';
 import { KopiaConfigPanel } from './extensions/KopiaConfigPanel.tsx';
@@ -24,6 +25,7 @@ import {
   fetchOpenlistRuntimeConfigApi,
   fetchRcloneRuntimeConfigApi,
   fetchTailscaleRuntimeConfigApi,
+  fetchToolDiagnosticsApi,
   fetchToolIntegrationApi,
   installToolApi,
   runToolCommandApi,
@@ -52,6 +54,7 @@ import {
   type OpenlistRuntimeConfig,
   type RcloneRuntimeConfig,
   type TailscaleRuntimeConfig,
+  type ToolDiagnosticResult,
   type ToolInfo,
   type ToolIntegrationConfig,
   type ToolInstallMode,
@@ -115,6 +118,8 @@ export const ExtensionManagerAdmin = () => {
   const [commandTitle, setCommandTitle] = useState('');
   const [commandResult, setCommandResult] = useState<CmdResult | null>(null);
   const [commandModalOpen, setCommandModalOpen] = useState(false);
+  const [diagnosticsResults, setDiagnosticsResults] = useState<Record<string, ToolDiagnosticResult[]>>({});
+  const [diagnosticsLoading, setDiagnosticsLoading] = useState(false);
 
   useEffect(() => {
     loadAll();
@@ -400,6 +405,18 @@ export const ExtensionManagerAdmin = () => {
     }
   };
 
+  const runDiagnostics = async (tool: string) => {
+    setDiagnosticsLoading(true);
+    try {
+      const results = await fetchToolDiagnosticsApi(tool);
+      setDiagnosticsResults((prev) => ({ ...prev, [tool]: results }));
+    } catch (error: unknown) {
+      addToast(handleApiError(error, t), 'error');
+    } finally {
+      setDiagnosticsLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <AdminPage withBottomPadding={false} className="pb-10 sm:pb-20">
@@ -459,6 +476,12 @@ export const ExtensionManagerAdmin = () => {
             onFetchLatest={() => fetchLatestAndFill(extPage)}
             onInstallManaged={() => installToolQuick(extPage)}
             onDeleteManaged={() => deleteManagedInstall(extPage)}
+          />
+
+          <ToolDiagnosticsPanel
+            results={diagnosticsResults[extPage] || []}
+            loading={diagnosticsLoading}
+            onRefresh={() => runDiagnostics(extPage)}
           />
 
           {currentTool.runtime_profile === 'openlist' ? (
