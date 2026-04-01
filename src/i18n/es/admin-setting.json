@@ -1,0 +1,728 @@
+{
+  "admin": {
+    "settings": {
+      "title": "Configuración del sistema",
+      "save_config": "Guardar configuración",
+      "sensitive": "Sensible",
+      "accessing": "Accediendo a datos del sistema...",
+      "noData": "No hay datos disponibles para esta sección",
+      "globalSettings": "Configuración global",
+      "navNote": "La modificación de parámetros del sistema se aplica de inmediato al runtime config, pero algunos motores núcleo pueden requerir reinicio.",
+      "quotaTitle": "Cuota del sistema y derechos",
+      "paramManagement": "Gestión de parámetros de {{module}}",
+      "hardwareId": "ID de hardware",
+      "matched": "COINCIDE",
+      "notFound": "NO_ENCONTRADO",
+      "enabledFeatures": "Funciones habilitadas",
+      "configNote": "Nota de configuración",
+      "licenseNote": "Las licencias se vinculan a la huella de hardware de este servidor. Cambios importantes de hardware pueden requerir una nueva licencia.",
+      "generalNote": "Los cambios en parámetros núcleo pueden requerir reinicio del sistema para surtir efecto completo. Valide siempre la estructura TOML antes de editar directamente.",
+      "tabs": {
+        "server": "Servidor",
+        "database": "Base de datos",
+        "vfs": "Hub de almacenamiento",
+        "security": "Seguridad",
+        "log": "Registros",
+        "license": "Licencia"
+      },
+      "generate": "Generar clave aleatoria"
+    },
+    "config": {
+      "title": "Editor de configuración",
+      "loading": "Cargando configuración...",
+      "save": "Guardar",
+      "saveAndReload": "Guardar y recargar",
+      "testContent": "Probar contenido",
+      "saveSuccess": "Configuración guardada",
+      "test": "Probar",
+      "testSuccess": "Prueba de configuración superada",
+      "testFailed": "La prueba de configuración falló",
+      "reload": "Recargar configuración",
+      "reloadSuccess": "Configuración recargada",
+      "reloadFailed": "No se pudo recargar la configuración",
+      "reset": "Restablecer a plantilla de ejemplo",
+      "resetNotice": "Plantilla cargada. Revise y guarde para aplicar cambios.",
+      "resetUnavailable": "Plantilla embebida no disponible",
+      "resetHintTitle": "Recordatorio de restablecimiento",
+      "resetHint": "Restablecer recupera la configuración predeterminada. Guarde cuando esté listo.",
+      "restartNotice": "Algunos ajustes requieren reiniciar el servidor para aplicarse completamente.",
+      "thumbnail": {
+        "title": "Ajustes de miniaturas",
+        "subtitle": "Configure herramientas externas de miniaturas y estrategia de seek de video. Si un tipo está habilitado pero la herramienta no existe, el sistema no arrancará.",
+        "apply": "Aplicar ajustes de miniaturas",
+        "applied": "Ajustes de miniaturas aplicados",
+        "applyFailed": "No se pudieron aplicar los ajustes de miniaturas",
+        "loadFailed": "Configuración de miniaturas no disponible",
+        "imageEnabled": "启用图片缩略图",
+        "thumbSizePx": "缩略图边长（像素）",
+        "thumbFormat": "输出格式",
+        "thumbQuality": "输出质量",
+        "videoSeekSeconds": "Segundos de seek de video",
+        "videoSeekRatio": "Ratio de seek de video",
+        "imageBackend": "图片缩略图后端",
+        "imageBackendBuiltin": "内置",
+        "imageBackendExternal": "外部",
+        "imageBackendHint": "内置后端使用 Rust 缩略图管线，也是默认值。外部后端改走 libvips 或 ImageMagick，只在你明确需要外部工具链时再启用。",
+        "imageSmallSkipMb": "图片小于此大小直接返回原图（MB）",
+        "imageMaxSizeMb": "图片大于此大小跳过缩略图（MB）",
+        "imageTimeoutSecs": "图片超时（秒）",
+        "imageImagemagickMaxMb": "ImageMagick 图片大小上限（MB）",
+        "videoTitle": "视频缩略图",
+        "videoEnabled": "启用视频缩略图",
+        "videoSmallSkipMb": "视频小于此大小跳过缩略图（MB）",
+        "videoMaxSizeMb": "视频大于此大小跳过缩略图（MB）",
+        "videoTimeoutSecs": "视频超时（秒）",
+        "videoSeekMode": "截帧方式",
+        "videoSeekModeSeconds": "按秒数",
+        "videoSeekModeRatio": "按比例",
+        "vipsPath": "libvips 路径",
+        "imagemagickPath": "ImageMagick 路径",
+        "ffmpegPath": "FFmpeg 路径",
+        "libreofficePath": "LibreOffice 路径",
+        "latexmkPath": "latexmk 路径",
+        "videoSeekHint": "Si se define el ratio, tiene prioridad (0.0 < ratio <= 1.0).",
+        "videoHardwareHint": "如果“视频转码”里的“启用硬件编码”已开启，桌面端视频缩略图会自动复用同一套硬件后端与设备路径优先尝试硬件抽帧；失败时会自动回退到软件方式，这里不需要再单独配置一套硬件参数。",
+        "videoHardwareReuseActive": "当前状态：视频缩略图会优先复用 {{backend}} 硬件后端，设备为 {{device}}；失败时自动回退到软件抽帧。",
+        "videoHardwareReuseInactive": "当前状态：视频缩略图不会复用硬件后端，将直接使用软件抽帧。",
+        "deviceAuto": "自动",
+        "pdfEnabled": "启用 PDF 缩略图",
+        "officeEnabled": "启用文档缩略图",
+        "latexEnabled": "启用 LaTeX 预览缩略图",
+        "model3dEnabled": "启用 3D 模型缩略图",
+        "pdfOfficeHint": "PDF、文档、LaTeX 缩略图会复用 raster 工具链；文档还需要 LibreOffice，LaTeX 还需要 latexmk。",
+        "pdfUsesRasterToolsHint": "PDF 缩略图会复用上面的 libvips / ImageMagick 光栅化工具链。",
+        "officeUsesLibreofficeHint": "文档缩略图会先通过 LibreOffice 转成 PDF，再继续走 PDF 缩略图链路。",
+        "latexUsesPdfHint": "LaTeX 预览缩略图会先用 latexmk 生成 PDF，再复用 PDF 缩略图参数继续处理。",
+        "model3dUsesBlenderHint": "3D 模型缩略图使用 Blender 在后台导入模型并渲染静态视图。当前支持 obj、stl、gltf、glb。",
+        "pdfTitle": "PDF 缩略图",
+        "pdfSmallSkipMb": "PDF 小于此大小跳过缩略图（MB）",
+        "pdfMaxSizeMb": "PDF 大于此大小跳过缩略图（MB）",
+        "pdfTimeoutSecs": "PDF 超时（秒）",
+        "pdfImagemagickMaxMb": "PDF ImageMagick 大小上限（MB）",
+        "officeTitle": "文档缩略图",
+        "officeSmallSkipMb": "文档小于此大小跳过缩略图（MB）",
+        "officeMaxSizeMb": "文档大于此大小跳过缩略图（MB）",
+        "officeTimeoutSecs": "文档超时（秒）",
+        "officeImagemagickMaxMb": "文档 ImageMagick 大小上限（MB）",
+        "latexTitle": "LaTeX 预览缩略图",
+        "model3dTitle": "3D 模型缩略图",
+        "latexmkTimeoutSecs": "latexmk 超时（秒）",
+        "latexMaxInputSizeMb": "LaTeX 源文件大小上限（MB）",
+        "latexMaxOutputSizeMb": "LaTeX 输出 PDF 大小上限（MB）",
+        "latexAllowShellEscape": "允许 shell-escape",
+        "model3dMaxSizeMb": "3D 模型最大文件大小（MB）",
+        "blenderPath": "Blender 路径",
+        "latexDependsOnPdfHint": "LaTeX 预览缩略图会先生成 PDF，再复用上面的 PDF 缩略图参数与工具链继续处理。即使 PDF 缩略图未启用，这组 PDF 参数仍会影响 LaTeX 预览缩略图。",
+        "helper": "桌面系统的视频缩略图继续使用 FFmpeg；Android 与 iOS 改走系统媒体框架。外部工具路径仍用于 PDF、Office、文本，以及可选的外部图片渲染。",
+        "videoSeekModeAuto": "Auto"
+      },
+      "mediaTranscoding": {
+        "title": "视频硬件转码",
+        "subtitle": "配置 WebUI 视频 HLS 转码、共享 FFmpeg 路径与硬件后端参数。",
+        "applied": "视频转码设置已写入编辑器",
+        "applyFailed": "视频转码设置应用失败",
+        "enable": "启用视频转码",
+        "enableHint": "这个开关决定 WebUI 视频播放是否改走转码链路。关闭时继续直接播放原文件；开启后才会生成 HLS 转码输出。",
+        "ffmpegPath": "FFmpeg 路径",
+        "cacheDir": "转码缓存目录",
+        "cleanupTtlSecs": "会话清理 TTL（秒）",
+        "timeoutSecs": "单任务超时（秒）",
+        "maxConcurrentTasks": "标准并发",
+        "maxConcurrentTasksLowMemory": "低内存并发",
+        "maxConcurrentTasksThroughput": "高吞吐并发",
+        "allowSoftwareFallback": "硬件失败时回退到软件编码",
+        "videoEnabled": "启用视频转码输出",
+        "videoHint": "当前只做视频转码，这一组参数决定输出格式与清晰度。一般只需要保持默认值。",
+        "delivery": "分发方式",
+        "segmentDurationSecs": "HLS 分片时长（秒）",
+        "videoCodec": "视频编码器抽象名",
+        "audioCodec": "音频编码器抽象名",
+        "preset": "软件编码 preset",
+        "crf": "CRF / 质量参数",
+        "maxWidth": "最大宽度",
+        "maxHeight": "最大高度",
+        "maxFps": "最大帧率",
+        "audioBitrateKbps": "音频码率（kbps）",
+        "hardwareEnabled": "启用硬件编码",
+        "hardwareHint": "这个开关只决定是否优先尝试 GPU 硬件编码。关闭后仍可使用 CPU 软件编码。Linux Intel/AMD 推荐 vaapi + /dev/dri/renderD128。",
+        "backend": "硬件后端",
+        "device": "硬件设备路径",
+        "hardwareAllowFallback": "硬件失败后回退到软件编码",
+        "platformNotesTitle": "平台配置说明",
+        "platformLinux": "Linux Intel/AMD：优先使用 vaapi，设备一般填 /dev/dri/renderD128。",
+        "platformWindowsIntel": "Windows Intel：优先尝试 qsv，设备路径通常留空。",
+        "platformWindowsNvidia": "Windows NVIDIA：优先尝试 nvenc，设备路径通常留空。",
+        "platformWindowsAmd": "Windows AMD：优先尝试 amf，设备路径通常留空。",
+        "platformMacos": "macOS：优先使用 videotoolbox，设备路径留空。",
+        "platformFreebsd": "FreeBSD：若系统已确认可用 VAAPI，可尝试 vaapi + /dev/dri/renderD128；否则建议先关闭硬件编码。",
+        "probeBackend": "测试后端",
+        "probeFailed": "视频硬件后端测试失败",
+        "probeOk": "测试成功：{{backend}} 可用于 {{encoder}} 视频编码",
+        "probeFailedFfmpeg": "测试失败：FFmpeg 不可用",
+        "probeFailedEncoder": "测试失败：FFmpeg 不支持 {{backend}} 所需编码器 {{encoder}}",
+        "probeFailedBackend": "测试失败：已找到 {{encoder}}，但 {{backend}} 无法完成实际编码",
+        "probeConstraintHint": "当前硬件要求编码尺寸在宽 {{minWidth}}-{{maxWidth}}、高 {{minHeight}}-{{maxHeight}} 范围内。请检查驱动、设备权限和 FFmpeg 硬件链路。",
+        "helper": "测试后端会直接调用当前配置的 FFmpeg 路径和所选编码器做最小探测。建议先测 FFmpeg，再测后端。"
+      },
+      "compression": {
+        "title": "压缩解压配置",
+        "subtitle": "配置 7-Zip 依赖，用于压缩、解压、归档浏览等增强能力。",
+        "applied": "在线压缩设置已写入编辑器",
+        "enable": "启用在线压缩",
+        "enableHint": "启用后可创建压缩包、解压更多格式并浏览归档内容。若缺少 7-Zip，则只能回退到原生 ZIP/TAR 支持。",
+        "format": "默认压缩格式",
+        "concurrency": "最大并发",
+        "cpuThreads": "最大 CPU 线程数",
+        "helper": "建议先检查 7-Zip，再保存设置。",
+        "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
+      },
+      "protectedStorage": {
+        "title": "加密和混淆储存",
+        "globalMode": "全局模式",
+        "modes": {
+          "disabled": "关闭",
+          "obfuscate": "混淆",
+          "encrypt": "加密"
+        },
+        "globalModeHint": {
+          "disabled": "关闭后，已有混淆和加密文件都会暂时不可访问。",
+          "obfuscate": "仅允许混淆储存继续工作，已有加密数据会暂时不可读。",
+          "encrypt": "仅允许加密储存继续工作，已有混淆数据会暂时不可读。"
+        },
+        "modeSummary": {
+          "disabled": "当前仅保留配置，不允许任何用户新建或读取受保护目录。适合临时禁用功能或进入排查阶段。",
+          "obfuscate": "当前以高性能混淆模式工作。适合隐藏文件名、扩展名和明显内容特征，但不提供强加密语义。",
+          "encrypt": "当前以服务端透明加密模式工作。目录 key 会由服务端托管并包装，所有协议统一读取解密后的逻辑明文。"
+        },
+        "risks": {
+          "disabled": "警告：切到关闭后，系统不会自动迁移或恢复已有受保护数据。重新开启前，这些数据都不可访问。",
+          "obfuscate": "警告：切到混淆模式后，系统不会自动把已有加密数据转换为混淆数据。模式不匹配的数据会暂时不可读。",
+          "encrypt": "警告：切到加密模式后，系统不会自动把已有混淆数据转换为加密数据。模式不匹配的数据会暂时不可读。"
+        },
+        "obfuscation": {
+          "title": "混淆模式参数",
+          "blockPreset": "常用块大小",
+          "blockPresetHint": "先选常用预设；只有在特殊设备或 range 行为需要时再手动输入。",
+          "blockSizeKiB": "块大小（KiB）",
+          "blockSizeHint": "推荐保持在 128-1024 KiB 范围内。值越大顺序吞吐越高，小范围 range 的处理粒度也越大。",
+          "blockCustom": "自定义",
+          "blockSizeInvalid": "请输入大于 0 的整数块大小。",
+          "blockSizeRecommended": "当前值 {{value}} KiB，位于推荐范围内。",
+          "blockSizeCustom": "当前值 {{value}} KiB 可用，但不在常用推荐范围内。",
+          "prng": "遮罩生成器",
+          "prngHint": "xorshift 更轻量，pcg 更稳定；两者都只用于混淆模式。",
+          "workersPreset": "常用线程数",
+          "workersPresetHint": "0 表示自动按 CPU 核心数决定；其他值用于手动限制并行度。",
+          "workersAuto": "自动",
+          "workers": "工作线程数",
+          "workersHint": "填 0 表示自动按 CPU 核心数决定。只影响混淆模式的大文件或大范围读取。",
+          "workersInvalid": "请输入大于或等于 0 的整数线程数。",
+          "workersAutoDetail": "当前为自动模式，将按 CPU 核心数决定并行度。",
+          "workersRecommended": "当前值 {{value}} 在线程数建议范围内。",
+          "workersCustom": "当前值 {{value}} 可用，但建议确认设备负载后再使用。"
+        },
+        "encrypt": {
+          "title": "加密模式参数",
+          "cipher": "固定算法",
+          "cipherHint": "第一阶段固定使用 AES-256-CTR，由服务端统一加解密。",
+          "wrapKey": "服务端包装密钥",
+          "wrapKeyHint": "用于包装每个用户受保护目录的随机加密 key。至少 32 个字符，修改后旧数据会暂时不可读。",
+          "wrapKeyGenerate": "生成新的 64 位密钥",
+          "wrapKeyValid": "当前长度 {{count}}，可用于生产环境。",
+          "wrapKeyInvalid": "当前长度 {{count}}，至少需要 32 个字符。"
+        }
+      },
+      "externalTools": {
+        "diagnose": "诊断",
+        "autofill": "自动填写",
+        "autofillSuccess": "已将检测到的路径自动填写到表单中。",
+        "autofillNoChange": "没有可用于自动填写的检测结果。",
+        "mobileDisabled": "Android 与 iOS 的图片缩略图默认走内置 Rust 管线，视频缩略图走系统媒体框架。FFmpeg、ImageMagick、LibreOffice、libvips、7-Zip 这类桌面外部二进制在移动端仍不可用，请保持依赖这些工具的功能关闭。",
+        "status": {
+          "ok": "正常",
+          "warning": "需复查",
+          "missing": "未找到",
+          "configuredInvalid": "配置无效",
+          "unsupported": "不支持"
+        },
+        "labels": {
+          "vips": "libvips",
+          "imagemagick": "ImageMagick",
+          "ffmpeg": "FFmpeg",
+          "libreoffice": "LibreOffice",
+          "latexmk": "latexmk",
+          "blender": "Blender"
+        },
+        "placeholders": {
+          "vips": "vips",
+          "imagemagick": "convert 或 magick",
+          "ffmpeg": "ffmpeg",
+          "libreoffice": "soffice",
+          "latexmk": "latexmk",
+          "blender": "blender"
+        },
+        "messages": {
+          "diagnoseFailed": "外部依赖诊断失败",
+          "writeFailed": "写入外部依赖配置失败",
+          "ffmpegTestOk": "测试成功：FFmpeg 可用",
+          "ffmpegTestReview": "测试完成：FFmpeg 可用，但建议复查",
+          "ffmpegTestFailed": "测试失败：FFmpeg 不可用",
+          "toolTestOk": "测试成功：{{tool}} 可用",
+          "toolTestReview": "测试完成：{{tool}} 可用，但建议复查",
+          "toolTestFailed": "测试失败：{{tool}} 不可用"
+        },
+        "card": {
+          "current": "当前值",
+          "detected": "检测结果",
+          "version": "版本信息",
+          "candidates": "候选路径",
+          "warnings": "运维提示"
+        }
+      },
+      "unsaved": "Sin guardar",
+      "saved": "Guardado",
+      "pendingChanges": "Cambios pendientes",
+      "noPendingChanges": "Sin cambios pendientes",
+      "diffSummary": "Resumen de diferencias",
+      "changedLines": "Modificadas",
+      "addedLines": "Añadidas",
+      "removedLines": "Eliminadas",
+      "shortcuts": {
+        "title": "Atajos rápidos",
+        "subtitle": "Herramientas y ajustes comunes"
+      },
+      "pathUnavailable": "Ruta de configuración no disponible",
+      "quickNotes": "Notas rápidas",
+      "example": "ejemplo",
+      "noteEmpty": "No hay nota disponible para la clave actual.",
+      "noteHint": "Las notas se asignan a claves y secciones de configuración.",
+      "license": {
+        "title": "Gestión de licencias",
+        "featureCatalog": {
+          "free": {
+            "title": "Gratis",
+            "desc": "Funciones básicas para uso personal o ligero."
+          },
+          "premium": {
+            "title": "Premium",
+            "desc": "Desbloquea funciones avanzadas y límites más altos."
+          },
+          "storage": {
+            "title": "Almacenamiento",
+            "desc": "Mejoras relacionadas con almacenamiento y controles de política."
+          }
+        },
+        "technical": {
+          "hwId": "HW ID",
+          "auxId": "AUX ID"
+        }
+      },
+      "storage": {
+        "title": "Pools y backends de almacenamiento",
+        "subtitle": "Editor visual para configuración de almacenamiento de vfs_storage_hub",
+        "views": {
+          "main": "Almacenamiento principal",
+          "advanced": "Avanzado"
+        },
+        "main": {
+          "hint": "Edición rápida para el almacenamiento principal",
+          "openAdvanced": "Abrir avanzado",
+          "desc": "Esta vista solo edita el conector principal del pool por defecto. Use Avanzado para gestionar pools/conectores/políticas.",
+          "noPrimaryConnector": "El pool por defecto no tiene primary_connector configurado. Seleccione uno primero o corríjalo en modo avanzado."
+        },
+        "tabs": {
+          "pools": "Grupos de almacenamiento",
+          "connectors": "Conectores",
+          "policies": "Políticas"
+        },
+        "sections": {
+          "connectors": "连接器",
+          "pools": "存储池",
+          "policies": "角色策略",
+          "cache": "读写缓存加速",
+          "archive": "在线解压"
+        },
+        "fields": {
+          "defaultPool": "Pool por defecto",
+          "name": "Nombre",
+          "driver": "Controlador",
+          "enabled": "Habilitado",
+          "options": "Opciones avanzadas",
+          "root": "Raíz"
+        },
+        "cache": {
+          "read": "读缓存",
+          "write": "写缓存",
+          "enable": "启用",
+          "backend": "后端",
+          "backends": {
+            "memory": "内存",
+            "localDir": "本地目录"
+          },
+          "localDir": "本地目录",
+          "capacityBytes": "容量上限 Bytes",
+          "maxFileSizeBytes": "单文件上限 Bytes",
+          "ttlSecs": "过期时间 秒",
+          "flushConcurrency": "刷新并发",
+          "flushIntervalMs": "刷新间隔 ms",
+          "flushDeadlineSecs": "刷新截止 秒"
+        },
+        "archive": {
+          "enable": "启用在线解压",
+          "exe7zipPath": "7-Zip 路径",
+          "defaultCompressionFormat": "默认压缩格式",
+          "maxConcurrency": "最大并发",
+          "maxCpuThreads": "最大 CPU 线程数",
+          "timeoutSecs": "超时 秒"
+        },
+        "drivers": {
+          "fs": "Sistema de archivos local (fs)",
+          "s3": "Compatible con S3 (s3)",
+          "webdav": "WebDAV (webdav)",
+          "dropbox": "Dropbox (dropbox)",
+          "onedrive": "OneDrive Personal (onedrive)",
+          "gdrive": "Google Drive (gdrive)",
+          "memory": "Memoria",
+          "android_saf": "Android SAF (android_saf)",
+          "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+        },
+        "connectors": {
+          "title": "Lista de conectores",
+          "connector": "Conector",
+          "commonOptions": "Opciones comunes"
+        },
+        "pools": {
+          "title": "Lista de pools",
+          "pool": "Grupo",
+          "primary": "Conector principal",
+          "backup": "Conector de respaldo",
+          "writeCache": "Caché de escritura"
+        },
+        "policies": {
+          "title": "Políticas de almacenamiento",
+          "hint": "Opcional: mapear role_id a pool_name y default_quota (bytes). Si está vacío, se usa default_pool.",
+          "empty": "No hay políticas actualmente (policies = []).",
+          "policy": "Política",
+          "roleId": "ID de rol",
+          "poolName": "Grupo",
+          "defaultQuota": "Cuota por defecto (bytes)",
+          "maxPrivateMounts": "私有挂载上限",
+          "minMountSyncIntervalMinutes": "最小同步频率（分钟）",
+          "maxMountSyncTimeoutSecs": "单次同步最长时间（秒）"
+        },
+        "actions": {
+          "addConnector": "Añadir conector",
+          "addPool": "Añadir pool",
+          "addPolicy": "Añadir política",
+          "addOption": "Añadir opción",
+          "pickDirectory": "Elegir directorio",
+          "resetLocal": "Restablecer a valores locales por defecto",
+          "apply": "Escribir en configuración"
+        },
+        "placeholders": {
+          "optionKey": "clave",
+          "optionValue": "valor",
+          "root": {
+            "fs": "{RUNTIMEDIR}/vfs",
+            "s3": "/ (prefijo raíz)",
+            "webdav": "/",
+            "dropbox": "/",
+            "onedrive": "/",
+            "gdrive": "/",
+            "memory": "/",
+            "android_saf": "content://...",
+            "ios_scoped_fs": "bookmark_b64:<BASE64>"
+          }
+        },
+        "hints": {
+          "root": {
+            "fs": "Ruta de directorio local. En móvil, debe estar dentro del sandbox RUNTIMEDIR.",
+            "s3": "Prefijo raíz de S3.",
+            "webdav": "Ruta raíz de WebDAV.",
+            "dropbox": "Dropbox 工作根路径。",
+            "onedrive": "OneDrive 工作根路径。",
+            "gdrive": "Google Drive 工作根路径。",
+            "memory": "La raíz del backend memory solo se usa para cumplir validación de config.",
+            "android_saf": "Tree URI concedido por Android SAF (content://...).",
+            "ios_scoped_fs": "Bookmark de seguridad de iOS; debe empezar por bookmark_b64:."
+          }
+        },
+        "validation": {
+          "title": "Validación fallida",
+          "minimumOneConnector": "Se requiere al menos 1 conector",
+          "minimumOnePool": "Se requiere al menos 1 pool",
+          "errors": {
+            "parseRoot": "La raíz TOML debe ser un objeto",
+            "parseFailed": "Error al parsear config: {{message}}",
+            "atLeastOneConnector": "Se requiere al menos 1 conector",
+            "connectorNamesUnique": "Los nombres de conectores deben ser únicos",
+            "connectorNameRequired": "connectors[{{index}}].name es obligatorio",
+            "connectorDriverRequired": "connectors[{{index}}].driver es obligatorio",
+            "connectorRootRequired": "connectors[{{index}}].root es obligatorio",
+            "atLeastOnePool": "Se requiere al menos 1 pool",
+            "poolNamesUnique": "Los nombres de pools deben ser únicos",
+            "poolNameRequired": "pools[{{index}}].name es obligatorio",
+            "poolPrimaryRequired": "pools[{{index}}].primary_connector es obligatorio",
+            "poolPrimaryUnknown": "pools[{{index}}].primary_connector referencia un conector desconocido '{{name}}'",
+            "poolBackupUnknown": "pools[{{index}}].backup_connector referencia un conector desconocido '{{name}}'",
+            "defaultPoolRequired": "default_pool es obligatorio",
+            "defaultPoolNotFound": "default_pool '{{name}}' debe coincidir con un nombre de pool existente",
+            "policyRoleRequired": "policies[{{index}}].role_id es obligatorio",
+            "policyPoolRequired": "policies[{{index}}].pool_name es obligatorio",
+            "policyPoolUnknown": "policies[{{index}}].pool_name referencia un pool desconocido '{{name}}'",
+            "policyQuotaInvalid": "policies[{{index}}].default_quota debe ser un número >= 0",
+            "policyMaxPrivateMountsInvalid": "policies[{{index}}].max_private_mounts 必须为 >= 0 的数字",
+            "policyMinMountSyncIntervalInvalid": "policies[{{index}}].min_mount_sync_interval_minutes 必须为 > 0 的数字",
+            "policyMaxMountSyncTimeoutInvalid": "policies[{{index}}].max_mount_sync_timeout_secs 必须为 > 0 的数字"
+          }
+        }
+      },
+      "quickSettings": {
+        "title": "Ajustes rapidos",
+        "subtitle": "Configuración paso a paso de opciones comunes para completar la configuración inicial rápidamente.",
+        "parseErrorTitle": "El TOML actual no puede parsearse en modo amigable.",
+        "parseErrorHint": "Corrija el TOML en el editor de configuracion de la pagina y vuelva a abrir los ajustes rapidos.",
+        "setupHintTitle": "推荐：拿不准就保持默认",
+        "setupHintDesc": "默认方案已经适合大多数首次安装场景，后续随时都能再改。",
+        "steps": {
+          "performance": "Optimización de rendimiento",
+          "database": "Base de datos",
+          "cache": "Caché",
+          "advanced": "Avanzado común",
+          "other": "Otra configuración"
+        },
+        "fields": {
+          "dbType": "Tipo de BD",
+          "healthTimeoutSeconds": "Tiempo de espera de salud (segundos)",
+          "host": "Servidor",
+          "port": "Puerto",
+          "user": "Usuario",
+          "password": "Contraseña",
+          "databaseName": "Nombre de base de datos",
+          "postgresDsn": "DSN de PostgreSQL",
+          "sqlitePath": "Ruta de SQLite",
+          "cacheType": "Tipo de caché",
+          "useTls": "Usar TLS",
+          "redisUrl": "URL de Redis",
+          "licenseStatus": "Estado de licencia",
+          "maxUsers": "Cuota de usuarios",
+          "hwFingerprint": "Huella de hardware",
+          "licenseKey": "Clave de licencia",
+          "licenseInputPlaceholder": "Pegue aquí su clave de licencia Base64...",
+          "expiresAt": "Caduca el",
+          "features": "Funciones habilitadas",
+          "licenseHint": "Obtenga su clave de licencia en el sitio oficial. El código del dispositivo se usa para vinculación de hardware.",
+          "enableRegistration": "Habilitar registro",
+          "plusEnabled": "Plus habilitado",
+          "plusCaptureLogs": "Plus captura logs",
+          "captchaCodeLength": "Longitud del código captcha",
+          "captchaExpiresInSeconds": "Expiración del captcha (segundos)",
+          "sqliteDsn": "DSN de SQLite"
+        },
+        "hints": {
+          "sqliteSingleNode": "Ideal para despliegues ligeros en casa y uso personal.",
+          "sqlitePathOnly": "Aquí solo necesita la ruta del archivo de base de datos. La cadena de conexión se genera automáticamente.",
+          "cacheDashmapLightweight": "Ideal para usuarios ligeros.",
+          "cacheNoExternalConnection": "Este modo de caché no requiere dirección de servidor de caché externo."
+        },
+        "options": {
+          "postgres": "PostgreSQL",
+          "sqlite": "Base de datos local",
+          "enabled": "Habilitado",
+          "disabled": "Deshabilitado",
+          "cacheValkey": "VALKEY",
+          "cacheRedis": "REDIS",
+          "cacheKeydb": "KEYDB",
+          "cacheDashmap": "Caché en memoria",
+          "cacheDatabase": "DATABASE",
+          "licenseAuthorized": "Autorizado",
+          "licenseUnauthorized": "No autorizado / Edición gratuita"
+        },
+        "actions": {
+          "previous": "Anterior",
+          "next": "Siguiente",
+          "done": "Ver archivo de configuración completo",
+          "doneSetup": "返回设置页面",
+          "applyLicense": "Comprobar licencia",
+          "setAdminPassword": "Establecer contraseña de admin"
+        },
+        "setupAdvanced": {
+          "title": "需要更专业的连接方式？",
+          "desc": "只有在您确定要接入已有数据库或缓存服务时，才需要打开这些高级选项。",
+          "show": "显示高级选项",
+          "hide": "隐藏高级选项"
+        },
+        "setupLabels": {
+          "localDatabase": "保存在本机（推荐）",
+          "externalDatabase": "连接已有数据库",
+          "builtInCache": "内置加速（推荐）",
+          "databaseCache": "跟随数据库",
+          "externalCache": "连接已有缓存服务"
+        },
+        "setupHints": {
+          "externalDatabase": "如果您已经有独立的数据服务，请填写地址、端口和登录信息即可。",
+          "externalCache": "如果您已经有独立的缓存服务，请填写地址、端口和登录信息即可。"
+        },
+        "advancedActions": {
+          "intro": "Puede ajustar más opciones después en la consola de administración.",
+          "licensePlaceholder": "Gestión de licencia",
+          "openAdminConfig": "Ir a la consola de administración",
+          "changeAdminPassword": "Cambiar contraseña de admin",
+          "licensePlaceholderHint": "Abra la gestión de licencia para revisar el estado actual y la clave."
+        },
+        "otherActions": {
+          "intro": "Más ajustes"
+        },
+        "performance": {
+          "intro": "Seleccione ajustes recomendados según su hardware. Son sugerencias: puede ajustar manualmente todos los parámetros en los pasos siguientes.",
+          "allocatorRecommendationLinux": "Recomendación de allocator ({{os}}): jemalloc",
+          "allocatorRecommendationOthers": "Recomendación de allocator ({{os}}): mimalloc",
+          "templateLabel": "预设模板",
+          "hardwareRecommendationTitle": "当前机器推荐",
+          "hardwareRecommendationBadge": "推荐",
+          "hardwareSummary": {
+            "memory": "{{value}} GiB 内存",
+            "cores": "{{value}} 逻辑核心",
+            "arch": "{{value}}"
+          },
+          "maxConnections": "Máximo {{count}} conexiones",
+          "recommendedSettings": "Vista previa de optimización de rendimiento",
+          "featureCompression": "Compresión",
+          "featureSftp": "Servicio SFTP",
+          "featureFtp": "Servicio FTP",
+          "featureWebdav": "Servicio WebDAV",
+          "featureS3": "Servicio S3",
+          "featureBloomWarmup": "Precarga Bloom",
+          "featureChat": "Función de chat",
+          "featureEmail": "Servicio de email",
+          "features": {
+            "compression": "压缩解压能力",
+            "sftp": "SFTP 服务",
+            "ftp": "FTP 服务",
+            "s3": "S3 服务",
+            "webdav": "WebDAV 服务",
+            "chat": "聊天功能",
+            "email": "邮件代收",
+            "bloomWarmup": "布隆预热"
+          },
+          "preview": {
+            "simpleHint": "Estos son los ajustes que se aplicarán.",
+            "viewDetails": "Ver ajustes que se aplicarán",
+            "hideDetails": "Ocultar detalles de ajustes",
+            "configKeyChanges": "Cambios que se aplicarán",
+            "totalChanges": "{{count}} elementos",
+            "path": "Elemento",
+            "value": "Ajuste",
+            "groupStats": "Resumen por categoría",
+            "groups": {
+              "database": "Base de datos",
+              "cache": "Caché",
+              "middleware": "Middleware de límite de tasa",
+              "captcha": "Precarga de captcha",
+              "allocator": "Allocator de memoria",
+              "vfs": "Almacenamiento VFS",
+              "scheduler": "Programador de tareas",
+              "sftp": "Servicio SFTP",
+              "ftp": "Servicio FTP",
+              "s3": "Servicio S3",
+              "chat": "Módulo de chat",
+              "email": "Módulo de email",
+              "other": "Otros"
+            },
+            "dbPool": "Pool de BD (min-max)",
+            "cacheMemory": "Presupuesto de memoria de caché",
+            "ipRateLimit": "Límite por IP (req/ventana)",
+            "clientRateLimit": "Límite por cliente (req/ventana)",
+            "userRateLimit": "Límite por usuario (req/ventana)",
+            "bruteForceLockout": "Bloqueo por fuerza bruta",
+            "captchaPreheatMode": "Estrategia de precarga captcha",
+            "captchaPreheatPool": "Tamaño del pool de precarga captcha",
+            "captchaGenConcurrency": "Concurrencia de generación captcha (gráfico/total)",
+            "captchaPoolCheckInterval": "Intervalo de verificación del pool captcha",
+            "criticalCron": "Programación de tareas críticas",
+            "maintenanceCron": "Programación de mantenimiento",
+            "lowPriorityCron": "Programación de baja prioridad",
+            "vfsConcurrency": "Concurrencia por lotes de VFS",
+            "compressionConcurrency": "Concurrencia de workers de compresión",
+            "sftpMaxConnections": "Máx. conexiones SFTP",
+            "ftpMaxConnections": "Máx. conexiones FTP",
+            "s3MaxConnections": "Máx. conexiones S3"
+          },
+          "tiers": {
+            "constrained": "Dispositivo limitado",
+            "lightweight": "Dispositivo ligero",
+            "performance": "Dispositivo de alto rendimiento"
+          },
+          "descriptions": {
+            "constrained": "Para dispositivos más ajustados, como routers, mini hosts o hardware ARM antiguo, priorizando menor carga en segundo plano y menor uso de memoria sin perder la usabilidad básica.",
+            "lightweight": "Para dispositivos razonablemente capaces, como portátiles u ordenadores antiguos, equilibrando lo máximo posible la integridad funcional y el consumo de recursos.",
+            "performance": "Para equipos con mucha memoria y capacidad de cómputo, como sobremesas, estaciones de trabajo o servidores más nuevos, priorizando más funciones y mayor rendimiento para cargas pesadas."
+          },
+          "currentProfile": "Perfil actual",
+          "featureEnablementTitle": "Activación de funciones",
+          "applyTemplate": "应用此模板",
+          "scenarioHint": {
+            "line1": "Al elegir un escenario de uso, FileUni puede aplicar un ajuste de rendimiento generalmente adecuado para la mayoría de entornos. En la mayoría de casos no hace falta modificarlo manualmente.",
+            "line2": "Si conoces bien las opciones de configuración, puedes cambiar al modo de edición de texto para ajustarlo con más detalle."
+          },
+          "templates": {
+            "constrained": "Dispositivo limitado",
+            "lightweight": "Dispositivo ligero",
+            "performanceLowConcurrency": "Dispositivo de alto rendimiento - Baja concurrencia",
+            "performanceHighConcurrency": "Dispositivo de alto rendimiento - Alta concurrencia",
+            "performanceMultiUser": "Dispositivo de alto rendimiento - Alta concurrencia"
+          },
+          "loadProfile": {
+            "title": "Plan para dispositivo de alto rendimiento",
+            "desc": "Elige si este equipo de alto rendimiento se usará principalmente con pocas sesiones simultáneas o si debe absorber más concurrencia.",
+            "low-concurrency": "Baja concurrencia",
+            "lowConcurrency": "Baja concurrencia",
+            "lowConcurrencyDesc": "Mantiene funciones completas, adecuado para uso personal intensivo, equipos pequeños o tareas centradas en administración.",
+            "high-concurrency": "Alta concurrencia",
+            "highConcurrency": "Alta concurrencia",
+            "highConcurrencyDesc": "Aumenta límites de conexión, colas y rendimiento en segundo plano para más tráfico simultáneo.",
+            "multi-user": "Alta concurrencia",
+            "multiUser": "Alta concurrencia",
+            "multiUserDesc": "Aumenta límites de conexión, colas y rendimiento en segundo plano para más tráfico simultáneo.",
+            "notApplicable": "Solo se usa en dispositivos de alto rendimiento"
+          },
+          "preheatMode": {
+            "title": "Estrategia de precarga captcha",
+            "desc": "Equilibra uso de memoria del pool captcha y rendimiento de generación en ráfagas. Esta estrategia ajusta automáticamente pool y concurrencia.",
+            "options": {
+              "memory": "Priorizar memoria",
+              "balanced": "Equilibrado",
+              "throughput": "Priorizar rendimiento"
+            },
+            "descs": {
+              "memory": "Reducir pool de precarga y concurrencia para menor uso de memoria",
+              "balanced": "Equilibrar uso de memoria y velocidad de respuesta",
+              "throughput": "Aumentar pool y concurrencia para absorber picos de tráfico"
+            }
+          },
+          "performanceTips": {
+            "title": "Consejos de optimización de rendimiento",
+            "raid": "Considere arreglos RAID para mejorar rendimiento de E/S de disco y redundancia de datos",
+            "pgsql": "Ajuste parámetros de PostgreSQL (shared_buffers, work_mem, effective_cache_size) según recursos de hardware",
+            "memory": "Este módulo ofrece sugerencias básicas de optimización; escenarios complejos requieren ajuste a nivel de sistema"
+          }
+        }
+      },
+      "flowStartup": {
+        "title": "Inicio con el sistema",
+        "preStartupTitle": "Comandos previos al inicio",
+        "preStartupHint": "Se ejecutan en orden antes de que FileUni inicie",
+        "postStartupTitle": "Comandos posteriores al inicio",
+        "postStartupHint": "Se ejecutan en orden 10 segundos después de que FileUni inicie",
+        "addCommand": "Añadir comando",
+        "noCommands": "No hay comandos configurados. Haga clic en Añadir comando para comenzar.",
+        "commandPlaceholder": "Comando o ruta del script",
+        "argsPlaceholder": "Argumentos separados por espacios",
+        "workDirPlaceholder": "Directorio de trabajo (opcional)",
+        "moveUp": "Mover arriba",
+        "moveDown": "Mover abajo",
+        "remove": "Eliminar"
+      }
+    }
+  }
+}

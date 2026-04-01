@@ -1,285 +1,7 @@
 {
-  "setup": {
-    "center": {
-      "title": "欢迎使用 FileUni 设置中心",
-      "subtitle": "完成首次设置后即可开始使用"
-    },
-    "guide": {
-      "badge": "首次安装",
-      "title": "三步完成 FileUni 首次设置",
-      "desc": "如果您是第一次使用，保持默认选项通常就够了。FileUni 会先帮您准备最适合快速上手的设置，后续再慢慢调整也没问题。",
-      "card1Title": "选择保存位置",
-      "card1Desc": "确认 FileUni 唯一的运行目录，配置和数据都会保存在这里。",
-      "card1Action": "修改位置",
-      "runtimeDirChangeHint": "如需修改这里，请重启 FileUni 并使用 --runtime-dir <目录>。安装服务时也使用同一个参数。",
-      "card1Hint": "更改运行目录后，请重新启动 FileUni。",
-      "card2Title": "设置登录密码",
-      "card2Desc": "为管理员账号设置一个您记得住的密码。",
-      "card2Action": "设置密码",
-      "card2Hint": "设置管理员登录密码。",
-      "card3Title": "完成并开始使用",
-      "card3Desc": "安装完成后，回到启动器即可启动 FileUni。",
-      "card3Action": "应用",
-      "card3Hint": "保存当前设置并继续。",
-      "recommendedTitle": "推荐给第一次使用的您",
-      "recommendedDesc": "如果拿不准，尽量保留当前默认值。默认方案更适合个人、家庭和快速体验。",
-      "locationTitle": "当前安装位置",
-      "runtimeDirLabel": "运行目录",
-      "configPathLabel": "当前配置文件",
-      "locationDesc": "这里只是告诉您安装内容会保存到哪里，不需要手动创建文件。",
-      "commonActionsTitle": "常用配置",
-      "openAction": "打开此项",
-      "requiredPrompt": "FileUni 尚未完成首次设置，是否现在打开设置中心？"
-    },
-    "editor": {
-      "title": "设置中心",
-      "check": "检查设置",
-      "quickSettings": "继续快速设置",
-      "showAdvanced": "显示高级设置",
-      "hideAdvanced": "隐藏高级设置",
-      "visualMode": "可视化编辑",
-      "sourceMode": "文本编辑",
-      "rawHiddenTitle": "需要更多设置时，再编辑配置文本",
-      "rawHiddenDesc": "首次安装时，优先使用上方的快速设置即可。只有当您需要更细致的控制时，再展开高级设置。",
-      "finishHint": "确认后完成首次设置。",
-      "backToQuickSettings": "返回快速设置",
-      "moreActionsTitle": "其他高级入口",
-      "moreActionsDesc": "授权、存储和外部工具检查通常可以等安装完成后再处理。",
-      "showMoreActions": "显示更多高级入口",
-      "hideMoreActions": "隐藏高级入口"
-    },
-    "steps": {
-      "step": "步骤",
-      "performance": "进行性能调优",
-      "databaseCache": "配置数据库和缓存",
-      "storage": "配置存储",
-      "adminPassword": "设置管理员密码",
-      "finishSimple": "完成",
-      "profile": "性能画像",
-      "database": "数据库",
-      "cache": "缓存",
-      "advanced": "微调",
-      "config": "配置审核",
-      "admin": "管理员设置",
-      "final": "完成部署",
-      "review": "配置复核"
-    },
-    "locked": {
-      "title": "设置中心暂不可用",
-      "howToUnlockFile": "删除 `{runtime-dir}/install.lock` 后重启 FileUni：",
-      "howToUnlockArg": "缺少 `install.lock` 时会自动打开设置中心。"
-    },
-    "profile": {
-      "title": "选择性能画像",
-      "subtitle": "根据您的硬件资源选择一个起点，您可以在下一步进行详细微调。",
-      "low": {
-        "name": "节能 / IoT",
-        "desc": "适用于树莓派或 1GB 内存的云服务器。使用轻量级 SQLite 和 内存缓存。"
-      },
-      "medium": {
-        "name": "标准平衡",
-        "desc": "大多数家用 NAS 的理想选择。在内存占用和响应速度之间取得完美平衡。"
-      },
-      "high": {
-        "name": "高性能生产",
-        "desc": "生产级环境推荐。配合 PostgreSQL 和 Redis 处理海量文件集群。"
-      }
-    },
-    "config": {
-      "title": "系统环境设置",
-      "subtitle": "配置您的数据库与缓存后端，系统将自动生成 DSN 连接串",
-      "changeProfile": "重新选择画像",
-      "dbDsn": "数据库连接串 (DSN)",
-      "dsnNote": "提示：手动修改连接串会覆盖表单生成的内容。",
-      "rawToml": "配置文件预览 (TOML)",
-      "useTls": "使用安全连接 (TLS/SSL)",
-      "dbType": "数据库",
-      "host": "主机地址 (IP)",
-      "port": "端口号",
-      "username": "数据库用户名",
-      "password": "数据库密码",
-      "dbName": "数据库库名",
-      "dbPath": "SQLite 文件存储路径",
-      "kvUsername": "Redis 用户名",
-      "kvType": "缓存",
-      "kvRedisHint": "Redis 格式的缓存后端 (Redis/KeyDB/Valkey)",
-      "kvDashmapHint": "提示：内存缓存不会持久化数据，重启后缓存将清空。",
-      "kvSqlHint": "提示：将复用主数据库存储缓存数据。",
-      "versionWarning": {
-        "keydb": "KeyDB 建议版本: 6.3.4+",
-        "redis": "Redis 建议版本: 7.4.0+",
-        "valkey": "Valkey 建议版本: 9.0.0+"
-      },
-      "advanced": {
-        "toggle": "详细高级配置 (数据库、连接池、系统性能微调)",
-        "userCenterTitle": "用户中心配置",
-        "enableReg": "允许新用户注册",
-        "plusTitle": "Plus 增强插件系统",
-        "plusEnabled": "启用增强插件系统",
-        "plusCaptureLogs": "实时捕获插件日志",
-        "captchaTitle": "验证码安全配置",
-        "captchaLength": "验证码字符长度",
-        "captchaExpires": "过期时间 (秒)",
-        "captchaSecret": "验证码签名密钥 (Secret Key)",
-        "captchaMaxFailures": "最大重试/失败次数",
-        "captchaCooldown": "失败后锁定冷却时间 (秒)",
-        "captchaGlobalLimit": "全局每小时请求上限",
-        "captchaCacheSize": "验证码预生成池大小",
-        "captchaConcurrency": "后台生成任务并发数",
-        "accessTokenSecret": "访问令牌密钥 (Access Token Secret)",
-        "refreshTokenSecret": "刷新令牌密钥 (Refresh Token Secret)",
-        "genSecret": "生成 64 位随机密钥",
-        "poolTitle": "连接池与通用性能",
-        "maxConn": "最大连接数 (max_connections)",
-        "minConn": "最小连接数 (min_connections)",
-        "connectTimeout": "连接超时 (秒, connect_timeout)",
-        "idleTimeout": "空闲超时 (秒, idle_timeout)",
-        "maxLifetime": "连接生存期 (秒, max_lifetime)",
-        "healthCheck": "健康检查超时 (秒)",
-        "pgTitle": "PostgreSQL 引擎调优 (性能与锁定)",
-        "statementTimeout": "语句超时 (秒, statement_timeout_seconds)",
-        "lockTimeout": "锁等待超时 (ms, lock_timeout)",
-        "poolSizeLimit": "启用连接池大小限制",
-        "tcpKeepalive": "TCP Keepalive (秒, 0=默认)",
-        "walMode": "启用 WAL 模式 (高性能写入)",
-        "busyTimeout": "忙等待超时 (ms, busy_timeout)",
-        "cacheSize": "缓存大小 (KB, cache_size)",
-        "tempStore": "临时表位置 (0=默认, 1=文件, 2=内存)",
-        "mmapSize": "内存映射大小 (Bytes, mmap_size)",
-        "pageSize": "页面大小 (Bytes, page_size)",
-        "sharedCache": "启用共享缓存 (shared_cache)"
-      }
-    },
-    "cache": {
-      "externalServer": "独立缓存服务器",
-      "externalHints": {
-        "redis": "如果您已经有 Redis 环境，直接复用即可。",
-        "valkey": "首次安装需要独立缓存服务器时，推荐优先使用 Valkey。",
-        "keydb": "KeyDB 更适合高并发和多线程负载。"
-      }
-    },
-    "storagePool": {
-      "title": "存储池配置",
-      "desc": "为每个存储池选择后端类型，并填写该后端真正需要的最少字段。",
-      "rootHint": "推荐默认值：{{value}}",
-      "s3": {
-        "endpoint": "服务地址",
-        "region": "区域",
-        "bucket": "桶名称",
-        "access_key_id": "Access Key ID",
-        "secret_access_key": "Secret Access Key"
-      },
-      "s3Hints": {
-        "endpoint": "填写 S3 或兼容对象存储的访问地址。",
-        "region": "填写服务所在区域；兼容对象存储可按服务商要求填写。",
-        "bucket": "填写要作为此存储池根位置的 bucket。",
-        "access_key_id": "用于访问对象存储的账号标识。",
-        "secret_access_key": "用于访问对象存储的密钥。"
-      },
-      "webdav": {
-        "endpoint": "WebDAV 地址",
-        "username": "用户名",
-        "password": "密码"
-      },
-      "dropbox": {
-        "access_token": "Access Token",
-        "refresh_token": "Refresh Token",
-        "client_id": "Client ID",
-        "client_secret": "Client Secret"
-      },
-      "dropboxHints": {
-        "access_token": "可选的短期令牌；如需长期稳定使用，建议改填 refresh_token。",
-        "refresh_token": "推荐用于长期 Dropbox 访问；OpenDAL 会自动续期 access token。",
-        "client_id": "与 refresh_token 搭配使用的 Dropbox 应用 Client ID。",
-        "client_secret": "与 refresh_token 搭配使用的 Dropbox 应用 Client Secret。"
-      },
-      "onedrive": {
-        "access_token": "Access Token",
-        "refresh_token": "Refresh Token",
-        "client_id": "Client ID",
-        "client_secret": "Client Secret"
-      },
-      "onedriveHints": {
-        "access_token": "可选的短期 Microsoft Graph 令牌；如需长期使用，建议改填 refresh_token。",
-        "refresh_token": "推荐用于长期 OneDrive 访问；获取时请包含 offline_access。",
-        "client_id": "与 refresh_token 搭配使用的 Microsoft Graph 应用 Client ID。",
-        "client_secret": "Public Client 可留空；Confidential Client 需要填写。"
-      },
-      "gdrive": {
-        "access_token": "Access Token",
-        "refresh_token": "Refresh Token",
-        "client_id": "Client ID",
-        "client_secret": "Client Secret"
-      },
-      "gdriveHints": {
-        "access_token": "可选的短期令牌；如需长期稳定使用，建议改填 refresh_token。",
-        "refresh_token": "推荐用于长期 Google Drive 访问；OpenDAL 会自动续期 access token。",
-        "client_id": "与 refresh_token 搭配使用的 Google OAuth Client ID。",
-        "client_secret": "与 refresh_token 搭配使用的 Google OAuth Client Secret。"
-      },
-      "webdavHints": {
-        "endpoint": "填写 WebDAV 服务根地址。",
-        "username": "用于登录 WebDAV 的账号。",
-        "password": "用于登录 WebDAV 的密码。"
-      }
-    },
-    "storageCache": {
-      "title": "读写缓存加速",
-      "writeRisk": "警告：写缓存启用后，数据会先落入缓存再异步刷回后端；如果设备突然断电、缓存目录被清理或刷写失败，可能出现文件丢失或落盘延迟。"
-    },
-    "admin": {
-      "title": "设置管理员账号",
-      "subtitle": "这个账号用于登录管理后台，后续也可以再修改。",
-      "username": "管理员用户名",
-      "password": "安全密码",
-      "suggestPassword": "生成随机强密码",
-      "generate_password": "生成随机强密码",
-      "pendingHint": "完成首次设置后生效",
-      "resetRuleHint": "如果当前还没有管理员账号，应用时会创建用户名为 admin 的管理员；如果已经存在管理员账号，应用时会重置第一个管理员的密码为这里填写的密码。",
-      "resetSuccessWithUser": "管理员密码已生效，当前管理员用户名：{{username}}",
-      "finalConfirm": "准备完成设置",
-      "finalConfirmDesc": "确认后将保存当前设置并完成首次设置。更多设置可稍后调整。",
-      "finish": "完成设置",
-      "changePassword": "管理员配置",
-      "passwordHintTitle": "完成安装前，请先设置管理员登录密码",
-      "passwordHintDesc": "这是您第一次登录管理后台时要用到的密码。",
-      "passwordHintAction": "设置登录密码"
-    },
-    "final": {
-      "title": "设置完成",
-      "subtitle": "管理员账号 {{user}} 已准备就绪。",
-      "adminCreatedDefault": "已为您创建管理员账号 {{user}}，临时密码为 {{password}}。首次登录后建议尽快修改。",
-      "adminCreatedWithPassword": "已为您创建管理员账号 {{user}}，登录密码为 {{password}}。",
-      "adminReset": "管理员 {{user}} 的登录密码已更新为 {{password}}。",
-      "adminExisting": "已检测到管理员 {{user}}，这次没有修改密码。",
-      "nextSteps": "后续操作步骤：",
-      "step1": "返回启动器后启动 FileUni。",
-      "step2": "打开 Web 界面，并使用管理员账号登录。",
-      "step3": "进入管理后台后，再按需要完善更多设置。",
-      "startNow": "启动 FileUni",
-      "started": "FileUni 已启动",
-      "openWebUi": "打开 Web 界面",
-      "finishLater": "稍后再说",
-      "openHint": "启动后打开 Web 界面即可登录。",
-      "runningHint": "FileUni 已在运行，现在可以直接打开 Web 界面开始使用。",
-      "reload": "返回启动界面",
-      "docs": "查看官方技术文档"
-    },
-    "logs": {
-      "title": "实时部署日志",
-      "selectingProfile": "正在应用性能画像: {{profile}}...",
-      "templateLoadFailed": "模板加载失败: {{error}}",
-      "testingDb": "正在测试数据库连通性...",
-      "dbError": "数据库错误",
-      "dbSuccess": "数据库连接测试成功！",
-      "applyingConfig": "正在应用配置并同步数据库表结构...",
-      "setupFailed": "部署失败",
-      "setupSuccess": "设置已完成，请确认后继续。"
-    }
-  },
   "admin": {
     "settings": {
-      "title": "系统设置",
+      "title": "Systemeinstellungen",
       "save_config": "保存配置",
       "sensitive": "敏感信息",
       "accessing": "正在调取管理数据...",
@@ -299,7 +21,7 @@
         "server": "基础服务",
         "database": "数据库",
         "vfs": "存储核心",
-        "security": "安全策略",
+        "security": "Sicherheit",
         "log": "日志审计",
         "license": "授权管理"
       },
@@ -308,8 +30,8 @@
     "config": {
       "title": "系统配置",
       "loading": "正在加载配置...",
-      "save": "保存",
-      "saveAndReload": "保存并重载",
+      "save": "Speichern",
+      "saveAndReload": "Speichern & Neu laden",
       "testContent": "测试内容",
       "saveSuccess": "配置已保存",
       "test": "测试",
@@ -392,7 +114,7 @@
         "blenderPath": "Blender 路径",
         "latexDependsOnPdfHint": "LaTeX 预览缩略图会先生成 PDF，再复用上面的 PDF 缩略图参数与工具链继续处理。即使 PDF 缩略图未启用，这组 PDF 参数仍会影响 LaTeX 预览缩略图。",
         "helper": "桌面系统的视频缩略图继续使用 FFmpeg；Android 与 iOS 改走系统媒体框架。外部工具路径仍用于 PDF、Office、文本，以及可选的外部图片渲染。",
-        "videoSeekModeAuto": "自动"
+        "videoSeekModeAuto": "Automatisch"
       },
       "mediaTranscoding": {
         "title": "视频硬件转码",
@@ -586,7 +308,7 @@
             "desc": "解锁高级功能与更高配额。"
           },
           "storage": {
-            "title": "存储能力",
+            "title": "Speicher",
             "desc": "启用存储相关的增强功能与限制策略。"
           }
         }
@@ -596,7 +318,7 @@
         "subtitle": "可视化编辑 vfs_storage_hub 存储配置",
         "views": {
           "main": "主存储",
-          "advanced": "高级"
+          "advanced": "Erweitert"
         },
         "main": {
           "hint": "主存储快捷编辑",
@@ -620,7 +342,7 @@
           "defaultPool": "默认存储池",
           "name": "名称",
           "driver": "后端类型",
-          "enabled": "启用",
+          "enabled": "Aktiviert",
           "options": "高级选项"
         },
         "cache": {
@@ -751,38 +473,38 @@
         }
       },
       "quickSettings": {
-        "title": "快速设置",
-        "subtitle": "按步骤完成首次安装常用设置。",
+        "title": "Schneller Konfigurationsassistent",
+        "subtitle": "Schrittweise Einrichtung der wichtigsten Optionen, um die Erstkonfiguration schnell abzuschliessen.",
         "parseErrorTitle": "当前设置暂时无法用简化模式显示。",
         "parseErrorHint": "您可以先在下方设置页里修改，现有内容不会丢失。",
         "setupHintTitle": "推荐：拿不准就保持默认",
         "setupHintDesc": "默认方案已经适合大多数首次安装场景，后续随时都能再改。",
         "steps": {
-          "performance": "使用场景",
+          "performance": "Leistung",
           "database": "数据保存",
           "cache": "运行加速",
           "advanced": "常见高阶配置",
           "other": "更多选项"
         },
         "fields": {
-          "dbType": "数据保存方式",
+          "dbType": "DB-Typ",
           "healthTimeoutSeconds": "连接检查等待时间（秒）",
-          "host": "地址",
-          "port": "端口",
-          "user": "账号",
-          "password": "密码",
+          "host": "Host",
+          "port": "Port",
+          "user": "Benutzer",
+          "password": "Passwort",
           "databaseName": "数据库名称",
           "postgresDsn": "高级连接串",
-          "sqlitePath": "本机数据文件位置",
-          "cacheType": "加速方式",
-          "useTls": "使用安全连接",
-          "redisUrl": "高级缓存地址",
+          "sqlitePath": "SQLite-Pfad",
+          "cacheType": "Cache-Typ",
+          "useTls": "TLS verwenden",
+          "redisUrl": "Redis-URL",
           "licenseStatus": "授权状态",
           "maxUsers": "最大用户配额",
           "hwFingerprint": "硬件指纹",
           "licenseKey": "授权密钥",
           "licenseInputPlaceholder": "请输入获取到的 Base64 授权码...",
-          "expiresAt": "到期时间",
+          "expiresAt": "Läuft ab am",
           "features": "已启用功能",
           "licenseHint": "请从官网获取授权码。设备代码用于硬件绑定。",
           "enableRegistration": "启用注册",
@@ -792,27 +514,27 @@
           "captchaExpiresInSeconds": "验证码过期时间（秒）"
         },
         "hints": {
-          "sqliteSingleNode": "推荐给首次安装、个人使用和家庭设备。",
-          "sqlitePathOnly": "只需填写数据库文件路径，系统会自动处理连接串。",
-          "cacheDashmapLightweight": "推荐给首次安装和轻量使用，无需额外服务。",
-          "cacheNoExternalConnection": "当前选项不需要额外安装缓存服务，保持默认即可。"
+          "sqliteSingleNode": "Geeignet fuer leichte Deployments zu Hause und fuer Einzelpersonen.",
+          "sqlitePathOnly": "Hier reicht der Pfad zur Datenbankdatei. Die Verbindungszeichenfolge wird automatisch erzeugt.",
+          "cacheDashmapLightweight": "Geeignet fuer leichte Nutzung.",
+          "cacheNoExternalConnection": "Dieser Cache-Modus benoetigt keine externe Cache-Server-Adresse."
         },
         "options": {
-          "postgres": "连接已有 PostgreSQL",
-          "sqlite": "本机保存（推荐）",
-          "enabled": "已启用",
-          "disabled": "已禁用",
-          "cacheValkey": "Valkey",
-          "cacheRedis": "Redis",
-          "cacheKeydb": "KeyDB",
-          "cacheDashmap": "内置加速（推荐）",
-          "cacheDatabase": "跟随数据库",
+          "postgres": "PostgreSQL",
+          "sqlite": "Lokale Datenbank",
+          "enabled": "Aktiviert",
+          "disabled": "Deaktiviert",
+          "cacheValkey": "VALKEY",
+          "cacheRedis": "REDIS",
+          "cacheKeydb": "KEYDB",
+          "cacheDashmap": "In-Memory-Cache",
+          "cacheDatabase": "Datenbank-Cache",
           "licenseAuthorized": "已正式授权",
           "licenseUnauthorized": "未授权 / 免费版"
         },
         "actions": {
-          "previous": "上一步",
-          "next": "下一步",
+          "previous": "Vorherige",
+          "next": "Weiter",
           "done": "返回设置页",
           "doneSetup": "返回设置页面",
           "applyLicense": "检查授权",
@@ -845,19 +567,19 @@
           "intro": "更多设置"
         },
         "performance": {
-          "intro": "如果拿不准，保持默认即可。下面这些方案只是告诉 FileUni 更适合哪一类设备和使用场景。",
+          "intro": "Wenn Sie das passende Nutzungsszenario wählen, kann FileUni in den meisten Umgebungen bereits eine insgesamt sinnvolle Leistungsabstimmung anwenden.",
           "allocatorRecommendationLinux": "内存分配器推荐（{{os}}）：jemalloc",
           "allocatorRecommendationOthers": "内存分配器推荐（{{os}}）：mimalloc",
           "templateLabel": "预设模板",
           "hardwareRecommendationTitle": "当前机器推荐",
-          "hardwareRecommendationBadge": "推荐",
+          "hardwareRecommendationBadge": "Empfohlen",
           "hardwareSummary": {
             "memory": "{{value}} GiB 内存",
             "cores": "{{value}} 逻辑核心",
             "arch": "{{value}}"
           },
           "maxConnections": "最大 {{count}} 连接",
-          "recommendedSettings": "模板摘要",
+          "recommendedSettings": "Vorlagenübersicht",
           "featureCompression": "压缩解压",
           "featureSftp": "SFTP服务",
           "featureFtp": "FTP服务",
@@ -867,20 +589,20 @@
           "featureChat": "聊天功能",
           "featureEmail": "邮件代收",
           "features": {
-            "compression": "压缩解压能力",
-            "sftp": "SFTP 服务",
-            "ftp": "FTP 服务",
-            "s3": "S3 服务",
-            "webdav": "WebDAV 服务",
-            "chat": "聊天功能",
-            "email": "邮件代收",
-            "bloomWarmup": "布隆预热"
+            "compression": "Komprimierung",
+            "sftp": "SFTP",
+            "ftp": "FTP",
+            "s3": "S3",
+            "webdav": "WebDAV",
+            "chat": "Chat",
+            "email": "Email",
+            "bloomWarmup": "Bloom-Warmup"
           },
           "preview": {
             "simpleHint": "以下是本次将应用的设置。",
             "viewDetails": "查看将应用的设置",
             "hideDetails": "收起设置详情",
-            "configKeyChanges": "本次将调整的内容",
+            "configKeyChanges": "Funktionsaktivierung",
             "totalChanges": "共 {{count}} 项",
             "path": "项目",
             "value": "设置值",
@@ -920,42 +642,42 @@
             "s3MaxConnections": "S3 最大连接数"
           },
           "tiers": {
-            "constrained": "受限设备",
-            "lightweight": "轻量设备",
-            "performance": "性能设备"
+            "constrained": "Eingeschränktes Gerät",
+            "lightweight": "Leichtes Gerät",
+            "performance": "Leistungsstarkes Gerät"
           },
           "descriptions": {
-            "constrained": "资源较紧张的设备（路由器/小主机/老旧 ARM 设备），优先控制后台负载和内存占用，保留核心可用性。",
-            "lightweight": "性能尚可的设备（笔记本/旧电脑），在功能完整度和资源占用尽量平衡。",
-            "performance": "高算力高内存设备（台式机/工作站/新服务器），优先释放更多功能和吞吐能力，适合更高并发与更重负载。"
+            "constrained": "Für stärker eingeschränkte Geräte wie Router, Mini-Hosts oder ältere ARM-Hardware, mit Priorität auf geringer Hintergrundlast und niedrigem Speicherverbrauch bei erhaltener Grundnutzbarkeit.",
+            "lightweight": "Für ausreichend brauchbare Geräte wie Laptops oder ältere PCs, wobei Funktionsumfang und Ressourcenverbrauch möglichst ausgewogen bleiben.",
+            "performance": "Für Geräte mit viel Arbeitsspeicher und hoher Rechenleistung wie Desktops, Workstations oder neuere Server, mit Priorität auf mehr Funktionen und höherem Durchsatz für schwerere Lasten."
           },
-          "currentProfile": "当前方案",
-          "featureEnablementTitle": "功能启用",
+          "currentProfile": "Aktuelles Profil",
+          "featureEnablementTitle": "Funktionsaktivierung",
           "applyTemplate": "应用此模板",
           "scenarioHint": {
-            "line1": "通过选择使用场景，可以让 FileUni 在多数环境获得基本不错的性能调优。多数情况下不需要手动修改。",
-            "line2": "如果你熟悉配置项，可以切换到文本编辑模式精细调优。"
+            "line1": "Durch die Auswahl eines Nutzungsszenarios kann FileUni in den meisten Umgebungen eine insgesamt passende Leistungsabstimmung anwenden. In den meisten Fällen ist keine manuelle Anpassung nötig.",
+            "line2": "Wenn Sie die Konfigurationsoptionen gut kennen, können Sie für eine feinere Abstimmung in den Textbearbeitungsmodus wechseln."
           },
           "templates": {
-            "constrained": "受限设备",
-            "lightweight": "轻量设备",
-            "performanceLowConcurrency": "性能设备 - 低并发",
-            "performanceHighConcurrency": "性能设备 - 高并发",
-            "performanceMultiUser": "性能设备 - 高并发"
+            "constrained": "Eingeschränktes Gerät",
+            "lightweight": "Leichtes Gerät",
+            "performanceLowConcurrency": "Leistungsstarkes Gerät - Niedrige Parallelität",
+            "performanceHighConcurrency": "Leistungsstarkes Gerät - Hohe Parallelität",
+            "performanceMultiUser": "Leistungsstarkes Gerät - Hohe Parallelität"
           },
           "loadProfile": {
-            "title": "性能设备方案",
-            "desc": "选择这台性能设备更偏向少量用户的稳定使用，还是偏向多人同时在线时的更高吞吐。",
-            "low-concurrency": "低并发",
-            "lowConcurrency": "低并发",
-            "lowConcurrencyDesc": "保留完整功能，适合个人重度使用、小团队或以管理操作为主的场景。",
-            "high-concurrency": "高并发",
-            "highConcurrency": "高并发",
-            "highConcurrencyDesc": "提高连接数、任务队列和后台吞吐，适合同时在线请求和会话更多的场景。",
-            "multi-user": "高并发",
-            "multiUser": "高并发",
-            "multiUserDesc": "提高连接数、任务队列和后台吞吐，适合同时在线请求和会话更多的场景。",
-            "notApplicable": "仅性能设备需要选择"
+            "title": "Plan für leistungsstarkes Gerät",
+            "desc": "Wählen Sie, ob diese leistungsstarke Maschine vor allem wenige gleichzeitige Sitzungen bedient oder mehr Parallelität abfangen soll.",
+            "low-concurrency": "Niedrige Parallelität",
+            "lowConcurrency": "Niedrige Parallelität",
+            "lowConcurrencyDesc": "Behält einen reichen Funktionsumfang bei und eignet sich für intensive Einzelnutzung, kleine Teams oder überwiegend administrative Abläufe.",
+            "high-concurrency": "Hohe Parallelität",
+            "highConcurrency": "Hohe Parallelität",
+            "highConcurrencyDesc": "Erhöht Verbindungslimits, Warteschlangen und Hintergrunddurchsatz für mehr gleichzeitigen Verkehr.",
+            "multi-user": "Hohe Parallelität",
+            "multiUser": "Hohe Parallelität",
+            "multiUserDesc": "Erhöht Verbindungslimits, Warteschlangen und Hintergrunddurchsatz für mehr gleichzeitigen Verkehr.",
+            "notApplicable": "Nur für leistungsstarke Geräte relevant"
           },
           "preheatMode": {
             "title": "验证码预热策略",
@@ -980,119 +702,20 @@
         }
       },
       "flowStartup": {
-        "title": "跟随启动",
-        "preStartupTitle": "前置启动命令",
-        "preStartupHint": "在 FileUni 启动前按顺序执行",
-        "postStartupTitle": "后置启动命令",
-        "postStartupHint": "在 FileUni 启动后 10 秒按顺序执行",
-        "addCommand": "添加命令",
-        "noCommands": "未配置命令，点击添加命令开始配置",
-        "commandPlaceholder": "命令或脚本路径",
-        "argsPlaceholder": "参数以空格分隔",
-        "workDirPlaceholder": "工作目录（可选）",
-        "moveUp": "上移",
-        "moveDown": "下移",
-        "remove": "删除"
+        "title": "Startfolge",
+        "preStartupTitle": "Vorstart-Befehle",
+        "preStartupHint": "Vor FileUni-Start der Reihe nach ausführen",
+        "postStartupTitle": "Nachstart-Befehle",
+        "postStartupHint": "10 Sekunden nach FileUni-Start der Reihe nach ausführen",
+        "addCommand": "Befehl hinzufügen",
+        "noCommands": "Keine Befehle konfiguriert. Klicken Sie auf Befehl hinzufügen, um zu beginnen.",
+        "commandPlaceholder": "Befehl oder Skriptpfad",
+        "argsPlaceholder": "Argumente durch Leerzeichen getrennt",
+        "workDirPlaceholder": "Arbeitsverzeichnis (optional)",
+        "moveUp": "Nach oben",
+        "moveDown": "Nach unten",
+        "remove": "Entfernen"
       }
     }
-  },
-  "common": {
-    "login": "登录",
-    "register": "注册",
-    "logout": "退出登录",
-    "theme": "主题模式",
-    "language": "语言选择",
-    "switchUser": "切换账号",
-    "home": "个人中心",
-    "backToHome": "返回首页",
-    "admin": "系统管理",
-    "system": "系统",
-    "test": "测试连接",
-    "dashboard": "控制台",
-    "username": "用户名/ID/邮箱/手机号",
-    "usernameRegister": "用户名",
-    "password": "密码",
-    "confirmPassword": "确认密码",
-    "rememberMe": "记住我",
-    "forgotPassword": "忘记密码？",
-    "submit": "提交",
-    "back": "返回",
-    "next": "下一步",
-    "backToLogin": "返回登录",
-    "sendCode": "发送验证码",
-    "verificationCode": "验证码",
-    "manage": "管理",
-    "search": "搜索",
-    "actions": "操作",
-    "new": "新建",
-    "save": "保存",
-    "cancel": "取消",
-    "confirm": "确认",
-    "processing": "处理中",
-    "clear": "清除",
-    "loading": "加载中",
-    "all": "全部",
-    "close": "关闭",
-    "enable": "启用",
-    "disable": "禁用",
-    "items": "个项目",
-    "retry": "重试",
-    "notifications": "消息通知",
-    "noNotifications": "暂无新消息",
-    "markAllRead": "全部标记为已读",
-    "add": "新增",
-    "edit": "编辑",
-    "error": "错误",
-    "success": "成功",
-    "time": "时间",
-    "message": "消息",
-    "noData": "暂无数据",
-    "noItems": "暂无项目",
-    "noResults": "无结果",
-    "none": "无",
-    "status": "状态",
-    "confirmDelete": "确定要删除此项目吗？",
-    "downloadStarted": "开始下载...",
-    "loadingArchive": "正在打开压缩包...",
-    "minimize": "最小化",
-    "paginationTitle": "分页",
-    "pagination": {
-      "showing": "正在显示 {{start}} - {{end}}，共 {{total}} 条",
-      "page": "页",
-      "go": "跳转",
-      "limit": "每页限制",
-      "jumpTo": "跳转至页码",
-      "itemsPerPage": "每页显示数量",
-      "browseAll": "浏览全部 {{count}} 页"
-    },
-    "passwordMismatch": "密码不一致",
-    "enabled": "已启用",
-    "disabled": "已禁用",
-    "download": "下载",
-    "refresh": "刷新",
-    "check": "检查",
-    "doNotShowAgain": "稍后再说",
-    "hideDetails": "隐藏详情",
-    "viewDetails": "查看详情",
-    "copy": "复制",
-    "copied": "已复制",
-    "more": "更多",
-    "share": "分享",
-    "delete": "删除",
-    "name": "名称",
-    "rawJson": "原始 JSON",
-    "visualMode": "可视化模式",
-    "switchToRawJson": "切换到原始 JSON 模式",
-    "editorEngine": {
-      "codemirror": "CodeMirror",
-      "textarea": "文本框",
-      "switchToCodeMirror": "切换到 CodeMirror",
-      "switchToTextarea": "切换到文本框"
-    },
-    "on": "开",
-    "off": "关",
-    "menu": "菜单",
-    "logoAlt": "FileUni 标志",
-    "codePlaceholder": "6位数字"
   }
 }

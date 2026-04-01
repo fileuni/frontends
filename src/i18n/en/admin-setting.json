@@ -392,7 +392,8 @@
         "model3dMaxSizeMb": "3D Model Max File Size (MB)",
         "blenderPath": "Blender Path",
         "latexDependsOnPdfHint": "LaTeX preview thumbnails generate a PDF first and then reuse the PDF thumbnail parameters and toolchain above. Even if PDF thumbnails are disabled, that PDF parameter group still affects LaTeX preview thumbnails.",
-        "helper": "Desktop systems use FFmpeg for video thumbnails. Android and iOS use the system media framework instead. External tool paths are still used for PDF, Office, text, and optional external image rendering."
+        "helper": "Desktop systems use FFmpeg for video thumbnails. Android and iOS use the system media framework instead. External tool paths are still used for PDF, Office, text, and optional external image rendering.",
+        "videoSeekModeAuto": "Auto"
       },
       "mediaTranscoding": {
         "title": "Video Hardware Transcoding",
@@ -985,6 +986,21 @@
             "memory": "This module provides basic optimization suggestions; complex scenarios require system-level tuning"
           }
         }
+      },
+      "flowStartup": {
+        "title": "Follow Startup",
+        "preStartupTitle": "Pre-startup Commands",
+        "preStartupHint": "Execute in order before FileUni starts",
+        "postStartupTitle": "Post-startup Commands",
+        "postStartupHint": "Execute in order 10 seconds after FileUni starts",
+        "addCommand": "Add Command",
+        "noCommands": "No commands configured, click Add Command to start",
+        "commandPlaceholder": "Command or script path",
+        "argsPlaceholder": "Arguments separated by spaces",
+        "workDirPlaceholder": "Working directory (optional)",
+        "moveUp": "Move Up",
+        "moveDown": "Move Down",
+        "remove": "Remove"
       }
     }
   },
