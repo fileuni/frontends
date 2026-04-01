@@ -143,11 +143,6 @@ const SystemBackupAdmin = lazy(() =>
     default: m.SystemBackupAdmin,
   })),
 );
-const ExtensionManagerAdmin = lazy(() =>
-  import("@/components/admin/components/ExtensionManagerAdmin").then((m) => ({
-    default: m.ExtensionManagerAdmin,
-  })),
-);
 const AdminAboutPage = lazy(() =>
   import("@/components/admin/components/AdminAboutPage").then((m) => ({
     default: m.AdminAboutPage,
@@ -403,12 +398,6 @@ const PageRenderer: React.FC<{
         return (
           <DashboardLayout title={t("admin.tasks.title") || "Background Tasks"}>
             <TaskAdmin />
-          </DashboardLayout>
-        );
-      case "extensions":
-        return (
-          <DashboardLayout title={t("admin.extensions.title")}>
-            <ExtensionManagerAdmin />
           </DashboardLayout>
         );
 

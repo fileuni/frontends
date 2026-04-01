@@ -118,7 +118,6 @@ export const DashboardLayout: React.FC<{
       { name: t("admin.web.title"), icon: "Server", m: "admin", p: "web", path: "#mod=admin&page=web" },
       { name: t("admin.tasks.title") || "Background Tasks", icon: "Activity", m: "admin", p: "tasks", path: "#mod=admin&page=tasks" },
       { name: t("admin.audit.title") || "Audit Logs", icon: "ClipboardList", m: "admin", p: "audit", path: "#mod=admin&page=audit" },
-      { name: t("admin.extensions.title") || "Extensions", icon: "Puzzle", m: "admin", p: "extensions", path: "#mod=admin&page=extensions" },
       { name: t("nav.settings"), icon: "Settings", m: "admin", p: "config", path: "#mod=admin&page=config" },
       { name: t("nav.about"), icon: "Info", m: "admin", p: "about", path: "#mod=admin&page=about" },
     ]
