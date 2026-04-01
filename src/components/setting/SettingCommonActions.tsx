@@ -19,6 +19,7 @@ import {
   PerformanceInlinePanel,
 } from "./SettingInlineQuickPanels";
 import { StoragePoolInlinePanel } from "./StoragePoolInlinePanel";
+import { FlowStartupInlinePanel } from "./FlowStartupInlinePanel";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
 import type { DiagnoseExternalTools, ProbeExternalTool } from "./SharedFfmpegField";
 import type { SystemHardwareInfo } from "./ConfigQuickSettingsModal";
@@ -509,6 +510,21 @@ export const buildSettingCommonActions = ({
           content={content}
           onContentChange={onContentChange}
           onProbeExternalTool={onProbeExternalTool}
+        />
+      ),
+    },
+    {
+      id: "flow-startup",
+      routeKey: "flow_startup",
+      routeAliases: ["flow_startup", "flow-startup", "跟随启动", "启动流程"],
+      label: t("admin.config.flowStartup.title"),
+      description: "",
+      icon: settingCommonIcons.performance,
+      renderPanel: () => (
+        <FlowStartupInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
         />
       ),
     },
