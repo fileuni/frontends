@@ -252,9 +252,10 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
             {t("admin.config.thumbnail.videoSeekMode")}
           </div>
           <div className="mt-2">
-            <SettingSegmentedControl<"seconds" | "ratio">
-              value={draft.videoSeekMode}
+            <SettingSegmentedControl<"seconds" | "ratio" | "auto">
+              value={(draft.videoSeekMode || "auto") as "seconds" | "ratio" | "auto"}
               options={[
+                { value: "auto", label: t("admin.config.thumbnail.videoSeekModeAuto") },
                 { value: "seconds", label: t("admin.config.thumbnail.videoSeekModeSeconds") },
                 { value: "ratio", label: t("admin.config.thumbnail.videoSeekModeRatio") },
               ]}
@@ -450,84 +451,6 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
             />
           </div>
         </div>
-        {false && (draft.pdfEnabled || draft.latexEnabled) && (
-          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
-            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.pdfTitle")}</div>
-            {draft.latexEnabled && (
-              <div
-                className={cn(
-                  "rounded-xl border p-3 text-sm leading-6",
-                  isDark
-                    ? "border-amber-500/20 bg-amber-500/10 text-amber-100"
-                    : "border-amber-200 bg-amber-50 text-amber-900",
-                )}
-              >
-                {t("admin.config.thumbnail.latexDependsOnPdfHint")}
-              </div>
-            )}
-            {[
-              ["admin.config.thumbnail.pdfSmallSkipMb", draft.pdfSmallSkipMb, (value: string) => setDraft((prev) => ({ ...prev, pdfSmallSkipMb: value })), "1"],
-              ["admin.config.thumbnail.pdfMaxSizeMb", draft.pdfMaxSizeMb, (value: string) => setDraft((prev) => ({ ...prev, pdfMaxSizeMb: value })), "100"],
-              ["admin.config.thumbnail.pdfTimeoutSecs", draft.pdfTimeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, pdfTimeoutSecs: value })), "10"],
-              ["admin.config.thumbnail.pdfImagemagickMaxMb", draft.pdfImagemagickMaxMb, (value: string) => setDraft((prev) => ({ ...prev, pdfImagemagickMaxMb: value })), "20"],
-            ].map(([label, value, onChange, placeholder]) => (
-              <div key={String(label)}>
-                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t(String(label))}</div>
-                <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass} placeholder={String(placeholder)} />
-              </div>
-            ))}
-          </div>
-        )}
-        {false && draft.officeEnabled && (
-          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
-            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.officeTitle")}</div>
-            {[
-              ["admin.config.thumbnail.officeSmallSkipMb", draft.officeSmallSkipMb, (value: string) => setDraft((prev) => ({ ...prev, officeSmallSkipMb: value })), "1"],
-              ["admin.config.thumbnail.officeMaxSizeMb", draft.officeMaxSizeMb, (value: string) => setDraft((prev) => ({ ...prev, officeMaxSizeMb: value })), "100"],
-              ["admin.config.thumbnail.officeTimeoutSecs", draft.officeTimeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, officeTimeoutSecs: value })), "60"],
-              ["admin.config.thumbnail.officeImagemagickMaxMb", draft.officeImagemagickMaxMb, (value: string) => setDraft((prev) => ({ ...prev, officeImagemagickMaxMb: value })), "20"],
-            ].map(([label, value, onChange, placeholder]) => (
-              <div key={String(label)}>
-                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t(String(label))}</div>
-                <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass} placeholder={String(placeholder)} />
-              </div>
-            ))}
-          </div>
-        )}
-        {false && draft.latexEnabled && (
-          <div className="space-y-4 rounded-xl border border-dashed border-slate-300/70 p-3 dark:border-white/10">
-            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexTitle")}</div>
-            <div
-              className={cn(
-                "rounded-xl border p-3 text-sm leading-6",
-                isDark
-                  ? "border-amber-500/20 bg-amber-500/10 text-amber-100"
-                  : "border-amber-200 bg-amber-50 text-amber-900",
-              )}
-            >
-              {t("admin.config.thumbnail.latexDependsOnPdfHint")}
-            </div>
-            {[
-              ["admin.config.thumbnail.latexmkTimeoutSecs", draft.latexmkTimeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, latexmkTimeoutSecs: value })), "60"],
-              ["admin.config.thumbnail.latexMaxInputSizeMb", draft.latexMaxInputSizeMb, (value: string) => setDraft((prev) => ({ ...prev, latexMaxInputSizeMb: value })), "4"],
-              ["admin.config.thumbnail.latexMaxOutputSizeMb", draft.latexMaxOutputSizeMb, (value: string) => setDraft((prev) => ({ ...prev, latexMaxOutputSizeMb: value })), "10"],
-            ].map(([label, value, onChange, placeholder]) => (
-              <div key={String(label)}>
-                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t(String(label))}</div>
-                <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass} placeholder={String(placeholder)} />
-              </div>
-            ))}
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={draft.latexAllowShellEscape}
-                onChange={(event) => setDraft((prev) => ({ ...prev, latexAllowShellEscape: event.target.checked }))}
-                className="h-4 w-4 rounded border-slate-300"
-              />
-              <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>{t("admin.config.thumbnail.latexAllowShellEscape")}</span>
-            </label>
-          </div>
-        )}
       </div>
     </div>
   );

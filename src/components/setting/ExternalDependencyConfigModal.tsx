@@ -3,9 +3,6 @@ import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
   CheckCircle2,
-  Loader2,
-  Search,
-  Sparkles,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -70,10 +67,9 @@ export type ThumbnailDraft = {
   imageImagemagickMaxMb: string;
   imageTimeoutSecs: string;
   videoEnabled: boolean;
-  videoSmallSkipMb: string;
   videoMaxSizeMb: string;
   videoTimeoutSecs: string;
-  videoSeekMode: "seconds" | "ratio";
+  videoSeekMode: "seconds" | "ratio" | "auto" | "";
   vipsPath: string;
   imagemagickPath: string;
   ffmpegPath: string;
@@ -83,22 +79,59 @@ export type ThumbnailDraft = {
   videoSeekSeconds: string;
   videoSeekRatio: string;
   pdfEnabled: boolean;
-  pdfSmallSkipMb: string;
   pdfMaxSizeMb: string;
-  pdfImagemagickMaxMb: string;
   pdfTimeoutSecs: string;
   officeEnabled: boolean;
-  officeSmallSkipMb: string;
   officeMaxSizeMb: string;
-  officeImagemagickMaxMb: string;
   officeTimeoutSecs: string;
   latexEnabled: boolean;
+  textEnabled: boolean;
+  textMaxChars: string;
   model3dEnabled: boolean;
   model3dMaxSizeMb: string;
   latexmkTimeoutSecs: string;
   latexMaxInputSizeMb: string;
   latexMaxOutputSizeMb: string;
   latexAllowShellEscape: boolean;
+};
+
+const EMPTY_THUMBNAIL_DRAFT: ThumbnailDraft = {
+  thumbSizePx: "",
+  thumbFormat: "",
+  thumbQuality: "",
+  imageEnabled: false,
+  imageBackend: "builtin",
+  imageSmallSkipMb: "",
+  imageMaxSizeMb: "",
+  imageImagemagickMaxMb: "",
+  imageTimeoutSecs: "",
+  videoEnabled: false,
+  videoMaxSizeMb: "",
+  videoTimeoutSecs: "",
+  videoSeekMode: "",
+  vipsPath: "",
+  imagemagickPath: "",
+  ffmpegPath: "",
+  libreofficePath: "",
+  blenderPath: "",
+  latexmkPath: "",
+  videoSeekSeconds: "",
+  videoSeekRatio: "",
+  pdfEnabled: false,
+  pdfMaxSizeMb: "",
+  pdfTimeoutSecs: "",
+  officeEnabled: false,
+  officeMaxSizeMb: "",
+  officeTimeoutSecs: "",
+  latexEnabled: false,
+  textEnabled: false,
+  textMaxChars: "",
+  model3dEnabled: false,
+  model3dMaxSizeMb: "",
+  latexmkTimeoutSecs: "",
+  latexMaxInputSizeMb: "",
+  latexMaxOutputSizeMb: "",
+  latexAllowShellEscape: false,
 };
 
 export type CompressionDraft = {
@@ -109,58 +142,7 @@ export type CompressionDraft = {
   maxCpuThreads: string;
 };
 
-type ToolInputDescriptor = {
-  toolId: string;
-  configKey: string;
-  labelKey: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholderKey: string;
-};
-
-const DEFAULT_THUMBNAIL_DRAFT: ThumbnailDraft = {
-  thumbSizePx: "256",
-  thumbFormat: "jpg",
-  thumbQuality: "85",
-  imageEnabled: true,
-  imageBackend: "builtin",
-  imageSmallSkipMb: "1",
-  imageMaxSizeMb: "100",
-  imageImagemagickMaxMb: "20",
-  imageTimeoutSecs: "10",
-  videoEnabled: true,
-  videoSmallSkipMb: "1",
-  videoMaxSizeMb: "100",
-  videoTimeoutSecs: "10",
-  videoSeekMode: "ratio",
-  vipsPath: "vips",
-  imagemagickPath: "convert",
-  ffmpegPath: "ffmpeg",
-  libreofficePath: "soffice",
-  blenderPath: "blender",
-  latexmkPath: "latexmk",
-  videoSeekSeconds: "3",
-  videoSeekRatio: "0.3",
-  pdfEnabled: true,
-  pdfSmallSkipMb: "1",
-  pdfMaxSizeMb: "100",
-  pdfImagemagickMaxMb: "20",
-  pdfTimeoutSecs: "10",
-  officeEnabled: true,
-  officeSmallSkipMb: "1",
-  officeMaxSizeMb: "100",
-  officeImagemagickMaxMb: "20",
-  officeTimeoutSecs: "10",
-  latexEnabled: true,
-  model3dEnabled: false,
-  model3dMaxSizeMb: "100",
-  latexmkTimeoutSecs: "60",
-  latexMaxInputSizeMb: "4",
-  latexMaxOutputSizeMb: "10",
-  latexAllowShellEscape: false,
-};
-
-const DEFAULT_COMPRESSION_DRAFT: CompressionDraft = {
+const EMPTY_COMPRESSION_DRAFT: CompressionDraft = {
   enabled: true,
   exe7zPath: "7z",
   defaultCompressionFormat: "zip",
@@ -196,7 +178,7 @@ export const parseThumbnailDraft = (
 ): ThumbnailDraft => {
   try {
     const parsed = tomlAdapter.parse(content);
-    if (!isRecord(parsed)) return DEFAULT_THUMBNAIL_DRAFT;
+    if (!isRecord(parsed)) return { ...EMPTY_THUMBNAIL_DRAFT };
     const root = parsed;
     const vfsStorageHub = isRecord(root["vfs_storage_hub"])
       ? root["vfs_storage_hub"]
@@ -220,164 +202,60 @@ export const parseThumbnailDraft = (
     const latexPreview = isRecord(fileManagerApi["latex_preview"])
       ? fileManagerApi["latex_preview"]
       : {};
-    const asString = (value: unknown, fallback: string) =>
-      typeof value === "string" ? value : fallback;
-    const asNumberString = (value: unknown, fallback: string) =>
+    const asString = (value: unknown): string =>
+      typeof value === "string" ? value : "";
+    const asNumberString = (value: unknown): string =>
       typeof value === "number" && Number.isFinite(value)
         ? String(value)
-        : fallback;
-    const asBool = (value: unknown, fallback: boolean) =>
-      typeof value === "boolean" ? value : fallback;
+        : "";
+    const asBool = (value: unknown): boolean =>
+      typeof value === "boolean" ? value : false;
     const asBackend = (value: unknown): ThumbnailImageBackend =>
       value === "external" ? "external" : "builtin";
-    const videoSeekSeconds = asNumberString(
-      video["seek_seconds"],
-      DEFAULT_THUMBNAIL_DRAFT.videoSeekSeconds,
-    );
-    const videoSeekRatio = asNumberString(
-      video["seek_ratio"],
-      DEFAULT_THUMBNAIL_DRAFT.videoSeekRatio,
-    );
-    const seekRatioValue = Number(video["seek_ratio"]);
+    const seekModeValue = asString(video["seek_mode"]);
+    const seekModeValid = (["seconds", "ratio", "auto"].includes(seekModeValue)
+      ? seekModeValue
+      : "") as "seconds" | "ratio" | "auto" | "";
     return {
-      thumbSizePx: asNumberString(
-        thumbnail["thumb_size_px"],
-        DEFAULT_THUMBNAIL_DRAFT.thumbSizePx,
-      ),
-      thumbFormat: asString(
-        thumbnail["thumb_format"],
-        DEFAULT_THUMBNAIL_DRAFT.thumbFormat,
-      ),
-      thumbQuality: asNumberString(
-        thumbnail["thumb_quality"],
-        DEFAULT_THUMBNAIL_DRAFT.thumbQuality,
-      ),
-      imageEnabled: asBool(image["enabled"], DEFAULT_THUMBNAIL_DRAFT.imageEnabled),
+      thumbSizePx: asNumberString(thumbnail["thumb_size_px"]),
+      thumbFormat: asString(thumbnail["thumb_format"]),
+      thumbQuality: asNumberString(thumbnail["thumb_quality"]),
+      imageEnabled: asBool(image["enabled"]),
       imageBackend: asBackend(image["backend"]),
-      imageSmallSkipMb: asNumberString(
-        image["small_skip_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.imageSmallSkipMb,
-      ),
-      imageMaxSizeMb: asNumberString(
-        image["max_size_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.imageMaxSizeMb,
-      ),
-      imageImagemagickMaxMb: asNumberString(
-        image["imagemagick_max_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.imageImagemagickMaxMb,
-      ),
-      imageTimeoutSecs: asNumberString(
-        image["timeout_secs"],
-        DEFAULT_THUMBNAIL_DRAFT.imageTimeoutSecs,
-      ),
-      videoEnabled: asBool(video["enabled"], DEFAULT_THUMBNAIL_DRAFT.videoEnabled),
-      videoSmallSkipMb: asNumberString(
-        video["small_skip_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.videoSmallSkipMb,
-      ),
-      videoMaxSizeMb: asNumberString(
-        video["max_size_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.videoMaxSizeMb,
-      ),
-      videoTimeoutSecs: asNumberString(
-        video["timeout_secs"],
-        DEFAULT_THUMBNAIL_DRAFT.videoTimeoutSecs,
-      ),
-      videoSeekMode:
-        Number.isFinite(seekRatioValue) && seekRatioValue > 0 && seekRatioValue <= 1
-          ? "ratio"
-          : "seconds",
-      vipsPath: asString(tools["vips_path"], DEFAULT_THUMBNAIL_DRAFT.vipsPath),
-      imagemagickPath: asString(
-        tools["imagemagick_path"],
-        DEFAULT_THUMBNAIL_DRAFT.imagemagickPath,
-      ),
-      ffmpegPath: asString(
-        externalTools["ffmpeg_path"] ?? tools["ffmpeg_path"],
-        DEFAULT_THUMBNAIL_DRAFT.ffmpegPath,
-      ),
-      libreofficePath: asString(
-        tools["libreoffice_path"],
-        DEFAULT_THUMBNAIL_DRAFT.libreofficePath,
-      ),
-      blenderPath: asString(
-        tools["blender_path"],
-        DEFAULT_THUMBNAIL_DRAFT.blenderPath,
-      ),
-      latexmkPath: asString(
-        latexPreview["latexmk_path"],
-        DEFAULT_THUMBNAIL_DRAFT.latexmkPath,
-      ),
-      videoSeekSeconds,
-      videoSeekRatio,
-      pdfEnabled: asBool(pdf["enabled"], DEFAULT_THUMBNAIL_DRAFT.pdfEnabled),
-      pdfSmallSkipMb: asNumberString(
-        pdf["small_skip_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.pdfSmallSkipMb,
-      ),
-      pdfMaxSizeMb: asNumberString(
-        pdf["max_size_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.pdfMaxSizeMb,
-      ),
-      pdfImagemagickMaxMb: asNumberString(
-        pdf["imagemagick_max_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.pdfImagemagickMaxMb,
-      ),
-      pdfTimeoutSecs: asNumberString(
-        pdf["timeout_secs"],
-        DEFAULT_THUMBNAIL_DRAFT.pdfTimeoutSecs,
-      ),
-      officeEnabled: asBool(
-        office["enabled"],
-        DEFAULT_THUMBNAIL_DRAFT.officeEnabled,
-      ),
-      officeSmallSkipMb: asNumberString(
-        office["small_skip_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.officeSmallSkipMb,
-      ),
-      officeMaxSizeMb: asNumberString(
-        office["max_size_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.officeMaxSizeMb,
-      ),
-      officeImagemagickMaxMb: asNumberString(
-        office["imagemagick_max_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.officeImagemagickMaxMb,
-      ),
-      officeTimeoutSecs: asNumberString(
-        office["timeout_secs"],
-        DEFAULT_THUMBNAIL_DRAFT.officeTimeoutSecs,
-      ),
-      latexEnabled: asBool(
-        latexPreview["enable_latexmk"],
-        DEFAULT_THUMBNAIL_DRAFT.latexEnabled,
-      ),
-      model3dEnabled: asBool(
-        model3d["enabled"],
-        DEFAULT_THUMBNAIL_DRAFT.model3dEnabled,
-      ),
-      model3dMaxSizeMb: asNumberString(
-        model3d["max_size_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.model3dMaxSizeMb,
-      ),
-      latexmkTimeoutSecs: asNumberString(
-        latexPreview["latexmk_timeout_secs"],
-        DEFAULT_THUMBNAIL_DRAFT.latexmkTimeoutSecs,
-      ),
-      latexMaxInputSizeMb: asNumberString(
-        latexPreview["max_input_size_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.latexMaxInputSizeMb,
-      ),
-      latexMaxOutputSizeMb: asNumberString(
-        latexPreview["max_output_size_mb"],
-        DEFAULT_THUMBNAIL_DRAFT.latexMaxOutputSizeMb,
-      ),
-      latexAllowShellEscape: asBool(
-        latexPreview["allow_shell_escape"],
-        DEFAULT_THUMBNAIL_DRAFT.latexAllowShellEscape,
-      ),
+      imageSmallSkipMb: asNumberString(image["small_skip_mb"]),
+      imageMaxSizeMb: asNumberString(image["max_size_mb"]),
+      imageImagemagickMaxMb: asNumberString(image["imagemagick_max_mb"]),
+      imageTimeoutSecs: asNumberString(image["timeout_secs"]),
+      videoEnabled: asBool(video["enabled"]),
+      videoMaxSizeMb: asNumberString(video["max_size_mb"]),
+      videoTimeoutSecs: asNumberString(video["timeout_secs"]),
+      videoSeekMode: seekModeValid,
+      vipsPath: asString(tools["vips_path"]),
+      imagemagickPath: asString(tools["imagemagick_path"]),
+      ffmpegPath: asString(externalTools["ffmpeg_path"] ?? tools["ffmpeg_path"]),
+      libreofficePath: asString(tools["libreoffice_path"]),
+      blenderPath: asString(tools["blender_path"]),
+      latexmkPath: asString(latexPreview["latexmk_path"]),
+      videoSeekSeconds: asNumberString(video["seek_seconds"]),
+      videoSeekRatio: asNumberString(video["seek_ratio"]),
+      pdfEnabled: asBool(pdf["enabled"]),
+      pdfMaxSizeMb: asNumberString(pdf["max_size_mb"]),
+      pdfTimeoutSecs: asNumberString(pdf["timeout_secs"]),
+      officeEnabled: asBool(office["enabled"]),
+      officeMaxSizeMb: asNumberString(office["max_size_mb"]),
+      officeTimeoutSecs: asNumberString(office["timeout_secs"]),
+      latexEnabled: asBool(latexPreview["enable_latexmk"]),
+      textEnabled: asBool(text["enabled"]),
+      textMaxChars: asNumberString(text["max_chars"]),
+      model3dEnabled: asBool(model3d["enabled"]),
+      model3dMaxSizeMb: asNumberString(model3d["max_size_mb"]),
+      latexmkTimeoutSecs: asNumberString(latexPreview["latexmk_timeout_secs"]),
+      latexMaxInputSizeMb: asNumberString(latexPreview["max_input_size_mb"]),
+      latexMaxOutputSizeMb: asNumberString(latexPreview["max_output_size_mb"]),
+      latexAllowShellEscape: asBool(latexPreview["allow_shell_escape"]),
     };
   } catch {
-    return DEFAULT_THUMBNAIL_DRAFT;
+    return { ...EMPTY_THUMBNAIL_DRAFT };
   }
 };
 
@@ -387,7 +265,7 @@ export const parseCompressionDraft = (
 ): CompressionDraft => {
   try {
     const parsed = tomlAdapter.parse(content);
-    if (!isRecord(parsed)) return DEFAULT_COMPRESSION_DRAFT;
+    if (!isRecord(parsed)) return EMPTY_COMPRESSION_DRAFT;
     const root = parsed;
     const vfsStorageHub = isRecord(root["vfs_storage_hub"])
       ? root["vfs_storage_hub"]
@@ -399,29 +277,29 @@ export const parseCompressionDraft = (
       enabled:
         typeof fileCompress["enable"] === "boolean"
           ? fileCompress["enable"]
-          : DEFAULT_COMPRESSION_DRAFT.enabled,
+          : EMPTY_COMPRESSION_DRAFT.enabled,
       exe7zPath:
         typeof fileCompress["exe_7zip_path"] === "string"
           ? fileCompress["exe_7zip_path"]
-          : DEFAULT_COMPRESSION_DRAFT.exe7zPath,
+          : EMPTY_COMPRESSION_DRAFT.exe7zPath,
       defaultCompressionFormat:
         typeof fileCompress["default_compression_format"] === "string"
           ? fileCompress["default_compression_format"]
-          : DEFAULT_COMPRESSION_DRAFT.defaultCompressionFormat,
+          : EMPTY_COMPRESSION_DRAFT.defaultCompressionFormat,
       maxConcurrency: String(
         fileCompress["process_manager_max_concurrency"] ??
-          DEFAULT_COMPRESSION_DRAFT.maxConcurrency,
+          EMPTY_COMPRESSION_DRAFT.maxConcurrency,
       ),
       maxCpuThreads: String(
-        fileCompress["max_cpu_threads"] ?? DEFAULT_COMPRESSION_DRAFT.maxCpuThreads,
+        fileCompress["max_cpu_threads"] ?? EMPTY_COMPRESSION_DRAFT.maxCpuThreads,
       ),
     };
   } catch {
-    return DEFAULT_COMPRESSION_DRAFT;
+    return EMPTY_COMPRESSION_DRAFT;
   }
 };
 
-const buildThumbnailConfiguredValues = (
+const _buildThumbnailConfiguredValues = (
   draft: ThumbnailDraft,
 ): Record<string, string> => ({
   "vfs_storage_hub.thumbnail.tools.vips_path": draft.vipsPath.trim(),
@@ -433,7 +311,7 @@ const buildThumbnailConfiguredValues = (
   "file_manager_api.latex_preview.latexmk_path": draft.latexmkPath.trim(),
 });
 
-const buildCompressionConfiguredValues = (
+const _buildCompressionConfiguredValues = (
   draft: CompressionDraft,
 ): Record<string, string> => ({
   "vfs_storage_hub.file_compress.exe_7zip_path": draft.exe7zPath.trim(),
@@ -466,138 +344,72 @@ export const applyThumbnailDraft = (
   const text = ensureRecord(thumbnail, "text");
   const model3d = ensureRecord(thumbnail, "model3d");
   const latexPreview = ensureRecord(fileManagerApi, "latex_preview");
-  const parsePositiveInt = (value: string, fallback: number) =>
-    Number.isFinite(Number.parseInt(value, 10)) && Number.parseInt(value, 10) > 0
-      ? Number.parseInt(value, 10)
-      : fallback;
+  const writePositiveInt = (key: string, section: Record<string, unknown>, value: string) => {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) return;
+    const parsed = Number.parseInt(trimmed, 10);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      section[key] = parsed;
+    }
+  };
+  const writeString = (key: string, section: Record<string, unknown>, value: string) => {
+    const trimmed = value.trim();
+    if (trimmed.length > 0) {
+      section[key] = trimmed;
+    }
+  };
+  const writeFloat = (key: string, section: Record<string, unknown>, value: string) => {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) return;
+    const parsed = Number.parseFloat(trimmed);
+    if (Number.isFinite(parsed)) {
+      section[key] = parsed;
+    }
+  };
 
-  thumbnail["thumb_size_px"] = parsePositiveInt(
-    draft.thumbSizePx,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.thumbSizePx, 10),
-  );
-  thumbnail["thumb_format"] = draft.thumbFormat.trim();
-  thumbnail["thumb_quality"] = parsePositiveInt(
-    draft.thumbQuality,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.thumbQuality, 10),
-  );
+  writePositiveInt("thumb_size_px", thumbnail, draft.thumbSizePx);
+  writeString("thumb_format", thumbnail, draft.thumbFormat);
+  writePositiveInt("thumb_quality", thumbnail, draft.thumbQuality);
   image["enabled"] = draft.imageEnabled;
   image["backend"] = draft.imageBackend;
-  image["small_skip_mb"] = parsePositiveInt(
-    draft.imageSmallSkipMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.imageSmallSkipMb, 10),
-  );
-  image["max_size_mb"] = parsePositiveInt(
-    draft.imageMaxSizeMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.imageMaxSizeMb, 10),
-  );
-  image["imagemagick_max_mb"] = parsePositiveInt(
-    draft.imageImagemagickMaxMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.imageImagemagickMaxMb, 10),
-  );
-  image["timeout_secs"] = parsePositiveInt(
-    draft.imageTimeoutSecs,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.imageTimeoutSecs, 10),
-  );
-  tools["vips_path"] = draft.vipsPath.trim();
-  tools["imagemagick_path"] = draft.imagemagickPath.trim();
-  tools["libreoffice_path"] = draft.libreofficePath.trim();
-  tools["blender_path"] = draft.blenderPath.trim();
-  externalTools["ffmpeg_path"] = draft.ffmpegPath.trim();
+  writePositiveInt("small_skip_mb", image, draft.imageSmallSkipMb);
+  writePositiveInt("max_size_mb", image, draft.imageMaxSizeMb);
+  writePositiveInt("imagemagick_max_mb", image, draft.imageImagemagickMaxMb);
+  writePositiveInt("timeout_secs", image, draft.imageTimeoutSecs);
+  writeString("vips_path", tools, draft.vipsPath);
+  writeString("imagemagick_path", tools, draft.imagemagickPath);
+  writeString("libreoffice_path", tools, draft.libreofficePath);
+  writeString("blender_path", tools, draft.blenderPath);
+  writeString("ffmpeg_path", externalTools, draft.ffmpegPath);
   delete tools["ffmpeg_path"];
 
   video["enabled"] = draft.videoEnabled;
-  video["small_skip_mb"] = parsePositiveInt(
-    draft.videoSmallSkipMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.videoSmallSkipMb, 10),
-  );
-  video["max_size_mb"] = parsePositiveInt(
-    draft.videoMaxSizeMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.videoMaxSizeMb, 10),
-  );
-  video["timeout_secs"] = parsePositiveInt(
-    draft.videoTimeoutSecs,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.videoTimeoutSecs, 10),
-  );
-  const seekSeconds = Number(draft.videoSeekSeconds);
-  const seekRatio = Number(draft.videoSeekRatio);
-  if (draft.videoSeekMode === "seconds") {
-    video["seek_seconds"] = Number.isFinite(seekSeconds) && seekSeconds > 0
-      ? Math.floor(seekSeconds)
-      : Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.videoSeekSeconds, 10);
-    delete video["seek_ratio"];
-  } else {
-    video["seek_ratio"] = Number.isFinite(seekRatio) && seekRatio > 0 && seekRatio <= 1
-      ? seekRatio
-      : Number.parseFloat(DEFAULT_THUMBNAIL_DRAFT.videoSeekRatio);
-    delete video["seek_seconds"];
-  }
+  writePositiveInt("max_size_mb", video, draft.videoMaxSizeMb);
+  writePositiveInt("timeout_secs", video, draft.videoTimeoutSecs);
+  writeString("seek_mode", video, draft.videoSeekMode);
+  writePositiveInt("seek_seconds", video, draft.videoSeekSeconds);
+  writeFloat("seek_ratio", video, draft.videoSeekRatio);
 
   pdf["enabled"] = draft.pdfEnabled;
-  pdf["small_skip_mb"] = parsePositiveInt(
-    draft.pdfSmallSkipMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.pdfSmallSkipMb, 10),
-  );
-  pdf["max_size_mb"] = parsePositiveInt(
-    draft.pdfMaxSizeMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.pdfMaxSizeMb, 10),
-  );
-  pdf["imagemagick_max_mb"] = parsePositiveInt(
-    draft.pdfImagemagickMaxMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.pdfImagemagickMaxMb, 10),
-  );
-  pdf["timeout_secs"] = parsePositiveInt(
-    draft.pdfTimeoutSecs,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.pdfTimeoutSecs, 10),
-  );
+  writePositiveInt("max_size_mb", pdf, draft.pdfMaxSizeMb);
+  writePositiveInt("timeout_secs", pdf, draft.pdfTimeoutSecs);
 
   office["enabled"] = draft.officeEnabled;
-  office["small_skip_mb"] = parsePositiveInt(
-    draft.officeSmallSkipMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.officeSmallSkipMb, 10),
-  );
-  office["max_size_mb"] = parsePositiveInt(
-    draft.officeMaxSizeMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.officeMaxSizeMb, 10),
-  );
-  office["imagemagick_max_mb"] = parsePositiveInt(
-    draft.officeImagemagickMaxMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.officeImagemagickMaxMb, 10),
-  );
-  office["timeout_secs"] = parsePositiveInt(
-    draft.officeTimeoutSecs,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.officeTimeoutSecs, 10),
-  );
+  writePositiveInt("max_size_mb", office, draft.officeMaxSizeMb);
+  writePositiveInt("timeout_secs", office, draft.officeTimeoutSecs);
 
-  if (draft.latexEnabled) {
-    text["enabled"] = true;
-  }
+  text["enabled"] = draft.textEnabled;
+  writePositiveInt("max_chars", text, draft.textMaxChars);
+
   latexPreview["enable_latexmk"] = draft.latexEnabled;
-  latexPreview["latexmk_path"] = draft.latexmkPath.trim();
-  latexPreview["latexmk_timeout_secs"] = parsePositiveInt(
-    draft.latexmkTimeoutSecs,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.latexmkTimeoutSecs, 10),
-  );
-  latexPreview["max_input_size_mb"] = parsePositiveInt(
-    draft.latexMaxInputSizeMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.latexMaxInputSizeMb, 10),
-  );
-  latexPreview["max_output_size_mb"] = parsePositiveInt(
-    draft.latexMaxOutputSizeMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.latexMaxOutputSizeMb, 10),
-  );
+  writeString("latexmk_path", latexPreview, draft.latexmkPath);
+  writePositiveInt("latexmk_timeout_secs", latexPreview, draft.latexmkTimeoutSecs);
+  writePositiveInt("max_input_size_mb", latexPreview, draft.latexMaxInputSizeMb);
+  writePositiveInt("max_output_size_mb", latexPreview, draft.latexMaxOutputSizeMb);
   latexPreview["allow_shell_escape"] = draft.latexAllowShellEscape;
 
   model3d["enabled"] = draft.model3dEnabled;
-  model3d["max_size_mb"] = parsePositiveInt(
-    draft.model3dMaxSizeMb,
-    Number.parseInt(DEFAULT_THUMBNAIL_DRAFT.model3dMaxSizeMb, 10),
-  );
-  model3d["timeout_secs"] = 60;
-  model3d["small_skip_mb"] = 1;
-  model3d["imagemagick_max_mb"] = 0;
-  model3d["seek_seconds"] = 0;
-  model3d["seek_ratio"] = 0;
-  model3d["max_chars"] = 0;
+  writePositiveInt("max_size_mb", model3d, draft.model3dMaxSizeMb);
 
   return tomlAdapter.stringify(next);
 };
@@ -625,11 +437,10 @@ export const resolveThumbnailHardwareReuseStatus = (
       typeof hardware["backend"] === "string" &&
       hardware["backend"].trim() !== "" &&
       hardware["backend"].trim().toLowerCase() !== "none";
-    return {
-      active,
-      backend: typeof hardware["backend"] === "string" ? hardware["backend"] : undefined,
-      device: typeof hardware["device"] === "string" ? hardware["device"] : undefined,
-    };
+    const result: { active: boolean; backend?: string; device?: string } = { active };
+    if (typeof hardware["backend"] === "string") result.backend = hardware["backend"];
+    if (typeof hardware["device"] === "string") result.device = hardware["device"];
+    return result;
   } catch {
     return { active: false };
   }
@@ -767,7 +578,7 @@ type ToolCardProps = {
   item: ExternalToolDiagnosisItem;
 };
 
-const ToolCard: React.FC<ToolCardProps> = ({ item }) => {
+const _ToolCard: React.FC<ToolCardProps> = ({ item }) => {
   const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
   const isDark = resolvedTheme === "dark";
@@ -986,7 +797,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
   const normalizedRuntimeOs = normalizeRuntimeOs(runtimeOs);
   const isMobileRuntime =
     normalizedRuntimeOs === "android" || normalizedRuntimeOs === "ios";
-  const [draft, setDraft] = useState<ThumbnailDraft>(DEFAULT_THUMBNAIL_DRAFT);
+  const [draft, setDraft] = useState<ThumbnailDraft>(EMPTY_THUMBNAIL_DRAFT);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -1216,9 +1027,13 @@ export const ThumbnailDependencyConfigModal: React.FC<
               {t("admin.config.thumbnail.videoSeekMode")}
             </div>
             <div className="mt-2">
-              <SettingSegmentedControl<"seconds" | "ratio">
-                value={draft.videoSeekMode}
+              <SettingSegmentedControl<"seconds" | "ratio" | "auto">
+                value={draft.videoSeekMode || "auto"}
                 options={[
+                  {
+                    value: "auto",
+                    label: t("admin.config.thumbnail.videoSeekModeAuto"),
+                  },
                   {
                     value: "seconds",
                     label: t("admin.config.thumbnail.videoSeekModeSeconds"),
@@ -1504,7 +1319,7 @@ export const CompressionDependencyConfigModal: React.FC<
   const isMobileRuntime =
     normalizedRuntimeOs === "android" || normalizedRuntimeOs === "ios";
   const [draft, setDraft] = useState<CompressionDraft>(
-    DEFAULT_COMPRESSION_DRAFT,
+    EMPTY_COMPRESSION_DRAFT,
   );
 
   useEffect(() => {
