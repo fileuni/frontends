@@ -1,13 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { client, extractData, handleApiError } from '@/lib/api.ts';
 import { downloadFileByPath } from '@/lib/fileTokens.ts';
-import { useFileStore, type StorageStats, type TaskState, type FileManagerMode } from '../store/useFileStore.ts';
+import { useFileStore, type TaskState } from '../store/useFileStore.ts';
 import { useSelectionStore } from '../store/useSelectionStore.ts';
 import { useTranslation } from 'react-i18next';
 import type { FileInfo, ClipboardItem } from '../types/index.ts';
 import { useToastStore } from '@/stores/toast';
 import { isMountRootEntry } from '../utils/mounts.ts';
-import { parseFileListResult } from '../utils/fileListResponse.ts';
 import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
 
@@ -22,129 +21,21 @@ export function useFileActions() {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
   const store = useFileStore();
+  const activeIntervalsRef = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
   
   const currentPath = store.getCurrentPath();
   const protectedStatus = useProtectedStorageStore((state) => state.status);
-  const showShareStatus = store.showShareStatus;
-  const favoriteFilterColor = store.favoriteFilterColor;
   const fmMode = store.fmMode;
-  const sortConfig = store.getSortConfig();
-  const isSearchMode = store.getIsSearchMode();
-  const searchKeyword = store.getSearchKeyword();
-  const pageSize = store.getPageSize();
 
+  const loadFiles = store.loadFiles;
+  const loadStorageStats = store.loadStorageStats;
   const setFiles = store.setFiles;
   const setLoading = store.setLoading;
-  const setStorageStats = store.setStorageStats;
   const appendFiles = store.appendFiles;
   const removeFiles = store.removeFiles;
   const updateFile = store.updateFile;
   
   const { deselectAll } = useSelectionStore();
-
-  const loadStorageStats = useCallback(async () => {
-    try {
-      const stats = await extractData(client.GET("/api/v1/file/storage-stats"));
-      setStorageStats(stats as StorageStats);
-    } catch (_error) {
-      console.error('Failed to load storage stats:', _error);
-    }
-  }, [setStorageStats]);
-
-  const loadFiles = useCallback(async (path: string = currentPath, page: number = 1, overridePageSize: number = pageSize, mode?: FileManagerMode) => {
-    const activeMode = mode || fmMode;
-    const fileStore = useFileStore.getState();
-    
-    if (activeMode === 'recent') {
-      setFiles([...fileStore.getRecentFiles()]);
-      deselectAll();
-      return;
-    }
-
-    setLoading(true);
-    try {
-      type FileListEndpoint = 
-        | "/api/v1/file/list"
-        | "/api/v1/file/search"
-        | "/api/v1/file/favorites/list" 
-        | "/api/v1/file/recycle-bin/list" 
-        | "/api/v1/file/shares/my";
-
-      let endpoint: FileListEndpoint = "/api/v1/file/list";
-      
-      // Query parameters aggregate possible fields from multiple interfaces
-      const query: Record<string, string | number | boolean | null | undefined> = { 
-        path, 
-        page: page, 
-        page_size: overridePageSize, 
-        check_share: showShareStatus 
-      };
-
-      if (sortConfig.field) {
-        query['sort_by'] = sortConfig.field;
-        query['order'] = sortConfig.order;
-      }
-
-      const keyword = searchKeyword.trim();
-      if (isSearchMode && keyword) {
-        query['keyword'] = keyword;
-      }
-
-      if (activeMode === 'files' && isSearchMode && keyword) {
-        endpoint = "/api/v1/file/search";
-        query['path'] = path;
-        delete query['check_share'];
-      }
-
-      if (activeMode === 'favorites') {
-        endpoint = "/api/v1/file/favorites/list";
-        if (favoriteFilterColor !== null) query['color'] = favoriteFilterColor ?? null;
-      } else if (activeMode === 'trash') {
-        endpoint = "/api/v1/file/recycle-bin/list";
-        delete query['path'];
-      } else if (activeMode === 'shares') {
-        endpoint = "/api/v1/file/shares/my";
-        delete query['path'];
-        const shareFilter = fileStore.getShareFilter();
-        if (shareFilter.hasPassword !== null) query['has_password'] = shareFilter.hasPassword ?? null;
-        if (shareFilter.enableDirect !== null) query['enable_direct'] = shareFilter.enableDirect ?? null;
-      }
-
-      const result = await extractData<FileInfo[] | unknown>(
-        client.GET(endpoint, {
-          params: { query: query as unknown as never }
-        })
-      );
-
-      const parsedResult = parseFileListResult(result);
-      const filesArray = parsedResult.items;
-
-      if (parsedResult.totalPages !== null) {
-        fileStore.setPagination(
-          parsedResult.total ?? filesArray.length,
-          parsedResult.totalPages,
-          page,
-          overridePageSize,
-        );
-      } else if (parsedResult.total !== null) {
-        const totalPages = Math.ceil(parsedResult.total / overridePageSize);
-        fileStore.setPagination(parsedResult.total, totalPages || 1, page, overridePageSize);
-      } else {
-        fileStore.setPagination(filesArray.length, 1, 1, overridePageSize);
-      }
-      
-      setFiles(filesArray);
-      deselectAll();
-    } catch (_error) {
-      console.error('Failed to load files:', _error);
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    currentPath, setFiles, setLoading, deselectAll, showShareStatus, fmMode, 
-    favoriteFilterColor, sortConfig.field, sortConfig.order, isSearchMode, 
-    searchKeyword, pageSize
-  ]);
 
   const toggleFavorite = async (paths: string[], color: number) => {
     try {
@@ -192,7 +83,9 @@ export function useFileActions() {
     }
   }, [store, fmMode, setFiles]);
 
-  const waitForTask = async (taskId: string, expectedPaths?: string[]) => {
+  const waitForTask = (taskId: string, expectedPaths?: string[]) => {
+    if (activeIntervalsRef.current.has(taskId)) return;
+
     const poll = async () => {
       try {
         const task = await extractData<TaskData>(client.GET("/api/v1/file/task/{id}", {
@@ -203,7 +96,6 @@ export function useFileActions() {
           await loadFiles();
           if (expectedPaths && expectedPaths.length > 0) {
             const firstExpectedPath = expectedPaths[0];
-            // Give some time for list to load
             if (firstExpectedPath) {
               setTimeout(() => {
                 store.setHighlightedPath(firstExpectedPath);
@@ -219,15 +111,18 @@ export function useFileActions() {
         return false;
       } catch (_error) {
         console.error("Polling error:", _error);
-        return true; 
+        return false;
       }
     };
 
     const interval = setInterval(async () => {
       if (await poll()) {
         clearInterval(interval);
+        activeIntervalsRef.current.delete(taskId);
       }
     }, 2000);
+
+    activeIntervalsRef.current.set(taskId, interval);
   };
 
   /**

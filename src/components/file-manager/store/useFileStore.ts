@@ -2,7 +2,10 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { FileInfo, ViewMode, FileManagerMode, ClipboardItem } from '../types/index.ts';
 import { useAuthStore } from '@/stores/auth.ts';
+import { useSelectionStore } from './useSelectionStore.ts';
 import { storageHub } from '@/lib/storageHub';
+import { client, extractData } from '@/lib/api.ts';
+import { parseFileListResult } from '../utils/fileListResponse.ts';
 
 export type { FileManagerMode };
 export type FMMode = FileManagerMode;
@@ -144,6 +147,10 @@ interface FileState {
   };
   openActionModal: (type: 'create_file' | 'create_dir' | 'rename' | 'delete_confirm' | 'mode_delete_confirm', title: string, defaultValue: string, targetPath?: string, mode?: FileManagerMode, confirmLabel?: string) => void;
   closeActionModal: () => void;
+
+  // Data loading
+  loadFiles: (path?: string, page?: number, pageSize?: number, mode?: FileManagerMode) => Promise<void>;
+  loadStorageStats: () => Promise<void>;
 }
 
 const DEFAULT_TAB_ID = 'default';
@@ -675,6 +682,113 @@ export const useFileStore = create<FileState>()(
       getActiveTasks: () => {
         const uid = get()._getUid();
         return get()._getUserData(uid).activeTasks;
+      },
+
+      loadFiles: async (path, page = 1, pageSize, mode) => {
+        const state = get();
+        const fileStore = get();
+        const activeMode = mode || state.fmMode;
+        const effectivePath = path ?? state.getCurrentPath();
+        const effectivePageSize = pageSize ?? state.getPageSize();
+        const sortConfig = state.getSortConfig();
+        const isSearchMode = state.getIsSearchMode();
+        const searchKeyword = state.getSearchKeyword();
+        const showShareStatus = state.showShareStatus;
+        const favoriteFilterColor = state.favoriteFilterColor;
+
+        if (activeMode === 'recent') {
+          set({ files: [...fileStore.getRecentFiles()] });
+          useSelectionStore.getState().deselectAll();
+          return;
+        }
+
+        set({ loading: true });
+        try {
+          type FileListEndpoint =
+            | "/api/v1/file/list"
+            | "/api/v1/file/search"
+            | "/api/v1/file/favorites/list"
+            | "/api/v1/file/recycle-bin/list"
+            | "/api/v1/file/shares/my";
+
+          let endpoint: FileListEndpoint = "/api/v1/file/list";
+
+          const query: Record<string, string | number | boolean | null | undefined> = {
+            path: effectivePath,
+            page: page,
+            page_size: effectivePageSize,
+            check_share: showShareStatus,
+          };
+
+          if (sortConfig.field) {
+            query['sort_by'] = sortConfig.field;
+            query['order'] = sortConfig.order;
+          }
+
+          const keyword = searchKeyword.trim();
+          if (isSearchMode && keyword) {
+            query['keyword'] = keyword;
+          }
+
+          if (activeMode === 'files' && isSearchMode && keyword) {
+            endpoint = "/api/v1/file/search";
+            query['path'] = effectivePath;
+            delete query['check_share'];
+          }
+
+          if (activeMode === 'favorites') {
+            endpoint = "/api/v1/file/favorites/list";
+            if (favoriteFilterColor !== null) query['color'] = favoriteFilterColor ?? null;
+          } else if (activeMode === 'trash') {
+            endpoint = "/api/v1/file/recycle-bin/list";
+            delete query['path'];
+          } else if (activeMode === 'shares') {
+            endpoint = "/api/v1/file/shares/my";
+            delete query['path'];
+            const shareFilter = fileStore.getShareFilter();
+            if (shareFilter.hasPassword !== null) query['has_password'] = shareFilter.hasPassword ?? null;
+            if (shareFilter.enableDirect !== null) query['enable_direct'] = shareFilter.enableDirect ?? null;
+          }
+
+          const result = await extractData<FileInfo[] | unknown>(
+            client.GET(endpoint, {
+              params: { query: query as unknown as never },
+            }),
+          );
+
+          const parsedResult = parseFileListResult(result);
+          const filesArray = parsedResult.items;
+
+          if (parsedResult.totalPages !== null) {
+            fileStore.setPagination(
+              parsedResult.total ?? filesArray.length,
+              parsedResult.totalPages,
+              page,
+              effectivePageSize,
+            );
+          } else if (parsedResult.total !== null) {
+            const totalPages = Math.ceil(parsedResult.total / effectivePageSize);
+            fileStore.setPagination(parsedResult.total, totalPages || 1, page, effectivePageSize);
+          } else {
+            fileStore.setPagination(filesArray.length, 1, 1, effectivePageSize);
+          }
+
+          set({ files: filesArray });
+          useSelectionStore.getState().deselectAll();
+        } catch (_error) {
+          console.error('Failed to load files:', _error);
+        } finally {
+          set({ loading: false });
+        }
+      },
+
+      loadStorageStats: async () => {
+        try {
+          const stats = await extractData(client.GET("/api/v1/file/storage-stats"));
+          set({ storageStats: stats as StorageStats });
+        } catch (_error) {
+          console.error('Failed to load storage stats:', _error);
+        }
       },
     }),
     {
