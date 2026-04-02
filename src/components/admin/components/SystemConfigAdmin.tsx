@@ -12,18 +12,14 @@ import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSu
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
 import {
   buildSettingCommonActions,
-  type SettingCommonCapabilityHandlers,
 } from "@/components/setting/SettingCommonActions";
-import type { FlowStartupExecutionResult } from "@/components/setting/FlowStartupInlinePanel";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
-import type { MediaBackendProbeResponse } from "@/components/setting/MediaTranscodingConfigPanel";
-import type { ProbeExternalTool } from "@/components/setting/SharedFfmpegField";
+import { createAdminSettingCommonCapabilityHandlers } from "@/components/setting/settingCommonCapabilityAdapters";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useToastStore } from "@/stores/toast";
 import { useAuthzStore } from "@/stores/authz.ts";
 import { useAuthStore } from "@/stores/auth.ts";
 import { AdminPage } from "./admin-ui";
-import type { ExternalToolDiagnosisResponse } from "@/components/setting/ExternalDependencyConfigModal";
 
 type ConfigRawResponse = components["schemas"]["ConfigRawResponse"];
 type ConfigNotesResponse = components["schemas"]["ConfigNotesResponse"];
@@ -464,154 +460,13 @@ export const SystemConfigAdmin = () => {
     key: err.key,
   }));
 
-  const handleDiagnoseExternalTools = useCallback(
-    async (
-      configuredValues: Record<string, string>,
-    ): Promise<ExternalToolDiagnosisResponse> => {
-      return extractData<ExternalToolDiagnosisResponse>(
-        client.POST("/api/v1/admin/system/config/external-tools/diagnose", {
-          body: { configured_values: configuredValues },
-          headers: { "X-No-Toast": "true" },
-        }),
-      );
-    },
-    [],
-  );
-
-  const handleProbeExternalTool: ProbeExternalTool = useCallback(
-    async ({ toolId, value }) => {
-      return extractData<Awaited<ReturnType<ProbeExternalTool>>>(
-        client.POST("/api/v1/admin/system/config/external-tools/probe", {
-          body: {
-            tool_id: toolId,
-            value,
-          },
-          headers: { "X-No-Toast": "true" },
-        }),
-      );
-    },
-    [],
-  );
-
-  const handleProbeMediaBackend = useCallback(
-    async ({
-      ffmpegPath,
-      backend,
-      device,
-    }: {
-      ffmpegPath: string;
-      backend: string;
-      device?: string;
-    }): Promise<MediaBackendProbeResponse> => {
-      return extractData<MediaBackendProbeResponse>(
-        client.POST("/api/v1/admin/system/config/media-backend/probe", {
-          body: {
-            ffmpeg_path: ffmpegPath,
-            backend,
-            ...(device ? { device } : {}),
-          },
-          headers: { "X-No-Toast": "true" },
-        }),
-      );
-    },
-    [],
-  );
-
-  const handleCheckDatabase = useCallback(
-    async ({
-      databaseType,
-      connectionString,
-    }: {
-      databaseType: "sqlite" | "postgres";
-      connectionString: string;
-    }) => {
-      try {
-        await extractData(
-          client.POST("/api/v1/admin/system/config/check-db", {
-            body: {
-              db_type: databaseType,
-              connection_string: connectionString,
-            },
-            headers: { "X-No-Toast": "true" },
-          }),
-        );
-        addToast(t("admin.config.testSuccess"), "success");
-      } catch (error) {
-        addToast(handleApiError(error, t), "error");
-      }
-    },
+  const sharedCapabilities = useMemo(
+    () =>
+      createAdminSettingCommonCapabilityHandlers({
+        t,
+        addToast,
+      }),
     [addToast, t],
-  );
-
-  const handleCheckCache = useCallback(
-    async ({
-      cacheType,
-      connectionString,
-    }: {
-      cacheType: string;
-      connectionString: string;
-    }) => {
-      try {
-        await extractData(
-          client.POST("/api/v1/admin/system/config/check-kv", {
-            body: {
-              kv_type: cacheType,
-              connection_string: connectionString,
-            },
-            headers: { "X-No-Toast": "true" },
-          }),
-        );
-        addToast(t("admin.config.testSuccess"), "success");
-      } catch (error) {
-        addToast(handleApiError(error, t), "error");
-      }
-    },
-    [addToast, t],
-  );
-
-  const handleTestPreStartup = useCallback(
-    async ({ tomlContent }: { tomlContent: string }): Promise<FlowStartupExecutionResult> => {
-      return extractData<FlowStartupExecutionResult>(
-        client.POST("/api/v1/admin/startup-commands/test-pre-startup", {
-          body: { toml_content: tomlContent },
-          headers: { "X-No-Toast": "true" },
-        }),
-      );
-    },
-    [],
-  );
-
-  const handleTestPostStartup = useCallback(
-    async ({ tomlContent }: { tomlContent: string }): Promise<FlowStartupExecutionResult> => {
-      return extractData<FlowStartupExecutionResult>(
-        client.POST("/api/v1/admin/startup-commands/test-post-startup", {
-          body: { toml_content: tomlContent },
-          headers: { "X-No-Toast": "true" },
-        }),
-      );
-    },
-    [],
-  );
-
-  const sharedCapabilities = useMemo<SettingCommonCapabilityHandlers>(
-    () => ({
-      onTestDatabase: handleCheckDatabase,
-      onTestCache: handleCheckCache,
-      onDiagnoseExternalTools: handleDiagnoseExternalTools,
-      onProbeExternalTool: handleProbeExternalTool,
-      onProbeMediaBackend: handleProbeMediaBackend,
-      onTestPreStartup: handleTestPreStartup,
-      onTestPostStartup: handleTestPostStartup,
-    }),
-    [
-      handleCheckDatabase,
-      handleCheckCache,
-      handleDiagnoseExternalTools,
-      handleProbeExternalTool,
-      handleProbeMediaBackend,
-      handleTestPreStartup,
-      handleTestPostStartup,
-    ],
   );
 
   const settingActions = useMemo(
@@ -721,9 +576,9 @@ export const SystemConfigAdmin = () => {
           reloadSummaryLevel,
           runtimeOs,
           systemHardware,
-          onDiagnoseExternalTools: handleDiagnoseExternalTools,
-          onProbeExternalTool: handleProbeExternalTool,
-          onProbeMediaBackend: handleProbeMediaBackend,
+          onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,
+          onProbeExternalTool: sharedCapabilities.onProbeExternalTool,
+          onProbeMediaBackend: sharedCapabilities.onProbeMediaBackend,
           quickSettingsLicense: {
             isValid: Boolean(licenseStatus?.is_valid),
             msg: licenseStatus?.msg,

@@ -24,8 +24,11 @@ import {
   FlowStartupInlinePanel,
   type FlowStartupTestRunner,
 } from "./FlowStartupInlinePanel";
-import type { TomlAdapter } from "./ExternalDependencyConfigModal";
-import type { DiagnoseExternalTools, ProbeExternalTool } from "./SharedFfmpegField";
+import type {
+  ExternalToolDiagnosisResponse,
+  TomlAdapter,
+} from "./ExternalDependencyConfigModal";
+import type { ProbeExternalTool } from "./SharedFfmpegField";
 import type { SystemHardwareInfo } from "./ConfigQuickSettingsModal";
 
 export type DatabaseCheckPayload = {
@@ -41,7 +44,9 @@ export type CacheCheckPayload = {
 export interface SettingCommonCapabilityHandlers {
   onTestDatabase: (payload: DatabaseCheckPayload) => Promise<void>;
   onTestCache: (payload: CacheCheckPayload) => Promise<void>;
-  onDiagnoseExternalTools: DiagnoseExternalTools;
+  onDiagnoseExternalTools: (
+    configuredValues: Record<string, string>,
+  ) => Promise<ExternalToolDiagnosisResponse>;
   onProbeExternalTool: ProbeExternalTool;
   onProbeMediaBackend: ProbeMediaBackend;
   onTestPreStartup: FlowStartupTestRunner;

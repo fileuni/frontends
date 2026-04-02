@@ -20,14 +20,12 @@ import { SettingSetupEntryView } from "@/components/setting/SettingSetupEntryVie
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { SettingSurfaceControls } from "@/components/setting/SettingSurfaceControls";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
-import type { ExternalToolDiagnosisResponse } from "@/components/setting/ExternalDependencyConfigModal";
-import type { FlowStartupExecutionResult } from "@/components/setting/FlowStartupInlinePanel";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import {
   buildSettingCommonActions,
-  type SettingCommonCapabilityHandlers,
 } from "@/components/setting/SettingCommonActions";
+import { createTauriSettingCommonCapabilityHandlers } from "@/components/setting/settingCommonCapabilityAdapters";
 import { LogViewer, type LogEntry } from "@/apps/launcher/components/LogViewer";
 import { QuickActionsPanel } from "@/apps/launcher/components/QuickActionsPanel";
 import {
@@ -579,16 +577,20 @@ export function Launcher() {
     setShowConfigSelector(true);
   };
 
+  const sharedCapabilities = React.useMemo(
+    () =>
+      createTauriSettingCommonCapabilityHandlers({
+        t,
+        invoke: safeInvoke,
+        addSuccessToast: toast.success,
+        addErrorToast: toast.error,
+        formatError: extractErrorMessage,
+      }),
+    [t],
+  );
+
   const settingActions = buildSettingCommonActions({
-    sharedCapabilities: {
-      onTestDatabase: handleCheckDatabase,
-      onTestCache: handleCheckCache,
-      onDiagnoseExternalTools: handleDiagnoseExternalTools,
-      onProbeExternalTool: handleProbeExternalTool,
-      onProbeMediaBackend: handleProbeMediaBackend,
-      onTestPreStartup: handleTestPreStartup,
-      onTestPostStartup: handleTestPostStartup,
-    } satisfies SettingCommonCapabilityHandlers,
+    sharedCapabilities,
     t,
     isDark,
     tomlAdapter: toml,
@@ -656,117 +658,6 @@ export function Launcher() {
     }
     setConfigBusy(false);
   };
-
-  async function handleDiagnoseExternalTools(
-    configuredValues: Record<string, string>,
-  ): Promise<ExternalToolDiagnosisResponse> {
-    return safeInvoke<ExternalToolDiagnosisResponse>(
-      "diagnose_external_tools",
-      {
-        payload: { configured_values: configuredValues },
-      },
-    );
-  }
-
-  async function handleProbeExternalTool({
-    toolId,
-    value,
-  }: {
-    toolId: string;
-    value: string;
-  }) {
-    return safeInvoke<{
-      tool_id: string;
-      display_name: string;
-      available: boolean;
-      current_value: string;
-      resolved_path?: string | null;
-      version_line?: string | null;
-      message: string;
-    }>("probe_external_tool", {
-      payload: {
-        tool_id: toolId,
-        value,
-      },
-    });
-  }
-
-  async function handleProbeMediaBackend({
-    ffmpegPath,
-    backend,
-    device,
-  }: {
-    ffmpegPath: string;
-    backend: string;
-    device?: string;
-  }) {
-    return safeInvoke<import("@/components/setting/MediaTranscodingConfigPanel").MediaBackendProbeResponse>(
-      "probe_media_backend",
-      {
-        payload: {
-          ffmpeg_path: ffmpegPath,
-          backend,
-          ...(device ? { device } : {}),
-        },
-      },
-    );
-  }
-
-  async function handleCheckDatabase({
-    databaseType,
-    connectionString,
-  }: {
-    databaseType: "sqlite" | "postgres";
-    connectionString: string;
-  }) {
-    try {
-      await safeInvoke<void>("check_db_connection", {
-        dbType: databaseType,
-        connectionString,
-      });
-      toast.success(t("admin.config.testSuccess"));
-    } catch (error) {
-      toast.error(String(error));
-    }
-  }
-
-  async function handleCheckCache({
-    cacheType,
-    connectionString,
-  }: {
-    cacheType: string;
-    connectionString: string;
-  }) {
-    try {
-      await safeInvoke<void>("check_kv_connection", {
-        kvType: cacheType,
-        connectionString,
-      });
-      toast.success(t("admin.config.testSuccess"));
-    } catch (error) {
-      toast.error(String(error));
-    }
-  }
-
-  async function handleTestPreStartup({
-    tomlContent,
-  }: {
-    tomlContent: string;
-  }): Promise<FlowStartupExecutionResult> {
-    return safeInvoke<FlowStartupExecutionResult>("test_pre_startup_commands", {
-      tomlContent,
-    });
-  }
-
-  async function handleTestPostStartup({
-    tomlContent,
-  }: {
-    tomlContent: string;
-  }): Promise<FlowStartupExecutionResult> {
-    return safeInvoke<FlowStartupExecutionResult>("test_post_startup_commands", {
-      tomlContent,
-    });
-  }
 
   useEffect(() => {
     let unlistenServiceAction: (() => void) | null = null;
@@ -1248,9 +1139,9 @@ export function Launcher() {
                     reloadSummaryLevel: configSummaryLevel,
                     runtimeOs: osInfo?.os_type,
                     systemHardware: osInfo,
-                    onDiagnoseExternalTools: handleDiagnoseExternalTools,
-                    onProbeExternalTool: handleProbeExternalTool,
-                    onProbeMediaBackend: handleProbeMediaBackend,
+                    onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,
+                    onProbeExternalTool: sharedCapabilities.onProbeExternalTool,
+                    onProbeMediaBackend: sharedCapabilities.onProbeMediaBackend,
                     ...(osInfo?.is_mobile
                       ? { onPickStorageDirectory: pickExternalStorageDirectory }
                       : {}),
@@ -1790,9 +1681,9 @@ export function Launcher() {
                 reloadSummaryLevel: configSummaryLevel,
                 runtimeOs: osInfo?.os_type,
                 systemHardware: osInfo,
-                onDiagnoseExternalTools: handleDiagnoseExternalTools,
-                onProbeExternalTool: handleProbeExternalTool,
-                onProbeMediaBackend: handleProbeMediaBackend,
+                onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,
+                onProbeExternalTool: sharedCapabilities.onProbeExternalTool,
+                onProbeMediaBackend: sharedCapabilities.onProbeMediaBackend,
                 ...(osInfo?.is_mobile
                   ? { onPickStorageDirectory: pickExternalStorageDirectory }
                   : {}),

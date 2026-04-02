@@ -12,15 +12,11 @@ import { ConfigWorkbenchShell } from "@/components/setting/ConfigWorkbenchShell"
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { SettingSurfaceControls } from "@/components/setting/SettingSurfaceControls";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
-import type { ExternalToolDiagnosisResponse } from "@/components/setting/ExternalDependencyConfigModal";
 import {
   buildSettingCommonActions,
-  type SettingCommonCapabilityHandlers,
 } from "@/components/setting/SettingCommonActions";
-import type { FlowStartupExecutionResult } from "@/components/setting/FlowStartupInlinePanel";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
-import type { MediaBackendProbeResponse } from "@/components/setting/MediaTranscodingConfigPanel";
-import type { ProbeExternalTool } from "@/components/setting/SharedFfmpegField";
+import { createConfigSetSettingCommonCapabilityHandlers } from "@/components/setting/settingCommonCapabilityAdapters";
 import { SettingSetupEntryView } from "@/components/setting/SettingSetupEntryView";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useToastStore } from "@/stores/toast";
@@ -398,144 +394,13 @@ export const ConfigSetEditor: React.FC = () => {
     setValidationErrors([]);
   };
 
-  const handleDiagnoseExternalTools = useCallback(
-    async (
-      configuredValues: Record<string, string>,
-    ): Promise<ExternalToolDiagnosisResponse> => {
-      return extractData<ExternalToolDiagnosisResponse>(
-        client.POST("/api/v1/config-set/external-tools/diagnose", {
-          body: { configured_values: configuredValues },
-        }),
-      );
-    },
-    [],
-  );
-
-  const handleProbeExternalTool: ProbeExternalTool = useCallback(
-    async ({ toolId, value }) => {
-      return extractData<Awaited<ReturnType<ProbeExternalTool>>>(
-        client.POST("/api/v1/config-set/external-tools/probe", {
-          body: {
-            tool_id: toolId,
-            value,
-          },
-        }),
-      );
-    },
-    [],
-  );
-
-  const handleProbeMediaBackend = useCallback(
-    async ({
-      ffmpegPath,
-      backend,
-      device,
-    }: {
-      ffmpegPath: string;
-      backend: string;
-      device?: string;
-    }): Promise<MediaBackendProbeResponse> => {
-      return extractData<MediaBackendProbeResponse>(
-        client.POST("/api/v1/config-set/media-backend/probe", {
-          body: {
-            ffmpeg_path: ffmpegPath,
-            backend,
-            ...(device ? { device } : {}),
-          },
-        }),
-      );
-    },
-    [],
-  );
-
-  const handleTestPreStartup = useCallback(
-    async ({ tomlContent }: { tomlContent: string }): Promise<FlowStartupExecutionResult> => {
-      return extractData<FlowStartupExecutionResult>(
-        client.POST("/api/v1/config-set/startup-commands/test-pre-startup", {
-          body: { toml_content: tomlContent },
-        }),
-      );
-    },
-    [],
-  );
-
-  const handleTestPostStartup = useCallback(
-    async ({ tomlContent }: { tomlContent: string }): Promise<FlowStartupExecutionResult> => {
-      return extractData<FlowStartupExecutionResult>(
-        client.POST("/api/v1/config-set/startup-commands/test-post-startup", {
-          body: { toml_content: tomlContent },
-        }),
-      );
-    },
-    [],
-  );
-
-  const handleCheckDatabase = useCallback(
-    async ({
-      databaseType,
-      connectionString,
-    }: {
-      databaseType: "sqlite" | "postgres";
-      connectionString: string;
-    }) => {
-      try {
-        await extractData(
-          client.POST("/api/v1/config-set/check-db", {
-            body: {
-              db_type: databaseType,
-              connection_string: connectionString,
-            },
-          }),
-        );
-        addToast(t("admin.config.testSuccess"), "success");
-      } catch (error) {
-        addToast(handleApiError(error, t), "error");
-      }
-    },
+  const sharedCapabilities = useMemo(
+    () =>
+      createConfigSetSettingCommonCapabilityHandlers({
+        t,
+        addToast,
+      }),
     [addToast, t],
-  );
-
-  const handleCheckCache = useCallback(
-    async ({
-      cacheType,
-      connectionString,
-    }: {
-      cacheType: string;
-      connectionString: string;
-    }) => {
-      try {
-        await extractData(
-          client.POST("/api/v1/config-set/check-kv", {
-            body: { kv_type: cacheType, connection_string: connectionString },
-          }),
-        );
-        addToast(t("admin.config.testSuccess"), "success");
-      } catch (error) {
-        addToast(handleApiError(error, t), "error");
-      }
-    },
-    [addToast, t],
-  );
-
-  const sharedCapabilities = useMemo<SettingCommonCapabilityHandlers>(
-    () => ({
-      onTestDatabase: handleCheckDatabase,
-      onTestCache: handleCheckCache,
-      onDiagnoseExternalTools: handleDiagnoseExternalTools,
-      onProbeExternalTool: handleProbeExternalTool,
-      onProbeMediaBackend: handleProbeMediaBackend,
-      onTestPreStartup: handleTestPreStartup,
-      onTestPostStartup: handleTestPostStartup,
-    }),
-    [
-      handleCheckDatabase,
-      handleCheckCache,
-      handleDiagnoseExternalTools,
-      handleProbeExternalTool,
-      handleProbeMediaBackend,
-      handleTestPreStartup,
-      handleTestPostStartup,
-    ],
   );
 
   const headerActions = <SettingSurfaceControls compact={true} />;
@@ -813,9 +678,9 @@ export const ConfigSetEditor: React.FC = () => {
         onClearValidationErrors: () => setValidationErrors([]),
         runtimeOs,
         systemHardware,
-        onDiagnoseExternalTools: handleDiagnoseExternalTools,
-        onProbeExternalTool: handleProbeExternalTool,
-        onProbeMediaBackend: handleProbeMediaBackend,
+        onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,
+        onProbeExternalTool: sharedCapabilities.onProbeExternalTool,
+        onProbeMediaBackend: sharedCapabilities.onProbeMediaBackend,
       }}
     />
   );
