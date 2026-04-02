@@ -82,29 +82,5 @@
   "install_level": "Install Level",
   "install_level_system": "System",
   "install_level_user": "User",
-  "install_autostart": "Autostart on boot",
-  "upgrade": {
-    "title": "Runtime Upgrade Required",
-    "requiredDescription": "This FileUni runtime was created by a different version. Upgrade it before starting the service or editing settings.",
-    "downgradeBlocked": "This runtime was prepared by a newer FileUni build. Install the same or a newer FileUni version before continuing.",
-    "manualBlocked": "Automatic upgrade is not available for this runtime. Check the runtime data and database connection, then try again with a compatible FileUni build.",
-    "backupTitle": "Back Up First",
-    "backupDatabase": "Back up the database now.",
-    "backupRuntimeDir": "Back up the full runtime directory now.",
-    "backupUserFiles": "Back up important user files now.",
-    "binaryVersion": "Program Version",
-    "environmentVersion": "Environment Version",
-    "targetVersion": "Target Version",
-    "schemaVersion": "Schema Version",
-    "planTitle": "Upgrade Plan",
-    "stepBootstrapLegacyRuntime": "Legacy bootstrap",
-    "stepConsecutiveRelease": "Release-to-release step",
-    "stepMajorUpgradeBridge": "Major-version bridge",
-    "majorBridgeWarning": "This upgrade path includes a major-version bridge step. Review your backups carefully before continuing.",
-    "missingValue": "Not recorded",
-    "confirm": "Upgrade Now",
-    "upgrading": "Upgrading...",
-    "success": "Runtime upgrade completed",
-    "startBlocked": "Finish the runtime upgrade before continuing."
-  }
+  "install_autostart": "Autostart on boot"
 }
