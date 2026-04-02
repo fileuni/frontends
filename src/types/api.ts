@@ -4982,9 +4982,14 @@ export interface components {
             /** Format: int32 */
             exit_code?: number | null;
             index: number;
+            status: components["schemas"]["StartupCommandStatus"];
             stderr: string;
+            stderr_truncated: boolean;
             stdout: string;
+            stdout_truncated: boolean;
         };
+        /** @enum {string} */
+        StartupCommandStatus: "exited" | "running" | "spawn_failed";
         StartupExecutionRequest: {
             toml_content?: string | null;
         };
