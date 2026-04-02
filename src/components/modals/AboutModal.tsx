@@ -125,24 +125,30 @@ const LinkCard: React.FC<{
 }> = ({ href, label, icon: Icon, onOpenLink, isDark }) => {
   const className = cn(
     'group flex flex-col items-center justify-center gap-3 rounded-2xl border transition-all duration-300',
-    isDark 
-      ? 'border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-primary/30' 
-      : 'border-gray-200 bg-gray-50 hover:bg-white hover:border-primary/30 shadow-sm hover:shadow-md'
+    isDark
+      ? 'border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-primary/30'
+      : 'border-gray-200 bg-gray-50 hover:bg-white hover:border-primary/30 shadow-sm hover:shadow-md',
   );
 
   const content = (
     <>
-      <div className={cn(
-        "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 shadow-inner border",
-        isDark ? "bg-white/5 border-white/10 group-hover:text-primary" : "bg-white border-gray-200 group-hover:text-primary"
-      )}>
+      <div
+        className={cn(
+          'flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 shadow-inner border',
+          isDark ? 'bg-white/5 border-white/10 group-hover:text-primary' : 'bg-white border-gray-200 group-hover:text-primary',
+        )}
+      >
         <Icon size={20} />
       </div>
       <div className="flex items-center gap-1.5 px-2 w-full justify-center">
-        <span className={cn(
-          "text-xs font-black uppercase tracking-tight truncate",
-          isDark ? "text-slate-400 group-hover:text-white" : "text-slate-600 group-hover:text-slate-900"
-        )}>{label}</span>
+        <span
+          className={cn(
+            'text-xs font-black uppercase tracking-tight truncate',
+            isDark ? 'text-slate-400 group-hover:text-white' : 'text-slate-600 group-hover:text-slate-900',
+          )}
+        >
+          {label}
+        </span>
         <ExternalLink size={10} className="opacity-30 shrink-0" />
       </div>
     </>
@@ -150,14 +156,14 @@ const LinkCard: React.FC<{
 
   if (onOpenLink) {
     return (
-      <button type="button" onClick={() => onOpenLink(href)} className={cn(className, "py-4 w-full")}>
+      <button type="button" onClick={() => onOpenLink(href)} className={cn(className, 'py-4 w-full')}>
         {content}
       </button>
     );
   }
 
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={cn(className, "py-4")}>
+    <a href={href} target="_blank" rel="noopener noreferrer" className={cn(className, 'py-4')}>
       {content}
     </a>
   );
@@ -174,21 +180,25 @@ const ReleaseRow: React.FC<{
 }> = ({ info, updateInfo, title, onOpenLink, getUpdateGuideUrl, t, isDark }) => {
   const downloadUrl = info.target_download_url || info.release_page_url;
   const primaryUrl = getUpdateGuideUrl ? getUpdateGuideUrl(info, updateInfo) : downloadUrl;
-  
+
   return (
-    <div className={cn(
-      "group relative overflow-hidden rounded-xl border p-4 transition-all",
-      isDark ? "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]" : "border-gray-200 bg-gray-50 hover:bg-white hover:shadow-sm"
-    )}>
+    <div
+      className={cn(
+        'group relative overflow-hidden rounded-xl border p-4 transition-all',
+        isDark ? 'border-white/10 bg-white/[0.02] hover:bg-white/[0.05]' : 'border-gray-200 bg-gray-50 hover:bg-white hover:shadow-sm',
+      )}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1 space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className={cn(
-              "text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border",
-              info.channel === 'prerelease' 
-                ? "border-fuchsia-500/30 text-fuchsia-600 bg-fuchsia-500/5" 
-                : "border-primary/30 text-primary bg-primary/5"
-            )}>
+            <span
+              className={cn(
+                'text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border',
+                info.channel === 'prerelease'
+                  ? 'border-fuchsia-500/30 text-fuchsia-600 bg-fuchsia-500/5'
+                  : 'border-primary/30 text-primary bg-primary/5',
+              )}
+            >
               {title}
             </span>
             {info.has_update && (
@@ -197,10 +207,9 @@ const ReleaseRow: React.FC<{
               </span>
             )}
           </div>
-          <div className={cn(
-            "font-mono text-sm font-black tracking-tight",
-            isDark ? "text-white" : "text-slate-950"
-          )}>{info.version}</div>
+          <div className={cn('font-mono text-sm font-black tracking-tight', isDark ? 'text-white' : 'text-slate-950')}>
+            {info.version}
+          </div>
           {info.published_at && (
             <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-tighter opacity-40">
               <Calendar size={12} />
@@ -212,9 +221,9 @@ const ReleaseRow: React.FC<{
         <div className="flex flex-col gap-2">
           <Button
             size="sm"
-            variant={isDark ? "primary" : "outline"}
+            variant={isDark ? 'primary' : 'outline'}
             className="h-8 w-8 rounded-lg p-0 shadow-sm"
-            onClick={() => onOpenLink ? onOpenLink(primaryUrl) : window.open(primaryUrl, '_blank')}
+            onClick={() => (onOpenLink ? onOpenLink(primaryUrl) : window.open(primaryUrl, '_blank'))}
             title={getUpdateGuideUrl ? t('about.openUpdateGuide') : t('about.downloadChannel')}
           >
             <Download size={14} />
@@ -223,7 +232,7 @@ const ReleaseRow: React.FC<{
             size="sm"
             variant="outline"
             className="h-8 w-8 rounded-lg p-0 bg-transparent"
-            onClick={() => onOpenLink ? onOpenLink(info.release_page_url) : window.open(info.release_page_url, '_blank')}
+            onClick={() => (onOpenLink ? onOpenLink(info.release_page_url) : window.open(info.release_page_url, '_blank'))}
             title={t('about.viewReleasePage')}
           >
             <ExternalLink size={14} />
@@ -268,7 +277,6 @@ export const AboutModal: React.FC<AboutModalProps> = ({
       aria-modal="true"
       style={{ zIndex }}
     >
-      {/* Background Overlay: Strong isolation */}
       <button
         type="button"
         className={cn(
@@ -331,7 +339,6 @@ export const AboutView: React.FC<AboutViewProps> = ({
         className,
       )}
     >
-      {/* Modern Header: Solid background */}
       <div
         className={cn(
           'relative flex flex-col items-center px-6 pt-9 pb-6 sm:pt-12 sm:pb-8 text-center border-b shrink-0',
@@ -419,7 +426,6 @@ export const AboutView: React.FC<AboutViewProps> = ({
           isDark ? 'bg-slate-950' : 'bg-white',
         )}
       >
-        {/* Links Grid: Adaptive Cards */}
         <div className="grid grid-cols-3 gap-3">
           <LinkCard
             href={PROJECT_HOMEPAGE_URL}
@@ -444,7 +450,6 @@ export const AboutView: React.FC<AboutViewProps> = ({
           />
         </div>
 
-        {/* Update Section */}
         {showCheckUpdates && (
           <div className="space-y-4">
             <div className={cn('h-px w-full', isDark ? 'bg-white/5' : 'bg-gray-100')} />
@@ -543,7 +548,6 @@ export const AboutView: React.FC<AboutViewProps> = ({
         )}
       </div>
 
-      {/* Minimal Footer: Solid and centered */}
       <div
         className={cn(
           'shrink-0 flex items-center justify-between border-t px-6 py-4 sm:px-8 sm:py-5 text-[10px] font-black uppercase tracking-[0.3em]',
@@ -558,3 +562,5 @@ export const AboutView: React.FC<AboutViewProps> = ({
     </div>
   );
 };
+
+export default AboutModal;
