@@ -733,7 +733,20 @@ const InlineSegmentCard: React.FC<{
   value: string;
   options: Array<{ value: string; label: string }>;
   onChange: (value: string) => void;
-}> = ({ isDark, title, subtitle, value, options, onChange }) => (
+  controlClassName?: string;
+  controlButtonClassName?: string;
+  equalWidth?: boolean;
+}> = ({
+  isDark,
+  title,
+  subtitle,
+  value,
+  options,
+  onChange,
+  controlClassName,
+  controlButtonClassName,
+  equalWidth = true,
+}) => (
   <div
     className={cn(
       "rounded-xl border px-3 py-3",
@@ -765,6 +778,9 @@ const InlineSegmentCard: React.FC<{
         value={value}
         options={options}
         onChange={onChange}
+        equalWidth={equalWidth}
+        className={controlClassName}
+        buttonClassName={controlButtonClassName}
       />
     </div>
   </div>
@@ -939,6 +955,9 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
             value={PROTECTED_STORAGE_BLOCK_PRESETS.includes(Number(draft.blockSizeKiB) as never)
               ? draft.blockSizeKiB
               : "custom"}
+            equalWidth={false}
+            controlClassName="justify-start"
+            controlButtonClassName="min-w-[4.75rem]"
             options={[
               ...PROTECTED_STORAGE_BLOCK_PRESETS.map((value) => ({ value: String(value), label: `${value} KiB` })),
               { value: "custom", label: t("admin.config.protectedStorage.obfuscation.blockCustom") },
@@ -1017,6 +1036,9 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
             value={PROTECTED_STORAGE_WORKER_PRESETS.includes(Number(draft.workers) as never)
               ? draft.workers
               : "custom"}
+            equalWidth={false}
+            controlClassName="justify-start"
+            controlButtonClassName="min-w-[4.75rem]"
             options={[
               ...PROTECTED_STORAGE_WORKER_PRESETS.map((value) => ({
                 value: String(value),

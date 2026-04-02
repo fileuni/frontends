@@ -275,7 +275,7 @@ export const DashboardLayout: React.FC<{
         </aside>
 
         {/* Main Content */}
-        <main className={cn("mt-12 flex-1 md:mt-0", fullWidth ? "overflow-hidden p-0" : "overflow-y-auto custom-scrollbar p-6 md:p-10")}>
+        <main className={cn("mt-12 flex-1 md:mt-0", fullWidth ? "overflow-hidden p-0" : "overflow-y-auto overscroll-contain touch-pan-y custom-scrollbar p-6 md:p-10")}>
           <div className={cn("w-full animate-in fade-in slide-in-from-bottom-2 duration-500", fullWidth ? "max-w-none h-full min-h-0" : "max-w-none")}>
             {title && <h1 className="text-4xl font-black tracking-tight mb-8 hidden md:block">{title}</h1>}
             {children}

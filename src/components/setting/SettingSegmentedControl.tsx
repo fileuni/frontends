@@ -10,8 +10,9 @@ interface SettingSegmentedControlProps<T extends string> {
   value: T;
   options: SegmentedOption<T>[];
   onChange: (value: T) => void;
-  className?: string;
-  buttonClassName?: string;
+  className?: string | undefined;
+  buttonClassName?: string | undefined;
+  equalWidth?: boolean | undefined;
 }
 
 export function SettingSegmentedControl<T extends string>({
@@ -20,6 +21,7 @@ export function SettingSegmentedControl<T extends string>({
   onChange,
   className,
   buttonClassName,
+  equalWidth = true,
 }: SettingSegmentedControlProps<T>) {
   const isDark = useResolvedTheme() === "dark";
 
@@ -41,7 +43,8 @@ export function SettingSegmentedControl<T extends string>({
             type="button"
             onClick={() => onChange(option.value)}
             className={cn(
-              "min-w-0 flex-1 rounded-full px-3 py-2 text-center text-sm font-black leading-5 transition-colors whitespace-normal break-words",
+              "min-w-0 rounded-full px-3 py-2 text-center text-sm font-black leading-5 transition-colors whitespace-normal break-words",
+              equalWidth ? "flex-1" : "shrink-0 grow-0 basis-auto",
               active
                 ? "bg-primary text-white shadow-lg shadow-primary/20"
                 : isDark

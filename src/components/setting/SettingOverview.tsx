@@ -252,17 +252,17 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
         >
           <div
             className={cn(
-              "grid gap-3 lg:items-start",
+              "grid items-start gap-3",
               isSidebarExpanded
-                ? "grid-cols-1 lg:[grid-template-columns:minmax(15rem,max-content)_minmax(0,1fr)] xl:[grid-template-columns:minmax(17rem,max-content)_minmax(0,1fr)]"
-                : "grid-cols-1 lg:grid-cols-[4.25rem_minmax(0,1fr)]",
+                ? "grid-cols-[minmax(11rem,13rem)_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)]"
+                : "grid-cols-[4.25rem_minmax(0,1fr)]",
             )}
           >
             <aside
               className={cn(
-                "self-start border p-2 z-10 overflow-y-auto overflow-x-hidden overscroll-contain lg:sticky lg:top-[calc(0.75rem+var(--safe-area-top,0px))] lg:max-h-[calc(100vh-1.5rem-var(--safe-area-top,0px))] max-w-full",
+                "sticky top-[calc(0.75rem+var(--safe-area-top,0px))] self-start border p-2 z-10 max-h-[calc(100dvh-1.5rem-var(--safe-area-top,0px))] max-w-full overflow-y-auto overflow-x-hidden overscroll-contain touch-pan-y",
                 isSidebarExpanded ? "rounded-3xl" : "rounded-2xl",
-                isSidebarExpanded ? "lg:w-fit lg:min-w-[15rem] lg:max-w-[22rem]" : "lg:w-[4.25rem]",
+                isSidebarExpanded ? "w-full min-w-0" : "w-[4.25rem]",
                 isDark
                   ? "border-white/10 bg-black/20"
                   : "border-slate-200 bg-slate-50/70",
@@ -336,7 +336,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
               id={`setting-inline-${activeItem.id}`}
               data-setting-action-id={activeItem.id}
               className={cn(
-                "rounded-3xl border p-4 sm:p-5 transition-colors",
+                "min-w-0 rounded-3xl border p-4 sm:p-5 transition-colors",
                 isDark
                   ? "border-cyan-400/25 bg-cyan-500/10"
                   : "border-cyan-200 bg-cyan-50/70 shadow-sm",
