@@ -447,7 +447,7 @@ export const ConfigSetEditor: React.FC = () => {
   const handleTestPreStartup = useCallback(
     async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
       return extractData<StartupExecutionResult>(
-        client.POST("/api/v1/config-set/extensions/test-pre-startup", {
+        client.POST("/api/v1/config-set/startup-commands/test-pre-startup", {
           body: { toml_content: tomlContent },
         }),
       );
@@ -458,7 +458,7 @@ export const ConfigSetEditor: React.FC = () => {
   const handleTestPostStartup = useCallback(
     async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
       return extractData<StartupExecutionResult>(
-        client.POST("/api/v1/config-set/extensions/test-post-startup", {
+        client.POST("/api/v1/config-set/startup-commands/test-post-startup", {
           body: { toml_content: tomlContent },
         }),
       );

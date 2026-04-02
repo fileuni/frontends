@@ -516,7 +516,7 @@ export const SystemConfigAdmin = () => {
   const handleTestPreStartup = useCallback(
     async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
       return extractData<StartupExecutionResult>(
-        client.POST("/api/v1/admin/extensions/test-pre-startup", {
+        client.POST("/api/v1/admin/startup-commands/test-pre-startup", {
           body: { toml_content: tomlContent },
           headers: { "X-No-Toast": "true" },
         }),
@@ -528,7 +528,7 @@ export const SystemConfigAdmin = () => {
   const handleTestPostStartup = useCallback(
     async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
       return extractData<StartupExecutionResult>(
-        client.POST("/api/v1/admin/extensions/test-post-startup", {
+        client.POST("/api/v1/admin/startup-commands/test-post-startup", {
           body: { toml_content: tomlContent },
           headers: { "X-No-Toast": "true" },
         }),
