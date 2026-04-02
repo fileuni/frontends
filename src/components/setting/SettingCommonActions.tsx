@@ -28,15 +28,25 @@ import type { TomlAdapter } from "./ExternalDependencyConfigModal";
 import type { DiagnoseExternalTools, ProbeExternalTool } from "./SharedFfmpegField";
 import type { SystemHardwareInfo } from "./ConfigQuickSettingsModal";
 
-type DatabaseCheckPayload = {
+export type DatabaseCheckPayload = {
   databaseType: "sqlite" | "postgres";
   connectionString: string;
 };
 
-type CacheCheckPayload = {
+export type CacheCheckPayload = {
   cacheType: string;
   connectionString: string;
 };
+
+export interface SettingCommonCapabilityHandlers {
+  onTestDatabase: (payload: DatabaseCheckPayload) => Promise<void>;
+  onTestCache: (payload: CacheCheckPayload) => Promise<void>;
+  onDiagnoseExternalTools: DiagnoseExternalTools;
+  onProbeExternalTool: ProbeExternalTool;
+  onProbeMediaBackend: ProbeMediaBackend;
+  onTestPreStartup: FlowStartupTestRunner;
+  onTestPostStartup: FlowStartupTestRunner;
+}
 
 export interface SettingLicenseStatusLike {
   is_valid: boolean;
@@ -262,13 +272,7 @@ interface BuildSettingCommonActionsParams {
   onContentChange: (value: string) => void;
   runtimeOs?: string | undefined;
   systemHardware?: SystemHardwareInfo | null;
-  onTestDatabase?: (payload: DatabaseCheckPayload) => Promise<void>;
-  onTestCache?: (payload: CacheCheckPayload) => Promise<void>;
-  onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
-  onProbeExternalTool?: ProbeExternalTool | undefined;
-  onProbeMediaBackend?: ProbeMediaBackend | undefined;
-  onTestPreStartup?: FlowStartupTestRunner | undefined;
-  onTestPostStartup?: FlowStartupTestRunner | undefined;
+  sharedCapabilities: SettingCommonCapabilityHandlers;
   adminPassword: {
     value: string;
     onValueChange: (password: string) => void;
@@ -295,17 +299,21 @@ export const buildSettingCommonActions = ({
   onContentChange,
   runtimeOs,
   systemHardware,
-  onTestDatabase,
-  onTestCache,
-  onDiagnoseExternalTools,
-  onProbeExternalTool,
-  onProbeMediaBackend,
-  onTestPreStartup,
-  onTestPostStartup,
+  sharedCapabilities,
   adminPassword,
   license,
   storage,
 }: BuildSettingCommonActionsParams): SettingActionItem[] => {
+  const {
+    onTestDatabase,
+    onTestCache,
+    onDiagnoseExternalTools,
+    onProbeExternalTool,
+    onProbeMediaBackend,
+    onTestPreStartup,
+    onTestPostStartup,
+  } = sharedCapabilities;
+
   return [
     {
       id: "performance",

@@ -10,7 +10,10 @@ import type {
 } from "@/components/setting/ConfigRawEditor";
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
-import { buildSettingCommonActions } from "@/components/setting/SettingCommonActions";
+import {
+  buildSettingCommonActions,
+  type SettingCommonCapabilityHandlers,
+} from "@/components/setting/SettingCommonActions";
 import type { FlowStartupExecutionResult } from "@/components/setting/FlowStartupInlinePanel";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
 import type { MediaBackendProbeResponse } from "@/components/setting/MediaTranscodingConfigPanel";
@@ -514,6 +517,58 @@ export const SystemConfigAdmin = () => {
     [],
   );
 
+  const handleCheckDatabase = useCallback(
+    async ({
+      databaseType,
+      connectionString,
+    }: {
+      databaseType: "sqlite" | "postgres";
+      connectionString: string;
+    }) => {
+      try {
+        await extractData(
+          client.POST("/api/v1/admin/system/config/check-db", {
+            body: {
+              db_type: databaseType,
+              connection_string: connectionString,
+            },
+            headers: { "X-No-Toast": "true" },
+          }),
+        );
+        addToast(t("admin.config.testSuccess"), "success");
+      } catch (error) {
+        addToast(handleApiError(error, t), "error");
+      }
+    },
+    [addToast, t],
+  );
+
+  const handleCheckCache = useCallback(
+    async ({
+      cacheType,
+      connectionString,
+    }: {
+      cacheType: string;
+      connectionString: string;
+    }) => {
+      try {
+        await extractData(
+          client.POST("/api/v1/admin/system/config/check-kv", {
+            body: {
+              kv_type: cacheType,
+              connection_string: connectionString,
+            },
+            headers: { "X-No-Toast": "true" },
+          }),
+        );
+        addToast(t("admin.config.testSuccess"), "success");
+      } catch (error) {
+        addToast(handleApiError(error, t), "error");
+      }
+    },
+    [addToast, t],
+  );
+
   const handleTestPreStartup = useCallback(
     async ({ tomlContent }: { tomlContent: string }): Promise<FlowStartupExecutionResult> => {
       return extractData<FlowStartupExecutionResult>(
@@ -538,6 +593,27 @@ export const SystemConfigAdmin = () => {
     [],
   );
 
+  const sharedCapabilities = useMemo<SettingCommonCapabilityHandlers>(
+    () => ({
+      onTestDatabase: handleCheckDatabase,
+      onTestCache: handleCheckCache,
+      onDiagnoseExternalTools: handleDiagnoseExternalTools,
+      onProbeExternalTool: handleProbeExternalTool,
+      onProbeMediaBackend: handleProbeMediaBackend,
+      onTestPreStartup: handleTestPreStartup,
+      onTestPostStartup: handleTestPostStartup,
+    }),
+    [
+      handleCheckDatabase,
+      handleCheckCache,
+      handleDiagnoseExternalTools,
+      handleProbeExternalTool,
+      handleProbeMediaBackend,
+      handleTestPreStartup,
+      handleTestPostStartup,
+    ],
+  );
+
   const settingActions = useMemo(
     () =>
       buildSettingCommonActions({
@@ -548,11 +624,7 @@ export const SystemConfigAdmin = () => {
         onContentChange: setContent,
         runtimeOs,
         systemHardware,
-        onDiagnoseExternalTools: handleDiagnoseExternalTools,
-        onProbeExternalTool: handleProbeExternalTool,
-        onProbeMediaBackend: handleProbeMediaBackend,
-        onTestPreStartup: handleTestPreStartup,
-        onTestPostStartup: handleTestPostStartup,
+        sharedCapabilities,
         adminPassword: {
           value: pendingAdminPassword,
           onValueChange: setPendingAdminPassword,
@@ -581,11 +653,7 @@ export const SystemConfigAdmin = () => {
       pendingAdminPassword,
       runtimeOs,
       systemHardware,
-      handleDiagnoseExternalTools,
-      handleProbeExternalTool,
-      handleProbeMediaBackend,
-      handleTestPreStartup,
-      handleTestPostStartup,
+      sharedCapabilities,
       licenseStatus,
       licenseKey,
       handleUpdateLicense,

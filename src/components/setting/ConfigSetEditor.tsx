@@ -13,7 +13,10 @@ import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSu
 import { SettingSurfaceControls } from "@/components/setting/SettingSurfaceControls";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
 import type { ExternalToolDiagnosisResponse } from "@/components/setting/ExternalDependencyConfigModal";
-import { buildSettingCommonActions } from "@/components/setting/SettingCommonActions";
+import {
+  buildSettingCommonActions,
+  type SettingCommonCapabilityHandlers,
+} from "@/components/setting/SettingCommonActions";
 import type { FlowStartupExecutionResult } from "@/components/setting/FlowStartupInlinePanel";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
 import type { MediaBackendProbeResponse } from "@/components/setting/MediaTranscodingConfigPanel";
@@ -514,6 +517,27 @@ export const ConfigSetEditor: React.FC = () => {
     [addToast, t],
   );
 
+  const sharedCapabilities = useMemo<SettingCommonCapabilityHandlers>(
+    () => ({
+      onTestDatabase: handleCheckDatabase,
+      onTestCache: handleCheckCache,
+      onDiagnoseExternalTools: handleDiagnoseExternalTools,
+      onProbeExternalTool: handleProbeExternalTool,
+      onProbeMediaBackend: handleProbeMediaBackend,
+      onTestPreStartup: handleTestPreStartup,
+      onTestPostStartup: handleTestPostStartup,
+    }),
+    [
+      handleCheckDatabase,
+      handleCheckCache,
+      handleDiagnoseExternalTools,
+      handleProbeExternalTool,
+      handleProbeMediaBackend,
+      handleTestPreStartup,
+      handleTestPostStartup,
+    ],
+  );
+
   const headerActions = <SettingSurfaceControls compact={true} />;
 
   const settingsCenterTitle = t([
@@ -562,13 +586,7 @@ export const ConfigSetEditor: React.FC = () => {
         onContentChange: setContent,
         runtimeOs,
         systemHardware,
-        onTestDatabase: handleCheckDatabase,
-        onTestCache: handleCheckCache,
-        onDiagnoseExternalTools: handleDiagnoseExternalTools,
-        onProbeExternalTool: handleProbeExternalTool,
-        onProbeMediaBackend: handleProbeMediaBackend,
-        onTestPreStartup: handleTestPreStartup,
-        onTestPostStartup: handleTestPostStartup,
+        sharedCapabilities,
         adminPassword: {
           value: pendingAdminPassword,
           onValueChange: setPendingAdminPassword,
@@ -594,15 +612,9 @@ export const ConfigSetEditor: React.FC = () => {
       t,
       isDark,
       content,
+      sharedCapabilities,
       runtimeOs,
       systemHardware,
-      handleCheckDatabase,
-      handleCheckCache,
-      handleDiagnoseExternalTools,
-      handleProbeExternalTool,
-      handleProbeMediaBackend,
-      handleTestPreStartup,
-      handleTestPostStartup,
       pendingAdminPassword,
       licenseStatus,
       licenseKey,

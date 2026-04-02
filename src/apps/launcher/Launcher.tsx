@@ -21,9 +21,13 @@ import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSu
 import { SettingSurfaceControls } from "@/components/setting/SettingSurfaceControls";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
 import type { ExternalToolDiagnosisResponse } from "@/components/setting/ExternalDependencyConfigModal";
+import type { FlowStartupExecutionResult } from "@/components/setting/FlowStartupInlinePanel";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
-import { buildSettingCommonActions } from "@/components/setting/SettingCommonActions";
+import {
+  buildSettingCommonActions,
+  type SettingCommonCapabilityHandlers,
+} from "@/components/setting/SettingCommonActions";
 import { LogViewer, type LogEntry } from "@/apps/launcher/components/LogViewer";
 import { QuickActionsPanel } from "@/apps/launcher/components/QuickActionsPanel";
 import {
@@ -303,7 +307,7 @@ export function Launcher() {
     }
     setLicenseSaving(true);
     try {
-      await safeInvoke<void>("update_license_key", { license_key: trimmed });
+      await safeInvoke<void>("update_license_key", { licenseKey: trimmed });
       toast.success(t("admin.saveSuccess"));
       setLicenseKey("");
       await refreshLicenseStatus();
@@ -576,6 +580,15 @@ export function Launcher() {
   };
 
   const settingActions = buildSettingCommonActions({
+    sharedCapabilities: {
+      onTestDatabase: handleCheckDatabase,
+      onTestCache: handleCheckCache,
+      onDiagnoseExternalTools: handleDiagnoseExternalTools,
+      onProbeExternalTool: handleProbeExternalTool,
+      onProbeMediaBackend: handleProbeMediaBackend,
+      onTestPreStartup: handleTestPreStartup,
+      onTestPostStartup: handleTestPostStartup,
+    } satisfies SettingCommonCapabilityHandlers,
     t,
     isDark,
     tomlAdapter: toml,
@@ -583,11 +596,6 @@ export function Launcher() {
     onContentChange: setConfigContent,
     runtimeOs: osInfo?.os_type,
     systemHardware: osInfo,
-    onTestDatabase: handleCheckDatabase,
-    onTestCache: handleCheckCache,
-    onDiagnoseExternalTools: handleDiagnoseExternalTools,
-    onProbeExternalTool: handleProbeExternalTool,
-    onProbeMediaBackend: handleProbeMediaBackend,
     adminPassword: {
       value: pendingAdminPassword,
       onValueChange: setPendingAdminPassword,
@@ -713,8 +721,8 @@ export function Launcher() {
   }) {
     try {
       await safeInvoke<void>("check_db_connection", {
-        db_type: databaseType,
-        connection_string: connectionString,
+        dbType: databaseType,
+        connectionString,
       });
       toast.success(t("admin.config.testSuccess"));
     } catch (error) {
@@ -731,13 +739,33 @@ export function Launcher() {
   }) {
     try {
       await safeInvoke<void>("check_kv_connection", {
-        kv_type: cacheType,
-        connection_string: connectionString,
+        kvType: cacheType,
+        connectionString,
       });
       toast.success(t("admin.config.testSuccess"));
     } catch (error) {
       toast.error(String(error));
     }
+  }
+
+  async function handleTestPreStartup({
+    tomlContent,
+  }: {
+    tomlContent: string;
+  }): Promise<FlowStartupExecutionResult> {
+    return safeInvoke<FlowStartupExecutionResult>("test_pre_startup_commands", {
+      tomlContent,
+    });
+  }
+
+  async function handleTestPostStartup({
+    tomlContent,
+  }: {
+    tomlContent: string;
+  }): Promise<FlowStartupExecutionResult> {
+    return safeInvoke<FlowStartupExecutionResult>("test_post_startup_commands", {
+      tomlContent,
+    });
   }
 
   useEffect(() => {
