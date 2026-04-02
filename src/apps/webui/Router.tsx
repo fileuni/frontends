@@ -421,7 +421,7 @@ const PageRenderer: React.FC<{
 
     return (
       <DashboardLayout
-        title={layoutTitle}
+        {...(layoutTitle ? { title: layoutTitle } : {})}
         customSidebar={<FileSidebar />}
         fullWidth={true}
       >

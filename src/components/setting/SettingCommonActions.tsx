@@ -12,6 +12,7 @@ import {
   ProtectedStorageInlinePanel,
   ThumbnailInlinePanel,
 } from "./SettingInlineExternalPanels";
+import { IdentityVerificationInlinePanel } from "./IdentityVerificationInlinePanel";
 import { MediaTranscodingInlinePanel, type ProbeMediaBackend } from "./MediaTranscodingConfigPanel";
 import {
   CacheInlinePanel,
@@ -419,6 +420,21 @@ export const buildSettingCommonActions = ({
         />
       ),
       points: [] as string[],
+    },
+    {
+      id: "identity-verification",
+      routeKey: "identity_verification",
+      routeAliases: ["identity_verification", "identity-verification", "邮箱手机验证"],
+      label: t("admin.config.identityVerification.title"),
+      description: "",
+      icon: settingCommonIcons.protectedStorage,
+      renderPanel: () => (
+        <IdentityVerificationInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
     },
     {
       id: "license",

@@ -38,6 +38,7 @@
   "enterEmail": "输入邮箱...",
   "enterPhone": "输入手机号 (+86...)",
   "send": "发送",
+  "codeSent": "验证码已发送",
   "completeVerify": "完成验证",
   "verifySuccess": "验证成功",
   "invalidPhoneFormat": "手机号格式无效。示例：中国大陆 +8613812345678，美国 +12025550123，日本 +819012345678",

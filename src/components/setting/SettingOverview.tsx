@@ -112,13 +112,13 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
   );
 
   useEffect(() => {
-    if (params.item) {
+    if (params["item"]) {
       return;
     }
     if (!commonActions.some((item) => item.id === manualSelectedSettingId)) {
       setManualSelectedSettingId(commonActions[0]?.id ?? "");
     }
-  }, [commonActions, manualSelectedSettingId, params.item]);
+  }, [commonActions, manualSelectedSettingId, params]);
 
   const handleSelectSetting = (id: string) => {
     setManualSelectedSettingId(id);
@@ -131,7 +131,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
   };
 
   const selectedSettingId = useMemo(() => {
-    const routed = resolveActionFromRouteItem(commonActions, params.item);
+    const routed = resolveActionFromRouteItem(commonActions, params["item"]);
     if (routed) {
       return routed.id;
     }
@@ -139,7 +139,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
       return manualSelectedSettingId;
     }
     return commonActions[0]?.id ?? "";
-  }, [commonActions, manualSelectedSettingId, params.item]);
+  }, [commonActions, manualSelectedSettingId, params]);
 
   const activeItem = useMemo(
     () =>

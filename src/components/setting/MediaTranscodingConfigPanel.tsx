@@ -303,11 +303,12 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
     if (!onProbeMediaBackend || probing) return;
     setProbing(true);
     try {
-      const response = await onProbeMediaBackend({
+      const payload: Parameters<ProbeMediaBackend>[0] = {
         ffmpegPath: draft.ffmpegPath.trim(),
         backend: draft.backend,
-        device: draft.device.trim() || undefined,
-      });
+        ...(draft.device.trim() ? { device: draft.device.trim() } : {}),
+      };
+      const response = await onProbeMediaBackend(payload);
       const detail = (() => {
         const constraints = response.message.match(
           /constraints:\s*width\s*(\d+)-(\d+)\s*height\s*(\d+)-(\d+)/i,

@@ -84,6 +84,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/config-set/extensions/test-post-startup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_post_startup_commands"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/config-set/extensions/test-pre-startup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_pre_startup_commands"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/config-set/external-tools/diagnose": {
         parameters: {
             query?: never;
@@ -190,6 +222,38 @@ export interface paths {
         get: operations["get_config_notes"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/config-set/startup-commands/test-post-startup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_post_startup_commands_v2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/config-set/startup-commands/test-pre-startup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_pre_startup_commands_v2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -363,6 +427,28 @@ export interface components {
             msg?: string;
             req_id?: string;
             success: boolean;
+        };
+        StartupCommandResult: {
+            command: string;
+            error?: string | null;
+            /** Format: int32 */
+            exit_code?: number | null;
+            index: number;
+            status: components["schemas"]["StartupCommandStatus"];
+            stderr: string;
+            stderr_truncated: boolean;
+            stdout: string;
+            stdout_truncated: boolean;
+        };
+        /** @enum {string} */
+        StartupCommandStatus: "exited" | "running" | "spawn_failed";
+        StartupExecutionRequest: {
+            toml_content?: string | null;
+        };
+        StartupExecutionResult: {
+            commands: components["schemas"]["StartupCommandResult"][];
+            phase: string;
+            total_duration_ms: number;
         };
     };
     responses: never;
@@ -570,6 +656,72 @@ export interface operations {
             };
             /** @description Configuration test failed */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    test_post_startup_commands: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartupExecutionRequest"];
+            };
+        };
+        responses: {
+            /** @description Test post-startup commands against draft config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    test_pre_startup_commands: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartupExecutionRequest"];
+            };
+        };
+        responses: {
+            /** @description Test pre-startup commands against draft config */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -798,6 +950,72 @@ export interface operations {
         responses: {
             /** @description Get config notes */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    test_post_startup_commands_v2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartupExecutionRequest"];
+            };
+        };
+        responses: {
+            /** @description Test post-startup commands against draft config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    test_pre_startup_commands_v2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartupExecutionRequest"];
+            };
+        };
+        responses: {
+            /** @description Test pre-startup commands against draft config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

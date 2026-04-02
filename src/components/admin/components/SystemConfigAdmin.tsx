@@ -13,6 +13,8 @@ import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionBut
 import { buildSettingCommonActions } from "@/components/setting/SettingCommonActions";
 import type { FlowStartupExecutionResult } from "@/components/setting/FlowStartupInlinePanel";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
+import type { MediaBackendProbeResponse } from "@/components/setting/MediaTranscodingConfigPanel";
+import type { ProbeExternalTool } from "@/components/setting/SharedFfmpegField";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useToastStore } from "@/stores/toast";
 import { useAuthzStore } from "@/stores/authz.ts";
@@ -473,9 +475,9 @@ export const SystemConfigAdmin = () => {
     [],
   );
 
-  const handleProbeExternalTool = useCallback(
-    async ({ toolId, value }: { toolId: string; value: string }) => {
-      return extractData(
+  const handleProbeExternalTool: ProbeExternalTool = useCallback(
+    async ({ toolId, value }) => {
+      return extractData<Awaited<ReturnType<ProbeExternalTool>>>(
         client.POST("/api/v1/admin/system/config/external-tools/probe", {
           body: {
             tool_id: toolId,
@@ -497,8 +499,8 @@ export const SystemConfigAdmin = () => {
       ffmpegPath: string;
       backend: string;
       device?: string;
-    }) => {
-      return extractData(
+    }): Promise<MediaBackendProbeResponse> => {
+      return extractData<MediaBackendProbeResponse>(
         client.POST("/api/v1/admin/system/config/media-backend/probe", {
           body: {
             ffmpeg_path: ffmpegPath,

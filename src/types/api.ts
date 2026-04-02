@@ -4831,7 +4831,8 @@ export interface components {
         SendVerificationCodeRequest: {
             captcha_code?: string | null;
             captcha_token?: string | null;
-            target: string;
+            scene?: string | null;
+            target?: string | null;
             target_type: string;
             user_id?: string | null;
         };

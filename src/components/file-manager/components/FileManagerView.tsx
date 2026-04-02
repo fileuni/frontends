@@ -496,9 +496,9 @@ export const FileManagerView = () => {
     navigate({
       preview_path: undefined,
       page: nextPage,
-      path: nextPage === 'files' ? (params.path || currentPath) : undefined,
+      path: nextPage === 'files' ? (params["path"] || currentPath) : undefined,
     });
-  }, [currentPath, fmMode, navigate, params.page, params.path]);
+  }, [currentPath, fmMode, navigate, params.page, params]);
 
   if (officePath) {
     return (

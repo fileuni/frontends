@@ -38,6 +38,7 @@
   "enterEmail": "Enter email...",
   "enterPhone": "Enter phone (+86...)",
   "send": "Send",
+  "codeSent": "Verification code sent",
   "completeVerify": "Complete Verification",
   "verifySuccess": "Verified successfully",
   "invalidPhoneFormat": "Invalid phone number format. Examples: China Mainland +8613812345678, US +12025550123, Japan +819012345678",

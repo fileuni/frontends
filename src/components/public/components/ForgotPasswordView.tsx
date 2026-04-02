@@ -18,6 +18,7 @@ interface RecoveryOptions {
   user_id: string;
   username: string;
   email?: string;
+  phone?: string;
   has_security_question?: boolean;
   security_question?: string;
 }
@@ -182,8 +183,8 @@ export const ForgotPasswordView = () => {
           headers: { "X-No-Toast": "true" },
           body: { 
             user_id: options.user_id, 
-            target: identifier, 
             target_type: method,
+            scene: 'forgot_password',
             captcha_token: captchaTokenForSubmit || null,
             captcha_code: isTurnstileCaptcha ? null : (captchaCode || null),
           }
@@ -431,6 +432,19 @@ export const ForgotPasswordView = () => {
                   <div className="flex items-center gap-4">
                     <Send size={20} className="opacity-30 group-hover:text-orange-500" />
                     <div><p className={cn("font-bold", isDark ? "text-white" : "text-gray-900")}>{t('forgotPassword.emailCode')}</p><p className="text-sm opacity-40">{t('forgotPassword.sentTo')} {options.email}</p></div>
+                  </div>
+                  <ChevronRight size={16} className="opacity-20" />
+                </button>
+              )}
+
+              {options.phone && (
+                <button type="button" onClick={() => startVerification('phone')} className={cn(
+                  "w-full flex items-center justify-between p-5 rounded-2xl border transition-all text-left group",
+                  isDark ? "bg-white/5 border-white/5 hover:border-orange-500/30" : "bg-white border-gray-100 hover:border-orange-500/30 shadow-sm"
+                )}>
+                  <div className="flex items-center gap-4">
+                    <Send size={20} className="opacity-30 group-hover:text-orange-500" />
+                    <div><p className={cn("font-bold", isDark ? "text-white" : "text-gray-900")}>{t('forgotPassword.phoneCode')}</p><p className="text-sm opacity-40">{t('forgotPassword.sentTo')} {options.phone}</p></div>
                   </div>
                   <ChevronRight size={16} className="opacity-20" />
                 </button>

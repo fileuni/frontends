@@ -81,11 +81,17 @@ export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
     if ((!onProbeExternalTool && !onDiagnoseExternalTools) || testing) return;
     setTesting(true);
     try {
-      const item = onProbeExternalTool
-        ? await onProbeExternalTool({ toolId, value: value.trim() })
-        : (await onDiagnoseExternalTools({ [configKey]: value.trim() })).tools.find(
-            (tool) => tool.tool_id === toolId,
-          );
+      let item:
+        | Awaited<ReturnType<ProbeExternalTool>>
+        | DiagnoseToolItem
+        | undefined;
+      if (onProbeExternalTool) {
+        item = await onProbeExternalTool({ toolId, value: value.trim() });
+      } else if (onDiagnoseExternalTools) {
+        item = (await onDiagnoseExternalTools({ [configKey]: value.trim() })).tools.find(
+          (tool) => tool.tool_id === toolId,
+        );
+      }
       if (!item) {
         const summary = t("admin.config.externalTools.messages.toolTestFailed", {
           tool: label,

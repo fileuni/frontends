@@ -179,6 +179,7 @@ export const SecurityView = () => {
           target: normalizedTarget, 
           target_type: type as "email" | "phone", 
           user_id: currentUserData?.user.id,
+          scene: type === 'email' ? 'bind_email' : 'bind_phone',
           captcha_token: captchaTokenForSubmit || null,
           captcha_code: isTurnstileCaptcha ? null : (captchaCode || null),
         }
@@ -194,7 +195,7 @@ export const SecurityView = () => {
       if (serverTarget && serverTarget !== inputTarget) {
         addToast(t('security.targetNormalized'), 'warning');
       }
-      addToast(t('auth.loginSuccess'), 'success');
+      addToast(t('security.codeSent'), 'success');
       setNeedCaptcha(false);
     } catch (error) {
       if (isApiError(error) && error.biz_code === 'CAPTCHA_REQUIRED') {
