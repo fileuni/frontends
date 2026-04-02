@@ -1,18 +1,32 @@
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GripVertical, Plus, Trash2, ArrowUp, ArrowDown, FolderOpen, Terminal } from "lucide-react";
+import type { components as ApiComponents } from "@/types/api.ts";
 import { cn } from "@/lib/utils";
 import { isRecord, ensureRecord } from "@/lib/configObject";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
+import { useConfigDraftBinding } from "./useConfigDraftBinding";
+import { useToastStore } from "@/stores/toast";
+import { handleApiError } from "@/lib/api";
+
+export type FlowStartupExecutionResult =
+  ApiComponents["schemas"]["StartupExecutionResult"];
+
+export type FlowStartupTestRunner = (payload: {
+  tomlContent: string;
+}) => Promise<FlowStartupExecutionResult>;
 
 type StartupCommandDraft = {
+  id: string;
   command: string;
   args: string;
   work_dir: string;
 };
 
 type FlowStartupDraft = {
+  preStartupWaitAfterSec: string;
+  postStartupStartAfterSec: string;
   preStartup: StartupCommandDraft[];
   postStartup: StartupCommandDraft[];
 };
@@ -21,13 +35,38 @@ type FlowStartupInlinePanelProps = {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
+  onTestPreStartup?: FlowStartupTestRunner | undefined;
+  onTestPostStartup?: FlowStartupTestRunner | undefined;
 };
 
 const emptyCommand = (): StartupCommandDraft => ({
+  id: createCommandId(),
   command: "",
   args: "",
   work_dir: "",
 });
+
+let commandDraftSequence = 0;
+
+const createCommandId = (): string => {
+  commandDraftSequence += 1;
+  return `flow-startup-cmd-${commandDraftSequence}`;
+};
+
+const asNumberString = (value: unknown): string => {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? String(value)
+    : "";
+};
+
+const parseNonNegativeInteger = (value: string): number | null => {
+  const trimmed = value.trim();
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+  const parsed = Number(trimmed);
+  return Number.isSafeInteger(parsed) ? parsed : null;
+};
 
 const parseCommandsFromToml = (section: Record<string, unknown>): StartupCommandDraft[] => {
   const commands = section["commands"];
@@ -35,6 +74,7 @@ const parseCommandsFromToml = (section: Record<string, unknown>): StartupCommand
   return commands
     .filter(isRecord)
     .map((cmd) => ({
+      id: createCommandId(),
       command: typeof cmd["command"] === "string" ? cmd["command"] : "",
       args: Array.isArray(cmd["args"]) ? (cmd["args"] as string[]).join(" ") : "",
       work_dir: typeof cmd["work_dir"] === "string" ? cmd["work_dir"] : "",
@@ -57,13 +97,15 @@ const buildCommandsForToml = (commands: StartupCommandDraft[]): Record<string, u
     });
 };
 
-const createDraft = (source: string, tomlAdapter: TomlAdapter): FlowStartupDraft => {
+const parseDraftFromContent = (source: string, tomlAdapter: TomlAdapter): FlowStartupDraft => {
   const parsed = tomlAdapter.parse(source);
   const root = isRecord(parsed) ? parsed : {};
   const extMgr = isRecord(root["extension_manager"]) ? root["extension_manager"] : {};
   const pre = isRecord(extMgr["pre_startup"]) ? extMgr["pre_startup"] : {};
   const post = isRecord(extMgr["post_startup"]) ? extMgr["post_startup"] : {};
   return {
+    preStartupWaitAfterSec: asNumberString(pre["wait_after_sec"]),
+    postStartupStartAfterSec: asNumberString(post["start_after_sec"]),
     preStartup: parseCommandsFromToml(pre),
     postStartup: parseCommandsFromToml(post),
   };
@@ -82,16 +124,28 @@ const buildContent = (
 
   const preCommands = buildCommandsForToml(draft.preStartup);
   const postCommands = buildCommandsForToml(draft.postStartup);
+  const preWaitAfterSec = parseNonNegativeInteger(draft.preStartupWaitAfterSec);
+  const postStartAfterSec = parseNonNegativeInteger(draft.postStartupStartAfterSec);
 
   if (preCommands.length > 0) {
     preSection["commands"] = preCommands;
   } else {
     delete preSection["commands"];
   }
+  if (preWaitAfterSec !== null) {
+    preSection["wait_after_sec"] = preWaitAfterSec;
+  } else {
+    delete preSection["wait_after_sec"];
+  }
   if (postCommands.length > 0) {
     postSection["commands"] = postCommands;
   } else {
     delete postSection["commands"];
+  }
+  if (postStartAfterSec !== null) {
+    postSection["start_after_sec"] = postStartAfterSec;
+  } else {
+    delete postSection["start_after_sec"];
   }
 
   return tomlAdapter.stringify(root);
@@ -231,6 +285,13 @@ const CommandRow: React.FC<CommandRowProps> = ({
 type CommandSectionProps = {
   title: string;
   hint: string;
+  delayLabel: string;
+  delayHint: string;
+  delayPlaceholder: string;
+  delayValue: string;
+  onDelayChange: (value: string) => void;
+  testing: boolean;
+  onTest?: (() => void) | undefined;
   commands: StartupCommandDraft[];
   onCommandsChange: (commands: StartupCommandDraft[]) => void;
 };
@@ -238,6 +299,13 @@ type CommandSectionProps = {
 const CommandSection: React.FC<CommandSectionProps> = ({
   title,
   hint,
+  delayLabel,
+  delayHint,
+  delayPlaceholder,
+  delayValue,
+  onDelayChange,
+  testing,
+  onTest,
   commands,
   onCommandsChange,
 }) => {
@@ -250,6 +318,7 @@ const CommandSection: React.FC<CommandSectionProps> = ({
     const existing = next[index];
     if (!existing) return;
     next[index] = {
+      id: existing.id,
       command: patch.command ?? existing.command,
       args: patch.args ?? existing.args,
       work_dir: patch.work_dir ?? existing.work_dir,
@@ -291,6 +360,13 @@ const CommandSection: React.FC<CommandSectionProps> = ({
     setDragIndex(null);
   };
 
+  const inputClass = cn(
+    "mt-2 h-10 w-full rounded-xl border px-3 text-sm font-mono",
+    isDark
+      ? "border-white/10 bg-black/30 text-white placeholder:text-slate-500"
+      : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400",
+  );
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -302,20 +378,69 @@ const CommandSection: React.FC<CommandSectionProps> = ({
             {hint} ({commands.length}/50)
           </p>
         </div>
-        <button
-          type="button"
-          onClick={addCommand}
-          disabled={commands.length >= 50}
-          className={cn(
-            "flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40",
-            isDark
-              ? "bg-primary/15 text-primary hover:bg-primary/25"
-              : "bg-primary/10 text-primary hover:bg-primary/20",
-          )}
-        >
-          <Plus size={14} />
-          {t("admin.config.flowStartup.addCommand")}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={addCommand}
+            disabled={commands.length >= 50}
+            className={cn(
+              "flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40",
+              isDark
+                ? "bg-primary/15 text-primary hover:bg-primary/25"
+                : "bg-primary/10 text-primary hover:bg-primary/20",
+            )}
+          >
+            <Plus size={14} />
+            {t("admin.config.flowStartup.addCommand")}
+          </button>
+          {onTest ? (
+            <button
+              type="button"
+              onClick={onTest}
+              disabled={testing}
+              className={cn(
+                "flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40",
+                isDark
+                  ? "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
+                  : "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20",
+              )}
+            >
+              <Terminal size={14} />
+              {testing
+                ? t("admin.config.flowStartup.testingButton")
+                : t("admin.config.flowStartup.testButton")}
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      <div
+        className={cn(
+          "rounded-xl border p-3",
+          isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white",
+        )}
+      >
+        <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+          {delayLabel}
+        </div>
+        <p className={cn("mt-1 text-xs leading-5", isDark ? "text-slate-400" : "text-slate-600")}>
+          {delayHint}
+        </p>
+        <div className="mt-2 flex items-center gap-2">
+          <input
+            type="number"
+            min="0"
+            step="1"
+            inputMode="numeric"
+            value={delayValue}
+            onChange={(event) => onDelayChange(event.target.value)}
+            placeholder={delayPlaceholder}
+            className={inputClass}
+          />
+          <span className={cn("text-xs font-semibold uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-500")}>
+            {t("admin.config.flowStartup.secondsUnit")}
+          </span>
+        </div>
       </div>
 
       {commands.length === 0 ? (
@@ -329,7 +454,7 @@ const CommandSection: React.FC<CommandSectionProps> = ({
         <div className="space-y-1.5">
           {commands.map((cmd, i) => (
             <CommandRow
-              key={`${cmd.command}-${cmd.args}-${cmd.work_dir}`}
+              key={cmd.id}
               cmd={cmd}
               index={i}
               total={commands.length}
@@ -353,19 +478,140 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
   tomlAdapter,
   content,
   onContentChange,
+  onTestPreStartup,
+  onTestPostStartup,
 }) => {
   const { t } = useTranslation();
-  const [draft, setDraft] = useState<FlowStartupDraft>(() => createDraft(content, tomlAdapter));
+  const { addToast } = useToastStore();
+  const [testingPhase, setTestingPhase] = useState<"pre" | "post" | null>(null);
+  const createDraft = useCallback(
+    (source: string) => parseDraftFromContent(source, tomlAdapter),
+    [tomlAdapter],
+  );
+  const buildDraftContent = useCallback(
+    (source: string, nextDraft: FlowStartupDraft) => buildContent(source, tomlAdapter, nextDraft),
+    [tomlAdapter],
+  );
+  const { draft, setDraft } = useConfigDraftBinding<FlowStartupDraft>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent: buildDraftContent,
+  });
 
-  const applyDraft = useCallback(
-    (nextDraft: FlowStartupDraft) => {
-      setDraft(nextDraft);
-      const newContent = buildContent(content, tomlAdapter, nextDraft);
-      if (newContent !== content) {
-        onContentChange(newContent);
+  const buildCurrentTomlContent = useCallback(() => {
+    return buildContent(content, tomlAdapter, draft);
+  }, [content, tomlAdapter, draft]);
+
+  const buildResultDetails = useCallback(
+    (result: FlowStartupExecutionResult) => {
+      const lines: string[] = [
+        `${t("admin.config.flowStartup.testResultPhase")}: ${result.phase}`,
+        `${t("admin.config.flowStartup.testResultDuration")}: ${result.total_duration_ms} ms`,
+      ];
+
+      if (result.commands.length === 0) {
+        lines.push(t("admin.config.flowStartup.testNoCommands"));
+        return lines.join("\n");
+      }
+
+      for (const item of result.commands) {
+        lines.push("");
+        lines.push(
+          `${t("admin.config.flowStartup.testResultCommand")} #${item.index + 1}: ${item.command}`,
+        );
+        lines.push(
+          `${t("admin.config.flowStartup.testResultExitCode")}: ${item.exit_code ?? "null"}`,
+        );
+        if (item.error && item.error.trim().length > 0) {
+          lines.push(`${t("admin.config.flowStartup.testResultError")}: ${item.error}`);
+        }
+        if (item.stdout.trim().length > 0) {
+          lines.push(`${t("admin.config.flowStartup.testResultStdout")}:\n${item.stdout}`);
+        }
+        if (item.stderr.trim().length > 0) {
+          lines.push(`${t("admin.config.flowStartup.testResultStderr")}:\n${item.stderr}`);
+        }
+      }
+
+      return lines.join("\n");
+    },
+    [t],
+  );
+
+  const runTest = useCallback(
+    async (
+      phase: "pre" | "post",
+      runner: FlowStartupTestRunner | undefined,
+      phaseLabel: string,
+    ) => {
+      if (!runner || testingPhase !== null) {
+        return;
+      }
+
+      setTestingPhase(phase);
+      try {
+        const result = await runner({ tomlContent: buildCurrentTomlContent() });
+        const failedCount = result.commands.filter(
+          (item) => item.error || item.exit_code !== 0,
+        ).length;
+        const details = buildResultDetails(result);
+
+        if (result.commands.length === 0) {
+          await addToast(
+            t("admin.config.flowStartup.testNoCommandsForPhase", {
+              phase: phaseLabel,
+            }),
+            {
+              type: "info",
+              duration: "persistent",
+              details,
+            },
+          );
+          return;
+        }
+
+        if (failedCount === 0) {
+          await addToast(
+            t("admin.config.flowStartup.testAllPassed", {
+              phase: phaseLabel,
+              count: result.commands.length,
+            }),
+            {
+              type: "success",
+              duration: "persistent",
+              details,
+            },
+          );
+          return;
+        }
+
+        await addToast(
+          t("admin.config.flowStartup.testSomeFailed", {
+            phase: phaseLabel,
+            failed: failedCount,
+            total: result.commands.length,
+          }),
+          {
+            type: "warning",
+            duration: "persistent",
+            details,
+          },
+        );
+      } catch (error) {
+        await addToast(
+          t("admin.config.flowStartup.testRequestFailed", { phase: phaseLabel }),
+          {
+            type: "error",
+            duration: "persistent",
+            details: handleApiError(error, t),
+          },
+        );
+      } finally {
+        setTestingPhase(null);
       }
     },
-    [content, tomlAdapter, onContentChange],
+    [addToast, buildCurrentTomlContent, buildResultDetails, t, testingPhase],
   );
 
   return (
@@ -373,18 +619,52 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
       <CommandSection
         title={t("admin.config.flowStartup.preStartupTitle")}
         hint={t("admin.config.flowStartup.preStartupHint")}
-        commands={draft.preStartup}
-        onCommandsChange={(commands) =>
-          applyDraft({ ...draft, preStartup: commands })
+        delayLabel={t("admin.config.flowStartup.preStartupDelayLabel")}
+        delayHint={t("admin.config.flowStartup.preStartupDelayHint")}
+        delayPlaceholder={t("admin.config.flowStartup.preStartupDelayPlaceholder")}
+        delayValue={draft.preStartupWaitAfterSec}
+        onDelayChange={(value) =>
+          setDraft((prev) => ({ ...prev, preStartupWaitAfterSec: value }))
         }
+        testing={testingPhase === "pre"}
+        onTest={
+          onTestPreStartup
+            ? () => {
+                void runTest(
+                  "pre",
+                  onTestPreStartup,
+                  t("admin.config.flowStartup.preStartupTitle"),
+                );
+              }
+            : undefined
+        }
+        commands={draft.preStartup}
+        onCommandsChange={(commands) => setDraft((prev) => ({ ...prev, preStartup: commands }))}
       />
       <CommandSection
         title={t("admin.config.flowStartup.postStartupTitle")}
         hint={t("admin.config.flowStartup.postStartupHint")}
-        commands={draft.postStartup}
-        onCommandsChange={(commands) =>
-          applyDraft({ ...draft, postStartup: commands })
+        delayLabel={t("admin.config.flowStartup.postStartupDelayLabel")}
+        delayHint={t("admin.config.flowStartup.postStartupDelayHint")}
+        delayPlaceholder={t("admin.config.flowStartup.postStartupDelayPlaceholder")}
+        delayValue={draft.postStartupStartAfterSec}
+        onDelayChange={(value) =>
+          setDraft((prev) => ({ ...prev, postStartupStartAfterSec: value }))
         }
+        testing={testingPhase === "post"}
+        onTest={
+          onTestPostStartup
+            ? () => {
+                void runTest(
+                  "post",
+                  onTestPostStartup,
+                  t("admin.config.flowStartup.postStartupTitle"),
+                );
+              }
+            : undefined
+        }
+        commands={draft.postStartup}
+        onCommandsChange={(commands) => setDraft((prev) => ({ ...prev, postStartup: commands }))}
       />
     </div>
   );

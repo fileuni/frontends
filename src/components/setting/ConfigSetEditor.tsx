@@ -29,6 +29,8 @@ type ConfigNotesResponse =
   ConfigSetComponents["schemas"]["ConfigNotesResponse"];
 type BackendCapabilitiesResponse =
   ApiComponents["schemas"]["SystemCapabilities"];
+type StartupExecutionResult =
+  ApiComponents["schemas"]["StartupExecutionResult"];
 type ConfigSetApplyResponse =
   ConfigSetComponents["schemas"]["ConfigSetApplyResponse"];
 type ConfigValidationError = ConfigError;
@@ -442,6 +444,28 @@ export const ConfigSetEditor: React.FC = () => {
     [],
   );
 
+  const handleTestPreStartup = useCallback(
+    async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
+      return extractData<StartupExecutionResult>(
+        client.POST("/api/v1/config-set/extensions/test-pre-startup", {
+          body: { toml_content: tomlContent },
+        }),
+      );
+    },
+    [],
+  );
+
+  const handleTestPostStartup = useCallback(
+    async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
+      return extractData<StartupExecutionResult>(
+        client.POST("/api/v1/config-set/extensions/test-post-startup", {
+          body: { toml_content: tomlContent },
+        }),
+      );
+    },
+    [],
+  );
+
   const handleCheckDatabase = useCallback(
     async ({
       databaseType,
@@ -542,6 +566,8 @@ export const ConfigSetEditor: React.FC = () => {
         onDiagnoseExternalTools: handleDiagnoseExternalTools,
         onProbeExternalTool: handleProbeExternalTool,
         onProbeMediaBackend: handleProbeMediaBackend,
+        onTestPreStartup: handleTestPreStartup,
+        onTestPostStartup: handleTestPostStartup,
         adminPassword: {
           value: pendingAdminPassword,
           onValueChange: setPendingAdminPassword,
@@ -574,6 +600,8 @@ export const ConfigSetEditor: React.FC = () => {
       handleDiagnoseExternalTools,
       handleProbeExternalTool,
       handleProbeMediaBackend,
+      handleTestPreStartup,
+      handleTestPostStartup,
       pendingAdminPassword,
       licenseStatus,
       licenseKey,

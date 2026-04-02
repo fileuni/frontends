@@ -4937,6 +4937,9 @@ export interface components {
             stderr: string;
             stdout: string;
         };
+        StartupExecutionRequest: {
+            toml_content?: string | null;
+        };
         StartupExecutionResult: {
             commands: components["schemas"]["StartupCommandResult"][];
             phase: string;
@@ -5987,7 +5990,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartupExecutionRequest"];
+            };
+        };
         responses: {
             /** @description Test post-startup commands */
             200: {
@@ -6007,7 +6014,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartupExecutionRequest"];
+            };
+        };
         responses: {
             /** @description Test pre-startup commands */
             200: {

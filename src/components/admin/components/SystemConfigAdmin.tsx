@@ -23,6 +23,7 @@ type ConfigRawResponse = components["schemas"]["ConfigRawResponse"];
 type ConfigNotesResponse = components["schemas"]["ConfigNotesResponse"];
 type ApiConfigNoteEntry = components["schemas"]["ConfigNoteEntry"];
 type BackendCapabilitiesResponse = components["schemas"]["SystemCapabilities"];
+type StartupExecutionResult = components["schemas"]["StartupExecutionResult"];
 
 type LicenseStatus = {
   is_valid: boolean;
@@ -512,6 +513,30 @@ export const SystemConfigAdmin = () => {
     [],
   );
 
+  const handleTestPreStartup = useCallback(
+    async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
+      return extractData<StartupExecutionResult>(
+        client.POST("/api/v1/admin/extensions/test-pre-startup", {
+          body: { toml_content: tomlContent },
+          headers: { "X-No-Toast": "true" },
+        }),
+      );
+    },
+    [],
+  );
+
+  const handleTestPostStartup = useCallback(
+    async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
+      return extractData<StartupExecutionResult>(
+        client.POST("/api/v1/admin/extensions/test-post-startup", {
+          body: { toml_content: tomlContent },
+          headers: { "X-No-Toast": "true" },
+        }),
+      );
+    },
+    [],
+  );
+
   const settingActions = useMemo(
     () =>
       buildSettingCommonActions({
@@ -525,6 +550,8 @@ export const SystemConfigAdmin = () => {
         onDiagnoseExternalTools: handleDiagnoseExternalTools,
         onProbeExternalTool: handleProbeExternalTool,
         onProbeMediaBackend: handleProbeMediaBackend,
+        onTestPreStartup: handleTestPreStartup,
+        onTestPostStartup: handleTestPostStartup,
         adminPassword: {
           value: pendingAdminPassword,
           onValueChange: setPendingAdminPassword,
@@ -556,6 +583,8 @@ export const SystemConfigAdmin = () => {
       handleDiagnoseExternalTools,
       handleProbeExternalTool,
       handleProbeMediaBackend,
+      handleTestPreStartup,
+      handleTestPostStartup,
       licenseStatus,
       licenseKey,
       handleUpdateLicense,

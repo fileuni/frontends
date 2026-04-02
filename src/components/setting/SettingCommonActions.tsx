@@ -19,7 +19,10 @@ import {
   PerformanceInlinePanel,
 } from "./SettingInlineQuickPanels";
 import { StoragePoolInlinePanel } from "./StoragePoolInlinePanel";
-import { FlowStartupInlinePanel } from "./FlowStartupInlinePanel";
+import {
+  FlowStartupInlinePanel,
+  type FlowStartupTestRunner,
+} from "./FlowStartupInlinePanel";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
 import type { DiagnoseExternalTools, ProbeExternalTool } from "./SharedFfmpegField";
 import type { SystemHardwareInfo } from "./ConfigQuickSettingsModal";
@@ -263,6 +266,8 @@ interface BuildSettingCommonActionsParams {
   onDiagnoseExternalTools?: DiagnoseExternalTools | undefined;
   onProbeExternalTool?: ProbeExternalTool | undefined;
   onProbeMediaBackend?: ProbeMediaBackend | undefined;
+  onTestPreStartup?: FlowStartupTestRunner | undefined;
+  onTestPostStartup?: FlowStartupTestRunner | undefined;
   adminPassword: {
     value: string;
     onValueChange: (password: string) => void;
@@ -294,6 +299,8 @@ export const buildSettingCommonActions = ({
   onDiagnoseExternalTools,
   onProbeExternalTool,
   onProbeMediaBackend,
+  onTestPreStartup,
+  onTestPostStartup,
   adminPassword,
   license,
   storage,
@@ -525,6 +532,8 @@ export const buildSettingCommonActions = ({
           tomlAdapter={tomlAdapter}
           content={content}
           onContentChange={onContentChange}
+          onTestPreStartup={onTestPreStartup}
+          onTestPostStartup={onTestPostStartup}
         />
       ),
     },
