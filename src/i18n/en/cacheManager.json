@@ -32,8 +32,8 @@
       "desc": "Local account map and session tokens"
     },
     "extension_cache": {
-      "title": "Extension Panel Cache",
-      "desc": "Local override settings for extension management"
+      "title": "External Tool Cache",
+      "desc": "Local settings for external tools and follow-startup panels"
     },
     "ui_preferences_cache": {
       "title": "UI Preferences Cache",

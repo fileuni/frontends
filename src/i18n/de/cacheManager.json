@@ -32,8 +32,8 @@
       "desc": "Lokale Kontozuordnung und Sitzungstoken"
     },
     "extension_cache": {
-      "title": "Erweiterungs-Panel-Cache",
-      "desc": "Lokale Überschreibungseinstellungen für Erweiterungsverwaltung"
+      "title": "Cache für externe Tools",
+      "desc": "Lokale Einstellungen für externe Tools und die Mitstart-Panels"
     },
     "ui_preferences_cache": {
       "title": "UI-Einstellungs-Cache",

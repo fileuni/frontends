@@ -32,8 +32,8 @@
       "desc": "本地登录账户映射与会话令牌"
     },
     "extension_cache": {
-      "title": "扩展面板缓存",
-      "desc": "扩展管理页面的本地覆盖配置"
+      "title": "外部工具缓存",
+      "desc": "外部工具与跟随启动面板的本地配置"
     },
     "ui_preferences_cache": {
       "title": "界面偏好缓存",

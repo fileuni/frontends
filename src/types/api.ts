@@ -518,6 +518,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/startup-commands/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_startup_commands_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/startup-commands/test-post-startup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_post_startup_v2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/startup-commands/test-pre-startup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_pre_startup_v2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/system/backup/export": {
         parameters: {
             query?: never;
@@ -5972,7 +6020,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Get extension manager status */
+            /** @description Get startup command manager status */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6101,6 +6149,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    get_startup_commands_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get startup command manager status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExtensionManagerStatus"];
+                };
+            };
+        };
+    };
+    test_post_startup_v2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartupExecutionRequest"];
+            };
+        };
+        responses: {
+            /** @description Test post-startup commands */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StartupExecutionResult"];
+                };
+            };
+        };
+    };
+    test_pre_startup_v2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartupExecutionRequest"];
+            };
+        };
+        responses: {
+            /** @description Test pre-startup commands */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StartupExecutionResult"];
                 };
             };
         };
