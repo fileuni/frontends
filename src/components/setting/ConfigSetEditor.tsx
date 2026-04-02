@@ -14,6 +14,7 @@ import { SettingSurfaceControls } from "@/components/setting/SettingSurfaceContr
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
 import type { ExternalToolDiagnosisResponse } from "@/components/setting/ExternalDependencyConfigModal";
 import { buildSettingCommonActions } from "@/components/setting/SettingCommonActions";
+import type { FlowStartupExecutionResult } from "@/components/setting/FlowStartupInlinePanel";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
 import { SettingSetupEntryView } from "@/components/setting/SettingSetupEntryView";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
@@ -29,8 +30,6 @@ type ConfigNotesResponse =
   ConfigSetComponents["schemas"]["ConfigNotesResponse"];
 type BackendCapabilitiesResponse =
   ApiComponents["schemas"]["SystemCapabilities"];
-type StartupExecutionResult =
-  ApiComponents["schemas"]["StartupExecutionResult"];
 type ConfigSetApplyResponse =
   ConfigSetComponents["schemas"]["ConfigSetApplyResponse"];
 type ConfigValidationError = ConfigError;
@@ -445,8 +444,8 @@ export const ConfigSetEditor: React.FC = () => {
   );
 
   const handleTestPreStartup = useCallback(
-    async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
-      return extractData<StartupExecutionResult>(
+    async ({ tomlContent }: { tomlContent: string }): Promise<FlowStartupExecutionResult> => {
+      return extractData<FlowStartupExecutionResult>(
         client.POST("/api/v1/config-set/startup-commands/test-pre-startup", {
           body: { toml_content: tomlContent },
         }),
@@ -456,8 +455,8 @@ export const ConfigSetEditor: React.FC = () => {
   );
 
   const handleTestPostStartup = useCallback(
-    async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
-      return extractData<StartupExecutionResult>(
+    async ({ tomlContent }: { tomlContent: string }): Promise<FlowStartupExecutionResult> => {
+      return extractData<FlowStartupExecutionResult>(
         client.POST("/api/v1/config-set/startup-commands/test-post-startup", {
           body: { toml_content: tomlContent },
         }),

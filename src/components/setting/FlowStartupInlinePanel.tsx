@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { GripVertical, Plus, Trash2, ArrowUp, ArrowDown, FolderOpen, Terminal } from "lucide-react";
-import type { components as ApiComponents } from "@/types/api.ts";
+import { GripVertical, Plus, Trash2, ArrowUp, ArrowDown, FolderOpen, Terminal, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isRecord, ensureRecord } from "@/lib/configObject";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
@@ -10,8 +9,28 @@ import { useConfigDraftBinding } from "./useConfigDraftBinding";
 import { useToastStore } from "@/stores/toast";
 import { handleApiError } from "@/lib/api";
 
-export type FlowStartupExecutionResult =
-  ApiComponents["schemas"]["StartupExecutionResult"];
+export type FlowStartupCommandStatus =
+  | "exited"
+  | "running"
+  | "spawn_failed";
+
+export interface FlowStartupCommandResult {
+  index: number;
+  command: string;
+  status: FlowStartupCommandStatus;
+  exit_code: number | null;
+  stdout: string;
+  stdout_truncated: boolean;
+  stderr: string;
+  stderr_truncated: boolean;
+  error: string | null;
+}
+
+export interface FlowStartupExecutionResult {
+  phase: string;
+  commands: FlowStartupCommandResult[];
+  total_duration_ms: number;
+}
 
 export type FlowStartupTestRunner = (payload: {
   tomlContent: string;
@@ -20,7 +39,7 @@ export type FlowStartupTestRunner = (payload: {
 type StartupCommandDraft = {
   id: string;
   command: string;
-  args: string;
+  args: string[];
   work_dir: string;
 };
 
@@ -42,7 +61,7 @@ type FlowStartupInlinePanelProps = {
 const emptyCommand = (): StartupCommandDraft => ({
   id: createCommandId(),
   command: "",
-  args: "",
+  args: [],
   work_dir: "",
 });
 
@@ -76,7 +95,9 @@ const parseCommandsFromToml = (section: Record<string, unknown>): StartupCommand
     .map((cmd) => ({
       id: createCommandId(),
       command: typeof cmd["command"] === "string" ? cmd["command"] : "",
-      args: Array.isArray(cmd["args"]) ? (cmd["args"] as string[]).join(" ") : "",
+      args: Array.isArray(cmd["args"])
+        ? (cmd["args"] as unknown[]).filter((item): item is string => typeof item === "string")
+        : [],
       work_dir: typeof cmd["work_dir"] === "string" ? cmd["work_dir"] : "",
     }));
 };
@@ -86,9 +107,11 @@ const buildCommandsForToml = (commands: StartupCommandDraft[]): Record<string, u
     .filter((cmd) => cmd.command.trim().length > 0)
     .map((cmd) => {
       const obj: Record<string, unknown> = { command: cmd.command.trim() };
-      const args = cmd.args.trim();
+      const args = cmd.args
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
       if (args.length > 0) {
-        obj["args"] = args.split(/\s+/).filter(Boolean);
+        obj["args"] = args;
       }
       if (cmd.work_dir.trim().length > 0) {
         obj["work_dir"] = cmd.work_dir.trim();
@@ -119,6 +142,8 @@ const buildContent = (
   const parsed = tomlAdapter.parse(source);
   const root: Record<string, unknown> = isRecord(parsed) ? parsed : {};
   const extMgr = ensureRecord(root, "extension_manager");
+  extMgr["enabled"] = true;
+  delete extMgr["tools"];
   const preSection = ensureRecord(extMgr, "pre_startup");
   const postSection = ensureRecord(extMgr, "post_startup");
 
@@ -185,6 +210,7 @@ const CommandRow: React.FC<CommandRowProps> = ({
       ? "border-white/10 bg-black/30 text-slate-100 placeholder:text-slate-500"
       : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400",
   );
+  const argsValue = cmd.args.join("\n");
 
   return (
     <div
@@ -221,13 +247,19 @@ const CommandRow: React.FC<CommandRowProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-bold uppercase tracking-wider opacity-40 shrink-0 w-10">Args</span>
-          <input
-            type="text"
-            value={cmd.args}
-            onChange={(e) => onChange({ args: e.target.value })}
-            placeholder={t("admin.config.flowStartup.argsPlaceholder")}
-            className={inputClass}
-          />
+          <div className="w-full">
+            <textarea
+              value={argsValue}
+              onChange={(e) =>
+                onChange({ args: e.target.value.split(/\r?\n/) })
+              }
+              placeholder={t("admin.config.flowStartup.argsPlaceholder")}
+              className={cn(inputClass, "min-h-[84px] resize-y")}
+            />
+            <p className={cn("mt-1 text-[11px] leading-4", isDark ? "text-slate-500" : "text-slate-500")}>
+              {t("admin.config.flowStartup.argsHint")}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <FolderOpen size={14} className="shrink-0 opacity-50" />
@@ -482,6 +514,7 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
   onTestPostStartup,
 }) => {
   const { t } = useTranslation();
+  const isDark = useResolvedTheme() === "dark";
   const { addToast } = useToastStore();
   const [testingPhase, setTestingPhase] = useState<"pre" | "post" | null>(null);
   const createDraft = useCallback(
@@ -503,6 +536,19 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
     return buildContent(content, tomlAdapter, draft);
   }, [content, tomlAdapter, draft]);
 
+  const getStatusLabel = useCallback(
+    (status: FlowStartupCommandStatus) => {
+      if (status === "running") {
+        return t("admin.config.flowStartup.statusRunning");
+      }
+      if (status === "spawn_failed") {
+        return t("admin.config.flowStartup.statusSpawnFailed");
+      }
+      return t("admin.config.flowStartup.statusExited");
+    },
+    [t],
+  );
+
   const buildResultDetails = useCallback(
     (result: FlowStartupExecutionResult) => {
       const lines: string[] = [
@@ -521,6 +567,9 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
           `${t("admin.config.flowStartup.testResultCommand")} #${item.index + 1}: ${item.command}`,
         );
         lines.push(
+          `${t("admin.config.flowStartup.testResultStatus")}: ${getStatusLabel(item.status)}`,
+        );
+        lines.push(
           `${t("admin.config.flowStartup.testResultExitCode")}: ${item.exit_code ?? "null"}`,
         );
         if (item.error && item.error.trim().length > 0) {
@@ -528,15 +577,21 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
         }
         if (item.stdout.trim().length > 0) {
           lines.push(`${t("admin.config.flowStartup.testResultStdout")}:\n${item.stdout}`);
+          if (item.stdout_truncated) {
+            lines.push(t("admin.config.flowStartup.testResultStdoutTruncated"));
+          }
         }
         if (item.stderr.trim().length > 0) {
           lines.push(`${t("admin.config.flowStartup.testResultStderr")}:\n${item.stderr}`);
+          if (item.stderr_truncated) {
+            lines.push(t("admin.config.flowStartup.testResultStderrTruncated"));
+          }
         }
       }
 
       return lines.join("\n");
     },
-    [t],
+    [getStatusLabel, t],
   );
 
   const runTest = useCallback(
@@ -553,7 +608,10 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
       try {
         const result = await runner({ tomlContent: buildCurrentTomlContent() });
         const failedCount = result.commands.filter(
-          (item) => item.error || item.exit_code !== 0,
+          (item) =>
+            item.status === "spawn_failed"
+            || Boolean(item.error)
+            || (item.status === "exited" && item.exit_code !== 0),
         ).length;
         const details = buildResultDetails(result);
 
@@ -616,6 +674,27 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
 
   return (
     <div className="space-y-4">
+      <div
+        className={cn(
+          "rounded-2xl border p-4",
+          "border-amber-500/30 bg-amber-500/10",
+        )}
+      >
+        <div className="flex items-start gap-3">
+          <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-500" />
+          <div className="space-y-2">
+            <p className={cn("text-sm font-black", isDark ? "text-amber-200" : "text-amber-900")}>
+              {t("admin.config.flowStartup.securityTitle")}
+            </p>
+            <p className={cn("text-xs leading-5", isDark ? "text-amber-100/80" : "text-amber-900/80")}>
+              {t("admin.config.flowStartup.securityBody")}
+            </p>
+            <p className={cn("text-xs leading-5", isDark ? "text-amber-100/80" : "text-amber-900/80")}>
+              {t("admin.config.flowStartup.testBehaviorHint")}
+            </p>
+          </div>
+        </div>
+      </div>
       <CommandSection
         title={t("admin.config.flowStartup.preStartupTitle")}
         hint={t("admin.config.flowStartup.preStartupHint")}

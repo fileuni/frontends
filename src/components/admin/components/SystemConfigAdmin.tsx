@@ -11,6 +11,7 @@ import type {
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
 import { buildSettingCommonActions } from "@/components/setting/SettingCommonActions";
+import type { FlowStartupExecutionResult } from "@/components/setting/FlowStartupInlinePanel";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useToastStore } from "@/stores/toast";
@@ -23,8 +24,6 @@ type ConfigRawResponse = components["schemas"]["ConfigRawResponse"];
 type ConfigNotesResponse = components["schemas"]["ConfigNotesResponse"];
 type ApiConfigNoteEntry = components["schemas"]["ConfigNoteEntry"];
 type BackendCapabilitiesResponse = components["schemas"]["SystemCapabilities"];
-type StartupExecutionResult = components["schemas"]["StartupExecutionResult"];
-
 type LicenseStatus = {
   is_valid: boolean;
   msg: string;
@@ -514,8 +513,8 @@ export const SystemConfigAdmin = () => {
   );
 
   const handleTestPreStartup = useCallback(
-    async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
-      return extractData<StartupExecutionResult>(
+    async ({ tomlContent }: { tomlContent: string }): Promise<FlowStartupExecutionResult> => {
+      return extractData<FlowStartupExecutionResult>(
         client.POST("/api/v1/admin/startup-commands/test-pre-startup", {
           body: { toml_content: tomlContent },
           headers: { "X-No-Toast": "true" },
@@ -526,8 +525,8 @@ export const SystemConfigAdmin = () => {
   );
 
   const handleTestPostStartup = useCallback(
-    async ({ tomlContent }: { tomlContent: string }): Promise<StartupExecutionResult> => {
-      return extractData<StartupExecutionResult>(
+    async ({ tomlContent }: { tomlContent: string }): Promise<FlowStartupExecutionResult> => {
+      return extractData<FlowStartupExecutionResult>(
         client.POST("/api/v1/admin/startup-commands/test-post-startup", {
           body: { toml_content: tomlContent },
           headers: { "X-No-Toast": "true" },
