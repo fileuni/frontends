@@ -821,6 +821,7 @@
           "redisUrl": "Advanced cache address",
           "licenseStatus": "License Status",
           "maxUsers": "User Quota",
+          "currentHardwareCode": "Current Hardware Code",
           "hwFingerprint": "Hardware Fingerprint",
           "licenseKey": "License Key",
           "licenseInputPlaceholder": "Paste your Base64 license key here...",

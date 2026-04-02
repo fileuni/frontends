@@ -4,10 +4,6 @@ import "@/lib/i18n";
 import * as toml from "smol-toml";
 import type { components as ApiComponents } from "@/types/api.ts";
 import type { components as ConfigSetComponents } from "@/types/config_set_api.ts";
-import type {
-  ConfigError,
-  ConfigNoteEntry,
-} from "@/components/setting/ConfigRawEditor";
 import { ConfigWorkbenchShell } from "@/components/setting/ConfigWorkbenchShell";
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { SettingSurfaceControls } from "@/components/setting/SettingSurfaceControls";
@@ -17,6 +13,12 @@ import {
 } from "@/components/setting/SettingCommonActions";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
 import { createConfigSetSettingCommonCapabilityHandlers } from "@/components/setting/settingCommonCapabilityAdapters";
+import {
+  extractConfigValidationErrorsFromException,
+  normalizeConfigNotes,
+  type ConfigWorkbenchLicenseStatus,
+  useConfigWorkbenchController,
+} from "@/components/setting/useConfigWorkbenchController";
 import { SettingSetupEntryView } from "@/components/setting/SettingSetupEntryView";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useToastStore } from "@/stores/toast";
@@ -33,38 +35,6 @@ type BackendCapabilitiesResponse =
   ApiComponents["schemas"]["SystemCapabilities"];
 type ConfigSetApplyResponse =
   ConfigSetComponents["schemas"]["ConfigSetApplyResponse"];
-type ConfigValidationError = ConfigError;
-
-const isConfigValidationError = (
-  value: unknown,
-): value is ConfigValidationError => {
-  if (typeof value !== "object" || value === null) return false;
-  const candidate = value as Record<string, unknown>;
-  if (typeof candidate["message"] !== "string") return false;
-  if (typeof candidate["line"] !== "number") return false;
-  if (typeof candidate["column"] !== "number") return false;
-  if (
-    candidate["key"] !== undefined &&
-    candidate["key"] !== null &&
-    typeof candidate["key"] !== "string"
-  ) {
-    return false;
-  }
-  return true;
-};
-
-const normalizeValidationErrors = (raw: unknown): ConfigValidationError[] => {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter(isConfigValidationError);
-};
-
-const extractValidationErrorsFromException = (
-  error: unknown,
-): ConfigValidationError[] => {
-  if (typeof error !== "object" || error === null) return [];
-  const payload = (error as Record<string, unknown>)["data"];
-  return normalizeValidationErrors(payload);
-};
 
 export const ConfigSetEditor: React.FC = () => {
   const { t } = useTranslation();
@@ -74,37 +44,11 @@ export const ConfigSetEditor: React.FC = () => {
   const [permitted, setPermitted] = useState(false);
   const [permissionMessage, setPermissionMessage] = useState("");
 
-  const [loading, setLoading] = useState(true);
   const [testing, setTesting] = useState(false);
-  const [configPath, setConfigPath] = useState("");
   const [configExists, setConfigExists] = useState(false);
-  const [content, setContent] = useState("");
-  const [savedContent, setSavedContent] = useState("");
-  const [runtimeOs, setRuntimeOs] = useState<string>("");
-  const [systemHardware, setSystemHardware] =
-    useState<SystemHardwareInfo | null>(null);
-  const [notes, setNotes] = useState<Record<string, ConfigNoteEntry>>({});
-  const [validationErrors, setValidationErrors] = useState<ConfigError[]>([]);
 
   // When config exists, user can choose to customize instead of one-click apply
   const [showCustomize, setShowCustomize] = useState(false);
-
-  type ConfigSetLicenseStatusResponse = {
-    is_valid: boolean;
-    msg: string;
-    device_code: string;
-    hw_id: string;
-    aux_id: string;
-    current_users: number;
-    max_users: number;
-    expires_at?: string | null;
-    features: string[];
-  };
-
-  const [licenseStatus, setLicenseStatus] =
-    useState<ConfigSetLicenseStatusResponse | null>(null);
-  const [licenseKey, setLicenseKey] = useState("");
-  const [licenseSaving, setLicenseSaving] = useState(false);
 
   const [adminUsername, setAdminUsername] = useState("admin");
   const [adminAction, setAdminAction] = useState<string>("existing_admin");
@@ -112,6 +56,91 @@ export const ConfigSetEditor: React.FC = () => {
   const [pendingAdminPassword, setPendingAdminPassword] = useState("");
   const [completed, setCompleted] = useState(false);
   const [finishing, setFinishing] = useState(false);
+
+  const {
+    loading,
+    configPath,
+    content,
+    setContent,
+    savedContent,
+    notes,
+    validationErrors,
+    setValidationErrors,
+    clearValidationErrors,
+    runtimeOs,
+    systemHardware,
+    settingLicenseBinding,
+    loadWorkbench,
+    resetToSaved,
+  } = useConfigWorkbenchController<ConfigWorkbenchLicenseStatus>({
+    load: async () => {
+      const [template, notePayload, capabilities, osInfo] = await Promise.all([
+        extractData<ConfigTemplateResponse>(client.GET("/api/v1/config-set/template")),
+        extractData<ConfigNotesResponse>(client.GET("/api/v1/config-set/notes")),
+        extractData<BackendCapabilitiesResponse>(
+          client.GET("/api/v1/system/backend-capabilities-handshake"),
+        ),
+        extractData<SystemHardwareInfo>(client.GET("/api/v1/system/os-info")),
+      ]);
+
+      const currentContent = template?.current_config_content ?? "";
+      setConfigExists(template?.config_exists === true);
+
+      let licenseKeyFromToml: string | undefined;
+      try {
+        const parsed = toml.parse(currentContent) as unknown;
+        if (typeof parsed === "object" && parsed !== null) {
+          const root = parsed as Record<string, unknown>;
+          const license = root["license"];
+          if (typeof license === "object" && license !== null) {
+            const value = (license as Record<string, unknown>)["license_key"];
+            if (typeof value === "string" && value.trim().length > 0) {
+              licenseKeyFromToml = value;
+            }
+          }
+        }
+      } catch {
+        // Ignore broken inline parse while loading the editor.
+      }
+
+      return {
+        configPath: template?.current_config_path ?? "",
+        content: currentContent,
+        notes: normalizeConfigNotes(notePayload?.notes ?? {}),
+        runtimeOs:
+          typeof capabilities?.runtime_os === "string"
+            ? capabilities.runtime_os
+            : "",
+        systemHardware: osInfo ?? null,
+        ...(licenseKeyFromToml ? { licenseKey: licenseKeyFromToml } : {}),
+      };
+    },
+    loadLicenseStatus: async () => {
+      try {
+        return await extractData<ConfigWorkbenchLicenseStatus>(
+          client.GET("/api/v1/config-set/license/status"),
+        );
+      } catch (error) {
+        console.warn("Failed to fetch config-set license status", error);
+        return null;
+      }
+    },
+    updateLicense: async (nextLicenseKey) => {
+      const nextStatus = await extractData<ConfigWorkbenchLicenseStatus>(
+        client.POST("/api/v1/config-set/license/update", {
+          body: { license_key: nextLicenseKey },
+        }),
+      );
+      addToast(t("admin.config.saveSuccess"), "success");
+      return {
+        licenseStatus: nextStatus,
+        clearLicenseKey: false,
+      };
+    },
+    onLicenseError: async (error) => {
+      await addToast(handleApiError(error, t), "error");
+    },
+  });
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -127,135 +156,17 @@ export const ConfigSetEditor: React.FC = () => {
     }
   }, []);
 
-  const fetchTemplate = useCallback(async () => {
-    try {
-      const data = await extractData<ConfigTemplateResponse>(
-        client.GET("/api/v1/config-set/template"),
-      );
-      setConfigPath(data.current_config_path);
-      setContent(data.current_config_content);
-      setSavedContent(data.current_config_content);
-      setConfigExists(data.config_exists === true);
-
-      try {
-        const parsed = toml.parse(data.current_config_content) as unknown;
-        if (typeof parsed === "object" && parsed !== null) {
-          const root = parsed as Record<string, unknown>;
-          const license = root["license"];
-          if (typeof license === "object" && license !== null) {
-            const licenseKeyInToml = (license as Record<string, unknown>)
-              ["license_key"];
-            if (
-              typeof licenseKeyInToml === "string" &&
-              licenseKeyInToml.trim().length > 0
-            ) {
-              setLicenseKey(licenseKeyInToml);
-            }
-          }
-        }
-      } catch {
-        // ignore
-      }
-    } catch (e) {
-      addToast(handleApiError(e, t), "error");
-    }
-  }, [addToast, t]);
-
-  const fetchNotes = useCallback(async () => {
-    try {
-      const data = await extractData<ConfigNotesResponse>(
-        client.GET("/api/v1/config-set/notes"),
-      );
-      setNotes(
-        (data.notes ?? {}) as unknown as Record<string, ConfigNoteEntry>,
-      );
-    } catch (e) {
-      console.error("Failed to fetch config notes", e);
-    }
-  }, []);
-
-  const fetchCapabilities = useCallback(async () => {
-    try {
-      const data = await extractData<BackendCapabilitiesResponse>(
-        client.GET("/api/v1/system/backend-capabilities-handshake"),
-      );
-      setRuntimeOs(typeof data.runtime_os === "string" ? data.runtime_os : "");
-    } catch (e) {
-      console.error("Failed to fetch backend capabilities", e);
-      setRuntimeOs("");
-    }
-  }, []);
-
-  const fetchSystemHardware = useCallback(async () => {
-    try {
-      const data = await extractData<SystemHardwareInfo>(
-        client.GET("/api/v1/system/os-info"),
-      );
-      setSystemHardware(data ?? null);
-    } catch (e) {
-      console.warn("Failed to fetch system os-info", e);
-      setSystemHardware(null);
-    }
-  }, []);
-
-  const refreshLicenseStatus = useCallback(async () => {
-    try {
-      const data = await extractData<ConfigSetLicenseStatusResponse>(
-        client.GET("/api/v1/config-set/license/status"),
-      );
-      setLicenseStatus(data);
-    } catch (e) {
-      // License endpoints may be unavailable on older servers; ignore.
-      console.warn("Failed to fetch config-set license status", e);
-    }
-  }, []);
-
-  const applyLicenseKey = useCallback(async () => {
-    const trimmed = licenseKey.trim();
-    if (!trimmed) return;
-    setLicenseSaving(true);
-    try {
-      const data = await extractData<ConfigSetLicenseStatusResponse>(
-        client.POST("/api/v1/config-set/license/update", {
-          body: { license_key: trimmed },
-        }),
-      );
-      setLicenseStatus(data);
-      addToast(t("admin.config.saveSuccess"), "success");
-    } catch (e) {
-      addToast(handleApiError(e, t), "error");
-    } finally {
-      setLicenseSaving(false);
-    }
-  }, [addToast, licenseKey, t]);
-
   useEffect(() => {
     const load = async () => {
-      setLoading(true);
       try {
         await fetchStatus();
-        await Promise.all([
-          fetchTemplate(),
-          fetchNotes(),
-          fetchCapabilities(),
-          fetchSystemHardware(),
-          refreshLicenseStatus(),
-        ]);
+        await loadWorkbench();
       } catch (e) {
         console.error("Config-set init failed", e);
-      } finally {
-        setLoading(false);
       }
     };
-    load();
-  }, [
-    fetchStatus,
-    fetchTemplate,
-    fetchNotes,
-    fetchCapabilities,
-    fetchSystemHardware,
-    refreshLicenseStatus,
-  ]);
+    void load();
+  }, [fetchStatus, loadWorkbench]);
 
   const finishAndReturnToHome = async () => {
     if (finishing) return;
@@ -303,7 +214,7 @@ export const ConfigSetEditor: React.FC = () => {
   const handleTest = async () => {
     if (testing) return;
     setTesting(true);
-    setValidationErrors([]);
+    clearValidationErrors();
     try {
       await extractData(
         client.POST("/api/v1/config-set/config-test", {
@@ -312,7 +223,7 @@ export const ConfigSetEditor: React.FC = () => {
       );
       addToast(t("admin.config.testSuccess"), "success");
     } catch (e) {
-      const errData = extractValidationErrorsFromException(e);
+      const errData = extractConfigValidationErrorsFromException(e);
       if (errData.length > 0) {
         const firstError = errData[0];
         if (!firstError) {
@@ -340,7 +251,7 @@ export const ConfigSetEditor: React.FC = () => {
       return;
     }
     setTesting(true);
-    setValidationErrors([]);
+    clearValidationErrors();
     try {
       const res = await extractData<ConfigSetApplyResponse>(
         client.POST("/api/v1/config-set/apply", {
@@ -361,7 +272,7 @@ export const ConfigSetEditor: React.FC = () => {
       );
       setCompleted(true);
     } catch (e) {
-      const errData = extractValidationErrorsFromException(e);
+      const errData = extractConfigValidationErrorsFromException(e);
       if (errData.length > 0) {
         const firstError = errData[0];
         if (!firstError) {
@@ -381,18 +292,15 @@ export const ConfigSetEditor: React.FC = () => {
     }
   }, [
     addToast,
+    clearValidationErrors,
     configPath,
     content,
     pendingAdminPassword,
+    setValidationErrors,
     t,
     testing,
     validatePendingAdminPassword,
   ]);
-
-  const handleResetToSaved = () => {
-    setContent(savedContent);
-    setValidationErrors([]);
-  };
 
   const sharedCapabilities = useMemo(
     () =>
@@ -457,15 +365,7 @@ export const ConfigSetEditor: React.FC = () => {
           onValueChange: setPendingAdminPassword,
           hint: t("systemConfig.setup.admin.resetRuleHint"),
         },
-        license: {
-          status: licenseStatus,
-          licenseKey,
-          onLicenseKeyChange: setLicenseKey,
-          onApplyLicense: () => {
-            void applyLicenseKey();
-          },
-          saving: licenseSaving,
-        },
+        license: settingLicenseBinding!,
         storage: {
           onPrimaryAction: () => {
             void handleApply();
@@ -477,14 +377,12 @@ export const ConfigSetEditor: React.FC = () => {
       t,
       isDark,
       content,
+      setContent,
       sharedCapabilities,
       runtimeOs,
       systemHardware,
       pendingAdminPassword,
-      licenseStatus,
-      licenseKey,
-      licenseSaving,
-      applyLicenseKey,
+      settingLicenseBinding,
       handleApply,
     ],
   );
@@ -669,13 +567,13 @@ export const ConfigSetEditor: React.FC = () => {
         onChange: setContent,
         onTest: handleTest,
         onSave: handleApply,
-        onCancel: handleResetToSaved,
+        onCancel: resetToSaved,
         showCancel: false,
         allowSaveWithoutChanges: true,
         forceEnableSave: true,
         editorTitle: t("systemConfig.setup.editor.title"),
         testLabel: t("systemConfig.setup.editor.check"),
-        onClearValidationErrors: () => setValidationErrors([]),
+        onClearValidationErrors: clearValidationErrors,
         runtimeOs,
         systemHardware,
         onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,

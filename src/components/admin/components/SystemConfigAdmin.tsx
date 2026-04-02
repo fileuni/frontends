@@ -4,10 +4,6 @@ import "@/lib/i18n";
 import * as toml from "smol-toml";
 import { client, extractData, handleApiError } from "@/lib/api.ts";
 import type { components } from "@/lib/api.ts";
-import type {
-  ConfigError,
-  ConfigNoteEntry as SharedConfigNoteEntry,
-} from "@/components/setting/ConfigRawEditor";
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
 import {
@@ -15,6 +11,12 @@ import {
 } from "@/components/setting/SettingCommonActions";
 import type { SystemHardwareInfo } from "@/components/setting/ConfigQuickSettingsModal";
 import { createAdminSettingCommonCapabilityHandlers } from "@/components/setting/settingCommonCapabilityAdapters";
+import {
+  extractConfigValidationErrorsFromException,
+  normalizeConfigNotes,
+  type ConfigWorkbenchLicenseStatus,
+  useConfigWorkbenchController,
+} from "@/components/setting/useConfigWorkbenchController";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useToastStore } from "@/stores/toast";
 import { useAuthzStore } from "@/stores/authz.ts";
@@ -23,55 +25,12 @@ import { AdminPage } from "./admin-ui";
 
 type ConfigRawResponse = components["schemas"]["ConfigRawResponse"];
 type ConfigNotesResponse = components["schemas"]["ConfigNotesResponse"];
-type ApiConfigNoteEntry = components["schemas"]["ConfigNoteEntry"];
 type BackendCapabilitiesResponse = components["schemas"]["SystemCapabilities"];
-type LicenseStatus = {
-  is_valid: boolean;
-  msg: string;
-  device_code: string;
-  hw_id: string;
-  aux_id: string;
-  current_users: number;
-  max_users: number;
-  expires_at?: string | null;
-  features: string[];
-};
-
-type ConfigValidationError = {
-  message: string;
-  line?: number;
-  column?: number;
-  key?: string | null;
-};
 
 type LineDiffStats = {
   changed: number;
   added: number;
   removed: number;
-};
-
-const isConfigValidationError = (
-  value: unknown,
-): value is ConfigValidationError => {
-  if (typeof value !== "object" || value === null) return false;
-  const candidate = value as Record<string, unknown>;
-  if (typeof candidate['message'] !== "string") return false;
-  if (candidate['line'] !== undefined && typeof candidate['line'] !== "number")
-    return false;
-  if (candidate['column'] !== undefined && typeof candidate['column'] !== "number")
-    return false;
-  if (
-    candidate['key'] !== undefined &&
-    candidate['key'] !== null &&
-    typeof candidate['key'] !== "string"
-  )
-    return false;
-  return true;
-};
-
-const normalizeValidationErrors = (raw: unknown): ConfigValidationError[] => {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter(isConfigValidationError);
 };
 
 const withTimeout = async <T,>(
@@ -90,14 +49,6 @@ const withTimeout = async <T,>(
   } finally {
     if (timer) clearTimeout(timer);
   }
-};
-
-const extractValidationErrorsFromException = (
-  error: unknown,
-): ConfigValidationError[] => {
-  if (typeof error !== "object" || error === null) return [];
-  const payload = (error as Record<string, unknown>)['data'];
-  return normalizeValidationErrors(payload);
 };
 
 const calculateLineDiffStats = (
@@ -135,87 +86,92 @@ export const SystemConfigAdmin = () => {
   const isDark = useResolvedTheme() === "dark";
   const { addToast } = useToastStore();
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [reloading, setReloading] = useState(false);
-  const [configPath, setConfigPath] = useState("");
-  const [content, setContent] = useState("");
-  const [savedContent, setSavedContent] = useState("");
-  const [notes, setNotes] = useState<Record<string, ApiConfigNoteEntry>>({});
-  const [validationErrors, setValidationErrors] = useState<
-    ConfigValidationError[]
-  >([]);
-  const [licenseStatus, setLicenseStatus] = useState<LicenseStatus | null>(
-    null,
-  );
-  const [licenseKey, setLicenseKey] = useState("");
   const [pendingAdminPassword, setPendingAdminPassword] = useState("");
-  const [reloadSummary, setReloadSummary] = useState("");
-  const [reloadSummaryLevel, setReloadSummaryLevel] = useState<
-    "success" | "warning" | "error" | "info"
-  >("info");
-  const [runtimeOs, setRuntimeOs] = useState("");
-  const [systemHardware, setSystemHardware] =
-    useState<SystemHardwareInfo | null>(null);
   const { currentUserData } = useAuthStore();
 
-  const fetchConfig = useCallback(async () => {
-    const data = await extractData<ConfigRawResponse>(
-      client.GET("/api/v1/admin/system/config/raw"),
-    );
-    if (data) {
-      setConfigPath(data.config_path || "");
-      setContent(data.toml_content || "");
-      setSavedContent(data.toml_content || "");
-    }
-  }, []);
+  const {
+    loading,
+    configPath,
+    setConfigPath,
+    content,
+    setContent,
+    savedContent,
+    setSavedContent,
+    notes,
+    validationErrors,
+    setValidationErrors,
+    clearValidationErrors,
+    reloadSummary,
+    reloadSummaryLevel,
+    setSummary,
+    clearReloadSummary,
+    runtimeOs,
+    systemHardware,
+    loadWorkbench,
+    settingLicenseBinding,
+    quickSettingsLicense,
+    resetToSaved,
+  } = useConfigWorkbenchController<ConfigWorkbenchLicenseStatus>({
+    load: async () => {
+      const [config, notePayload, capabilities, osInfo] = await Promise.all([
+        extractData<ConfigRawResponse>(client.GET("/api/v1/admin/system/config/raw")),
+        extractData<ConfigNotesResponse>(
+          client.GET("/api/v1/admin/system/config/notes"),
+        ),
+        extractData<BackendCapabilitiesResponse>(
+          client.GET("/api/v1/system/backend-capabilities-handshake"),
+        ),
+        extractData<SystemHardwareInfo>(client.GET("/api/v1/system/os-info")),
+      ]);
 
-  const fetchNotes = useCallback(async () => {
-    const data = await extractData<ConfigNotesResponse>(
-      client.GET("/api/v1/admin/system/config/notes"),
-    );
-    if (data) {
-      setNotes(data.notes || {});
-    }
-  }, []);
-
-  const fetchLicenseStatus = useCallback(async () => {
-    try {
-      const data = await extractData<LicenseStatus>(
+      return {
+        configPath: config?.config_path ?? "",
+        content: config?.toml_content ?? "",
+        notes: normalizeConfigNotes(
+          (notePayload?.notes ?? {}) as Record<
+            string,
+            components["schemas"]["ConfigNoteEntry"]
+          >,
+        ),
+        runtimeOs:
+          typeof capabilities?.runtime_os === "string"
+            ? capabilities.runtime_os
+            : "",
+        systemHardware: osInfo ?? null,
+      };
+    },
+    loadLicenseStatus: async () => {
+      try {
+        return await extractData<ConfigWorkbenchLicenseStatus>(
+          client.GET("/api/v1/users/admin/license/status"),
+        );
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    },
+    updateLicense: async (nextLicenseKey) => {
+      const res = await client.POST("/api/v1/users/admin/license/update", {
+        body: { license_key: nextLicenseKey },
+      });
+      if (!res.data?.["success"]) {
+        return { clearLicenseKey: false };
+      }
+      const nextStatus = await extractData<ConfigWorkbenchLicenseStatus>(
         client.GET("/api/v1/users/admin/license/status"),
       );
-      if (data) {
-        setLicenseStatus(data);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
-
-  const fetchCapabilities = useCallback(async () => {
-    try {
-      const data = await extractData<BackendCapabilitiesResponse>(
-        client.GET("/api/v1/system/backend-capabilities-handshake"),
-      );
-      setRuntimeOs(typeof data.runtime_os === "string" ? data.runtime_os : "");
-    } catch (e) {
-      console.error(e);
-      setRuntimeOs("");
-    }
-  }, []);
-
-  const fetchSystemHardware = useCallback(async () => {
-    try {
-      const data = await extractData<SystemHardwareInfo>(
-        client.GET("/api/v1/system/os-info"),
-      );
-      setSystemHardware(data ?? null);
-    } catch (e) {
-      console.warn("Failed to fetch system os-info", e);
-      setSystemHardware(null);
-    }
-  }, []);
+      addToast(t("admin.saveSuccess"), "success");
+      return {
+        licenseStatus: nextStatus,
+        clearLicenseKey: true,
+      };
+    },
+    onLicenseError: async (error) => {
+      await addToast(handleApiError(error, t), "error");
+    },
+  });
 
   const { hasPermission } = useAuthzStore();
 
@@ -223,30 +179,13 @@ export const SystemConfigAdmin = () => {
     const load = async () => {
       if (!hasPermission("admin.access")) return;
       try {
-        await Promise.all([
-          fetchConfig(),
-          fetchNotes(),
-          fetchLicenseStatus(),
-          fetchCapabilities(),
-          fetchSystemHardware(),
-        ]);
+        await loadWorkbench();
       } catch (e) {
         addToast(handleApiError(e, t), "error");
-      } finally {
-        setLoading(false);
       }
     };
-    load();
-  }, [
-    fetchCapabilities,
-    fetchConfig,
-    fetchNotes,
-    fetchLicenseStatus,
-    fetchSystemHardware,
-    addToast,
-    t,
-    hasPermission,
-  ]);
+    void load();
+  }, [addToast, hasPermission, loadWorkbench, t]);
 
   useEffect(() => {
     if (!testing && !reloading) return undefined;
@@ -276,7 +215,7 @@ export const SystemConfigAdmin = () => {
       addToast(t("admin.config.testSuccess"), "success");
     } catch (e) {
       console.error("Config test exception:", e);
-      const errData = extractValidationErrorsFromException(e);
+      const errData = extractConfigValidationErrorsFromException(e);
       if (errData.length > 0) {
         const firstError = errData[0];
         if (!firstError) {
@@ -315,14 +254,12 @@ export const SystemConfigAdmin = () => {
     const passwordError = validatePendingAdminPassword();
     if (passwordError) {
       addToast(passwordError, "error");
-      setReloadSummary(passwordError);
-      setReloadSummaryLevel("error");
+      setSummary(passwordError, "error");
       return;
     }
     setReloading(true);
-    setValidationErrors([]);
-    setReloadSummary("");
-    setReloadSummaryLevel("info");
+    clearValidationErrors();
+    clearReloadSummary();
     try {
       const currentContent = content;
       await withTimeout(
@@ -372,34 +309,29 @@ export const SystemConfigAdmin = () => {
       );
       if (serverContent !== currentContent) {
         const summary = `Config synced with server: ${diffSummary}`;
-        setReloadSummary(summary);
-        setReloadSummaryLevel("warning");
+        setSummary(summary, "warning");
       } else {
         const summary = `Config synced with server: ${diffSummary}`;
-        setReloadSummary(summary);
-        setReloadSummaryLevel("success");
+        setSummary(summary, "success");
       }
     } catch (e) {
       console.error("Config reload exception:", e);
-      const errData = extractValidationErrorsFromException(e);
+      const errData = extractConfigValidationErrorsFromException(e);
       if (errData.length > 0) {
         const firstError = errData[0];
         if (!firstError) {
           const summary = handleApiError(e, t);
-          setReloadSummary(summary);
-          setReloadSummaryLevel("error");
+          setSummary(summary, "error");
           addToast(summary, "error");
           return;
         }
         setValidationErrors(errData);
         const summary = `${t("admin.config.reloadFailed")}: ${firstError.message}`;
-        setReloadSummary(summary);
-        setReloadSummaryLevel("error");
+        setSummary(summary, "error");
         addToast(summary, "error");
       } else {
         const summary = handleApiError(e, t);
-        setReloadSummary(summary);
-        setReloadSummaryLevel("error");
+        setSummary(summary, "error");
         addToast(summary, "error");
       }
     } finally {
@@ -407,58 +339,22 @@ export const SystemConfigAdmin = () => {
     }
   }, [
     addToast,
+    clearReloadSummary,
+    clearValidationErrors,
     configPath,
     content,
     currentUserData?.user.id,
     pendingAdminPassword,
     reloading,
+    setConfigPath,
+    setContent,
+    setSavedContent,
+    setSummary,
+    setValidationErrors,
     t,
     testing,
     validatePendingAdminPassword,
   ]);
-
-  const handleUpdateLicense = useCallback(async () => {
-    if (!licenseKey.trim()) return;
-    setSaving(true);
-    try {
-      const res = await client.POST("/api/v1/users/admin/license/update", {
-        body: { license_key: licenseKey.trim() },
-      });
-      if (res.data?.['success']) {
-        addToast(t("admin.saveSuccess"), "success");
-        setLicenseKey("");
-        fetchLicenseStatus();
-      }
-    } catch (e) {
-      addToast(handleApiError(e, t), "error");
-    } finally {
-      setSaving(false);
-    }
-  }, [addToast, fetchLicenseStatus, licenseKey, t]);
-
-  const handleResetToSaved = () => {
-    setContent(savedContent);
-    setValidationErrors([]);
-  };
-
-  const normalizedNotes: Record<string, SharedConfigNoteEntry> =
-    Object.fromEntries(
-      Object.entries(notes).map(([key, note]) => [
-        key,
-        {
-          desc_en: note.desc_en || "",
-          desc_zh: note.desc_zh || "",
-          example: note.example || "",
-        },
-      ]),
-    );
-
-  const editorErrors: ConfigError[] = validationErrors.map((err) => ({
-    message: err.message,
-    line: typeof err.line === "number" ? err.line : 0,
-    column: typeof err.column === "number" ? err.column : 0,
-    key: err.key,
-  }));
 
   const sharedCapabilities = useMemo(
     () =>
@@ -485,15 +381,7 @@ export const SystemConfigAdmin = () => {
           onValueChange: setPendingAdminPassword,
           hint: t("systemConfig.setup.admin.resetRuleHint"),
         },
-        license: {
-          status: licenseStatus,
-          licenseKey,
-          onLicenseKeyChange: setLicenseKey,
-          onApplyLicense: () => {
-            void handleUpdateLicense();
-          },
-          saving,
-        },
+        license: settingLicenseBinding!,
         storage: {
           onPrimaryAction: () => {
             void handleReload();
@@ -508,11 +396,9 @@ export const SystemConfigAdmin = () => {
       pendingAdminPassword,
       runtimeOs,
       systemHardware,
+      setContent,
       sharedCapabilities,
-      licenseStatus,
-      licenseKey,
-      handleUpdateLicense,
-      saving,
+      settingLicenseBinding,
       handleReload,
     ],
   );
@@ -562,15 +448,15 @@ export const SystemConfigAdmin = () => {
           configPath,
           content,
           savedContent,
-          notes: normalizedNotes,
-          validationErrors: editorErrors,
+          notes,
+          validationErrors,
           busy: testing || reloading,
           onChange: setContent,
           onTest: handleTest,
           onSave: handleReload,
-          onCancel: handleResetToSaved,
+          onCancel: resetToSaved,
           showCancel: false,
-          onClearValidationErrors: () => setValidationErrors([]),
+          onClearValidationErrors: clearValidationErrors,
           restartNotice: t("admin.config.restartNotice"),
           reloadSummary,
           reloadSummaryLevel,
@@ -579,23 +465,7 @@ export const SystemConfigAdmin = () => {
           onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,
           onProbeExternalTool: sharedCapabilities.onProbeExternalTool,
           onProbeMediaBackend: sharedCapabilities.onProbeMediaBackend,
-          quickSettingsLicense: {
-            isValid: Boolean(licenseStatus?.is_valid),
-            msg: licenseStatus?.msg,
-            currentUsers: licenseStatus?.current_users || 0,
-            maxUsers: licenseStatus?.max_users || 0,
-            deviceCode: licenseStatus?.device_code || "",
-            hwId: licenseStatus?.hw_id,
-            auxId: licenseStatus?.aux_id,
-            expiresAt: licenseStatus?.expires_at ?? null,
-            features: licenseStatus?.features ?? [],
-            licenseKey,
-            saving,
-            onLicenseKeyChange: setLicenseKey,
-            onApplyLicense: () => {
-              void handleUpdateLicense();
-            },
-          },
+          ...(quickSettingsLicense ? { quickSettingsLicense } : {}),
           editorTitle: t("admin.config.title"),
           testLabel: t("systemConfig.setup.editor.check"),
         }}

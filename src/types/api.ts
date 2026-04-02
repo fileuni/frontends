@@ -630,6 +630,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/system/config/check-db": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["check_db_connection_handler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/system/config/check-kv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["check_kv_connection_handler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/system/config/external-tools/diagnose": {
         parameters: {
             query?: never;
@@ -3918,6 +3950,10 @@ export interface components {
             device_name?: string | null;
             user_agent?: string | null;
         };
+        DbCheckRequest: {
+            connection_string: string;
+            db_type: string;
+        };
         DdnsCheckResult: {
             desired_ipv4?: string | null;
             desired_ipv6?: string | null;
@@ -4298,6 +4334,10 @@ export interface components {
             /** Format: int64 */
             rt_expires_in: number;
             token_type: string;
+        };
+        KvCheckRequest: {
+            connection_string: string;
+            kv_type: string;
         };
         LatexRenderRequest: {
             content: string;
@@ -6351,6 +6391,90 @@ export interface operations {
                 };
             };
             /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    check_db_connection_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DbCheckRequest"];
+            };
+        };
+        responses: {
+            /** @description Database connection successful */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Database connection failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description Permission denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    check_kv_connection_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KvCheckRequest"];
+            };
+        };
+        responses: {
+            /** @description KV storage connection successful */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+            /** @description KV storage connection failed */
             400: {
                 headers: {
                     [name: string]: unknown;

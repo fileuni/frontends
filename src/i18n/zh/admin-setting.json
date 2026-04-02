@@ -814,6 +814,7 @@
           "redisUrl": "高级缓存地址",
           "licenseStatus": "授权状态",
           "maxUsers": "最大用户配额",
+          "currentHardwareCode": "当前硬件码",
           "hwFingerprint": "硬件指纹",
           "licenseKey": "授权密钥",
           "licenseInputPlaceholder": "请输入获取到的 Base64 授权码...",

@@ -26,6 +26,10 @@ import {
   buildSettingCommonActions,
 } from "@/components/setting/SettingCommonActions";
 import { createTauriSettingCommonCapabilityHandlers } from "@/components/setting/settingCommonCapabilityAdapters";
+import {
+  type ConfigWorkbenchLicenseStatus,
+  useConfigWorkbenchController,
+} from "@/components/setting/useConfigWorkbenchController";
 import { LogViewer, type LogEntry } from "@/apps/launcher/components/LogViewer";
 import { QuickActionsPanel } from "@/apps/launcher/components/QuickActionsPanel";
 import {
@@ -56,17 +60,7 @@ interface ServiceStatusResponse {
   is_running: boolean;
 }
 
-interface LicenseStatusPayload {
-  is_valid: boolean;
-  msg: string;
-  device_code: string;
-  hw_id: string;
-  aux_id: string;
-  current_users: number;
-  max_users: number;
-  expires_at?: string | null;
-  features: string[];
-}
+type LicenseStatusPayload = ConfigWorkbenchLicenseStatus;
 
 interface RuntimeDirInspection {
   runtime_dir: string;
@@ -151,25 +145,63 @@ export function Launcher() {
 
   // Config editor state
   const [isEditingConfig, setIsEditingConfig] = useState(false);
-  const [configContent, setConfigContent] = useState("");
-  const [savedConfigContent, setSavedConfigContent] = useState("");
-  const [configNotes, setConfigNotes] = useState<
-    Record<string, ConfigNoteEntry>
-  >({});
-  const [configErrors, setConfigErrors] = useState<ConfigError[]>([]);
-  const [configFetching, setConfigFetching] = useState(false);
   const [configBusy, setConfigBusy] = useState(false);
-  const [configSummary, setConfigSummary] = useState("");
-  const [configSummaryLevel, setConfigSummaryLevel] = useState<
-    "success" | "warning" | "error" | "info"
-  >("info");
-  const [configFilePath, setConfigFilePath] = useState("");
 
-  // License management state (Quick Settings)
-  const [licenseStatus, setLicenseStatus] =
-    useState<LicenseStatusPayload | null>(null);
-  const [licenseKey, setLicenseKey] = useState("");
-  const [licenseSaving, setLicenseSaving] = useState(false);
+  const {
+    loading: configFetching,
+    setLoading: setConfigFetching,
+    configPath: configFilePath,
+    setConfigPath: setConfigFilePath,
+    content: configContent,
+    setContent: setConfigContent,
+    savedContent: savedConfigContent,
+    setSavedContent: setSavedConfigContent,
+    notes: configNotes,
+    validationErrors: configErrors,
+    setValidationErrors: setConfigErrors,
+    clearValidationErrors: clearConfigErrors,
+    reloadSummary: configSummary,
+    reloadSummaryLevel: configSummaryLevel,
+    setSummary: setConfigSummary,
+    clearReloadSummary: clearConfigSummary,
+    refreshLicenseStatus,
+    applyWorkbenchData,
+    resetToSaved: resetWorkbenchToSaved,
+    settingLicenseBinding,
+    quickSettingsLicense,
+  } = useConfigWorkbenchController<LicenseStatusPayload>({
+    initialLoading: false,
+    loadLicenseStatus: async () => {
+      if (!isTauriRuntime()) {
+        return null;
+      }
+      try {
+        return await safeInvoke<LicenseStatusPayload>("get_license_status");
+      } catch (error: unknown) {
+        const message = extractErrorMessage(error);
+        if (
+          message.includes("RUNTIME_INIT_REQUIRED") ||
+          message.includes("missing config file")
+        ) {
+          return null;
+        }
+        console.error("Failed to load license status:", error);
+        return null;
+      }
+    },
+    updateLicense: async (nextLicenseKey) => {
+      await safeInvoke<void>("update_license_key", { licenseKey: nextLicenseKey });
+      toast.success(t("admin.saveSuccess"));
+      const nextStatus = await safeInvoke<LicenseStatusPayload>("get_license_status");
+      return {
+        licenseStatus: nextStatus,
+        clearLicenseKey: true,
+      };
+    },
+    onLicenseError: async (error) => {
+      await toast.error(extractErrorMessage(error));
+    },
+  });
 
   const [runtimeDirPresets, setRuntimeDirPresets] =
     useState<RuntimeDirPresets | null>(null);
@@ -233,7 +265,7 @@ export function Launcher() {
       setConfigFilePath(inspected.config_path);
       return inspected;
     },
-    [inspectRuntimeDir, setRuntimeDir],
+    [inspectRuntimeDir, setConfigFilePath, setRuntimeDir],
   );
 
   const ensureRuntimeConfigReady = async () => {
@@ -264,27 +296,6 @@ export function Launcher() {
     }
   };
 
-  const refreshLicenseStatus = useCallback(async () => {
-    if (!isTauriRuntime()) {
-      return;
-    }
-    try {
-      const payload =
-        await safeInvoke<LicenseStatusPayload>("get_license_status");
-      setLicenseStatus(payload);
-    } catch (error: unknown) {
-      const message = extractErrorMessage(error);
-      if (
-        message.includes("RUNTIME_INIT_REQUIRED") ||
-        message.includes("missing config file")
-      ) {
-        setLicenseStatus(null);
-        return;
-      }
-      console.error("Failed to load license status:", error);
-    }
-  }, []);
-
   const pickExternalStorageDirectory =
     async (): Promise<PickedDirectory | null> => {
       try {
@@ -298,44 +309,36 @@ export function Launcher() {
       }
     };
 
-  const handleUpdateLicenseKey = async () => {
-    const trimmed = licenseKey.trim();
-    if (!trimmed) {
-      return;
-    }
-    setLicenseSaving(true);
-    try {
-      await safeInvoke<void>("update_license_key", { licenseKey: trimmed });
-      toast.success(t("admin.saveSuccess"));
-      setLicenseKey("");
-      await refreshLicenseStatus();
-    } catch (error: unknown) {
-      toast.error(extractErrorMessage(error));
-    } finally {
-      setLicenseSaving(false);
-    }
-  };
+  const readWorkbenchData = useCallback(
+    async (
+      command: "get_config_content" | "get_config_template_content",
+    ) => {
+      const [content, notes] = await Promise.all([
+        safeInvoke<string>(command),
+        safeInvoke<Record<string, ConfigNoteEntry>>("get_config_notes"),
+      ]);
+      return {
+        configPath: configFilePath,
+        content,
+        notes,
+        runtimeOs: osInfo?.os_type ?? "",
+        systemHardware: osInfo,
+      };
+    },
+    [configFilePath, osInfo],
+  );
 
   const loadSettingsCenterWorkbench = useCallback(async () => {
     setConfigFetching(true);
     try {
-      const [content, notes] = await Promise.all([
-        safeInvoke<string>("get_config_template_content"),
-        safeInvoke<Record<string, ConfigNoteEntry>>("get_config_notes"),
-      ]);
-      setConfigContent(content);
-      setSavedConfigContent(content);
-      setConfigNotes(notes);
-      setConfigErrors([]);
-      setConfigSummary("");
-      setConfigSummaryLevel("info");
+      applyWorkbenchData(await readWorkbenchData("get_config_template_content"));
       await refreshLicenseStatus();
     } catch (error) {
       toast.error(extractErrorMessage(error));
     } finally {
       setConfigFetching(false);
     }
-  }, [refreshLicenseStatus]);
+  }, [applyWorkbenchData, readWorkbenchData, refreshLicenseStatus, setConfigFetching]);
 
   const inspectInstallationState = useCallback(
     async (nextRuntimeDir?: string | null) => {
@@ -382,7 +385,7 @@ export function Launcher() {
       }
       return status;
     },
-    [inspectRuntimeDir, loadSettingsCenterWorkbench, setRuntimeDir],
+    [inspectRuntimeDir, loadSettingsCenterWorkbench, setConfigFilePath, setRuntimeDir],
   );
 
   const closeMissingConfigPrompt = (accepted: boolean) => {
@@ -510,21 +513,14 @@ export function Launcher() {
     setIsEditingConfig(true);
     setConfigFetching(true);
     try {
-      const content = await safeInvoke<string>("get_config_content");
-      const notes =
-        await safeInvoke<Record<string, ConfigNoteEntry>>("get_config_notes");
-      setConfigContent(content);
-      setSavedConfigContent(content);
-      setConfigNotes(notes);
-      setConfigErrors([]);
-      setConfigSummary("");
-      setConfigSummaryLevel("info");
+      applyWorkbenchData(await readWorkbenchData("get_config_content"));
       await refreshLicenseStatus();
     } catch (e: unknown) {
       toast.error(String(e));
       setIsEditingConfig(false);
+    } finally {
+      setConfigFetching(false);
     }
-    setConfigFetching(false);
   };
 
   const handleSaveConfig = async () => {
@@ -537,25 +533,22 @@ export function Launcher() {
       if (errors.length > 0) {
         toast.error(t("launcher.messages.config_test_failed"));
         setConfigErrors(errors);
-        setConfigSummary(t("launcher.messages.config_test_failed"));
-        setConfigSummaryLevel("error");
+        setConfigSummary(t("launcher.messages.config_test_failed"), "error");
         return;
       }
 
-      setConfigErrors([]);
+      clearConfigErrors();
 
       // GUI config editing happens while the service is stopped.
       // Persist to disk; changes take effect on next start.
       await safeInvoke<void>("save_config", { content: configContent });
       toast.success(t("launcher.messages.config_saved"));
       setSavedConfigContent(configContent);
-      setConfigSummary(t("launcher.messages.config_saved"));
-      setConfigSummaryLevel("success");
-      setConfigErrors([]);
+      setConfigSummary(t("launcher.messages.config_saved"), "success");
+      clearConfigErrors();
     } catch (e: unknown) {
       toast.error(String(e));
-      setConfigSummary(String(e));
-      setConfigSummaryLevel("error");
+      setConfigSummary(String(e), "error");
     }
     setConfigBusy(false);
   };
@@ -603,15 +596,7 @@ export function Launcher() {
       onValueChange: setPendingAdminPassword,
       hint: t("systemConfig.setup.admin.resetRuleHint"),
     },
-    license: {
-      status: licenseStatus,
-      licenseKey,
-      onLicenseKeyChange: setLicenseKey,
-      onApplyLicense: () => {
-        void handleUpdateLicenseKey();
-      },
-      saving: licenseSaving,
-    },
+    license: settingLicenseBinding!,
     storage: {
       onPrimaryAction: () => {
         void handleFinalizeSettingsCenter();
@@ -642,19 +627,16 @@ export function Launcher() {
       });
       if (errors.length === 0) {
         toast.success(t("launcher.messages.config_test_passed"));
-        setConfigErrors([]);
-        setConfigSummary("");
-        setConfigSummaryLevel("info");
+        clearConfigErrors();
+        clearConfigSummary();
       } else {
         toast.error(t("launcher.messages.config_test_failed"));
         setConfigErrors(errors);
-        setConfigSummary(t("launcher.messages.config_test_failed"));
-        setConfigSummaryLevel("error");
+        setConfigSummary(t("launcher.messages.config_test_failed"), "error");
       }
     } catch (e: unknown) {
       toast.error(String(e));
-      setConfigSummary(String(e));
-      setConfigSummaryLevel("error");
+      setConfigSummary(String(e), "error");
     }
     setConfigBusy(false);
   };
@@ -858,10 +840,8 @@ export function Launcher() {
   };
 
   const handleResetToSavedConfig = () => {
-    setConfigContent(savedConfigContent);
-    setConfigErrors([]);
-    setConfigSummary("");
-    setConfigSummaryLevel("info");
+    resetWorkbenchToSaved();
+    clearConfigSummary();
   };
 
   const handleCloseConfigEditor = () => {
@@ -959,9 +939,8 @@ export function Launcher() {
       }
       setSettingsCenterPasswordHint(res?.password_hint ?? null);
       setSavedConfigContent(configContent);
-      setConfigSummary(t("systemConfig.setup.logs.setupSuccess"));
-      setConfigSummaryLevel("success");
-      setConfigErrors([]);
+      setConfigSummary(t("systemConfig.setup.logs.setupSuccess"), "success");
+      clearConfigErrors();
       toast.success(t("systemConfig.setup.logs.setupSuccess"));
       setIsSettingsCenterCompletedPromptOpen(true);
       setPendingAdminPassword("");
@@ -1000,8 +979,7 @@ export function Launcher() {
       const passwordError = validatePendingAdminPassword();
       if (passwordError) {
         toast.error(passwordError);
-        setConfigSummary(passwordError);
-        setConfigSummaryLevel("error");
+        setConfigSummary(passwordError, "error");
         return;
       }
 
@@ -1012,18 +990,16 @@ export function Launcher() {
       if (errors.length > 0) {
         toast.error(t("launcher.messages.config_test_failed"));
         setConfigErrors(errors);
-        setConfigSummary(t("launcher.messages.config_test_failed"));
-        setConfigSummaryLevel("error");
+        setConfigSummary(t("launcher.messages.config_test_failed"), "error");
         return;
       }
 
-      setConfigErrors([]);
+      clearConfigErrors();
 
       await handleApplySettingsCenter(pendingAdminPassword);
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
-      setConfigSummary(extractErrorMessage(e));
-      setConfigSummaryLevel("error");
+      setConfigSummary(extractErrorMessage(e), "error");
     } finally {
       setConfigBusy(false);
     }
@@ -1133,7 +1109,7 @@ export function Launcher() {
                     forceEnableSave: true,
                     editorTitle: t("systemConfig.setup.editor.title"),
                     testLabel: t("systemConfig.setup.editor.check"),
-                    onClearValidationErrors: () => setConfigErrors([]),
+                    onClearValidationErrors: clearConfigErrors,
                     showCancel: false,
                     reloadSummary: configSummary,
                     reloadSummaryLevel: configSummaryLevel,
@@ -1675,7 +1651,7 @@ export function Launcher() {
                 onSave: handleSaveConfig,
                 saveLabel: t("launcher.save_config"),
                 onCancel: handleResetToSavedConfig,
-                onClearValidationErrors: () => setConfigErrors([]),
+                onClearValidationErrors: clearConfigErrors,
                 showCancel: false,
                 reloadSummary: configSummary,
                 reloadSummaryLevel: configSummaryLevel,
@@ -1687,27 +1663,7 @@ export function Launcher() {
                 ...(osInfo?.is_mobile
                   ? { onPickStorageDirectory: pickExternalStorageDirectory }
                   : {}),
-                quickSettingsLicense: {
-                  isValid: Boolean(licenseStatus?.is_valid),
-                  ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),
-                  currentUsers: licenseStatus?.current_users ?? 0,
-                  maxUsers: licenseStatus?.max_users ?? 0,
-                  deviceCode: licenseStatus?.device_code ?? "",
-                  ...(licenseStatus?.hw_id
-                    ? { hwId: licenseStatus.hw_id }
-                    : {}),
-                  ...(licenseStatus?.aux_id
-                    ? { auxId: licenseStatus.aux_id }
-                    : {}),
-                  expiresAt: licenseStatus?.expires_at ?? null,
-                  features: licenseStatus?.features ?? [],
-                  licenseKey,
-                  saving: licenseSaving,
-                  onLicenseKeyChange: setLicenseKey,
-                  onApplyLicense: () => {
-                    void handleUpdateLicenseKey();
-                  },
-                },
+                ...(quickSettingsLicense ? { quickSettingsLicense } : {}),
               }}
             />
           </div>

@@ -249,7 +249,10 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               <div className="flex items-center gap-2 mb-2">
                 <Fingerprint size={18} className="text-purple-500 shrink-0" />
                 <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                  {t("admin.config.quickSettings.fields.hwFingerprint")}
+                  {t([
+                    "admin.config.quickSettings.fields.currentHardwareCode",
+                    "admin.config.quickSettings.fields.hwFingerprint",
+                  ])}
                 </div>
               </div>
               <div className="text-xs font-mono break-all select-all font-bold opacity-80">

@@ -1,6 +1,6 @@
 import React from "react";
 import type { TFunction } from "i18next";
-import { Clock3, ShieldCheck, Users } from "lucide-react";
+import { Clock3, Fingerprint, ShieldCheck, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { cn } from "@/lib/utils";
@@ -59,6 +59,9 @@ export interface SettingLicenseStatusLike {
   current_users: number;
   max_users: number;
   expires_at?: string | null;
+  device_code?: string;
+  hw_id?: string;
+  aux_id?: string;
 }
 
 interface LicenseInlinePanelProps {
@@ -250,6 +253,46 @@ const LicenseInlinePanel: React.FC<LicenseInlinePanelProps> = ({
           >
             {expiresText}
           </div>
+        </div>
+
+        <div className={cn(baseCardClassName, "sm:col-span-2 lg:col-span-1")}>
+          <div className="flex items-center gap-2">
+            <Fingerprint
+              size={16}
+              className={isDark ? "text-purple-300" : "text-purple-600"}
+            />
+            <div
+              className={cn(
+                "text-[11px] font-black uppercase tracking-[0.18em]",
+                isDark ? "text-slate-400" : "text-slate-500",
+              )}
+            >
+              {t([
+                "admin.config.quickSettings.fields.currentHardwareCode",
+                "admin.config.quickSettings.fields.hwFingerprint",
+              ])}
+            </div>
+          </div>
+          <div
+            className={cn(
+              "mt-2 text-sm font-black font-mono break-all",
+              isDark ? "text-slate-100" : "text-slate-800",
+            )}
+          >
+            {licenseStatus?.device_code?.trim() || "-"}
+          </div>
+          {(licenseStatus?.hw_id || licenseStatus?.aux_id) && (
+            <div
+              className={cn(
+                "mt-2 text-xs leading-5 break-all",
+                isDark ? "text-slate-400" : "text-slate-500",
+              )}
+            >
+              {licenseStatus.hw_id ? `HW ID: ${licenseStatus.hw_id}` : ""}
+              {licenseStatus.hw_id && licenseStatus.aux_id ? " | " : ""}
+              {licenseStatus.aux_id ? `AUX ID: ${licenseStatus.aux_id}` : ""}
+            </div>
+          )}
         </div>
 
         {licenseStatus?.msg && (
