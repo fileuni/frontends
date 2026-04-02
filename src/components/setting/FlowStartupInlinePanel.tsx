@@ -54,8 +54,13 @@ type FlowStartupInlinePanelProps = {
   tomlAdapter: TomlAdapter;
   content: string;
   onContentChange: (value: string) => void;
+  runtimeOs?: string | undefined;
   onTestPreStartup?: FlowStartupTestRunner | undefined;
   onTestPostStartup?: FlowStartupTestRunner | undefined;
+};
+
+const normalizeRuntimeOs = (runtimeOs?: string): string => {
+  return runtimeOs?.trim().toLowerCase() ?? "";
 };
 
 const emptyCommand = (): StartupCommandDraft => ({
@@ -510,6 +515,7 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
   tomlAdapter,
   content,
   onContentChange,
+  runtimeOs,
   onTestPreStartup,
   onTestPostStartup,
 }) => {
@@ -517,6 +523,9 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
   const isDark = useResolvedTheme() === "dark";
   const { addToast } = useToastStore();
   const [testingPhase, setTestingPhase] = useState<"pre" | "post" | null>(null);
+  const normalizedRuntimeOs = normalizeRuntimeOs(runtimeOs);
+  const isMobileRuntime =
+    normalizedRuntimeOs === "android" || normalizedRuntimeOs === "ios";
   const createDraft = useCallback(
     (source: string) => parseDraftFromContent(source, tomlAdapter),
     [tomlAdapter],
@@ -674,6 +683,28 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
 
   return (
     <div className="space-y-4">
+      {isMobileRuntime ? (
+        <div
+          className={cn(
+            "rounded-2xl border p-4 flex items-start gap-3",
+            isDark
+              ? "border-amber-500/20 bg-amber-500/10 text-amber-100"
+              : "border-amber-200 bg-amber-50 text-amber-900",
+          )}
+        >
+          <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+          <div className="space-y-2">
+            <p className="text-sm font-black">
+              {t("admin.config.flowStartup.mobileDisabledTitle")}
+            </p>
+            <p className="text-sm leading-6">
+              {t("admin.config.flowStartup.mobileDisabledBody")}
+            </p>
+          </div>
+        </div>
+      ) : null}
+      {!isMobileRuntime ? (
+        <>
       <div
         className={cn(
           "rounded-2xl border p-4",
@@ -745,6 +776,8 @@ export const FlowStartupInlinePanel: React.FC<FlowStartupInlinePanelProps> = ({
         commands={draft.postStartup}
         onCommandsChange={(commands) => setDraft((prev) => ({ ...prev, postStartup: commands }))}
       />
+        </>
+      ) : null}
     </div>
   );
 };

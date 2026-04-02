@@ -532,6 +532,7 @@ export const buildSettingCommonActions = ({
           tomlAdapter={tomlAdapter}
           content={content}
           onContentChange={onContentChange}
+          runtimeOs={runtimeOs}
           onTestPreStartup={onTestPreStartup}
           onTestPostStartup={onTestPostStartup}
         />

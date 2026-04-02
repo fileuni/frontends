@@ -995,6 +995,8 @@
         "securityTitle": "安全提醒：不要用 root 运行 FileUni 来使用跟随启动",
         "securityBody": "这里配置的命令会以 FileUni 进程当前用户身份执行。若 FileUni 以 root 运行，这些命令和测试按钮都等价于 root 级命令执行。请始终使用非特权用户运行 FileUni。",
         "testBehaviorHint": "测试命令只验证“能否在短时间内成功拉起”。长时间运行的进程在测试窗口结束后会被自动停止，避免测试残留后台进程。",
+        "mobileDisabledTitle": "移动端 GUI 已禁用跟随启动命令",
+        "mobileDisabledBody": "Android 和 iOS 的 GUI 端不提供跟随启动命令。移动端应用沙箱和系统生命周期不适合托管这类外部进程，请保持此模块为空。",
         "addCommand": "添加命令",
         "testButton": "测试命令",
         "testingButton": "测试中...",

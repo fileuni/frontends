@@ -1003,6 +1003,8 @@
         "securityTitle": "Security Warning: Do not run FileUni as root for follow-startup commands",
         "securityBody": "These commands run with the same OS user as the FileUni process. If FileUni runs as root, both saved commands and test actions become root-level command execution. Always run FileUni as an unprivileged user.",
         "testBehaviorHint": "The test button only checks whether a command can be launched within a short window. Long-running processes are stopped automatically after the verification window so the test does not leave background processes behind.",
+        "mobileDisabledTitle": "Follow-startup commands are disabled in mobile GUI builds",
+        "mobileDisabledBody": "Android and iOS GUI apps do not support follow-startup commands. The mobile sandbox and app lifecycle are not suitable for managing these external processes, so keep this module empty on mobile.",
         "addCommand": "Add Command",
         "testButton": "Test Commands",
         "testingButton": "Testing...",
