@@ -4,22 +4,22 @@ import { aboutByResourceLocale } from '../bundles/about';
 import { authByResourceLocale } from '../bundles/auth';
 import { blacklistByResourceLocale } from '../bundles/blacklist';
 import { cacheManagerByResourceLocale } from '../bundles/cacheManager';
+import { chatByResourceLocale } from '../bundles/chat';
+import { commonByResourceLocale } from '../bundles/common';
+import { emailByResourceLocale } from '../bundles/email';
+import { errorsByResourceLocale } from '../bundles/errors';
 import { forgotPasswordByResourceLocale } from '../bundles/forgotPassword';
 import { launcherByResourceLocale } from '../bundles/launcher';
 import { navByResourceLocale } from '../bundles/nav';
+import { pagesByResourceLocale } from '../bundles/pages';
 import { privacyByResourceLocale } from '../bundles/privacy';
 import { profileByResourceLocale } from '../bundles/profile';
 import { securityByResourceLocale } from '../bundles/security';
 import { sessionsByResourceLocale } from '../bundles/sessions';
+import { systemConfigByResourceLocale } from '../bundles/systemConfig';
 import { tosByResourceLocale } from '../bundles/tos';
-import chat from './chat.json';
-import common from './common.json';
-import email from './email.json';
-import errors from './errors.json';
 import filemanager from './filemanager.json';
-import pages from './pages.json';
 import { playerByResourceLocale } from '../bundles/player';
-import systemConfig from './system_config.json';
 import { welcomeByResourceLocale } from '../bundles/welcome';
 import { languagesByResourceLocale } from '../bundles/languages';
 import { themesByResourceLocale } from '../bundles/themes';
@@ -34,22 +34,22 @@ const translation = {
   "auth": authByResourceLocale.es,
   "blacklist": blacklistByResourceLocale.es,
   "cacheManager": cacheManagerByResourceLocale.es,
-  "chat": chat,
-  "common": common,
-  "email": email,
-  "errors": errors,
+  "chat": chatByResourceLocale.es,
+  "common": commonByResourceLocale.es,
+  "email": emailByResourceLocale.es,
+  "errors": errorsByResourceLocale.es,
   "filemanager": filemanager,
   "forgotPassword": forgotPasswordByResourceLocale.es,
   "languages": languagesByResourceLocale.es,
   "launcher": launcherByResourceLocale.es,
   "nav": navByResourceLocale.es,
-  "pages": pages,
+  "pages": pagesByResourceLocale.es,
   "player": playerByResourceLocale.es,
   "privacy": privacyByResourceLocale.es,
   "profile": profileByResourceLocale.es,
   "security": securityByResourceLocale.es,
   "sessions": sessionsByResourceLocale.es,
-  "systemConfig": systemConfig,
+  "systemConfig": systemConfigByResourceLocale.es,
   "themes": themesByResourceLocale.es,
   "tos": tosByResourceLocale.es,
   "welcome": welcomeByResourceLocale.es,
