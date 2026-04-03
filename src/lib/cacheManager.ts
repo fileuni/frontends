@@ -72,7 +72,6 @@ const isExtensionKey = (key: string): boolean => key.startsWith("ext-ui-override
 const isUiPreferencesKey = (key: string): boolean => (
   key === "fileuni-theme"
   || key === "fileuni-language"
-  || key === "fileuni-language-raw"
 );
 
 const belongsToUser = (key: string, userId: string): boolean => {

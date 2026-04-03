@@ -60,6 +60,46 @@ function compareShape(base, target, where) {
   }
 }
 
+function extractPlaceholders(value) {
+  const placeholders = new Set();
+  if (typeof value !== 'string') {
+    return placeholders;
+  }
+  for (const match of value.matchAll(/\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/g)) {
+    placeholders.add(match[1]);
+  }
+  for (const match of value.matchAll(/(?<!\{)\{([a-zA-Z0-9_.-]+)\}(?!\})/g)) {
+    placeholders.add(match[1]);
+  }
+  return placeholders;
+}
+
+function comparePlaceholders(base, target, where) {
+  const baseType = typeOf(base);
+  if (baseType === 'array') {
+    for (let i = 0; i < base.length; i += 1) {
+      comparePlaceholders(base[i], target[i], `${where}[${i}]`);
+    }
+    return;
+  }
+  if (baseType === 'object') {
+    for (const key of Object.keys(base)) {
+      comparePlaceholders(base[key], target[key], `${where}.${key}`);
+    }
+    return;
+  }
+  if (baseType !== 'string') {
+    return;
+  }
+
+  const basePlaceholders = [...extractPlaceholders(base)].sort();
+  const targetPlaceholders = [...extractPlaceholders(target)].sort();
+  assert(
+    basePlaceholders.join('|') === targetPlaceholders.join('|'),
+    `${where}: placeholder mismatch\nexpected: ${basePlaceholders.join(', ')}\nactual: ${targetPlaceholders.join(', ')}`,
+  );
+}
+
 function importLocalModule(relativePath) {
   const absolutePath = path.join(projectRoot, relativePath);
   return import(pathToFileURL(absolutePath).href);
@@ -112,6 +152,7 @@ assert(adapter.toFrontendResourceLocale('zh-cn') === 'zh-cn', 'zh-cn must map to
 
 for (const resourceLocale of adapter.FRONTEND_RESOURCE_LOCALES) {
   compareShape(translationByResourceLocale.en, translationByResourceLocale[resourceLocale], `translation.${resourceLocale}`);
+  comparePlaceholders(translationByResourceLocale.en, translationByResourceLocale[resourceLocale], `translation.${resourceLocale}`);
 }
 
 console.log('i18n module check passed.');

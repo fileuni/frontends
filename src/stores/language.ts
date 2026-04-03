@@ -52,6 +52,5 @@ export function applyLanguage(lang: Language) {
     // Fallback to i18next internal changeLanguage on unexpected errors.
     void i18next.changeLanguage(normalized);
   });
-  storageHub.setLocalItem('fileuni-language-raw', targetLang);
   document.documentElement.lang = toHtmlLang(targetLang);
 }

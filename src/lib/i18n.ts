@@ -45,9 +45,6 @@ const detectInitialLang = (): SupportedLang => {
     // ignore
   }
 
-  const saved = toSupportedLang(window.localStorage.getItem('fileuni-language-raw'));
-  if (saved) return saved;
-
   return detectFrontendLocale(navigator.language || 'en', navigator.languages);
 };
 
@@ -79,16 +76,12 @@ i18next.use(initReactI18next).init({
     ...(initialLang === 'en' ? {} : { [initialLang]: { translation: initialTranslation } })
   },
   lng: initialLang,
-  fallbackLng: 'en',
   supportedLngs: supportedLangs,
   interpolation: {
     escapeValue: false
   },
   react: {
     useSuspense: false
-  },
-  parseMissingKeyHandler: (key) => {
-    return `[${key}]`;
   },
   // Ensure stable hydration for first paint.
   initImmediate: false

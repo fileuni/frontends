@@ -32,36 +32,33 @@ const { title } = Astro.props;
 
 			// Language Detection
 			const lang = (() => {
+				const normalizeLocale = (value) => {
+					if (typeof value !== 'string') return null;
+					const normalized = value.trim().toLowerCase().replace(/_/g, '-');
+					if (normalized === 'zh-cn' || normalized === 'zh' || normalized.startsWith('zh-')) return 'zh-cn';
+					if (normalized === 'en' || normalized.startsWith('en-')) return 'en';
+					if (normalized === 'es' || normalized.startsWith('es-')) return 'es';
+					if (normalized === 'de' || normalized.startsWith('de-')) return 'de';
+					if (normalized === 'fr' || normalized.startsWith('fr-')) return 'fr';
+					if (normalized === 'ru' || normalized.startsWith('ru-')) return 'ru';
+					if (normalized === 'ja' || normalized.startsWith('ja-')) return 'ja';
+					return null;
+				};
 				try {
 					const state = localStorage.getItem('fileuni-language');
 					if (state) {
 						const parsed = JSON.parse(state);
 						const value = parsed?.state?.language;
-					if (value === 'zh' || value === 'en' || value === 'es' || value === 'de' || value === 'fr' || value === 'ru' || value === 'ja') return value;
+						const normalized = normalizeLocale(value);
+						if (normalized) return normalized;
 					if (value === 'auto') {
-						const base = (navigator.language.split('-')[0] || 'en').toLowerCase();
-						if (base === 'zh') return 'zh';
-						if (base === 'es') return 'es';
-						if (base === 'de') return 'de';
-						if (base === 'fr') return 'fr';
-						if (base === 'ru') return 'ru';
-						if (base === 'ja') return 'ja';
-						return 'en';
+						return normalizeLocale(navigator.language) || 'en';
 					}
 				}
 				} catch (_error) {
 					void _error;
 				}
-				const saved = localStorage.getItem('fileuni-language-raw');
-				if (saved) return saved;
-				const base = (navigator.language.split('-')[0] || 'en').toLowerCase();
-				if (base === 'zh') return 'zh';
-				if (base === 'es') return 'es';
-				if (base === 'de') return 'de';
-				if (base === 'fr') return 'fr';
-				if (base === 'ru') return 'ru';
-				if (base === 'ja') return 'ja';
-				return 'en';
+				return normalizeLocale(navigator.language) || 'en';
 			})();
 			document.documentElement.lang = lang;
 		</script>
