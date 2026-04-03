@@ -1,4 +1,4 @@
-import { defineLocaleBundle } from '@/i18n/core';
+import { defineLocaleBundle, type LocaleShape } from '@/i18n/core';
 import type { FrontendResourceLocale } from '@/i18n/locale-adapter';
 
 const cacheManagerBundle = defineLocaleBundle({
@@ -305,7 +305,7 @@ const cacheManagerBundle = defineLocaleBundle({
   },
 });
 
-type CacheManagerMessages = { [Key in keyof (typeof cacheManagerBundle)['en']]: (typeof cacheManagerBundle)['en'][Key] };
+type CacheManagerMessages = LocaleShape<(typeof cacheManagerBundle)['en']>;
 
 export const cacheManagerByResourceLocale = {
   zh: cacheManagerBundle['zh-cn'],

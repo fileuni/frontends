@@ -2,7 +2,7 @@ import about from './about.json';
 import admin from './admin.json';
 import adminSetting from './admin-setting.json';
 import auth from './auth.json';
-import cacheManager from './cacheManager.json';
+import { cacheManagerByResourceLocale } from '../bundles/cacheManager';
 import chat from './chat.json';
 import common from './common.json';
 import email from './email.json';
@@ -33,7 +33,7 @@ const translation = {
   },
   "auth": auth,
   "blacklist": blacklistByResourceLocale.en,
-  "cacheManager": cacheManager,
+  "cacheManager": cacheManagerByResourceLocale.en,
   "chat": chat,
   "common": common,
   "email": email,
