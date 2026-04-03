@@ -4350,6 +4350,7 @@ export interface components {
         };
         /** @description License status information */
         LicenseStatus: {
+            allow_registration: boolean;
             aux_id: string;
             /** Format: int32 */
             current_users: number;
@@ -4700,8 +4701,22 @@ export interface components {
         };
         RecycleBinQuery: components["schemas"]["BaseListQuery"];
         RegisterUserRequest: {
+            captcha_code?: string | null;
+            captcha_token?: string | null;
+            email?: string | null;
+            method?: string | null;
             password: string;
-            username: string;
+            phone?: string | null;
+            username?: string | null;
+            verification_code?: string | null;
+            verification_token?: string | null;
+        };
+        RegistrationMethodCapabilities: {
+            email: boolean;
+            email_configured: boolean;
+            phone: boolean;
+            phone_configured: boolean;
+            username: boolean;
         };
         ReloadResult: {
             success: boolean;
@@ -5102,6 +5117,7 @@ export interface components {
             media_transcoding_backend?: string | null;
             preview_size_limits: components["schemas"]["PreviewSizeLimits"];
             protected_storage: components["schemas"]["ProtectedStorageCapabilities"];
+            registration_methods: components["schemas"]["RegistrationMethodCapabilities"];
             runtime_arch: string;
             /** Format: int32 */
             runtime_bits: number;
