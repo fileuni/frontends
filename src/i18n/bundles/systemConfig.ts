@@ -10,30 +10,12 @@ const systemConfigEn = {
       "subtitle": "Finish the first-time settings to get started"
     },
     "guide": {
-      "badge": "First-Time Settings",
       "title": "FileUni first-time setup",
       "desc": "You can start directly with the default configuration. It fits most first-time users. You can also choose Customize settings to change the database and other options.",
-      "card1Title": "Choose where things are saved",
-      "card1Desc": "Pick the single runtime directory where FileUni should keep its settings and data.",
       "card1Action": "Change location",
       "runtimeDirChangeHint": "To change this location, restart FileUni with --runtime-dir <DIR>. Service installation uses the same flag.",
-      "card1Hint": "Restart FileUni after changing the runtime directory.",
-      "card2Title": "Create your sign-in password",
-      "card2Desc": "Set a password for the administrator account you will use later.",
-      "card2Action": "Set password",
-      "card2Hint": "Set the admin sign-in password.",
-      "card3Title": "Finish and start using FileUni",
-      "card3Desc": "When the initial settings are done, return to the launcher and start FileUni.",
       "card3Action": "Apply",
       "defaultApplyAction": "Apply default configuration",
-      "card3Hint": "Start directly with the default configuration.",
-      "recommendedTitle": "Recommended for first-time users",
-      "recommendedDesc": "If you are unsure, keep the current defaults. They are the easiest choice for personal use, home use, and quick trials.",
-      "locationTitle": "Current install locations",
-      "runtimeDirLabel": "Runtime directory",
-      "configPathLabel": "Current config file",
-      "locationDesc": "This is only where FileUni will save things for you. You do not need to create any files by hand.",
-      "commonActionsTitle": "Common settings",
       "openAction": "Open this item",
       "requiredPrompt": "FileUni has not finished the initial settings yet. Open Settings Center now?",
       "existingConfigTitle": "Existing configuration detected",
@@ -45,14 +27,9 @@ const systemConfigEn = {
       "title": "Settings Center",
       "check": "Check Settings",
       "quickSettings": "Continue Quick Settings",
-      "showAdvanced": "Show Advanced Settings",
-      "hideAdvanced": "Hide Advanced Settings",
       "visualMode": "Visual Editor",
       "sourceMode": "Text Editor",
-      "rawHiddenTitle": "Edit the config text only if you need more control",
-      "rawHiddenDesc": "During the initial settings, the quick settings flow above is usually enough. Open advanced settings only if you need more detailed control.",
       "finishHint": "Confirm to finish the initial settings.",
-      "backToQuickSettings": "Back to Quick Settings",
       "moreActionsTitle": "Other advanced entries",
       "moreActionsDesc": "License, storage, and external tool checks can usually wait until after setup is finished.",
       "showMoreActions": "Show more advanced entries",
@@ -240,22 +217,13 @@ const systemConfigEn = {
     },
     "admin": {
       "title": "Set up the administrator account",
-      "subtitle": "This is the account you will use to sign in to the admin console.",
-      "username": "Admin Username",
       "password": "Secure Password",
-      "suggestPassword": "Generate Random Password",
-      "generate_password": "Generate Random Password",
-      "pendingHint": "Applies when the initial settings are finished",
       "resetRuleHint": "If no administrator exists yet, apply will create an admin user named admin. If an administrator already exists, apply will reset the first administrator password to the password entered here.",
       "passwordTooShort": "Password must be at least 8 characters",
-      "resetSuccessWithUser": "Admin password applied. Current admin username: {{username}}",
-      "finalConfirm": "Ready to finish settings",
       "finalConfirmDesc": "Confirm to save your settings and finish the initial settings. You can adjust more options later.",
       "finish": "Finish Settings",
       "changePassword": "Admin Settings",
-      "passwordHintTitle": "Set the administrator sign-in password before finishing",
-      "passwordHintDesc": "You will use this password the first time you sign in to the admin console.",
-      "passwordHintAction": "Set Sign-In Password"
+      
     },
     "final": {
       "title": "Settings complete",
@@ -438,7 +406,6 @@ const systemConfigEn = {
       "dbSuccess": "Database connection success!",
       "applyingConfig": "Applying configuration and syncing DB schema...",
       "setupFailed": "Deployment failed",
-      "setupSuccess": "System settings complete. Confirm to return home.",
       "failed": "Failed",
       "success": "Success"
     }
@@ -450,21 +417,16 @@ const systemConfigEn = {
     "config_path_desc": "FileUni saves setup state, system settings, databases, cache, and runtime data in this single directory.",
     "path_placeholder": "Enter or choose the runtime directory...",
     "browse": "Choose Folder",
-    "create_example": "Create Example Config",
-    "creating": "Creating...",
     "or": "Quick choices",
     "current_dir": "Use current selection",
     "current_dir_desc": "Keep the location you already chose before.",
     "default_dir": "Use recommended location",
     "default_dir_desc": "Use the default location recommended for this device.",
     "confirm": "Save location and continue",
-    "cancel": "Cancel",
     "default_hint": "If you are unsure, the recommended location is the easiest choice. You can change it later.",
     "no_config_warning": "This is the first step of the initial setup.",
-    "path_required": "Please choose a runtime directory",
-    "select_error": "Failed to select directory",
-    "invalid_config": "This location cannot be used right now. Please choose another one.",
-    "file_not_exist": "This location is unavailable, missing, or not accessible."
+      "invalid_config": "This location cannot be used right now. Please choose another one.",
+      
   }
 } as const;
 
@@ -474,30 +436,12 @@ const systemConfigBundle = defineLocaleBundle({
     "setup": {
       "center": { "title": "欢迎使用 FileUni 设置中心", "subtitle": "完成首次设置后即可开始使用" },
       "guide": {
-        "badge": "首次安装",
         "title": "FileUni 首次设置",
         "desc": "您可以使用默认配置直接开始，默认配置适合多数第一次使用者。也可以点击 调整配置 修改数据库和其他配置信息",
-        "card1Title": "选择保存位置",
-        "card1Desc": "确认 FileUni 唯一的运行目录，配置和数据都会保存在这里。",
         "card1Action": "修改位置",
         "runtimeDirChangeHint": "如需修改这里，请重启 FileUni 并使用 --runtime-dir <目录>。安装服务时也使用同一个参数。",
-        "card1Hint": "更改运行目录后，请重新启动 FileUni。",
-        "card2Title": "设置登录密码",
-        "card2Desc": "为管理员账号设置一个您记得住的密码。",
-        "card2Action": "设置密码",
-        "card2Hint": "设置管理员登录密码。",
-        "card3Title": "完成并开始使用",
-        "card3Desc": "安装完成后，回到启动器即可启动 FileUni。",
         "card3Action": "应用",
         "defaultApplyAction": "应用默认配置",
-        "card3Hint": "使用默认配置直接开始。",
-        "recommendedTitle": "推荐给第一次使用的您",
-        "recommendedDesc": "如果拿不准，尽量保留当前默认值。默认方案更适合个人、家庭和快速体验。",
-        "locationTitle": "当前安装位置",
-        "runtimeDirLabel": "运行目录",
-        "configPathLabel": "当前配置文件",
-        "locationDesc": "这里只是告诉您安装内容会保存到哪里，不需要手动创建文件。",
-        "commonActionsTitle": "常用配置",
         "openAction": "打开此项",
         "requiredPrompt": "FileUni 尚未完成首次设置，是否现在打开设置中心？",
         "existingConfigTitle": "检测到已有配置",
@@ -509,14 +453,9 @@ const systemConfigBundle = defineLocaleBundle({
         "title": "设置中心",
         "check": "检查设置",
         "quickSettings": "继续快速设置",
-        "showAdvanced": "显示高级设置",
-        "hideAdvanced": "隐藏高级设置",
         "visualMode": "可视化编辑",
         "sourceMode": "文本编辑",
-        "rawHiddenTitle": "需要更多设置时，再编辑配置文本",
-        "rawHiddenDesc": "首次安装时，优先使用上方的快速设置即可。只有当您需要更细致的控制时，再展开高级设置。",
         "finishHint": "确认后完成首次设置。",
-        "backToQuickSettings": "返回快速设置",
         "moreActionsTitle": "其他高级入口",
         "moreActionsDesc": "授权、存储和外部工具检查通常可以等安装完成后再处理。",
         "showMoreActions": "显示更多高级入口",
@@ -690,22 +629,13 @@ const systemConfigBundle = defineLocaleBundle({
       },
       "admin": {
         "title": "设置管理员账号",
-        "subtitle": "这个账号用于登录管理后台，后续也可以再修改。",
-        "username": "管理员用户名",
         "password": "安全密码",
-        "suggestPassword": "生成随机强密码",
-        "generate_password": "生成随机强密码",
-        "pendingHint": "完成首次设置后生效",
         "resetRuleHint": "如果当前还没有管理员账号，应用时会创建用户名为 admin 的管理员；如果已经存在管理员账号，应用时会重置第一个管理员的密码为这里填写的密码。",
         "passwordTooShort": "密码长度至少为 8 位",
-        "resetSuccessWithUser": "管理员密码已生效，当前管理员用户名：{{username}}",
-        "finalConfirm": "准备完成设置",
         "finalConfirmDesc": "确认后将保存当前设置并完成首次设置。更多设置可稍后调整。",
         "finish": "完成设置",
         "changePassword": "管理员配置",
-        "passwordHintTitle": "完成安装前，请先设置管理员登录密码",
-        "passwordHintDesc": "这是您第一次登录管理后台时要用到的密码。",
-        "passwordHintAction": "设置登录密码"
+        
       },
       "final": {
         "title": "设置完成",
@@ -744,7 +674,7 @@ const systemConfigBundle = defineLocaleBundle({
       "featureDisabledDesc": "该功能已被管理员禁用，请联系系统管理员获取更多信息。"
     },
     "configSet": {
-      "center": { "title": "系统设置中心", "subtitle": "完成首次系统设置" },
+      "center": {},
       "steps": {
         "step": "步骤",
         "profile": "性能画像",
@@ -835,19 +765,7 @@ const systemConfigBundle = defineLocaleBundle({
         }
       },
       "admin": {
-        "title": "创建超级管理员",
-        "subtitle": "此账号将拥有系统的最高管理权限。",
-        "username": "管理员用户名",
-        "password": "安全密码",
-        "suggestPassword": "生成随机强密码",
-        "finalConfirm": "最后确认设置",
-        "finalConfirmDesc": "确认后将保存当前设置并完成首次系统设置。",
-        "finish": "开始应用配置",
-        "changePassword": "设置管理员密码",
-        "pendingHint": "最终应用后生效",
-        "passwordHintTitle": "完成初始化需要管理员密码",
-        "passwordHintDesc": "请设置或修改管理员密码以完成配置应用，可随时处理。",
-        "passwordHintAction": "设置管理员密码"
+        
       },
       "final": {
         "title": "系统设置完成",
@@ -872,7 +790,6 @@ const systemConfigBundle = defineLocaleBundle({
         "dbSuccess": "数据库连接测试成功！",
         "applyingConfig": "正在应用配置并同步数据库表结构...",
         "setupFailed": "部署失败",
-        "setupSuccess": "系统设置已完成，请确认后返回首页。",
         "failed": "失败",
         "success": "成功"
       }
@@ -884,21 +801,16 @@ const systemConfigBundle = defineLocaleBundle({
       "config_path_desc": "这里会统一保存系统设置、安装状态、数据库、缓存和其他运行数据。",
       "path_placeholder": "输入或选择运行目录...",
       "browse": "选择文件夹",
-      "create_example": "创建示例配置文件",
-      "creating": "创建中...",
       "or": "快速选择",
       "current_dir": "继续使用当前位置",
       "current_dir_desc": "沿用您刚才选过的安装位置。",
       "default_dir": "使用推荐位置",
       "default_dir_desc": "使用当前设备上的推荐默认位置。",
       "confirm": "保存位置并继续",
-      "cancel": "取消",
       "default_hint": "如果拿不准，直接使用推荐位置即可，后续也可以再调整。",
       "no_config_warning": "这是首次安装时最先需要确认的一步。",
-      "path_required": "请选择运行目录",
-      "select_error": "选择目录失败",
       "invalid_config": "当前路径不可用，请换一个位置再试",
-      "file_not_exist": "该位置暂时无法使用，可能不存在或没有权限访问"
+      
     }
   }),
   es: mergeLocale(systemConfigEn, {
@@ -919,7 +831,6 @@ const systemConfigBundle = defineLocaleBundle({
         "requiredPrompt": "FileUni aun no ha terminado la configuracion inicial. Abrir el centro de configuracion ahora?",
         "title": "Termine la configuracion de FileUni en unos 30 segundos",
         "desc": "Si es la primera vez que usa FileUni, normalmente puede mantener los valores predeterminados. Defina la contrasena de administrador si la necesita y pulse Aplicar para empezar.",
-        "card3Hint": "Guarde la configuracion actual y continúe."
       },
       "steps": {
         "step": "Paso",
@@ -1012,21 +923,12 @@ const systemConfigBundle = defineLocaleBundle({
       },
       "admin": {
         "title": "Crear super administrador",
-        "subtitle": "Esta cuenta tendrá control total sobre el sistema.",
-        "username": "Usuario admin",
         "password": "Contraseña segura",
-        "suggestPassword": "Generar contraseña aleatoria",
-        "generate_password": "Generar contraseña aleatoria",
-        "pendingHint": "Se aplica tras el último aplicar",
         "resetRuleHint": "Esta contraseña se usará para la cuenta de administrador después de la configuración.",
-        "resetSuccessWithUser": "Contraseña de admin aplicada. Usuario admin actual: {{username}}",
-        "finalConfirm": "Confirmación final",
         "finalConfirmDesc": "Confirme para guardar la configuración y terminar la instalación. Podrá ajustar más opciones después.",
         "finish": "Aplicar configuración",
         "changePassword": "Establecer contraseña de admin",
-        "passwordHintTitle": "Se requiere contraseña de admin para finalizar",
-        "passwordHintDesc": "Establezca o actualice la contraseña de admin para aplicar la configuración. Puede hacerlo en cualquier momento.",
-        "passwordHintAction": "Establecer contraseña de admin"
+        
       },
       "final": {
         "title": "¡Todo está listo!",
@@ -1051,7 +953,7 @@ const systemConfigBundle = defineLocaleBundle({
         "dbSuccess": "¡Conexión a base de datos exitosa!",
         "applyingConfig": "Aplicando configuración y sincronizando el esquema...",
         "setupFailed": "El despliegue falló",
-        "setupSuccess": "Configuración completada. Confirme para continuar."
+        
       },
       "editor": {
         "title": "Centro de configuracion",
@@ -1082,7 +984,7 @@ const systemConfigBundle = defineLocaleBundle({
         "docs": "Ver documentación"
       }
     },
-    "configSelector": { "confirm": "Confirmar", "cancel": "Cancelar" }
+    "configSelector": { "confirm": "Confirmar" }
   }),
   de: mergeLocale(systemConfigEn, {
     "setup": {
@@ -1098,12 +1000,10 @@ const systemConfigBundle = defineLocaleBundle({
         "requiredPrompt": "FileUni hat die Ersteinrichtung noch nicht abgeschlossen. Jetzt das Einstellungscenter offnen?",
         "title": "FileUni in etwa 30 Sekunden einrichten",
         "desc": "Wenn Sie FileUni zum ersten Mal starten, sind die Standardwerte meist schon passend. Wählen Sie bei Bedarf ein Admin-Passwort und klicken Sie dann direkt auf Anwenden.",
-        "card3Hint": "Speichern Sie die aktuellen Einstellungen und fahren Sie fort."
       },
       "steps": { "profile": "Profil" },
       "config": { "username": "Benutzername", "password": "Passwort", "advanced": { "userCenterTitle": "Benutzerzentrum" } },
       "admin": {
-        "finalConfirm": "Abschließende Bestätigung",
         "title": "Admin-Passwort festlegen",
         "changePassword": "Admin-Passwort festlegen",
         "resetRuleHint": "Dieses Passwort wird nach der Einrichtung für das Administratorkonto verwendet.",
@@ -1137,7 +1037,6 @@ const systemConfigBundle = defineLocaleBundle({
     "configSet": {
       "steps": { "profile": "Profil" },
       "config": { "username": "Benutzername", "password": "Passwort", "advanced": { "userCenterTitle": "Benutzerzentrum" } },
-      "admin": { "finalConfirm": "Abschließende Bestätigung" },
       "logs": { "failed": "Fehlgeschlagen", "success": "Erfolg" },
       "locked": { "title": "Einstellungscenter nicht verfügbar" },
       "final": {
@@ -1153,7 +1052,7 @@ const systemConfigBundle = defineLocaleBundle({
         "step3": "Klicken Sie auf Bestätigen, um zum Launcher zurückzukehren und normal fortzufahren."
       }
     },
-    "configSelector": { "creating": "Wird erstellt...", "confirm": "Bestätigen", "cancel": "Abbrechen" }
+    "configSelector": { "confirm": "Bestätigen" }
   }),
   fr: mergeLocale(systemConfigEn, {
     "setup": {
@@ -1170,7 +1069,6 @@ const systemConfigBundle = defineLocaleBundle({
         "existingConfigCustomize": "Personnaliser la configuration",
         "title": "Terminez la configuration de FileUni en environ 30 secondes",
         "desc": "Si vous utilisez FileUni pour la premiere fois, les valeurs par defaut suffisent generalement. Ajoutez un mot de passe administrateur si besoin, puis appliquez directement la configuration.",
-        "card3Hint": "Enregistrez les reglages actuels et continuez."
       },
       "steps": {
         "step": "Étape",
@@ -1263,21 +1161,12 @@ const systemConfigBundle = defineLocaleBundle({
       },
       "admin": {
         "title": "Créer le super admin",
-        "subtitle": "Ce compte aura le contrôle total du système.",
-        "username": "Nom d'utilisateur admin",
         "password": "Mot de passe sécurisé",
-        "suggestPassword": "Générer un mot de passe aléatoire",
-        "generate_password": "Générer un mot de passe aléatoire",
-        "pendingHint": "Prend effet après l'application finale",
         "resetRuleHint": "Ce mot de passe sera utilisé pour le compte administrateur après l'installation.",
-        "resetSuccessWithUser": "Mot de passe admin appliqué. Nom admin actuel : {{username}}",
-        "finalConfirm": "Confirmation finale",
         "finalConfirmDesc": "Confirmez pour enregistrer vos réglages et terminer l'installation. Vous pourrez ajuster d'autres options plus tard.",
         "finish": "Appliquer la configuration",
         "changePassword": "Définir le mot de passe admin",
-        "passwordHintTitle": "Mot de passe admin requis pour terminer",
-        "passwordHintDesc": "Définissez ou mettez à jour le mot de passe admin pour appliquer la configuration. Vous pouvez le faire à tout moment.",
-        "passwordHintAction": "Définir le mot de passe admin"
+        
       },
       "final": {
         "title": "Tout est prêt !",
@@ -1302,7 +1191,7 @@ const systemConfigBundle = defineLocaleBundle({
         "dbSuccess": "Connexion à la base réussie !",
         "applyingConfig": "Application de la configuration et synchronisation du schéma...",
         "setupFailed": "Échec du déploiement",
-        "setupSuccess": "Installation terminée. Confirmez pour continuer."
+        
       },
       "editor": {
         "title": "Centre de parametres",
@@ -1333,7 +1222,7 @@ const systemConfigBundle = defineLocaleBundle({
         "docs": "Voir la documentation"
       }
     },
-    "configSelector": { "confirm": "Confirmer", "cancel": "Annuler" }
+    "configSelector": { "confirm": "Confirmer" }
   }),
   ru: mergeLocale(systemConfigEn, {
     "setup": {
@@ -1350,7 +1239,6 @@ const systemConfigBundle = defineLocaleBundle({
         "existingConfigCustomize": "Настроить конфигурацию",
         "title": "Завершите настройку FileUni примерно за 30 секунд",
         "desc": "Если вы запускаете FileUni впервые, значения по умолчанию обычно уже подходят. При необходимости задайте пароль администратора и сразу нажмите Применить.",
-        "card3Hint": "Сохраните текущие настройки и продолжайте."
       },
       "steps": {
         "step": "Шаг",
@@ -1443,21 +1331,12 @@ const systemConfigBundle = defineLocaleBundle({
       },
       "admin": {
         "title": "Создать супер-админа",
-        "subtitle": "Эта учетная запись будет иметь полный контроль над системой.",
-        "username": "Имя администратора",
         "password": "Надежный пароль",
-        "suggestPassword": "Сгенерировать случайный пароль",
-        "generate_password": "Сгенерировать случайный пароль",
-        "pendingHint": "Вступит в силу после финального применения",
         "resetRuleHint": "После настройки этот пароль будет использоваться для учетной записи администратора.",
-        "resetSuccessWithUser": "Пароль администратора применен. Текущий admin: {{username}}",
-        "finalConfirm": "Финальное подтверждение",
         "finalConfirmDesc": "Подтвердите, чтобы сохранить настройки и завершить установку. Остальные параметры можно изменить позже.",
         "finish": "Применить конфигурацию",
         "changePassword": "Задать пароль администратора",
-        "passwordHintTitle": "Для завершения требуется пароль администратора",
-        "passwordHintDesc": "Задайте или обновите пароль администратора, чтобы применить конфигурацию. Это можно сделать в любой момент.",
-        "passwordHintAction": "Задать пароль администратора"
+        
       },
       "final": {
         "title": "Все готово!",
@@ -1482,7 +1361,7 @@ const systemConfigBundle = defineLocaleBundle({
         "dbSuccess": "Подключение к базе успешно!",
         "applyingConfig": "Применяем конфигурацию и синхронизируем схему БД...",
         "setupFailed": "Развертывание не удалось",
-        "setupSuccess": "Настройка завершена. Подтвердите, чтобы продолжить."
+        
       },
       "editor": {
         "title": "Центр настроек",
@@ -1513,7 +1392,7 @@ const systemConfigBundle = defineLocaleBundle({
         "docs": "Открыть документацию"
       }
     },
-    "configSelector": { "confirm": "Подтвердить", "cancel": "Отмена" }
+    "configSelector": { "confirm": "Подтвердить" }
   }),
   ja: mergeLocale(systemConfigEn, {
     "setup": {
@@ -1530,7 +1409,6 @@ const systemConfigBundle = defineLocaleBundle({
         "existingConfigCustomize": "設定を調整",
         "title": "約30秒で FileUni の初期設定を完了",
         "desc": "初めて FileUni を使う場合は、通常は既定値のままで十分です。必要なら管理者パスワードを設定し、そのまま適用してください。",
-        "card3Hint": "現在の設定を保存して続行します。"
       },
       "steps": {
         "step": "ステップ",
@@ -1623,21 +1501,12 @@ const systemConfigBundle = defineLocaleBundle({
       },
       "admin": {
         "title": "スーパー管理者を作成",
-        "subtitle": "このアカウントはシステムを完全に制御できます。",
-        "username": "管理者ユーザー名",
         "password": "安全なパスワード",
-        "suggestPassword": "ランダムパスワードを生成",
-        "generate_password": "ランダムパスワードを生成",
-        "pendingHint": "最終適用後に反映されます",
         "resetRuleHint": "セットアップ完了後、このパスワードで管理者アカウントにログインします。",
-        "resetSuccessWithUser": "管理者パスワードを適用しました。現在の管理者: {{username}}",
-        "finalConfirm": "最終確認",
         "finalConfirmDesc": "確認すると現在の設定を保存してセットアップを完了します。追加設定は後から調整できます。",
         "finish": "設定を適用",
         "changePassword": "管理者パスワードを設定",
-        "passwordHintTitle": "セットアップ完了には管理者パスワードが必要です",
-        "passwordHintDesc": "設定を適用するために管理者パスワードを設定または更新してください。いつでも実行できます。",
-        "passwordHintAction": "管理者パスワードを設定"
+        
       },
       "final": {
         "title": "準備完了です！",
@@ -1662,7 +1531,7 @@ const systemConfigBundle = defineLocaleBundle({
         "dbSuccess": "DB 接続に成功しました！",
         "applyingConfig": "設定を適用し、DB スキーマを同期中...",
         "setupFailed": "デプロイに失敗しました",
-        "setupSuccess": "セットアップが完了しました。確認して続行してください。"
+        
       },
       "editor": {
         "title": "設定センター",
@@ -1693,7 +1562,7 @@ const systemConfigBundle = defineLocaleBundle({
         "docs": "ドキュメントを見る"
       }
     },
-    "configSelector": { "confirm": "確認", "cancel": "キャンセル" }
+    "configSelector": { "confirm": "確認" }
   }),
 });
 
