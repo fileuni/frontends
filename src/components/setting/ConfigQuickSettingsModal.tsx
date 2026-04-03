@@ -263,7 +263,7 @@ interface ConfigPreviewItem {
 
 interface ConfigPreviewGroupStat {
   key: string;
-  labelKey: string;
+  label: string;
   count: number;
 }
 
@@ -406,6 +406,113 @@ export const performanceTemplateLabelKey = (
       return "admin.config.quickSettings.performance.templates.performanceLowConcurrency";
     case "performance-high-concurrency":
       return "admin.config.quickSettings.performance.templates.performanceHighConcurrency";
+  }
+};
+
+const getFriendlyStepLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  step: FriendlyStep,
+): string => {
+  switch (step) {
+    case "performance":
+      return t("admin.config.quickSettings.steps.performance");
+    case "database":
+      return t("admin.config.quickSettings.steps.database");
+    case "cache":
+      return t("admin.config.quickSettings.steps.cache");
+    case "other":
+      return t("admin.config.quickSettings.steps.other");
+  }
+};
+
+const getPerformanceTierLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  tier: PerformanceTier,
+): string => {
+  switch (tier) {
+    case "constrained":
+      return t("admin.config.quickSettings.performance.tiers.constrained");
+    case "lightweight":
+      return t("admin.config.quickSettings.performance.tiers.lightweight");
+    case "performance":
+      return t("admin.config.quickSettings.performance.tiers.performance");
+  }
+};
+
+const getPerformanceTierDescription = (
+  t: ReturnType<typeof useTranslation>["t"],
+  tier: PerformanceTier,
+): string => {
+  switch (tier) {
+    case "constrained":
+      return t("admin.config.quickSettings.performance.descriptions.constrained");
+    case "lightweight":
+      return t("admin.config.quickSettings.performance.descriptions.lightweight");
+    case "performance":
+      return t("admin.config.quickSettings.performance.descriptions.performance");
+  }
+};
+
+const getLoadProfileLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  profile: LoadProfile,
+): string => {
+  switch (profile) {
+    case "low-concurrency":
+      return t("admin.config.quickSettings.performance.loadProfile.low-concurrency");
+    case "high-concurrency":
+      return t("admin.config.quickSettings.performance.loadProfile.high-concurrency");
+  }
+};
+
+const getCaptchaPreheatModeLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  mode: CaptchaPreheatMode,
+): string => {
+  switch (mode) {
+    case "memory":
+      return t("admin.config.quickSettings.performance.preheatMode.options.memory");
+    case "balanced":
+      return t("admin.config.quickSettings.performance.preheatMode.options.balanced");
+    case "throughput":
+      return t("admin.config.quickSettings.performance.preheatMode.options.throughput");
+  }
+};
+
+const getPreviewGroupLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  group: string,
+): string => {
+  switch (group) {
+    case "database":
+      return t("admin.config.quickSettings.performance.preview.groups.database");
+    case "fast_kv_storage_hub":
+      return t("admin.config.quickSettings.performance.preview.groups.cache");
+    case "internal_notify":
+    case "system_backup":
+    case "task_registry":
+    case "domain_acme_ddns":
+      return t("admin.config.quickSettings.performance.preview.groups.scheduler");
+    case "middleware":
+      return t("admin.config.quickSettings.performance.preview.groups.middleware");
+    case "captcha_code":
+      return t("admin.config.quickSettings.performance.preview.groups.captcha");
+    case "memory_allocator":
+      return t("admin.config.quickSettings.performance.preview.groups.allocator");
+    case "vfs_storage_hub":
+      return t("admin.config.quickSettings.performance.preview.groups.vfs");
+    case "file_manager_serv_sftp":
+      return t("admin.config.quickSettings.performance.preview.groups.sftp");
+    case "file_manager_serv_ftp":
+      return t("admin.config.quickSettings.performance.preview.groups.ftp");
+    case "file_manager_serv_s3":
+      return t("admin.config.quickSettings.performance.preview.groups.s3");
+    case "chat_manager":
+      return t("admin.config.quickSettings.performance.preview.groups.chat");
+    case "email_manager":
+      return t("admin.config.quickSettings.performance.preview.groups.email");
+    default:
+      return t("admin.config.quickSettings.performance.preview.groups.other");
   }
 };
 
@@ -2582,38 +2689,6 @@ export const ConfigQuickSettingsModal: React.FC<
   }, [currentPreset, previewDraft, previewTuningPlan]);
 
   const previewGroupStats = useMemo<ConfigPreviewGroupStat[]>(() => {
-    const groupLabelKeyMap: Record<string, string> = {
-      database:
-        "admin.config.quickSettings.performance.preview.groups.database",
-      fast_kv_storage_hub:
-        "admin.config.quickSettings.performance.preview.groups.cache",
-      internal_notify:
-        "admin.config.quickSettings.performance.preview.groups.scheduler",
-      system_backup:
-        "admin.config.quickSettings.performance.preview.groups.scheduler",
-      middleware:
-        "admin.config.quickSettings.performance.preview.groups.middleware",
-      captcha_code:
-        "admin.config.quickSettings.performance.preview.groups.captcha",
-      memory_allocator:
-        "admin.config.quickSettings.performance.preview.groups.allocator",
-      vfs_storage_hub:
-        "admin.config.quickSettings.performance.preview.groups.vfs",
-      task_registry:
-        "admin.config.quickSettings.performance.preview.groups.scheduler",
-      file_manager_serv_sftp:
-        "admin.config.quickSettings.performance.preview.groups.sftp",
-      file_manager_serv_ftp:
-        "admin.config.quickSettings.performance.preview.groups.ftp",
-      file_manager_serv_s3:
-        "admin.config.quickSettings.performance.preview.groups.s3",
-      chat_manager:
-        "admin.config.quickSettings.performance.preview.groups.chat",
-      domain_acme_ddns:
-        "admin.config.quickSettings.performance.preview.groups.scheduler",
-      email_manager:
-        "admin.config.quickSettings.performance.preview.groups.email",
-    };
     const counts = new Map<string, number>();
     previewConfigItems.forEach((item) => {
       const key = item.path.split(".")[0] || "other";
@@ -2623,12 +2698,10 @@ export const ConfigQuickSettingsModal: React.FC<
       .sort((a, b) => b[1] - a[1])
       .map(([key, count]) => ({
         key,
-        labelKey:
-          groupLabelKeyMap[key] ||
-          "admin.config.quickSettings.performance.preview.groups.other",
+        label: getPreviewGroupLabel(t, key),
         count,
       }));
-  }, [previewConfigItems]);
+  }, [previewConfigItems, t]);
 
   const previewSimpleCards = useMemo(() => {
     const sftpConnectionValue = currentPreset.features.sftp
@@ -2737,9 +2810,7 @@ export const ConfigQuickSettingsModal: React.FC<
         label: t(
           "admin.config.quickSettings.performance.preview.captchaPreheatMode",
         ),
-        value: t(
-          `admin.config.quickSettings.performance.preheatMode.options.${previewDraft.captchaPreheatMode}`,
-        ),
+        value: getCaptchaPreheatModeLabel(t, previewDraft.captchaPreheatMode),
         interactive: previewDraft.performanceTier !== "constrained",
         options: ["memory", "balanced", "throughput"] as CaptchaPreheatMode[],
         current: previewDraft.captchaPreheatMode,
@@ -2909,17 +2980,19 @@ export const ConfigQuickSettingsModal: React.FC<
   const cacheLabelFor = useCallback(
     (cacheType: string) => {
       if (showTechnicalChoices) {
-        const labelKeyMap: Record<string, string> = {
-          valkey: "admin.config.quickSettings.options.cacheValkey",
-          redis: "admin.config.quickSettings.options.cacheRedis",
-          keydb: "admin.config.quickSettings.options.cacheKeydb",
-          dashmap: "admin.config.quickSettings.options.cacheDashmap",
-          database: "admin.config.quickSettings.options.cacheDatabase",
-        };
-        return t(
-          labelKeyMap[cacheType] ||
-            "admin.config.quickSettings.options.cacheDashmap",
-        );
+        switch (cacheType) {
+          case "valkey":
+            return t("admin.config.quickSettings.options.cacheValkey");
+          case "redis":
+            return t("admin.config.quickSettings.options.cacheRedis");
+          case "keydb":
+            return t("admin.config.quickSettings.options.cacheKeydb");
+          case "database":
+            return t("admin.config.quickSettings.options.cacheDatabase");
+          case "dashmap":
+          default:
+            return t("admin.config.quickSettings.options.cacheDashmap");
+        }
       }
       if (cacheType === "dashmap") {
         return t("admin.config.quickSettings.setupLabels.builtInCache");
@@ -2942,8 +3015,8 @@ export const ConfigQuickSettingsModal: React.FC<
     return [
       {
         label: t("admin.config.quickSettings.steps.performance"),
-        value: t(currentPreset.labelKey),
-        hint: t(currentPreset.descKey),
+        value: getPerformanceTierLabel(t, currentPreset.tier),
+        hint: getPerformanceTierDescription(t, currentPreset.tier),
       },
       {
         label: t("admin.config.quickSettings.steps.database"),
@@ -2961,8 +3034,7 @@ export const ConfigQuickSettingsModal: React.FC<
     ];
   }, [
     cacheLabelFor,
-    currentPreset.descKey,
-    currentPreset.labelKey,
+    currentPreset.tier,
     databaseLabelFor,
     previewDraft.cacheType,
     previewDraft.databaseType,
@@ -3018,11 +3090,9 @@ export const ConfigQuickSettingsModal: React.FC<
                 : "border-slate-300 bg-white text-slate-800 hover:bg-slate-50 shadow-sm",
             )}
           >
-            {t(
-              showSetupAdvanced
-                ? "admin.config.quickSettings.setupAdvanced.hide"
-                : "admin.config.quickSettings.setupAdvanced.show",
-            )}
+            {showSetupAdvanced
+              ? t("admin.config.quickSettings.setupAdvanced.hide")
+              : t("admin.config.quickSettings.setupAdvanced.show")}
           </button>
         </div>
       </div>
@@ -3150,7 +3220,7 @@ export const ConfigQuickSettingsModal: React.FC<
                           : "bg-emerald-400",
                     )}
                   />
-                  <span>{t(preset.labelKey)}</span>
+                  <span>{getPerformanceTierLabel(t, preset.tier)}</span>
                 </div>
                 <p
                   className={cn(
@@ -3162,7 +3232,7 @@ export const ConfigQuickSettingsModal: React.FC<
                         : "text-slate-600",
                   )}
                 >
-                  {t(preset.descKey)}
+                  {getPerformanceTierDescription(t, preset.tier)}
                 </p>
                 {preset.tier === "performance" && selected && (
                   <div
@@ -3192,9 +3262,7 @@ export const ConfigQuickSettingsModal: React.FC<
                             : "bg-primary/10 text-primary",
                         )}
                       >
-                        {t(
-                          `admin.config.quickSettings.performance.loadProfile.${draft.loadProfile}`,
-                        )}
+                        {getLoadProfileLabel(t, draft.loadProfile)}
                       </span>
                     </div>
                     <span
@@ -3803,9 +3871,7 @@ export const ConfigQuickSettingsModal: React.FC<
                         "emerald",
                       )}
                     >
-                      {t(
-                        `admin.config.quickSettings.performance.preheatMode.options.${mode}`,
-                      )}
+                      {getCaptchaPreheatModeLabel(t, mode)}
                     </button>
                   ))}
                 </div>
@@ -4010,7 +4076,7 @@ export const ConfigQuickSettingsModal: React.FC<
                                     : "border-slate-300 bg-white text-slate-700",
                             )}
                           >
-                            {t(`admin.config.quickSettings.steps.${step}`)}
+                            {getFriendlyStepLabel(t, step)}
                           </button>
                           {index < friendlySteps.length - 1 && (
                             <ChevronRight
@@ -4057,8 +4123,7 @@ export const ConfigQuickSettingsModal: React.FC<
                                 : "bg-white text-slate-900 border-slate-300 hover:bg-slate-50 shadow-sm",
                         )}
                       >
-                        {index + 1}.{" "}
-                        {t(`admin.config.quickSettings.steps.${step}`)}
+                        {index + 1}. {getFriendlyStepLabel(t, step)}
                       </button>
                     ))}
                   </div>
@@ -4101,12 +4166,15 @@ export const ConfigQuickSettingsModal: React.FC<
                             : "border-cyan-200 bg-cyan-50 text-cyan-800",
                         )}
                       >
-                        {t(
-                          allocatorRecommendation.policy === "jemalloc"
-                            ? "admin.config.quickSettings.performance.allocatorRecommendationLinux"
-                            : "admin.config.quickSettings.performance.allocatorRecommendationOthers",
-                          { os: allocatorRecommendation.os },
-                        )}
+                        {allocatorRecommendation.policy === "jemalloc"
+                          ? t(
+                              "admin.config.quickSettings.performance.allocatorRecommendationLinux",
+                              { os: allocatorRecommendation.os },
+                            )
+                          : t(
+                              "admin.config.quickSettings.performance.allocatorRecommendationOthers",
+                              { os: allocatorRecommendation.os },
+                            )}
                       </div>
                     )}
 
@@ -4152,7 +4220,7 @@ export const ConfigQuickSettingsModal: React.FC<
                               )}
                             />
                             <span className="text-sm sm:text-sm font-black">
-                              {t(preset.labelKey)}
+                              {getPerformanceTierLabel(t, preset.tier)}
                             </span>
                           </div>
                           <p
@@ -4163,7 +4231,7 @@ export const ConfigQuickSettingsModal: React.FC<
                                 : "text-slate-800 font-black",
                             )}
                           >
-                            {t(preset.descKey)}
+                            {getPerformanceTierDescription(t, preset.tier)}
                           </p>
                           <div className="mt-2 flex flex-wrap gap-1">
                             <span
@@ -4220,9 +4288,7 @@ export const ConfigQuickSettingsModal: React.FC<
                                         : "bg-primary/10 text-primary",
                                     )}
                                   >
-                                    {t(
-                                      `admin.config.quickSettings.performance.loadProfile.${draft.loadProfile}`,
-                                    )}
+                                    {getLoadProfileLabel(t, draft.loadProfile)}
                                   </span>
                                 </div>
                                 <span
@@ -4387,9 +4453,7 @@ export const ConfigQuickSettingsModal: React.FC<
                                             : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200",
                                       )}
                                     >
-                                      {t(
-                                        `admin.config.quickSettings.performance.preheatMode.options.${opt}`,
-                                      )}
+                                      {getCaptchaPreheatModeLabel(t, opt)}
                                     </button>
                                   ),
                                 )}
@@ -4552,7 +4616,7 @@ export const ConfigQuickSettingsModal: React.FC<
                                       : "border-slate-100 bg-slate-50 text-slate-700",
                                   )}
                                 >
-                                  <span>{t(group.labelKey)}</span>
+                                  <span>{group.label}</span>
                                   <span
                                     className={cn(
                                       "font-mono font-black",

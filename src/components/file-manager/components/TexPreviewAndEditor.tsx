@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CodeMirrorEditor } from '@/components/editors/CodeMirrorEditor';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { client } from '@/lib/api.ts';
@@ -36,10 +37,17 @@ type LatexJsGlobal = {
 
 const LATEXJS_VERSION = '0.12.6';
 
-const LATEX_PREVIEW_MODE_LABEL_KEYS: Record<LatexPreviewMode, string> = {
-  latexmk: 'filemanager.texPreview.mode.latexmk',
-  latexjs: 'filemanager.texPreview.mode.latexjs',
-  codemirror: 'filemanager.texPreview.mode.codemirror',
+const getLatexPreviewModeLabel = (t: TFunction, mode: LatexPreviewMode): string => {
+  switch (mode) {
+    case 'latexmk':
+      return t('filemanager.texPreview.mode.latexmk');
+    case 'latexjs':
+      return t('filemanager.texPreview.mode.latexjs');
+    case 'codemirror':
+      return t('filemanager.texPreview.mode.codemirror');
+    default:
+      return mode;
+  }
 };
 
 const loadLatexScript = (src: string): Promise<void> => {
@@ -386,7 +394,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
                 className="h-10 px-4 rounded-xl text-sm font-black uppercase flex items-center gap-2"
                 onClick={() => setModeOpen(!modeOpen)}
               >
-                {t(LATEX_PREVIEW_MODE_LABEL_KEYS[previewMode]) || previewMode}
+                {getLatexPreviewModeLabel(t, previewMode) || previewMode}
                 <ChevronDown size={18} />
               </Button>
               {modeOpen && (
@@ -406,7 +414,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
                         setPreviewHtml(null);
                       }}
                     >
-                      {t(LATEX_PREVIEW_MODE_LABEL_KEYS[mode]) || mode}
+                      {getLatexPreviewModeLabel(t, mode) || mode}
                     </button>
                   ))}
                 </div>

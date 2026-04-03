@@ -393,25 +393,25 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
         />
 
         {[
-          ["admin.config.mediaTranscoding.cacheDir", draft.cacheDir, (value: string) => setDraft((prev) => ({ ...prev, cacheDir: value }))],
-          ["admin.config.mediaTranscoding.cleanupTtlSecs", draft.cleanupTtlSecs, (value: string) => setDraft((prev) => ({ ...prev, cleanupTtlSecs: value }))],
-          ["admin.config.mediaTranscoding.timeoutSecs", draft.timeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, timeoutSecs: value }))],
-        ].map(([label, value, onChange]) => (
-          <label key={String(label)} className="block">
-            <span className={fieldLabelClass(isDark)}>{t(String(label))}</span>
-            <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass(isDark)} />
+          { id: "cacheDir", label: t("admin.config.mediaTranscoding.cacheDir"), value: draft.cacheDir, onChange: (value: string) => setDraft((prev) => ({ ...prev, cacheDir: value })) },
+          { id: "cleanupTtlSecs", label: t("admin.config.mediaTranscoding.cleanupTtlSecs"), value: draft.cleanupTtlSecs, onChange: (value: string) => setDraft((prev) => ({ ...prev, cleanupTtlSecs: value })) },
+          { id: "timeoutSecs", label: t("admin.config.mediaTranscoding.timeoutSecs"), value: draft.timeoutSecs, onChange: (value: string) => setDraft((prev) => ({ ...prev, timeoutSecs: value })) },
+        ].map(({ id, label, value, onChange }) => (
+          <label key={id} className="block">
+            <span className={fieldLabelClass(isDark)}>{label}</span>
+            <input value={value} onChange={(event) => onChange(event.target.value)} className={inputClass(isDark)} />
           </label>
         ))}
 
         <div className="grid gap-3 sm:grid-cols-3">
           {[
-            ["admin.config.mediaTranscoding.maxConcurrentTasks", draft.maxConcurrentTasks, (value: string) => setDraft((prev) => ({ ...prev, maxConcurrentTasks: value }))],
-            ["admin.config.mediaTranscoding.maxConcurrentTasksLowMemory", draft.maxConcurrentTasksLowMemory, (value: string) => setDraft((prev) => ({ ...prev, maxConcurrentTasksLowMemory: value }))],
-            ["admin.config.mediaTranscoding.maxConcurrentTasksThroughput", draft.maxConcurrentTasksThroughput, (value: string) => setDraft((prev) => ({ ...prev, maxConcurrentTasksThroughput: value }))],
-          ].map(([label, value, onChange]) => (
-            <label key={String(label)} className="block">
-              <span className={fieldLabelClass(isDark)}>{t(String(label))}</span>
-              <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass(isDark)} />
+            { id: "maxConcurrentTasks", label: t("admin.config.mediaTranscoding.maxConcurrentTasks"), value: draft.maxConcurrentTasks, onChange: (value: string) => setDraft((prev) => ({ ...prev, maxConcurrentTasks: value })) },
+            { id: "maxConcurrentTasksLowMemory", label: t("admin.config.mediaTranscoding.maxConcurrentTasksLowMemory"), value: draft.maxConcurrentTasksLowMemory, onChange: (value: string) => setDraft((prev) => ({ ...prev, maxConcurrentTasksLowMemory: value })) },
+            { id: "maxConcurrentTasksThroughput", label: t("admin.config.mediaTranscoding.maxConcurrentTasksThroughput"), value: draft.maxConcurrentTasksThroughput, onChange: (value: string) => setDraft((prev) => ({ ...prev, maxConcurrentTasksThroughput: value })) },
+          ].map(({ id, label, value, onChange }) => (
+            <label key={id} className="block">
+              <span className={fieldLabelClass(isDark)}>{label}</span>
+              <input value={value} onChange={(event) => onChange(event.target.value)} className={inputClass(isDark)} />
             </label>
           ))}
         </div>
@@ -423,20 +423,20 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
 
         <div className="grid gap-3 sm:grid-cols-2">
           {[
-            ["admin.config.mediaTranscoding.delivery", draft.delivery, (value: string) => setDraft((prev) => ({ ...prev, delivery: value }))],
-            ["admin.config.mediaTranscoding.segmentDurationSecs", draft.segmentDurationSecs, (value: string) => setDraft((prev) => ({ ...prev, segmentDurationSecs: value }))],
-            ["admin.config.mediaTranscoding.videoCodec", draft.videoCodec, (value: string) => setDraft((prev) => ({ ...prev, videoCodec: value }))],
-            ["admin.config.mediaTranscoding.audioCodec", draft.audioCodec, (value: string) => setDraft((prev) => ({ ...prev, audioCodec: value }))],
-            ["admin.config.mediaTranscoding.preset", draft.preset, (value: string) => setDraft((prev) => ({ ...prev, preset: value }))],
-            ["admin.config.mediaTranscoding.crf", draft.crf, (value: string) => setDraft((prev) => ({ ...prev, crf: value }))],
-            ["admin.config.mediaTranscoding.maxWidth", draft.maxWidth, (value: string) => setDraft((prev) => ({ ...prev, maxWidth: value }))],
-            ["admin.config.mediaTranscoding.maxHeight", draft.maxHeight, (value: string) => setDraft((prev) => ({ ...prev, maxHeight: value }))],
-            ["admin.config.mediaTranscoding.maxFps", draft.maxFps, (value: string) => setDraft((prev) => ({ ...prev, maxFps: value }))],
-            ["admin.config.mediaTranscoding.audioBitrateKbps", draft.audioBitrateKbps, (value: string) => setDraft((prev) => ({ ...prev, audioBitrateKbps: value }))],
-          ].map(([label, value, onChange]) => (
-            <label key={String(label)} className="block">
-              <span className={fieldLabelClass(isDark)}>{t(String(label))}</span>
-              <input value={String(value)} onChange={(event) => (onChange as (value: string) => void)(event.target.value)} className={inputClass(isDark)} />
+            { id: "delivery", label: t("admin.config.mediaTranscoding.delivery"), value: draft.delivery, onChange: (value: string) => setDraft((prev) => ({ ...prev, delivery: value })) },
+            { id: "segmentDurationSecs", label: t("admin.config.mediaTranscoding.segmentDurationSecs"), value: draft.segmentDurationSecs, onChange: (value: string) => setDraft((prev) => ({ ...prev, segmentDurationSecs: value })) },
+            { id: "videoCodec", label: t("admin.config.mediaTranscoding.videoCodec"), value: draft.videoCodec, onChange: (value: string) => setDraft((prev) => ({ ...prev, videoCodec: value })) },
+            { id: "audioCodec", label: t("admin.config.mediaTranscoding.audioCodec"), value: draft.audioCodec, onChange: (value: string) => setDraft((prev) => ({ ...prev, audioCodec: value })) },
+            { id: "preset", label: t("admin.config.mediaTranscoding.preset"), value: draft.preset, onChange: (value: string) => setDraft((prev) => ({ ...prev, preset: value })) },
+            { id: "crf", label: t("admin.config.mediaTranscoding.crf"), value: draft.crf, onChange: (value: string) => setDraft((prev) => ({ ...prev, crf: value })) },
+            { id: "maxWidth", label: t("admin.config.mediaTranscoding.maxWidth"), value: draft.maxWidth, onChange: (value: string) => setDraft((prev) => ({ ...prev, maxWidth: value })) },
+            { id: "maxHeight", label: t("admin.config.mediaTranscoding.maxHeight"), value: draft.maxHeight, onChange: (value: string) => setDraft((prev) => ({ ...prev, maxHeight: value })) },
+            { id: "maxFps", label: t("admin.config.mediaTranscoding.maxFps"), value: draft.maxFps, onChange: (value: string) => setDraft((prev) => ({ ...prev, maxFps: value })) },
+            { id: "audioBitrateKbps", label: t("admin.config.mediaTranscoding.audioBitrateKbps"), value: draft.audioBitrateKbps, onChange: (value: string) => setDraft((prev) => ({ ...prev, audioBitrateKbps: value })) },
+          ].map(({ id, label, value, onChange }) => (
+            <label key={id} className="block">
+              <span className={fieldLabelClass(isDark)}>{label}</span>
+              <input value={value} onChange={(event) => onChange(event.target.value)} className={inputClass(isDark)} />
             </label>
           ))}
         </div>

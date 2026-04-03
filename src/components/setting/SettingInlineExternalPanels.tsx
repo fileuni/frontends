@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from "react";
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
@@ -149,31 +150,23 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
           </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-        {[
-          ["admin.config.thumbnail.thumbSizePx", draft.thumbSizePx, (value: string) => setDraft((prev) => ({ ...prev, thumbSizePx: value })), "256"],
-          ["admin.config.thumbnail.thumbFormat", draft.thumbFormat, (value: string) => setDraft((prev) => ({ ...prev, thumbFormat: value })), "jpg"],
-          ["admin.config.thumbnail.thumbQuality", draft.thumbQuality, (value: string) => setDraft((prev) => ({ ...prev, thumbQuality: value })), "85"],
-          ["admin.config.thumbnail.imageSmallSkipMb", draft.imageSmallSkipMb, (value: string) => setDraft((prev) => ({ ...prev, imageSmallSkipMb: value })), "1"],
-          ["admin.config.thumbnail.imageMaxSizeMb", draft.imageMaxSizeMb, (value: string) => setDraft((prev) => ({ ...prev, imageMaxSizeMb: value })), "100"],
-          ["admin.config.thumbnail.imageTimeoutSecs", draft.imageTimeoutSecs, (value: string) => setDraft((prev) => ({ ...prev, imageTimeoutSecs: value })), "10"],
-          ["admin.config.thumbnail.imageImagemagickMaxMb", draft.imageImagemagickMaxMb, (value: string) => setDraft((prev) => ({ ...prev, imageImagemagickMaxMb: value })), "20"],
-        ].map(([label, value, onChange, placeholder]) => (
-          <div key={String(label)}>
+        {THUMBNAIL_FIELD_DEFS.map(({ key, placeholder }) => (
+          <div key={key}>
             <div
               className={cn(
                 "text-xs font-black uppercase tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-700",
               )}
             >
-              {t(String(label))}
+              {getThumbnailFieldLabel(t, key)}
             </div>
             <input
-              value={String(value)}
+              value={draft[key]}
               onChange={(event) =>
-                (onChange as (value: string) => void)(event.target.value)
+                setDraft((prev) => ({ ...prev, [key]: event.target.value }))
               }
               className={inputClass}
-              placeholder={String(placeholder)}
+              placeholder={placeholder}
             />
           </div>
         ))}
@@ -659,10 +652,9 @@ export const AdminPasswordInlinePanel: React.FC<
       />
       {showLengthError && (
         <div className="mt-2 text-xs leading-6 text-destructive">
-          {t([
-            "systemConfig.setup.admin.passwordTooShort",
-            "launcher.messages.password_too_short",
-          ])}
+          {t("systemConfig.setup.admin.passwordTooShort", {
+            defaultValue: t("launcher.messages.password_too_short"),
+          })}
         </div>
       )}
       {hint && (
@@ -700,12 +692,97 @@ type ProtectedStorageDraft = {
   wrapKey: string;
 };
 
+type ThumbnailFieldKey =
+  | "thumbSizePx"
+  | "thumbFormat"
+  | "thumbQuality"
+  | "imageSmallSkipMb"
+  | "imageMaxSizeMb"
+  | "imageTimeoutSecs"
+  | "imageImagemagickMaxMb";
+
+type TranslationFn = TFunction<"translation">;
+
 const PROTECTED_STORAGE_BLOCK_PRESETS = [64, 128, 256, 512, 1024] as const;
 const PROTECTED_STORAGE_WORKER_PRESETS = [0, 1, 2, 4, 8] as const;
 const MIN_PROTECTED_BLOCK_SIZE_KIB = 1;
 const MAX_PROTECTED_BLOCK_SIZE_KIB = 16 * 1024;
 const MIN_PROTECTED_WORKERS = 0;
 const MAX_PROTECTED_WORKERS = 256;
+
+const THUMBNAIL_FIELD_DEFS: ReadonlyArray<{
+  key: ThumbnailFieldKey;
+  placeholder: string;
+}> = [
+  { key: "thumbSizePx", placeholder: "256" },
+  { key: "thumbFormat", placeholder: "jpg" },
+  { key: "thumbQuality", placeholder: "85" },
+  { key: "imageSmallSkipMb", placeholder: "1" },
+  { key: "imageMaxSizeMb", placeholder: "100" },
+  { key: "imageTimeoutSecs", placeholder: "10" },
+  { key: "imageImagemagickMaxMb", placeholder: "20" },
+];
+
+const getThumbnailFieldLabel = (t: TranslationFn, key: ThumbnailFieldKey): string => {
+  switch (key) {
+    case "thumbSizePx":
+      return t("admin.config.thumbnail.thumbSizePx");
+    case "thumbFormat":
+      return t("admin.config.thumbnail.thumbFormat");
+    case "thumbQuality":
+      return t("admin.config.thumbnail.thumbQuality");
+    case "imageSmallSkipMb":
+      return t("admin.config.thumbnail.imageSmallSkipMb");
+    case "imageMaxSizeMb":
+      return t("admin.config.thumbnail.imageMaxSizeMb");
+    case "imageTimeoutSecs":
+      return t("admin.config.thumbnail.imageTimeoutSecs");
+    case "imageImagemagickMaxMb":
+      return t("admin.config.thumbnail.imageImagemagickMaxMb");
+  }
+};
+
+const getProtectedStorageRiskText = (
+  t: TranslationFn,
+  mode: ProtectedStorageDraft["globalMode"],
+): string => {
+  switch (mode) {
+    case "disabled":
+      return t("admin.config.protectedStorage.risks.disabled");
+    case "obfuscate":
+      return t("admin.config.protectedStorage.risks.obfuscate");
+    case "encrypt":
+      return t("admin.config.protectedStorage.risks.encrypt");
+  }
+};
+
+const getProtectedStorageModeSummaryText = (
+  t: TranslationFn,
+  mode: ProtectedStorageDraft["globalMode"],
+): string => {
+  switch (mode) {
+    case "disabled":
+      return t("admin.config.protectedStorage.modeSummary.disabled");
+    case "obfuscate":
+      return t("admin.config.protectedStorage.modeSummary.obfuscate");
+    case "encrypt":
+      return t("admin.config.protectedStorage.modeSummary.encrypt");
+  }
+};
+
+const getProtectedStorageGlobalModeHintText = (
+  t: TranslationFn,
+  mode: ProtectedStorageDraft["globalMode"],
+): string => {
+  switch (mode) {
+    case "disabled":
+      return t("admin.config.protectedStorage.globalModeHint.disabled");
+    case "obfuscate":
+      return t("admin.config.protectedStorage.globalModeHint.obfuscate");
+    case "encrypt":
+      return t("admin.config.protectedStorage.globalModeHint.encrypt");
+  }
+};
 
 const sanitizeUnsignedIntegerInput = (value: string): string => value.replace(/[^0-9]/g, "");
 
@@ -866,7 +943,6 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
       ? "border-white/10 bg-black/30 text-white"
       : "border-slate-300 bg-white text-slate-900",
   );
-  const riskKey = `admin.config.protectedStorage.risks.${draft.globalMode}`;
   const wrapKeyLooksValid = draft.wrapKey.trim().length >= 32;
   const obfuscationActive = draft.globalMode === "obfuscate";
   const encryptActive = draft.globalMode === "encrypt";
@@ -887,7 +963,7 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
             : "border-amber-200 bg-amber-50 text-amber-900",
         )}
       >
-        {t(riskKey)}
+        {getProtectedStorageRiskText(t, draft.globalMode)}
       </div>
 
       <div
@@ -906,7 +982,7 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
                 : "border-emerald-200 bg-emerald-50 text-emerald-900",
         )}
       >
-        {t(`admin.config.protectedStorage.modeSummary.${draft.globalMode}`)}
+        {getProtectedStorageModeSummaryText(t, draft.globalMode)}
       </div>
 
       <div
@@ -918,7 +994,7 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
         <InlineSegmentCard
           isDark={isDark}
           title={t("admin.config.protectedStorage.globalMode")}
-          subtitle={t(`admin.config.protectedStorage.globalModeHint.${draft.globalMode}`)}
+          subtitle={getProtectedStorageGlobalModeHintText(t, draft.globalMode)}
           value={draft.globalMode}
           options={[
             { value: "disabled", label: t("admin.config.protectedStorage.modes.disabled") },

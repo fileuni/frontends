@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { PasswordInput } from "@/components/common/PasswordInput";
@@ -104,10 +105,110 @@ const isRemoteDriver = (driver: Driver): driver is RemoteDriver => {
   return driver in remoteDriverFields;
 };
 
-const getFieldHintKey = (driver: RemoteDriver, key: string): string => {
-  return driver === "s3"
-    ? `systemConfig.setup.storagePool.s3Hints.${key}`
-    : `systemConfig.setup.storagePool.${driver}Hints.${key}`;
+const translateDriverLabel = (t: TFunction, driver: Driver): string => {
+  switch (driver) {
+    case "fs": return t("admin.config.storage.drivers.fs");
+    case "memory": return t("admin.config.storage.drivers.memory");
+    case "s3": return t("admin.config.storage.drivers.s3");
+    case "webdav": return t("admin.config.storage.drivers.webdav");
+    case "dropbox": return t("admin.config.storage.drivers.dropbox");
+    case "onedrive": return t("admin.config.storage.drivers.onedrive");
+    case "gdrive": return t("admin.config.storage.drivers.gdrive");
+    case "android_saf": return t("admin.config.storage.drivers.android_saf");
+    case "ios_scoped_fs": return t("admin.config.storage.drivers.ios_scoped_fs");
+  }
+};
+
+const translateFieldLabel = (t: TFunction, driver: RemoteDriver, key: string): string => {
+  switch (driver) {
+    case "s3":
+      switch (key) {
+        case "endpoint": return t("systemConfig.setup.storagePool.s3.endpoint");
+        case "region": return t("systemConfig.setup.storagePool.s3.region");
+        case "bucket": return t("systemConfig.setup.storagePool.s3.bucket");
+        case "access_key_id": return t("systemConfig.setup.storagePool.s3.access_key_id");
+        case "secret_access_key": return t("systemConfig.setup.storagePool.s3.secret_access_key");
+      }
+      break;
+    case "webdav":
+      switch (key) {
+        case "endpoint": return t("systemConfig.setup.storagePool.webdav.endpoint");
+        case "username": return t("systemConfig.setup.storagePool.webdav.username");
+        case "password": return t("systemConfig.setup.storagePool.webdav.password");
+      }
+      break;
+    case "dropbox":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.dropbox.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.dropbox.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.dropbox.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.dropbox.client_secret");
+      }
+      break;
+    case "onedrive":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.onedrive.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.onedrive.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.onedrive.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.onedrive.client_secret");
+      }
+      break;
+    case "gdrive":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.gdrive.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.gdrive.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.gdrive.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.gdrive.client_secret");
+      }
+      break;
+  }
+  throw new Error(`Missing storage pool label key for ${driver}.${key}`);
+};
+
+const translateFieldHint = (t: TFunction, driver: RemoteDriver, key: string): string => {
+  switch (driver) {
+    case "s3":
+      switch (key) {
+        case "endpoint": return t("systemConfig.setup.storagePool.s3Hints.endpoint");
+        case "region": return t("systemConfig.setup.storagePool.s3Hints.region");
+        case "bucket": return t("systemConfig.setup.storagePool.s3Hints.bucket");
+        case "access_key_id": return t("systemConfig.setup.storagePool.s3Hints.access_key_id");
+        case "secret_access_key": return t("systemConfig.setup.storagePool.s3Hints.secret_access_key");
+      }
+      break;
+    case "webdav":
+      switch (key) {
+        case "endpoint": return t("systemConfig.setup.storagePool.webdavHints.endpoint");
+        case "username": return t("systemConfig.setup.storagePool.webdavHints.username");
+        case "password": return t("systemConfig.setup.storagePool.webdavHints.password");
+      }
+      break;
+    case "dropbox":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.dropboxHints.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.dropboxHints.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.dropboxHints.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.dropboxHints.client_secret");
+      }
+      break;
+    case "onedrive":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.onedriveHints.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.onedriveHints.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.onedriveHints.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.onedriveHints.client_secret");
+      }
+      break;
+    case "gdrive":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.gdriveHints.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.gdriveHints.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.gdriveHints.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.gdriveHints.client_secret");
+      }
+      break;
+  }
+  throw new Error(`Missing storage pool hint key for ${driver}.${key}`);
 };
 
 const asRecord = (value: unknown): ConfigObject => {
@@ -270,8 +371,8 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
     return (
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {remoteDriverFields[driver].map((field) => {
-          const label = t(`systemConfig.setup.storagePool.${driver}.${field.key}`);
-          const hint = t(getFieldHintKey(driver, field.key));
+          const label = translateFieldLabel(t, driver, field.key);
+          const hint = translateFieldHint(t, driver, field.key);
           const inputId = `${item.id}-${field.key}`;
 
           return (
@@ -461,7 +562,7 @@ export const StoragePoolInlinePanel: React.FC<Props> = ({
                 >
                   {driverOptions.map((driver) => (
                     <option key={driver} value={driver}>
-                      {t(`admin.config.storage.drivers.${driver}`)}
+                       {translateDriverLabel(t, driver)}
                     </option>
                   ))}
                 </select>

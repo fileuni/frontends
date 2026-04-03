@@ -27,6 +27,31 @@ export interface LicenseManagementModalProps {
   features?: string[] | undefined;
 }
 
+const getLicenseFeatureText = (
+  t: (key: string) => string,
+  code: string,
+): { title: string; desc: string } => {
+  switch (code) {
+    case "free":
+      return {
+        title: t("admin.config.license.featureCatalog.free.title"),
+        desc: t("admin.config.license.featureCatalog.free.desc"),
+      };
+    case "premium":
+      return {
+        title: t("admin.config.license.featureCatalog.premium.title"),
+        desc: t("admin.config.license.featureCatalog.premium.desc"),
+      };
+    case "storage":
+      return {
+        title: t("admin.config.license.featureCatalog.storage.title"),
+        desc: t("admin.config.license.featureCatalog.storage.desc"),
+      };
+    default:
+      return { title: code, desc: "" };
+  }
+};
+
 export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
   isOpen,
   onClose,
@@ -55,13 +80,9 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
 
   if (!isOpen) return null;
 
-  const featureKey = (raw: string) => raw.replace(/[^A-Za-z0-9_-]/g, "_");
   const featureItems = features
     .map((code) => {
-      const safe = featureKey(code);
-      const base = `admin.config.license.featureCatalog.${safe}`;
-      const title = t(`${base}.title`, { defaultValue: code });
-      const desc = t(`${base}.desc`, { defaultValue: "" });
+      const { title, desc } = getLicenseFeatureText(t, code);
       return { code, title, desc };
     })
     .sort((a, b) => a.title.localeCompare(b.title));
@@ -228,10 +249,9 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               <div className="flex items-center gap-2 mb-2">
                 <Fingerprint size={18} className="text-purple-500 shrink-0" />
                 <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                  {t([
-                    "admin.config.quickSettings.fields.currentHardwareCode",
-                    "admin.config.quickSettings.fields.hwFingerprint",
-                  ])}
+                  {t("admin.config.quickSettings.fields.currentHardwareCode", {
+                    defaultValue: t("admin.config.quickSettings.fields.hwFingerprint"),
+                  })}
                 </div>
               </div>
               <div className="text-xs font-mono break-all select-all font-bold opacity-80">

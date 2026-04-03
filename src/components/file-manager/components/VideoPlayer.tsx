@@ -37,24 +37,39 @@ type PlayMode = 'list' | 'loop' | 'shuffle' | 'single';
 type SidebarTab = 'playlist' | 'recent';
 type SubtitleStyleLabelMode = 'bg' | 'stroke' | 'plain';
 
-const PLAY_MODE_LABEL_KEYS: Record<PlayMode, string> = {
-  list: 'filemanager.player.playMode.list',
-  loop: 'filemanager.player.playMode.loop',
-  shuffle: 'filemanager.player.playMode.shuffle',
-  single: 'filemanager.player.playMode.single',
+const getPlayModeLabel = (t: ReturnType<typeof useTranslation>['t'], mode: PlayMode): string => {
+  switch (mode) {
+    case 'list':
+      return t('filemanager.player.playMode.list');
+    case 'loop':
+      return t('filemanager.player.playMode.loop');
+    case 'shuffle':
+      return t('filemanager.player.playMode.shuffle');
+    case 'single':
+      return t('filemanager.player.playMode.single');
+    default:
+      return mode;
+  }
 };
 
-const SUBTITLE_STYLE_LABEL_KEYS: Record<SubtitleStyleLabelMode, string> = {
-  bg: 'filemanager.player.subtitleStyleBg',
-  stroke: 'filemanager.player.subtitleStyleStroke',
-  plain: 'filemanager.player.subtitleStylePlain',
+const getSubtitleStyleLabel = (t: ReturnType<typeof useTranslation>['t'], mode: SubtitleStyleLabelMode): string => {
+  switch (mode) {
+    case 'bg':
+      return t('filemanager.player.subtitleStyleBg');
+    case 'stroke':
+      return t('filemanager.player.subtitleStyleStroke');
+    case 'plain':
+      return t('filemanager.player.subtitleStylePlain');
+    default:
+      return mode;
+  }
 };
 
-const PLAY_MODE_CONFIG: Record<PlayMode, { icon: React.ElementType; labelKey: string; next: PlayMode }> = {
-  list: { icon: ListOrdered, labelKey: 'filemanager.player.playMode.list', next: 'loop' },
-  loop: { icon: Repeat, labelKey: 'filemanager.player.playMode.loop', next: 'shuffle' },
-  shuffle: { icon: Shuffle, labelKey: 'filemanager.player.playMode.shuffle', next: 'single' },
-  single: { icon: Repeat1, labelKey: 'filemanager.player.playMode.single', next: 'list' },
+const PLAY_MODE_CONFIG: Record<PlayMode, { icon: React.ElementType; next: PlayMode }> = {
+  list: { icon: ListOrdered, next: 'loop' },
+  loop: { icon: Repeat, next: 'shuffle' },
+  shuffle: { icon: Shuffle, next: 'single' },
+  single: { icon: Repeat1, next: 'list' },
 };
 
 interface Props {
@@ -927,7 +942,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                   </select>
                 </label>
                 <button type="button" onClick={() => setPlayMode(PLAY_MODE_CONFIG[playMode].next)} className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full text-sm font-black uppercase">
-                  <PlayModeIcon size={18} /> {t(PLAY_MODE_LABEL_KEYS[playMode])}
+                  <PlayModeIcon size={18} /> {getPlayModeLabel(t, playMode)}
                 </button>
               </div>
             </div>
@@ -959,7 +974,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                       onClick={() => setSubtitleStyleMode(mode)}
                       className={cn('h-9 rounded-lg text-[11px] font-black uppercase tracking-[0.16em] transition-all', subtitleStyleMode === mode ? 'bg-primary text-white' : 'text-white/60 hover:bg-white/5')}
                     >
-                      {t(SUBTITLE_STYLE_LABEL_KEYS[mode])}
+                      {getSubtitleStyleLabel(t, mode)}
                     </button>
                   ))}
                 </div>

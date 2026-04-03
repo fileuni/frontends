@@ -154,10 +154,10 @@ export function useFileActions() {
     const allUsePermanentDelete = paths.every((path) =>
       shouldUsePermanentDeleteForPath(path, protectedStatus),
     );
-    const confirmKey = allUsePermanentDelete
-      ? 'filemanager.messages.confirmDeletePermanent'
-      : 'filemanager.messages.confirmDelete';
-    if (!skipConfirm && !confirm(t(confirmKey, { count: paths.length }))) return;
+    const deleteConfirmMessage = allUsePermanentDelete
+      ? t('filemanager.messages.confirmDeletePermanent', { count: paths.length })
+      : t('filemanager.messages.confirmDelete', { count: paths.length });
+    if (!skipConfirm && !confirm(deleteConfirmMessage)) return;
 
     try {
       const selectedFiles = resolveFilesByPaths(paths);
@@ -397,9 +397,10 @@ export function useFileActions() {
   };
 
   const clearThumbnailCache = async (path?: string) => {
-    const confirmKey = path ? 'filemanager.thumbnail.confirmClearDir' : 'filemanager.thumbnail.confirmClearAll';
-    const defaultMsg = path ? 'Clear thumbnails in this folder?' : 'Clear all thumbnails?';
-    if (!confirm(t(confirmKey) || defaultMsg)) return;
+    const confirmMessage = path
+      ? (t('filemanager.thumbnail.confirmClearDir') || 'Clear thumbnails in this folder?')
+      : (t('filemanager.thumbnail.confirmClearAll') || 'Clear all thumbnails?');
+    if (!confirm(confirmMessage)) return;
     try {
       const body = path ? { path } : {};
       const { data } = await client.POST("/api/v1/file/thumbnail/clear", { body });
@@ -420,9 +421,10 @@ export function useFileActions() {
   };
 
   const setThumbnailDisabled = async (path: string, disabled: boolean) => {
-    const confirmKey = disabled ? 'filemanager.thumbnail.confirmDisable' : 'filemanager.thumbnail.confirmEnable';
-    const defaultMsg = disabled ? 'Disable thumbnails in this folder?' : 'Enable thumbnails in this folder?';
-    if (!confirm(t(confirmKey) || defaultMsg)) return;
+    const confirmMessage = disabled
+      ? (t('filemanager.thumbnail.confirmDisable') || 'Disable thumbnails in this folder?')
+      : (t('filemanager.thumbnail.confirmEnable') || 'Enable thumbnails in this folder?');
+    if (!confirm(confirmMessage)) return;
     try {
       const { data } = await client.POST("/api/v1/file/thumbnail/disable", { body: { path, disabled } });
       if (data?.['success']) {

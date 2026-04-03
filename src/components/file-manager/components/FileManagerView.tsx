@@ -264,8 +264,7 @@ export const FileManagerView = () => {
     }
 
     if ((action === 'toggle_favorite' || action.startsWith('favorite_')) && mountedTarget) {
-      const key = 'filemanager.messages.mountFavoriteUnsupported';
-      addToast(t(key) || 'This action is not available for remote mount entries yet.', 'error');
+      addToast(t('filemanager.messages.mountFavoriteUnsupported') || 'This action is not available for remote mount entries yet.', 'error');
       return;
     }
 
@@ -340,10 +339,13 @@ export const FileManagerView = () => {
         const usePermanentDelete = paths.length > 0
           && paths.every((path) => shouldUsePermanentDeleteForPath(path, protectedStatus));
         if (fmMode === 'files' || fmMode === 'trash') {
+          const deleteConfirmMessage = usePermanentDelete
+            ? t('filemanager.messages.confirmDeletePermanent', { count: paths.length })
+            : t('filemanager.messages.confirmDelete', { count: paths.length });
           openActionModal(
             "delete_confirm",
             usePermanentDelete ? t("filemanager.actions.deletePermanent") : t("filemanager.actions.delete"),
-            t(usePermanentDelete ? "filemanager.messages.confirmDeletePermanent" : "filemanager.messages.confirmDelete", { count: paths.length }),
+            deleteConfirmMessage,
             undefined,
             undefined,
             usePermanentDelete ? t("filemanager.actions.deletePermanent") : undefined,

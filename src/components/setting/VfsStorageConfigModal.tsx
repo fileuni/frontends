@@ -12,6 +12,7 @@ import {
   VfsStorageAdvancedSection,
   VfsStorageMainSection,
 } from "./VfsStorageSections";
+import { getStorageDriverLabelKey } from "./VfsStorageDraftCards";
 import {
   type ActiveTab,
   type ArchiveSectionDraft,
@@ -126,7 +127,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
 
   const driverLabel = useCallback(
     (driver: VfsDriver): string => {
-      return t(`admin.config.storage.drivers.${driver}`);
+      return t(getStorageDriverLabelKey(driver));
     },
     [t],
   );

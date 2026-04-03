@@ -95,10 +95,16 @@ export interface AboutViewProps {
   className?: string | undefined;
 }
 
-const ABOUT_CHANNEL_LABEL_KEYS = {
-  stable: 'about.channels.stable',
-  prerelease: 'about.channels.prerelease',
-} as const;
+const getAboutChannelLabel = (t: TFunction, channel: string): string => {
+  switch (channel) {
+    case 'prerelease':
+      return t('about.channels.prerelease');
+    case 'stable':
+      return t('about.channels.stable');
+    default:
+      return t('about.channels.stable');
+  }
+};
 
 export function buildAboutUpdateGuideUrl(
   baseUrl: string,
@@ -333,7 +339,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
   const currentVersionText = currentVersion || '—';
   const versionCodeText = versionCode === null || typeof versionCode === 'undefined' ? '' : String(versionCode);
   const currentChannel = updateInfo?.current_channel || 'stable';
-  const currentChannelLabelKey = ABOUT_CHANNEL_LABEL_KEYS[currentChannel as keyof typeof ABOUT_CHANNEL_LABEL_KEYS] ?? ABOUT_CHANNEL_LABEL_KEYS.stable;
+  const currentChannelLabel = getAboutChannelLabel(t, currentChannel);
 
   return (
     <div
@@ -516,10 +522,10 @@ export const AboutView: React.FC<AboutViewProps> = ({
                     <span>
                       {updateInfo.has_update
                         ? t('about.updateAvailableForCurrentChannel', {
-                          channel: t(currentChannelLabelKey),
+                          channel: currentChannelLabel,
                         })
                         : t('about.upToDateForCurrentChannel', {
-                          channel: t(currentChannelLabelKey),
+                          channel: currentChannelLabel,
                         })}
                     </span>
                 </div>

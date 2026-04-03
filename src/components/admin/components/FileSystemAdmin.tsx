@@ -266,15 +266,41 @@ const saveBlob = (blob: Blob, filename: string) => {
 };
 
 const translateWalAction = (t: (key: string) => string, action: string) => {
-  const key = `admin.fs.wal_action_${action}`;
-  const value = t(key);
-  return value === key ? action : value;
+  switch (action) {
+    case 'replay':
+      return t('admin.fs.wal_action_replay');
+    case 'mark_handled':
+      return t('admin.fs.wal_action_mark_handled');
+    case 'manual_repair_then_replay':
+      return t('admin.fs.wal_action_manual_repair_then_replay');
+    case 'inspect_backend':
+      return t('admin.fs.wal_action_inspect_backend');
+    case 'manual_review_required':
+      return t('admin.fs.wal_action_manual_review_required');
+    case 'no_action_required':
+      return t('admin.fs.wal_action_no_action_required');
+    default:
+      return action;
+  }
 };
 
 const translateWalReason = (t: (key: string) => string, reason: string) => {
-  const key = `admin.fs.wal_reason_${reason}`;
-  const value = t(key);
-  return value === key ? reason : value;
+  switch (reason) {
+    case 'metadata_only_mismatch':
+      return t('admin.fs.wal_reason_metadata_only_mismatch');
+    case 'state_already_converged':
+      return t('admin.fs.wal_reason_state_already_converged');
+    case 'physical_state_conflict':
+      return t('admin.fs.wal_reason_physical_state_conflict');
+    case 'physical_error_detected':
+      return t('admin.fs.wal_reason_physical_error_detected');
+    case 'mixed_state_requires_review':
+      return t('admin.fs.wal_reason_mixed_state_requires_review');
+    case 'already_consistent':
+      return t('admin.fs.wal_reason_already_consistent');
+    default:
+      return reason;
+  }
 };
 
 export const FileSystemAdmin = () => {

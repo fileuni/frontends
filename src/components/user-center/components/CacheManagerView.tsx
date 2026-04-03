@@ -6,6 +6,7 @@ import { cacheManager, type CacheScanSummary, type CacheScope, type ManagedCateg
 import { useAuthStore } from "@/stores/auth.ts";
 import { toast } from '@/stores/toast';
 import { DashboardCard, DashboardSection } from './dashboard-ui';
+import type { TFunction } from "i18next";
 
 const CATEGORY_ORDER: ManagedCategoryId[] = [
   "email_address_book",
@@ -16,32 +17,27 @@ const CATEGORY_ORDER: ManagedCategoryId[] = [
   "ui_preferences_cache",
 ];
 
-const CATEGORY_I18N_KEYS: Record<ManagedCategoryId, { title: string; desc: string }> = {
-  email_address_book: {
-    title: "cacheManager.categories.email_address_book.title",
-    desc: "cacheManager.categories.email_address_book.desc",
-  },
-  chat_cache: {
-    title: "cacheManager.categories.chat_cache.title",
-    desc: "cacheManager.categories.chat_cache.desc",
-  },
-  file_manager_cache: {
-    title: "cacheManager.categories.file_manager_cache.title",
-    desc: "cacheManager.categories.file_manager_cache.desc",
-  },
-  user_session_cache: {
-    title: "cacheManager.categories.user_session_cache.title",
-    desc: "cacheManager.categories.user_session_cache.desc",
-  },
-  extension_cache: {
-    title: "cacheManager.categories.extension_cache.title",
-    desc: "cacheManager.categories.extension_cache.desc",
-  },
-  ui_preferences_cache: {
-    title: "cacheManager.categories.ui_preferences_cache.title",
-    desc: "cacheManager.categories.ui_preferences_cache.desc",
-  },
-} as const;
+const getCategoryTitle = (t: TFunction, categoryId: ManagedCategoryId): string => {
+  switch (categoryId) {
+    case "email_address_book": return t("cacheManager.categories.email_address_book.title");
+    case "chat_cache": return t("cacheManager.categories.chat_cache.title");
+    case "file_manager_cache": return t("cacheManager.categories.file_manager_cache.title");
+    case "user_session_cache": return t("cacheManager.categories.user_session_cache.title");
+    case "extension_cache": return t("cacheManager.categories.extension_cache.title");
+    case "ui_preferences_cache": return t("cacheManager.categories.ui_preferences_cache.title");
+  }
+};
+
+const getCategoryDesc = (t: TFunction, categoryId: ManagedCategoryId): string => {
+  switch (categoryId) {
+    case "email_address_book": return t("cacheManager.categories.email_address_book.desc");
+    case "chat_cache": return t("cacheManager.categories.chat_cache.desc");
+    case "file_manager_cache": return t("cacheManager.categories.file_manager_cache.desc");
+    case "user_session_cache": return t("cacheManager.categories.user_session_cache.desc");
+    case "extension_cache": return t("cacheManager.categories.extension_cache.desc");
+    case "ui_preferences_cache": return t("cacheManager.categories.ui_preferences_cache.desc");
+  }
+};
 
 export const CacheManagerView: React.FC = () => {
   const { t } = useTranslation();
@@ -65,6 +61,7 @@ export const CacheManagerView: React.FC = () => {
 
   useEffect(() => {
     let mounted = true;
+    void refreshVersion;
     void cacheManager.scan(currentUserId).then((nextSummary) => {
       if (mounted) {
         setSummary(nextSummary);
@@ -82,7 +79,7 @@ export const CacheManagerView: React.FC = () => {
   const handleClear = async (categoryId: ManagedCategoryId, scope: CacheScope) => {
     const scopeLabel = scope === "all" ? t("cacheManager.scopeAllUsers") : t("cacheManager.scopeCurrentUser");
     const confirmText = t("cacheManager.confirmClearCategory", {
-      category: t(CATEGORY_I18N_KEYS[categoryId].title),
+      category: getCategoryTitle(t, categoryId),
       scope: scopeLabel,
     });
     if (!window.confirm(confirmText)) {
@@ -150,13 +147,12 @@ export const CacheManagerView: React.FC = () => {
           }
           const isClearingOwn = loadingAction === `${categoryId}:own`;
           const isClearingAll = loadingAction === `${categoryId}:all`;
-          const categoryI18n = CATEGORY_I18N_KEYS[categoryId];
           return (
             <DashboardCard key={categoryId} variant="subtle" className="rounded-2xl p-4">
               <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <div className="text-xl font-bold">{t(categoryI18n.title)}</div>
-                  <div className="text-base opacity-70 mt-1 break-words leading-relaxed">{t(categoryI18n.desc)}</div>
+                  <div className="text-xl font-bold">{getCategoryTitle(t, categoryId)}</div>
+                  <div className="text-base opacity-70 mt-1 break-words leading-relaxed">{getCategoryDesc(t, categoryId)}</div>
                   <div className="mt-2 text-base opacity-80">
                     {t("cacheManager.categoryStats", {
                       size: cacheManager.formatBytes(category.bytes),

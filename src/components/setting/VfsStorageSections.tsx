@@ -1,7 +1,14 @@
 import { Database, Layers, Plus, Settings2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import { ConnectorCard, ConnectorOptionFields, PolicyCard, PoolCard } from './VfsStorageDraftCards';
+import {
+  ConnectorCard,
+  ConnectorOptionFields,
+  PolicyCard,
+  PoolCard,
+  getStorageRootHintKey,
+  getStorageRootPlaceholderKey,
+} from './VfsStorageDraftCards';
 import {
   type ActiveTab,
   type ConnectorDraft,
@@ -196,7 +203,7 @@ export const VfsStorageMainSection: React.FC<VfsStorageMainSectionProps> = ({
                     isDark ? 'border-white/15 bg-black/30 text-white focus:ring-cyan-500/30' : 'border-slate-300 bg-white text-slate-900 focus:ring-cyan-500/20 shadow-sm',
                   )}
                   value={mainConnector.root}
-                  placeholder={t(`admin.config.storage.placeholders.root.${mainConnector.driver}`)}
+                  placeholder={t(getStorageRootPlaceholderKey(mainConnector.driver))}
                   onChange={(event) => onUpdateConnector(mainConnector.id, (prev) => ({ ...prev, root: event.target.value }))}
                 />
                 {canPickRootForDriver(mainConnector.driver, hasDirectoryPicker) && (
@@ -213,9 +220,9 @@ export const VfsStorageMainSection: React.FC<VfsStorageMainSectionProps> = ({
                   </button>
                 )}
               </div>
-              <div className={cn('text-xs font-bold mt-1 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
-                {t(`admin.config.storage.hints.root.${mainConnector.driver}`)}
-              </div>
+                <div className={cn('text-xs font-bold mt-1 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
+                 {t(getStorageRootHintKey(mainConnector.driver))}
+                </div>
             </label>
 
             <label className={cn('text-sm font-black', isDark ? 'text-slate-300' : 'text-slate-700')}>

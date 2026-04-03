@@ -57,26 +57,10 @@ interface CachePanelProps extends BaseProps {
   }) => Promise<void>) | undefined;
 }
 
-const tierOptions: Array<{
-  value: PerformanceTier;
-  labelKey: string;
-  descKey: string;
-}> = [
-  {
-    value: "constrained",
-    labelKey: "admin.config.quickSettings.performance.tiers.constrained",
-    descKey: "admin.config.quickSettings.performance.descriptions.constrained",
-  },
-  {
-    value: "lightweight",
-    labelKey: "admin.config.quickSettings.performance.tiers.lightweight",
-    descKey: "admin.config.quickSettings.performance.descriptions.lightweight",
-  },
-  {
-    value: "performance",
-    labelKey: "admin.config.quickSettings.performance.tiers.performance",
-    descKey: "admin.config.quickSettings.performance.descriptions.performance",
-  },
+const tierOptions: PerformanceTier[] = [
+  "constrained",
+  "lightweight",
+  "performance",
 ];
 
 type FeatureToggleKey =
@@ -103,6 +87,127 @@ const featureToggleOrder: FeatureToggleKey[] = [
   "webdav",
   "bloomWarmup",
 ];
+
+type QuickSettingsFieldKey =
+  | "host"
+  | "port"
+  | "user"
+  | "password"
+  | "databaseName";
+
+type CachePanelHintKey = "database" | "dashmap" | "external";
+
+const getPerformanceTierLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  tier: PerformanceTier,
+): string => {
+  switch (tier) {
+    case "constrained":
+      return t("admin.config.quickSettings.performance.tiers.constrained");
+    case "lightweight":
+      return t("admin.config.quickSettings.performance.tiers.lightweight");
+    case "performance":
+      return t("admin.config.quickSettings.performance.tiers.performance");
+  }
+};
+
+const getPerformanceTierDescription = (
+  t: ReturnType<typeof useTranslation>["t"],
+  tier: PerformanceTier,
+): string => {
+  switch (tier) {
+    case "constrained":
+      return t("admin.config.quickSettings.performance.descriptions.constrained");
+    case "lightweight":
+      return t("admin.config.quickSettings.performance.descriptions.lightweight");
+    case "performance":
+      return t("admin.config.quickSettings.performance.descriptions.performance");
+  }
+};
+
+const getLoadProfileLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  profile: FriendlyDraft["loadProfile"],
+): string => {
+  switch (profile) {
+    case "low-concurrency":
+      return t("admin.config.quickSettings.performance.loadProfile.low-concurrency");
+    case "high-concurrency":
+      return t("admin.config.quickSettings.performance.loadProfile.high-concurrency");
+  }
+};
+
+const getFeatureToggleLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  feature: FeatureToggleKey,
+): string => {
+  switch (feature) {
+    case "compression":
+      return t("admin.config.quickSettings.performance.features.compression");
+    case "sftp":
+      return t("admin.config.quickSettings.performance.features.sftp");
+    case "ftp":
+      return t("admin.config.quickSettings.performance.features.ftp");
+    case "s3":
+      return t("admin.config.quickSettings.performance.features.s3");
+    case "chat":
+      return t("admin.config.quickSettings.performance.features.chat");
+    case "email":
+      return t("admin.config.quickSettings.performance.features.email");
+    case "webdav":
+      return t("admin.config.quickSettings.performance.features.webdav");
+    case "bloomWarmup":
+      return t("admin.config.quickSettings.performance.features.bloomWarmup");
+  }
+};
+
+const getQuickSettingsFieldLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  field: QuickSettingsFieldKey,
+): string => {
+  switch (field) {
+    case "host":
+      return t("admin.config.quickSettings.fields.host");
+    case "port":
+      return t("admin.config.quickSettings.fields.port");
+    case "user":
+      return t("admin.config.quickSettings.fields.user");
+    case "password":
+      return t("admin.config.quickSettings.fields.password");
+    case "databaseName":
+      return t("admin.config.quickSettings.fields.databaseName");
+  }
+};
+
+const getCachePanelHint = (
+  t: ReturnType<typeof useTranslation>["t"],
+  hint: CachePanelHintKey,
+): string => {
+  switch (hint) {
+    case "database":
+      return t("systemConfig.setup.config.kvSqlHint");
+    case "dashmap":
+      return t("systemConfig.setup.config.kvDashmapHint");
+    case "external":
+      return t("systemConfig.setup.config.kvRedisHint");
+  }
+};
+
+const getExternalCacheHint = (
+  t: ReturnType<typeof useTranslation>["t"],
+  cacheType: FriendlyDraft["cacheType"],
+): string => {
+  switch (cacheType) {
+    case "redis":
+      return t("systemConfig.setup.cache.externalHints.redis");
+    case "valkey":
+      return t("systemConfig.setup.cache.externalHints.valkey");
+    case "keydb":
+      return t("systemConfig.setup.cache.externalHints.keydb");
+    default:
+      return t("systemConfig.setup.cache.externalHints.valkey");
+  }
+};
 
 const asRecord = (value: unknown): ConfigObject => {
   return isRecord(value) ? value : {};
@@ -934,18 +1039,18 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {tierOptions.map((tier) => (
               <button
-                key={tier.value}
+                key={tier}
                 type="button"
                 onClick={() => {
-                  setSelectedTier(tier.value);
-                  if (tier.value === "performance") {
+                  setSelectedTier(tier);
+                  if (tier === "performance") {
                     setIsPerformanceProfilePickerOpen(true);
                   }
                 }}
                 className={cn(
                   "rounded-2xl border px-3 py-3 text-left transition-colors",
-                  tier.value === "performance" && "sm:col-span-2",
-                  selectedTier === tier.value
+                  tier === "performance" && "sm:col-span-2",
+                  selectedTier === tier
                     ? "border-primary bg-primary/10"
                     : isDark
                       ? "border-white/10 bg-slate-950/40 hover:bg-white/[0.04]"
@@ -956,19 +1061,19 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
                   <div
                     className={cn(
                       "text-sm font-black",
-                      selectedTier === tier.value
+                      selectedTier === tier
                         ? "text-primary"
                         : isDark
                           ? "text-slate-100"
                           : "text-slate-800",
                     )}
                   >
-                    {t(tier.labelKey)}
+                    {getPerformanceTierLabel(t, tier)}
                   </div>
                   {suggestedTemplate &&
-                    (tier.value === "performance"
+                    (tier === "performance"
                       ? suggestedTemplate.startsWith("performance-")
-                      : suggestedTemplate === tier.value) && (
+                      : suggestedTemplate === tier) && (
                       <div
                         className={cn(
                           "rounded-full px-2 py-0.5 text-[11px] font-black uppercase tracking-wide",
@@ -986,16 +1091,16 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
                 <div
                   className={cn(
                     "mt-2 text-xs leading-5",
-                    selectedTier === tier.value
+                    selectedTier === tier
                       ? "text-primary/90"
                       : isDark
                         ? "text-slate-300"
                         : "text-slate-500",
                   )}
                 >
-                  {t(tier.descKey)}
+                  {getPerformanceTierDescription(t, tier)}
                 </div>
-                {tier.value === "performance" &&
+                {tier === "performance" &&
                   selectedTier === "performance" && (
                     <div
                       className={cn(
@@ -1024,9 +1129,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
                               : "bg-primary/10 text-primary",
                           )}
                         >
-                          {t(
-                            `admin.config.quickSettings.performance.loadProfile.${selectedLoadProfile}`,
-                          )}
+                          {getLoadProfileLabel(t, selectedLoadProfile)}
                         </span>
                       </div>
                       <span
@@ -1119,9 +1222,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
                       )}
                     >
                       <span>
-                        {t(
-                          `admin.config.quickSettings.performance.features.${key}`,
-                        )}
+                        {getFeatureToggleLabel(t, key)}
                       </span>
                       {hasDiff && (
                         <span className="flex items-center gap-1">
@@ -1607,7 +1708,7 @@ export const DatabaseInlinePanel: React.FC<DatabasePanelProps> = ({
                   isDark ? "text-slate-400" : "text-slate-600",
                 )}
               >
-                {t(`admin.config.quickSettings.fields.${field}`)}
+                {getQuickSettingsFieldLabel(t, field as QuickSettingsFieldKey)}
               </div>
               {field === "password" ? (
                 <PasswordInput
@@ -1745,9 +1846,9 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
         )}
       >
         {([
-          ["database", "systemConfig.setup.config.kvSqlHint"],
-          ["dashmap", "systemConfig.setup.config.kvDashmapHint"],
-          ["external", "systemConfig.setup.config.kvRedisHint"],
+          ["database", "database"],
+          ["dashmap", "dashmap"],
+          ["external", "external"],
         ] as const).map(([type, hintKey]) => (
           <button
             key={type}
@@ -1789,7 +1890,7 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
                     : "text-slate-500",
               )}
             >
-              {t(hintKey)}
+              {getCachePanelHint(t, hintKey)}
             </div>
           </button>
         ))}
@@ -1833,7 +1934,7 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
               : "border-cyan-200 bg-cyan-50 text-cyan-900",
           )}
         >
-          {t(`systemConfig.setup.cache.externalHints.${local.cacheType}`)}
+          {getExternalCacheHint(t, local.cacheType)}
         </div>
       )}
       {isRedisLike && (
@@ -1851,7 +1952,10 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
                   isDark ? "text-slate-400" : "text-slate-600",
                 )}
               >
-                {t(`admin.config.quickSettings.fields.${field}`)}
+                {getQuickSettingsFieldLabel(
+                  t,
+                  field as Exclude<QuickSettingsFieldKey, "databaseName">,
+                )}
               </div>
               {field === "password" ? (
                 <PasswordInput

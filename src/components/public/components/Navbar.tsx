@@ -18,21 +18,40 @@ import { ThemeLanguageControls } from './ThemeLanguageControls.tsx';
 import { ChatContext } from '@/components/chat/context/ChatContext';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
 
-const LANGUAGE_LABEL_KEYS = {
-  auto: 'languages.auto',
-  en: 'languages.en',
-  'zh-cn': 'languages.zh-cn',
-  es: 'languages.es',
-  de: 'languages.de',
-  fr: 'languages.fr',
-  ru: 'languages.ru',
-  ja: 'languages.ja',
-} as const;
+const getLanguageLabel = (t: ReturnType<typeof useTranslation>['t'], language: Language): string => {
+  switch (language) {
+    case 'auto':
+      return t('languages.auto');
+    case 'en':
+      return t('languages.en');
+    case 'zh-cn':
+      return t('languages.zh-cn');
+    case 'es':
+      return t('languages.es');
+    case 'de':
+      return t('languages.de');
+    case 'fr':
+      return t('languages.fr');
+    case 'ru':
+      return t('languages.ru');
+    case 'ja':
+      return t('languages.ja');
+    default:
+      return language;
+  }
+};
 
-const THEME_LABEL_KEYS: Record<Theme, 'themes.system' | 'themes.light' | 'themes.dark'> = {
-  system: 'themes.system',
-  light: 'themes.light',
-  dark: 'themes.dark',
+const getThemeLabel = (t: ReturnType<typeof useTranslation>['t'], theme: Theme): string => {
+  switch (theme) {
+    case 'system':
+      return t('themes.system');
+    case 'light':
+      return t('themes.light');
+    case 'dark':
+      return t('themes.dark');
+    default:
+      return theme;
+  }
 };
 
 
@@ -317,7 +336,7 @@ export const Navbar = () => {
                         )}
                       >
                         {lang === 'auto' && <Laptop size={18} />}
-                        <span className="truncate w-full text-center">{t(LANGUAGE_LABEL_KEYS[lang])}</span>
+                        <span className="truncate w-full text-center">{getLanguageLabel(t, lang)}</span>
                       </button>
                     ))}
                   </div>
@@ -343,7 +362,7 @@ export const Navbar = () => {
                         )}
                       >
                         <mode.icon size={18} />
-                        <span>{t(THEME_LABEL_KEYS[mode.id])}</span>
+                        <span>{getThemeLabel(t, mode.id)}</span>
                       </button>
                     ))}
                   </div>

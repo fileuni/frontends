@@ -10,17 +10,37 @@ import { useToastStore } from '@/stores/toast.ts';
 import { handleApiError } from '@/lib/api.ts';
 import { useFileStore } from '../store/useFileStore.ts';
 
-const PROTECTED_STORAGE_MODE_LABEL_KEYS = {
-  disabled: 'filemanager.protectedStorage.modes.disabled',
-  obfuscate: 'filemanager.protectedStorage.modes.obfuscate',
-  encrypt: 'filemanager.protectedStorage.modes.encrypt',
-} as const;
+const getProtectedStorageModeLabel = (
+  t: ReturnType<typeof useTranslation>['t'],
+  mode: string,
+): string => {
+  switch (mode) {
+    case 'disabled':
+      return t('filemanager.protectedStorage.modes.disabled');
+    case 'obfuscate':
+      return t('filemanager.protectedStorage.modes.obfuscate');
+    case 'encrypt':
+      return t('filemanager.protectedStorage.modes.encrypt');
+    default:
+      return mode;
+  }
+};
 
-const PROTECTED_STORAGE_MODE_DETAIL_KEYS = {
-  disabled: 'filemanager.protectedStorage.modeDetails.disabled',
-  obfuscate: 'filemanager.protectedStorage.modeDetails.obfuscate',
-  encrypt: 'filemanager.protectedStorage.modeDetails.encrypt',
-} as const;
+const getProtectedStorageModeDetail = (
+  t: ReturnType<typeof useTranslation>['t'],
+  mode: string,
+): string => {
+  switch (mode) {
+    case 'disabled':
+      return t('filemanager.protectedStorage.modeDetails.disabled');
+    case 'obfuscate':
+      return t('filemanager.protectedStorage.modeDetails.obfuscate');
+    case 'encrypt':
+      return t('filemanager.protectedStorage.modeDetails.encrypt');
+    default:
+      return t('filemanager.protectedStorage.modeDetails.disabled');
+  }
+};
 
 interface ProtectedStorageModalProps {
   isOpen: boolean;
@@ -80,9 +100,7 @@ export const ProtectedStorageModal = ({
   }, [fetchStatus, isOpen]);
 
   const globalMode = status?.global_mode || 'disabled';
-  const currentModeLabel = (globalMode in PROTECTED_STORAGE_MODE_LABEL_KEYS
-    ? t(PROTECTED_STORAGE_MODE_LABEL_KEYS[globalMode as keyof typeof PROTECTED_STORAGE_MODE_LABEL_KEYS])
-    : globalMode) || globalMode;
+  const currentModeLabel = getProtectedStorageModeLabel(t, globalMode) || globalMode;
   const isEmptyDir = fileCount === 0;
   const isRootPath = currentPath === '/';
   const isAlreadyEnabled = Boolean(status?.enabled);
@@ -107,13 +125,7 @@ export const ProtectedStorageModal = ({
   const currentDecisionTone = isAdminDisabled || isProtectedElsewhere || isMountPath || isReservedPath || !isEmptyDir
     ? 'warn'
     : 'ok';
-  const modeDetailMessage = t(
-    PROTECTED_STORAGE_MODE_DETAIL_KEYS[
-      globalMode in PROTECTED_STORAGE_MODE_DETAIL_KEYS
-        ? (globalMode as keyof typeof PROTECTED_STORAGE_MODE_DETAIL_KEYS)
-        : 'disabled'
-    ],
-  );
+  const modeDetailMessage = getProtectedStorageModeDetail(t, globalMode);
   const currentAdviceMessage = (() => {
     if (globalMode === 'disabled') return t('filemanager.protectedStorage.advice.adminDisabled');
     if (isProtectedElsewhere) return t('filemanager.protectedStorage.advice.alreadyEnabledElsewhere');
@@ -196,11 +208,9 @@ export const ProtectedStorageModal = ({
             <InfoCard
               icon={Lock}
               label={t('filemanager.protectedStorage.protectedMode') || 'Protected mode'}
-              value={status.protected_mode
-                ? ((status.protected_mode in PROTECTED_STORAGE_MODE_LABEL_KEYS
-                  ? t(PROTECTED_STORAGE_MODE_LABEL_KEYS[status.protected_mode as keyof typeof PROTECTED_STORAGE_MODE_LABEL_KEYS])
-                  : status.protected_mode) || status.protected_mode)
-                : currentModeLabel}
+                value={status.protected_mode
+                  ? (getProtectedStorageModeLabel(t, status.protected_mode) || status.protected_mode)
+                  : currentModeLabel}
               tone="ok"
             />
             {enabledAt && (

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { PasswordInput } from '@/components/common/PasswordInput';
@@ -94,11 +95,11 @@ const DRIVER_FIELDS: Record<Driver, OptionField[]> = {
 };
 
 const SYNC_MODE_OPTIONS = [
-  { value: 1, labelKey: 'filemanager.mounts.syncModes.1' },
-  { value: 2, labelKey: 'filemanager.mounts.syncModes.2' },
-  { value: 3, labelKey: 'filemanager.mounts.syncModes.3' },
-  { value: 4, labelKey: 'filemanager.mounts.syncModes.4' },
-  { value: 5, labelKey: 'filemanager.mounts.syncModes.5' },
+  { value: 1 },
+  { value: 2 },
+  { value: 3 },
+  { value: 4 },
+  { value: 5 },
 ];
 
 const formatDateTime = (value?: string | null): string => {
@@ -108,11 +109,118 @@ const formatDateTime = (value?: string | null): string => {
   return parsed.toLocaleString();
 };
 
-const driverLabelKey = (driver: Driver) => `admin.config.storage.drivers.${driver}`;
-const fieldLabelKey = (driver: Driver, key: string) => `systemConfig.setup.storagePool.${driver}.${key}`;
-const fieldHintKey = (driver: Driver, key: string) => driver === 's3'
-  ? `systemConfig.setup.storagePool.s3Hints.${key}`
-  : `systemConfig.setup.storagePool.${driver}Hints.${key}`;
+const translateDriverLabel = (t: TFunction, driver: Driver): string => {
+  switch (driver) {
+    case 's3': return t('admin.config.storage.drivers.s3');
+    case 'webdav': return t('admin.config.storage.drivers.webdav');
+    case 'dropbox': return t('admin.config.storage.drivers.dropbox');
+    case 'onedrive': return t('admin.config.storage.drivers.onedrive');
+    case 'gdrive': return t('admin.config.storage.drivers.gdrive');
+  }
+};
+
+const translateFieldLabel = (t: TFunction, driver: Driver, key: string): string => {
+  switch (driver) {
+    case 's3':
+      switch (key) {
+        case 'endpoint': return t('systemConfig.setup.storagePool.s3.endpoint');
+        case 'region': return t('systemConfig.setup.storagePool.s3.region');
+        case 'bucket': return t('systemConfig.setup.storagePool.s3.bucket');
+        case 'access_key_id': return t('systemConfig.setup.storagePool.s3.access_key_id');
+        case 'secret_access_key': return t('systemConfig.setup.storagePool.s3.secret_access_key');
+      }
+      break;
+    case 'webdav':
+      switch (key) {
+        case 'endpoint': return t('systemConfig.setup.storagePool.webdav.endpoint');
+        case 'username': return t('systemConfig.setup.storagePool.webdav.username');
+        case 'password': return t('systemConfig.setup.storagePool.webdav.password');
+      }
+      break;
+    case 'dropbox':
+      switch (key) {
+        case 'access_token': return t('systemConfig.setup.storagePool.dropbox.access_token');
+        case 'refresh_token': return t('systemConfig.setup.storagePool.dropbox.refresh_token');
+        case 'client_id': return t('systemConfig.setup.storagePool.dropbox.client_id');
+        case 'client_secret': return t('systemConfig.setup.storagePool.dropbox.client_secret');
+      }
+      break;
+    case 'onedrive':
+      switch (key) {
+        case 'access_token': return t('systemConfig.setup.storagePool.onedrive.access_token');
+        case 'refresh_token': return t('systemConfig.setup.storagePool.onedrive.refresh_token');
+        case 'client_id': return t('systemConfig.setup.storagePool.onedrive.client_id');
+        case 'client_secret': return t('systemConfig.setup.storagePool.onedrive.client_secret');
+      }
+      break;
+    case 'gdrive':
+      switch (key) {
+        case 'access_token': return t('systemConfig.setup.storagePool.gdrive.access_token');
+        case 'refresh_token': return t('systemConfig.setup.storagePool.gdrive.refresh_token');
+        case 'client_id': return t('systemConfig.setup.storagePool.gdrive.client_id');
+        case 'client_secret': return t('systemConfig.setup.storagePool.gdrive.client_secret');
+      }
+      break;
+  }
+  throw new Error(`Missing field label key for ${driver}.${key}`);
+};
+
+const translateFieldHint = (t: TFunction, driver: Driver, key: string): string => {
+  switch (driver) {
+    case 's3':
+      switch (key) {
+        case 'endpoint': return t('systemConfig.setup.storagePool.s3Hints.endpoint');
+        case 'region': return t('systemConfig.setup.storagePool.s3Hints.region');
+        case 'bucket': return t('systemConfig.setup.storagePool.s3Hints.bucket');
+        case 'access_key_id': return t('systemConfig.setup.storagePool.s3Hints.access_key_id');
+        case 'secret_access_key': return t('systemConfig.setup.storagePool.s3Hints.secret_access_key');
+      }
+      break;
+    case 'webdav':
+      switch (key) {
+        case 'endpoint': return t('systemConfig.setup.storagePool.webdavHints.endpoint');
+        case 'username': return t('systemConfig.setup.storagePool.webdavHints.username');
+        case 'password': return t('systemConfig.setup.storagePool.webdavHints.password');
+      }
+      break;
+    case 'dropbox':
+      switch (key) {
+        case 'access_token': return t('systemConfig.setup.storagePool.dropboxHints.access_token');
+        case 'refresh_token': return t('systemConfig.setup.storagePool.dropboxHints.refresh_token');
+        case 'client_id': return t('systemConfig.setup.storagePool.dropboxHints.client_id');
+        case 'client_secret': return t('systemConfig.setup.storagePool.dropboxHints.client_secret');
+      }
+      break;
+    case 'onedrive':
+      switch (key) {
+        case 'access_token': return t('systemConfig.setup.storagePool.onedriveHints.access_token');
+        case 'refresh_token': return t('systemConfig.setup.storagePool.onedriveHints.refresh_token');
+        case 'client_id': return t('systemConfig.setup.storagePool.onedriveHints.client_id');
+        case 'client_secret': return t('systemConfig.setup.storagePool.onedriveHints.client_secret');
+      }
+      break;
+    case 'gdrive':
+      switch (key) {
+        case 'access_token': return t('systemConfig.setup.storagePool.gdriveHints.access_token');
+        case 'refresh_token': return t('systemConfig.setup.storagePool.gdriveHints.refresh_token');
+        case 'client_id': return t('systemConfig.setup.storagePool.gdriveHints.client_id');
+        case 'client_secret': return t('systemConfig.setup.storagePool.gdriveHints.client_secret');
+      }
+      break;
+  }
+  throw new Error(`Missing field hint key for ${driver}.${key}`);
+};
+
+const translateSyncModeLabel = (t: TFunction, mode: number): string | null => {
+  switch (mode) {
+    case 1: return t('filemanager.mounts.syncModes.1');
+    case 2: return t('filemanager.mounts.syncModes.2');
+    case 3: return t('filemanager.mounts.syncModes.3');
+    case 4: return t('filemanager.mounts.syncModes.4');
+    case 5: return t('filemanager.mounts.syncModes.5');
+    default: return null;
+  }
+};
 
 const createDraft = (currentPath: string, policy?: PolicyDto | null, mountCount?: number): Draft => {
   const baseName = currentPath === '/' ? '/remote-mount' : `${currentPath.replace(/\/$/, '')}/remote-mount`;
@@ -310,7 +418,7 @@ export const RemoteMountManagerModal: React.FC<{
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="space-y-1">
                     <div className="text-base font-black">{mount.name || mount.mount_dir}</div>
-                    <div className="text-sm opacity-70">{t(driverLabelKey(mount.driver)) || mount.driver}</div>
+                    <div className="text-sm opacity-70">{translateDriverLabel(t, mount.driver) || mount.driver}</div>
                     <div className="text-sm font-mono opacity-70">{mount.mount_dir}</div>
                     <div className="text-sm opacity-60">
                       {t('filemanager.mounts.syncPeer') || 'Sync Peer'}: {mount.sync_peer_dir || '-'}
@@ -336,7 +444,7 @@ export const RemoteMountManagerModal: React.FC<{
                   <div>{t('filemanager.mounts.status') || 'Status'}: <span className="font-black">{mount.last_sync_status || '-'}</span></div>
                   <div>{t('filemanager.mounts.lastSyncAt') || 'Last Sync'}: <span className="font-black">{formatDateTime(mount.last_sync_at)}</span></div>
                   <div>{t('filemanager.mounts.nextSyncAt') || 'Next Sync'}: <span className="font-black">{formatDateTime(mount.next_sync_at)}</span></div>
-                  <div>{t('filemanager.mounts.syncMode') || 'Mode'}: <span className="font-black">{t(`filemanager.mounts.syncModes.${mount.sync_mode}`) || mount.sync_mode}</span></div>
+                  <div>{t('filemanager.mounts.syncMode') || 'Mode'}: <span className="font-black">{translateSyncModeLabel(t, mount.sync_mode) || mount.sync_mode}</span></div>
                 </div>
                 {mount.last_error && (
                   <div className="mt-3 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-400">
@@ -370,7 +478,7 @@ export const RemoteMountManagerModal: React.FC<{
               {t('admin.config.storage.fields.driver') || 'Driver'}
               <select className="mt-1 h-10 w-full rounded-xl border border-border bg-background px-3 text-sm" value={draft.driver} onChange={(e) => setDraft((prev) => ({ ...prev, driver: e.target.value as Driver, root: '/' }))}>
                 {(Object.keys(DRIVER_FIELDS) as Driver[]).map((driver) => (
-                  <option key={driver} value={driver}>{t(driverLabelKey(driver)) || driver}</option>
+                  <option key={driver} value={driver}>{translateDriverLabel(t, driver) || driver}</option>
                 ))}
               </select>
             </label>
@@ -390,7 +498,7 @@ export const RemoteMountManagerModal: React.FC<{
               {t('filemanager.mounts.syncMode') || 'Sync Mode'}
               <select className="mt-1 h-10 w-full rounded-xl border border-border bg-background px-3 text-sm" value={draft.sync_mode} onChange={(e) => setDraft((prev) => ({ ...prev, sync_mode: Number(e.target.value) }))}>
                 {SYNC_MODE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{t(option.labelKey) || String(option.value)}</option>
+                  <option key={option.value} value={option.value}>{translateSyncModeLabel(t, option.value) || String(option.value)}</option>
                 ))}
               </select>
             </label>
@@ -414,7 +522,7 @@ export const RemoteMountManagerModal: React.FC<{
               return (
               <div key={`${draft.driver}-${field.key}`} className={cn('text-sm', field.full && 'md:col-span-2')}>
                 <label htmlFor={inputId} className="font-black">
-                  {t(fieldLabelKey(draft.driver, field.key)) || field.key}
+                  {translateFieldLabel(t, draft.driver, field.key) || field.key}
                 </label>
                 {field.secret ? (
                   <PasswordInput
@@ -432,7 +540,7 @@ export const RemoteMountManagerModal: React.FC<{
                     onChange={(e) => setDraft((prev) => ({ ...prev, options: { ...prev.options, [field.key]: e.target.value } }))}
                   />
                 )}
-                <div className="mt-1 text-xs opacity-60">{t(fieldHintKey(draft.driver, field.key)) || ''}</div>
+                <div className="mt-1 text-xs opacity-60">{translateFieldHint(t, draft.driver, field.key) || ''}</div>
               </div>
             )})}
           </div>

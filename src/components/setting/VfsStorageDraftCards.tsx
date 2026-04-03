@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PasswordInput } from "@/components/common/PasswordInput";
@@ -10,8 +11,6 @@ import {
   type PoolDraft,
   type VfsDriver,
   driverUsesSlashRoot,
-  getConnectorFieldHintKey,
-  getConnectorFieldLabelKey,
   getConnectorOptionFields,
   getOption,
   isRemoteConnectorDriver,
@@ -51,6 +50,275 @@ const dangerButtonClassName = (isDark: boolean) =>
       ? "border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20"
       : "border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100",
   );
+
+const DRIVER_LABEL_KEYS: Record<VfsDriver, string> = {
+  fs: "admin.config.storage.drivers.fs",
+  memory: "admin.config.storage.drivers.memory",
+  s3: "admin.config.storage.drivers.s3",
+  webdav: "admin.config.storage.drivers.webdav",
+  dropbox: "admin.config.storage.drivers.dropbox",
+  onedrive: "admin.config.storage.drivers.onedrive",
+  gdrive: "admin.config.storage.drivers.gdrive",
+  android_saf: "admin.config.storage.drivers.android_saf",
+  ios_scoped_fs: "admin.config.storage.drivers.ios_scoped_fs",
+};
+
+const ROOT_PLACEHOLDER_KEYS: Record<VfsDriver, string> = {
+  fs: "admin.config.storage.placeholders.root.fs",
+  memory: "admin.config.storage.placeholders.root.memory",
+  s3: "admin.config.storage.placeholders.root.s3",
+  webdav: "admin.config.storage.placeholders.root.webdav",
+  dropbox: "admin.config.storage.placeholders.root.dropbox",
+  onedrive: "admin.config.storage.placeholders.root.onedrive",
+  gdrive: "admin.config.storage.placeholders.root.gdrive",
+  android_saf: "admin.config.storage.placeholders.root.android_saf",
+  ios_scoped_fs: "admin.config.storage.placeholders.root.ios_scoped_fs",
+};
+
+const ROOT_HINT_KEYS: Record<VfsDriver, string> = {
+  fs: "admin.config.storage.hints.root.fs",
+  memory: "admin.config.storage.hints.root.memory",
+  s3: "admin.config.storage.hints.root.s3",
+  webdav: "admin.config.storage.hints.root.webdav",
+  dropbox: "admin.config.storage.hints.root.dropbox",
+  onedrive: "admin.config.storage.hints.root.onedrive",
+  gdrive: "admin.config.storage.hints.root.gdrive",
+  android_saf: "admin.config.storage.hints.root.android_saf",
+  ios_scoped_fs: "admin.config.storage.hints.root.ios_scoped_fs",
+};
+
+const CONNECTOR_FIELD_LABEL_KEYS = {
+  s3: {
+    endpoint: "systemConfig.setup.storagePool.s3.endpoint",
+    region: "systemConfig.setup.storagePool.s3.region",
+    bucket: "systemConfig.setup.storagePool.s3.bucket",
+    access_key_id: "systemConfig.setup.storagePool.s3.access_key_id",
+    secret_access_key: "systemConfig.setup.storagePool.s3.secret_access_key",
+  },
+  webdav: {
+    endpoint: "systemConfig.setup.storagePool.webdav.endpoint",
+    username: "systemConfig.setup.storagePool.webdav.username",
+    password: "systemConfig.setup.storagePool.webdav.password",
+  },
+  dropbox: {
+    access_token: "systemConfig.setup.storagePool.dropbox.access_token",
+    refresh_token: "systemConfig.setup.storagePool.dropbox.refresh_token",
+    client_id: "systemConfig.setup.storagePool.dropbox.client_id",
+    client_secret: "systemConfig.setup.storagePool.dropbox.client_secret",
+  },
+  onedrive: {
+    access_token: "systemConfig.setup.storagePool.onedrive.access_token",
+    refresh_token: "systemConfig.setup.storagePool.onedrive.refresh_token",
+    client_id: "systemConfig.setup.storagePool.onedrive.client_id",
+    client_secret: "systemConfig.setup.storagePool.onedrive.client_secret",
+  },
+  gdrive: {
+    access_token: "systemConfig.setup.storagePool.gdrive.access_token",
+    refresh_token: "systemConfig.setup.storagePool.gdrive.refresh_token",
+    client_id: "systemConfig.setup.storagePool.gdrive.client_id",
+    client_secret: "systemConfig.setup.storagePool.gdrive.client_secret",
+  },
+} as const;
+
+const CONNECTOR_FIELD_HINT_KEYS = {
+  s3: {
+    endpoint: "systemConfig.setup.storagePool.s3Hints.endpoint",
+    region: "systemConfig.setup.storagePool.s3Hints.region",
+    bucket: "systemConfig.setup.storagePool.s3Hints.bucket",
+    access_key_id: "systemConfig.setup.storagePool.s3Hints.access_key_id",
+    secret_access_key: "systemConfig.setup.storagePool.s3Hints.secret_access_key",
+  },
+  webdav: {
+    endpoint: "systemConfig.setup.storagePool.webdavHints.endpoint",
+    username: "systemConfig.setup.storagePool.webdavHints.username",
+    password: "systemConfig.setup.storagePool.webdavHints.password",
+  },
+  dropbox: {
+    access_token: "systemConfig.setup.storagePool.dropboxHints.access_token",
+    refresh_token: "systemConfig.setup.storagePool.dropboxHints.refresh_token",
+    client_id: "systemConfig.setup.storagePool.dropboxHints.client_id",
+    client_secret: "systemConfig.setup.storagePool.dropboxHints.client_secret",
+  },
+  onedrive: {
+    access_token: "systemConfig.setup.storagePool.onedriveHints.access_token",
+    refresh_token: "systemConfig.setup.storagePool.onedriveHints.refresh_token",
+    client_id: "systemConfig.setup.storagePool.onedriveHints.client_id",
+    client_secret: "systemConfig.setup.storagePool.onedriveHints.client_secret",
+  },
+  gdrive: {
+    access_token: "systemConfig.setup.storagePool.gdriveHints.access_token",
+    refresh_token: "systemConfig.setup.storagePool.gdriveHints.refresh_token",
+    client_id: "systemConfig.setup.storagePool.gdriveHints.client_id",
+    client_secret: "systemConfig.setup.storagePool.gdriveHints.client_secret",
+  },
+} as const;
+
+export const getStorageDriverLabelKey = (driver: VfsDriver): string =>
+  DRIVER_LABEL_KEYS[driver];
+
+export const getStorageRootPlaceholderKey = (driver: VfsDriver): string =>
+  ROOT_PLACEHOLDER_KEYS[driver];
+
+export const getStorageRootHintKey = (driver: VfsDriver): string =>
+  ROOT_HINT_KEYS[driver];
+
+export const getConnectorFieldLabelKey = (
+  driver: keyof typeof CONNECTOR_FIELD_LABEL_KEYS,
+  key: string,
+): string =>
+  CONNECTOR_FIELD_LABEL_KEYS[driver][
+    key as keyof (typeof CONNECTOR_FIELD_LABEL_KEYS)[typeof driver]
+  ];
+
+export const getConnectorFieldHintKey = (
+  driver: keyof typeof CONNECTOR_FIELD_HINT_KEYS,
+  key: string,
+): string =>
+  CONNECTOR_FIELD_HINT_KEYS[driver][
+    key as keyof (typeof CONNECTOR_FIELD_HINT_KEYS)[typeof driver]
+  ];
+
+const translateStorageDriverLabel = (t: TFunction, driver: VfsDriver): string => {
+  switch (driver) {
+    case "fs": return t("admin.config.storage.drivers.fs");
+    case "memory": return t("admin.config.storage.drivers.memory");
+    case "s3": return t("admin.config.storage.drivers.s3");
+    case "webdav": return t("admin.config.storage.drivers.webdav");
+    case "dropbox": return t("admin.config.storage.drivers.dropbox");
+    case "onedrive": return t("admin.config.storage.drivers.onedrive");
+    case "gdrive": return t("admin.config.storage.drivers.gdrive");
+    case "android_saf": return t("admin.config.storage.drivers.android_saf");
+    case "ios_scoped_fs": return t("admin.config.storage.drivers.ios_scoped_fs");
+  }
+};
+
+const translateStorageRootPlaceholder = (t: TFunction, driver: VfsDriver): string => {
+  switch (driver) {
+    case "fs": return t("admin.config.storage.placeholders.root.fs");
+    case "memory": return t("admin.config.storage.placeholders.root.memory");
+    case "s3": return t("admin.config.storage.placeholders.root.s3");
+    case "webdav": return t("admin.config.storage.placeholders.root.webdav");
+    case "dropbox": return t("admin.config.storage.placeholders.root.dropbox");
+    case "onedrive": return t("admin.config.storage.placeholders.root.onedrive");
+    case "gdrive": return t("admin.config.storage.placeholders.root.gdrive");
+    case "android_saf": return t("admin.config.storage.placeholders.root.android_saf");
+    case "ios_scoped_fs": return t("admin.config.storage.placeholders.root.ios_scoped_fs");
+  }
+};
+
+const translateStorageRootHint = (t: TFunction, driver: VfsDriver): string => {
+  switch (driver) {
+    case "fs": return t("admin.config.storage.hints.root.fs");
+    case "memory": return t("admin.config.storage.hints.root.memory");
+    case "s3": return t("admin.config.storage.hints.root.s3");
+    case "webdav": return t("admin.config.storage.hints.root.webdav");
+    case "dropbox": return t("admin.config.storage.hints.root.dropbox");
+    case "onedrive": return t("admin.config.storage.hints.root.onedrive");
+    case "gdrive": return t("admin.config.storage.hints.root.gdrive");
+    case "android_saf": return t("admin.config.storage.hints.root.android_saf");
+    case "ios_scoped_fs": return t("admin.config.storage.hints.root.ios_scoped_fs");
+  }
+};
+
+const translateConnectorFieldLabel = (
+  t: TFunction,
+  driver: keyof typeof CONNECTOR_FIELD_LABEL_KEYS,
+  key: string,
+): string => {
+  switch (driver) {
+    case "s3":
+      switch (key) {
+        case "endpoint": return t("systemConfig.setup.storagePool.s3.endpoint");
+        case "region": return t("systemConfig.setup.storagePool.s3.region");
+        case "bucket": return t("systemConfig.setup.storagePool.s3.bucket");
+        case "access_key_id": return t("systemConfig.setup.storagePool.s3.access_key_id");
+        case "secret_access_key": return t("systemConfig.setup.storagePool.s3.secret_access_key");
+      }
+      break;
+    case "webdav":
+      switch (key) {
+        case "endpoint": return t("systemConfig.setup.storagePool.webdav.endpoint");
+        case "username": return t("systemConfig.setup.storagePool.webdav.username");
+        case "password": return t("systemConfig.setup.storagePool.webdav.password");
+      }
+      break;
+    case "dropbox":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.dropbox.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.dropbox.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.dropbox.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.dropbox.client_secret");
+      }
+      break;
+    case "onedrive":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.onedrive.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.onedrive.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.onedrive.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.onedrive.client_secret");
+      }
+      break;
+    case "gdrive":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.gdrive.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.gdrive.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.gdrive.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.gdrive.client_secret");
+      }
+      break;
+  }
+  return getConnectorFieldLabelKey(driver, key);
+};
+
+const translateConnectorFieldHint = (
+  t: TFunction,
+  driver: keyof typeof CONNECTOR_FIELD_HINT_KEYS,
+  key: string,
+): string => {
+  switch (driver) {
+    case "s3":
+      switch (key) {
+        case "endpoint": return t("systemConfig.setup.storagePool.s3Hints.endpoint");
+        case "region": return t("systemConfig.setup.storagePool.s3Hints.region");
+        case "bucket": return t("systemConfig.setup.storagePool.s3Hints.bucket");
+        case "access_key_id": return t("systemConfig.setup.storagePool.s3Hints.access_key_id");
+        case "secret_access_key": return t("systemConfig.setup.storagePool.s3Hints.secret_access_key");
+      }
+      break;
+    case "webdav":
+      switch (key) {
+        case "endpoint": return t("systemConfig.setup.storagePool.webdavHints.endpoint");
+        case "username": return t("systemConfig.setup.storagePool.webdavHints.username");
+        case "password": return t("systemConfig.setup.storagePool.webdavHints.password");
+      }
+      break;
+    case "dropbox":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.dropboxHints.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.dropboxHints.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.dropboxHints.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.dropboxHints.client_secret");
+      }
+      break;
+    case "onedrive":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.onedriveHints.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.onedriveHints.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.onedriveHints.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.onedriveHints.client_secret");
+      }
+      break;
+    case "gdrive":
+      switch (key) {
+        case "access_token": return t("systemConfig.setup.storagePool.gdriveHints.access_token");
+        case "refresh_token": return t("systemConfig.setup.storagePool.gdriveHints.refresh_token");
+        case "client_id": return t("systemConfig.setup.storagePool.gdriveHints.client_id");
+        case "client_secret": return t("systemConfig.setup.storagePool.gdriveHints.client_secret");
+      }
+      break;
+  }
+  return getConnectorFieldHintKey(driver, key);
+};
 
 const OptionPairsEditor = memo(
   ({
@@ -190,8 +458,8 @@ export const ConnectorOptionFields = memo(
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {fields.map((field) => {
-            const label = t(getConnectorFieldLabelKey(driver, field.key));
-            const hint = t(getConnectorFieldHintKey(driver, field.key));
+            const label = translateConnectorFieldLabel(t, driver, field.key);
+            const hint = translateConnectorFieldHint(t, driver, field.key);
             const inputId = `${connector.id}-${field.key}`;
 
             return (
@@ -297,7 +565,7 @@ export const ConnectorCard = memo(
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >
-              {t(`admin.config.storage.drivers.${connector.driver}`)}
+              {translateStorageDriverLabel(t, connector.driver)}
             </div>
           </div>
           {showDeleteButton && (
@@ -361,7 +629,7 @@ export const ConnectorCard = memo(
             >
               {storageDriverOptions.map((driver) => (
                 <option key={driver} value={driver}>
-                  {t(`admin.config.storage.drivers.${driver}`)}
+                    {translateStorageDriverLabel(t, driver)}
                 </option>
               ))}
             </select>
@@ -378,9 +646,7 @@ export const ConnectorCard = memo(
               <input
                 className={focusedFieldClassName(isDark)}
                 value={connector.root}
-                placeholder={t(
-                  `admin.config.storage.placeholders.root.${connector.driver}`,
-                )}
+                placeholder={translateStorageRootPlaceholder(t, connector.driver)}
                 onChange={(event) =>
                   onUpdateConnector(connector.id, (prev) => ({
                     ...prev,
@@ -412,7 +678,7 @@ export const ConnectorCard = memo(
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >
-              {t(`admin.config.storage.hints.root.${connector.driver}`)}
+               {translateStorageRootHint(t, connector.driver)}
             </div>
           </label>
 
