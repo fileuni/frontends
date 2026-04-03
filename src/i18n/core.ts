@@ -8,4 +8,4 @@ export {
   normalizeLocale,
   type LocaleShape,
   type SupportedLocale,
-} from '../../../shared/i18n-core';
+} from '../../../ts_shared/i18n-core';
