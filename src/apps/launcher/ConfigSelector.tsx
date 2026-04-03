@@ -12,7 +12,7 @@ interface RuntimeDirPresets {
 
 interface ConfigSelectorProps {
   isOpen: boolean;
-  onRuntimeDirSelected: (runtimeDir: string) => void;
+  onRuntimeDirSelected: (runtimeDir: string) => Promise<void>;
   onClose: () => void;
   canClose?: boolean;
   currentValue?: RuntimeDirValue;
@@ -74,7 +74,7 @@ export default function ConfigSelector({
       }}
       onPreparePath={async () => undefined}
       onConfirmPath={async (value) => {
-        onRuntimeDirSelected(value.runtimeDir);
+        await onRuntimeDirSelected(value.runtimeDir);
       }}
     />
   );

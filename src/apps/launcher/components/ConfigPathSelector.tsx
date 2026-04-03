@@ -70,6 +70,8 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
   const [mounted, setMounted] = useState(false);
   const resolvedTheme = useResolvedTheme();
   const isDark = resolvedTheme === "dark";
+  const initialRuntimeDir = pickPrimaryRuntimeDir(initialValue);
+  const defaultRuntimeDir = pickPrimaryRuntimeDir(defaultPreset);
 
   const currentPresetLines = useMemo(
     () => buildPresetLines(currentPreset),
@@ -94,14 +96,10 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
   useEffect(() => {
     if (isOpen) {
       setError(null);
-      setRuntimeDir(
-        pickPrimaryRuntimeDir(initialValue) ||
-          pickPrimaryRuntimeDir(defaultPreset) ||
-          "",
-      );
+      setRuntimeDir(initialRuntimeDir || defaultRuntimeDir || "");
       setIsSubmitting(false);
     }
-  }, [defaultPreset, initialValue, isOpen]);
+  }, [defaultRuntimeDir, initialRuntimeDir, isOpen]);
 
   useEscapeToCloseTopLayer({
     active: isOpen && canClose,

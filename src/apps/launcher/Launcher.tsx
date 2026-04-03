@@ -388,6 +388,17 @@ export function Launcher() {
     [inspectRuntimeDir, loadSettingsCenterWorkbench, setConfigFilePath, setRuntimeDir],
   );
 
+  const bindRuntimeDirRef = useRef(bindRuntimeDir);
+  const inspectInstallationStateRef = useRef(inspectInstallationState);
+
+  useEffect(() => {
+    bindRuntimeDirRef.current = bindRuntimeDir;
+  }, [bindRuntimeDir]);
+
+  useEffect(() => {
+    inspectInstallationStateRef.current = inspectInstallationState;
+  }, [inspectInstallationState]);
+
   const closeMissingConfigPrompt = (accepted: boolean) => {
     setMissingConfigPrompt(null);
     missingConfigPromptResolver.current?.(accepted);
@@ -431,8 +442,8 @@ export function Launcher() {
 
     const loadRuntimeDir = async (attempt: number) => {
       try {
-        const inspected = await bindRuntimeDir(runtimeDir);
-        await inspectInstallationState(inspected.runtime_dir);
+        const inspected = await bindRuntimeDirRef.current(runtimeDir);
+        await inspectInstallationStateRef.current(inspected.runtime_dir);
       } catch (error) {
         if (!cancelled && attempt < 5) {
           window.setTimeout(() => {
@@ -444,8 +455,8 @@ export function Launcher() {
           const defaults = await safeInvoke<RuntimeDirPayload>(
             "get_default_runtime_dir",
           );
-          const inspected = await bindRuntimeDir(defaults.runtime_dir);
-          await inspectInstallationState(inspected.runtime_dir);
+          const inspected = await bindRuntimeDirRef.current(defaults.runtime_dir);
+          await inspectInstallationStateRef.current(inspected.runtime_dir);
           return;
         } catch (fallbackError) {
           console.error(fallbackError);
@@ -459,7 +470,7 @@ export function Launcher() {
     return () => {
       cancelled = true;
     };
-  }, [bindRuntimeDir, inspectInstallationState, runtimeDir]);
+  }, [runtimeDir]);
 
   useEffect(() => {
     if (!isTauriRuntime()) {
