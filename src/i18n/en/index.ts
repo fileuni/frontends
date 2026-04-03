@@ -10,7 +10,6 @@ import email from './email.json';
 import errors from './errors.json';
 import filemanager from './filemanager.json';
 import forgotPassword from './forgotPassword.json';
-import languages from './languages.json';
 import launcher from './launcher.json';
 import nav from './nav.json';
 import pages from './pages.json';
@@ -23,6 +22,7 @@ import systemConfig from './system_config.json';
 import themes from './themes.json';
 import tos from './tos.json';
 import welcome from './welcome.json';
+import { languagesByResourceLocale } from '../bundles/languages';
 
 const translation = {
   "about": about,
@@ -40,7 +40,7 @@ const translation = {
   "errors": errors,
   "filemanager": filemanager,
   "forgotPassword": forgotPassword,
-  "languages": languages,
+  "languages": languagesByResourceLocale.en,
   "launcher": launcher,
   "nav": nav,
   "pages": pages,

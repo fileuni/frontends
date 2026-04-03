@@ -1,9 +1,16 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import {
+  FRONTEND_RESOURCE_LOCALES,
+  detectFrontendLocale,
+  normalizeFrontendStoredLocale,
+  toFrontendResourceLocale,
+  type FrontendResourceLocale,
+} from '@/i18n/locale-adapter';
 
-export type SupportedLang = 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja';
+export type SupportedLang = FrontendResourceLocale;
 
-const supportedLangs: SupportedLang[] = ['zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'];
+const supportedLangs: SupportedLang[] = [...FRONTEND_RESOURCE_LOCALES];
 
 const loaders: Record<SupportedLang, () => Promise<{ default: Record<string, unknown> }>> = {
   zh: () => import('@/i18n/zh/index.ts'),
@@ -17,15 +24,8 @@ const loaders: Record<SupportedLang, () => Promise<{ default: Record<string, unk
 
 const toSupportedLang = (raw: unknown): SupportedLang | null => {
   if (typeof raw !== 'string') return null;
-  const base = raw.split('-')[0]?.toLowerCase() || '';
-  if (base === 'zh') return 'zh';
-  if (base === 'en') return 'en';
-  if (base === 'es') return 'es';
-  if (base === 'de') return 'de';
-  if (base === 'fr') return 'fr';
-  if (base === 'ru') return 'ru';
-  if (base === 'ja') return 'ja';
-  return null;
+  const canonical = normalizeFrontendStoredLocale(raw);
+  return canonical ? toFrontendResourceLocale(canonical) : null;
 };
 
 const detectInitialLang = (): SupportedLang => {
@@ -37,8 +37,9 @@ const detectInitialLang = (): SupportedLang => {
       const parsed = JSON.parse(stateRaw) as { state?: { language?: string } };
       const value = parsed?.state?.language;
       if (value === 'auto') {
-        const detected = toSupportedLang(navigator.language || 'en');
-        return detected ?? 'en';
+        return toFrontendResourceLocale(
+          detectFrontendLocale(navigator.language || 'en', navigator.languages),
+        );
       }
       const normalized = toSupportedLang(value);
       if (normalized) return normalized;
@@ -50,7 +51,9 @@ const detectInitialLang = (): SupportedLang => {
   const saved = toSupportedLang(window.localStorage.getItem('fileuni-language-raw'));
   if (saved) return saved;
 
-  return toSupportedLang(navigator.language || 'en') ?? 'en';
+  return toFrontendResourceLocale(
+    detectFrontendLocale(navigator.language || 'en', navigator.languages),
+  );
 };
 
 const loadTranslationFor = async (lang: SupportedLang): Promise<Record<string, unknown>> => {

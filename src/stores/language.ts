@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import i18next from 'i18next';
 import { changeLanguage, type SupportedLang } from '@/lib/i18n';
+import { detectFrontendLocale, toFrontendResourceLocale, toHtmlLang } from '@/i18n/locale-adapter';
 import { storageHub } from '../lib/storageHub';
 
 export type Language = 'auto' | 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja';
@@ -39,19 +40,11 @@ export const useLanguageStore = create<LanguageState>()(
 export function applyLanguage(lang: Language) {
   if (typeof window === 'undefined') return;
   
-  let targetLang: string = lang;
+  let targetLang: SupportedLang = lang === 'auto' ? 'en' : lang;
   if (lang === 'auto') {
-    const base = (navigator.language.split('-')[0] || 'en').toLowerCase();
-    const supported: Record<string, string> = {
-      en: 'en',
-      zh: 'zh',
-      es: 'es',
-      de: 'de',
-      fr: 'fr',
-      ru: 'ru',
-      ja: 'ja',
-    };
-    targetLang = supported[base] ?? 'en';
+    targetLang = toFrontendResourceLocale(
+      detectFrontendLocale(navigator.language, navigator.languages),
+    );
   }
   
   const normalized = (['zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'] as const).includes(targetLang as SupportedLang)
@@ -62,5 +55,5 @@ export function applyLanguage(lang: Language) {
     void i18next.changeLanguage(normalized);
   });
   storageHub.setLocalItem('fileuni-language-raw', targetLang);
-  document.documentElement.lang = targetLang;
+  document.documentElement.lang = toHtmlLang(targetLang);
 }
