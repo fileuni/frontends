@@ -26,6 +26,8 @@ export interface ShareClipboardLabels {
   directPass: string;
 }
 
+const DIRECT_SHARE_SEGMENT_RE = /^[\p{L}\p{N} ._\-()\[\]]+$/u;
+
 export const EMPTY_SHARE_FORM: ShareFormState = {
   password: '',
   expireDate: '',
@@ -161,6 +163,16 @@ export const buildDirectShareItemUrl = (
   const baseUrl = buildDirectShareUrl(shareId).replace(/\/$/, '');
   const query = password ? `?password=${encodeURIComponent(password)}` : '';
   return `${baseUrl}${normalizedPath}${query}`;
+};
+
+export const isDirectSharePathAllowed = (path: string): boolean => {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const trimmed = normalizedPath.replace(/\\/g, '/').trim();
+  if (trimmed === '' || trimmed === '/') {
+    return true;
+  }
+  const segments = trimmed.split('/').filter(Boolean);
+  return segments.every((segment) => DIRECT_SHARE_SEGMENT_RE.test(segment));
 };
 
 export const buildShareClipboardText = ({

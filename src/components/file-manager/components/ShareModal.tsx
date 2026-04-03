@@ -26,6 +26,7 @@ import {
   EMPTY_SHARE_FORM,
   formatShareDateForInput,
   hasVisibleSharePassword,
+  isDirectSharePathAllowed,
   type ShareFormState,
 } from '../utils/shareHelpers.ts';
 
@@ -53,7 +54,11 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
 
   useEffect(() => {
     if (isOpen && isEditing && file) {
-      setForm(createEditingShareForm(file));
+      const nextForm = createEditingShareForm(file);
+      if (!file.is_dir && !isDirectSharePathAllowed(file.path)) {
+        nextForm.enableDirect = false;
+      }
+      setForm(nextForm);
       setMainTab('view');
     } else if (isOpen && !isEditing) {
       setForm(createNewShareForm());
@@ -67,6 +72,9 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const toggleDirect = () => {
+    if (file && !file.is_dir && !isDirectSharePathAllowed(file.path)) {
+      return;
+    }
     setForm(prev => ({ ...prev, enableDirect: !prev.enableDirect }));
   };
 
@@ -149,9 +157,10 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
   const shareId = completedShareId || (isEditing ? file?.id || null : null);
   const shareUrl = shareId ? buildShareHashUrl(shareId) : '';
   const directUrl = shareId ? buildDirectShareUrl(shareId) : '';
+  const directEligible = !file || file.is_dir || isDirectSharePathAllowed(file.path);
   const hasVisiblePassword = hasVisibleSharePassword(form, isEditing);
   const hasCurrentPassword = currentShareHasPassword(form, file);
-  const directEnabled = form.enableDirect || file?.enable_direct === true;
+  const directEnabled = directEligible && (form.enableDirect || file?.enable_direct === true);
   const combinedAllInfo = useMemo(
     () => buildShareClipboardText({
       labels: {
@@ -438,8 +447,13 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                         <p className="text-[14px] font-black uppercase tracking-widest">{t('filemanager.shareModal.enableDirectLabel')}</p>
                       </div>
                       <p className="text-[14px] opacity-40 font-medium max-w-[180px]">{t('filemanager.shareModal.enableDirectDesc')}</p>
+                      {!directEligible && (
+                        <p className="text-[14px] text-yellow-500/80 font-medium max-w-[240px]">
+                          {t('filemanager.shareModal.directRestrictedHint')}
+                        </p>
+                      )}
                     </div>
-                    <button type="button" onClick={toggleDirect} className={cn("w-9 h-4.5 rounded-full relative transition-all duration-300 shrink-0", form.enableDirect ? "bg-yellow-500 shadow-md shadow-yellow-500/20" : "bg-zinc-600")}>
+                    <button type="button" onClick={toggleDirect} disabled={!directEligible} className={cn("w-9 h-4.5 rounded-full relative transition-all duration-300 shrink-0 disabled:opacity-30 disabled:cursor-not-allowed", form.enableDirect ? "bg-yellow-500 shadow-md shadow-yellow-500/20" : "bg-zinc-600")}>
                       <div className={cn("absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-all duration-300 shadow-sm", form.enableDirect ? "left-5" : "left-0.5")} />
                     </button>
                   </div>

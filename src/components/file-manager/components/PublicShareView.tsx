@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils.ts';
 import { QRCodeSVG } from 'qrcode.react';
 import { useNavigationStore } from '@/stores/navigation.ts';
 import { useThemeStore } from '@/stores/theme';
-import { buildDirectShareItemUrl, buildShareHashUrl } from '../utils/shareHelpers.ts';
+import { buildDirectShareItemUrl, buildShareHashUrl, isDirectSharePathAllowed } from '../utils/shareHelpers.ts';
 
 import type { components } from '@/types/api.ts';
 
@@ -141,6 +141,9 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
   }, [currentPath, fetchContents, shareInfo?.is_dir, token]);
 
   const downloadItem = (path: string = '/') => {
+    if (path !== '/' && !isDirectSharePathAllowed(path)) {
+      return;
+    }
     const downloadUrl = buildDirectShareItemUrl(token, path, password || undefined);
     window.open(downloadUrl, '_blank');
   };
@@ -209,6 +212,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
   if (!shareInfo) return null;
 
   const isBaseDir = shareInfo.is_dir;
+  const baseFileDirectAllowed = isBaseDir || isDirectSharePathAllowed(`/${shareInfo.file_name}`);
 
   return (
     <div className={cn("min-h-screen flex items-center justify-center p-4 md:p-10 relative overflow-x-hidden pt-20", isDark ? "bg-[#09090b]" : "bg-gray-50")}>
@@ -284,9 +288,14 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
 
               {!isBaseDir && (
                 <div className="w-full mt-auto">
-                  <Button type="button" className="w-full h-16 text-lg font-black uppercase rounded-2xl shadow-lg shadow-primary/20 group" onClick={() => downloadItem('/')}>
+                  <Button type="button" className="w-full h-16 text-lg font-black uppercase rounded-2xl shadow-lg shadow-primary/20 group" onClick={() => downloadItem('/')} disabled={!baseFileDirectAllowed}>
                     <Download size={24} className="mr-3 group-hover:animate-bounce" /> {t('filemanager.publicShare.downloadNow')}
                   </Button>
+                  {!baseFileDirectAllowed && (
+                    <p className="mt-3 text-[14px] opacity-50 font-medium">
+                      {t('filemanager.publicShare.directRestricted')}
+                    </p>
+                  )}
                 </div>
               )}
             </>
@@ -315,6 +324,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
               <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
                 <div className="space-y-1">
                   {contents.map((item) => {
+                    const directAllowed = isDirectSharePathAllowed(item.path);
                     const content = (
                       <>
                         <div className="flex items-center gap-4 min-w-0">
@@ -337,7 +347,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                           {item.is_dir ? (
                             <ChevronRight size={18} className="opacity-30" />
                           ) : (
-                            <Button type="button" variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-lg hover:bg-primary/20 hover:text-primary" onClick={() => downloadItem(item.path)}>
+                            <Button type="button" variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-lg hover:bg-primary/20 hover:text-primary disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-inherit" onClick={() => downloadItem(item.path)} disabled={!directAllowed} title={!directAllowed ? t('filemanager.publicShare.directRestricted') : undefined}>
                               <Download size={16} />
                             </Button>
                           )}
