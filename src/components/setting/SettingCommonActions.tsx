@@ -1,6 +1,6 @@
 import React from "react";
 import type { TFunction } from "i18next";
-import { Clock3, Fingerprint, ShieldCheck, Users } from "lucide-react";
+import { Clock3, Fingerprint, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { cn } from "@/lib/utils";
@@ -200,33 +200,6 @@ const LicenseInlinePanel: React.FC<LicenseInlinePanelProps> = ({
             )}
           >
             {statusText}
-          </div>
-        </div>
-
-        <div className={baseCardClassName}>
-          <div className="flex items-center gap-2">
-            <Users
-              size={16}
-              className={isDark ? "text-cyan-300" : "text-cyan-600"}
-            />
-            <div
-              className={cn(
-                "text-[11px] font-black uppercase tracking-[0.18em]",
-                isDark ? "text-slate-400" : "text-slate-500",
-              )}
-            >
-              {t("admin.config.quickSettings.fields.maxUsers")}
-            </div>
-          </div>
-          <div
-            className={cn(
-              "mt-2 text-sm font-black font-mono",
-              isDark ? "text-slate-100" : "text-slate-800",
-            )}
-          >
-            {licenseStatus
-              ? `${licenseStatus.current_users} / ${licenseStatus.max_users}`
-              : "-"}
           </div>
         </div>
 

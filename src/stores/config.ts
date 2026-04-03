@@ -3,6 +3,13 @@ import { client, extractData } from "@/lib/api";
 
 export interface SystemCapabilities {
   enable_registration: boolean;
+  registration_methods: {
+    username: boolean;
+    email: boolean;
+    phone: boolean;
+    email_configured: boolean;
+    phone_configured: boolean;
+  };
   enable_mobile_auth: boolean;
   enable_email_auth: boolean;
   enable_webdav: boolean;

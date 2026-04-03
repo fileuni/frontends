@@ -3,7 +3,7 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { X, Shield, Users, Fingerprint, Key, Loader2 } from "lucide-react";
+import { X, Shield, Fingerprint, Key, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
@@ -32,8 +32,6 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
   onClose,
   isValid,
   statusMessage,
-  currentUsers,
-  maxUsers,
   deviceCode,
   hwId,
   auxId,
@@ -200,25 +198,6 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                   {statusMessage}
                 </div>
               )}
-            </div>
-
-            <div
-              className={cn(
-                "rounded-xl border p-4 transition-colors",
-                isDark
-                  ? "bg-white/[0.02] border-white/5"
-                  : "bg-gray-50 border-gray-100 shadow-sm",
-              )}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <Users size={18} className="text-cyan-500 shrink-0" />
-                <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                  {t("admin.config.quickSettings.fields.maxUsers")}
-                </div>
-              </div>
-              <div className="text-sm font-black font-mono">
-                {currentUsers} / {maxUsers}
-              </div>
             </div>
 
             <div
