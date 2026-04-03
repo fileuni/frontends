@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
-import { client, extractData, handleApiError, isApiError, postCaptchaPolicy } from '@/lib/api.ts';
+import {
+  client,
+  extractData,
+  handleApiError,
+  isApiError,
+  postCaptchaPolicy,
+  whenDefined,
+  whenNonEmptyString,
+} from '@/lib/api.ts';
 import { normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
@@ -64,11 +72,14 @@ export const ForgotPasswordView = () => {
         ? "identifier"
         : (selectedMethod === 'phone' ? "phone" : "email");
       const query = {
-        old_captcha_id: isRefresh && captchaData?.token ? captchaData.token : undefined,
         scene,
-        risk_target: identifier || undefined,
         risk_target_type: riskTargetType,
-        risk_user_id: options?.user_id || undefined,
+        ...whenDefined(
+          'old_captcha_id',
+          isRefresh && captchaData?.token ? captchaData.token : undefined,
+        ),
+        ...whenNonEmptyString('risk_target', identifier),
+        ...whenNonEmptyString('risk_user_id', options?.user_id),
       };
 
       const data = await extractData<CaptchaPayload>(
@@ -90,8 +101,8 @@ export const ForgotPasswordView = () => {
     try {
       const policy = await postCaptchaPolicy({
         scene: "FORGOT_OPTIONS",
-        risk_target: identifier,
         risk_target_type: "identifier",
+        ...whenNonEmptyString('risk_target', identifier),
       });
       if (policy.deny_request) {
         addToast(t("errors.TOO_MANY_ATTEMPTS") || "Too many attempts", "error");
@@ -149,9 +160,9 @@ export const ForgotPasswordView = () => {
       try {
         const policy = await postCaptchaPolicy({
           scene: "SEND_CODE",
-          risk_target: identifier,
           risk_target_type: method,
-          risk_user_id: options.user_id,
+          ...whenNonEmptyString('risk_target', identifier),
+          ...whenNonEmptyString('risk_user_id', options.user_id),
         });
         if (policy.deny_request) {
           addToast(t("errors.TOO_MANY_ATTEMPTS") || "Too many attempts", "error");
@@ -210,8 +221,8 @@ export const ForgotPasswordView = () => {
       if (selectedMethod === 'question') {
         const policy = await postCaptchaPolicy({
           scene: "FORGOT_SECURITY",
-          risk_target: identifier,
           risk_target_type: "identifier",
+          ...whenNonEmptyString('risk_target', identifier),
         });
         if (policy.deny_request) {
           addToast(t("errors.TOO_MANY_ATTEMPTS") || "Too many attempts", "error");

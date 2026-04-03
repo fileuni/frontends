@@ -9,6 +9,7 @@ import { Modal } from "@/components/ui/Modal.tsx";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
 import { showApiErrorToast } from '@/lib/feedback.ts';
+import { whenDefined, whenNonEmptyString } from '@/lib/api.ts';
 import { PublicCenteredCard } from "./public-ui/PublicCenteredCard.tsx";
 import { SavedAccountsShortcut, normalizeLoginIdentifierInput } from './login-shared';
 import { FormField } from "@/components/common/FormField.tsx";
@@ -68,10 +69,13 @@ export const LoginView = () => {
   const fetchCaptcha = async (isRefresh = false) => {
     try {
       const query = {
-        old_captcha_id: isRefresh && captchaData?.token ? captchaData.token : undefined,
         scene: "LOGIN",
-        risk_target: identifier || undefined,
         risk_target_type: "identifier",
+        ...whenDefined(
+          'old_captcha_id',
+          isRefresh && captchaData?.token ? captchaData.token : undefined,
+        ),
+        ...whenNonEmptyString('risk_target', identifier),
       };
         
       const data = await extractData<CaptchaPayload>(
@@ -98,8 +102,8 @@ export const LoginView = () => {
     try {
       const policy = await postCaptchaPolicy({
         scene: "LOGIN",
-        risk_target: identifier,
         risk_target_type: "identifier",
+        ...whenNonEmptyString('risk_target', identifier),
       });
       if (policy.deny_request) {
         addToast(t("errors.TOO_MANY_ATTEMPTS") || "Too many attempts", "error");

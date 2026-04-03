@@ -7,7 +7,14 @@ import { Input } from '@/components/ui/Input.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { ShieldCheck, Mail, Phone, HelpCircle, AlertTriangle, Trash2, Send, ChevronRight, Cloud, RefreshCw, Key, Eye, EyeOff } from 'lucide-react';
-import { client, extractData, isApiError, postCaptchaPolicy } from '@/lib/api.ts';
+import {
+  client,
+  extractData,
+  isApiError,
+  postCaptchaPolicy,
+  whenDefined,
+  whenNonEmptyString,
+} from '@/lib/api.ts';
 import { showApiErrorToast } from '@/lib/feedback.ts';
 import { isPhoneInputValid, normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 import type { components } from '@/types/api.ts';
@@ -89,11 +96,14 @@ export const SecurityView = () => {
     try {
       const riskTargetType = activeModal === 'phone' ? "phone" : "email";
       const query = {
-        old_captcha_id: isRefresh && captchaData?.token ? captchaData.token : undefined,
         scene: "SEND_CODE",
-        risk_target: bindForm.target || undefined,
         risk_target_type: riskTargetType,
-        risk_user_id: currentUserData?.user.id,
+        ...whenDefined(
+          'old_captcha_id',
+          isRefresh && captchaData?.token ? captchaData.token : undefined,
+        ),
+        ...whenNonEmptyString('risk_target', bindForm.target),
+        ...whenNonEmptyString('risk_user_id', currentUserData?.user.id),
       };
         
       const payload = await extractData<CaptchaPayload>(client.GET("/api/v1/users/public/captcha", {
@@ -142,11 +152,9 @@ export const SecurityView = () => {
 
       const policy = await postCaptchaPolicy({
         scene: "SEND_CODE",
-        risk_target: normalizedTarget,
         risk_target_type: type,
-        ...(currentUserData?.user.id
-          ? { risk_user_id: currentUserData.user.id }
-          : {}),
+        ...whenNonEmptyString('risk_target', normalizedTarget),
+        ...whenNonEmptyString('risk_user_id', currentUserData?.user.id),
       });
       if (policy.deny_request) {
         addToast(t("errors.TOO_MANY_ATTEMPTS") || "Too many attempts", "error");

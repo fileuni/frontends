@@ -134,6 +134,26 @@ export interface CaptchaPolicyRequest {
   risk_user_id?: string;
 }
 
+export function whenDefined<K extends string, V>(
+  key: K,
+  value: V | null | undefined,
+): Partial<Record<K, V>> {
+  if (value === null || value === undefined) {
+    return {};
+  }
+  return { [key]: value } as Partial<Record<K, V>>;
+}
+
+export function whenNonEmptyString<K extends string>(
+  key: K,
+  value: string | null | undefined,
+): Partial<Record<K, string>> {
+  if (!value) {
+    return {};
+  }
+  return { [key]: value } as Partial<Record<K, string>>;
+}
+
 export interface CaptchaPolicyResponse {
   require_captcha: boolean;
   deny_request: boolean;

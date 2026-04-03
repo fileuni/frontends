@@ -7,6 +7,8 @@ import {
   handleApiError,
   isApiError,
   postCaptchaPolicy,
+  whenDefined,
+  whenNonEmptyString,
 } from '@/lib/api.ts';
 import { normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize.ts';
 import { Button } from '@/components/ui/Button.tsx';
@@ -153,10 +155,13 @@ export const RegisterView = () => {
         client.GET('/api/v1/users/public/captcha', {
           params: {
             query: {
-              old_captcha_id: isRefresh && captchaData?.token ? captchaData.token : undefined,
               scene,
-              risk_target: target || undefined,
               risk_target_type: riskTargetType,
+              ...whenDefined(
+                'old_captcha_id',
+                isRefresh && captchaData?.token ? captchaData.token : undefined,
+              ),
+              ...whenNonEmptyString('risk_target', target),
             },
           },
         }),
@@ -176,8 +181,8 @@ export const RegisterView = () => {
   ): Promise<boolean> => {
     const policy = await postCaptchaPolicy({
       scene,
-      risk_target: target || undefined,
       risk_target_type: riskTargetType,
+      ...whenNonEmptyString('risk_target', target),
     });
 
     if (policy.deny_request) {
