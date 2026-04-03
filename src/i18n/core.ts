@@ -6,5 +6,6 @@ export {
   detectLocale,
   detectLocaleFromNavigator,
   normalizeLocale,
+  type LocaleShape,
   type SupportedLocale,
 } from '../../../shared/i18n-core';
