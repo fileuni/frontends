@@ -4,22 +4,22 @@ import adminSetting from './admin-setting.json';
 import auth from './auth.json';
 import { blacklistByResourceLocale } from '../bundles/blacklist';
 import { cacheManagerByResourceLocale } from '../bundles/cacheManager';
+import { forgotPasswordByResourceLocale } from '../bundles/forgotPassword';
+import { navByResourceLocale } from '../bundles/nav';
+import { privacyByResourceLocale } from '../bundles/privacy';
+import { profileByResourceLocale } from '../bundles/profile';
+import { sessionsByResourceLocale } from '../bundles/sessions';
+import { tosByResourceLocale } from '../bundles/tos';
 import chat from './chat.json';
 import common from './common.json';
 import email from './email.json';
 import errors from './errors.json';
 import filemanager from './filemanager.json';
-import forgotPassword from './forgotPassword.json';
 import launcher from './launcher.json';
-import nav from './nav.json';
 import pages from './pages.json';
 import { playerByResourceLocale } from '../bundles/player';
-import privacy from './privacy.json';
-import profile from './profile.json';
 import security from './security.json';
-import sessions from './sessions.json';
 import systemConfig from './system_config.json';
-import tos from './tos.json';
 import { welcomeByResourceLocale } from '../bundles/welcome';
 import { languagesByResourceLocale } from '../bundles/languages';
 import { themesByResourceLocale } from '../bundles/themes';
@@ -39,19 +39,19 @@ const translation = {
   "email": email,
   "errors": errors,
   "filemanager": filemanager,
-  "forgotPassword": forgotPassword,
+  "forgotPassword": forgotPasswordByResourceLocale.fr,
   "languages": languagesByResourceLocale.fr,
   "launcher": launcher,
-  "nav": nav,
+  "nav": navByResourceLocale.fr,
   "pages": pages,
   "player": playerByResourceLocale.fr,
-  "privacy": privacy,
-  "profile": profile,
+  "privacy": privacyByResourceLocale.fr,
+  "profile": profileByResourceLocale.fr,
   "security": security,
-  "sessions": sessions,
+  "sessions": sessionsByResourceLocale.fr,
   "systemConfig": systemConfig,
   "themes": themesByResourceLocale.fr,
-  "tos": tos,
+  "tos": tosByResourceLocale.fr,
   "welcome": welcomeByResourceLocale.fr,
 } as const;
 

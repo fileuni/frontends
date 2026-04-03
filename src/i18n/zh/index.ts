@@ -2,22 +2,22 @@ import about from './about.json';
 import admin from './admin.json';
 import adminSetting from './admin-setting.json';
 import auth from './auth.json';
+import { forgotPasswordByResourceLocale } from '../bundles/forgotPassword';
+import { navByResourceLocale } from '../bundles/nav';
+import { privacyByResourceLocale } from '../bundles/privacy';
+import { profileByResourceLocale } from '../bundles/profile';
+import { sessionsByResourceLocale } from '../bundles/sessions';
+import { tosByResourceLocale } from '../bundles/tos';
 import { cacheManagerByResourceLocale } from '../bundles/cacheManager';
 import chat from './chat.json';
 import common from './common.json';
 import email from './email.json';
 import errors from './errors.json';
 import filemanager from './filemanager.json';
-import forgotPassword from './forgotPassword.json';
 import launcher from './launcher.json';
-import nav from './nav.json';
 import pages from './pages.json';
-import privacy from './privacy.json';
-import profile from './profile.json';
 import security from './security.json';
-import sessions from './sessions.json';
 import systemConfig from './system_config.json';
-import tos from './tos.json';
 import { blacklistByResourceLocale } from '../bundles/blacklist';
 import { languagesByResourceLocale } from '../bundles/languages';
 import { playerByResourceLocale } from '../bundles/player';
@@ -39,19 +39,19 @@ const translation = {
   "email": email,
   "errors": errors,
   "filemanager": filemanager,
-  "forgotPassword": forgotPassword,
+  "forgotPassword": forgotPasswordByResourceLocale.zh,
   "languages": languagesByResourceLocale.zh,
   "launcher": launcher,
-  "nav": nav,
+  "nav": navByResourceLocale.zh,
   "pages": pages,
   "player": playerByResourceLocale.zh,
-  "privacy": privacy,
-  "profile": profile,
+  "privacy": privacyByResourceLocale.zh,
+  "profile": profileByResourceLocale.zh,
   "security": security,
-  "sessions": sessions,
+  "sessions": sessionsByResourceLocale.zh,
   "systemConfig": systemConfig,
   "themes": themesByResourceLocale.zh,
-  "tos": tos,
+  "tos": tosByResourceLocale.zh,
   "welcome": welcomeByResourceLocale.zh,
 } as const;
 
