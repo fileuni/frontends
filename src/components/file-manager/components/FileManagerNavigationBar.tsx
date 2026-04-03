@@ -14,6 +14,12 @@ type MountListResponse = {
   mounts: RemoteMountSummary[];
 };
 
+const PROTECTED_STORAGE_MODE_LABEL_KEYS = {
+  disabled: 'filemanager.protectedStorage.modes.disabled',
+  obfuscate: 'filemanager.protectedStorage.modes.obfuscate',
+  encrypt: 'filemanager.protectedStorage.modes.encrypt',
+} as const;
+
 export const FileManagerNavigationBar = () => {
   const { t } = useTranslation();
   const store = useFileStore();
@@ -74,6 +80,7 @@ export const FileManagerNavigationBar = () => {
   }, [clearRootHint, currentPath, focusedRootPath]);
 
   const pathSegments = currentPath.split("/").filter(Boolean);
+  const protectedMode = protectedStatus?.protected_mode || protectedStatus?.global_mode;
   
   const navigateTo = (index: number) => {
     const newPath = "/" + pathSegments.slice(0, index + 1).join("/");
@@ -179,9 +186,10 @@ export const FileManagerNavigationBar = () => {
               {protectedStatus.protected_root || '/'}
             </span>
             <span className="text-[11px] font-black uppercase tracking-widest opacity-70">
-              {t(`filemanager.protectedStorage.modes.${protectedStatus.protected_mode || protectedStatus.global_mode}`)
-                || protectedStatus.protected_mode
-                || protectedStatus.global_mode}
+              {(protectedMode && protectedMode in PROTECTED_STORAGE_MODE_LABEL_KEYS
+                ? t(PROTECTED_STORAGE_MODE_LABEL_KEYS[protectedMode as keyof typeof PROTECTED_STORAGE_MODE_LABEL_KEYS])
+                : protectedMode)
+                || protectedMode}
             </span>
           </div>
           <div className="mt-2 flex items-start gap-2 text-cyan-50/90">

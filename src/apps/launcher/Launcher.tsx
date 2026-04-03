@@ -1057,6 +1057,12 @@ export function Launcher() {
     "admin.config.title",
   ]);
 
+  const settingsCenterFinalStepKeys = [
+    "systemConfig.setup.final.step1",
+    "systemConfig.setup.final.step2",
+    "systemConfig.setup.final.step3",
+  ] as const;
+
   // Format uptime
   const formatUptime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -1195,9 +1201,9 @@ export function Launcher() {
                       {t("systemConfig.setup.final.nextSteps")}
                     </p>
                     <div className="mt-3 space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
-                      {[1, 2, 3].map((i) => (
-                        <p key={i}>
-                          {i}. {t(`systemConfig.setup.final.step${i}`)}
+                      {settingsCenterFinalStepKeys.map((stepKey, index) => (
+                        <p key={stepKey}>
+                          {index + 1}. {t(stepKey)}
                         </p>
                       ))}
                     </div>

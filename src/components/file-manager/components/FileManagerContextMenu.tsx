@@ -25,6 +25,16 @@ const FAVORITE_COLORS = [
   { id: 7, name: 'Deep Blue', class: 'bg-blue-700' },
 ];
 
+const FAVORITE_COLOR_LABEL_KEYS: Record<string, string> = {
+  Red: 'filemanager.colors.red',
+  Orange: 'filemanager.colors.orange',
+  Yellow: 'filemanager.colors.yellow',
+  Green: 'filemanager.colors.green',
+  Blue: 'filemanager.colors.blue',
+  Cyan: 'filemanager.colors.cyan',
+  'Deep Blue': 'filemanager.colors.deep blue',
+};
+
 interface Props {
   x: number;
   y: number;
@@ -304,7 +314,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                                 )}
                               >
                                 <div className={cn("w-2 h-2 rounded-full", color.class)} />
-                                <span>{t(`filemanager.colors.${color.name.toLowerCase()}`) || color.name}</span>
+                                <span>{t(FAVORITE_COLOR_LABEL_KEYS[color.name] || '') || color.name}</span>
                               </button>
                             ))}
                           </div>

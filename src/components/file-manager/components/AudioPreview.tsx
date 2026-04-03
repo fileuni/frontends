@@ -11,6 +11,13 @@ import { AudioPreviewSidebar } from './AudioPreviewSidebar.tsx';
 import { formatTime } from './audioPreviewShared.ts';
 import { useAudioPlaybackController } from './useAudioPlaybackController.ts';
 
+const AUDIO_PLAY_MODE_LABEL_KEYS = {
+  list: 'filemanager.player.playMode.list',
+  loop: 'filemanager.player.playMode.loop',
+  shuffle: 'filemanager.player.playMode.shuffle',
+  single: 'filemanager.player.playMode.single',
+} as const;
+
 interface AudioPreviewProps {
   playlist: FileInfo[];
   initialIndex?: number;
@@ -31,6 +38,7 @@ export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, 
   const recentRecords = useMediaPlaybackHistory()
     .filter((record) => record.path !== controller.activeFile?.path)
     .slice(0, 12);
+  const playModeLabel = t(AUDIO_PLAY_MODE_LABEL_KEYS[controller.playMode]);
 
   const openRecentRecord = (path: string) => {
     const nextIndex = playlist.findIndex((track) => track.path === path);
@@ -71,7 +79,7 @@ export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, 
               size="sm"
               className={cn('h-10 rounded-full border px-3', isDark ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' : 'border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200')}
               onClick={() => controller.setPlayMode((mode) => (mode === 'list' ? 'loop' : mode === 'loop' ? 'shuffle' : mode === 'shuffle' ? 'single' : 'list'))}
-              title={t(controller.playModeConfig.labelKey)}
+              title={playModeLabel}
             >
               {React.createElement(controller.playModeConfig.icon, { size: 16 })}
             </Button>
@@ -107,7 +115,7 @@ export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, 
             onMuteToggle={controller.toggleMute}
             onPlaybackRateChange={controller.setPlaybackRate}
             playedPercent={controller.playedPercent}
-            playModeLabel={t(controller.playModeConfig.labelKey)}
+            playModeLabel={playModeLabel}
             playbackRate={controller.playbackRate}
             playlistLength={playlist.length}
             progressLabel={t('filemanager.player.play')}

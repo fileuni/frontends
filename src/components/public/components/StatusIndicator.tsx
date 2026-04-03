@@ -33,6 +33,14 @@ import { ChatContext, type ChatContextProps, type Room } from "@/components/chat
 import { useConfigStore } from "@/stores/config.ts";
 import { useAuthzStore } from "@/stores/authz.ts";
 
+const TASK_TYPE_LABEL_KEYS: Record<string, string> = {
+  compress: 'filemanager.task.type.compress',
+  decompress: 'filemanager.task.type.decompress',
+  batch_delete: 'filemanager.task.type.batch_delete',
+  batch_move: 'filemanager.task.type.batch_move',
+  batch_copy: 'filemanager.task.type.batch_copy',
+};
+
 export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
   const { t } = useTranslation();
   const { capabilities } = useConfigStore();
@@ -458,9 +466,10 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-black truncate">
-            {t(`filemanager.task.type.${task.type}`, {
-              defaultValue: task.type,
-            })}
+            {(() => {
+              const labelKey = TASK_TYPE_LABEL_KEYS[task.type];
+              return labelKey ? t(labelKey, { defaultValue: task.type }) : task.type;
+            })()}
           </p>
           <p className="text-sm opacity-40 mt-0.5 truncate">
             {task.message ||

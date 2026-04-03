@@ -35,6 +35,20 @@ import { formatTime, PLAYBACK_SPEEDS } from './audioPreviewShared.ts';
 
 type PlayMode = 'list' | 'loop' | 'shuffle' | 'single';
 type SidebarTab = 'playlist' | 'recent';
+type SubtitleStyleLabelMode = 'bg' | 'stroke' | 'plain';
+
+const PLAY_MODE_LABEL_KEYS: Record<PlayMode, string> = {
+  list: 'filemanager.player.playMode.list',
+  loop: 'filemanager.player.playMode.loop',
+  shuffle: 'filemanager.player.playMode.shuffle',
+  single: 'filemanager.player.playMode.single',
+};
+
+const SUBTITLE_STYLE_LABEL_KEYS: Record<SubtitleStyleLabelMode, string> = {
+  bg: 'filemanager.player.subtitleStyleBg',
+  stroke: 'filemanager.player.subtitleStyleStroke',
+  plain: 'filemanager.player.subtitleStylePlain',
+};
 
 const PLAY_MODE_CONFIG: Record<PlayMode, { icon: React.ElementType; labelKey: string; next: PlayMode }> = {
   list: { icon: ListOrdered, labelKey: 'filemanager.player.playMode.list', next: 'loop' },
@@ -913,7 +927,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                   </select>
                 </label>
                 <button type="button" onClick={() => setPlayMode(PLAY_MODE_CONFIG[playMode].next)} className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full text-sm font-black uppercase">
-                  <PlayModeIcon size={18} /> {t(PLAY_MODE_CONFIG[playMode].labelKey)}
+                  <PlayModeIcon size={18} /> {t(PLAY_MODE_LABEL_KEYS[playMode])}
                 </button>
               </div>
             </div>
@@ -945,7 +959,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                       onClick={() => setSubtitleStyleMode(mode)}
                       className={cn('h-9 rounded-lg text-[11px] font-black uppercase tracking-[0.16em] transition-all', subtitleStyleMode === mode ? 'bg-primary text-white' : 'text-white/60 hover:bg-white/5')}
                     >
-                      {t(`filemanager.player.subtitleStyle${mode.charAt(0).toUpperCase()}${mode.slice(1)}`)}
+                      {t(SUBTITLE_STYLE_LABEL_KEYS[mode])}
                     </button>
                   ))}
                 </div>

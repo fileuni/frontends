@@ -36,6 +36,12 @@ type LatexJsGlobal = {
 
 const LATEXJS_VERSION = '0.12.6';
 
+const LATEX_PREVIEW_MODE_LABEL_KEYS: Record<LatexPreviewMode, string> = {
+  latexmk: 'filemanager.texPreview.mode.latexmk',
+  latexjs: 'filemanager.texPreview.mode.latexjs',
+  codemirror: 'filemanager.texPreview.mode.codemirror',
+};
+
 const loadLatexScript = (src: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (typeof document === 'undefined') {
@@ -380,7 +386,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
                 className="h-10 px-4 rounded-xl text-sm font-black uppercase flex items-center gap-2"
                 onClick={() => setModeOpen(!modeOpen)}
               >
-                {t(`filemanager.texPreview.mode.${previewMode}`) || previewMode}
+                {t(LATEX_PREVIEW_MODE_LABEL_KEYS[previewMode]) || previewMode}
                 <ChevronDown size={18} />
               </Button>
               {modeOpen && (
@@ -400,7 +406,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
                         setPreviewHtml(null);
                       }}
                     >
-                      {t(`filemanager.texPreview.mode.${mode}`) || mode}
+                      {t(LATEX_PREVIEW_MODE_LABEL_KEYS[mode]) || mode}
                     </button>
                   ))}
                 </div>

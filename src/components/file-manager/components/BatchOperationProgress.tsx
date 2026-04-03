@@ -24,6 +24,14 @@ type SseFrame = {
   data: string;
 };
 
+const TASK_STATUS_LABEL_KEYS: Record<TaskStatusValue, string> = {
+  pending: 'filemanager.batch.status_pending',
+  running: 'filemanager.batch.status_running',
+  success: 'filemanager.batch.status_success',
+  failed: 'filemanager.batch.status_failed',
+  interrupted: 'filemanager.batch.status_interrupted',
+};
+
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null;
 };
@@ -544,7 +552,7 @@ export function BatchOperationProgress({
                     {t('filemanager.batch.status')}
                   </span>
                   <Badge className={getStatusColor(taskStatus.status)}>
-                    {t(`filemanager.batch.status_${taskStatus.status}`)}
+                    {t(TASK_STATUS_LABEL_KEYS[taskStatus.status])}
                   </Badge>
                 </div>
 

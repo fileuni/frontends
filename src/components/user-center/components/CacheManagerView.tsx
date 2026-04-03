@@ -16,6 +16,33 @@ const CATEGORY_ORDER: ManagedCategoryId[] = [
   "ui_preferences_cache",
 ];
 
+const CATEGORY_I18N_KEYS: Record<ManagedCategoryId, { title: string; desc: string }> = {
+  email_address_book: {
+    title: "cacheManager.categories.email_address_book.title",
+    desc: "cacheManager.categories.email_address_book.desc",
+  },
+  chat_cache: {
+    title: "cacheManager.categories.chat_cache.title",
+    desc: "cacheManager.categories.chat_cache.desc",
+  },
+  file_manager_cache: {
+    title: "cacheManager.categories.file_manager_cache.title",
+    desc: "cacheManager.categories.file_manager_cache.desc",
+  },
+  user_session_cache: {
+    title: "cacheManager.categories.user_session_cache.title",
+    desc: "cacheManager.categories.user_session_cache.desc",
+  },
+  extension_cache: {
+    title: "cacheManager.categories.extension_cache.title",
+    desc: "cacheManager.categories.extension_cache.desc",
+  },
+  ui_preferences_cache: {
+    title: "cacheManager.categories.ui_preferences_cache.title",
+    desc: "cacheManager.categories.ui_preferences_cache.desc",
+  },
+} as const;
+
 export const CacheManagerView: React.FC = () => {
   const { t } = useTranslation();
   const { currentUserData } = useAuthStore();
@@ -55,7 +82,7 @@ export const CacheManagerView: React.FC = () => {
   const handleClear = async (categoryId: ManagedCategoryId, scope: CacheScope) => {
     const scopeLabel = scope === "all" ? t("cacheManager.scopeAllUsers") : t("cacheManager.scopeCurrentUser");
     const confirmText = t("cacheManager.confirmClearCategory", {
-      category: t(`cacheManager.categories.${categoryId}.title`),
+      category: t(CATEGORY_I18N_KEYS[categoryId].title),
       scope: scopeLabel,
     });
     if (!window.confirm(confirmText)) {
@@ -123,12 +150,13 @@ export const CacheManagerView: React.FC = () => {
           }
           const isClearingOwn = loadingAction === `${categoryId}:own`;
           const isClearingAll = loadingAction === `${categoryId}:all`;
+          const categoryI18n = CATEGORY_I18N_KEYS[categoryId];
           return (
             <DashboardCard key={categoryId} variant="subtle" className="rounded-2xl p-4">
               <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <div className="text-xl font-bold">{t(`cacheManager.categories.${categoryId}.title`)}</div>
-                  <div className="text-base opacity-70 mt-1 break-words leading-relaxed">{t(`cacheManager.categories.${categoryId}.desc`)}</div>
+                  <div className="text-xl font-bold">{t(categoryI18n.title)}</div>
+                  <div className="text-base opacity-70 mt-1 break-words leading-relaxed">{t(categoryI18n.desc)}</div>
                   <div className="mt-2 text-base opacity-80">
                     {t("cacheManager.categoryStats", {
                       size: cacheManager.formatBytes(category.bytes),

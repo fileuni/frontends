@@ -53,6 +53,14 @@ type UserSearchResult = {
   username: string;
 };
 
+const CHAT_TAB_LABEL_KEYS = {
+  chats: "chat.tabs.chats",
+  invites: "chat.tabs.invites",
+  groups: "chat.tabs.groups",
+  profile: "chat.tabs.profile",
+  settings: "chat.tabs.settings",
+} as const;
+
 const parseTransportBackend = (value: string): TransportBackend => {
   if (value === "mqtt-proxy" || value === "mqtt-external") return value;
   return "ws";
@@ -265,6 +273,7 @@ export const ChatUnifiedUI: React.FC = () => {
   const [isUpdatingNickname, setIsUpdatingNickname] = useState(false);
 
   const isP2P = transport === "webrtc";
+  const activeSideTabLabelKey = CHAT_TAB_LABEL_KEYS[activeSideTab];
 
   const filteredRooms = useMemo(() => {
     return rooms.filter(
@@ -560,7 +569,7 @@ export const ChatUnifiedUI: React.FC = () => {
               </button>
 
               <h2 className="text-base lg:text-lg font-semibold">
-                {t(`chat.tabs.${activeSideTab}`)}
+                {t(activeSideTabLabelKey)}
               </h2>
               {activeSideTab === "chats" && (
                 <Badge

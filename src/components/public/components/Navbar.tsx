@@ -18,6 +18,23 @@ import { ThemeLanguageControls } from './ThemeLanguageControls.tsx';
 import { ChatContext } from '@/components/chat/context/ChatContext';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
 
+const LANGUAGE_LABEL_KEYS = {
+  auto: 'languages.auto',
+  en: 'languages.en',
+  'zh-cn': 'languages.zh-cn',
+  es: 'languages.es',
+  de: 'languages.de',
+  fr: 'languages.fr',
+  ru: 'languages.ru',
+  ja: 'languages.ja',
+} as const;
+
+const THEME_LABEL_KEYS: Record<Theme, 'themes.system' | 'themes.light' | 'themes.dark'> = {
+  system: 'themes.system',
+  light: 'themes.light',
+  dark: 'themes.dark',
+};
+
 
 export const Navbar = () => {
   const { theme, setTheme } = useThemeStore();
@@ -300,7 +317,7 @@ export const Navbar = () => {
                         )}
                       >
                         {lang === 'auto' && <Laptop size={18} />}
-                        <span className="truncate w-full text-center">{t(`languages.${lang}`)}</span>
+                        <span className="truncate w-full text-center">{t(LANGUAGE_LABEL_KEYS[lang])}</span>
                       </button>
                     ))}
                   </div>
@@ -326,7 +343,7 @@ export const Navbar = () => {
                         )}
                       >
                         <mode.icon size={18} />
-                        <span>{t(`themes.${mode.id}`)}</span>
+                        <span>{t(THEME_LABEL_KEYS[mode.id])}</span>
                       </button>
                     ))}
                   </div>

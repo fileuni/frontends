@@ -36,6 +36,12 @@ interface AdminUserEditForm {
   bio?: string;
 }
 
+const ADMIN_USER_STATUS_LABEL_KEYS: Record<UserStatusValue, string> = {
+  active: 'admin.users.status.active',
+  inactive: 'admin.users.status.inactive',
+  banned: 'admin.users.status.banned',
+};
+
 const createDefaultFileSettings = (userId: string): FileSettingsBody => ({
   user_id: userId,
   pool_name: '',
@@ -587,7 +593,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 <div className="flex justify-between items-center text-sm font-black uppercase">
                   <span className="opacity-40">{t('admin.users.table.status')}</span>
                   <span className="opacity-70">
-                    {form.status ? t(`admin.users.status.${String(form.status).toLowerCase()}`) : '-'}
+                    {form.status ? t(ADMIN_USER_STATUS_LABEL_KEYS[form.status]) : '-'}
                   </span>
                 </div>
               </div>

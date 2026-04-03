@@ -95,6 +95,11 @@ export interface AboutViewProps {
   className?: string | undefined;
 }
 
+const ABOUT_CHANNEL_LABEL_KEYS = {
+  stable: 'about.channels.stable',
+  prerelease: 'about.channels.prerelease',
+} as const;
+
 export function buildAboutUpdateGuideUrl(
   baseUrl: string,
   releaseInfo: AboutReleaseChannelInfo,
@@ -328,6 +333,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
   const currentVersionText = currentVersion || '—';
   const versionCodeText = versionCode === null || typeof versionCode === 'undefined' ? '' : String(versionCode);
   const currentChannel = updateInfo?.current_channel || 'stable';
+  const currentChannelLabelKey = ABOUT_CHANNEL_LABEL_KEYS[currentChannel as keyof typeof ABOUT_CHANNEL_LABEL_KEYS] ?? ABOUT_CHANNEL_LABEL_KEYS.stable;
 
   return (
     <div
@@ -507,15 +513,15 @@ export const AboutView: React.FC<AboutViewProps> = ({
                   ) : (
                     <CheckCircle2 size={14} />
                   )}
-                  <span>
-                    {updateInfo.has_update
-                      ? t('about.updateAvailableForCurrentChannel', {
-                          channel: t(`about.channels.${currentChannel}`),
+                    <span>
+                      {updateInfo.has_update
+                        ? t('about.updateAvailableForCurrentChannel', {
+                          channel: t(currentChannelLabelKey),
                         })
-                      : t('about.upToDateForCurrentChannel', {
-                          channel: t(`about.channels.${currentChannel}`),
+                        : t('about.upToDateForCurrentChannel', {
+                          channel: t(currentChannelLabelKey),
                         })}
-                  </span>
+                    </span>
                 </div>
 
                 <div className="grid gap-2.5">
