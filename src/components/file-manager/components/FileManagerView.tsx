@@ -490,15 +490,17 @@ export const FileManagerView = () => {
 
   const isMinimal = ["favorites", "trash", "recent", "shares"].includes(fmMode);
   const isOfficePreview = previewPath ? isOfficeExtension(getFileExtension(previewPath)) : false;
+  const routePage = params.page;
+  const routePath = params["path"];
 
   const closePreview = useCallback(() => {
-    const nextPage = params.page || fmMode || 'files';
+    const nextPage = routePage || fmMode || 'files';
     navigate({
       preview_path: undefined,
       page: nextPage,
-      path: nextPage === 'files' ? (params["path"] || currentPath) : undefined,
+      path: nextPage === 'files' ? (routePath || currentPath) : undefined,
     });
-  }, [currentPath, fmMode, navigate, params.page, params]);
+  }, [currentPath, fmMode, navigate, routePage, routePath]);
 
   if (officePath) {
     return (
