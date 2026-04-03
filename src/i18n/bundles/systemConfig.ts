@@ -41,37 +41,10 @@ const systemConfigEn = {
       "databaseCache": "Configure database and cache",
       "storage": "Configure storage",
       "adminPassword": "Set admin password",
-      "finishSimple": "Finish",
-      "profile": "Profile",
-      "database": "Database",
-      "cache": "Cache",
-      "advanced": "Tuning",
-      "config": "Review",
-      "admin": "Admin Setup",
-      "final": "Complete",
-      "review": "Review"
+      "finishSimple": "Finish"
     },
-    "locked": {
-      "title": "Settings Center Unavailable",
-      "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
-      "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
-    },
-    "profile": {
-      "title": "Select Performance Profile",
-      "subtitle": "Choose a starting point based on your hardware. You can customize everything in the next step.",
-      "low": {
-        "name": "Eco / IoT",
-        "desc": "Perfect for Raspberry Pi or 1GB VPS. Lightweight SQLite & In-memory cache."
-      },
-      "medium": {
-        "name": "Standard",
-        "desc": "Balanced setting for Home NAS. Reliable and efficient metadata handling."
-      },
-      "high": {
-        "name": "Performance",
-        "desc": "Production grade. Best with PostgreSQL & Redis for massive file clusters."
-      }
-    },
+    "locked": {},
+    "profile": {},
     "config": {
       "title": "Environment Settings",
       "subtitle": "Configure your database and cache. DSN strings will be built automatically.",
@@ -241,18 +214,9 @@ const systemConfigEn = {
       "openWebUi": "Open Web UI",
       "finishLater": "Maybe later",
       "openHint": "Start FileUni, then open the Web UI to sign in.",
-      "runningHint": "FileUni is already running, so you can open the Web UI right away.",
-      "reload": "Return to Launcher",
-      "docs": "View Documentation"
+      "runningHint": "FileUni is already running, so you can open the Web UI right away."
     },
     "logs": {
-      "title": "Real-time Deployment Log",
-      "selectingProfile": "Applying profile: {{profile}}...",
-      "templateLoadFailed": "Template load failed: {{error}}",
-      "testingDb": "Testing database connection...",
-      "dbError": "DB Error",
-      "dbSuccess": "Database connection success!",
-      "applyingConfig": "Applying configuration and syncing DB schema...",
       "setupFailed": "Deployment failed",
       "setupSuccess": "Settings complete. Confirm to continue."
     }
@@ -262,41 +226,8 @@ const systemConfigEn = {
     "featureDisabledDesc": "This feature has been disabled by the administrator. Please contact your system administrator for more information."
   },
   "configSet": {
-    "center": {
-      "title": "FileUni Settings Center",
-      "subtitle": "Finish the initial system settings"
-    },
-    "steps": {
-      "step": "Step",
-      "profile": "Profile",
-      "database": "Database",
-      "cache": "Cache",
-      "advanced": "Tuning",
-      "config": "Review",
-      "admin": "Admin Setup",
-      "final": "Complete",
-      "review": "Review"
-    },
     "locked": {
-      "title": "Settings Center Unavailable",
-      "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
-      "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
-    },
-    "profile": {
-      "title": "Select Performance Profile",
-      "subtitle": "Choose a starting point based on your hardware. You can customize everything in the next step.",
-      "low": {
-        "name": "Eco / IoT",
-        "desc": "Perfect for Raspberry Pi or 1GB VPS. Lightweight SQLite & In-memory cache."
-      },
-      "medium": {
-        "name": "Standard",
-        "desc": "Balanced setting for Home NAS. Reliable and efficient metadata handling."
-      },
-      "high": {
-        "name": "Performance",
-        "desc": "Production grade. Best with PostgreSQL & Redis for massive file clusters."
-      }
+      "title": "Settings Center Unavailable"
     },
     "config": {
       "title": "Environment Settings",
@@ -365,24 +296,6 @@ const systemConfigEn = {
         "sharedCache": "Enable Shared Cache (shared_cache)"
       }
     },
-    "admin": {
-      "title": "Create Super Admin",
-      "subtitle": "This account will have full control over the system.",
-      "username": "Admin Username",
-      "password": "Secure Password",
-      "suggestPassword": "Generate Random Password",
-      "generate_password": "Generate Random Password",
-      "pendingHint": "Takes effect after final apply",
-      "resetRuleHint": "This password will be used for the administrator account after setup.",
-      "resetSuccessWithUser": "Admin password applied. Current admin username: {{username}}",
-      "finalConfirm": "Final Settings Review",
-      "finalConfirmDesc": "Confirm to save your settings and finish the initial system settings.",
-      "finish": "Apply Configuration",
-      "changePassword": "Set Admin Password",
-      "passwordHintTitle": "Admin password required to finish setup",
-      "passwordHintDesc": "Set or update the admin password to apply the configuration. You can do this at any time.",
-      "passwordHintAction": "Set Admin Password"
-    },
     "final": {
       "title": "System settings complete",
       "subtitle": "Administrator {{user}} has been granted full access.",
@@ -393,18 +306,9 @@ const systemConfigEn = {
       "nextSteps": "What to do next:",
       "step1": "Sign in with your administrator account.",
       "step2": "Edit and save configuration online in the Admin Console.",
-      "step3": "Confirm to return to the home page.",
-      "reload": "Return Home",
-      "docs": "View Documentation"
+      "step3": "Confirm to return to the home page."
     },
     "logs": {
-      "title": "Real-time Deployment Log",
-      "selectingProfile": "Applying profile: {{profile}}...",
-      "templateLoadFailed": "Template load failed: {{error}}",
-      "testingDb": "Testing database connection...",
-      "dbError": "DB Error",
-      "dbSuccess": "Database connection success!",
-      "applyingConfig": "Applying configuration and syncing DB schema...",
       "setupFailed": "Deployment failed",
       "failed": "Failed",
       "success": "Success"
@@ -467,28 +371,10 @@ const systemConfigBundle = defineLocaleBundle({
         "databaseCache": "配置数据库和缓存",
         "storage": "配置存储",
         "adminPassword": "设置管理员密码",
-        "finishSimple": "完成",
-        "profile": "性能画像",
-        "database": "数据库",
-        "cache": "缓存",
-        "advanced": "微调",
-        "config": "配置审核",
-        "admin": "管理员设置",
-        "final": "完成部署",
-        "review": "配置复核"
+        "finishSimple": "完成"
       },
-      "locked": {
-        "title": "设置中心暂不可用",
-        "howToUnlockFile": "删除 `{runtime-dir}/install.lock` 后重启 FileUni：",
-        "howToUnlockArg": "缺少 `install.lock` 时会自动打开设置中心。"
-      },
-      "profile": {
-        "title": "选择性能画像",
-        "subtitle": "根据您的硬件资源选择一个起点，您可以在下一步进行详细微调。",
-        "low": { "name": "节能 / IoT", "desc": "适用于树莓派或 1GB 内存的云服务器。使用轻量级 SQLite 和 内存缓存。" },
-        "medium": { "name": "标准平衡", "desc": "大多数家用 NAS 的理想选择。在内存占用和响应速度之间取得完美平衡。" },
-        "high": { "name": "高性能生产", "desc": "生产级环境推荐。配合 PostgreSQL 和 Redis 处理海量文件集群。" }
-      },
+      "locked": {},
+      "profile": {},
       "config": {
         "title": "系统环境设置",
         "subtitle": "配置您的数据库与缓存后端，系统将自动生成 DSN 连接串",
@@ -653,18 +539,9 @@ const systemConfigBundle = defineLocaleBundle({
         "openWebUi": "打开 Web 界面",
         "finishLater": "稍后再说",
         "openHint": "启动后打开 Web 界面即可登录。",
-        "runningHint": "FileUni 已在运行，现在可以直接打开 Web 界面开始使用。",
-        "reload": "返回启动界面",
-        "docs": "查看官方技术文档"
+        "runningHint": "FileUni 已在运行，现在可以直接打开 Web 界面开始使用。"
       },
       "logs": {
-        "title": "实时部署日志",
-        "selectingProfile": "正在应用性能画像: {{profile}}...",
-        "templateLoadFailed": "模板加载失败: {{error}}",
-        "testingDb": "正在测试数据库连通性...",
-        "dbError": "数据库错误",
-        "dbSuccess": "数据库连接测试成功！",
-        "applyingConfig": "正在应用配置并同步数据库表结构...",
         "setupFailed": "部署失败",
         "setupSuccess": "设置已完成，请确认后继续。"
       }
@@ -674,29 +551,8 @@ const systemConfigBundle = defineLocaleBundle({
       "featureDisabledDesc": "该功能已被管理员禁用，请联系系统管理员获取更多信息。"
     },
     "configSet": {
-      "center": {},
-      "steps": {
-        "step": "步骤",
-        "profile": "性能画像",
-        "database": "数据库",
-        "cache": "缓存",
-        "advanced": "微调",
-        "config": "配置审核",
-        "admin": "管理员设置",
-        "final": "完成部署",
-        "review": "配置复核"
-      },
       "locked": {
-        "title": "设置中心暂不可用",
-        "howToUnlockFile": "删除 `{runtime-dir}/install.lock` 后重启 FileUni：",
-        "howToUnlockArg": "缺少 `install.lock` 时会自动打开设置中心。"
-      },
-      "profile": {
-        "title": "选择性能画像",
-        "subtitle": "根据您的硬件资源选择一个起点，您可以在下一步进行详细微调。",
-        "low": { "name": "节能 / IoT", "desc": "适用于树莓派或 1GB 内存的云服务器。使用轻量级 SQLite 和 内存缓存。" },
-        "medium": { "name": "标准平衡", "desc": "大多数家用 NAS 的理想选择。在内存占用和响应速度之间取得完美平衡。" },
-        "high": { "name": "高性能生产", "desc": "生产级环境推荐。配合 PostgreSQL 和 Redis 处理海量文件集群。" }
+        "title": "设置中心暂不可用"
       },
       "config": {
         "title": "系统环境设置",
@@ -764,9 +620,6 @@ const systemConfigBundle = defineLocaleBundle({
           "sharedCache": "启用共享缓存 (shared_cache)"
         }
       },
-      "admin": {
-        
-      },
       "final": {
         "title": "系统设置完成",
         "subtitle": "管理员账号 {{user}} 已成功授权。",
@@ -777,18 +630,9 @@ const systemConfigBundle = defineLocaleBundle({
         "nextSteps": "后续操作步骤：",
         "step1": "使用管理员账号登录系统。",
         "step2": "在管理后台的配置页面在线编辑并保存配置。",
-        "step3": "确认后返回首页。",
-        "reload": "返回首页",
-        "docs": "查看官方技术文档"
+        "step3": "确认后返回首页。"
       },
       "logs": {
-        "title": "实时部署日志",
-        "selectingProfile": "正在应用性能画像: {{profile}}...",
-        "templateLoadFailed": "模板加载失败: {{error}}",
-        "testingDb": "正在测试数据库连通性...",
-        "dbError": "数据库错误",
-        "dbSuccess": "数据库连接测试成功！",
-        "applyingConfig": "正在应用配置并同步数据库表结构...",
         "setupFailed": "部署失败",
         "failed": "失败",
         "success": "成功"
@@ -832,29 +676,9 @@ const systemConfigBundle = defineLocaleBundle({
         "title": "Termine la configuracion de FileUni en unos 30 segundos",
         "desc": "Si es la primera vez que usa FileUni, normalmente puede mantener los valores predeterminados. Defina la contrasena de administrador si la necesita y pulse Aplicar para empezar.",
       },
-      "steps": {
-        "step": "Paso",
-        "profile": "Perfil",
-        "database": "Base de datos",
-        "cache": "Caché",
-        "advanced": "Ajustes",
-        "config": "Revisión",
-        "admin": "Admin",
-        "final": "Completar",
-        "review": "Revisión"
-      },
-      "locked": {
-        "title": "Centro de configuracion no disponible",
-        "howToUnlockFile": "Elimine `{runtime-dir}/install.lock` y reinicie FileUni:",
-        "howToUnlockArg": "El centro de configuracion se abre automaticamente cuando falta `install.lock`."
-      },
-      "profile": {
-        "title": "Seleccione el perfil de rendimiento",
-        "subtitle": "Elija un punto de partida según su hardware. Podrá personalizarlo todo en el siguiente paso.",
-        "low": { "name": "Economico / IoT", "desc": "Ideal para Raspberry Pi o VPS de 1GB. SQLite ligero y caché en memoria." },
-        "medium": { "name": "Estándar", "desc": "Configuración equilibrada para NAS doméstico. Manejo de metadatos fiable y eficiente." },
-        "high": { "name": "Rendimiento", "desc": "Grado producción. Mejor con PostgreSQL y Redis para clústeres masivos de archivos." }
-      },
+      "steps": {},
+      "locked": {},
+      "profile": {},
       "config": {
         "title": "Configuración del entorno",
         "subtitle": "Configure su base de datos y caché. Las cadenas DSN se construirán automáticamente.",
@@ -940,21 +764,9 @@ const systemConfigBundle = defineLocaleBundle({
         "nextSteps": "Siguientes pasos:",
         "step1": "Inicie sesión con su cuenta de administrador.",
         "step2": "Edite y guarde la configuración en línea en la consola de administración.",
-        "step3": "Haga clic en confirmar para volver al lanzador y continuar el flujo normal.",
-        "reload": "Volver al lanzador",
-        "docs": "Ver documentación"
+        "step3": "Haga clic en confirmar para volver al lanzador y continuar el flujo normal."
       },
-      "logs": {
-        "title": "Registro de despliegue en tiempo real",
-        "selectingProfile": "Aplicando perfil: {{profile}}...",
-        "templateLoadFailed": "Falló la carga de la plantilla: {{error}}",
-        "testingDb": "Probando conexión a base de datos...",
-        "dbError": "Error de BD",
-        "dbSuccess": "¡Conexión a base de datos exitosa!",
-        "applyingConfig": "Aplicando configuración y sincronizando el esquema...",
-        "setupFailed": "El despliegue falló",
-        
-      },
+      "logs": {},
       "editor": {
         "title": "Centro de configuracion",
         "check": "Comprobar configuracion",
@@ -979,9 +791,7 @@ const systemConfigBundle = defineLocaleBundle({
         "nextSteps": "Siguientes pasos:",
         "step1": "Inicie sesión con su cuenta de administrador.",
         "step2": "Edite y guarde la configuración en línea en la consola de administración.",
-        "step3": "Haga clic en confirmar para volver al lanzador y continuar el flujo normal.",
-        "reload": "Volver al lanzador",
-        "docs": "Ver documentación"
+        "step3": "Haga clic en confirmar para volver al lanzador y continuar el flujo normal."
       }
     },
     "configSelector": { "confirm": "Confirmar" }
@@ -1001,7 +811,7 @@ const systemConfigBundle = defineLocaleBundle({
         "title": "FileUni in etwa 30 Sekunden einrichten",
         "desc": "Wenn Sie FileUni zum ersten Mal starten, sind die Standardwerte meist schon passend. Wählen Sie bei Bedarf ein Admin-Passwort und klicken Sie dann direkt auf Anwenden.",
       },
-      "steps": { "profile": "Profil" },
+      "steps": {},
       "config": { "username": "Benutzername", "password": "Passwort", "advanced": { "userCenterTitle": "Benutzerzentrum" } },
       "admin": {
         "title": "Admin-Passwort festlegen",
@@ -1032,10 +842,9 @@ const systemConfigBundle = defineLocaleBundle({
         "step2": "Bearbeiten und speichern Sie die Konfiguration in der Admin-Konsole.",
         "step3": "Klicken Sie auf Bestätigen, um zum Launcher zurückzukehren und normal fortzufahren."
       },
-      "locked": { "title": "Einstellungscenter nicht verfügbar" }
+      "locked": {}
     },
     "configSet": {
-      "steps": { "profile": "Profil" },
       "config": { "username": "Benutzername", "password": "Passwort", "advanced": { "userCenterTitle": "Benutzerzentrum" } },
       "logs": { "failed": "Fehlgeschlagen", "success": "Erfolg" },
       "locked": { "title": "Einstellungscenter nicht verfügbar" },
@@ -1070,29 +879,9 @@ const systemConfigBundle = defineLocaleBundle({
         "title": "Terminez la configuration de FileUni en environ 30 secondes",
         "desc": "Si vous utilisez FileUni pour la premiere fois, les valeurs par defaut suffisent generalement. Ajoutez un mot de passe administrateur si besoin, puis appliquez directement la configuration.",
       },
-      "steps": {
-        "step": "Étape",
-        "profile": "Profil",
-        "database": "Base de données",
-        "cache": "Memoire cache",
-        "advanced": "Réglages",
-        "config": "Revue",
-        "admin": "Admin",
-        "final": "Terminer",
-        "review": "Revue"
-      },
-      "locked": {
-        "title": "Centre de parametres indisponible",
-        "howToUnlockFile": "Supprimez `{runtime-dir}/install.lock`, puis redemarrez FileUni :",
-        "howToUnlockArg": "Le centre de parametres s'ouvre automatiquement lorsque `install.lock` est absent."
-      },
-      "profile": {
-        "title": "Choisir le profil de performance",
-        "subtitle": "Choisissez un point de départ selon votre matériel. Vous pourrez tout personnaliser à l'étape suivante.",
-        "low": { "name": "Éco / IoT", "desc": "Parfait pour Raspberry Pi ou VPS 1GB. SQLite léger et cache en mémoire." },
-        "medium": { "name": "Profil standard", "desc": "Réglage équilibré pour NAS domestique. Gestion des métadonnées fiable et efficace." },
-        "high": { "name": "Profil performance", "desc": "Niveau production. Idéal avec PostgreSQL et Redis pour de gros clusters de fichiers." }
-      },
+      "steps": {},
+      "locked": {},
+      "profile": {},
       "config": {
         "title": "Configuration de l'environnement",
         "subtitle": "Configurez votre base de données et votre cache. Les chaînes DSN seront générées automatiquement.",
@@ -1178,21 +967,9 @@ const systemConfigBundle = defineLocaleBundle({
         "nextSteps": "Que faire ensuite :",
         "step1": "Connectez-vous avec votre compte administrateur.",
         "step2": "Éditez et enregistrez la configuration en ligne dans la console admin.",
-        "step3": "Cliquez sur confirmer pour retourner au lanceur et continuer le flux normal.",
-        "reload": "Retourner au lanceur",
-        "docs": "Voir la documentation"
+        "step3": "Cliquez sur confirmer pour retourner au lanceur et continuer le flux normal."
       },
-      "logs": {
-        "title": "Journal de déploiement en temps réel",
-        "selectingProfile": "Application du profil : {{profile}}...",
-        "templateLoadFailed": "Échec du chargement du modèle : {{error}}",
-        "testingDb": "Test de la connexion à la base...",
-        "dbError": "Erreur BD",
-        "dbSuccess": "Connexion à la base réussie !",
-        "applyingConfig": "Application de la configuration et synchronisation du schéma...",
-        "setupFailed": "Échec du déploiement",
-        
-      },
+      "logs": {},
       "editor": {
         "title": "Centre de parametres",
         "check": "Verifier les parametres",
@@ -1217,9 +994,7 @@ const systemConfigBundle = defineLocaleBundle({
         "nextSteps": "Que faire ensuite :",
         "step1": "Connectez-vous avec votre compte administrateur.",
         "step2": "Éditez et enregistrez la configuration en ligne dans la console admin.",
-        "step3": "Cliquez sur confirmer pour retourner au lanceur et continuer le flux normal.",
-        "reload": "Retourner au lanceur",
-        "docs": "Voir la documentation"
+        "step3": "Cliquez sur confirmer pour retourner au lanceur et continuer le flux normal."
       }
     },
     "configSelector": { "confirm": "Confirmer" }
@@ -1241,28 +1016,10 @@ const systemConfigBundle = defineLocaleBundle({
         "desc": "Если вы запускаете FileUni впервые, значения по умолчанию обычно уже подходят. При необходимости задайте пароль администратора и сразу нажмите Применить.",
       },
       "steps": {
-        "step": "Шаг",
-        "profile": "Профиль",
-        "database": "База данных",
-        "cache": "Кэш",
-        "advanced": "Тюнинг",
-        "config": "Проверка",
-        "admin": "Админ",
-        "final": "Готово",
-        "review": "Проверка"
+        "step": "Шаг"
       },
-      "locked": {
-        "title": "Центр настроек недоступен",
-        "howToUnlockFile": "Удалите `{runtime-dir}/install.lock`, затем перезапустите FileUni:",
-        "howToUnlockArg": "Если `install.lock` отсутствует, центр настроек откроется автоматически."
-      },
-      "profile": {
-        "title": "Выберите профиль производительности",
-        "subtitle": "Выберите стартовую конфигурацию по вашему железу. На следующем шаге вы сможете настроить всё вручную.",
-        "low": { "name": "Эко / IoT", "desc": "Идеально для Raspberry Pi или VPS 1GB. Легкий SQLite и кэш в памяти." },
-        "medium": { "name": "Стандарт", "desc": "Сбалансированные настройки для домашнего NAS. Надежная и эффективная работа с метаданными." },
-        "high": { "name": "Производительность", "desc": "Уровень production. Лучше всего с PostgreSQL и Redis для больших файловых кластеров." }
-      },
+      "locked": {},
+      "profile": {},
       "config": {
         "title": "Настройка окружения",
         "subtitle": "Настройте базу данных и кэш. Строки DSN будут собраны автоматически.",
@@ -1348,21 +1105,9 @@ const systemConfigBundle = defineLocaleBundle({
         "nextSteps": "Что делать дальше:",
         "step1": "Войдите под учетной записью администратора.",
         "step2": "Отредактируйте и сохраните конфигурацию онлайн в админ-консоли.",
-        "step3": "Нажмите подтвердить, чтобы вернуться в лаунчер и продолжить обычный сценарий.",
-        "reload": "Вернуться в лаунчер",
-        "docs": "Открыть документацию"
+        "step3": "Нажмите подтвердить, чтобы вернуться в лаунчер и продолжить обычный сценарий."
       },
-      "logs": {
-        "title": "Лог развертывания в реальном времени",
-        "selectingProfile": "Применяем профиль: {{profile}}...",
-        "templateLoadFailed": "Не удалось загрузить шаблон: {{error}}",
-        "testingDb": "Проверяем подключение к базе...",
-        "dbError": "Ошибка БД",
-        "dbSuccess": "Подключение к базе успешно!",
-        "applyingConfig": "Применяем конфигурацию и синхронизируем схему БД...",
-        "setupFailed": "Развертывание не удалось",
-        
-      },
+      "logs": {},
       "editor": {
         "title": "Центр настроек",
         "check": "Проверить настройки",
@@ -1387,9 +1132,7 @@ const systemConfigBundle = defineLocaleBundle({
         "nextSteps": "Что делать дальше:",
         "step1": "Войдите под учетной записью администратора.",
         "step2": "Отредактируйте и сохраните конфигурацию онлайн в админ-консоли.",
-        "step3": "Нажмите подтвердить, чтобы вернуться в лаунчер и продолжить обычный сценарий.",
-        "reload": "Вернуться в лаунчер",
-        "docs": "Открыть документацию"
+        "step3": "Нажмите подтвердить, чтобы вернуться в лаунчер и продолжить обычный сценарий."
       }
     },
     "configSelector": { "confirm": "Подтвердить" }
@@ -1410,29 +1153,9 @@ const systemConfigBundle = defineLocaleBundle({
         "title": "約30秒で FileUni の初期設定を完了",
         "desc": "初めて FileUni を使う場合は、通常は既定値のままで十分です。必要なら管理者パスワードを設定し、そのまま適用してください。",
       },
-      "steps": {
-        "step": "ステップ",
-        "profile": "プロファイル",
-        "database": "データベース",
-        "cache": "キャッシュ",
-        "advanced": "調整",
-        "config": "確認",
-        "admin": "管理者",
-        "final": "完了",
-        "review": "確認"
-      },
-      "locked": {
-        "title": "設定センターを開けません",
-        "howToUnlockFile": "`{runtime-dir}/install.lock` を削除してから FileUni を再起動してください：",
-        "howToUnlockArg": "`install.lock` がない場合は設定センターが自動的に開きます。"
-      },
-      "profile": {
-        "title": "パフォーマンスプロファイルを選択",
-        "subtitle": "ハードウェアに合わせた開始設定を選択してください。次のステップですべてカスタマイズできます。",
-        "low": { "name": "エコ / IoT", "desc": "Raspberry Pi や 1GB VPS に最適。軽量 SQLite とメモリキャッシュ。" },
-        "medium": { "name": "標準", "desc": "家庭用 NAS 向けのバランス設定。信頼性と効率的なメタデータ処理。" },
-        "high": { "name": "高性能", "desc": "本番向け。大規模クラスターでは PostgreSQL と Redis が最適。" }
-      },
+      "steps": {},
+      "locked": {},
+      "profile": {},
       "config": {
         "title": "環境設定",
         "subtitle": "データベースとキャッシュを設定します。DSN は自動的に構築されます。",
@@ -1518,21 +1241,9 @@ const systemConfigBundle = defineLocaleBundle({
         "nextSteps": "次に行うこと:",
         "step1": "管理者アカウントでサインインします。",
         "step2": "管理コンソールで設定を編集して保存します。",
-        "step3": "確認をクリックしてランチャーに戻り、通常フローを続行します。",
-        "reload": "ランチャーに戻る",
-        "docs": "ドキュメントを見る"
+        "step3": "確認をクリックしてランチャーに戻り、通常フローを続行します。"
       },
-      "logs": {
-        "title": "リアルタイム デプロイログ",
-        "selectingProfile": "プロファイルを適用中: {{profile}}...",
-        "templateLoadFailed": "テンプレートの読み込みに失敗: {{error}}",
-        "testingDb": "DB 接続をテスト中...",
-        "dbError": "DB エラー",
-        "dbSuccess": "DB 接続に成功しました！",
-        "applyingConfig": "設定を適用し、DB スキーマを同期中...",
-        "setupFailed": "デプロイに失敗しました",
-        
-      },
+      "logs": {},
       "editor": {
         "title": "設定センター",
         "check": "設定を確認",
@@ -1557,9 +1268,7 @@ const systemConfigBundle = defineLocaleBundle({
         "nextSteps": "次に行うこと:",
         "step1": "管理者アカウントでサインインします。",
         "step2": "管理コンソールで設定を編集して保存します。",
-        "step3": "確認をクリックしてランチャーに戻り、通常フローを続行します。",
-        "reload": "ランチャーに戻る",
-        "docs": "ドキュメントを見る"
+        "step3": "確認をクリックしてランチャーに戻り、通常フローを続行します。"
       }
     },
     "configSelector": { "confirm": "確認" }
