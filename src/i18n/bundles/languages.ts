@@ -3,7 +3,7 @@ import type { FrontendResourceLocale } from '@/i18n/locale-adapter';
 
 const languagesBundle = defineLocaleBundle({
   en: {
-    zh: 'Chinese',
+    'zh-cn': 'Chinese',
     en: 'English',
     es: 'Spanish',
     de: 'German',
@@ -13,7 +13,7 @@ const languagesBundle = defineLocaleBundle({
     auto: 'Auto',
   },
   'zh-cn': {
-    zh: '中文',
+    'zh-cn': '中文',
     en: 'English',
     es: 'Español',
     de: 'Deutsch',
@@ -23,7 +23,7 @@ const languagesBundle = defineLocaleBundle({
     auto: '自动',
   },
   es: {
-    zh: 'Chino',
+    'zh-cn': 'Chino',
     en: 'Inglés',
     es: 'Español',
     de: 'Alemán',
@@ -33,7 +33,7 @@ const languagesBundle = defineLocaleBundle({
     auto: 'Automático',
   },
   de: {
-    zh: 'Chinesisch',
+    'zh-cn': 'Chinesisch',
     en: 'Englisch',
     es: 'Spanisch',
     de: 'Deutsch',
@@ -43,7 +43,7 @@ const languagesBundle = defineLocaleBundle({
     auto: 'Automatisch',
   },
   fr: {
-    zh: 'Chinois',
+    'zh-cn': 'Chinois',
     en: 'Anglais',
     es: 'Espagnol',
     de: 'Allemand',
@@ -53,7 +53,7 @@ const languagesBundle = defineLocaleBundle({
     auto: 'Automatique',
   },
   ru: {
-    zh: 'Китайский',
+    'zh-cn': 'Китайский',
     en: 'Английский',
     es: 'Испанский',
     de: 'Немецкий',
@@ -63,7 +63,7 @@ const languagesBundle = defineLocaleBundle({
     auto: 'Авто',
   },
   ja: {
-    zh: '中国語',
+    'zh-cn': '中国語',
     en: '英語',
     es: 'スペイン語',
     de: 'ドイツ語',
@@ -77,8 +77,8 @@ const languagesBundle = defineLocaleBundle({
 type LanguageLabels = { [Key in keyof (typeof languagesBundle)['en']]: string };
 
 export const languagesByResourceLocale = {
-  zh: languagesBundle['zh-cn'],
   en: languagesBundle.en,
+  'zh-cn': languagesBundle['zh-cn'],
   es: languagesBundle.es,
   de: languagesBundle.de,
   fr: languagesBundle.fr,

@@ -112,7 +112,7 @@ const blacklistBundle = defineLocaleBundle({
 type BlacklistMessages = { [Key in keyof (typeof blacklistBundle)['en']]: string };
 
 export const blacklistByResourceLocale = {
-  zh: blacklistBundle['zh-cn'],
+  'zh-cn': blacklistBundle['zh-cn'],
   en: blacklistBundle.en,
   es: blacklistBundle.es,
   de: blacklistBundle.de,

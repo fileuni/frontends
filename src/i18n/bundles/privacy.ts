@@ -119,7 +119,7 @@ const privacyBundle = defineLocaleBundle({
 type PrivacyMessages = LocaleShape<(typeof privacyBundle)['en']>;
 
 export const privacyByResourceLocale = {
-  zh: privacyBundle['zh-cn'],
+  'zh-cn': privacyBundle['zh-cn'],
   en: privacyBundle.en,
   es: privacyBundle.es,
   de: privacyBundle.de,

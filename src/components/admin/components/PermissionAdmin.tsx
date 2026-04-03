@@ -192,7 +192,7 @@ export const PermissionAdmin = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {items.map((item) => {
                         const checked = draftPermissions.includes(item.perm_key);
-                        const description = i18n.language === "zh" ? item.desc_zh : item.desc_en;
+                        const description = i18n.language === 'zh-cn' ? item.desc_zh : item.desc_en;
                         return (
                           <div
                             key={item.perm_key}

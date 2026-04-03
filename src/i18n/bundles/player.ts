@@ -42,7 +42,7 @@ const playerBundle = defineLocaleBundle({
 type PlayerMessages = { [Key in keyof (typeof playerBundle)['en']]: string };
 
 export const playerByResourceLocale = {
-  zh: playerBundle['zh-cn'],
+  'zh-cn': playerBundle['zh-cn'],
   en: playerBundle.en,
   es: playerBundle.es,
   de: playerBundle.de,

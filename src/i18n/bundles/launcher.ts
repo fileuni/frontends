@@ -609,7 +609,7 @@ const launcherBundle = defineLocaleBundle({
 type LauncherMessages = LocaleShape<(typeof launcherBundle)['en']>;
 
 export const launcherByResourceLocale = {
-  zh: launcherBundle['zh-cn'],
+  'zh-cn': launcherBundle['zh-cn'],
   en: launcherBundle.en,
   es: launcherBundle.es,
   de: launcherBundle.de,

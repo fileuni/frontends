@@ -851,7 +851,7 @@ const pagesBundle = defineLocaleBundle({
 type PagesMessages = LocaleShape<(typeof pagesBundle)['en']>;
 
 export const pagesByResourceLocale = {
-  zh: pagesBundle['zh-cn'],
+  'zh-cn': pagesBundle['zh-cn'],
   en: pagesBundle.en,
   es: pagesBundle.es,
   de: pagesBundle.de,

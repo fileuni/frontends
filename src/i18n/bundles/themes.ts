@@ -49,7 +49,7 @@ const themesBundle = defineLocaleBundle({
 type ThemeLabels = { [Key in keyof (typeof themesBundle)['en']]: string };
 
 export const themesByResourceLocale = {
-  zh: themesBundle['zh-cn'],
+  'zh-cn': themesBundle['zh-cn'],
   en: themesBundle.en,
   es: themesBundle.es,
   de: themesBundle.de,

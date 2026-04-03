@@ -55,6 +55,8 @@ const commonEn = {
   noItems: 'No items',
   noResults: 'No results',
   none: 'None',
+  yes: 'Yes',
+  no: 'No',
   status: 'Status',
   confirmDelete: 'Are you sure you want to delete this item?',
   downloadStarted: 'Starting download...',
@@ -161,6 +163,8 @@ const commonBundle = defineLocaleBundle({
     noItems: '暂无项目',
     noResults: '无结果',
     none: '无',
+    yes: '是',
+    no: '否',
     status: '状态',
     confirmDelete: '确定要删除此项目吗？',
     downloadStarted: '开始下载...',
@@ -735,7 +739,7 @@ const commonBundle = defineLocaleBundle({
 type CommonMessages = LocaleShape<(typeof commonBundle)['en']>;
 
 export const commonByResourceLocale = {
-  zh: commonBundle['zh-cn'],
+  'zh-cn': commonBundle['zh-cn'],
   en: commonBundle.en,
   es: commonBundle.es,
   de: commonBundle.de,

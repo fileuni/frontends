@@ -568,7 +568,7 @@ const NotificationList = ({
 }: NotificationListProps) => {
   const { t } = useTranslation();
   const { language } = useLanguageStore();
-  const dateLocale = language === "zh" ? zhCN : enUS;
+  const dateLocale = language === 'zh-cn' ? zhCN : enUS;
 
   if (notifications.length === 0) {
     return (

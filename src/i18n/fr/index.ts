@@ -1,5 +1,5 @@
-import admin from './admin.json';
-import adminSetting from './admin-setting.json';
+import { adminByResourceLocale } from '../bundles/admin';
+import { adminSettingByResourceLocale } from '../bundles/adminSetting';
 import { aboutByResourceLocale } from '../bundles/about';
 import { authByResourceLocale } from '../bundles/auth';
 import { blacklistByResourceLocale } from '../bundles/blacklist';
@@ -18,7 +18,7 @@ import { securityByResourceLocale } from '../bundles/security';
 import { sessionsByResourceLocale } from '../bundles/sessions';
 import { systemConfigByResourceLocale } from '../bundles/systemConfig';
 import { tosByResourceLocale } from '../bundles/tos';
-import filemanager from './filemanager.json';
+import { filemanagerByResourceLocale } from '../bundles/filemanager';
 import { playerByResourceLocale } from '../bundles/player';
 import { welcomeByResourceLocale } from '../bundles/welcome';
 import { languagesByResourceLocale } from '../bundles/languages';
@@ -27,9 +27,9 @@ import { themesByResourceLocale } from '../bundles/themes';
 const translation = {
   "about": aboutByResourceLocale.fr,
   "admin": {
-    ...admin,
-    "settings": adminSetting.admin.settings,
-    "config": adminSetting.admin.config,
+    ...adminByResourceLocale.fr,
+    "settings": adminSettingByResourceLocale.fr.admin.settings,
+    "config": adminSettingByResourceLocale.fr.admin.config,
   },
   "auth": authByResourceLocale.fr,
   "blacklist": blacklistByResourceLocale.fr,
@@ -38,7 +38,7 @@ const translation = {
   "common": commonByResourceLocale.fr,
   "email": emailByResourceLocale.fr,
   "errors": errorsByResourceLocale.fr,
-  "filemanager": filemanager,
+  "filemanager": filemanagerByResourceLocale.fr,
   "forgotPassword": forgotPasswordByResourceLocale.fr,
   "languages": languagesByResourceLocale.fr,
   "launcher": launcherByResourceLocale.fr,

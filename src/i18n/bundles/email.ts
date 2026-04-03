@@ -899,7 +899,7 @@ const emailBundle = defineLocaleBundle({
 type EmailMessages = LocaleShape<(typeof emailBundle)['en']>;
 
 export const emailByResourceLocale = {
-  zh: emailBundle['zh-cn'],
+  'zh-cn': emailBundle['zh-cn'],
   en: emailBundle.en,
   es: emailBundle.es,
   de: emailBundle.de,

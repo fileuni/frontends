@@ -2,10 +2,10 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import i18next from 'i18next';
 import { changeLanguage, type SupportedLang } from '@/lib/i18n';
-import { detectFrontendLocale, toFrontendResourceLocale, toHtmlLang } from '@/i18n/locale-adapter';
+import { detectFrontendLocale, toHtmlLang } from '@/i18n/locale-adapter';
 import { storageHub } from '../lib/storageHub';
 
-export type Language = 'auto' | 'zh' | 'en' | 'es' | 'de' | 'fr' | 'ru' | 'ja';
+export type Language = 'auto' | 'en' | 'zh-cn' | 'es' | 'de' | 'fr' | 'ru' | 'ja';
 
 interface LanguageState {
   language: Language;
@@ -39,15 +39,13 @@ export const useLanguageStore = create<LanguageState>()(
  */
 export function applyLanguage(lang: Language) {
   if (typeof window === 'undefined') return;
-  
+
   let targetLang: SupportedLang = lang === 'auto' ? 'en' : lang;
   if (lang === 'auto') {
-    targetLang = toFrontendResourceLocale(
-      detectFrontendLocale(navigator.language, navigator.languages),
-    );
+    targetLang = detectFrontendLocale(navigator.language, navigator.languages);
   }
-  
-  const normalized = (['zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'] as const).includes(targetLang as SupportedLang)
+
+  const normalized = (['en', 'zh-cn', 'es', 'de', 'fr', 'ru', 'ja'] as const).includes(targetLang as SupportedLang)
     ? (targetLang as SupportedLang)
     : 'en';
   void changeLanguage(normalized).catch(() => {

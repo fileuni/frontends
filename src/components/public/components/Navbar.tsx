@@ -287,7 +287,7 @@ export const Navbar = () => {
                 <div>
                   <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.language')}</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
-                    {(['auto', 'zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'] as Language[]).map((lang) => (
+                    {(['auto', 'en', 'zh-cn', 'es', 'de', 'fr', 'ru', 'ja'] as Language[]).map((lang) => (
                       <button 
                         type="button"
                         key={lang}

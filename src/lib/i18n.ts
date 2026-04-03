@@ -4,7 +4,6 @@ import {
   FRONTEND_RESOURCE_LOCALES,
   detectFrontendLocale,
   normalizeFrontendStoredLocale,
-  toFrontendResourceLocale,
   type FrontendResourceLocale,
 } from '@/i18n/locale-adapter';
 
@@ -13,8 +12,8 @@ export type SupportedLang = FrontendResourceLocale;
 const supportedLangs: SupportedLang[] = [...FRONTEND_RESOURCE_LOCALES];
 
 const loaders: Record<SupportedLang, () => Promise<{ default: Record<string, unknown> }>> = {
-  zh: () => import('@/i18n/zh/index.ts'),
   en: () => import('@/i18n/en/index.ts'),
+  'zh-cn': () => import('@/i18n/zh-cn/index.ts'),
   es: () => import('@/i18n/es/index.ts'),
   de: () => import('@/i18n/de/index.ts'),
   fr: () => import('@/i18n/fr/index.ts'),
@@ -25,7 +24,7 @@ const loaders: Record<SupportedLang, () => Promise<{ default: Record<string, unk
 const toSupportedLang = (raw: unknown): SupportedLang | null => {
   if (typeof raw !== 'string') return null;
   const canonical = normalizeFrontendStoredLocale(raw);
-  return canonical ? toFrontendResourceLocale(canonical) : null;
+  return canonical;
 };
 
 const detectInitialLang = (): SupportedLang => {
@@ -37,9 +36,7 @@ const detectInitialLang = (): SupportedLang => {
       const parsed = JSON.parse(stateRaw) as { state?: { language?: string } };
       const value = parsed?.state?.language;
       if (value === 'auto') {
-        return toFrontendResourceLocale(
-          detectFrontendLocale(navigator.language || 'en', navigator.languages),
-        );
+        return detectFrontendLocale(navigator.language || 'en', navigator.languages);
       }
       const normalized = toSupportedLang(value);
       if (normalized) return normalized;
@@ -51,9 +48,7 @@ const detectInitialLang = (): SupportedLang => {
   const saved = toSupportedLang(window.localStorage.getItem('fileuni-language-raw'));
   if (saved) return saved;
 
-  return toFrontendResourceLocale(
-    detectFrontendLocale(navigator.language || 'en', navigator.languages),
-  );
+  return detectFrontendLocale(navigator.language || 'en', navigator.languages);
 };
 
 const loadTranslationFor = async (lang: SupportedLang): Promise<Record<string, unknown>> => {

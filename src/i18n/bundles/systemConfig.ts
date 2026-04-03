@@ -1700,7 +1700,7 @@ const systemConfigBundle = defineLocaleBundle({
 type SystemConfigMessages = LocaleShape<(typeof systemConfigBundle)['en']>;
 
 export const systemConfigByResourceLocale = {
-  zh: systemConfigBundle['zh-cn'],
+  'zh-cn': systemConfigBundle['zh-cn'],
   en: systemConfigBundle.en,
   es: systemConfigBundle.es,
   de: systemConfigBundle.de,

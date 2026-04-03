@@ -70,7 +70,7 @@ const welcomeBundle = defineLocaleBundle({
 type WelcomeMessages = { [Key in keyof (typeof welcomeBundle)['en']]: string };
 
 export const welcomeByResourceLocale = {
-  zh: welcomeBundle['zh-cn'],
+  'zh-cn': welcomeBundle['zh-cn'],
   en: welcomeBundle.en,
   es: welcomeBundle.es,
   de: welcomeBundle.de,

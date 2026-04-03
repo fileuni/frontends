@@ -1268,7 +1268,7 @@ const chatBundle = defineLocaleBundle({
 type ChatMessages = LocaleShape<(typeof chatBundle)['en']>;
 
 export const chatByResourceLocale = {
-  zh: chatBundle['zh-cn'],
+  'zh-cn': chatBundle['zh-cn'],
   en: chatBundle.en,
   es: chatBundle.es,
   de: chatBundle.de,

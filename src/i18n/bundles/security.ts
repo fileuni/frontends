@@ -364,7 +364,7 @@ const securityBundle = defineLocaleBundle({
 type SecurityMessages = LocaleShape<(typeof securityBundle)['en']>;
 
 export const securityByResourceLocale = {
-  zh: securityBundle['zh-cn'],
+  'zh-cn': securityBundle['zh-cn'],
   en: securityBundle.en,
   es: securityBundle.es,
   de: securityBundle.de,

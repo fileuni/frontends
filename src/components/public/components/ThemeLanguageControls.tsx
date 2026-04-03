@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { normalizeFrontendStoredLocale } from '@/i18n/locale-adapter';
 import { useLanguageStore, type Language } from '@/stores/language';
 import { useThemeStore } from '@/stores/theme';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
@@ -12,8 +13,8 @@ interface ThemeLanguageControlsProps {
 }
 
 const languageOptions: { id: Language; label: string }[] = [
-  { id: 'zh', label: '🇨🇳 中文' },
   { id: 'en', label: '🇬🇧 English' },
+  { id: 'zh-cn', label: '🇨🇳 中文' },
   { id: 'es', label: '🇪🇸 Español' },
   { id: 'de', label: '🇩🇪 Deutsch' },
   { id: 'fr', label: '🇫🇷 Français' },
@@ -21,12 +22,12 @@ const languageOptions: { id: Language; label: string }[] = [
   { id: 'ja', label: '🇯🇵 日本語' },
 ];
 
-const supportedLanguages = ['zh', 'en', 'es', 'de', 'fr', 'ru', 'ja'] as const;
+const supportedLanguages = ['en', 'zh-cn', 'es', 'de', 'fr', 'ru', 'ja'] as const;
 
 const flagMap: Record<Language, string> = {
   auto: '🌐',
-  zh: '🇨🇳',
   en: '🇬🇧',
+  'zh-cn': '🇨🇳',
   es: '🇪🇸',
   de: '🇩🇪',
   fr: '🇫🇷',
@@ -43,7 +44,7 @@ export const ThemeLanguageControls: React.FC<ThemeLanguageControlsProps> = ({ co
   const langMenuRef = useRef<HTMLDivElement>(null);
 
   const isDark = resolvedTheme === 'dark';
-  const currentI18nLang = ((i18n.language || 'en').split('-')[0] ?? 'en').toLowerCase();
+  const currentI18nLang = normalizeFrontendStoredLocale(i18n.language) ?? 'en';
   const resolvedLang = supportedLanguages.includes(currentI18nLang as typeof supportedLanguages[number])
     ? currentI18nLang as typeof supportedLanguages[number]
     : 'en';

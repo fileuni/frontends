@@ -714,7 +714,7 @@ const errorsBundle = defineLocaleBundle({
 type ErrorMessages = LocaleShape<(typeof errorsBundle)['en']>;
 
 export const errorsByResourceLocale = {
-  zh: errorsBundle['zh-cn'],
+  'zh-cn': errorsBundle['zh-cn'],
   en: errorsBundle.en,
   es: errorsBundle.es,
   de: errorsBundle.de,
