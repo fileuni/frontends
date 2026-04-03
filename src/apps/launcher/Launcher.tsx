@@ -1615,68 +1615,70 @@ export function Launcher() {
         />
 
         {isEditingConfig && (
-          <div className="fixed inset-0 z-[120] bg-black/78 p-2 sm:p-4">
-            <SettingWorkbenchSurface
-              title={t("launcher.edit_config")}
-              configPath={configFilePath}
-              configPathAction={
-                <ConfigPathActionButton
-                  onClick={() => {
-                    void handleSettingsCenterRuntimeAction();
-                  }}
-                  label={t([
-                    "systemConfig.setup.guide.card1Action",
-                    "launcher.modify_runtime_dirs",
-                  ])}
-                />
-              }
-              headerExtras={<SettingSurfaceControls compact={true} />}
-              onClose={handleCloseConfigEditor}
-              closeAriaLabel={t("common.close")}
-              settingActions={settingActions}
-              testAction={{
-                label: t("systemConfig.setup.editor.check"),
-                onClick: () => {
-                  void handleTestConfig();
-                },
-                disabled: configBusy,
-              }}
-              primaryAction={{
-                label: t("launcher.save_config"),
-                onClick: () => {
-                  void handleSaveConfig();
-                },
-                disabled: configBusy,
-              }}
-              workbenchProps={{
-                tomlAdapter: toml,
-                loading: configFetching,
-                configPath: configFilePath,
-                content: configContent,
-                savedContent: savedConfigContent,
-                notes: configNotes,
-                validationErrors: configErrors,
-                busy: configBusy,
-                onChange: setConfigContent,
-                onTest: handleTestConfig,
-                onSave: handleSaveConfig,
-                saveLabel: t("launcher.save_config"),
-                onCancel: handleResetToSavedConfig,
-                onClearValidationErrors: clearConfigErrors,
-                showCancel: false,
-                reloadSummary: configSummary,
-                reloadSummaryLevel: configSummaryLevel,
-                runtimeOs: osInfo?.os_type,
-                systemHardware: osInfo,
-                onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,
-                onProbeExternalTool: sharedCapabilities.onProbeExternalTool,
-                onProbeMediaBackend: sharedCapabilities.onProbeMediaBackend,
-                ...(osInfo?.is_mobile
-                  ? { onPickStorageDirectory: pickExternalStorageDirectory }
-                  : {}),
-                ...(quickSettingsLicense ? { quickSettingsLicense } : {}),
-              }}
-            />
+          <div className="fixed inset-0 z-[120] overflow-y-auto overscroll-contain touch-pan-y bg-black/78 px-2 pt-[calc(0.5rem+var(--safe-area-top,0px))] pb-[calc(0.5rem+var(--safe-area-bottom,0px))] sm:px-4 sm:pt-[calc(1rem+var(--safe-area-top,0px))] sm:pb-[calc(1rem+var(--safe-area-bottom,0px))]">
+            <div className="mx-auto flex min-h-full w-full max-w-[96rem] items-start">
+              <SettingWorkbenchSurface
+                title={t("launcher.edit_config")}
+                configPath={configFilePath}
+                configPathAction={
+                  <ConfigPathActionButton
+                    onClick={() => {
+                      void handleSettingsCenterRuntimeAction();
+                    }}
+                    label={t([
+                      "systemConfig.setup.guide.card1Action",
+                      "launcher.modify_runtime_dirs",
+                    ])}
+                  />
+                }
+                headerExtras={<SettingSurfaceControls compact={true} />}
+                onClose={handleCloseConfigEditor}
+                closeAriaLabel={t("common.close")}
+                settingActions={settingActions}
+                testAction={{
+                  label: t("systemConfig.setup.editor.check"),
+                  onClick: () => {
+                    void handleTestConfig();
+                  },
+                  disabled: configBusy,
+                }}
+                primaryAction={{
+                  label: t("launcher.save_config"),
+                  onClick: () => {
+                    void handleSaveConfig();
+                  },
+                  disabled: configBusy,
+                }}
+                workbenchProps={{
+                  tomlAdapter: toml,
+                  loading: configFetching,
+                  configPath: configFilePath,
+                  content: configContent,
+                  savedContent: savedConfigContent,
+                  notes: configNotes,
+                  validationErrors: configErrors,
+                  busy: configBusy,
+                  onChange: setConfigContent,
+                  onTest: handleTestConfig,
+                  onSave: handleSaveConfig,
+                  saveLabel: t("launcher.save_config"),
+                  onCancel: handleResetToSavedConfig,
+                  onClearValidationErrors: clearConfigErrors,
+                  showCancel: false,
+                  reloadSummary: configSummary,
+                  reloadSummaryLevel: configSummaryLevel,
+                  runtimeOs: osInfo?.os_type,
+                  systemHardware: osInfo,
+                  onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,
+                  onProbeExternalTool: sharedCapabilities.onProbeExternalTool,
+                  onProbeMediaBackend: sharedCapabilities.onProbeMediaBackend,
+                  ...(osInfo?.is_mobile
+                    ? { onPickStorageDirectory: pickExternalStorageDirectory }
+                    : {}),
+                  ...(quickSettingsLicense ? { quickSettingsLicense } : {}),
+                }}
+              />
+            </div>
           </div>
         )}
       </div>
