@@ -113,6 +113,11 @@ writeFileSync(dynamicReportPath, dynamicKeyFindings.length === 0 ? 'No dynamic t
 const reportBody = unusedKeys.length === 0 ? 'No unused keys found.\n' : `${unusedKeys.join('\n')}\n`;
 writeFileSync(unusedReportPath, reportBody, 'utf8');
 
+assert(
+  dynamicKeyFindings.length === 0,
+  `dynamic translation keys are not allowed:\n${dynamicKeyFindings.join('\n')}`,
+);
+
 console.log(
   `i18n usage check passed. Dynamic key count: ${dynamicKeyFindings.length}. Unused key count: ${unusedKeys.length}`,
 );

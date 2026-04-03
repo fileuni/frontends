@@ -4,6 +4,8 @@ export type { paths, components };
 import { useAuthStore } from "@/stores/auth.ts";
 import { useToastStore } from '@/stores/toast';
 import i18next from "./i18n.ts";
+import { normalizeFrontendStoredLocale } from '@/i18n/locale-adapter';
+import { errorsByResourceLocale } from '@/i18n/bundles/errors';
 
 // DEV: Empty baseUrl routes through Vite proxy, consistent with WebSocket, solves CORS
 export const BASE_URL = "";
@@ -392,8 +394,9 @@ client.use({
       
       let errorMsg = msg || response.statusText || "Network Error";
       if (bizCode) {
-        const translated = i18next.t(`errors.${bizCode}`);
-        if (translated && !translated.startsWith('[')) {
+        const locale = normalizeFrontendStoredLocale(i18next.resolvedLanguage) || 'en';
+        const translated = (errorsByResourceLocale[locale] as Record<string, string>)[bizCode];
+        if (translated) {
           errorMsg = translated;
         }
       }

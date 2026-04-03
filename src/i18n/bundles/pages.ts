@@ -147,29 +147,6 @@ const pagesEn = {
     "indigo": "Cyan",
     "purple": "Deep Blue"
   },
-  "publicShare": {
-    "verifying": "Verifying share link...",
-    "accessDenied": "Access Denied",
-    "linkExpired": "This share link has expired or reached its download limit.",
-    "tryAgain": "Try Again",
-    "encryptedTitle": "Encrypted Share",
-    "passwordRequiredDesc": "This content requires a password to unlock.",
-    "enterPassword": "Enter password...",
-    "unlockBtn": "Unlock Content",
-    "views": "Views",
-    "status": "Status",
-    "active": "Active",
-    "downloadNow": "Download Now",
-    "previewOnline": "Preview Online",
-    "expiresSoon": "Expires Soon",
-    "file": "File",
-    "folder": "Folder",
-    "qrMobileAccess": "Mobile Access",
-    "qrScanDesc": "Scan to open this share on your phone",
-    "qrBackToInfo": "Back to Info",
-    "emptyFolder": "This folder is empty",
-    "previewNotAvailable": "Preview Not Available"
-  }
 } as const;
 
 const pagesBundle = defineLocaleBundle({
@@ -373,29 +350,6 @@ const pagesBundle = defineLocaleBundle({
       "indigo": "Cian",
       "purple": "Azul profundo"
     },
-    "publicShare": {
-      "verifying": "Verificando enlace de compartición...",
-      "accessDenied": "Acceso denegado",
-      "linkExpired": "Este enlace de compartición ha expirado o alcanzó su límite de descargas.",
-      "tryAgain": "Reintentar",
-      "encryptedTitle": "Compartición cifrada",
-      "passwordRequiredDesc": "Este contenido requiere una contraseña para desbloquearse.",
-      "enterPassword": "Introduzca la contraseña...",
-      "unlockBtn": "Desbloquear contenido",
-      "views": "Vistas",
-      "status": "Estado",
-      "active": "Activa",
-      "downloadNow": "Descargar ahora",
-      "previewOnline": "Vista previa en línea",
-      "expiresSoon": "Caduca pronto",
-      "file": "Archivo",
-      "folder": "Carpeta",
-      "qrMobileAccess": "Acceso móvil",
-      "qrScanDesc": "Escanee para abrir esta compartición en su teléfono",
-      "qrBackToInfo": "Volver a información",
-      "emptyFolder": "Esta carpeta está vacía",
-      "previewNotAvailable": "Vista previa no disponible"
-    }
   }),
   de: mergeLocale(pagesEn, {
     "tos": { "title": "Nutzungsbedingungen" },
@@ -465,26 +419,6 @@ const pagesBundle = defineLocaleBundle({
       "blue": "Blau",
       "purple": "Dunkelblau"
     },
-    "publicShare": {
-      "verifying": "Freigelink wird überprüft...",
-      "accessDenied": "Zugriff verweigert",
-      "linkExpired": "Dieser Freigelink ist abgelaufen oder hat sein Download-Limit erreicht.",
-      "tryAgain": "Erneut versuchen",
-      "encryptedTitle": "Verschlüsselte Freigabe",
-      "passwordRequiredDesc": "Dieser Inhalt erfordert ein Passwort zum Entsperren.",
-      "enterPassword": "Passwort eingeben...",
-      "unlockBtn": "Inhalt entsperren",
-      "views": "Aufrufe",
-      "active": "Aktiv",
-      "downloadNow": "Jetzt herunterladen",
-      "file": "Datei",
-      "folder": "Ordner",
-      "qrMobileAccess": "Mobiler Zugriff",
-      "qrScanDesc": "Scannen Sie, um diese Freigabe auf Ihrem Telefon zu öffnen",
-      "qrBackToInfo": "Zurück zur Info",
-      "emptyFolder": "Dieser Ordner ist leer",
-      "previewNotAvailable": "Vorschau nicht verfügbar"
-    }
   }),
   fr: mergeLocale(pagesEn, {
     "tos": { "title": "Conditions d'utilisation" },
@@ -582,29 +516,6 @@ const pagesBundle = defineLocaleBundle({
       "indigo": "Bleu cyan",
       "purple": "Bleu profond"
     },
-    "publicShare": {
-      "verifying": "Vérification du lien de partage...",
-      "accessDenied": "Accès refusé",
-      "linkExpired": "Ce lien de partage a expiré ou a atteint sa limite de téléchargements.",
-      "tryAgain": "Réessayer",
-      "encryptedTitle": "Partage chiffré",
-      "passwordRequiredDesc": "Ce contenu nécessite un mot de passe pour être déverrouillé.",
-      "enterPassword": "Saisissez le mot de passe...",
-      "unlockBtn": "Déverrouiller le contenu",
-      "views": "Vues",
-      "status": "Statut",
-      "active": "Actif",
-      "downloadNow": "Télécharger maintenant",
-      "previewOnline": "Aperçu en ligne",
-      "expiresSoon": "Expire bientôt",
-      "file": "Fichier",
-      "folder": "Dossier",
-      "qrMobileAccess": "Accès mobile",
-      "qrScanDesc": "Scannez pour ouvrir ce partage sur votre téléphone",
-      "qrBackToInfo": "Retour aux infos",
-      "emptyFolder": "Ce dossier est vide",
-      "previewNotAvailable": "Aperçu indisponible"
-    }
   }),
   ru: mergeLocale(pagesEn, {
     "tos": { "title": "Условия использования" },
@@ -702,29 +613,6 @@ const pagesBundle = defineLocaleBundle({
       "indigo": "Циан",
       "purple": "Глубокий синий"
     },
-    "publicShare": {
-      "verifying": "Проверка ссылки на общий доступ...",
-      "accessDenied": "Доступ запрещен",
-      "linkExpired": "Эта ссылка истекла или достигла лимита загрузок.",
-      "tryAgain": "Повторить",
-      "encryptedTitle": "Зашифрованный доступ",
-      "passwordRequiredDesc": "Для доступа к этому содержимому нужен пароль.",
-      "enterPassword": "Введите пароль...",
-      "unlockBtn": "Открыть доступ",
-      "views": "Просмотры",
-      "status": "Статус",
-      "active": "Активен",
-      "downloadNow": "Скачать",
-      "previewOnline": "Предпросмотр онлайн",
-      "expiresSoon": "Скоро истечет",
-      "file": "Файл",
-      "folder": "Папка",
-      "qrMobileAccess": "Доступ с телефона",
-      "qrScanDesc": "Сканируйте, чтобы открыть эту ссылку на телефоне",
-      "qrBackToInfo": "Назад к информации",
-      "emptyFolder": "Эта папка пуста",
-      "previewNotAvailable": "Предпросмотр недоступен"
-    }
   }),
   ja: mergeLocale(pagesEn, {
     "tos": { "title": "利用規約" },
@@ -822,29 +710,6 @@ const pagesBundle = defineLocaleBundle({
       "indigo": "シアン",
       "purple": "ディープブルー"
     },
-    "publicShare": {
-      "verifying": "共有リンクを確認しています...",
-      "accessDenied": "アクセス拒否",
-      "linkExpired": "この共有リンクは期限切れか、ダウンロード上限に達しました。",
-      "tryAgain": "再試行",
-      "encryptedTitle": "暗号化された共有",
-      "passwordRequiredDesc": "このコンテンツはパスワードが必要です。",
-      "enterPassword": "パスワードを入力...",
-      "unlockBtn": "コンテンツを解除",
-      "views": "閲覧数",
-      "status": "ステータス",
-      "active": "有効",
-      "downloadNow": "今すぐダウンロード",
-      "previewOnline": "オンラインプレビュー",
-      "expiresSoon": "まもなく期限切れ",
-      "file": "ファイル",
-      "folder": "フォルダ",
-      "qrMobileAccess": "モバイルアクセス",
-      "qrScanDesc": "スキャンしてスマホで開く",
-      "qrBackToInfo": "情報に戻る",
-      "emptyFolder": "このフォルダは空です",
-      "previewNotAvailable": "プレビューできません"
-    }
   }),
 });
 

@@ -51,42 +51,6 @@ const dangerButtonClassName = (isDark: boolean) =>
       : "border-rose-200 bg-rose-50 text-rose-900 hover:bg-rose-100",
   );
 
-const DRIVER_LABEL_KEYS: Record<VfsDriver, string> = {
-  fs: "admin.config.storage.drivers.fs",
-  memory: "admin.config.storage.drivers.memory",
-  s3: "admin.config.storage.drivers.s3",
-  webdav: "admin.config.storage.drivers.webdav",
-  dropbox: "admin.config.storage.drivers.dropbox",
-  onedrive: "admin.config.storage.drivers.onedrive",
-  gdrive: "admin.config.storage.drivers.gdrive",
-  android_saf: "admin.config.storage.drivers.android_saf",
-  ios_scoped_fs: "admin.config.storage.drivers.ios_scoped_fs",
-};
-
-const ROOT_PLACEHOLDER_KEYS: Record<VfsDriver, string> = {
-  fs: "admin.config.storage.placeholders.root.fs",
-  memory: "admin.config.storage.placeholders.root.memory",
-  s3: "admin.config.storage.placeholders.root.s3",
-  webdav: "admin.config.storage.placeholders.root.webdav",
-  dropbox: "admin.config.storage.placeholders.root.dropbox",
-  onedrive: "admin.config.storage.placeholders.root.onedrive",
-  gdrive: "admin.config.storage.placeholders.root.gdrive",
-  android_saf: "admin.config.storage.placeholders.root.android_saf",
-  ios_scoped_fs: "admin.config.storage.placeholders.root.ios_scoped_fs",
-};
-
-const ROOT_HINT_KEYS: Record<VfsDriver, string> = {
-  fs: "admin.config.storage.hints.root.fs",
-  memory: "admin.config.storage.hints.root.memory",
-  s3: "admin.config.storage.hints.root.s3",
-  webdav: "admin.config.storage.hints.root.webdav",
-  dropbox: "admin.config.storage.hints.root.dropbox",
-  onedrive: "admin.config.storage.hints.root.onedrive",
-  gdrive: "admin.config.storage.hints.root.gdrive",
-  android_saf: "admin.config.storage.hints.root.android_saf",
-  ios_scoped_fs: "admin.config.storage.hints.root.ios_scoped_fs",
-};
-
 const CONNECTOR_FIELD_LABEL_KEYS = {
   s3: {
     endpoint: "systemConfig.setup.storagePool.s3.endpoint",
@@ -153,14 +117,83 @@ const CONNECTOR_FIELD_HINT_KEYS = {
   },
 } as const;
 
-export const getStorageDriverLabelKey = (driver: VfsDriver): string =>
-  DRIVER_LABEL_KEYS[driver];
+export const getStorageDriverLabel = (
+  t: TFunction,
+  driver: VfsDriver,
+): string => {
+  switch (driver) {
+    case 'fs':
+      return t('admin.config.storage.drivers.fs');
+    case 'memory':
+      return t('admin.config.storage.drivers.memory');
+    case 's3':
+      return t('admin.config.storage.drivers.s3');
+    case 'webdav':
+      return t('admin.config.storage.drivers.webdav');
+    case 'dropbox':
+      return t('admin.config.storage.drivers.dropbox');
+    case 'onedrive':
+      return t('admin.config.storage.drivers.onedrive');
+    case 'gdrive':
+      return t('admin.config.storage.drivers.gdrive');
+    case 'android_saf':
+      return t('admin.config.storage.drivers.android_saf');
+    case 'ios_scoped_fs':
+      return t('admin.config.storage.drivers.ios_scoped_fs');
+  }
+};
 
-export const getStorageRootPlaceholderKey = (driver: VfsDriver): string =>
-  ROOT_PLACEHOLDER_KEYS[driver];
+export const getStorageRootPlaceholder = (
+  t: TFunction,
+  driver: VfsDriver,
+): string => {
+  switch (driver) {
+    case 'fs':
+      return t('admin.config.storage.placeholders.root.fs');
+    case 'memory':
+      return t('admin.config.storage.placeholders.root.memory');
+    case 's3':
+      return t('admin.config.storage.placeholders.root.s3');
+    case 'webdav':
+      return t('admin.config.storage.placeholders.root.webdav');
+    case 'dropbox':
+      return t('admin.config.storage.placeholders.root.dropbox');
+    case 'onedrive':
+      return t('admin.config.storage.placeholders.root.onedrive');
+    case 'gdrive':
+      return t('admin.config.storage.placeholders.root.gdrive');
+    case 'android_saf':
+      return t('admin.config.storage.placeholders.root.android_saf');
+    case 'ios_scoped_fs':
+      return t('admin.config.storage.placeholders.root.ios_scoped_fs');
+  }
+};
 
-export const getStorageRootHintKey = (driver: VfsDriver): string =>
-  ROOT_HINT_KEYS[driver];
+export const getStorageRootHint = (
+  t: TFunction,
+  driver: VfsDriver,
+): string => {
+  switch (driver) {
+    case 'fs':
+      return t('admin.config.storage.hints.root.fs');
+    case 'memory':
+      return t('admin.config.storage.hints.root.memory');
+    case 's3':
+      return t('admin.config.storage.hints.root.s3');
+    case 'webdav':
+      return t('admin.config.storage.hints.root.webdav');
+    case 'dropbox':
+      return t('admin.config.storage.hints.root.dropbox');
+    case 'onedrive':
+      return t('admin.config.storage.hints.root.onedrive');
+    case 'gdrive':
+      return t('admin.config.storage.hints.root.gdrive');
+    case 'android_saf':
+      return t('admin.config.storage.hints.root.android_saf');
+    case 'ios_scoped_fs':
+      return t('admin.config.storage.hints.root.ios_scoped_fs');
+  }
+};
 
 export const getConnectorFieldLabelKey = (
   driver: keyof typeof CONNECTOR_FIELD_LABEL_KEYS,

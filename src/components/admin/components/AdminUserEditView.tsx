@@ -36,10 +36,18 @@ interface AdminUserEditForm {
   bio?: string;
 }
 
-const ADMIN_USER_STATUS_LABEL_KEYS: Record<UserStatusValue, string> = {
-  active: 'admin.users.status.active',
-  inactive: 'admin.users.status.inactive',
-  banned: 'admin.users.status.banned',
+const getAdminUserStatusLabel = (
+  t: ReturnType<typeof useTranslation>['t'],
+  status: UserStatusValue,
+): string => {
+  switch (status) {
+    case 'active':
+      return t('admin.users.status.active');
+    case 'inactive':
+      return t('admin.users.status.inactive');
+    case 'banned':
+      return t('admin.users.status.banned');
+  }
 };
 
 const createDefaultFileSettings = (userId: string): FileSettingsBody => ({
@@ -593,7 +601,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 <div className="flex justify-between items-center text-sm font-black uppercase">
                   <span className="opacity-40">{t('admin.users.table.status')}</span>
                   <span className="opacity-70">
-                    {form.status ? t(ADMIN_USER_STATUS_LABEL_KEYS[form.status]) : '-'}
+                    {form.status ? getAdminUserStatusLabel(t, form.status) : '-'}
                   </span>
                 </div>
               </div>

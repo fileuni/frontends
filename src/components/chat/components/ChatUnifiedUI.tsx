@@ -53,13 +53,23 @@ type UserSearchResult = {
   username: string;
 };
 
-const CHAT_TAB_LABEL_KEYS = {
-  chats: "chat.tabs.chats",
-  invites: "chat.tabs.invites",
-  groups: "chat.tabs.groups",
-  profile: "chat.tabs.profile",
-  settings: "chat.tabs.settings",
-} as const;
+const getChatTabLabel = (
+  t: ReturnType<typeof useTranslation>['t'],
+  tab: "chats" | "invites" | "groups" | "profile" | "settings",
+): string => {
+  switch (tab) {
+    case 'chats':
+      return t('chat.tabs.chats');
+    case 'invites':
+      return t('chat.tabs.invites');
+    case 'groups':
+      return t('chat.tabs.groups');
+    case 'profile':
+      return t('chat.tabs.profile');
+    case 'settings':
+      return t('chat.tabs.settings');
+  }
+};
 
 const parseTransportBackend = (value: string): TransportBackend => {
   if (value === "mqtt-proxy" || value === "mqtt-external") return value;
@@ -273,8 +283,6 @@ export const ChatUnifiedUI: React.FC = () => {
   const [isUpdatingNickname, setIsUpdatingNickname] = useState(false);
 
   const isP2P = transport === "webrtc";
-  const activeSideTabLabelKey = CHAT_TAB_LABEL_KEYS[activeSideTab];
-
   const filteredRooms = useMemo(() => {
     return rooms.filter(
       (r) =>
@@ -569,7 +577,7 @@ export const ChatUnifiedUI: React.FC = () => {
               </button>
 
               <h2 className="text-base lg:text-lg font-semibold">
-                {t(activeSideTabLabelKey)}
+                {getChatTabLabel(t, activeSideTab)}
               </h2>
               {activeSideTab === "chats" && (
                 <Badge

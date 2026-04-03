@@ -33,12 +33,24 @@ import { ChatContext, type ChatContextProps, type Room } from "@/components/chat
 import { useConfigStore } from "@/stores/config.ts";
 import { useAuthzStore } from "@/stores/authz.ts";
 
-const TASK_TYPE_LABEL_KEYS: Record<string, string> = {
-  compress: 'filemanager.task.type.compress',
-  decompress: 'filemanager.task.type.decompress',
-  batch_delete: 'filemanager.task.type.batch_delete',
-  batch_move: 'filemanager.task.type.batch_move',
-  batch_copy: 'filemanager.task.type.batch_copy',
+const getTaskTypeLabel = (
+  t: ReturnType<typeof useTranslation>['t'],
+  taskType: string,
+): string => {
+  switch (taskType) {
+    case 'compress':
+      return t('filemanager.task.type.compress');
+    case 'decompress':
+      return t('filemanager.task.type.decompress');
+    case 'batch_delete':
+      return t('filemanager.task.type.batch_delete');
+    case 'batch_move':
+      return t('filemanager.task.type.batch_move');
+    case 'batch_copy':
+      return t('filemanager.task.type.batch_copy');
+    default:
+      return taskType;
+  }
 };
 
 export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
@@ -466,10 +478,7 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-black truncate">
-            {(() => {
-              const labelKey = TASK_TYPE_LABEL_KEYS[task.type];
-              return labelKey ? t(labelKey, { defaultValue: task.type }) : task.type;
-            })()}
+            {getTaskTypeLabel(t, task.type)}
           </p>
           <p className="text-sm opacity-40 mt-0.5 truncate">
             {task.message ||

@@ -24,8 +24,7 @@ const adminBundle = defineLocaleBundle({
       "localDesc": "Save a full backup directly to the server's local disk. Recommended for large databases or routine maintenance.",
       "localBtn": "Run Local Backup",
       "localSuccess": "Local backup completed: {{path}}",
-      "largeDbWarning": "Important: If any database table exceeds 100,000 records or the backup size is huge, please use professional tools (like pg_dump or sqlite3 backup) to ensure stability.",
-      "criticalAction": "Critical Action"
+      "largeDbWarning": "Important: If any database table exceeds 100,000 records or the backup size is huge, please use professional tools (like pg_dump or sqlite3 backup) to ensure stability."
     },
     "tasks": {
       "title": "Task Monitor",
@@ -56,15 +55,7 @@ const adminBundle = defineLocaleBundle({
     "perms": {
       "no_role": "Select a role",
       "title": "Access Governance",
-      "subtitle": "Security & Permissions Management",
-      "protocol_control": "Protocol Access Control",
-      "authorized": "Authorized",
-      "filter_placeholder": "Filter authorized users...",
-      "s3_credentials": "S3 Credentials",
-      "ssh_key": "Active Public Key",
-      "not_set": "Not Set",
-      "manage": "Manage Permissions",
-      "edit_user": "Edit Perms"
+      "subtitle": "Security & Permissions Management"
     },
     "web": {
       "title": "Website Management",
@@ -396,100 +387,6 @@ const adminBundle = defineLocaleBundle({
       "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
       "providerZerossl": "ZeroSSL"
     },
-    "ddns": {
-      "title": "DDNS",
-      "subtitle": "Configure provider, IPv4/IPv6 records, source detection and webhook",
-      "loading": "Loading DDNS configurations...",
-      "defaultConfigName": "New DDNS Config",
-      "runAll": "Run All",
-      "newConfig": "New Config",
-      "renameConfig": "Rename Config",
-      "deleteConfig": "Delete Config",
-      "save": "Save",
-      "saveSuccess": "DDNS configuration saved",
-      "deleteSuccess": "DDNS configuration deleted",
-      "runSuccess": "DDNS task executed",
-      "detectSuccess": "{{version}} detected: {{ip}}",
-      "detectFailed": "{{version}} detect failed",
-      "ipv4DomainsRequired": "IPv4 domains are required",
-      "ipv6DomainsRequired": "IPv6 domains are required",
-      "configList": "Configuration List",
-      "providerTitle": "DNS Provider",
-      "configNamePlaceholder": "Configuration name",
-      "callbackUrlPlaceholder": "Callback URL",
-      "callbackBodyPlaceholder": "Callback request body",
-      "proxiedPlaceholder": "Proxied: true/false",
-      "enabledPlaceholder": "Enabled: true/false",
-      "forceUpdatePlaceholder": "Force update: true/false",
-      "providerHelp": "Provider documentation",
-      "ipv4Title": "IPv4 (A Record)",
-      "ipv6Title": "IPv6 (AAAA Record)",
-      "byApi": "By API URL",
-      "byInterface": "By network interface",
-      "byCommand": "By command",
-      "detectIpv4": "Detect IPv4",
-      "detectIpv6": "Detect IPv6",
-      "ipv4UrlPlaceholder": "IPv4 detect URLs separated by comma",
-      "ipv6UrlPlaceholder": "IPv6 detect URLs separated by comma",
-      "interfacePlaceholder": "Network interface name (e.g. eth0)",
-      "commandPlaceholder": "Shell command for detect IP",
-      "domainsPlaceholder": "One domain each line, support sub:zone format",
-      "ipv6RegexPlaceholder": "IPv6 regex or @N (e.g. @1)",
-      "webhookTitle": "Webhook",
-      "webhookUrlPlaceholder": "Webhook URL",
-      "webhookBodyPlaceholder": "Webhook request body template",
-      "webhookHeadersPlaceholder": "One header per line, format: Key: Value",
-      "webhookTest": "Test Webhook",
-      "webhookTestSuccess": "Webhook test sent",
-      "allowPrivateTarget": "Allow Private Target",
-      "allowPrivateTargetHint": "Enable to allow Webhook/Callback to localhost or private IPs",
-      "renamePrompt": "Enter a new configuration name",
-      "deleteConfirm": "Delete current configuration group?",
-      "ipv6RegexMatched": "Matched: {{ip}}",
-      "ipv6RegexInvalid": "Invalid regular expression",
-      "ipv6RegexNoMatch": "No match found",
-      "ipv6RegexOutOfRange": "Index out of range",
-      "ipv6RegexNoInterface": "No IPv6 address on selected interface",
-      "configRuntime": "Runtime Status",
-      "noConfigs": "No DDNS configurations",
-      "run": "Run",
-      "edit": "Edit",
-      "delete": "Delete",
-      "domainHintTitle": "Domain Input Rules",
-      "domainHintAuto": "Auto parse: www.example.com",
-      "domainHintManual": "Manual parse: www:example.com",
-      "saveConfirmTitle": "Save DDNS Configuration",
-      "saveConfirmMsg": "Saving will replace records in current config group. Continue?",
-      "ttlLabel": "TTL",
-      "secretPlaceholder": "Secret",
-      "ipv6SupportYes": "yes",
-      "ipv6SupportNo": "no",
-      "providers": {
-        "alidns": "Aliyun",
-        "cloudflare": "Cloudflare",
-        "tencentcloud": "Tencent Cloud",
-        "dnspod": "DNSPod",
-        "callback": "Callback",
-        "vercel": "Vercel"
-      },
-      "webhookExamples": {
-        "serverchan": "ServerChan",
-        "dingtalk": "DingTalk",
-        "feishu": "Feishu",
-        "discord": "Discord"
-      },
-      "ttlOptions": {
-        "auto": "Auto",
-        "1s": "1s",
-        "5s": "5s",
-        "10s": "10s",
-        "1m": "1m",
-        "2m": "2m",
-        "10m": "10m",
-        "30m": "30m",
-        "1h": "1h"
-      }
-    },
     "acme": {
       "title": "ACME Certificate Management",
       "subtitle": "Automated issue and renewal for Let’s Encrypt / ZeroSSL certificates",
@@ -653,13 +550,9 @@ const adminBundle = defineLocaleBundle({
       "title": "File System",
       "subtitle": "Storage stats and maintenance",
       "statusRecovering": "RECOVERING",
-      "storage_stats": "Storage Stats",
       "cluster_storage": "Cluster Used Storage",
       "usage_efficiency": "Quota Utilization",
       "total_users": "Total Users",
-      "active_maintenance": "Active Maintenance",
-      "storage_types": "Storage Types",
-      "engine_distribution": "Engine Distribution",
       "global_ops": "Global Operations",
       "global_ops_desc": "Caution: These actions affect the entire cluster and should only be performed during maintenance windows.",
       "sync_index": "Sync Global Index",
@@ -685,8 +578,6 @@ const adminBundle = defineLocaleBundle({
       "wal_title": "WAL Issue Console",
       "wal_desc": "Review failed or recovering operation journals, then replay or close them after manual repair.",
       "wal_history_desc": "Browse completed WAL rows, including manually handled records, for audit and postmortem review.",
-      "wal_scope_hint": "This list only shows active issue rows in failed or recovering state.",
-      "wal_history_scope_hint": "History shows completed rows, including entries closed manually by an administrator.",
       "wal_loading": "Loading WAL issue entries",
       "wal_empty": "No active WAL issues",
       "wal_history_empty": "No WAL history rows matched the current filters",
@@ -803,33 +694,6 @@ const adminBundle = defineLocaleBundle({
         "actions": "Actions"
       }
     },
-    "settings": {
-      "title": "System Settings",
-      "save_config": "Save Config",
-      "sensitive": "Sensitive",
-      "accessing": "Accessing system data...",
-      "noData": "No data available for this section",
-      "globalSettings": "Global Settings",
-      "navNote": "Modifying system parameters will take effect immediately for the runtime config, but some core engines may require a restart.",
-      "quotaTitle": "System Quota & Entitlements",
-      "paramManagement": "Management of {{module}} parameters",
-      "hardwareId": "Hardware ID",
-      "matched": "MATCHED",
-      "notFound": "NOT_FOUND",
-      "enabledFeatures": "Enabled Features",
-      "configNote": "Configuration Note",
-      "licenseNote": "License keys are bound to the specific hardware fingerprint of this server. Changing significant hardware components may require a new license key.",
-      "generalNote": "Changes to core engine parameters may require a system restart to take full effect. Always validate your TOML structure before making direct edits.",
-      "tabs": {
-        "server": "Server",
-        "database": "Database",
-        "vfs": "Storage Hub",
-        "security": "Security",
-        "log": "Logs",
-        "license": "License"
-      },
-      "generate": "Generate Random Key"
-    },
     "config": {
       "title": "Configuration Editor",
       "loading": "Loading configuration...",
@@ -882,40 +746,13 @@ const adminBundle = defineLocaleBundle({
         "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
       },
       "externalTools": {
-        "diagnose": "Diagnose",
-        "autofill": "Auto Fill",
-        "autofillSuccess": "Detected paths have been filled into the form.",
-        "autofillNoChange": "No detected path was available to autofill.",
         "mobileDisabled": "Android and iOS keep image thumbnails on the built-in Rust pipeline and use system media frameworks for video thumbnails. External desktop binaries such as FFmpeg, ImageMagick, LibreOffice, libvips, and 7-Zip remain unavailable, so leave tool-backed features disabled on mobile deployments.",
-        "status": {
-          "ok": "OK",
-          "warning": "Review",
-          "missing": "Missing",
-          "configuredInvalid": "Invalid Config",
-          "unsupported": "Unsupported"
-        },
-        "labels": {
-          "vips": "libvips",
-          "imagemagick": "ImageMagick",
-          "ffmpeg": "FFmpeg",
-          "libreoffice": "LibreOffice"
-        },
         "placeholders": {
-          "vips": "vips",
-          "imagemagick": "convert or magick",
-          "ffmpeg": "ffmpeg",
-          "libreoffice": "soffice"
+          "ffmpeg": "ffmpeg"
         },
         "messages": {
           "diagnoseFailed": "External dependency diagnosis failed",
           "writeFailed": "Failed to write external dependency configuration"
-        },
-        "card": {
-          "current": "Current",
-          "detected": "Detected",
-          "version": "Version",
-          "candidates": "Candidates",
-          "warnings": "Operational Notes"
         }
       },
       "unsaved": "Unsaved",
@@ -931,10 +768,8 @@ const adminBundle = defineLocaleBundle({
         "subtitle": "Common tools and settings"
       },
       "pathUnavailable": "Config path unavailable",
-      "quickNotes": "Quick Notes",
       "example": "example",
       "noteEmpty": "No note available for the current key.",
-      "noteHint": "Notes map to config keys and sections.",
       "license": {
         "title": "License Management",
         "technical": {
@@ -1366,8 +1201,7 @@ const adminBundle = defineLocaleBundle({
       "localDesc": "将完整备份直接保存到服务器本地磁盘。适用于大型数据库或定期维护任务。",
       "localBtn": "执行本地备份",
       "localSuccess": "本地备份已完成：{{path}}",
-      "largeDbWarning": "重要提示：若单表记录超过 10 万条或备份体积巨大，请优先使用专业备份工具（如 pg_dump 或 sqlite3 backup）以确保稳定性和一致性。",
-      "criticalAction": "危险操作"
+      "largeDbWarning": "重要提示：若单表记录超过 10 万条或备份体积巨大，请优先使用专业备份工具（如 pg_dump 或 sqlite3 backup）以确保稳定性和一致性。"
     },
     "tasks": {
       "title": "任务监控",
@@ -1398,15 +1232,7 @@ const adminBundle = defineLocaleBundle({
     "perms": {
       "no_role": "请选择角色",
       "title": "访问治理",
-      "subtitle": "安全与权限管理",
-      "protocol_control": "协议访问控制",
-      "authorized": "已授权",
-      "filter_placeholder": "筛选授权用户...",
-      "s3_credentials": "S3 访问凭据",
-      "ssh_key": "当前 SSH 公钥",
-      "not_set": "未设置",
-      "manage": "权限管理",
-      "edit_user": "编辑权限"
+      "subtitle": "安全与权限管理"
     },
     "web": {
       "title": "网站管理",
@@ -1738,100 +1564,6 @@ const adminBundle = defineLocaleBundle({
       "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
       "providerZerossl": "ZeroSSL"
     },
-    "ddns": {
-      "title": "DDNS",
-      "subtitle": "配置厂商、IPv4/IPv6 记录、地址探测与 Webhook",
-      "loading": "正在加载 DDNS 配置...",
-      "defaultConfigName": "新建 DDNS 配置",
-      "runAll": "全部执行",
-      "newConfig": "新建配置",
-      "renameConfig": "重命名配置",
-      "deleteConfig": "删除配置",
-      "save": "保存",
-      "saveSuccess": "DDNS 配置已保存",
-      "deleteSuccess": "DDNS 配置已删除",
-      "runSuccess": "DDNS 任务已执行",
-      "detectSuccess": "{{version}} 探测成功: {{ip}}",
-      "detectFailed": "{{version}} 探测失败",
-      "ipv4DomainsRequired": "请填写 IPv4 域名",
-      "ipv6DomainsRequired": "请填写 IPv6 域名",
-      "configList": "配置列表",
-      "providerTitle": "DNS 厂商",
-      "configNamePlaceholder": "配置名称",
-      "callbackUrlPlaceholder": "回调 URL",
-      "callbackBodyPlaceholder": "回调请求体",
-      "proxiedPlaceholder": "是否代理: true/false",
-      "enabledPlaceholder": "是否启用: true/false",
-      "forceUpdatePlaceholder": "强制更新: true/false",
-      "providerHelp": "厂商文档",
-      "ipv4Title": "IPv4 (A 记录)",
-      "ipv6Title": "IPv6 (AAAA 记录)",
-      "byApi": "通过接口地址",
-      "byInterface": "通过网卡",
-      "byCommand": "通过命令",
-      "detectIpv4": "探测 IPv4",
-      "detectIpv6": "探测 IPv6",
-      "ipv4UrlPlaceholder": "IPv4 探测 URL，逗号分隔",
-      "ipv6UrlPlaceholder": "IPv6 探测 URL，逗号分隔",
-      "interfacePlaceholder": "网卡名称（如 eth0）",
-      "commandPlaceholder": "用于探测 IP 的 Shell 命令",
-      "domainsPlaceholder": "每行一个域名，支持 子域:根域 格式",
-      "ipv6RegexPlaceholder": "IPv6 正则或 @N（如 @1）",
-      "webhookTitle": "Webhook",
-      "webhookUrlPlaceholder": "Webhook URL",
-      "webhookBodyPlaceholder": "Webhook 请求体模板",
-      "webhookHeadersPlaceholder": "每行一个 Header，格式: Key: Value",
-      "webhookTest": "测试 Webhook",
-      "webhookTestSuccess": "Webhook 测试请求已发送",
-      "allowPrivateTarget": "允许私有地址",
-      "allowPrivateTargetHint": "开启后允许向 localhost 或内网 IP 发送 Webhook/Callback",
-      "renamePrompt": "请输入新的配置名称",
-      "deleteConfirm": "确认删除当前配置组吗？",
-      "ipv6RegexMatched": "匹配到: {{ip}}",
-      "ipv6RegexInvalid": "无效的正则表达式",
-      "ipv6RegexNoMatch": "没有匹配项",
-      "ipv6RegexOutOfRange": "索引超出范围",
-      "ipv6RegexNoInterface": "当前网卡没有可用 IPv6 地址",
-      "configRuntime": "运行状态",
-      "noConfigs": "暂无 DDNS 配置",
-      "run": "执行",
-      "edit": "编辑",
-      "delete": "删除",
-      "domainHintTitle": "域名输入规则",
-      "domainHintAuto": "自动解析: www.example.com",
-      "domainHintManual": "手动解析: www:example.com",
-      "saveConfirmTitle": "保存 DDNS 配置",
-      "saveConfirmMsg": "保存将替换当前配置组下的记录，是否继续？",
-      "ttlLabel": "TTL",
-      "secretPlaceholder": "密钥",
-      "ipv6SupportYes": "是",
-      "ipv6SupportNo": "否",
-      "providers": {
-        "alidns": "阿里云",
-        "cloudflare": "Cloudflare",
-        "tencentcloud": "腾讯云",
-        "dnspod": "DNSPod",
-        "callback": "自定义回调",
-        "vercel": "Vercel"
-      },
-      "webhookExamples": {
-        "serverchan": "Server酱",
-        "dingtalk": "钉钉",
-        "feishu": "飞书",
-        "discord": "Discord"
-      },
-      "ttlOptions": {
-        "auto": "自动",
-        "1s": "1秒",
-        "5s": "5秒",
-        "10s": "10秒",
-        "1m": "1分钟",
-        "2m": "2分钟",
-        "10m": "10分钟",
-        "30m": "30分钟",
-        "1h": "1小时"
-      }
-    },
     "acme": {
       "title": "ACME 证书管理",
       "subtitle": "自动签发与续签 Let’s Encrypt / ZeroSSL 证书",
@@ -1995,13 +1727,9 @@ const adminBundle = defineLocaleBundle({
       "title": "文件系统",
       "subtitle": "存储统计与维护",
       "statusRecovering": "恢复中",
-      "storage_stats": "存储统计",
       "cluster_storage": "集群已用存储",
       "usage_efficiency": "配额使用率",
       "total_users": "用户总数",
-      "active_maintenance": "活跃维护中",
-      "storage_types": "存储后端类型",
-      "engine_distribution": "引擎分布",
       "global_ops": "全局操作",
       "global_ops_desc": "注意：这些操作影响整个集群，仅应在维护窗口执行。",
       "sync_index": "同步全局索引",
@@ -2027,8 +1755,6 @@ const adminBundle = defineLocaleBundle({
       "wal_title": "WAL 问题控制台",
       "wal_desc": "审计 failed / recovering 的操作日志，并在人工修复后执行重放或关闭。",
       "wal_history_desc": "查看已完成的 WAL 记录，包括管理员手动关闭的条目，便于审计和事后排查。",
-      "wal_scope_hint": "这里只显示仍处于 failed 或 recovering 状态的活跃 WAL 问题行。",
-      "wal_history_scope_hint": "历史页展示已完成的 WAL 记录，包括管理员手动标记关闭的条目。",
       "wal_loading": "正在加载 WAL 问题记录",
       "wal_empty": "当前没有活跃的 WAL 问题",
       "wal_history_empty": "当前筛选条件下没有 WAL 历史记录",
@@ -2145,33 +1871,6 @@ const adminBundle = defineLocaleBundle({
         "actions": "操作"
       }
     },
-    "settings": {
-      "title": "系统设置",
-      "save_config": "保存配置",
-      "sensitive": "敏感信息",
-      "accessing": "正在调取管理数据...",
-      "noData": "此部分没有可用数据",
-      "globalSettings": "全局设置",
-      "navNote": "修改系统参数将立即对运行时配置生效，但某些核心引擎可能需要重启。",
-      "quotaTitle": "系统配额与权限",
-      "paramManagement": "管理 {{module}} 参数",
-      "hardwareId": "硬件 ID",
-      "matched": "已匹配",
-      "notFound": "未找到",
-      "enabledFeatures": "已启用的功能",
-      "configNote": "配置说明",
-      "licenseNote": "授权码与该服务器的特定硬件指纹绑定。更换核心硬件组件可能需要新的授权码。",
-      "generalNote": "对核心引擎参数的更改可能需要重启系统才能完全生效。在直接编辑之前，请务必验证 TOML structure。",
-      "tabs": {
-        "server": "基础服务",
-        "database": "数据库",
-        "vfs": "存储核心",
-        "security": "安全策略",
-        "log": "日志审计",
-        "license": "授权管理"
-      },
-      "generate": "生成随机密钥"
-    },
     "config": {
       "title": "配置编辑器",
       "loading": "正在加载配置...",
@@ -2224,40 +1923,13 @@ const adminBundle = defineLocaleBundle({
         "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
       },
       "externalTools": {
-        "diagnose": "诊断",
-        "autofill": "自动填写",
-        "autofillSuccess": "已将检测到的路径自动填写到表单中。",
-        "autofillNoChange": "没有可用于自动填写的检测结果。",
         "mobileDisabled": "Android 与 iOS 的图片缩略图默认走内置 Rust 管线，视频缩略图走系统媒体框架。FFmpeg、ImageMagick、LibreOffice、libvips、7-Zip 这类桌面外部二进制在移动端仍不可用，请保持依赖这些工具的功能关闭。",
-        "status": {
-          "ok": "正常",
-          "warning": "需复查",
-          "missing": "未找到",
-          "configuredInvalid": "配置无效",
-          "unsupported": "不支持"
-        },
-        "labels": {
-          "vips": "libvips",
-          "imagemagick": "ImageMagick",
-          "ffmpeg": "FFmpeg",
-          "libreoffice": "LibreOffice"
-        },
         "placeholders": {
-          "vips": "vips",
-          "imagemagick": "convert 或 magick",
-          "ffmpeg": "ffmpeg",
-          "libreoffice": "soffice"
+          "ffmpeg": "ffmpeg"
         },
         "messages": {
           "diagnoseFailed": "外部依赖诊断失败",
           "writeFailed": "写入外部依赖配置失败"
-        },
-        "card": {
-          "current": "当前值",
-          "detected": "检测结果",
-          "version": "版本信息",
-          "candidates": "候选路径",
-          "warnings": "运维提示"
         }
       },
       "unsaved": "未保存",
@@ -2273,10 +1945,8 @@ const adminBundle = defineLocaleBundle({
         "subtitle": "常用功能入口"
       },
       "pathUnavailable": "配置文件路径不可用",
-      "quickNotes": "快速说明",
       "example": "示例配置",
       "noteEmpty": "当前项没有可用说明。",
-      "noteHint": "说明对应于配置键和各段落。",
       "license": {
         "title": "授权管理",
         "technical": {
@@ -2708,8 +2378,7 @@ const adminBundle = defineLocaleBundle({
       "localDesc": "Guarde una copia completa directamente en el disco local del servidor. Recomendado para bases de datos grandes o mantenimiento rutinario.",
       "localBtn": "Ejecutar copia local",
       "localSuccess": "Copia local completada: {{path}}",
-      "largeDbWarning": "Importante: si alguna tabla supera 100.000 registros o el tamaño de la copia es muy grande, use herramientas profesionales (pg_dump o copia sqlite3) para garantizar estabilidad.",
-      "criticalAction": "Acción crítica"
+      "largeDbWarning": "Importante: si alguna tabla supera 100.000 registros o el tamaño de la copia es muy grande, use herramientas profesionales (pg_dump o copia sqlite3) para garantizar estabilidad."
     },
     "tasks": {
       "title": "Monitor de tareas",
@@ -2740,15 +2409,7 @@ const adminBundle = defineLocaleBundle({
     "perms": {
       "no_role": "Seleccione un rol",
       "title": "Gobernanza de acceso",
-      "subtitle": "Gestión de seguridad y permisos",
-      "protocol_control": "Control de acceso por protocolo",
-      "authorized": "Autorizado",
-      "filter_placeholder": "Filtrar usuarios autorizados...",
-      "s3_credentials": "Credenciales S3",
-      "ssh_key": "Clave pública activa",
-      "not_set": "No configurado",
-      "manage": "Gestionar permisos",
-      "edit_user": "Editar permisos"
+      "subtitle": "Gestión de seguridad y permisos"
     },
     "web": {
       "title": "Gestión de sitios web",
@@ -3080,100 +2741,6 @@ const adminBundle = defineLocaleBundle({
       "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
       "providerZerossl": "ZeroSSL"
     },
-    "ddns": {
-      "title": "DNS dinamico (DDNS)",
-      "subtitle": "Configure proveedor, registros IPv4/IPv6, detección de origen y webhook",
-      "loading": "Cargando configuraciones DDNS...",
-      "defaultConfigName": "Nueva configuración DDNS",
-      "runAll": "Ejecutar todo",
-      "newConfig": "Nueva configuración",
-      "renameConfig": "Renombrar configuración",
-      "deleteConfig": "Eliminar configuración",
-      "save": "Guardar",
-      "saveSuccess": "Configuración DDNS guardada",
-      "deleteSuccess": "Configuración DDNS eliminada",
-      "runSuccess": "Tarea DDNS ejecutada",
-      "detectSuccess": "{{version}} detectado: {{ip}}",
-      "detectFailed": "Falló la detección de {{version}}",
-      "ipv4DomainsRequired": "Se requieren dominios IPv4",
-      "ipv6DomainsRequired": "Se requieren dominios IPv6",
-      "configList": "Lista de configuraciones",
-      "providerTitle": "Proveedor DNS",
-      "configNamePlaceholder": "Nombre de configuración",
-      "callbackUrlPlaceholder": "URL de callback",
-      "callbackBodyPlaceholder": "Cuerpo de solicitud del callback",
-      "proxiedPlaceholder": "En proxy: true/false",
-      "enabledPlaceholder": "Habilitado: true/false",
-      "forceUpdatePlaceholder": "Forzar actualización: true/false",
-      "providerHelp": "Documentación del proveedor",
-      "ipv4Title": "IPv4 (Registro A)",
-      "ipv6Title": "IPv6 (Registro AAAA)",
-      "byApi": "Por URL de API",
-      "byInterface": "Por interfaz de red",
-      "byCommand": "Por comando",
-      "detectIpv4": "Detectar IPv4",
-      "detectIpv6": "Detectar IPv6",
-      "ipv4UrlPlaceholder": "URLs de detección IPv4 separadas por coma",
-      "ipv6UrlPlaceholder": "URLs de detección IPv6 separadas por coma",
-      "interfacePlaceholder": "Nombre de interfaz de red (p. ej., eth0)",
-      "commandPlaceholder": "Comando de shell para detectar IP",
-      "domainsPlaceholder": "Un dominio por línea, admite formato sub:zona",
-      "ipv6RegexPlaceholder": "Regex IPv6 o @N (p. ej., @1)",
-      "webhookTitle": "Webhook de notificacion",
-      "webhookUrlPlaceholder": "URL del webhook",
-      "webhookBodyPlaceholder": "Plantilla del cuerpo de la solicitud del webhook",
-      "webhookHeadersPlaceholder": "Un encabezado por línea, formato: Key: Value",
-      "webhookTest": "Probar webhook",
-      "webhookTestSuccess": "Prueba de webhook enviada",
-      "allowPrivateTarget": "Permitir destino privado",
-      "allowPrivateTargetHint": "Habilite para permitir Webhook/Callback a localhost o IPs privadas",
-      "renamePrompt": "Introduzca un nuevo nombre de configuración",
-      "deleteConfirm": "¿Eliminar el grupo de configuración actual?",
-      "ipv6RegexMatched": "Coincide: {{ip}}",
-      "ipv6RegexInvalid": "Expresión regular no válida",
-      "ipv6RegexNoMatch": "No se encontró coincidencia",
-      "ipv6RegexOutOfRange": "Índice fuera de rango",
-      "ipv6RegexNoInterface": "No hay dirección IPv6 en la interfaz seleccionada",
-      "configRuntime": "Estado de ejecución",
-      "noConfigs": "No hay configuraciones DDNS",
-      "run": "Ejecutar",
-      "edit": "Editar",
-      "delete": "Eliminar",
-      "domainHintTitle": "Reglas de entrada de dominio",
-      "domainHintAuto": "Análisis automático: www.example.com",
-      "domainHintManual": "Análisis manual: www:example.com",
-      "saveConfirmTitle": "Guardar configuración DDNS",
-      "saveConfirmMsg": "Guardar reemplazará los registros en el grupo de configuración actual. ¿Continuar?",
-      "ttlLabel": "TTL (segundos)",
-      "secretPlaceholder": "Secreto",
-      "ipv6SupportYes": "sí",
-      "ipv6SupportNo": "no compatible",
-      "providers": {
-        "alidns": "Aliyun",
-        "cloudflare": "Cloudflare",
-        "tencentcloud": "Tencent Cloud",
-        "dnspod": "DNSPod",
-        "callback": "Callback",
-        "vercel": "Vercel"
-      },
-      "webhookExamples": {
-        "serverchan": "ServerChan",
-        "dingtalk": "DingTalk",
-        "feishu": "Feishu",
-        "discord": "Discord"
-      },
-      "ttlOptions": {
-        "auto": "Auto",
-        "1s": "1s",
-        "5s": "5s",
-        "10s": "10s",
-        "1m": "1m",
-        "2m": "2m",
-        "10m": "10m",
-        "30m": "30m",
-        "1h": "1h"
-      }
-    },
     "acme": {
       "title": "Gestión de certificados ACME",
       "subtitle": "Emisión y renovación automatizadas de certificados Let's Encrypt / ZeroSSL",
@@ -3337,13 +2904,9 @@ const adminBundle = defineLocaleBundle({
       "title": "Sistema de archivos",
       "subtitle": "Estadísticas de almacenamiento y mantenimiento",
       "statusRecovering": "RECUPERANDO",
-      "storage_stats": "Estadísticas de almacenamiento",
       "cluster_storage": "Almacenamiento usado del clúster",
       "usage_efficiency": "Utilización de cuota",
       "total_users": "Usuarios totales",
-      "active_maintenance": "Mantenimiento activo",
-      "storage_types": "Tipos de almacenamiento",
-      "engine_distribution": "Distribución de motores",
       "global_ops": "Operaciones globales",
       "global_ops_desc": "Precaución: estas acciones afectan a todo el clúster y solo deben ejecutarse en ventanas de mantenimiento.",
       "sync_index": "Sincronizar índice global",
@@ -3369,8 +2932,6 @@ const adminBundle = defineLocaleBundle({
       "wal_title": "WAL Issue Console",
       "wal_desc": "Review failed or recovering operation journals, then replay or close them after manual repair.",
       "wal_history_desc": "Browse completed WAL rows, including manually handled records, for audit and postmortem review.",
-      "wal_scope_hint": "This list only shows active issue rows in failed or recovering state.",
-      "wal_history_scope_hint": "History shows completed rows, including entries closed manually by an administrator.",
       "wal_loading": "Loading WAL issue entries",
       "wal_empty": "No active WAL issues",
       "wal_history_empty": "No WAL history rows matched the current filters",
@@ -3487,33 +3048,6 @@ const adminBundle = defineLocaleBundle({
         "actions": "Acciones"
       }
     },
-    "settings": {
-      "title": "System Settings",
-      "save_config": "Save Config",
-      "sensitive": "Sensitive",
-      "accessing": "Accessing system data...",
-      "noData": "No data available for this section",
-      "globalSettings": "Global Settings",
-      "navNote": "Modifying system parameters will take effect immediately for the runtime config, but some core engines may require a restart.",
-      "quotaTitle": "System Quota & Entitlements",
-      "paramManagement": "Management of {{module}} parameters",
-      "hardwareId": "Hardware ID",
-      "matched": "MATCHED",
-      "notFound": "NOT_FOUND",
-      "enabledFeatures": "Enabled Features",
-      "configNote": "Configuration Note",
-      "licenseNote": "License keys are bound to the specific hardware fingerprint of this server. Changing significant hardware components may require a new license key.",
-      "generalNote": "Changes to core engine parameters may require a system restart to take full effect. Always validate your TOML structure before making direct edits.",
-      "tabs": {
-        "server": "Server",
-        "database": "Database",
-        "vfs": "Storage Hub",
-        "security": "Security",
-        "log": "Logs",
-        "license": "License"
-      },
-      "generate": "Generate Random Key"
-    },
     "config": {
       "title": "Configuration Editor",
       "loading": "Loading configuration...",
@@ -3566,40 +3100,13 @@ const adminBundle = defineLocaleBundle({
         "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
       },
       "externalTools": {
-        "diagnose": "Diagnose",
-        "autofill": "Auto Fill",
-        "autofillSuccess": "Detected paths have been filled into the form.",
-        "autofillNoChange": "No detected path was available to autofill.",
         "mobileDisabled": "Android and iOS keep image thumbnails on the built-in Rust pipeline and use system media frameworks for video thumbnails. External desktop binaries such as FFmpeg, ImageMagick, LibreOffice, libvips, and 7-Zip remain unavailable, so leave tool-backed features disabled on mobile deployments.",
-        "status": {
-          "ok": "OK",
-          "warning": "Review",
-          "missing": "Missing",
-          "configuredInvalid": "Invalid Config",
-          "unsupported": "Unsupported"
-        },
-        "labels": {
-          "vips": "libvips",
-          "imagemagick": "ImageMagick",
-          "ffmpeg": "FFmpeg",
-          "libreoffice": "LibreOffice"
-        },
         "placeholders": {
-          "vips": "vips",
-          "imagemagick": "convert or magick",
-          "ffmpeg": "ffmpeg",
-          "libreoffice": "soffice"
+          "ffmpeg": "ffmpeg"
         },
         "messages": {
           "diagnoseFailed": "External dependency diagnosis failed",
           "writeFailed": "Failed to write external dependency configuration"
-        },
-        "card": {
-          "current": "Current",
-          "detected": "Detected",
-          "version": "Version",
-          "candidates": "Candidates",
-          "warnings": "Operational Notes"
         }
       },
       "unsaved": "Unsaved",
@@ -3615,10 +3122,8 @@ const adminBundle = defineLocaleBundle({
         "subtitle": "Common tools and settings"
       },
       "pathUnavailable": "Config path unavailable",
-      "quickNotes": "Quick Notes",
       "example": "example",
       "noteEmpty": "No note available for the current key.",
-      "noteHint": "Notes map to config keys and sections.",
       "license": {
         "title": "License Management",
         "technical": {
@@ -4050,8 +3555,7 @@ const adminBundle = defineLocaleBundle({
       "localDesc": "Save a full backup directly to the server's local disk. Recommended for large databases or routine maintenance.",
       "localBtn": "Run Local Backup",
       "localSuccess": "Local backup completed: {{path}}",
-      "largeDbWarning": "Important: If any database table exceeds 100,000 records or the backup size is huge, please use professional tools (like pg_dump or sqlite3 backup) to ensure stability.",
-      "criticalAction": "Critical Action"
+      "largeDbWarning": "Important: If any database table exceeds 100,000 records or the backup size is huge, please use professional tools (like pg_dump or sqlite3 backup) to ensure stability."
     },
     "tasks": {
       "title": "Aufgabenüberwachung",
@@ -4082,15 +3586,7 @@ const adminBundle = defineLocaleBundle({
     "perms": {
       "no_role": "Select a role",
       "title": "Access Governance",
-      "subtitle": "Security & Permissions Management",
-      "protocol_control": "Protocol Access Control",
-      "authorized": "Authorized",
-      "filter_placeholder": "Filter authorized users...",
-      "s3_credentials": "S3 Credentials",
-      "ssh_key": "Active Public Key",
-      "not_set": "Nicht festgelegt",
-      "manage": "Manage Permissions",
-      "edit_user": "Edit Perms"
+      "subtitle": "Security & Permissions Management"
     },
     "web": {
       "title": "Website-Verwaltung",
@@ -4422,100 +3918,6 @@ const adminBundle = defineLocaleBundle({
       "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
       "providerZerossl": "ZeroSSL"
     },
-    "ddns": {
-      "title": "DDNS",
-      "subtitle": "Configure provider, IPv4/IPv6 records, source detection and webhook",
-      "loading": "Loading DDNS configurations...",
-      "defaultConfigName": "New DDNS Config",
-      "runAll": "Run All",
-      "newConfig": "New Config",
-      "renameConfig": "Rename Config",
-      "deleteConfig": "Delete Config",
-      "save": "Speichern",
-      "saveSuccess": "DDNS configuration saved",
-      "deleteSuccess": "DDNS configuration deleted",
-      "runSuccess": "DDNS task executed",
-      "detectSuccess": "{{version}} detected: {{ip}}",
-      "detectFailed": "{{version}} detect failed",
-      "ipv4DomainsRequired": "IPv4 domains are required",
-      "ipv6DomainsRequired": "IPv6 domains are required",
-      "configList": "Configuration List",
-      "providerTitle": "DNS Provider",
-      "configNamePlaceholder": "Configuration name",
-      "callbackUrlPlaceholder": "Callback URL",
-      "callbackBodyPlaceholder": "Callback request body",
-      "proxiedPlaceholder": "Proxied: true/false",
-      "enabledPlaceholder": "Enabled: true/false",
-      "forceUpdatePlaceholder": "Force update: true/false",
-      "providerHelp": "Provider documentation",
-      "ipv4Title": "IPv4 (A Record)",
-      "ipv6Title": "IPv6 (AAAA Record)",
-      "byApi": "By API URL",
-      "byInterface": "By network interface",
-      "byCommand": "By command",
-      "detectIpv4": "Detect IPv4",
-      "detectIpv6": "Detect IPv6",
-      "ipv4UrlPlaceholder": "IPv4 detect URLs separated by comma",
-      "ipv6UrlPlaceholder": "IPv6 detect URLs separated by comma",
-      "interfacePlaceholder": "Network interface name (e.g. eth0)",
-      "commandPlaceholder": "Shell command for detect IP",
-      "domainsPlaceholder": "One domain each line, support sub:zone format",
-      "ipv6RegexPlaceholder": "IPv6 regex or @N (e.g. @1)",
-      "webhookTitle": "Webhook",
-      "webhookUrlPlaceholder": "Webhook URL",
-      "webhookBodyPlaceholder": "Webhook request body template",
-      "webhookHeadersPlaceholder": "One header per line, format: Key: Value",
-      "webhookTest": "Test Webhook",
-      "webhookTestSuccess": "Webhook test sent",
-      "allowPrivateTarget": "Allow Private Target",
-      "allowPrivateTargetHint": "Enable to allow Webhook/Callback to localhost or private IPs",
-      "renamePrompt": "Enter a new configuration name",
-      "deleteConfirm": "Delete current configuration group?",
-      "ipv6RegexMatched": "Matched: {{ip}}",
-      "ipv6RegexInvalid": "Invalid regular expression",
-      "ipv6RegexNoMatch": "No match found",
-      "ipv6RegexOutOfRange": "Index out of range",
-      "ipv6RegexNoInterface": "No IPv6 address on selected interface",
-      "configRuntime": "Runtime Status",
-      "noConfigs": "No DDNS configurations",
-      "run": "Run",
-      "edit": "Bearbeiten",
-      "delete": "Löschen",
-      "domainHintTitle": "Domain Input Rules",
-      "domainHintAuto": "Auto parse: www.example.com",
-      "domainHintManual": "Manual parse: www:example.com",
-      "saveConfirmTitle": "Save DDNS Configuration",
-      "saveConfirmMsg": "Saving will replace records in current config group. Continue?",
-      "ttlLabel": "TTL",
-      "secretPlaceholder": "Secret",
-      "ipv6SupportYes": "yes",
-      "ipv6SupportNo": "no",
-      "providers": {
-        "alidns": "Aliyun",
-        "cloudflare": "Cloudflare",
-        "tencentcloud": "Tencent Cloud",
-        "dnspod": "DNSPod",
-        "callback": "Callback",
-        "vercel": "Vercel"
-      },
-      "webhookExamples": {
-        "serverchan": "ServerChan",
-        "dingtalk": "DingTalk",
-        "feishu": "Feishu",
-        "discord": "Discord"
-      },
-      "ttlOptions": {
-        "auto": "Automatisch",
-        "1s": "1s",
-        "5s": "5s",
-        "10s": "10s",
-        "1m": "1m",
-        "2m": "2m",
-        "10m": "10m",
-        "30m": "30m",
-        "1h": "1h"
-      }
-    },
     "acme": {
       "title": "ACME Certificate Management",
       "subtitle": "Automated issue and renewal for Let’s Encrypt / ZeroSSL certificates",
@@ -4679,13 +4081,9 @@ const adminBundle = defineLocaleBundle({
       "title": "File System",
       "subtitle": "Storage stats and maintenance",
       "statusRecovering": "WIRD WIEDERHERGESTELLT",
-      "storage_stats": "Storage Stats",
       "cluster_storage": "Cluster Used Storage",
       "usage_efficiency": "Quota Utilization",
       "total_users": "Total Users",
-      "active_maintenance": "Active Maintenance",
-      "storage_types": "Storage Types",
-      "engine_distribution": "Engine Distribution",
       "global_ops": "Global Operations",
       "global_ops_desc": "Caution: These actions affect the entire cluster and should only be performed during maintenance windows.",
       "sync_index": "Sync Global Index",
@@ -4711,8 +4109,6 @@ const adminBundle = defineLocaleBundle({
       "wal_title": "WAL Issue Console",
       "wal_desc": "Review failed or recovering operation journals, then replay or close them after manual repair.",
       "wal_history_desc": "Browse completed WAL rows, including manually handled records, for audit and postmortem review.",
-      "wal_scope_hint": "This list only shows active issue rows in failed or recovering state.",
-      "wal_history_scope_hint": "History shows completed rows, including entries closed manually by an administrator.",
       "wal_loading": "Loading WAL issue entries",
       "wal_empty": "No active WAL issues",
       "wal_history_empty": "No WAL history rows matched the current filters",
@@ -4829,33 +4225,6 @@ const adminBundle = defineLocaleBundle({
         "actions": "Aktionen"
       }
     },
-    "settings": {
-      "title": "System Settings",
-      "save_config": "Save Config",
-      "sensitive": "Sensitive",
-      "accessing": "Accessing system data...",
-      "noData": "No data available for this section",
-      "globalSettings": "Global Settings",
-      "navNote": "Modifying system parameters will take effect immediately for the runtime config, but some core engines may require a restart.",
-      "quotaTitle": "System Quota & Entitlements",
-      "paramManagement": "Management of {{module}} parameters",
-      "hardwareId": "Hardware ID",
-      "matched": "MATCHED",
-      "notFound": "NOT_FOUND",
-      "enabledFeatures": "Enabled Features",
-      "configNote": "Configuration Note",
-      "licenseNote": "License keys are bound to the specific hardware fingerprint of this server. Changing significant hardware components may require a new license key.",
-      "generalNote": "Changes to core engine parameters may require a system restart to take full effect. Always validate your TOML structure before making direct edits.",
-      "tabs": {
-        "server": "Server",
-        "database": "Database",
-        "vfs": "Storage Hub",
-        "security": "Security",
-        "log": "Logs",
-        "license": "License"
-      },
-      "generate": "Generate Random Key"
-    },
     "config": {
       "title": "Configuration Editor",
       "loading": "Loading configuration...",
@@ -4908,40 +4277,13 @@ const adminBundle = defineLocaleBundle({
         "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
       },
       "externalTools": {
-        "diagnose": "Diagnose",
-        "autofill": "Auto Fill",
-        "autofillSuccess": "Detected paths have been filled into the form.",
-        "autofillNoChange": "No detected path was available to autofill.",
         "mobileDisabled": "Android and iOS keep image thumbnails on the built-in Rust pipeline and use system media frameworks for video thumbnails. External desktop binaries such as FFmpeg, ImageMagick, LibreOffice, libvips, and 7-Zip remain unavailable, so leave tool-backed features disabled on mobile deployments.",
-        "status": {
-          "ok": "OK",
-          "warning": "Review",
-          "missing": "Missing",
-          "configuredInvalid": "Invalid Config",
-          "unsupported": "Unsupported"
-        },
-        "labels": {
-          "vips": "libvips",
-          "imagemagick": "ImageMagick",
-          "ffmpeg": "FFmpeg",
-          "libreoffice": "LibreOffice"
-        },
         "placeholders": {
-          "vips": "vips",
-          "imagemagick": "convert or magick",
-          "ffmpeg": "ffmpeg",
-          "libreoffice": "soffice"
+          "ffmpeg": "ffmpeg"
         },
         "messages": {
           "diagnoseFailed": "External dependency diagnosis failed",
           "writeFailed": "Failed to write external dependency configuration"
-        },
-        "card": {
-          "current": "Current",
-          "detected": "Detected",
-          "version": "Version",
-          "candidates": "Candidates",
-          "warnings": "Operational Notes"
         }
       },
       "unsaved": "Unsaved",
@@ -4957,10 +4299,8 @@ const adminBundle = defineLocaleBundle({
         "subtitle": "Common tools and settings"
       },
       "pathUnavailable": "Config path unavailable",
-      "quickNotes": "Quick Notes",
       "example": "example",
       "noteEmpty": "No note available for the current key.",
-      "noteHint": "Notes map to config keys and sections.",
       "license": {
         "title": "License Management",
         "technical": {
@@ -5392,8 +4732,7 @@ const adminBundle = defineLocaleBundle({
       "localDesc": "Enregistrer une sauvegarde complète directement sur le disque local du serveur. Recommandé pour de grandes bases ou une maintenance courante.",
       "localBtn": "Lancer la sauvegarde locale",
       "localSuccess": "Sauvegarde locale terminée : {{path}}",
-      "largeDbWarning": "Important : si une table dépasse 100 000 enregistrements ou si la sauvegarde est très volumineuse, utilisez des outils professionnels (pg_dump, sqlite3 backup) pour assurer la stabilité.",
-      "criticalAction": "Action critique"
+      "largeDbWarning": "Important : si une table dépasse 100 000 enregistrements ou si la sauvegarde est très volumineuse, utilisez des outils professionnels (pg_dump, sqlite3 backup) pour assurer la stabilité."
     },
     "tasks": {
       "title": "Moniteur de tâches",
@@ -5424,15 +4763,7 @@ const adminBundle = defineLocaleBundle({
     "perms": {
       "no_role": "Sélectionnez un rôle",
       "title": "Gouvernance d'accès",
-      "subtitle": "Gestion sécurité et permissions",
-      "protocol_control": "Contrôle d'accès par protocole",
-      "authorized": "Autorisé",
-      "filter_placeholder": "Filtrer les utilisateurs autorisés...",
-      "s3_credentials": "Identifiants S3",
-      "ssh_key": "Clé publique active",
-      "not_set": "Non défini",
-      "manage": "Gérer les permissions",
-      "edit_user": "Éditer les permissions"
+      "subtitle": "Gestion sécurité et permissions"
     },
     "web": {
       "title": "Gestion des sites Web",
@@ -5764,100 +5095,6 @@ const adminBundle = defineLocaleBundle({
       "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
       "providerZerossl": "ZeroSSL"
     },
-    "ddns": {
-      "title": "DNS dynamique (DDNS)",
-      "subtitle": "Configurer le fournisseur, les enregistrements IPv4/IPv6, la détection de source et le webhook",
-      "loading": "Chargement des configurations DDNS...",
-      "defaultConfigName": "Nouvelle config DDNS",
-      "runAll": "Tout exécuter",
-      "newConfig": "Nouvelle config",
-      "renameConfig": "Renommer la config",
-      "deleteConfig": "Supprimer la config",
-      "save": "Enregistrer",
-      "saveSuccess": "Configuration DDNS enregistrée",
-      "deleteSuccess": "Configuration DDNS supprimée",
-      "runSuccess": "Tâche DDNS exécutée",
-      "detectSuccess": "{{version}} détecté : {{ip}}",
-      "detectFailed": "Échec de détection {{version}}",
-      "ipv4DomainsRequired": "Les domaines IPv4 sont requis",
-      "ipv6DomainsRequired": "Les domaines IPv6 sont requis",
-      "configList": "Liste des configurations",
-      "providerTitle": "Fournisseur DNS",
-      "configNamePlaceholder": "Nom de la configuration",
-      "callbackUrlPlaceholder": "URL de callback",
-      "callbackBodyPlaceholder": "Corps de requête du callback",
-      "proxiedPlaceholder": "Proxy : true/false",
-      "enabledPlaceholder": "Activé : true/false",
-      "forceUpdatePlaceholder": "Forcer la mise à jour : true/false",
-      "providerHelp": "Documentation du fournisseur",
-      "ipv4Title": "IPv4 (Enregistrement A)",
-      "ipv6Title": "IPv6 (Enregistrement AAAA)",
-      "byApi": "Par URL d'API",
-      "byInterface": "Par interface réseau",
-      "byCommand": "Par commande",
-      "detectIpv4": "Détecter IPv4",
-      "detectIpv6": "Détecter IPv6",
-      "ipv4UrlPlaceholder": "URL de détection IPv4 séparées par virgule",
-      "ipv6UrlPlaceholder": "URL de détection IPv6 séparées par virgule",
-      "interfacePlaceholder": "Nom de l'interface réseau (p. ex. eth0)",
-      "commandPlaceholder": "Commande shell pour détecter l'IP",
-      "domainsPlaceholder": "Un domaine par ligne, supporte le format sous:zone",
-      "ipv6RegexPlaceholder": "Regex IPv6 ou @N (p. ex. @1)",
-      "webhookTitle": "Webhook de notification",
-      "webhookUrlPlaceholder": "URL du webhook",
-      "webhookBodyPlaceholder": "Modèle du corps de requête du webhook",
-      "webhookHeadersPlaceholder": "Un en-tête par ligne, format : Key: Value",
-      "webhookTest": "Tester le webhook",
-      "webhookTestSuccess": "Test webhook envoyé",
-      "allowPrivateTarget": "Autoriser cible privée",
-      "allowPrivateTargetHint": "Activez pour autoriser Webhook/Callback vers localhost ou des IP privées",
-      "renamePrompt": "Saisissez un nouveau nom de configuration",
-      "deleteConfirm": "Supprimer le groupe de configuration courant ?",
-      "ipv6RegexMatched": "Correspondance : {{ip}}",
-      "ipv6RegexInvalid": "Expression régulière invalide",
-      "ipv6RegexNoMatch": "Aucune correspondance trouvée",
-      "ipv6RegexOutOfRange": "Index hors limite",
-      "ipv6RegexNoInterface": "Aucune adresse IPv6 sur l'interface sélectionnée",
-      "configRuntime": "Statut d'exécution",
-      "noConfigs": "Aucune configuration DDNS",
-      "run": "Exécuter",
-      "edit": "Modifier",
-      "delete": "Supprimer",
-      "domainHintTitle": "Règles de saisie des domaines",
-      "domainHintAuto": "Analyse auto : www.example.com",
-      "domainHintManual": "Analyse manuelle : www:example.com",
-      "saveConfirmTitle": "Enregistrer la configuration DDNS",
-      "saveConfirmMsg": "L'enregistrement remplacera les enregistrements du groupe courant. Continuer ?",
-      "ttlLabel": "TTL (secondes)",
-      "secretPlaceholder": "Cle secrete",
-      "ipv6SupportYes": "oui",
-      "ipv6SupportNo": "non",
-      "providers": {
-        "alidns": "Aliyun",
-        "cloudflare": "Cloudflare",
-        "tencentcloud": "Tencent Cloud",
-        "dnspod": "DNSPod",
-        "callback": "Callback",
-        "vercel": "Vercel"
-      },
-      "webhookExamples": {
-        "serverchan": "ServerChan",
-        "dingtalk": "DingTalk",
-        "feishu": "Feishu",
-        "discord": "Discord"
-      },
-      "ttlOptions": {
-        "auto": "Auto",
-        "1s": "1s",
-        "5s": "5s",
-        "10s": "10s",
-        "1m": "1m",
-        "2m": "2m",
-        "10m": "10m",
-        "30m": "30m",
-        "1h": "1h"
-      }
-    },
     "acme": {
       "title": "Gestion des certificats ACME",
       "subtitle": "Émission et renouvellement automatisés des certificats Let's Encrypt / ZeroSSL",
@@ -6021,13 +5258,9 @@ const adminBundle = defineLocaleBundle({
       "title": "Système de fichiers",
       "subtitle": "Statistiques de stockage et maintenance",
       "statusRecovering": "RÉCUPÉRATION",
-      "storage_stats": "Statistiques de stockage",
       "cluster_storage": "Stockage utilisé du cluster",
       "usage_efficiency": "Utilisation du quota",
       "total_users": "Utilisateurs totaux",
-      "active_maintenance": "Maintenance active",
-      "storage_types": "Types de stockage",
-      "engine_distribution": "Distribution des moteurs",
       "global_ops": "Opérations globales",
       "global_ops_desc": "Attention : ces actions affectent l'ensemble du cluster et ne doivent être exécutées que pendant des fenêtres de maintenance.",
       "sync_index": "Synchroniser l'index global",
@@ -6053,8 +5286,6 @@ const adminBundle = defineLocaleBundle({
       "wal_title": "WAL Issue Console",
       "wal_desc": "Review failed or recovering operation journals, then replay or close them after manual repair.",
       "wal_history_desc": "Browse completed WAL rows, including manually handled records, for audit and postmortem review.",
-      "wal_scope_hint": "This list only shows active issue rows in failed or recovering state.",
-      "wal_history_scope_hint": "History shows completed rows, including entries closed manually by an administrator.",
       "wal_loading": "Loading WAL issue entries",
       "wal_empty": "No active WAL issues",
       "wal_history_empty": "No WAL history rows matched the current filters",
@@ -6171,33 +5402,6 @@ const adminBundle = defineLocaleBundle({
         "actions": "Operations"
       }
     },
-    "settings": {
-      "title": "System Settings",
-      "save_config": "Save Config",
-      "sensitive": "Sensitive",
-      "accessing": "Accessing system data...",
-      "noData": "No data available for this section",
-      "globalSettings": "Global Settings",
-      "navNote": "Modifying system parameters will take effect immediately for the runtime config, but some core engines may require a restart.",
-      "quotaTitle": "System Quota & Entitlements",
-      "paramManagement": "Management of {{module}} parameters",
-      "hardwareId": "Hardware ID",
-      "matched": "MATCHED",
-      "notFound": "NOT_FOUND",
-      "enabledFeatures": "Enabled Features",
-      "configNote": "Configuration Note",
-      "licenseNote": "License keys are bound to the specific hardware fingerprint of this server. Changing significant hardware components may require a new license key.",
-      "generalNote": "Changes to core engine parameters may require a system restart to take full effect. Always validate your TOML structure before making direct edits.",
-      "tabs": {
-        "server": "Server",
-        "database": "Database",
-        "vfs": "Storage Hub",
-        "security": "Security",
-        "log": "Logs",
-        "license": "License"
-      },
-      "generate": "Generate Random Key"
-    },
     "config": {
       "title": "Configuration Editor",
       "loading": "Loading configuration...",
@@ -6250,40 +5454,13 @@ const adminBundle = defineLocaleBundle({
         "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
       },
       "externalTools": {
-        "diagnose": "Diagnose",
-        "autofill": "Auto Fill",
-        "autofillSuccess": "Detected paths have been filled into the form.",
-        "autofillNoChange": "No detected path was available to autofill.",
         "mobileDisabled": "Android and iOS keep image thumbnails on the built-in Rust pipeline and use system media frameworks for video thumbnails. External desktop binaries such as FFmpeg, ImageMagick, LibreOffice, libvips, and 7-Zip remain unavailable, so leave tool-backed features disabled on mobile deployments.",
-        "status": {
-          "ok": "OK",
-          "warning": "Review",
-          "missing": "Missing",
-          "configuredInvalid": "Invalid Config",
-          "unsupported": "Unsupported"
-        },
-        "labels": {
-          "vips": "libvips",
-          "imagemagick": "ImageMagick",
-          "ffmpeg": "FFmpeg",
-          "libreoffice": "LibreOffice"
-        },
         "placeholders": {
-          "vips": "vips",
-          "imagemagick": "convert or magick",
-          "ffmpeg": "ffmpeg",
-          "libreoffice": "soffice"
+          "ffmpeg": "ffmpeg"
         },
         "messages": {
           "diagnoseFailed": "External dependency diagnosis failed",
           "writeFailed": "Failed to write external dependency configuration"
-        },
-        "card": {
-          "current": "Current",
-          "detected": "Detected",
-          "version": "Version",
-          "candidates": "Candidates",
-          "warnings": "Operational Notes"
         }
       },
       "unsaved": "Unsaved",
@@ -6299,10 +5476,8 @@ const adminBundle = defineLocaleBundle({
         "subtitle": "Common tools and settings"
       },
       "pathUnavailable": "Config path unavailable",
-      "quickNotes": "Quick Notes",
       "example": "example",
       "noteEmpty": "No note available for the current key.",
-      "noteHint": "Notes map to config keys and sections.",
       "license": {
         "title": "License Management",
         "technical": {
@@ -6734,8 +5909,7 @@ const adminBundle = defineLocaleBundle({
       "localDesc": "Сохранить полную копию прямо на локальный диск сервера. Рекомендуется для больших БД или планового обслуживания.",
       "localBtn": "Запустить локальную копию",
       "localSuccess": "Локальная копия завершена: {{path}}",
-      "largeDbWarning": "Важно: если какая-либо таблица превышает 100 000 записей или размер копии очень большой, используйте профессиональные инструменты (pg_dump, sqlite3 backup) для стабильности.",
-      "criticalAction": "Критическое действие"
+      "largeDbWarning": "Важно: если какая-либо таблица превышает 100 000 записей или размер копии очень большой, используйте профессиональные инструменты (pg_dump, sqlite3 backup) для стабильности."
     },
     "tasks": {
       "title": "Монитор задач",
@@ -6766,15 +5940,7 @@ const adminBundle = defineLocaleBundle({
     "perms": {
       "no_role": "Выберите роль",
       "title": "Управление доступом",
-      "subtitle": "Безопасность и права",
-      "protocol_control": "Контроль доступа по протоколам",
-      "authorized": "Авторизован",
-      "filter_placeholder": "Фильтровать авторизованных пользователей...",
-      "s3_credentials": "Учетные данные S3",
-      "ssh_key": "Активный публичный ключ",
-      "not_set": "Не задано",
-      "manage": "Управлять правами",
-      "edit_user": "Редактировать права"
+      "subtitle": "Безопасность и права"
     },
     "web": {
       "title": "Управление сайтами",
@@ -7106,100 +6272,6 @@ const adminBundle = defineLocaleBundle({
       "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
       "providerZerossl": "ZeroSSL"
     },
-    "ddns": {
-      "title": "Динамический DNS (DDNS)",
-      "subtitle": "Настройка провайдера, записей IPv4/IPv6, источника определения и webhook",
-      "loading": "Загрузка конфигураций DDNS...",
-      "defaultConfigName": "Новая конфигурация DDNS",
-      "runAll": "Запустить все",
-      "newConfig": "Новая конфигурация",
-      "renameConfig": "Переименовать",
-      "deleteConfig": "Удалить конфигурацию",
-      "save": "Сохранить",
-      "saveSuccess": "Конфигурация DDNS сохранена",
-      "deleteSuccess": "Конфигурация DDNS удалена",
-      "runSuccess": "Задача DDNS выполнена",
-      "detectSuccess": "{{version}} обнаружен: {{ip}}",
-      "detectFailed": "Не удалось обнаружить {{version}}",
-      "ipv4DomainsRequired": "Домены IPv4 обязательны",
-      "ipv6DomainsRequired": "Домены IPv6 обязательны",
-      "configList": "Список конфигураций",
-      "providerTitle": "DNS-провайдер",
-      "configNamePlaceholder": "Имя конфигурации",
-      "callbackUrlPlaceholder": "URL callback",
-      "callbackBodyPlaceholder": "Тело запроса callback",
-      "proxiedPlaceholder": "Проксировать: true/false",
-      "enabledPlaceholder": "Включено: true/false",
-      "forceUpdatePlaceholder": "Принудительное обновление: true/false",
-      "providerHelp": "Документация провайдера",
-      "ipv4Title": "IPv4 (A-запись)",
-      "ipv6Title": "IPv6 (AAAA-запись)",
-      "byApi": "По URL API",
-      "byInterface": "По сетевому интерфейсу",
-      "byCommand": "По команде",
-      "detectIpv4": "Определить IPv4",
-      "detectIpv6": "Определить IPv6",
-      "ipv4UrlPlaceholder": "URL для определения IPv4 (через запятую)",
-      "ipv6UrlPlaceholder": "URL для определения IPv6 (через запятую)",
-      "interfacePlaceholder": "Имя сетевого интерфейса (например, eth0)",
-      "commandPlaceholder": "Shell-команда для определения IP",
-      "domainsPlaceholder": "Один домен на строку, поддерживает формат sub:zone",
-      "ipv6RegexPlaceholder": "IPv6 regex или @N (например, @1)",
-      "webhookTitle": "Вебхук уведомлений",
-      "webhookUrlPlaceholder": "URL webhook",
-      "webhookBodyPlaceholder": "Шаблон тела запроса webhook",
-      "webhookHeadersPlaceholder": "Один заголовок на строку, формат: Key: Value",
-      "webhookTest": "Тест webhook",
-      "webhookTestSuccess": "Тест webhook отправлен",
-      "allowPrivateTarget": "Разрешить приватную цель",
-      "allowPrivateTargetHint": "Включите, чтобы разрешить Webhook/Callback на localhost или приватные IP",
-      "renamePrompt": "Введите новое имя конфигурации",
-      "deleteConfirm": "Удалить текущую группу конфигурации?",
-      "ipv6RegexMatched": "Совпадение: {{ip}}",
-      "ipv6RegexInvalid": "Некорректное регулярное выражение",
-      "ipv6RegexNoMatch": "Совпадений не найдено",
-      "ipv6RegexOutOfRange": "Индекс вне диапазона",
-      "ipv6RegexNoInterface": "На выбранном интерфейсе нет IPv6 адреса",
-      "configRuntime": "Статус выполнения",
-      "noConfigs": "Нет конфигураций DDNS",
-      "run": "Запустить",
-      "edit": "Редактировать",
-      "delete": "Удалить",
-      "domainHintTitle": "Правила ввода доменов",
-      "domainHintAuto": "Авто-разбор: www.example.com",
-      "domainHintManual": "Ручной разбор: www:example.com",
-      "saveConfirmTitle": "Сохранить конфигурацию DDNS",
-      "saveConfirmMsg": "Сохранение заменит записи в текущей группе конфигурации. Продолжить?",
-      "ttlLabel": "TTL (секунды)",
-      "secretPlaceholder": "Секрет",
-      "ipv6SupportYes": "да",
-      "ipv6SupportNo": "нет",
-      "providers": {
-        "alidns": "Aliyun",
-        "cloudflare": "Cloudflare",
-        "tencentcloud": "Tencent Cloud",
-        "dnspod": "DNSPod",
-        "callback": "Callback",
-        "vercel": "Vercel"
-      },
-      "webhookExamples": {
-        "serverchan": "ServerChan",
-        "dingtalk": "DingTalk",
-        "feishu": "Feishu",
-        "discord": "Discord"
-      },
-      "ttlOptions": {
-        "auto": "Auto",
-        "1s": "1s",
-        "5s": "5s",
-        "10s": "10s",
-        "1m": "1m",
-        "2m": "2m",
-        "10m": "10m",
-        "30m": "30m",
-        "1h": "1h"
-      }
-    },
     "acme": {
       "title": "Управление сертификатами ACME",
       "subtitle": "Автоматическая выдача и продление сертификатов Let's Encrypt / ZeroSSL",
@@ -7363,13 +6435,9 @@ const adminBundle = defineLocaleBundle({
       "title": "Файловая система",
       "subtitle": "Статистика хранилища и обслуживание",
       "statusRecovering": "ВОССТАНОВЛЕНИЕ",
-      "storage_stats": "Статистика хранилища",
       "cluster_storage": "Использованное хранилище кластера",
       "usage_efficiency": "Использование квоты",
       "total_users": "Всего пользователей",
-      "active_maintenance": "Активное обслуживание",
-      "storage_types": "Типы хранилищ",
-      "engine_distribution": "Распределение движков",
       "global_ops": "Глобальные операции",
       "global_ops_desc": "Осторожно: эти действия затрагивают весь кластер и должны выполняться только в окна обслуживания.",
       "sync_index": "Синхронизировать глобальный индекс",
@@ -7395,8 +6463,6 @@ const adminBundle = defineLocaleBundle({
       "wal_title": "WAL Issue Console",
       "wal_desc": "Review failed or recovering operation journals, then replay or close them after manual repair.",
       "wal_history_desc": "Browse completed WAL rows, including manually handled records, for audit and postmortem review.",
-      "wal_scope_hint": "This list only shows active issue rows in failed or recovering state.",
-      "wal_history_scope_hint": "History shows completed rows, including entries closed manually by an administrator.",
       "wal_loading": "Loading WAL issue entries",
       "wal_empty": "No active WAL issues",
       "wal_history_empty": "No WAL history rows matched the current filters",
@@ -7513,33 +6579,6 @@ const adminBundle = defineLocaleBundle({
         "actions": "Действия"
       }
     },
-    "settings": {
-      "title": "System Settings",
-      "save_config": "Save Config",
-      "sensitive": "Sensitive",
-      "accessing": "Accessing system data...",
-      "noData": "No data available for this section",
-      "globalSettings": "Global Settings",
-      "navNote": "Modifying system parameters will take effect immediately for the runtime config, but some core engines may require a restart.",
-      "quotaTitle": "System Quota & Entitlements",
-      "paramManagement": "Management of {{module}} parameters",
-      "hardwareId": "Hardware ID",
-      "matched": "MATCHED",
-      "notFound": "NOT_FOUND",
-      "enabledFeatures": "Enabled Features",
-      "configNote": "Configuration Note",
-      "licenseNote": "License keys are bound to the specific hardware fingerprint of this server. Changing significant hardware components may require a new license key.",
-      "generalNote": "Changes to core engine parameters may require a system restart to take full effect. Always validate your TOML structure before making direct edits.",
-      "tabs": {
-        "server": "Server",
-        "database": "Database",
-        "vfs": "Storage Hub",
-        "security": "Security",
-        "log": "Logs",
-        "license": "License"
-      },
-      "generate": "Generate Random Key"
-    },
     "config": {
       "title": "Configuration Editor",
       "loading": "Loading configuration...",
@@ -7592,40 +6631,13 @@ const adminBundle = defineLocaleBundle({
         "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
       },
       "externalTools": {
-        "diagnose": "Diagnose",
-        "autofill": "Auto Fill",
-        "autofillSuccess": "Detected paths have been filled into the form.",
-        "autofillNoChange": "No detected path was available to autofill.",
         "mobileDisabled": "Android and iOS keep image thumbnails on the built-in Rust pipeline and use system media frameworks for video thumbnails. External desktop binaries such as FFmpeg, ImageMagick, LibreOffice, libvips, and 7-Zip remain unavailable, so leave tool-backed features disabled on mobile deployments.",
-        "status": {
-          "ok": "OK",
-          "warning": "Review",
-          "missing": "Missing",
-          "configuredInvalid": "Invalid Config",
-          "unsupported": "Unsupported"
-        },
-        "labels": {
-          "vips": "libvips",
-          "imagemagick": "ImageMagick",
-          "ffmpeg": "FFmpeg",
-          "libreoffice": "LibreOffice"
-        },
         "placeholders": {
-          "vips": "vips",
-          "imagemagick": "convert or magick",
-          "ffmpeg": "ffmpeg",
-          "libreoffice": "soffice"
+          "ffmpeg": "ffmpeg"
         },
         "messages": {
           "diagnoseFailed": "External dependency diagnosis failed",
           "writeFailed": "Failed to write external dependency configuration"
-        },
-        "card": {
-          "current": "Current",
-          "detected": "Detected",
-          "version": "Version",
-          "candidates": "Candidates",
-          "warnings": "Operational Notes"
         }
       },
       "unsaved": "Unsaved",
@@ -7641,10 +6653,8 @@ const adminBundle = defineLocaleBundle({
         "subtitle": "Common tools and settings"
       },
       "pathUnavailable": "Config path unavailable",
-      "quickNotes": "Quick Notes",
       "example": "example",
       "noteEmpty": "No note available for the current key.",
-      "noteHint": "Notes map to config keys and sections.",
       "license": {
         "title": "License Management",
         "technical": {
@@ -8076,8 +7086,7 @@ const adminBundle = defineLocaleBundle({
       "localDesc": "完全バックアップをサーバーのローカルディスクに保存します。大きな DB や定期メンテに推奨。",
       "localBtn": "ローカルバックアップを実行",
       "localSuccess": "ローカルバックアップ完了: {{path}}",
-      "largeDbWarning": "重要: テーブルが 100,000 件を超える場合やバックアップが巨大な場合は、pg_dump や sqlite3 backup などの専門ツールを使用してください。",
-      "criticalAction": "重要操作"
+      "largeDbWarning": "重要: テーブルが 100,000 件を超える場合やバックアップが巨大な場合は、pg_dump や sqlite3 backup などの専門ツールを使用してください。"
     },
     "tasks": {
       "title": "タスク監視",
@@ -8108,15 +7117,7 @@ const adminBundle = defineLocaleBundle({
     "perms": {
       "no_role": "ロールを選択",
       "title": "アクセスガバナンス",
-      "subtitle": "セキュリティと権限管理",
-      "protocol_control": "プロトコルアクセス制御",
-      "authorized": "許可済み",
-      "filter_placeholder": "許可済みユーザーを絞り込み...",
-      "s3_credentials": "S3 資格情報",
-      "ssh_key": "有効な公開鍵",
-      "not_set": "未設定",
-      "manage": "権限を管理",
-      "edit_user": "権限を編集"
+      "subtitle": "セキュリティと権限管理"
     },
     "web": {
       "title": "Webサイト管理",
@@ -8448,100 +7449,6 @@ const adminBundle = defineLocaleBundle({
       "fqdnsPlaceholderExample": "example.com\nwww.example.com,600\nsub.example.com,120,example.com",
       "providerZerossl": "ZeroSSL"
     },
-    "ddns": {
-      "title": "動的 DNS (DDNS)",
-      "subtitle": "プロバイダー、IPv4/IPv6 レコード、検出ソース、Webhook を設定",
-      "loading": "DDNS 設定を読み込み中...",
-      "defaultConfigName": "新しい DDNS 設定",
-      "runAll": "すべて実行",
-      "newConfig": "新規設定",
-      "renameConfig": "設定名を変更",
-      "deleteConfig": "設定を削除",
-      "save": "保存",
-      "saveSuccess": "DDNS 設定を保存しました",
-      "deleteSuccess": "DDNS 設定を削除しました",
-      "runSuccess": "DDNS タスクを実行しました",
-      "detectSuccess": "{{version}} 検出: {{ip}}",
-      "detectFailed": "{{version}} の検出に失敗しました",
-      "ipv4DomainsRequired": "IPv4 ドメインは必須です",
-      "ipv6DomainsRequired": "IPv6 ドメインは必須です",
-      "configList": "設定一覧",
-      "providerTitle": "DNS プロバイダー",
-      "configNamePlaceholder": "設定名",
-      "callbackUrlPlaceholder": "コールバック URL",
-      "callbackBodyPlaceholder": "コールバックのリクエストボディ",
-      "proxiedPlaceholder": "プロキシ: true/false",
-      "enabledPlaceholder": "有効: true/false",
-      "forceUpdatePlaceholder": "強制更新: true/false",
-      "providerHelp": "プロバイダーのドキュメント",
-      "ipv4Title": "IPv4（A レコード）",
-      "ipv6Title": "IPv6（AAAA レコード）",
-      "byApi": "API URL",
-      "byInterface": "ネットワークインターフェース",
-      "byCommand": "コマンド",
-      "detectIpv4": "IPv4 を検出",
-      "detectIpv6": "IPv6 を検出",
-      "ipv4UrlPlaceholder": "IPv4 検出 URL（カンマ区切り）",
-      "ipv6UrlPlaceholder": "IPv6 検出 URL（カンマ区切り）",
-      "interfacePlaceholder": "ネットワークインターフェース名（例: eth0）",
-      "commandPlaceholder": "IP 検出用のシェルコマンド",
-      "domainsPlaceholder": "1 行 1 ドメイン。sub:zone 形式をサポート",
-      "ipv6RegexPlaceholder": "IPv6 正規表現または @N（例: @1）",
-      "webhookTitle": "通知 Webhook",
-      "webhookUrlPlaceholder": "通知Webhook URL",
-      "webhookBodyPlaceholder": "Webhook リクエストボディテンプレート",
-      "webhookHeadersPlaceholder": "1 行 1 ヘッダー。形式: Key: Value",
-      "webhookTest": "Webhook テスト",
-      "webhookTestSuccess": "Webhook テストを送信しました",
-      "allowPrivateTarget": "プライベート宛先を許可",
-      "allowPrivateTargetHint": "有効にすると Webhook/Callback を localhost やプライベート IP に送れます",
-      "renamePrompt": "新しい設定名を入力してください",
-      "deleteConfirm": "現在の設定グループを削除しますか?",
-      "ipv6RegexMatched": "一致: {{ip}}",
-      "ipv6RegexInvalid": "無効な正規表現",
-      "ipv6RegexNoMatch": "一致が見つかりません",
-      "ipv6RegexOutOfRange": "インデックスが範囲外です",
-      "ipv6RegexNoInterface": "選択したインターフェースに IPv6 アドレスがありません",
-      "configRuntime": "実行状態",
-      "noConfigs": "DDNS 設定がありません",
-      "run": "実行",
-      "edit": "編集",
-      "delete": "削除",
-      "domainHintTitle": "ドメイン入力ルール",
-      "domainHintAuto": "自動解析: www.example.com",
-      "domainHintManual": "手動解析: www:example.com",
-      "saveConfirmTitle": "DDNS 設定を保存",
-      "saveConfirmMsg": "保存すると現在の設定グループのレコードが置き換えられます。続行しますか?",
-      "ttlLabel": "TTL (秒)",
-      "secretPlaceholder": "シークレット",
-      "ipv6SupportYes": "はい",
-      "ipv6SupportNo": "いいえ",
-      "providers": {
-        "alidns": "Aliyun",
-        "cloudflare": "Cloudflare",
-        "tencentcloud": "Tencent Cloud",
-        "dnspod": "DNSPod",
-        "callback": "Callback",
-        "vercel": "Vercel"
-      },
-      "webhookExamples": {
-        "serverchan": "ServerChan",
-        "dingtalk": "DingTalk",
-        "feishu": "Feishu",
-        "discord": "Discord"
-      },
-      "ttlOptions": {
-        "auto": "Auto",
-        "1s": "1s",
-        "5s": "5s",
-        "10s": "10s",
-        "1m": "1m",
-        "2m": "2m",
-        "10m": "10m",
-        "30m": "30m",
-        "1h": "1h"
-      }
-    },
     "acme": {
       "title": "ACME 証明書管理",
       "subtitle": "Let's Encrypt / ZeroSSL 証明書の自動発行と更新",
@@ -8705,13 +7612,9 @@ const adminBundle = defineLocaleBundle({
       "title": "ファイルシステム",
       "subtitle": "ストレージ統計とメンテナンス",
       "statusRecovering": "復旧中",
-      "storage_stats": "ストレージ統計",
       "cluster_storage": "クラスター使用ストレージ",
       "usage_efficiency": "クォータ使用率",
       "total_users": "総ユーザー数",
-      "active_maintenance": "アクティブなメンテナンス",
-      "storage_types": "ストレージタイプ",
-      "engine_distribution": "エンジン分布",
       "global_ops": "グローバル操作",
       "global_ops_desc": "注意: これらの操作はクラスター全体に影響します。メンテナンス時間帯のみ実行してください。",
       "sync_index": "グローバルインデックスを同期",
@@ -8737,8 +7640,6 @@ const adminBundle = defineLocaleBundle({
       "wal_title": "WAL Issue Console",
       "wal_desc": "Review failed or recovering operation journals, then replay or close them after manual repair.",
       "wal_history_desc": "Browse completed WAL rows, including manually handled records, for audit and postmortem review.",
-      "wal_scope_hint": "This list only shows active issue rows in failed or recovering state.",
-      "wal_history_scope_hint": "History shows completed rows, including entries closed manually by an administrator.",
       "wal_loading": "Loading WAL issue entries",
       "wal_empty": "No active WAL issues",
       "wal_history_empty": "No WAL history rows matched the current filters",
@@ -8855,33 +7756,6 @@ const adminBundle = defineLocaleBundle({
         "actions": "アクション"
       }
     },
-    "settings": {
-      "title": "System Settings",
-      "save_config": "Save Config",
-      "sensitive": "Sensitive",
-      "accessing": "Accessing system data...",
-      "noData": "No data available for this section",
-      "globalSettings": "Global Settings",
-      "navNote": "Modifying system parameters will take effect immediately for the runtime config, but some core engines may require a restart.",
-      "quotaTitle": "System Quota & Entitlements",
-      "paramManagement": "Management of {{module}} parameters",
-      "hardwareId": "Hardware ID",
-      "matched": "MATCHED",
-      "notFound": "NOT_FOUND",
-      "enabledFeatures": "Enabled Features",
-      "configNote": "Configuration Note",
-      "licenseNote": "License keys are bound to the specific hardware fingerprint of this server. Changing significant hardware components may require a new license key.",
-      "generalNote": "Changes to core engine parameters may require a system restart to take full effect. Always validate your TOML structure before making direct edits.",
-      "tabs": {
-        "server": "Server",
-        "database": "Database",
-        "vfs": "Storage Hub",
-        "security": "Security",
-        "log": "Logs",
-        "license": "License"
-      },
-      "generate": "Generate Random Key"
-    },
     "config": {
       "title": "Configuration Editor",
       "loading": "Loading configuration...",
@@ -8934,40 +7808,13 @@ const adminBundle = defineLocaleBundle({
         "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
       },
       "externalTools": {
-        "diagnose": "Diagnose",
-        "autofill": "Auto Fill",
-        "autofillSuccess": "Detected paths have been filled into the form.",
-        "autofillNoChange": "No detected path was available to autofill.",
         "mobileDisabled": "Android and iOS keep image thumbnails on the built-in Rust pipeline and use system media frameworks for video thumbnails. External desktop binaries such as FFmpeg, ImageMagick, LibreOffice, libvips, and 7-Zip remain unavailable, so leave tool-backed features disabled on mobile deployments.",
-        "status": {
-          "ok": "OK",
-          "warning": "Review",
-          "missing": "Missing",
-          "configuredInvalid": "Invalid Config",
-          "unsupported": "Unsupported"
-        },
-        "labels": {
-          "vips": "libvips",
-          "imagemagick": "ImageMagick",
-          "ffmpeg": "FFmpeg",
-          "libreoffice": "LibreOffice"
-        },
         "placeholders": {
-          "vips": "vips",
-          "imagemagick": "convert or magick",
-          "ffmpeg": "ffmpeg",
-          "libreoffice": "soffice"
+          "ffmpeg": "ffmpeg"
         },
         "messages": {
           "diagnoseFailed": "External dependency diagnosis failed",
           "writeFailed": "Failed to write external dependency configuration"
-        },
-        "card": {
-          "current": "Current",
-          "detected": "Detected",
-          "version": "Version",
-          "candidates": "Candidates",
-          "warnings": "Operational Notes"
         }
       },
       "unsaved": "Unsaved",
@@ -8983,10 +7830,8 @@ const adminBundle = defineLocaleBundle({
         "subtitle": "Common tools and settings"
       },
       "pathUnavailable": "Config path unavailable",
-      "quickNotes": "Quick Notes",
       "example": "example",
       "noteEmpty": "No note available for the current key.",
-      "noteHint": "Notes map to config keys and sections.",
       "license": {
         "title": "License Management",
         "technical": {

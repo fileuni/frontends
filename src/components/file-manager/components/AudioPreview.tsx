@@ -11,12 +11,21 @@ import { AudioPreviewSidebar } from './AudioPreviewSidebar.tsx';
 import { formatTime } from './audioPreviewShared.ts';
 import { useAudioPlaybackController } from './useAudioPlaybackController.ts';
 
-const AUDIO_PLAY_MODE_LABEL_KEYS = {
-  list: 'filemanager.player.playMode.list',
-  loop: 'filemanager.player.playMode.loop',
-  shuffle: 'filemanager.player.playMode.shuffle',
-  single: 'filemanager.player.playMode.single',
-} as const;
+const getAudioPlayModeLabel = (
+  t: ReturnType<typeof useTranslation>['t'],
+  mode: 'list' | 'loop' | 'shuffle' | 'single',
+): string => {
+  switch (mode) {
+    case 'list':
+      return t('filemanager.player.playMode.list');
+    case 'loop':
+      return t('filemanager.player.playMode.loop');
+    case 'shuffle':
+      return t('filemanager.player.playMode.shuffle');
+    case 'single':
+      return t('filemanager.player.playMode.single');
+  }
+};
 
 interface AudioPreviewProps {
   playlist: FileInfo[];
@@ -38,7 +47,7 @@ export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, 
   const recentRecords = useMediaPlaybackHistory()
     .filter((record) => record.path !== controller.activeFile?.path)
     .slice(0, 12);
-  const playModeLabel = t(AUDIO_PLAY_MODE_LABEL_KEYS[controller.playMode]);
+  const playModeLabel = getAudioPlayModeLabel(t, controller.playMode);
 
   const openRecentRecord = (path: string) => {
     const nextIndex = playlist.findIndex((track) => track.path === path);

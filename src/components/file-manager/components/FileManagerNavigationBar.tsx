@@ -14,11 +14,19 @@ type MountListResponse = {
   mounts: RemoteMountSummary[];
 };
 
-const PROTECTED_STORAGE_MODE_LABEL_KEYS = {
-  disabled: 'filemanager.protectedStorage.modes.disabled',
-  obfuscate: 'filemanager.protectedStorage.modes.obfuscate',
-  encrypt: 'filemanager.protectedStorage.modes.encrypt',
-} as const;
+const getProtectedStorageModeLabel = (
+  t: ReturnType<typeof useTranslation>['t'],
+  mode: 'disabled' | 'obfuscate' | 'encrypt',
+): string => {
+  switch (mode) {
+    case 'disabled':
+      return t('filemanager.protectedStorage.modes.disabled');
+    case 'obfuscate':
+      return t('filemanager.protectedStorage.modes.obfuscate');
+    case 'encrypt':
+      return t('filemanager.protectedStorage.modes.encrypt');
+  }
+};
 
 export const FileManagerNavigationBar = () => {
   const { t } = useTranslation();
@@ -186,10 +194,9 @@ export const FileManagerNavigationBar = () => {
               {protectedStatus.protected_root || '/'}
             </span>
             <span className="text-[11px] font-black uppercase tracking-widest opacity-70">
-              {(protectedMode && protectedMode in PROTECTED_STORAGE_MODE_LABEL_KEYS
-                ? t(PROTECTED_STORAGE_MODE_LABEL_KEYS[protectedMode as keyof typeof PROTECTED_STORAGE_MODE_LABEL_KEYS])
-                : protectedMode)
-                || protectedMode}
+              {protectedMode === 'disabled' || protectedMode === 'obfuscate' || protectedMode === 'encrypt'
+                ? getProtectedStorageModeLabel(t, protectedMode)
+                : protectedMode}
             </span>
           </div>
           <div className="mt-2 flex items-start gap-2 text-cyan-50/90">

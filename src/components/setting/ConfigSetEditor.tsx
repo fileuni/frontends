@@ -319,10 +319,19 @@ export const ConfigSetEditor: React.FC = () => {
     "admin.config.title",
   ]);
 
-  const configSetFinalStepKeys = [
-    "systemConfig.configSet.final.step1",
-    "systemConfig.configSet.final.step2",
-    "systemConfig.configSet.final.step3",
+  const configSetFinalSteps = [
+    {
+      key: 'systemConfig.configSet.final.step1',
+      text: t('systemConfig.configSet.final.step1'),
+    },
+    {
+      key: 'systemConfig.configSet.final.step2',
+      text: t('systemConfig.configSet.final.step2'),
+    },
+    {
+      key: 'systemConfig.configSet.final.step3',
+      text: t('systemConfig.configSet.final.step3'),
+    },
   ] as const;
 
   const finalMessage =
@@ -449,9 +458,9 @@ export const ConfigSetEditor: React.FC = () => {
               {t("systemConfig.configSet.final.nextSteps")}
             </p>
               <div className="space-y-2">
-                {configSetFinalStepKeys.map((stepKey, index) => (
-                  <p key={stepKey} className="text-sm leading-6">
-                    {index + 1}. {t(stepKey)}
+                {configSetFinalSteps.map((step, index) => (
+                  <p key={step.key} className="text-sm leading-6">
+                    {index + 1}. {step.text}
                   </p>
                 ))}
               </div>

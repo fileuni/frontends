@@ -718,30 +718,72 @@ export const ThumbnailDependencyConfigModal: React.FC<
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-          {[
-            ["admin.config.thumbnail.thumbSizePx", draft.thumbSizePx, (value: string) => setDraft((state) => ({ ...state, thumbSizePx: value })), "256"],
-            ["admin.config.thumbnail.thumbFormat", draft.thumbFormat, (value: string) => setDraft((state) => ({ ...state, thumbFormat: value })), "jpg"],
-            ["admin.config.thumbnail.thumbQuality", draft.thumbQuality, (value: string) => setDraft((state) => ({ ...state, thumbQuality: value })), "85"],
-            ["admin.config.thumbnail.imageSmallSkipMb", draft.imageSmallSkipMb, (value: string) => setDraft((state) => ({ ...state, imageSmallSkipMb: value })), "1"],
-            ["admin.config.thumbnail.imageMaxSizeMb", draft.imageMaxSizeMb, (value: string) => setDraft((state) => ({ ...state, imageMaxSizeMb: value })), "100"],
-            ["admin.config.thumbnail.imageTimeoutSecs", draft.imageTimeoutSecs, (value: string) => setDraft((state) => ({ ...state, imageTimeoutSecs: value })), "10"],
-            ["admin.config.thumbnail.imageImagemagickMaxMb", draft.imageImagemagickMaxMb, (value: string) => setDraft((state) => ({ ...state, imageImagemagickMaxMb: value })), "20"],
-          ].map(([label, value, onChange, placeholder]) => (
-            <div key={String(label)}>
-              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t(String(label))}</div>
-              <input
-                value={String(value)}
-                onChange={(event) => (onChange as (value: string) => void)(event.target.value)}
-                className={cn(
-                  "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
-                  isDark
-                    ? "border-white/10 bg-black/30 text-white"
-                    : "border-slate-300 bg-white text-slate-900",
-                )}
-                placeholder={String(placeholder)}
-              />
-            </div>
-          ))}
+            {[
+              {
+                key: 'thumbSizePx',
+                label: t('admin.config.thumbnail.thumbSizePx'),
+                value: draft.thumbSizePx,
+                onChange: (value: string) => setDraft((state) => ({ ...state, thumbSizePx: value })),
+                placeholder: '256',
+              },
+              {
+                key: 'thumbFormat',
+                label: t('admin.config.thumbnail.thumbFormat'),
+                value: draft.thumbFormat,
+                onChange: (value: string) => setDraft((state) => ({ ...state, thumbFormat: value })),
+                placeholder: 'jpg',
+              },
+              {
+                key: 'thumbQuality',
+                label: t('admin.config.thumbnail.thumbQuality'),
+                value: draft.thumbQuality,
+                onChange: (value: string) => setDraft((state) => ({ ...state, thumbQuality: value })),
+                placeholder: '85',
+              },
+              {
+                key: 'imageSmallSkipMb',
+                label: t('admin.config.thumbnail.imageSmallSkipMb'),
+                value: draft.imageSmallSkipMb,
+                onChange: (value: string) => setDraft((state) => ({ ...state, imageSmallSkipMb: value })),
+                placeholder: '1',
+              },
+              {
+                key: 'imageMaxSizeMb',
+                label: t('admin.config.thumbnail.imageMaxSizeMb'),
+                value: draft.imageMaxSizeMb,
+                onChange: (value: string) => setDraft((state) => ({ ...state, imageMaxSizeMb: value })),
+                placeholder: '100',
+              },
+              {
+                key: 'imageTimeoutSecs',
+                label: t('admin.config.thumbnail.imageTimeoutSecs'),
+                value: draft.imageTimeoutSecs,
+                onChange: (value: string) => setDraft((state) => ({ ...state, imageTimeoutSecs: value })),
+                placeholder: '10',
+              },
+              {
+                key: 'imageImagemagickMaxMb',
+                label: t('admin.config.thumbnail.imageImagemagickMaxMb'),
+                value: draft.imageImagemagickMaxMb,
+                onChange: (value: string) => setDraft((state) => ({ ...state, imageImagemagickMaxMb: value })),
+                placeholder: '20',
+              },
+            ].map((field) => (
+              <div key={field.key}>
+                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{field.label}</div>
+                <input
+                  value={field.value}
+                  onChange={(event) => field.onChange(event.target.value)}
+                  className={cn(
+                    "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+                    isDark
+                      ? "border-white/10 bg-black/30 text-white"
+                      : "border-slate-300 bg-white text-slate-900",
+                  )}
+                  placeholder={field.placeholder}
+                />
+              </div>
+            ))}
           </div>
 
           {showRasterTools && (

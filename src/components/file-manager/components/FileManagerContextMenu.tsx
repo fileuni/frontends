@@ -25,14 +25,28 @@ const FAVORITE_COLORS = [
   { id: 7, name: 'Deep Blue', class: 'bg-blue-700' },
 ];
 
-const FAVORITE_COLOR_LABEL_KEYS: Record<string, string> = {
-  Red: 'filemanager.colors.red',
-  Orange: 'filemanager.colors.orange',
-  Yellow: 'filemanager.colors.yellow',
-  Green: 'filemanager.colors.green',
-  Blue: 'filemanager.colors.blue',
-  Cyan: 'filemanager.colors.cyan',
-  'Deep Blue': 'filemanager.colors.deep blue',
+const getFavoriteColorLabel = (
+  t: ReturnType<typeof useTranslation>['t'],
+  colorName: string,
+): string => {
+  switch (colorName) {
+    case 'Red':
+      return t('filemanager.colors.red');
+    case 'Orange':
+      return t('filemanager.colors.orange');
+    case 'Yellow':
+      return t('filemanager.colors.yellow');
+    case 'Green':
+      return t('filemanager.colors.green');
+    case 'Blue':
+      return t('filemanager.colors.blue');
+    case 'Cyan':
+      return t('filemanager.colors.cyan');
+    case 'Deep Blue':
+      return t('filemanager.colors.deep blue');
+    default:
+      return colorName;
+  }
 };
 
 interface Props {
@@ -314,7 +328,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                                 )}
                               >
                                 <div className={cn("w-2 h-2 rounded-full", color.class)} />
-                                <span>{t(FAVORITE_COLOR_LABEL_KEYS[color.name] || '') || color.name}</span>
+                                <span>{getFavoriteColorLabel(t, color.name)}</span>
                               </button>
                             ))}
                           </div>

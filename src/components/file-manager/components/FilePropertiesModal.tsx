@@ -33,11 +33,19 @@ interface PropertyItemProps {
   value: string | React.ReactNode;
 }
 
-const PROTECTED_STORAGE_MODE_LABEL_KEYS = {
-  disabled: 'filemanager.protectedStorage.modes.disabled',
-  obfuscate: 'filemanager.protectedStorage.modes.obfuscate',
-  encrypt: 'filemanager.protectedStorage.modes.encrypt',
-} as const;
+const getProtectedStorageModeLabel = (
+  t: ReturnType<typeof useTranslation>['t'],
+  mode: 'disabled' | 'obfuscate' | 'encrypt',
+): string => {
+  switch (mode) {
+    case 'disabled':
+      return t('filemanager.protectedStorage.modes.disabled');
+    case 'obfuscate':
+      return t('filemanager.protectedStorage.modes.obfuscate');
+    case 'encrypt':
+      return t('filemanager.protectedStorage.modes.encrypt');
+  }
+};
 
 export const FilePropertiesModal = ({ file, onClose }: Props) => {
   const { t } = useTranslation();
@@ -132,9 +140,9 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
             <PropertyItem
               icon={HardDrive}
               label={t('filemanager.protectedStorage.title') || 'Protected Storage'}
-              value={(protectedMode in PROTECTED_STORAGE_MODE_LABEL_KEYS
-                ? t(PROTECTED_STORAGE_MODE_LABEL_KEYS[protectedMode as keyof typeof PROTECTED_STORAGE_MODE_LABEL_KEYS])
-                : protectedMode) || protectedMode}
+              value={protectedMode === 'disabled' || protectedMode === 'obfuscate' || protectedMode === 'encrypt'
+                ? getProtectedStorageModeLabel(t, protectedMode)
+                : protectedMode}
             />
           )}
 
