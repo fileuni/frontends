@@ -1188,6 +1188,7 @@ const adminBundle = defineLocaleBundle({
         "clean": "无冲突"
       }
     },
+    "domain": {
       "certRunNow": "立即执行",
       "panelProvider": "厂商账户",
       "statsDdnsEntries": "DDNS 条目",
@@ -2230,6 +2231,7 @@ const adminBundle = defineLocaleBundle({
         "clean": "Sin conflictos"
       }
     },
+    "domain": {
       "certRunNow": "Ejecutar ahora",
       "panelProvider": "Cuentas de proveedor",
       "statsDdnsEntries": "Entradas DDNS",
@@ -3272,6 +3274,7 @@ const adminBundle = defineLocaleBundle({
         "clean": "Clean"
       }
     },
+    "domain": {
       "certRunNow": "Run now",
       "panelProvider": "Provider Accounts",
       "statsDdnsEntries": "DDNS Entries",
@@ -4314,6 +4317,7 @@ const adminBundle = defineLocaleBundle({
         "clean": "OK"
       }
     },
+    "domain": {
       "certRunNow": "Exécuter maintenant",
       "panelProvider": "Comptes fournisseur",
       "statsDdnsEntries": "Entrées DDNS",
@@ -4447,15 +4451,6 @@ const adminBundle = defineLocaleBundle({
       "certUpdated": "Certificat mis à jour",
       "renewalCheckCompleted": "Vérification de renouvellement terminée. seuil={{threshold}}j renouvelés={{renewed}}",
       "forceRenewCompleted": "Vérification de renouvellement forcée terminée. renouvelés={{renewed}}",
-      "caProviders": {
-        "letsencrypt": "Let's Encrypt (Prod)",
-        "letsencrypt-staging": "Let's Encrypt (Staging)",
-        "zerossl": "ZeroSSL"
-      },
-      "challengeTypes": {
-        "dns01": "DNS-01",
-        "http01": "HTTP-01"
-      },
       "basicInfo": "Infos de base",
       "certIdentity": "Identité du certificat",
       "contactInfo": "Informations de contact",
@@ -5365,6 +5360,7 @@ const adminBundle = defineLocaleBundle({
         "clean": "Без конфликтов"
       }
     },
+    "domain": {
       "certRunNow": "Запустить сейчас",
       "panelProvider": "Аккаунты провайдера",
       "statsDdnsEntries": "Записи DDNS",
@@ -5498,15 +5494,6 @@ const adminBundle = defineLocaleBundle({
       "certUpdated": "Сертификат обновлен",
       "renewalCheckCompleted": "Проверка продления завершена. threshold={{threshold}}d renewed={{renewed}}",
       "forceRenewCompleted": "Принудительная проверка продления завершена. renewed={{renewed}}",
-      "caProviders": {
-        "letsencrypt": "Let's Encrypt (Prod)",
-        "letsencrypt-staging": "Let's Encrypt (Staging)",
-        "zerossl": "ZeroSSL"
-      },
-      "challengeTypes": {
-        "dns01": "DNS-01",
-        "http01": "HTTP-01"
-      },
       "basicInfo": "Основная информация",
       "certIdentity": "Идентичность сертификата",
       "contactInfo": "Контактная информация",
@@ -6416,6 +6403,7 @@ const adminBundle = defineLocaleBundle({
         "clean": "問題なし"
       }
     },
+    "domain": {
       "certRunNow": "今すぐ実行",
       "panelProvider": "プロバイダーアカウント",
       "statsDdnsEntries": "DDNS エントリ",
@@ -6549,15 +6537,6 @@ const adminBundle = defineLocaleBundle({
       "certUpdated": "証明書を更新しました",
       "renewalCheckCompleted": "更新チェックが完了しました。threshold={{threshold}}d renewed={{renewed}}",
       "forceRenewCompleted": "強制更新チェックが完了しました。renewed={{renewed}}",
-      "caProviders": {
-        "letsencrypt": "Let's Encrypt (Prod)",
-        "letsencrypt-staging": "Let's Encrypt (Staging)",
-        "zerossl": "ZeroSSL"
-      },
-      "challengeTypes": {
-        "dns01": "DNS-01",
-        "http01": "HTTP-01"
-      },
       "basicInfo": "基本情報",
       "certIdentity": "証明書情報",
       "contactInfo": "連絡先情報",
