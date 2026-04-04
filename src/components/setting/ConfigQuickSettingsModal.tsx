@@ -254,7 +254,13 @@ interface PerformanceTuningPlan {
   webApiUploadMaxFileSize: number;
   webRefreshIntervalSec: number;
   logEnableAsync: boolean;
-  passwordHashMemoryCostKiB: number;
+  passwordHashDefaultType: number;
+  passwordHashAutoUpgrade: boolean;
+  passwordHashArgon2MemKiB: number;
+  passwordHashArgon2TimeCost: number;
+  passwordHashArgon2Parallelism: number;
+  passwordHashBcryptCost: number;
+  passwordHashSha256Iterations: number;
 }
 
 interface ConfigPreviewItem {
@@ -696,11 +702,50 @@ const buildPerformanceTuningPlan = (
     medium: { maxBackupSizeMb: 1024 },
     good: { maxBackupSizeMb: isMultiUserProfile ? 8192 : 4096 },
   };
-  const passwordHashMemoryCostKiBByTier: Record<LegacyPerformanceTier, number> = {
-    "extreme-low": 1024,
-    medium: 8 * 1024,
-    good: isMultiUserProfile ? 48 * 1024 : 32 * 1024,
-  };
+  const passwordHashPlan = (() => {
+    if (tuningTier === "extreme-low") {
+      return {
+        defaultType: 1,
+        autoUpgrade: true,
+        argon2MemKiB: 8 * 1024,
+        argon2TimeCost: 2,
+        argon2Parallelism: 1,
+        bcryptCost: 8,
+        sha256Iterations: 50_000,
+      };
+    }
+    if (tuningTier === "medium") {
+      return {
+        defaultType: 2,
+        autoUpgrade: true,
+        argon2MemKiB: 16 * 1024,
+        argon2TimeCost: 3,
+        argon2Parallelism: 1,
+        bcryptCost: 10,
+        sha256Iterations: 310_000,
+      };
+    }
+    if (draft.loadProfile === "high-concurrency") {
+      return {
+        defaultType: 2,
+        autoUpgrade: true,
+        argon2MemKiB: 32 * 1024,
+        argon2TimeCost: 3,
+        argon2Parallelism: 1,
+        bcryptCost: 12,
+        sha256Iterations: 310_000,
+      };
+    }
+    return {
+      defaultType: 3,
+      autoUpgrade: true,
+      argon2MemKiB: 64 * 1024,
+      argon2TimeCost: 3,
+      argon2Parallelism: 1,
+      bcryptCost: 10,
+      sha256Iterations: 310_000,
+    };
+  })();
 
   const middlewareByTier: Record<
     LegacyPerformanceTier,
@@ -1254,7 +1299,13 @@ const buildPerformanceTuningPlan = (
     webRefreshIntervalSec:
       tuningTier === "extreme-low" ? 300 : tuningTier === "medium" ? 60 : 30,
     logEnableAsync: tuningTier === "good",
-    passwordHashMemoryCostKiB: passwordHashMemoryCostKiBByTier[tuningTier],
+    passwordHashDefaultType: passwordHashPlan.defaultType,
+    passwordHashAutoUpgrade: passwordHashPlan.autoUpgrade,
+    passwordHashArgon2MemKiB: passwordHashPlan.argon2MemKiB,
+    passwordHashArgon2TimeCost: passwordHashPlan.argon2TimeCost,
+    passwordHashArgon2Parallelism: passwordHashPlan.argon2Parallelism,
+    passwordHashBcryptCost: passwordHashPlan.bcryptCost,
+    passwordHashSha256Iterations: passwordHashPlan.sha256Iterations,
   };
 };
 
@@ -1701,8 +1752,14 @@ export const applyDraftToConfig = (
       : isPerformanceMultiUser
         ? "throughput"
         : "balanced";
-    userCenter["password_hash_memory_cost_kib"] =
-      tuningPlan.passwordHashMemoryCostKiB;
+    userCenter["passwd_type"] = tuningPlan.passwordHashDefaultType;
+    userCenter["passwd_auto_upgrade"] = tuningPlan.passwordHashAutoUpgrade;
+    userCenter["passwd_argon2_mem"] = tuningPlan.passwordHashArgon2MemKiB;
+    userCenter["passwd_argon2_t"] = tuningPlan.passwordHashArgon2TimeCost;
+    userCenter["passwd_argon2_p"] = tuningPlan.passwordHashArgon2Parallelism;
+    userCenter["passwd_bcrypt_cost"] = tuningPlan.passwordHashBcryptCost;
+    userCenter["passwd_sha256_iterations"] =
+      tuningPlan.passwordHashSha256Iterations;
     captchaCode["graphic_cache_size"] = tuningPlan.captchaPreheat.graphicCacheSize;
     captchaCode["graphic_gen_concurrency"] =
       tuningPlan.captchaPreheat.graphicGenConcurrency;
@@ -2366,9 +2423,30 @@ export const ConfigQuickSettingsModal: React.FC<
     );
     pushItem("memory_allocator.policy", previewDraft.allocatorPolicy);
     pushItem("memory_allocator.profile", previewDraft.allocatorProfile);
+    pushItem("user_center.passwd_type", previewTuningPlan.passwordHashDefaultType);
     pushItem(
-      "user_center.password_hash_memory_cost_kib",
-      previewTuningPlan.passwordHashMemoryCostKiB,
+      "user_center.passwd_auto_upgrade",
+      previewTuningPlan.passwordHashAutoUpgrade,
+    );
+    pushItem(
+      "user_center.passwd_argon2_mem",
+      previewTuningPlan.passwordHashArgon2MemKiB,
+    );
+    pushItem(
+      "user_center.passwd_argon2_t",
+      previewTuningPlan.passwordHashArgon2TimeCost,
+    );
+    pushItem(
+      "user_center.passwd_argon2_p",
+      previewTuningPlan.passwordHashArgon2Parallelism,
+    );
+    pushItem(
+      "user_center.passwd_bcrypt_cost",
+      previewTuningPlan.passwordHashBcryptCost,
+    );
+    pushItem(
+      "user_center.passwd_sha256_iterations",
+      previewTuningPlan.passwordHashSha256Iterations,
     );
     pushItem(
       "extension_manager.plus.startup_parallelism_low_memory",
