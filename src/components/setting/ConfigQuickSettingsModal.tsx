@@ -697,8 +697,8 @@ const buildPerformanceTuningPlan = (
     good: { maxBackupSizeMb: isMultiUserProfile ? 8192 : 4096 },
   };
   const passwordHashMemoryCostKiBByTier: Record<LegacyPerformanceTier, number> = {
-    "extreme-low": 8 * 1024,
-    medium: 16 * 1024,
+    "extreme-low": 1024,
+    medium: 8 * 1024,
     good: isMultiUserProfile ? 48 * 1024 : 32 * 1024,
   };
 

@@ -118,6 +118,11 @@ assert(
   `dynamic translation keys are not allowed:\n${dynamicKeyFindings.join('\n')}`,
 );
 
+assert(
+  unusedKeys.length === 0,
+  `unused translation keys are not allowed:\n${unusedKeys.join('\n')}`,
+);
+
 console.log(
   `i18n usage check passed. Dynamic key count: ${dynamicKeyFindings.length}. Unused key count: ${unusedKeys.length}`,
 );
