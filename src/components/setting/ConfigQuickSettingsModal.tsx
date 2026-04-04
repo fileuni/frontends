@@ -254,6 +254,7 @@ interface PerformanceTuningPlan {
   webApiUploadMaxFileSize: number;
   webRefreshIntervalSec: number;
   logEnableAsync: boolean;
+  passwordHashMemoryCostKiB: number;
 }
 
 interface ConfigPreviewItem {
@@ -694,6 +695,11 @@ const buildPerformanceTuningPlan = (
     "extreme-low": { maxBackupSizeMb: 256 },
     medium: { maxBackupSizeMb: 1024 },
     good: { maxBackupSizeMb: isMultiUserProfile ? 8192 : 4096 },
+  };
+  const passwordHashMemoryCostKiBByTier: Record<LegacyPerformanceTier, number> = {
+    "extreme-low": 8 * 1024,
+    medium: 16 * 1024,
+    good: isMultiUserProfile ? 48 * 1024 : 32 * 1024,
   };
 
   const middlewareByTier: Record<
@@ -1248,6 +1254,7 @@ const buildPerformanceTuningPlan = (
     webRefreshIntervalSec:
       tuningTier === "extreme-low" ? 300 : tuningTier === "medium" ? 60 : 30,
     logEnableAsync: tuningTier === "good",
+    passwordHashMemoryCostKiB: passwordHashMemoryCostKiBByTier[tuningTier],
   };
 };
 
@@ -1694,6 +1701,8 @@ export const applyDraftToConfig = (
       : isPerformanceMultiUser
         ? "throughput"
         : "balanced";
+    userCenter["password_hash_memory_cost_kib"] =
+      tuningPlan.passwordHashMemoryCostKiB;
     captchaCode["graphic_cache_size"] = tuningPlan.captchaPreheat.graphicCacheSize;
     captchaCode["graphic_gen_concurrency"] =
       tuningPlan.captchaPreheat.graphicGenConcurrency;
@@ -2357,6 +2366,10 @@ export const ConfigQuickSettingsModal: React.FC<
     );
     pushItem("memory_allocator.policy", previewDraft.allocatorPolicy);
     pushItem("memory_allocator.profile", previewDraft.allocatorProfile);
+    pushItem(
+      "user_center.password_hash_memory_cost_kib",
+      previewTuningPlan.passwordHashMemoryCostKiB,
+    );
     pushItem(
       "extension_manager.plus.startup_parallelism_low_memory",
       currentPreset.tier === "performance" ? 2 : 1,
