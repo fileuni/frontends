@@ -94,7 +94,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           className,
         )}
       >
-        <span className="text-sm font-black uppercase tracking-[0.2em]">
+        <span className="text-sm font-black tracking-[0.2em]">
           {t('common.paginationTitle', { defaultValue: 'Pagination' })}
         </span>
       </div>
@@ -109,7 +109,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       )}
     >
       <div className="hidden md:flex items-center gap-6">
-        <p className="text-sm font-black uppercase tracking-widest opacity-30">
+        <p className="text-sm font-black tracking-widest opacity-30">
           {t('common.pagination.showing', {
             start: (current - 1) * pageSize + 1,
             end: Math.min(current * pageSize, total),
@@ -119,7 +119,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
         {onPageSizeChange && (
           <div className="flex items-center gap-3">
-            <span className="text-sm font-bold opacity-20 uppercase tracking-tighter">{t('common.pagination.limit')}:</span>
+            <span className="text-sm font-bold opacity-20 tracking-tighter">{t('common.pagination.limit')}:</span>
             <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
               {pageSizeOptions.slice(0, 3).map((size) => (
                 <button
@@ -215,7 +215,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-1">
                     <Hash size={18} className="text-primary" />
-                    <span className="text-sm font-black uppercase tracking-widest opacity-40">
+                    <span className="text-sm font-black tracking-widest opacity-40">
                       {t('common.pagination.jumpTo')}
                     </span>
                   </div>
@@ -239,7 +239,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-1">
                     <Settings2 size={18} className="text-primary" />
-                    <span className="text-sm font-black uppercase tracking-widest opacity-40">
+                    <span className="text-sm font-black tracking-widest opacity-40">
                       {t('common.pagination.itemsPerPage')}
                     </span>
                   </div>
@@ -271,7 +271,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                   className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center gap-3 transition-all group"
                 >
                   <Layers size={16} className="text-primary transition-transform group-hover:scale-110" />
-                  <span className="text-sm font-black uppercase tracking-widest">
+                  <span className="text-sm font-black tracking-widest">
                     {t('common.pagination.browseAll', { count: totalPages })}
                   </span>
                 </button>

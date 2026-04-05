@@ -90,7 +90,7 @@ export const SortMenu = ({ className }: SortMenuProps) => {
         className="flex items-center gap-2 px-3 py-2 h-10 rounded-xl border border-white/5 bg-white/5 opacity-40 hover:opacity-100 transition-all"
       >
         <ArrowUpDown size={18} />
-        <span className="text-sm font-black uppercase tracking-wider">
+        <span className="text-sm font-black tracking-wider">
           {currentLabel}
         </span>
         <ChevronDown size={18} className={cn("transition-transform", isOpen && "rotate-180")} />
@@ -110,7 +110,7 @@ export const SortMenu = ({ className }: SortMenuProps) => {
             >
               <span>{option.label}</span>
               {sortConfig.field === option.field && (
-                <span className="text-[14px] uppercase opacity-60">
+                <span className="text-[14px] opacity-60">
                   {sortConfig.order === 'asc' ? '↑' : '↓'}
                 </span>
               )}

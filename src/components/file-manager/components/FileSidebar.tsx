@@ -85,7 +85,7 @@ export const FileSidebar = () => {
     <div className="flex flex-col space-y-8">
       {/* Navigation */}
       <nav className="flex-1 space-y-1">
-        <p className="px-4 text-sm font-black uppercase tracking-[0.2em] opacity-20 mb-4">
+        <p className="px-4 text-sm font-black tracking-[0.2em] opacity-20 mb-4">
           Library
         </p>
         {navItems.map((item) => {
@@ -115,7 +115,7 @@ export const FileSidebar = () => {
       {capabilities?.enable_quota !== false && (
         <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-5 shadow-inner">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-black uppercase tracking-widest opacity-40 flex items-center gap-2">
+            <span className="text-sm font-black tracking-widest opacity-40 flex items-center gap-2">
               <Database size={18} /> {t("filemanager.storage")}
             </span>
             <span className="text-sm font-black text-primary">

@@ -265,7 +265,7 @@ export const LoginView = () => {
               <h1 className={cn("text-3xl font-black tracking-tight mb-1", isDark ? "text-white" : "text-gray-900")}>
                 {t("common.login")}
               </h1>
-              <p className="text-sm opacity-50 font-bold uppercase tracking-widest">
+              <p className="text-sm opacity-50 font-bold tracking-widest">
                 {t("auth.loginTitle")}
               </p>
             </div>
@@ -323,7 +323,7 @@ export const LoginView = () => {
 
               <FormField label={null}>
                 <div className="flex justify-between items-center ml-1 -mt-1 mb-2">
-                  <span className="text-sm font-black uppercase tracking-widest opacity-40">{t("common.password")}</span>
+                  <span className="text-sm font-black tracking-widest opacity-40">{t("common.password")}</span>
                   <a
                     href="#mod=public&page=forgot-password"
                     className="text-sm font-black text-primary hover:underline"
@@ -403,7 +403,7 @@ export const LoginView = () => {
               </p>
               <a
                 href="#mod=public&page=register"
-                className="inline-flex items-center justify-center px-8 py-3 rounded-xl border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all font-black uppercase text-sm tracking-widest"
+                className="inline-flex items-center justify-center px-8 py-3 rounded-xl border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all font-black text-sm tracking-widest"
               >
                 {t("common.register")}
               </a>
@@ -448,7 +448,7 @@ export const LoginView = () => {
                         <p className={cn("text-sm font-bold", isDark ? "text-white" : "text-gray-900")}>
                           {session.device_name || t("sessions.unknownDevice")}
                         </p>
-                        <div className="flex items-center gap-3 mt-0.5 text-[14px] font-mono opacity-40 uppercase tracking-tighter">
+                        <div className="flex items-center gap-3 mt-0.5 text-[14px] font-mono opacity-40 tracking-tighter">
                           <span className="flex items-center gap-1">
                             <Globe size={10} /> {session.ip_address}
                           </span>

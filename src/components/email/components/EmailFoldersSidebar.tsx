@@ -31,7 +31,7 @@ export const EmailFoldersSidebar: React.FC<EmailFoldersSidebarProps> = ({
     <div className={cn("w-52 border-r border-border/40 flex flex-col bg-muted/5", activeView !== "folders" && "hidden md:flex")}>
       <div className="p-3 border-b border-border/40 flex items-center gap-2">
         <button type="button" className="md:hidden p-1 hover:bg-muted rounded-lg" onClick={onBack}><ArrowLeft size={16} /></button>
-        <span className="text-sm font-black uppercase text-muted-foreground tracking-widest opacity-50">{t("email.foldersLabel")}</span>
+        <span className="text-sm font-black text-muted-foreground tracking-widest opacity-50">{t("email.foldersLabel")}</span>
       </div>
       <div className="p-2 space-y-1 overflow-y-auto flex-1 custom-scrollbar">
         {folders.map((folder) => (

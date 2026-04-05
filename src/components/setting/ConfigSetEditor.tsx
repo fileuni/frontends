@@ -473,7 +473,7 @@ export const ConfigSetEditor: React.FC = () => {
               t("systemConfig.configSet.final.subtitle", { user: adminUsername })}
           </p>
           <div className="max-w-md mx-auto p-4 sm:p-5 bg-muted/50 rounded-xl text-left space-y-3 border border-border mb-8">
-            <p className="text-sm font-semibold uppercase tracking-wide opacity-60">
+            <p className="text-sm font-semibold tracking-wide opacity-60">
               {t("systemConfig.configSet.final.nextSteps")}
             </p>
               <div className="space-y-2">

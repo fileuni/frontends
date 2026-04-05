@@ -147,12 +147,12 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               <Key size={18} className="text-amber-500 shrink-0" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-sm sm:text-base font-black uppercase tracking-widest truncate">
+              <h3 className="text-sm sm:text-base font-black tracking-widest truncate">
                 {t("admin.config.license.title")}
               </h3>
               <p
                 className={cn(
-                  "text-[10px] font-bold uppercase tracking-widest mt-0.5",
+                  "text-[10px] font-bold tracking-widest mt-0.5",
                   isDark ? "text-slate-500" : "text-slate-400",
                 )}
               >
@@ -193,13 +193,13 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                     isValid ? "text-emerald-500" : "text-rose-500",
                   )}
                 />
-                <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <div className="text-[10px] font-black tracking-widest opacity-40">
                   {t("admin.config.quickSettings.fields.licenseStatus")}
                 </div>
               </div>
               <div
                 className={cn(
-                  "text-sm font-black uppercase tracking-tight",
+                  "text-sm font-black tracking-tight",
                   isValid
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-rose-600 dark:text-rose-400",
@@ -231,7 +231,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             >
               <div className="flex items-center gap-2 mb-2">
                 <Key size={18} className="text-amber-500 shrink-0" />
-                <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <div className="text-[10px] font-black tracking-widest opacity-40">
                   {t("admin.config.quickSettings.fields.expiresAt")}
                 </div>
               </div>
@@ -248,7 +248,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             >
               <div className="flex items-center gap-2 mb-2">
                 <Fingerprint size={18} className="text-purple-500 shrink-0" />
-                <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <div className="text-[10px] font-black tracking-widest opacity-40">
                   {t("admin.config.quickSettings.fields.currentHardwareCode", {
                     defaultValue: t("admin.config.quickSettings.fields.hwFingerprint"),
                   })}
@@ -269,7 +269,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                   >
                     <div
                       className={cn(
-                        "text-[10px] font-black uppercase tracking-widest",
+                        "text-[10px] font-black tracking-widest",
                         isDark ? "text-slate-400" : "text-slate-500",
                       )}
                     >
@@ -294,7 +294,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                   >
                     <div
                       className={cn(
-                        "text-[10px] font-black uppercase tracking-widest",
+                        "text-[10px] font-black tracking-widest",
                         isDark ? "text-slate-400" : "text-slate-500",
                       )}
                     >
@@ -315,7 +315,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <div className="text-xs font-black uppercase tracking-widest opacity-40 ml-1">
+            <div className="text-xs font-black tracking-widest opacity-40 ml-1">
               {t("admin.config.quickSettings.fields.features")}
             </div>
             {featureItems.length === 0 ? (
@@ -341,7 +341,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                   >
                     <div
                       className={cn(
-                        "text-xs font-black uppercase tracking-widest",
+                        "text-xs font-black tracking-widest",
                         isDark ? "text-slate-200" : "text-slate-900",
                       )}
                     >
@@ -372,7 +372,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
           </div>
 
           <div className="space-y-3">
-            <div className="text-xs font-black uppercase tracking-widest opacity-40 ml-1 flex items-center gap-2">
+            <div className="text-xs font-black tracking-widest opacity-40 ml-1 flex items-center gap-2">
               <Key size={14} />
               {t("admin.config.quickSettings.fields.licenseKey")}
             </div>

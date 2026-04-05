@@ -381,7 +381,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                     setLayoutMode('preview');
                   }}
                   className={cn(
-                    'px-3 h-9 rounded-xl text-xs sm:text-sm font-black uppercase transition-all flex items-center gap-2 shrink-0',
+                    'px-3 h-9 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0',
                     !isEditing && activeLayout === 'preview'
                       ? (isDark ? 'bg-white/10 text-white' : 'bg-white text-zinc-900 shadow')
                       : 'opacity-50 hover:opacity-100',
@@ -397,7 +397,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                     setLayoutMode('edit');
                   }}
                   className={cn(
-                    'px-3 h-9 rounded-xl text-xs sm:text-sm font-black uppercase transition-all flex items-center gap-2 shrink-0',
+                    'px-3 h-9 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0',
                     isEditing && activeLayout === 'edit'
                       ? 'bg-amber-500 text-zinc-950 shadow'
                       : 'opacity-50 hover:opacity-100',
@@ -414,7 +414,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                       setLayoutMode('split');
                     }}
                     className={cn(
-                      'px-3 h-9 rounded-xl text-xs sm:text-sm font-black uppercase transition-all flex items-center gap-2 shrink-0',
+                      'px-3 h-9 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0',
                       activeLayout === 'split'
                         ? (isDark ? 'bg-white/10 text-white' : 'bg-white text-zinc-900 shadow')
                         : 'opacity-50 hover:opacity-100',
@@ -430,7 +430,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
               <Button
                 variant="primary"
                 className={cn(
-                  'h-10 rounded-xl text-sm font-black uppercase shrink-0',
+                  'h-10 rounded-xl text-sm font-black shrink-0',
                   isCompactLayout ? 'w-10 px-0 justify-center' : 'px-6',
                 )}
                 onClick={() => { void saveContent('manual'); }}
@@ -457,7 +457,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
                 type="button"
                 onClick={item.action}
                 className={cn(
-                  'shrink-0 rounded-xl border px-2.5 py-2 text-[11px] sm:text-xs font-black uppercase transition-all',
+                  'shrink-0 rounded-xl border px-2.5 py-2 text-[11px] sm:text-xs font-black transition-all',
                   isDark ? 'border-white/10 bg-white/5 hover:bg-white/10' : 'border-zinc-200 bg-white hover:bg-zinc-50',
                 )}
               >
@@ -472,7 +472,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         {loading ? (
           <div className="h-full flex flex-col items-center justify-center gap-4 opacity-50">
             <Loader2 className="animate-spin text-primary" size={40} />
-            <p className="text-sm font-black uppercase tracking-[0.3em]">Opening {fileName || path.split('/').pop() || 'Markdown'}...</p>
+            <p className="text-sm font-black tracking-[0.3em]">Opening {fileName || path.split('/').pop() || 'Markdown'}...</p>
           </div>
         ) : (
           <>

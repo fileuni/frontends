@@ -3266,7 +3266,7 @@ export const ConfigQuickSettingsModal: React.FC<
           />
           <h4
             className={cn(
-              "text-sm font-black uppercase tracking-[0.18em]",
+              "text-sm font-black tracking-[0.18em]",
               isDark ? "text-slate-100" : "text-slate-900",
             )}
           >
@@ -3337,7 +3337,7 @@ export const ConfigQuickSettingsModal: React.FC<
                     <div className="flex min-w-0 items-center gap-2">
                       <span
                         className={cn(
-                          "text-[11px] font-black uppercase tracking-[0.18em]",
+                          "text-[11px] font-black tracking-[0.18em]",
                           isDark ? "text-slate-400" : "text-slate-500",
                         )}
                       >
@@ -3398,7 +3398,7 @@ export const ConfigQuickSettingsModal: React.FC<
           />
           <h4
             className={cn(
-              "text-sm font-black uppercase tracking-[0.18em]",
+              "text-sm font-black tracking-[0.18em]",
               isDark ? "text-slate-100" : "text-slate-900",
             )}
           >
@@ -3411,7 +3411,7 @@ export const ConfigQuickSettingsModal: React.FC<
           <div className={setupSubPanelClassName}>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-[0.18em]",
+                "text-xs font-black tracking-[0.18em]",
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >
@@ -3577,7 +3577,7 @@ export const ConfigQuickSettingsModal: React.FC<
           <div className={setupSubPanelClassName}>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-[0.18em]",
+                "text-xs font-black tracking-[0.18em]",
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >
@@ -3760,7 +3760,7 @@ export const ConfigQuickSettingsModal: React.FC<
               />
               <h4
                 className={cn(
-                  "text-sm font-black uppercase tracking-[0.18em]",
+                  "text-sm font-black tracking-[0.18em]",
                   isDark ? "text-slate-100" : "text-slate-900",
                 )}
               >
@@ -3781,7 +3781,7 @@ export const ConfigQuickSettingsModal: React.FC<
             >
               <div
                 className={cn(
-                  "text-xs font-black uppercase tracking-[0.18em]",
+                  "text-xs font-black tracking-[0.18em]",
                   isDark ? "text-slate-500" : "text-slate-500",
                 )}
               >
@@ -3817,7 +3817,7 @@ export const ConfigQuickSettingsModal: React.FC<
               >
                 <div
                   className={cn(
-                    "text-xs font-black uppercase tracking-[0.18em]",
+                    "text-xs font-black tracking-[0.18em]",
                     isDark ? "text-slate-500" : "text-slate-500",
                   )}
                 >
@@ -3851,7 +3851,7 @@ export const ConfigQuickSettingsModal: React.FC<
             <div className={setupSubPanelClassName}>
               <div
                 className={cn(
-                  "text-xs font-black uppercase tracking-[0.18em]",
+                  "text-xs font-black tracking-[0.18em]",
                   isDark ? "text-slate-500" : "text-slate-500",
                 )}
               >
@@ -3937,7 +3937,7 @@ export const ConfigQuickSettingsModal: React.FC<
             <div className={setupSubPanelClassName}>
               <div
                 className={cn(
-                  "text-xs font-black uppercase tracking-[0.18em]",
+                  "text-xs font-black tracking-[0.18em]",
                   isDark ? "text-slate-500" : "text-slate-500",
                 )}
               >
@@ -4052,12 +4052,12 @@ export const ConfigQuickSettingsModal: React.FC<
             )}
           >
             <div className="min-w-0">
-              <h3 className="text-sm sm:text-base font-black uppercase tracking-widest truncate">
+              <h3 className="text-sm sm:text-base font-black tracking-widest truncate">
                 {t("admin.config.quickSettings.title")}
               </h3>
               <p
                 className={cn(
-                  "text-[10px] sm:text-xs font-bold uppercase tracking-[0.1em] mt-1",
+                  "text-[10px] sm:text-xs font-bold tracking-[0.1em] mt-1",
                   isDark ? "text-slate-500" : "text-slate-400",
                 )}
               >
@@ -4236,7 +4236,7 @@ export const ConfigQuickSettingsModal: React.FC<
                           isDark ? "text-purple-300" : "text-purple-600"
                         }
                       />
-                      <h4 className="text-sm sm:text-sm font-black uppercase tracking-wide">
+                      <h4 className="text-sm sm:text-sm font-black tracking-wide">
                         {t("admin.config.quickSettings.steps.performance")}
                       </h4>
                     </div>
@@ -4361,7 +4361,7 @@ export const ConfigQuickSettingsModal: React.FC<
                                 <div className="flex min-w-0 items-center gap-2">
                                   <span
                                     className={cn(
-                                      "text-[11px] font-black uppercase tracking-[0.18em]",
+                                      "text-[11px] font-black tracking-[0.18em]",
                                       isDark
                                         ? "text-slate-400"
                                         : "text-slate-500",
@@ -4490,7 +4490,7 @@ export const ConfigQuickSettingsModal: React.FC<
                         <Wand2 size={18} className="text-primary" />
                         <div
                           className={cn(
-                            "text-sm uppercase font-black tracking-widest",
+                            "text-sm font-black tracking-widest",
                             isDark ? "opacity-60" : "text-slate-500",
                           )}
                         >
@@ -4513,7 +4513,7 @@ export const ConfigQuickSettingsModal: React.FC<
                           >
                             <div
                               className={cn(
-                                "text-sm uppercase font-black mb-1.5 truncate",
+                                "text-sm font-black mb-1.5 truncate",
                                 isDark ? "text-slate-500" : "text-slate-400",
                               )}
                             >
@@ -4577,7 +4577,7 @@ export const ConfigQuickSettingsModal: React.FC<
                         <div className="mt-3 flex items-center justify-between">
                           <div
                             className={cn(
-                              "text-sm font-black uppercase opacity-40 shrink-0",
+                              "text-sm font-black opacity-40 shrink-0",
                               isDark ? "text-white" : "text-slate-900",
                             )}
                           >
@@ -4626,7 +4626,7 @@ export const ConfigQuickSettingsModal: React.FC<
                           >
                             <div
                               className={cn(
-                                "grid grid-cols-[1fr_auto] gap-2 border-b px-2.5 py-2 text-sm font-black uppercase tracking-wider",
+                                "grid grid-cols-[1fr_auto] gap-2 border-b px-2.5 py-2 text-sm font-black tracking-wider",
                                 isDark
                                   ? "border-white/10 text-slate-400 bg-white/5"
                                   : "border-slate-300 text-slate-600 bg-slate-100",
@@ -4688,7 +4688,7 @@ export const ConfigQuickSettingsModal: React.FC<
                           >
                             <div
                               className={cn(
-                                "text-sm uppercase font-black opacity-60 mb-2",
+                                "text-sm font-black opacity-60 mb-2",
                                 isDark ? "text-white" : "text-slate-500",
                               )}
                             >
@@ -4742,7 +4742,7 @@ export const ConfigQuickSettingsModal: React.FC<
                         size={16}
                         className={isDark ? "text-cyan-300" : "text-cyan-600"}
                       />
-                      <h4 className="text-sm sm:text-sm font-black uppercase tracking-wide">
+                      <h4 className="text-sm sm:text-sm font-black tracking-wide">
                         {t("admin.config.quickSettings.steps.database")}
                       </h4>
                     </div>
@@ -5072,7 +5072,7 @@ export const ConfigQuickSettingsModal: React.FC<
                         : "border-slate-200 bg-white",
                     )}
                   >
-                    <h4 className="text-sm sm:text-sm font-black uppercase tracking-wide mb-3">
+                    <h4 className="text-sm sm:text-sm font-black tracking-wide mb-3">
                       {t("admin.config.quickSettings.steps.cache")}
                     </h4>
                     {renderSetupAdvancedToggle()}
@@ -5400,7 +5400,7 @@ export const ConfigQuickSettingsModal: React.FC<
                         : "border-slate-200 bg-white",
                     )}
                   >
-                    <h4 className="text-sm sm:text-sm font-black uppercase tracking-wide mb-3">
+                    <h4 className="text-sm sm:text-sm font-black tracking-wide mb-3">
                       {t("admin.config.quickSettings.steps.other")}
                     </h4>
                     <p

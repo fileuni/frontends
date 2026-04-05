@@ -1031,7 +1031,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
             />
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-[0.18em]",
+                "text-xs font-black tracking-[0.18em]",
                 isDark ? "text-slate-300" : "text-slate-700",
               )}
             >
@@ -1078,7 +1078,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
                       : suggestedTemplate === tier) && (
                       <div
                         className={cn(
-                          "rounded-full px-2 py-0.5 text-[11px] font-black uppercase tracking-wide",
+                          "rounded-full px-2 py-0.5 text-[11px] font-black tracking-wide",
                           isDark
                             ? "bg-cyan-500/15 text-cyan-200"
                             : "bg-cyan-100 text-cyan-900",
@@ -1115,7 +1115,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
                       <div className="flex min-w-0 items-center gap-2">
                         <span
                           className={cn(
-                            "text-[11px] font-black uppercase tracking-[0.18em]",
+                            "text-[11px] font-black tracking-[0.18em]",
                             isDark ? "text-slate-400" : "text-slate-500",
                           )}
                         >
@@ -1194,7 +1194,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
                 />
                 <div
                   className={cn(
-                    "text-xs font-black uppercase tracking-[0.18em]",
+                    "text-xs font-black tracking-[0.18em]",
                     isDark ? "text-slate-300" : "text-slate-700",
                   )}
                 >
@@ -1251,7 +1251,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
             >
               <div
                 className={cn(
-                  "text-[11px] font-black uppercase tracking-[0.18em]",
+                  "text-[11px] font-black tracking-[0.18em]",
                   isDark ? "text-slate-400" : "text-slate-500",
                 )}
               >
@@ -1358,7 +1358,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
           >
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-sm font-black uppercase tracking-[0.18em]">
+                <div className="text-sm font-black tracking-[0.18em]">
                   {t(
                     "admin.config.quickSettings.performance.preview.configKeyChanges",
                   )}
@@ -1405,7 +1405,7 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
                     <div className="flex items-center justify-between gap-3">
                       <div
                         className={cn(
-                          "text-[11px] font-black uppercase tracking-[0.18em]",
+                          "text-[11px] font-black tracking-[0.18em]",
                           isDark ? "text-slate-400" : "text-slate-500",
                         )}
                       >
@@ -1679,7 +1679,7 @@ export const DatabaseInlinePanel: React.FC<DatabasePanelProps> = ({
         <div>
           <div
             className={cn(
-              "text-xs font-black uppercase tracking-wide",
+              "text-xs font-black tracking-wide",
               isDark ? "text-slate-400" : "text-slate-600",
             )}
           >
@@ -1714,7 +1714,7 @@ export const DatabaseInlinePanel: React.FC<DatabasePanelProps> = ({
             >
               <div
                 className={cn(
-                  "text-xs font-black uppercase tracking-wide",
+                  "text-xs font-black tracking-wide",
                   isDark ? "text-slate-400" : "text-slate-600",
                 )}
               >
@@ -1958,7 +1958,7 @@ export const CacheInlinePanel: React.FC<CachePanelProps> = ({
             <div key={String(field)}>
               <div
                 className={cn(
-                  "text-xs font-black uppercase tracking-wide",
+                  "text-xs font-black tracking-wide",
                   isDark ? "text-slate-400" : "text-slate-600",
                 )}
               >

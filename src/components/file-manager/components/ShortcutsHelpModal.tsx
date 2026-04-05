@@ -61,8 +61,8 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
               <Keyboard size={24} />
             </div>
             <div>
-              <h3 className="text-xl font-black text-white tracking-tight uppercase">{t('filemanager.help.title')}</h3>
-              <p className="text-sm font-bold opacity-40 uppercase tracking-widest mt-1">{t('filemanager.help.subtitle')}</p>
+              <h3 className="text-xl font-black text-white tracking-tight">{t('filemanager.help.title')}</h3>
+              <p className="text-sm font-bold opacity-40 tracking-widest mt-1">{t('filemanager.help.subtitle')}</p>
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5">
@@ -74,7 +74,7 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
           {sections.map((section) => (
             <div key={section.title} className="space-y-4">
-              <h4 className="text-sm font-black uppercase tracking-[0.2em] text-primary/60 border-b border-white/5 pb-2">
+              <h4 className="text-sm font-black tracking-[0.2em] text-primary/60 border-b border-white/5 pb-2">
                 {section.title}
               </h4>
               <div className="space-y-3">
@@ -106,7 +106,7 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
             <Info size={18} className="shrink-0" />
             <span className="text-sm font-medium leading-tight">{t('filemanager.help.tip')}</span>
           </div>
-          <Button onClick={onClose} className="rounded-2xl px-8 h-12 font-black uppercase text-sm shadow-xl shadow-primary/20">
+          <Button onClick={onClose} className="rounded-2xl px-8 h-12 font-black text-sm shadow-xl shadow-primary/20">
             {t('filemanager.help.gotIt')}
           </Button>
         </div>

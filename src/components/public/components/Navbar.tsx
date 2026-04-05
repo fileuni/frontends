@@ -256,7 +256,7 @@ export const Navbar = () => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-black text-lg truncate leading-tight">{currentUserData?.user.username}</p>
-                    <p className="text-sm font-black uppercase opacity-40 tracking-widest">{t('nav.activeWorkspace')}</p>
+                    <p className="text-sm font-black opacity-40 tracking-widest">{t('nav.activeWorkspace')}</p>
                   </div>
                   
                   <div className="divider divider-horizontal mx-0 h-8 border-primary/20" />
@@ -273,7 +273,7 @@ export const Navbar = () => {
 
               {/* Navigation Items */}
               <div>
-                <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.menu')}</p>
+                <p className={cn("text-sm font-black tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.menu')}</p>
                 <div className="space-y-1">
                   {navItems.map(item => {
                     const content = (
@@ -314,7 +314,7 @@ export const Navbar = () => {
               {/* System Actions */}
               <div className="space-y-6">
                 <div>
-                  <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('about.open')}</p>
+                  <p className={cn("text-sm font-black tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('about.open')}</p>
                   <button
                     type="button"
                     onClick={handleOpenAbout}
@@ -329,7 +329,7 @@ export const Navbar = () => {
                 </div>
 
                 <div>
-                  <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.language')}</p>
+                  <p className={cn("text-sm font-black tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.language')}</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
                     {([AUTO_LOCALE_PREFERENCE, ...LOCALE_PICKER_OPTIONS.map((option) => option.code)] as Language[]).map((lang) => (
                       <button 
@@ -351,7 +351,7 @@ export const Navbar = () => {
                 </div>
 
                 <div>
-                  <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.theme')}</p>
+                  <p className={cn("text-sm font-black tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.theme')}</p>
                   <div className="grid grid-cols-3 gap-2 p-1">
                     {([
                       { id: 'system', icon: Laptop },

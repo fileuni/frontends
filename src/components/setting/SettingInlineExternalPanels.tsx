@@ -100,7 +100,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
         <div>
           <div
             className={cn(
-              "text-xs font-black uppercase tracking-wide",
+              "text-xs font-black tracking-wide",
               isDark ? "text-slate-400" : "text-slate-700",
             )}
           >
@@ -154,7 +154,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
           <div key={key}>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-wide",
+                "text-xs font-black tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-700",
               )}
             >
@@ -211,7 +211,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
         <div>
           <div
             className={cn(
-              "text-xs font-black uppercase tracking-wide",
+              "text-xs font-black tracking-wide",
               isDark ? "text-slate-400" : "text-slate-600",
             )}
           >
@@ -241,7 +241,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
           />
         </div>
         <div>
-          <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>
+          <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>
             {t("admin.config.thumbnail.videoSeekMode")}
           </div>
           <div className="mt-2">
@@ -262,7 +262,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
           <div>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-wide",
+                "text-xs font-black tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
               )}
             >
@@ -282,7 +282,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
           <div>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-wide",
+                "text-xs font-black tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
               )}
             >
@@ -353,7 +353,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
               </div>
             )}
             <div>
-              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.pdfMaxSizeMb")}</div>
+              <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.pdfMaxSizeMb")}</div>
               <input value={draft.pdfMaxSizeMb} onChange={(event) => setDraft((prev) => ({ ...prev, pdfMaxSizeMb: event.target.value }))} className={inputClass} placeholder="100" />
             </div>
           </div>
@@ -371,7 +371,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
             </label>
             <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.officeUsesLibreofficeHint")}</div>
             <div>
-              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.officeMaxSizeMb")}</div>
+              <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.officeMaxSizeMb")}</div>
               <input value={draft.officeMaxSizeMb} onChange={(event) => setDraft((prev) => ({ ...prev, officeMaxSizeMb: event.target.value }))} className={inputClass} placeholder="100" />
             </div>
             <ExternalToolPathField
@@ -411,7 +411,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
               onProbeExternalTool={onProbeExternalTool}
             />
             <div>
-              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexMaxInputSizeMb")}</div>
+              <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexMaxInputSizeMb")}</div>
               <input value={draft.latexMaxInputSizeMb} onChange={(event) => setDraft((prev) => ({ ...prev, latexMaxInputSizeMb: event.target.value }))} className={inputClass} placeholder="4" />
             </div>
           </div>
@@ -429,7 +429,7 @@ export const ThumbnailInlinePanel: React.FC<BaseProps> = ({
             </label>
             <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.model3dUsesBlenderHint")}</div>
             <div>
-              <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.model3dMaxSizeMb")}</div>
+              <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.model3dMaxSizeMb")}</div>
               <input value={draft.model3dMaxSizeMb} onChange={(event) => setDraft((prev) => ({ ...prev, model3dMaxSizeMb: event.target.value }))} className={inputClass} placeholder="100" />
             </div>
             <ExternalToolPathField
@@ -502,7 +502,7 @@ export const CompressionInlinePanel: React.FC<BaseProps> = ({
             }
           />
           <div>
-            <div className="text-sm font-black uppercase tracking-wide">
+            <div className="text-sm font-black tracking-wide">
               {t("admin.config.compression.enable")}
             </div>
             <div
@@ -530,7 +530,7 @@ export const CompressionInlinePanel: React.FC<BaseProps> = ({
           <div>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-wide",
+                "text-xs font-black tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
               )}
             >
@@ -551,7 +551,7 @@ export const CompressionInlinePanel: React.FC<BaseProps> = ({
           <div>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-wide",
+                "text-xs font-black tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
               )}
             >
@@ -572,7 +572,7 @@ export const CompressionInlinePanel: React.FC<BaseProps> = ({
           <div>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-wide",
+                "text-xs font-black tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
               )}
             >
@@ -633,7 +633,7 @@ export const AdminPasswordInlinePanel: React.FC<
     <div>
       <div
         className={cn(
-          "text-xs font-black uppercase tracking-wide",
+          "text-xs font-black tracking-wide",
           isDark ? "text-slate-400" : "text-slate-600",
         )}
       >
@@ -1044,7 +1044,7 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
             }}
           />
           <div>
-            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+            <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
               {t("admin.config.protectedStorage.obfuscation.blockSizeKiB")}
             </div>
             <input
@@ -1128,7 +1128,7 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
             }}
           />
           <div>
-            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+            <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
               {t("admin.config.protectedStorage.obfuscation.workers")}
             </div>
             <input
@@ -1191,7 +1191,7 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
         >
           <div className="text-sm font-black">{t("admin.config.protectedStorage.encrypt.title")}</div>
           <div>
-            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+            <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
               {t("admin.config.protectedStorage.encrypt.cipher")}
             </div>
             <input className={inputClass} value={draft.cipher} readOnly />
@@ -1200,7 +1200,7 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
             </div>
           </div>
           <div>
-            <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+            <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
               {t("admin.config.protectedStorage.encrypt.wrapKey")}
             </div>
             <PasswordInput

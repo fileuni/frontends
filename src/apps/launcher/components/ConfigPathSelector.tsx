@@ -237,7 +237,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             <label
               htmlFor="runtime-dir-input"
               className={cn(
-                "text-xs font-black uppercase tracking-[0.1em]",
+                "text-xs font-black tracking-[0.1em]",
                 isDark ? "text-slate-500" : "text-slate-400",
               )}
             >
@@ -289,7 +289,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                 )}
               />
             </div>
-            <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.2em]">
+            <div className="relative flex justify-center text-[10px] font-black tracking-[0.2em]">
               <span
                 className={cn(
                   "px-4",
@@ -318,7 +318,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             >
               <span
                 className={cn(
-                  "font-black uppercase tracking-wider block mb-2",
+                  "font-black tracking-wider block mb-2",
                   isDark ? "text-slate-400" : "text-slate-600",
                 )}
               >
@@ -358,7 +358,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             >
               <span
                 className={cn(
-                  "font-black uppercase tracking-wider block mb-2",
+                  "font-black tracking-wider block mb-2",
                   isDark ? "text-slate-400" : "text-slate-600",
                 )}
               >

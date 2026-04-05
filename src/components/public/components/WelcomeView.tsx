@@ -166,7 +166,7 @@ export const WelcomeView = () => {
             <Zap className="text-yellow-500" size={18} />
             <span
               className={cn(
-                "text-sm font-black uppercase tracking-wider",
+                "text-sm font-black tracking-wider",
                 isDark ? "text-white/80" : "text-gray-700",
               )}
             >
@@ -184,7 +184,7 @@ export const WelcomeView = () => {
             <ShieldCheck className="text-green-500" size={18} />
             <span
               className={cn(
-                "text-sm font-black uppercase tracking-wider",
+                "text-sm font-black tracking-wider",
                 isDark ? "text-white/80" : "text-gray-700",
               )}
             >
@@ -202,7 +202,7 @@ export const WelcomeView = () => {
             <Cpu className="text-blue-500" size={18} />
             <span
               className={cn(
-                "text-sm font-black uppercase tracking-wider",
+                "text-sm font-black tracking-wider",
                 isDark ? "text-white/80" : "text-gray-700",
               )}
             >

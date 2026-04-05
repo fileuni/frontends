@@ -105,9 +105,9 @@ export const AudioPreviewMainPanel = ({
 
           <div className="min-w-0 flex-1 space-y-5 text-center xl:text-left">
             <div className="flex flex-wrap items-center justify-center gap-2 xl:justify-start">
-              <span className={cn('inline-flex h-9 items-center rounded-full border px-4 text-xs font-black uppercase tracking-[0.28em]', isDark ? 'border-sky-400/20 bg-sky-400/10 text-sky-200' : 'border-sky-200 bg-sky-50 text-sky-700')}>{currentExtension}</span>
-              <span className={cn('inline-flex h-9 items-center rounded-full border px-4 text-xs font-black uppercase tracking-[0.28em]', isDark ? 'border-white/10 bg-white/5 text-white/70' : 'border-slate-200 bg-slate-100 text-slate-500')}>{lyricsState.synced ? t('filemanager.audio.syncedLyrics') : t('filemanager.audio.highFidelity')}</span>
-              {isTrackLoading && <span className={cn('inline-flex h-9 items-center rounded-full border px-4 text-xs font-black uppercase tracking-[0.28em]', isDark ? 'border-amber-400/20 bg-amber-400/10 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-700')}>{t('filemanager.audio.buffering')}</span>}
+              <span className={cn('inline-flex h-9 items-center rounded-full border px-4 text-xs font-black tracking-[0.28em]', isDark ? 'border-sky-400/20 bg-sky-400/10 text-sky-200' : 'border-sky-200 bg-sky-50 text-sky-700')}>{currentExtension}</span>
+              <span className={cn('inline-flex h-9 items-center rounded-full border px-4 text-xs font-black tracking-[0.28em]', isDark ? 'border-white/10 bg-white/5 text-white/70' : 'border-slate-200 bg-slate-100 text-slate-500')}>{lyricsState.synced ? t('filemanager.audio.syncedLyrics') : t('filemanager.audio.highFidelity')}</span>
+              {isTrackLoading && <span className={cn('inline-flex h-9 items-center rounded-full border px-4 text-xs font-black tracking-[0.28em]', isDark ? 'border-amber-400/20 bg-amber-400/10 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-700')}>{t('filemanager.audio.buffering')}</span>}
             </div>
 
             <div className="space-y-3">
@@ -118,15 +118,15 @@ export const AudioPreviewMainPanel = ({
 
             <div className="grid gap-3 sm:grid-cols-3">
               <div className={cn('rounded-2xl border p-4 text-left', isDark ? 'border-white/10 bg-slate-950/40' : 'border-white/80 bg-white/75')}>
-                <p className={cn('text-xs font-black uppercase tracking-[0.28em]', isDark ? 'text-white/40' : 'text-slate-400')}>{t('filemanager.player.nowPlaying')}</p>
+                <p className={cn('text-xs font-black tracking-[0.28em]', isDark ? 'text-white/40' : 'text-slate-400')}>{t('filemanager.player.nowPlaying')}</p>
                 <p className="mt-3 text-xl font-black">{currentIndex + 1} / {playlistLength}</p>
               </div>
               <div className={cn('rounded-2xl border p-4 text-left', isDark ? 'border-white/10 bg-slate-950/40' : 'border-white/80 bg-white/75')}>
-                <p className={cn('text-xs font-black uppercase tracking-[0.28em]', isDark ? 'text-white/40' : 'text-slate-400')}>{t('filemanager.audio.speed')}</p>
+                <p className={cn('text-xs font-black tracking-[0.28em]', isDark ? 'text-white/40' : 'text-slate-400')}>{t('filemanager.audio.speed')}</p>
                 <p className="mt-3 text-xl font-black">{rateText}x</p>
               </div>
               <div className={cn('rounded-2xl border p-4 text-left', isDark ? 'border-white/10 bg-slate-950/40' : 'border-white/80 bg-white/75')}>
-                <p className={cn('text-xs font-black uppercase tracking-[0.28em]', isDark ? 'text-white/40' : 'text-slate-400')}>{playModeLabel}</p>
+                <p className={cn('text-xs font-black tracking-[0.28em]', isDark ? 'text-white/40' : 'text-slate-400')}>{playModeLabel}</p>
                 <p className="mt-3 text-xl font-black">{timeLabel(duration)}</p>
               </div>
             </div>
@@ -158,7 +158,7 @@ export const AudioPreviewMainPanel = ({
           </div>
 
           <label className={cn('flex min-h-12 items-center gap-3 rounded-full border px-4 py-2 text-sm font-bold', isDark ? 'border-white/10 bg-white/5 text-white' : 'border-slate-200 bg-white/80 text-slate-700')}>
-            <span className={cn('text-xs font-black uppercase tracking-[0.24em]', isDark ? 'text-white/45' : 'text-slate-400')}>{t('filemanager.audio.speed')}</span>
+            <span className={cn('text-xs font-black tracking-[0.24em]', isDark ? 'text-white/45' : 'text-slate-400')}>{t('filemanager.audio.speed')}</span>
             <select value={playbackRate} onChange={(event) => onPlaybackRateChange(Number(event.target.value))} className={cn('bg-transparent outline-none', isDark ? 'text-white' : 'text-slate-700')}>
               {PLAYBACK_SPEEDS.map((speed) => <option key={speed} value={speed}>{speed}x</option>)}
             </select>

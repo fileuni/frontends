@@ -338,7 +338,7 @@ export const ForgotPasswordView = () => {
               <ShieldAlert size={32} />
             </div>
             <h1 className={cn("text-3xl font-black tracking-tight mb-1", isDark ? "text-white" : "text-gray-900")}>{t('forgotPassword.accountRecovery')}</h1>
-            <p className="text-sm opacity-50 font-bold uppercase tracking-widest">{t('forgotPassword.verifyIdentity')}</p>
+            <p className="text-sm opacity-50 font-bold tracking-widest">{t('forgotPassword.verifyIdentity')}</p>
           </div>
 
           {step === 1 && (
@@ -420,7 +420,7 @@ export const ForgotPasswordView = () => {
                 <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white">{options.username.charAt(0).toUpperCase()}</div>
                 <span className={isDark ? "text-white" : "text-gray-900"}>{options.username}</span>
               </div>
-              <p className="text-sm font-black uppercase tracking-widest opacity-30 ml-1">{t('forgotPassword.chooseVerification')}</p>
+              <p className="text-sm font-black tracking-widest opacity-30 ml-1">{t('forgotPassword.chooseVerification')}</p>
               
               {options.has_security_question && (
                 <button type="button" onClick={() => startVerification('question')} className={cn(
@@ -474,12 +474,12 @@ export const ForgotPasswordView = () => {
 
               {selectedMethod === 'question' ? (
                 <div className="space-y-2">
-                  <label htmlFor="forgot-answer" className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{options?.security_question ?? t('forgotPassword.securityQuestion')}</label>
+                  <label htmlFor="forgot-answer" className="text-sm font-black tracking-widest opacity-40 ml-1">{options?.security_question ?? t('forgotPassword.securityQuestion')}</label>
                   <Input id="forgot-answer" value={verifyForm.answer} onChange={e => setVerifyForm({ ...verifyForm, answer: e.target.value })} placeholder={t('forgotPassword.secretAnswerPlaceholder')} className="h-14" />
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <label htmlFor="forgot-code" className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('common.verificationCode')}</label>
+                  <label htmlFor="forgot-code" className="text-sm font-black tracking-widest opacity-40 ml-1">{t('common.verificationCode')}</label>
                   <div className="flex gap-2">
                     <Input id="forgot-code" value={verifyForm.code} onChange={e => setVerifyForm({ ...verifyForm, code: e.target.value })} placeholder={t('forgotPassword.codePlaceholder')} className="flex-1 font-mono tracking-widest h-14" />
                     <Button variant="outline" className="h-14 px-6" disabled={verifyForm.timer > 0 || loading} onClick={() => selectedMethod && startVerification(selectedMethod)}>

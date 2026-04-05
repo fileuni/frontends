@@ -234,12 +234,12 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
             {displayName}
           </span>
           {file.is_mount_root && (
-            <span className="mt-1 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-black uppercase tracking-widest text-cyan-200">
-              {t('filemanager.mounts.rootBadge') || 'Mounted'}
-            </span>
+              <span className="mt-1 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-black tracking-widest text-cyan-200">
+                {t('filemanager.mounts.rootBadge') || 'Mounted'}
+              </span>
           )}
           {secondaryInfo && (
-            <span className="text-[14px] opacity-30 truncate w-full mt-0.5 uppercase font-black px-1">
+            <span className="text-[14px] opacity-30 truncate w-full mt-0.5 font-black px-1">
               {secondaryInfo}
             </span>
           )}
@@ -283,7 +283,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
           <div className="flex items-center gap-2">
             <div className={cn("text-sm font-bold truncate", selected ? "text-primary" : "")}>{displayName}</div>
             {file.is_mount_root && (
-              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-black uppercase tracking-widest text-cyan-300">
+              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-black tracking-widest text-cyan-300">
                 {t('filemanager.mounts.rootBadge') || 'Mounted'}
               </span>
             )}

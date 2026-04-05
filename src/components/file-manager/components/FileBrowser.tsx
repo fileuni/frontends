@@ -31,12 +31,12 @@ export const FileBrowser = ({ onContextMenu, onAction }: Props) => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-12 opacity-20">
         <Inbox size={64} strokeWidth={1} />
-        <p className="text-xl font-black mt-4 uppercase tracking-widest">
+        <p className="text-xl font-black mt-4 tracking-widest">
           {isSearchMode ? (t('filemanager.emptySearch') || t('filemanager.emptyFolder')) : t('filemanager.emptyFolder')}
         </p>
         {isSearchMode && searchKeyword && (
           <>
-            <p className="mt-2 text-sm font-bold uppercase tracking-[0.18em]">
+            <p className="mt-2 text-sm font-bold tracking-[0.18em]">
               {searchKeyword}
             </p>
             <Button variant="ghost" className="mt-4" onClick={() => void clearSearch()}>
@@ -80,7 +80,7 @@ export const FileBrowser = ({ onContextMenu, onAction }: Props) => {
       {loading && (
         <div className="py-12 flex flex-col items-center justify-center gap-3 opacity-40">
           <Loader2 size={32} className="animate-spin text-primary" />
-          <span className="text-sm font-black uppercase tracking-[0.2em]">{t('common.loading')}</span>
+          <span className="text-sm font-black tracking-[0.2em]">{t('common.loading')}</span>
         </div>
       )}
     </div>

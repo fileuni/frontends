@@ -37,10 +37,10 @@ export const OfficeLitePage: React.FC<Props> = ({ path, onClose }) => {
   return (
     <div className="fixed inset-0 z-[210] flex flex-col items-center justify-center bg-background text-center gap-4">
       <AlertCircle size={64} className="opacity-60" />
-      <p className="text-sm font-black uppercase tracking-widest">
+      <p className="text-sm font-black tracking-widest">
         {t('filemanager.officeLite.unsupported')}
       </p>
-      <Button variant="outline" onClick={onClose} className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm">
+      <Button variant="outline" onClick={onClose} className="h-10 px-6 rounded-xl font-bold tracking-widest text-sm">
         {t('common.close')}
       </Button>
     </div>

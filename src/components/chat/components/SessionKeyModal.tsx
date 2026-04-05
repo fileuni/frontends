@@ -57,7 +57,7 @@ export const SessionKeyModal: React.FC = () => {
             </div>
             <div>
               <h2 className="text-xl font-black tracking-tight">{t('chat.setSessionKey')}</h2>
-              <p className="text-sm font-black uppercase opacity-30 tracking-widest">{t('chat.e2e')}</p>
+              <p className="text-sm font-black opacity-30 tracking-widest">{t('chat.e2e')}</p>
             </div>
           </div>
 
@@ -71,9 +71,9 @@ export const SessionKeyModal: React.FC = () => {
 
         <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-8 space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-black uppercase opacity-40 tracking-[0.2em] ml-1">
+            <div className="text-sm font-black opacity-40 tracking-[0.2em] ml-1">
               {t('chat.conversationWith', { name: targetName })}
-            </label>
+            </div>
             <PasswordInput
               icon={<Key size={18} />}
               value={keyValue}
@@ -88,13 +88,13 @@ export const SessionKeyModal: React.FC = () => {
             <Button 
               variant="ghost" 
               onClick={closeKeyModal}
-              className="flex-1 h-14 rounded-2xl font-black uppercase text-sm tracking-widest"
+               className="flex-1 h-14 rounded-2xl font-black text-sm tracking-widest"
             >
               {t('common.cancel')}
             </Button>
             <Button 
               onClick={handleSave}
-              className="flex-1 h-14 rounded-2xl font-black uppercase text-sm tracking-widest shadow-xl shadow-primary/20"
+               className="flex-1 h-14 rounded-2xl font-black text-sm tracking-widest shadow-xl shadow-primary/20"
             >
               {t('common.save')}
             </Button>

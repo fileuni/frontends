@@ -81,14 +81,14 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
       {props.headerExtra}
       {isCompactLayout ? (
         <label className={cn(
-          'flex h-10 min-w-0 items-center rounded-2xl border px-3 text-xs font-black uppercase tracking-[0.1em]',
+          'flex h-10 min-w-0 items-center rounded-2xl border px-3 text-xs font-black tracking-[0.1em]',
           props.isDark ? 'border-white/10 bg-white/5 text-white/70' : 'border-zinc-200 bg-white/85 text-zinc-600',
         )}>
           <select
             value={engine}
             onChange={(event) => handleEngineChange(event.target.value as MarkdownEngine)}
             className={cn(
-              'min-w-0 bg-transparent text-xs font-black uppercase outline-none pr-4',
+              'min-w-0 bg-transparent text-xs font-black outline-none pr-4',
               props.isDark ? 'text-white' : 'text-zinc-900',
             )}
              aria-label={props.contentMode === 'plain' ? 'Text editor engine' : 'Markdown editor engine'}
@@ -107,7 +107,7 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
           <Button
             variant={engine === 'textarea' ? 'primary' : 'ghost'}
             size="sm"
-            className="h-9 px-3 rounded-xl text-xs uppercase"
+            className="h-9 px-3 rounded-xl text-xs"
             onClick={() => handleEngineChange('textarea')}
           >
             Textarea
@@ -115,7 +115,7 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
           <Button
             variant={engine === 'simple' ? 'primary' : 'ghost'}
             size="sm"
-            className="h-9 px-3 rounded-xl text-xs uppercase"
+            className="h-9 px-3 rounded-xl text-xs"
             onClick={() => handleEngineChange('simple')}
           >
             Simple
@@ -123,7 +123,7 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
           <Button
             variant={engine === 'codemirror' ? 'primary' : 'ghost'}
             size="sm"
-            className="h-9 px-3 rounded-xl text-xs uppercase"
+            className="h-9 px-3 rounded-xl text-xs"
             onClick={() => handleEngineChange('codemirror')}
           >
             CodeMirror
@@ -131,7 +131,7 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
           <Button
             variant={engine === 'vditor' ? 'primary' : 'ghost'}
             size="sm"
-            className="h-9 px-3 rounded-xl text-xs uppercase"
+            className="h-9 px-3 rounded-xl text-xs"
             onClick={() => handleEngineChange('vditor')}
           >
             Vditor

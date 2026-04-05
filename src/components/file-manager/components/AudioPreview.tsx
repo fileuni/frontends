@@ -80,7 +80,7 @@ export const AudioPreview = ({ playlist, initialIndex = 0, isDark, headerExtra, 
         extra={
           <div className="flex items-center gap-2">
             {headerExtra}
-            <span className={cn('inline-flex h-10 items-center rounded-full border px-4 text-xs font-black uppercase tracking-[0.28em]', isDark ? 'border-white/10 bg-white/5 text-white/70' : 'border-slate-200 bg-slate-100 text-slate-500')}>
+            <span className={cn('inline-flex h-10 items-center rounded-full border px-4 text-xs font-black tracking-[0.28em]', isDark ? 'border-white/10 bg-white/5 text-white/70' : 'border-slate-200 bg-slate-100 text-slate-500')}>
               {controller.currentIndex + 1} / {playlist.length}
             </span>
             <Button

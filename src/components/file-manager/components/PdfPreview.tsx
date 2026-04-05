@@ -214,7 +214,7 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
               loading={
                 <div className="flex flex-col items-center p-20 gap-4">
                   <Loader2 className="animate-spin text-primary" size={40} />
-                  <p className="text-sm font-black uppercase tracking-widest opacity-30">
+                  <p className="text-sm font-black tracking-widest opacity-30">
                     Rendering...
                   </p>
                 </div>
@@ -242,7 +242,7 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
           <div className="h-full flex flex-col items-center justify-center text-white/50 gap-6 text-center">
             <div className="flex flex-col items-center gap-4">
               <Loader2 className="animate-spin text-primary" size={40} />
-              <p className="text-sm font-black uppercase tracking-widest opacity-30">
+              <p className="text-sm font-black tracking-widest opacity-30">
                 {processing ? "Loading Stream..." : "Initializing..."}
               </p>
             </div>

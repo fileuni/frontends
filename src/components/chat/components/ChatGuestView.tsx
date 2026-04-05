@@ -40,7 +40,7 @@ export const ChatGuestView: React.FC<{ inviteCode?: string }> = ({ inviteCode })
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder={t('chat.inviteCode')}
-            className="text-center h-16 text-2xl tracking-widest font-black uppercase rounded-2xl border-2 focus:border-primary/50"
+            className="text-center h-16 text-2xl tracking-widest font-black rounded-2xl border-2 focus:border-primary/50"
           />
           <Button
             onClick={() => setActiveCode(code.trim())}
@@ -54,15 +54,15 @@ export const ChatGuestView: React.FC<{ inviteCode?: string }> = ({ inviteCode })
         <div className="grid grid-cols-3 gap-6 pt-8 border-t border-border">
            <div className="space-y-2">
              <Shield size={20} className="text-primary mx-auto opacity-60" />
-             <p className="text-sm font-black uppercase opacity-40 tracking-widest">{t('chat.e2eEncryption')}</p>
+             <p className="text-sm font-black opacity-40 tracking-widest">{t('chat.e2eEncryption')}</p>
            </div>
            <div className="space-y-2">
              <Clock size={20} className="text-primary mx-auto opacity-60" />
-             <p className="text-sm font-black uppercase opacity-40 tracking-widest">{t('chat.saveHistory')}</p>
+             <p className="text-sm font-black opacity-40 tracking-widest">{t('chat.saveHistory')}</p>
            </div>
            <div className="space-y-2">
              <Globe size={20} className="text-primary mx-auto opacity-60" />
-             <p className="text-sm font-black uppercase opacity-40 tracking-widest">{t('chat.multiBackend')}</p>
+             <p className="text-sm font-black opacity-40 tracking-widest">{t('chat.multiBackend')}</p>
            </div>
         </div>
       </div>
@@ -76,7 +76,7 @@ export const ChatGuestView: React.FC<{ inviteCode?: string }> = ({ inviteCode })
         <ChatProvider auth={{ type: 'guest', inviteCode: activeCode }}>
           <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40 select-none">
              <Zap size={48} className="text-primary animate-pulse" />
-             <p className="font-black uppercase tracking-[0.2em] text-sm">{t('chat.terminalActive')}</p>
+             <p className="font-black tracking-[0.2em] text-sm">{t('chat.terminalActive')}</p>
           </div>
           <GuestWrapper />
         </ChatProvider>

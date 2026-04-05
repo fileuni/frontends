@@ -110,7 +110,7 @@ export const EmailUnifiedUI: React.FC = () => {
             </div>
             <div>
               <h1 className="font-black text-lg tracking-tight">{t("email.title")}</h1>
-              <p className="text-sm uppercase font-black tracking-widest opacity-40">{t("email.subtitle")}</p>
+              <p className="text-sm font-black tracking-widest opacity-40">{t("email.subtitle")}</p>
             </div>
           </div>
           <button

@@ -44,10 +44,10 @@ export const EmailDetailPanel: React.FC<EmailDetailPanelProps> = ({
       {selectedMessage ? (
         <div className="flex-1 flex flex-col overflow-hidden text-foreground">
           <div className="h-14 border-b border-border/40 px-4 flex items-center justify-between bg-muted/10">
-            <div className="flex items-center gap-2"><button type="button" className="lg:hidden p-1 hover:bg-muted rounded-lg" onClick={onBack}><ArrowLeft size={18} /></button><span className="text-sm font-black uppercase tracking-widest opacity-40">{t("email.messageThread")}</span></div>
+            <div className="flex items-center gap-2"><button type="button" className="lg:hidden p-1 hover:bg-muted rounded-lg" onClick={onBack}><ArrowLeft size={18} /></button><span className="text-sm font-black tracking-widest opacity-40">{t("email.messageThread")}</span></div>
             <div className="flex gap-1">
-              <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black uppercase" onClick={onReply}><Edit3 size={18} />{t("email.reply")}</Button>
-              <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black uppercase" onClick={onReplyAll}><RefreshCw size={18} />{t("email.replyAll")}</Button>
+              <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black" onClick={onReply}><Edit3 size={18} />{t("email.reply")}</Button>
+              <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 rounded-lg text-sm font-black" onClick={onReplyAll}><RefreshCw size={18} />{t("email.replyAll")}</Button>
               <div className="w-px h-4 bg-border/40 mx-1" />
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={onOpenFull}><Maximize2 size={16} /></Button>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={onCloseDetail}><X size={16} /></Button>
@@ -75,7 +75,7 @@ export const EmailDetailPanel: React.FC<EmailDetailPanelProps> = ({
                 </div>
                 {messageDetail.attachments && messageDetail.attachments.length > 0 && (
                   <div className="rounded-2xl border border-border/40 p-3 space-y-2 bg-muted/10">
-                    <div className="text-sm font-black uppercase tracking-widest opacity-50">{t("email.attachments")}</div>
+                    <div className="text-sm font-black tracking-widest opacity-50">{t("email.attachments")}</div>
                     <div className="space-y-2">
                       {messageDetail.attachments.map((attachment) => (
                         <div key={attachment.id} className="flex items-center gap-2 rounded-xl border border-border/40 p-2 bg-background/80">

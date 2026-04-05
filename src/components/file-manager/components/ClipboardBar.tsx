@@ -211,12 +211,12 @@ export const ClipboardBar = () => {
           </div>
           <div>
             <h4 className={cn(
-              "text-sm font-black uppercase tracking-widest leading-none",
+              "text-sm font-black tracking-widest leading-none",
               isDark ? "text-white/90" : "text-zinc-900"
             )}>
               {t('filemanager.clipboard.title')}
             </h4>
-            <p className="text-[14px] font-bold opacity-30 mt-1 uppercase">
+            <p className="text-[14px] font-bold opacity-30 mt-1">
               {clipboard.length} / 100 {t('common.items')}
             </p>
           </div>
@@ -226,7 +226,7 @@ export const ClipboardBar = () => {
           {!isExpanded && canPaste && (
             <Button 
               size="sm" 
-              className="h-7 px-3 rounded-full bg-primary text-white font-bold text-[14px] uppercase shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+              className="h-7 px-3 rounded-full bg-primary text-white font-bold text-[14px] shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
               onClick={(e) => { e.stopPropagation(); pasteItems(clipboard, currentPath); }}
               title="Ctrl+V"
             >
@@ -268,7 +268,7 @@ export const ClipboardBar = () => {
             <button 
               type="button"
               onClick={clearClipboard}
-              className="text-sm font-black text-red-400/60 hover:text-red-500 hover:underline uppercase tracking-tighter flex items-center gap-1.5 transition-all"
+              className="text-sm font-black text-red-400/60 hover:text-red-500 hover:underline tracking-tighter flex items-center gap-1.5 transition-all"
             >
               <Trash2 size={18} />
               {t('filemanager.clipboard.clear')}
@@ -278,7 +278,7 @@ export const ClipboardBar = () => {
               <Button 
                 variant="ghost"
                 onClick={() => setIsExpanded(false)}
-                className="h-8 px-3 rounded-xl text-sm font-bold opacity-40 hover:opacity-100 uppercase"
+                className="h-8 px-3 rounded-xl text-sm font-bold opacity-40 hover:opacity-100"
               >
                 {t('common.close')}
               </Button>
@@ -286,7 +286,7 @@ export const ClipboardBar = () => {
                 size="sm" 
                 disabled={!canPaste}
                 className={cn(
-                  "h-9 px-5 rounded-xl bg-primary text-white font-bold text-sm uppercase shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2",
+                  "h-9 px-5 rounded-xl bg-primary text-white font-bold text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2",
                   !canPaste && "opacity-20 cursor-not-allowed grayscale"
                 )}
                 onClick={() => { pasteItems(clipboard, currentPath); setIsExpanded(false); }}

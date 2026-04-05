@@ -34,7 +34,7 @@ export const FormField: React.FC<Props> = ({
         <label
           htmlFor={htmlFor}
           className={cn(
-            'text-sm font-black uppercase tracking-widest opacity-40 ml-1',
+            'text-sm font-black tracking-widest opacity-40 ml-1',
             labelClassName,
           )}
         >

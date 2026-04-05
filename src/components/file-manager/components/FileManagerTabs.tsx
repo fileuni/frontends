@@ -76,7 +76,7 @@ const SortableTab = ({ tab, isActive, onRemove, onActivate, onContextMenu }: Sor
       <div className={cn("relative z-10 transition-colors", isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary")}>
         {tab.path === "/" || !tab.path.includes(".") ? <Folder size={18} /> : <FileIconLucide size={18} />}
       </div>
-      <span className={cn("relative z-10 text-sm font-black uppercase tracking-widest truncate flex-1 pointer-events-none", isActive ? "text-foreground" : "text-inherit")}>{tab.title}</span>
+      <span className={cn("relative z-10 text-sm font-black tracking-widest truncate flex-1 pointer-events-none", isActive ? "text-foreground" : "text-inherit")}>{tab.title}</span>
       <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(tab.id); }} className={cn("relative z-10 p-1 rounded-md transition-all shrink-0 hover:bg-destructive/10 hover:text-destructive", isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100")}>
         <X size={10} />
       </button>

@@ -145,7 +145,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
       <Button 
         type="button"
         variant={variant} 
-        className="h-10 px-3 rounded-xl gap-2 text-sm font-bold uppercase"
+        className="h-10 px-3 rounded-xl gap-2 text-sm font-bold"
         onClick={() => setIsOpen(!isOpen)}
       >
         <ExternalLink size={18} />

@@ -506,7 +506,7 @@ const ModalShell: React.FC<ModalShellProps> = ({
           )}
         >
           <div className="min-w-0">
-            <h3 className="text-sm sm:text-base font-black uppercase tracking-widest truncate">
+            <h3 className="text-sm sm:text-base font-black tracking-widest truncate">
               {title}
             </h3>
             <p
@@ -670,7 +670,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
           <div>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-wide",
+                "text-xs font-black tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
               )}
             >
@@ -770,7 +770,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
               },
             ].map((field) => (
               <div key={field.key}>
-                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{field.label}</div>
+                <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{field.label}</div>
                 <input
                   value={field.value}
                   onChange={(event) => field.onChange(event.target.value)}
@@ -846,7 +846,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
           <div>
             <div
               className={cn(
-                "text-xs font-black uppercase tracking-wide",
+                "text-xs font-black tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
               )}
             >
@@ -881,7 +881,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
             <label
               htmlFor="thumbnail-video-seek-value"
               className={cn(
-                "text-xs font-black uppercase tracking-wide",
+                "text-xs font-black tracking-wide",
                 isDark ? "text-slate-400" : "text-slate-600",
               )}
             >
@@ -975,7 +975,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                 </div>
               )}
               <div>
-                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.pdfMaxSizeMb")}</div>
+                <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.pdfMaxSizeMb")}</div>
                 <input
                   value={draft.pdfMaxSizeMb}
                   onChange={(event) => setDraft((state) => ({ ...state, pdfMaxSizeMb: event.target.value }))}
@@ -1003,7 +1003,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
               </label>
               <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.officeUsesLibreofficeHint")}</div>
               <div>
-                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.officeMaxSizeMb")}</div>
+                <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.officeMaxSizeMb")}</div>
                 <input
                   value={draft.officeMaxSizeMb}
                   onChange={(event) => setDraft((state) => ({ ...state, officeMaxSizeMb: event.target.value }))}
@@ -1051,7 +1051,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                 onProbeExternalTool={onProbeExternalTool}
               />
               <div>
-                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexMaxInputSizeMb")}</div>
+                <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.latexMaxInputSizeMb")}</div>
                 <input
                   value={draft.latexMaxInputSizeMb}
                   onChange={(event) =>
@@ -1081,7 +1081,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
               </label>
               <div className={cn("text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>{t("admin.config.thumbnail.model3dUsesBlenderHint")}</div>
               <div>
-                <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.model3dMaxSizeMb")}</div>
+                <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-600")}>{t("admin.config.thumbnail.model3dMaxSizeMb")}</div>
                 <input
                   value={draft.model3dMaxSizeMb}
                   onChange={(event) =>
@@ -1237,7 +1237,7 @@ export const CompressionDependencyConfigModal: React.FC<
               }
             />
             <div>
-              <div className="text-sm font-black uppercase tracking-wide">
+              <div className="text-sm font-black tracking-wide">
                 {t("admin.config.compression.enable")}
               </div>
               <div

@@ -188,13 +188,13 @@ export const GlobalAudioPlayer = () => {
             </div>
 
             <div className={cn('grid grid-cols-3 gap-2 rounded-2xl border p-1', isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-slate-50')}>
-              <button type="button" onClick={() => setPanelTab('lyrics')} className={cn('h-10 rounded-[1rem] text-sm font-black uppercase tracking-[0.22em] transition-all', panelTab === 'lyrics' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
+              <button type="button" onClick={() => setPanelTab('lyrics')} className={cn('h-10 rounded-[1rem] text-sm font-black tracking-[0.22em] transition-all', panelTab === 'lyrics' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
                 {t('filemanager.audio.lyrics')}
               </button>
-              <button type="button" onClick={() => setPanelTab('playlist')} className={cn('h-10 rounded-[1rem] text-sm font-black uppercase tracking-[0.22em] transition-all', panelTab === 'playlist' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
+              <button type="button" onClick={() => setPanelTab('playlist')} className={cn('h-10 rounded-[1rem] text-sm font-black tracking-[0.22em] transition-all', panelTab === 'playlist' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
                 {t('filemanager.player.playlist')}
               </button>
-              <button type="button" onClick={() => setPanelTab('recent')} className={cn('h-10 rounded-[1rem] text-sm font-black uppercase tracking-[0.22em] transition-all', panelTab === 'recent' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
+              <button type="button" onClick={() => setPanelTab('recent')} className={cn('h-10 rounded-[1rem] text-sm font-black tracking-[0.22em] transition-all', panelTab === 'recent' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
                 {t('filemanager.player.recentlyPlayed')}
               </button>
             </div>
@@ -247,13 +247,13 @@ export const GlobalAudioPlayer = () => {
                   {recentRecords.length > 0 && (
                     <div className="space-y-2 pb-1">
                       <div className={cn('grid grid-cols-3 gap-2 rounded-2xl border p-1', isDark ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-white/80')}>
-                        <button type="button" onClick={() => setRecentFilter('all')} className={cn('h-8 rounded-xl text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'all' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+                        <button type="button" onClick={() => setRecentFilter('all')} className={cn('h-8 rounded-xl text-[11px] font-black tracking-[0.18em] transition-all', recentFilter === 'all' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
                           {t('common.all')}
                         </button>
-                        <button type="button" onClick={() => setRecentFilter('audio')} className={cn('h-8 rounded-xl text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'audio' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+                        <button type="button" onClick={() => setRecentFilter('audio')} className={cn('h-8 rounded-xl text-[11px] font-black tracking-[0.18em] transition-all', recentFilter === 'audio' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
                           {t('filemanager.player.filterAudio')}
                         </button>
-                        <button type="button" onClick={() => setRecentFilter('video')} className={cn('h-8 rounded-xl text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'video' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+                        <button type="button" onClick={() => setRecentFilter('video')} className={cn('h-8 rounded-xl text-[11px] font-black tracking-[0.18em] transition-all', recentFilter === 'video' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
                           {t('filemanager.player.filterVideo')}
                         </button>
                       </div>

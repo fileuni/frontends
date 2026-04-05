@@ -383,7 +383,7 @@ const OptionPairsEditor = memo(
         <div className="flex items-center justify-between">
           <div
             className={cn(
-              "text-xs font-black uppercase tracking-widest opacity-60",
+              "text-xs font-black tracking-widest opacity-60",
               isDark ? "text-slate-300" : "text-slate-600",
             )}
           >
@@ -483,7 +483,7 @@ export const ConnectorOptionFields = memo(
       >
         <div
           className={cn(
-            "text-xs font-black uppercase tracking-widest opacity-60 mb-2",
+            "text-xs font-black tracking-widest opacity-60 mb-2",
             isDark ? "text-slate-300" : "text-slate-600",
           )}
         >
@@ -588,13 +588,13 @@ export const ConnectorCard = memo(
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-sm font-black uppercase tracking-wide truncate">
+            <div className="text-sm font-black tracking-wide truncate">
               {connector.name ||
                 `${t("admin.config.storage.connectors.connector")} #${index + 1}`}
             </div>
             <div
               className={cn(
-                "text-xs font-bold uppercase tracking-widest mt-0.5 opacity-60",
+                "text-xs font-bold tracking-widest mt-0.5 opacity-60",
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >
@@ -820,13 +820,13 @@ export const PoolCard = memo(
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-sm font-black uppercase tracking-wide truncate">
+            <div className="text-sm font-black tracking-wide truncate">
               {pool.name ||
                 `${t("admin.config.storage.pools.pool")} #${index + 1}`}
             </div>
             <div
               className={cn(
-                "text-xs font-bold uppercase tracking-widest mt-0.5 opacity-60",
+                "text-xs font-bold tracking-widest mt-0.5 opacity-60",
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >
@@ -1029,7 +1029,7 @@ export const PolicyCard = memo(
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-sm font-black uppercase tracking-wide truncate">
+            <div className="text-sm font-black tracking-wide truncate">
               {t("admin.config.storage.policies.policy")} #{index + 1}
             </div>
           </div>

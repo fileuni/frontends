@@ -251,7 +251,7 @@ const CommandRow: React.FC<CommandRowProps> = ({
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider opacity-40 shrink-0 w-10">Args</span>
+          <span className="text-[10px] font-bold tracking-wider opacity-40 shrink-0 w-10">Args</span>
           <div className="w-full">
             <textarea
               value={argsValue}
@@ -457,7 +457,7 @@ const CommandSection: React.FC<CommandSectionProps> = ({
           isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white",
         )}
       >
-        <div className={cn("text-xs font-black uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
+        <div className={cn("text-xs font-black tracking-wide", isDark ? "text-slate-400" : "text-slate-700")}>
           {delayLabel}
         </div>
         <p className={cn("mt-1 text-xs leading-5", isDark ? "text-slate-400" : "text-slate-600")}>
@@ -474,7 +474,7 @@ const CommandSection: React.FC<CommandSectionProps> = ({
             placeholder={delayPlaceholder}
             className={inputClass}
           />
-          <span className={cn("text-xs font-semibold uppercase tracking-wide", isDark ? "text-slate-400" : "text-slate-500")}>
+          <span className={cn("text-xs font-semibold tracking-wide", isDark ? "text-slate-400" : "text-slate-500")}>
             {t("admin.config.flowStartup.secondsUnit")}
           </span>
         </div>

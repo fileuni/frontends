@@ -154,7 +154,7 @@ const LinkCard: React.FC<{
       <div className="flex items-center gap-1.5 px-2 w-full justify-center">
         <span
           className={cn(
-            'text-xs font-black uppercase tracking-tight truncate',
+            'text-xs font-black tracking-tight truncate',
             isDark ? 'text-slate-400 group-hover:text-white' : 'text-slate-600 group-hover:text-slate-900',
           )}
         >
@@ -204,7 +204,7 @@ const ReleaseRow: React.FC<{
           <div className="flex items-center gap-2">
             <span
               className={cn(
-                'text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border',
+                'text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-md border',
                 info.channel === 'prerelease'
                   ? 'border-fuchsia-500/30 text-fuchsia-600 bg-fuchsia-500/5'
                   : 'border-primary/30 text-primary bg-primary/5',
@@ -213,7 +213,7 @@ const ReleaseRow: React.FC<{
               {title}
             </span>
             {info.has_update && (
-              <span className="flex items-center gap-1 text-[10px] font-black text-amber-600 dark:text-amber-500 animate-pulse uppercase tracking-widest">
+              <span className="flex items-center gap-1 text-[10px] font-black text-amber-600 dark:text-amber-500 animate-pulse tracking-widest">
                 <Sparkles size={10} /> {t('about.state.updateAvailable')}
               </span>
             )}
@@ -222,7 +222,7 @@ const ReleaseRow: React.FC<{
             {info.version}
           </div>
           {info.published_at && (
-            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-tighter opacity-40">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-tighter opacity-40">
               <Calendar size={12} />
               {info.published_at}
             </div>
@@ -384,7 +384,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
           <Info size={32} />
         </div>
 
-        <h2 className="text-2xl font-black tracking-tight uppercase">FileUni</h2>
+        <h2 className="text-2xl font-black tracking-tight">FileUni</h2>
 
         <div
           className={cn(
@@ -394,7 +394,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
         >
           <span
             className={cn(
-              'text-[10px] font-black uppercase tracking-[0.2em]',
+              'text-[10px] font-black tracking-[0.2em]',
               isDark ? 'text-slate-500' : 'text-slate-400',
             )}
           >
@@ -412,7 +412,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
           >
             <span
               className={cn(
-                'text-[10px] font-black uppercase tracking-[0.2em]',
+                'text-[10px] font-black tracking-[0.2em]',
                 isDark ? 'text-slate-500' : 'text-slate-400',
               )}
             >
@@ -474,7 +474,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
             >
               <div
                 className={cn(
-                  'flex items-center gap-2 text-[10px] font-black uppercase tracking-widest',
+                  'flex items-center gap-2 text-[10px] font-black tracking-widest',
                   isDark ? 'text-slate-500' : 'text-slate-400',
                 )}
               >
@@ -487,7 +487,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
                   variant={isDark ? 'ghost' : 'outline'}
                   onClick={() => void onCheckUpdates()}
                   disabled={isCheckingUpdates}
-                  className="h-8 gap-2 rounded-lg text-[11px] font-black uppercase tracking-wider shadow-sm"
+                  className="h-8 gap-2 rounded-lg text-[11px] font-black tracking-wider shadow-sm"
                 >
                   {isCheckingUpdates ? (
                     <Loader2 size={12} className="animate-spin" />
@@ -501,7 +501,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
 
             {updateError ? (
               <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-center shadow-inner">
-                <div className="text-[10px] font-black text-destructive uppercase tracking-widest">
+                <div className="text-[10px] font-black text-destructive tracking-widest">
                   {t('about.updateError')}
                 </div>
                 <div className="mt-1 text-xs font-bold text-destructive/80">{updateError}</div>
@@ -510,7 +510,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
               <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                 <div
                   className={cn(
-                    'flex items-center justify-center gap-2.5 py-1 text-xs font-black uppercase tracking-[0.15em]',
+                    'flex items-center justify-center gap-2.5 py-1 text-xs font-black tracking-[0.15em]',
                     updateInfo.has_update ? 'text-amber-600' : 'text-emerald-600',
                   )}
                 >
@@ -562,7 +562,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
 
       <div
         className={cn(
-          'shrink-0 flex items-center justify-between border-t px-6 py-4 sm:px-8 sm:py-5 text-[10px] font-black uppercase tracking-[0.3em]',
+          'shrink-0 flex items-center justify-between border-t px-6 py-4 sm:px-8 sm:py-5 text-[10px] font-black tracking-[0.3em]',
           isDark
             ? 'border-white/5 bg-slate-900/50 text-slate-600'
             : 'border-gray-100 bg-gray-50 text-slate-400',

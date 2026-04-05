@@ -57,7 +57,7 @@ export const CaptchaChallenge: React.FC<Props> = ({
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+      <p className="text-sm font-black tracking-widest opacity-40 ml-1">
         {label}
       </p>
 
@@ -69,7 +69,7 @@ export const CaptchaChallenge: React.FC<Props> = ({
               onTokenChange={onTurnstileTokenChange}
             />
           ) : (
-            <p className="text-sm font-bold uppercase tracking-widest text-red-500">
+            <p className="text-sm font-bold tracking-widest text-red-500">
               {turnstileSiteKeyMissingText}
             </p>
           )}
@@ -119,7 +119,7 @@ export const CaptchaChallenge: React.FC<Props> = ({
       )}
 
       {showTypeHint && captchaData?.captcha_type && (
-        <p className="text-sm font-bold uppercase tracking-widest opacity-40">
+        <p className="text-sm font-bold tracking-widest opacity-40">
           {`${typeHintPrefix}${captchaData.captcha_type.replace('image:', '')}`}
         </p>
       )}

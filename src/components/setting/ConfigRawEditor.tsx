@@ -225,7 +225,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
                 return (
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col min-w-0">
-                      <div className="text-sm sm:text-sm font-black uppercase text-primary leading-none mb-1">
+                      <div className="text-sm sm:text-sm font-black text-primary leading-none mb-1">
                         {localized.title}
                       </div>
                       <div
@@ -250,7 +250,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
                           >
                             <span
                               className={cn(
-                                "text-sm uppercase font-black whitespace-nowrap",
+                                "text-sm font-black whitespace-nowrap",
                                 isDark ? "opacity-40" : "text-slate-500",
                               )}
                             >
@@ -272,7 +272,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
                         <div className="flex items-center gap-2 shrink-0">
                           <span
                             className={cn(
-                              "text-sm uppercase font-black",
+                              "text-sm font-black",
                               isDark ? "opacity-30" : "text-slate-400",
                             )}
                           >
@@ -306,7 +306,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
                   <div className="flex items-center gap-2 shrink-0">
                     <span
                       className={cn(
-                        "text-sm uppercase font-black",
+                        "text-sm font-black",
                         isDark ? "opacity-30" : "text-slate-400",
                       )}
                     >
@@ -332,7 +332,7 @@ export const ConfigRawEditor: React.FC<ConfigRawEditorProps> = ({
             <button
               type="button"
               className={cn(
-                "h-8 rounded-lg border border-dashed px-3 text-sm font-black uppercase transition-colors inline-flex items-center gap-2",
+                "h-8 rounded-lg border border-dashed px-3 text-sm font-black transition-colors inline-flex items-center gap-2",
                 isDark
                   ? "border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/10"
                   : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",

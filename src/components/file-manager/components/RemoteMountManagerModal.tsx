@@ -379,7 +379,7 @@ export const RemoteMountManagerModal: React.FC<{
           <div className="rounded-2xl border border-border bg-muted/20 p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-sm font-black uppercase tracking-widest opacity-70">
+                <div className="text-sm font-black tracking-widest opacity-70">
                   {t('filemanager.mounts.policyTitle') || 'Policy'}
                 </div>
                 <div className="mt-2 grid gap-2 text-sm md:grid-cols-3">
@@ -398,7 +398,7 @@ export const RemoteMountManagerModal: React.FC<{
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <div className="text-sm font-black uppercase tracking-widest opacity-70">
+            <div className="text-sm font-black tracking-widest opacity-70">
               {t('filemanager.mounts.listTitle') || 'Configured Mounts'}
             </div>
             <Button disabled={!canCreateNew} onClick={resetDraft} className="gap-2">
@@ -459,7 +459,7 @@ export const RemoteMountManagerModal: React.FC<{
         <div className="rounded-2xl border border-border bg-background p-4 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="text-sm font-black uppercase tracking-widest opacity-70">
+              <div className="text-sm font-black tracking-widest opacity-70">
                 {editingId ? (t('filemanager.mounts.editTitle') || 'Edit Mount') : (t('filemanager.mounts.newTitle') || 'New Mount')}
               </div>
               <div className="mt-1 text-sm opacity-60">

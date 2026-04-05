@@ -96,7 +96,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
         <div>
           <h3
             className={cn(
-              "text-[10px] font-black uppercase tracking-[0.2em] mb-2",
+              "text-[10px] font-black tracking-[0.2em] mb-2",
               isDark ? "text-slate-500" : "text-slate-400",
             )}
           >
@@ -178,7 +178,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                   <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover/item:bg-blue-500 group-hover/item:text-white transition-all">
                     <Download size={18} />
                   </div>
-                  <span className="text-sm font-bold uppercase tracking-wider">
+                  <span className="text-sm font-bold tracking-wider">
                     {installLabel}
                   </span>
                 </button>
@@ -199,7 +199,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                   <div className="w-9 h-9 rounded-xl bg-rose-500/10 flex items-center justify-center group-hover/item:bg-rose-500 group-hover/item:text-white transition-all">
                     <Trash2 size={18} />
                   </div>
-                  <span className="text-sm font-bold uppercase tracking-wider">
+                  <span className="text-sm font-bold tracking-wider">
                     {uninstallLabel}
                   </span>
                 </button>
@@ -214,7 +214,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                 >
                   <div
                     className={cn(
-                      "text-[10px] font-black uppercase tracking-[0.2em]",
+                      "text-[10px] font-black tracking-[0.2em]",
                       isDark ? "text-slate-500" : "text-slate-400",
                     )}
                   >
@@ -225,7 +225,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                       type="button"
                       onClick={() => onInstallLevelChange("system")}
                       className={cn(
-                        "flex-1 px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all",
+                        "flex-1 px-3 py-2.5 rounded-xl text-xs font-black tracking-wider transition-all",
                         installLevel === "system"
                           ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
                           : isDark
@@ -239,7 +239,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                       type="button"
                       onClick={() => onInstallLevelChange("user")}
                       className={cn(
-                        "flex-1 px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all",
+                        "flex-1 px-3 py-2.5 rounded-xl text-xs font-black tracking-wider transition-all",
                         installLevel === "user"
                           ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
                           : isDark
@@ -253,7 +253,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
                   <label className="flex items-center justify-between gap-3 cursor-pointer group/label">
                     <span
                       className={cn(
-                        "text-xs font-bold uppercase tracking-wider transition-colors",
+                        "text-xs font-bold tracking-wider transition-colors",
                         isDark
                           ? "text-slate-500 group-hover/label:text-slate-200"
                           : "text-slate-500 group-hover/label:text-slate-900",
@@ -287,7 +287,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
           onClick={onToggleService}
           disabled={isLoading || disableToggle}
           className={cn(
-            "flex items-center justify-center gap-4 px-10 py-5 rounded-2xl transition-all duration-500 font-black shadow-2xl flex-1 text-base uppercase tracking-widest",
+            "flex items-center justify-center gap-4 px-10 py-5 rounded-2xl transition-all duration-500 font-black shadow-2xl flex-1 text-base tracking-widest",
             isRunning
               ? "bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-rose-500/25 hover:shadow-rose-500/40 hover:-translate-y-1 active:translate-y-0"
               : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 active:translate-y-0",
@@ -318,7 +318,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
           )}
         >
           <Info size={18} className="shrink-0 mt-0.5" />
-          <p className="text-xs font-black uppercase tracking-wider leading-relaxed">
+          <p className="text-xs font-black tracking-wider leading-relaxed">
             {disabledHint}
           </p>
         </div>

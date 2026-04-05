@@ -52,7 +52,7 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
         </div>
       </div>
       <div className="p-3 border-b border-border/40">
-        <Button onClick={onOpenCompose} className="w-full gap-2 h-11 rounded-2xl shadow-lg shadow-primary/20 font-black uppercase text-sm"><Edit3 size={16} />{t("email.compose")}</Button>
+        <Button onClick={onOpenCompose} className="w-full gap-2 h-11 rounded-2xl shadow-lg shadow-primary/20 font-black text-sm"><Edit3 size={16} />{t("email.compose")}</Button>
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-1.5 custom-scrollbar text-foreground">
         <button
@@ -68,17 +68,10 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
         </button>
         <div className="h-px bg-border/40 my-2 mx-2" />
         {accounts.map((acc) => (
-          <div
+          <button
+            type="button"
             key={acc.id}
-            role="button"
-            tabIndex={0}
             onClick={() => onSelectAccount(acc.id)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onSelectAccount(acc.id);
-              }
-            }}
             className={cn("group relative w-full p-2.5 rounded-2xl border text-left cursor-pointer transition-all", selectedAccount === acc.id && !isDraftsView ? "bg-primary/10 border-primary/20 shadow-sm" : "bg-background/40 border-transparent hover:border-border/60 hover:bg-muted/30")}
           >
             <div className="flex items-center justify-between">
@@ -93,12 +86,12 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
               </div>
             </div>
             <p className="text-sm text-muted-foreground truncate mt-0.5 opacity-70">{acc.email_address}</p>
-          </div>
+          </button>
         ))}
         <button
           type="button"
           onClick={onOpenAddAccount}
-          className="w-full py-2 px-3 flex items-center justify-center gap-2 rounded-xl text-sm font-black uppercase text-muted-foreground/60 hover:text-primary hover:bg-primary/5 transition-all mt-4 border border-transparent hover:border-primary/10"
+          className="w-full py-2 px-3 flex items-center justify-center gap-2 rounded-xl text-sm font-black text-muted-foreground/60 hover:text-primary hover:bg-primary/5 transition-all mt-4 border border-transparent hover:border-primary/10"
         >
           <Plus size={18} />
           {t("email.addAccount")}

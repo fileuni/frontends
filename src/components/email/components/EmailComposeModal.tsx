@@ -66,7 +66,7 @@ export const EmailComposeModal: React.FC<EmailComposeModalProps> = ({
         <div className="flex-1 overflow-y-auto space-y-4 p-1 custom-scrollbar">
           <div className="space-y-2 pb-2 border-b border-border/40">
             <div className="flex items-start gap-3">
-              <label className="w-16 h-9 shrink-0 text-sm font-black uppercase opacity-40 flex items-center">{t("email.from")}</label>
+              <span className="w-16 h-9 shrink-0 text-sm font-black opacity-40 flex items-center">{t("email.from")}</span>
               <div className="flex-1">
                 {useSimpleAccountPicker ? (
                   <div className="flex flex-wrap gap-2">
@@ -96,10 +96,10 @@ export const EmailComposeModal: React.FC<EmailComposeModalProps> = ({
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-3 relative"><label className="w-16 text-sm font-black uppercase opacity-40">{t("email.to")}</label><Input value={composeTo} onChange={e => setComposeTo(e.target.value)} placeholder={t("email.recipientPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm" list="email-contacts" /></div>
-            <div className="flex items-center gap-3 relative"><label className="w-16 text-sm font-black uppercase opacity-40">{t("email.cc")}</label><Input value={composeCc} onChange={e => setComposeCc(e.target.value)} placeholder={t("email.ccPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm" list="email-contacts" /></div>
-            <div className="flex items-center gap-3 relative"><label className="w-16 text-sm font-black uppercase opacity-40">{t("email.bcc")}</label><Input value={composeBcc} onChange={e => setComposeBcc(e.target.value)} placeholder={t("email.bccPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm" list="email-contacts" /></div>
-            <div className="flex items-center gap-3"><label className="w-16 text-sm font-black uppercase opacity-40">{t("email.subject")}</label><Input value={composeSubject} onChange={e => setComposeSubject(e.target.value)} placeholder={t("email.subjectPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm font-bold" /></div>
+            <div className="flex items-center gap-3 relative"><span className="w-16 text-sm font-black opacity-40">{t("email.to")}</span><Input value={composeTo} onChange={e => setComposeTo(e.target.value)} placeholder={t("email.recipientPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm" list="email-contacts" /></div>
+            <div className="flex items-center gap-3 relative"><span className="w-16 text-sm font-black opacity-40">{t("email.cc")}</span><Input value={composeCc} onChange={e => setComposeCc(e.target.value)} placeholder={t("email.ccPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm" list="email-contacts" /></div>
+            <div className="flex items-center gap-3 relative"><span className="w-16 text-sm font-black opacity-40">{t("email.bcc")}</span><Input value={composeBcc} onChange={e => setComposeBcc(e.target.value)} placeholder={t("email.bccPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm" list="email-contacts" /></div>
+            <div className="flex items-center gap-3"><span className="w-16 text-sm font-black opacity-40">{t("email.subject")}</span><Input value={composeSubject} onChange={e => setComposeSubject(e.target.value)} placeholder={t("email.subjectPlaceholder")} className="flex-1 h-9 border-none bg-muted/20 rounded-lg text-sm font-bold" /></div>
             <datalist id="email-contacts">
               {contacts.map((c) => {
                 const contactValue = c.name && c.name.trim().length > 0 ? c.name : `<${c.addr}>`;
@@ -122,7 +122,7 @@ export const EmailComposeModal: React.FC<EmailComposeModalProps> = ({
           )}
         </div>
         <div className="flex items-center justify-between pt-4 mt-2 border-t border-border/40">
-          <div className="flex items-center gap-2"><span className="text-sm font-black uppercase opacity-30 flex items-center gap-1"><Clock size={18} /> {currentDraftId ? t("email.autoSaved") : t("email.notSaved")}</span></div>
+          <div className="flex items-center gap-2"><span className="text-sm font-black opacity-30 flex items-center gap-1"><Clock size={18} /> {currentDraftId ? t("email.autoSaved") : t("email.notSaved")}</span></div>
           <div className="flex gap-2">
             <input type="file" ref={fileInputRef} className="hidden" multiple onChange={e => {
               const files = Array.from(e.target.files || []);
@@ -135,7 +135,7 @@ export const EmailComposeModal: React.FC<EmailComposeModalProps> = ({
               setComposeAttachments((prev) => [...prev, ...incoming]);
               e.target.value = "";
             }} />
-            <Button variant="ghost" size="sm" className="h-9 rounded-xl gap-2" onClick={() => fileInputRef.current?.click()}><Paperclip size={16} /><span className="text-sm font-black uppercase">{t("email.addAttachment")}</span></Button>
+            <Button variant="ghost" size="sm" className="h-9 rounded-xl gap-2" onClick={() => fileInputRef.current?.click()}><Paperclip size={16} /><span className="text-sm font-black">{t("email.addAttachment")}</span></Button>
             <Button variant="outline" className="px-6 rounded-xl h-10" onClick={onClose}>{t("common.cancel")}</Button>
             <Button className="px-8 rounded-xl h-10 shadow-lg shadow-primary/20" onClick={onSend} disabled={sending || !composeFromAccount || !composeTo}>
               {sending ? <RefreshCw size={18} className="mr-2 animate-spin" /> : <Send size={18} className="mr-2" />}

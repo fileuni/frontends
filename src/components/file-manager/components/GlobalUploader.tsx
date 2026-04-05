@@ -248,7 +248,7 @@ export const GlobalUploader = () => {
                   }}
                 />
               </div>
-              <span className="text-sm font-black opacity-40 uppercase">
+              <span className="text-sm font-black opacity-40">
                 {completedTasks.length}/{tasks.length}
               </span>
             </div>
@@ -278,7 +278,7 @@ export const GlobalUploader = () => {
               type="button"
               onClick={() => setActiveTab("uploading")}
               className={cn(
-                "flex-1 py-2 text-sm font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2",
+                "flex-1 py-2 text-sm font-black tracking-wider rounded-xl transition-all flex items-center justify-center gap-2",
                 activeTab === "uploading"
                   ? "bg-primary text-white shadow-lg"
                   : "opacity-40 hover:opacity-60",
@@ -300,7 +300,7 @@ export const GlobalUploader = () => {
               type="button"
               onClick={() => setActiveTab("completed")}
               className={cn(
-                "flex-1 py-2 text-sm font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2",
+                "flex-1 py-2 text-sm font-black tracking-wider rounded-xl transition-all flex items-center justify-center gap-2",
                 activeTab === "completed"
                   ? "bg-primary text-white shadow-lg"
                   : "opacity-40 hover:opacity-60",
@@ -317,7 +317,7 @@ export const GlobalUploader = () => {
             {currentList.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center opacity-20 py-12">
                 <Inbox size={40} strokeWidth={1} />
-                <p className="text-sm font-bold mt-2 uppercase tracking-widest">
+                <p className="text-sm font-bold mt-2 tracking-widest">
                   {t("filemanager.uploader.empty")}
                 </p>
               </div>
@@ -354,7 +354,7 @@ export const GlobalUploader = () => {
               type="button"
               onClick={clearCompleted}
               disabled={completedTasks.length === 0}
-              className="text-sm font-black text-primary hover:underline uppercase tracking-widest disabled:opacity-20 disabled:no-underline"
+              className="text-sm font-black text-primary hover:underline tracking-widest disabled:opacity-20 disabled:no-underline"
             >
               {t("filemanager.uploader.clearAll")}
             </button>

@@ -160,14 +160,14 @@ export const PptxLitePreview: React.FC<Props> = ({ path, onClose }) => {
   if (isLargeFile && !forceOpen) {
     return (
       <div className="fixed inset-0 z-[210] flex flex-col items-center justify-center bg-background text-center gap-4 px-6">
-        <p className="text-sm font-bold uppercase tracking-[0.2em] opacity-70">
+        <p className="text-sm font-bold tracking-[0.2em] opacity-70">
           {t('filemanager.officeLite.largeFileWarning', { size: Math.ceil(officeLimitBytes / (1024 * 1024)) })}
         </p>
         <div className="flex items-center gap-3">
-          <Button variant="primary" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={() => setForceOpen(true)}>
+          <Button variant="primary" className="h-10 px-6 rounded-xl font-bold tracking-widest text-sm" onClick={() => setForceOpen(true)}>
             {t('filemanager.officeLite.forceOpen')}
           </Button>
-          <Button variant="outline" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={onClose}>
+          <Button variant="outline" className="h-10 px-6 rounded-xl font-bold tracking-widest text-sm" onClick={onClose}>
             {t('common.close')}
           </Button>
         </div>
@@ -198,7 +198,7 @@ export const PptxLitePreview: React.FC<Props> = ({ path, onClose }) => {
           </div>
         )}
         {!loading && error && (
-          <div className="h-full flex items-center justify-center text-sm font-bold uppercase tracking-[0.2em] opacity-60">
+          <div className="h-full flex items-center justify-center text-sm font-bold tracking-[0.2em] opacity-60">
             {error}
           </div>
         )}

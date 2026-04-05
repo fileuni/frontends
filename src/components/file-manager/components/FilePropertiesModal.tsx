@@ -77,7 +77,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
         <Icon size={18} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[14px] font-black uppercase opacity-30 leading-none mb-1">{label}</p>
+        <p className="text-[14px] font-black opacity-30 leading-none mb-1">{label}</p>
         <p className="text-sm font-bold truncate break-all leading-tight">{value}</p>
       </div>
     </div>
@@ -96,7 +96,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
           <FileIcon name={file.name} isDir={file.is_dir} size={40} />
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-black truncate break-all leading-tight">{file.name}</h3>
-            <p className="text-[14px] font-black uppercase opacity-30 mt-0.5">
+            <p className="text-[14px] font-black opacity-30 mt-0.5">
               {file.is_dir ? t('filemanager.folder') : t('filemanager.file')}
             </p>
           </div>
@@ -201,7 +201,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
               variant="outline"
               size="sm"
               onClick={handlePreview} 
-              className="px-4 font-black uppercase text-sm flex items-center gap-2"
+                className="px-4 font-black text-sm flex items-center gap-2"
             >
               <Eye size={18} />
               {t('filemanager.actions.preview')}
@@ -210,7 +210,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
           <Button 
             onClick={onClose} 
             size="sm"
-            className="px-6 font-black uppercase text-sm"
+            className="px-6 font-black text-sm"
           >
             {t('common.close')}
           </Button>

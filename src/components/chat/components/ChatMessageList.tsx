@@ -43,12 +43,14 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   } = useChat();
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRefs = useRef<Record<string, HTMLAudioElement>>({});
+  const messageCount = filteredMessages.length;
 
   useEffect(() => {
+    void messageCount;
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [filteredMessages]);
+  }, [messageCount]);
 
   const handleSetSessionKey = () => {
     if (!activeTarget) return;
@@ -121,7 +123,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
               >
                 <div
                   className={cn(
-                    "px-3 py-1 rounded-lg border flex items-center gap-2 text-sm font-bold uppercase tracking-wider shadow-sm",
+                    "px-3 py-1 rounded-lg border flex items-center gap-2 text-sm font-bold tracking-wider shadow-sm",
                     isP2PConnected
                       ? "bg-green-500/5 border-green-500/20 text-green-600 dark:text-green-400"
                       : "bg-red-500/5 border-red-500/20 text-red-600 dark:text-red-400",
@@ -241,7 +243,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                           : "bg-primary/5 border-primary/30 text-muted-foreground",
                       )}
                     >
-                      <p className="font-bold uppercase tracking-tighter opacity-60 mb-0.5">
+                      <p className="font-bold tracking-tighter opacity-60 mb-0.5">
                         {messages.find((m) => m.id === msg.replyTo)?.from ===
                         selfId
                           ? t("chat.youPrefix")

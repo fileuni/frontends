@@ -85,7 +85,7 @@ export const FilePreviewHeader = ({
         <div className="min-w-0">
           <h3 className="font-black truncate text-sm tracking-tight">{fileName}</h3>
           <p className={cn(
-            "text-sm font-black uppercase tracking-[0.2em]",
+            "text-sm font-black tracking-[0.2em]",
             isDark ? "text-white/30" : "text-gray-400"
           )}>
             {subtitle || "File Preview"}

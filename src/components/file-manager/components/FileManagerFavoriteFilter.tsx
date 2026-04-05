@@ -18,15 +18,15 @@ export const FileManagerFavoriteFilter = () => {
 
   return (
     <div className="px-6 py-2 bg-white/[0.01] border-b border-white/5 flex items-center gap-4 overflow-x-auto no-scrollbar shrink-0">
-      <p className="text-sm font-black uppercase opacity-30 tracking-widest shrink-0">
+      <p className="text-sm font-black opacity-30 tracking-widest shrink-0">
         {t("filemanager.filterByColor") || "Filter by Color"}
       </p>
       <div className="flex items-center gap-2">
-        <button type="button" onClick={() => setFavoriteFilterColor(null)} className={cn("px-3 py-1 rounded-full text-sm font-black uppercase transition-all border", favoriteFilterColor === null ? "bg-primary text-white border-primary" : "bg-white/5 border-white/5 opacity-40 hover:opacity-100")}>
+        <button type="button" onClick={() => setFavoriteFilterColor(null)} className={cn("px-3 py-1 rounded-full text-sm font-black transition-all border", favoriteFilterColor === null ? "bg-primary text-white border-primary" : "bg-white/5 border-white/5 opacity-40 hover:opacity-100")}>
           {t("common.all")}
         </button>
         {FAVORITE_COLORS.map((color) => (
-          <button key={color.id} type="button" onClick={() => setFavoriteFilterColor(color.id)} className={cn("flex items-center gap-2 px-3 py-1 rounded-full text-sm font-black uppercase transition-all border", favoriteFilterColor === color.id ? "bg-white/10 border-primary text-primary" : "bg-white/5 border-white/5 opacity-40 hover:opacity-100")}>
+          <button key={color.id} type="button" onClick={() => setFavoriteFilterColor(color.id)} className={cn("flex items-center gap-2 px-3 py-1 rounded-full text-sm font-black transition-all border", favoriteFilterColor === color.id ? "bg-white/10 border-primary text-primary" : "bg-white/5 border-white/5 opacity-40 hover:opacity-100")}>
             <div className={cn("w-2 h-2 rounded-full shadow-sm", color.class)} />
           </button>
         ))}

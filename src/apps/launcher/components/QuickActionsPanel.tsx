@@ -104,7 +104,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
     >
       <h3
         className={cn(
-          "text-[10px] font-black uppercase tracking-[0.2em] mb-5",
+          "text-[10px] font-black tracking-[0.2em] mb-5",
           isDark ? "text-slate-500" : "text-slate-400",
         )}
       >
@@ -134,7 +134,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
               className="group-hover:scale-110 transition-transform duration-300"
             />
           </div>
-          <span className="text-sm font-black tracking-tight uppercase tracking-wider">
+          <span className="text-sm font-black tracking-tight tracking-wider">
             {openWebUiLabel}
           </span>
         </button>
@@ -174,7 +174,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
                 className="group-hover:rotate-90 transition-transform duration-500"
               />
             </div>
-            <span className="text-sm font-black tracking-tight uppercase tracking-wider">
+            <span className="text-sm font-black tracking-tight tracking-wider">
               {configLabel}
             </span>
           </button>
@@ -204,7 +204,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover/item:bg-blue-500 group-hover/item:text-white transition-all">
                   <FolderOpen size={16} />
                 </div>
-                <span className="text-xs font-bold uppercase tracking-wider">
+                <span className="text-xs font-bold tracking-wider">
                   {openRuntimeDirLabel}
                 </span>
               </button>
@@ -224,7 +224,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover/item:bg-blue-500 group-hover/item:text-white transition-all">
                   <FileCode size={16} />
                 </div>
-                <span className="text-xs font-bold uppercase tracking-wider">
+                <span className="text-xs font-bold tracking-wider">
                   {editConfigLabel}
                 </span>
               </button>
@@ -245,9 +245,9 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
                   <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center group-hover/item:bg-rose-500 group-hover/item:text-white transition-all">
                     <RefreshCcw size={16} />
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-wider">
-                    {resetAdminPasswordLabel || "Reset Admin Password"}
-                  </span>
+                    <span className="text-xs font-bold tracking-wider">
+                      {resetAdminPasswordLabel || "Reset Admin Password"}
+                    </span>
                 </button>
               )}
             </div>
@@ -278,7 +278,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
               className="group-hover:scale-110 transition-transform duration-300"
             />
           </div>
-          <span className="text-sm font-black tracking-tight uppercase tracking-wider">
+          <span className="text-sm font-black tracking-tight tracking-wider">
             {helpLabel}
           </span>
         </a>
@@ -307,7 +307,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
                 className="group-hover:scale-110 transition-transform duration-300"
               />
             </div>
-            <span className="text-sm font-black tracking-tight uppercase tracking-wider">
+            <span className="text-sm font-black tracking-tight tracking-wider">
               {aboutLabel}
             </span>
           </button>
@@ -326,7 +326,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
                 type="button"
                 onClick={onOpenSettingsCenter}
                 disabled={settingsCenterLoading}
-                className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-xs uppercase tracking-[0.2em] transition-all duration-500 shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:grayscale disabled:hover:translate-y-0"
+                className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-xs tracking-[0.2em] transition-all duration-500 shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:grayscale disabled:hover:translate-y-0"
               >
                 {settingsCenterLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

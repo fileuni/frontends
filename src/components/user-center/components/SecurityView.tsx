@@ -329,7 +329,7 @@ export const SecurityView = () => {
         >
           {security?.security_question && (
             <div className="bg-white/5 p-6 rounded-2xl border border-white/5 mb-6">
-              <span className="text-sm font-black opacity-30 uppercase tracking-widest block mb-1">{t('security.currentQuestion')}</span>
+              <span className="text-sm font-black opacity-30 tracking-widest block mb-1">{t('security.currentQuestion')}</span>
               <p className="text-lg font-bold italic">"{security.security_question}"</p>
             </div>
           )}
@@ -373,7 +373,7 @@ export const SecurityView = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="font-black text-sm uppercase opacity-40 hover:opacity-100"
+                className="font-black text-sm opacity-40 hover:opacity-100"
                 onClick={handleRegenerateS3}
                 disabled={regenerating}
               >
@@ -388,13 +388,13 @@ export const SecurityView = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <p className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('security.accessKey')}</p>
+                <p className="text-sm font-black tracking-widest opacity-40 ml-1">{t('security.accessKey')}</p>
                 <div className="bg-black/40 px-4 py-3 rounded-xl font-mono text-sm border border-white/5 select-all">
                   {s3Keys?.access_key || t('security.notGenerated')}
                 </div>
               </div>
               <div className="space-y-2">
-                <p className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('security.secretKey')}</p>
+                <p className="text-sm font-black tracking-widest opacity-40 ml-1">{t('security.secretKey')}</p>
                 <div className="flex gap-2 items-stretch">
                   <div className="bg-black/40 px-4 py-3 rounded-xl font-mono text-sm border border-white/5 select-all flex-1 overflow-hidden">
                     {s3Keys?.secret_key
@@ -496,7 +496,7 @@ export const SecurityView = () => {
           )}
 
           <div className="space-y-2">
-            <label htmlFor={verifyCodeInputId} className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('common.verificationCode')}</label>
+            <label htmlFor={verifyCodeInputId} className="text-sm font-black tracking-widest opacity-40 ml-1">{t('common.verificationCode')}</label>
             <div className="flex gap-2">
               <Input id={verifyCodeInputId} value={bindForm.code} onChange={e => setBindForm({ ...bindForm, code: e.target.value })} placeholder={t('common.codePlaceholder')} className="flex-1 font-mono tracking-widest" />
               <Button type="button" variant="outline" className="px-4 h-12 whitespace-nowrap" disabled={bindForm.timer > 0 || !bindForm.target || (needCaptcha && !captchaTokenForSubmit)} onClick={() => activeModal && handleSendCode(activeModal as 'email' | 'phone')}>

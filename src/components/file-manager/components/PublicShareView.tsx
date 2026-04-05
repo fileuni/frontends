@@ -161,7 +161,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
     return buildShareHashUrl(token, currentPath);
   };
 
-  if (!mounted || loading) return <div className="min-h-screen flex items-center justify-center font-black animate-pulse opacity-50 uppercase tracking-widest text-primary">{t('filemanager.publicShare.verifying')}</div>;
+  if (!mounted || loading) return <div className="min-h-screen flex items-center justify-center font-black animate-pulse opacity-50 tracking-widest text-primary">{t('filemanager.publicShare.verifying')}</div>;
 
   if (errorMessage) {
     return (
@@ -173,9 +173,9 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
           <div className="w-20 h-20 rounded-3xl bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-8 shadow-inner border border-red-500/20">
             <ShieldAlert size={40} />
           </div>
-          <h1 className={cn("text-3xl font-black mb-2 italic uppercase", isDark ? "text-white" : "text-gray-900")}>{t('filemanager.publicShare.accessDenied')}</h1>
-          <p className="text-sm opacity-50 font-bold mb-8 uppercase tracking-[0.2em]">{errorMessage}</p>
-          <Button type="button" variant="outline" className="w-full h-16 text-lg uppercase font-black rounded-2xl" onClick={() => fetchShare()}>{t('filemanager.publicShare.tryAgain')}</Button>
+          <h1 className={cn("text-3xl font-black mb-2 italic", isDark ? "text-white" : "text-gray-900")}>{t('filemanager.publicShare.accessDenied')}</h1>
+          <p className="text-sm opacity-50 font-bold mb-8 tracking-[0.2em]">{errorMessage}</p>
+          <Button type="button" variant="outline" className="w-full h-16 text-lg font-black rounded-2xl" onClick={() => fetchShare()}>{t('filemanager.publicShare.tryAgain')}</Button>
         </div>
       </div>
     );
@@ -191,7 +191,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
           <div className="w-20 h-20 rounded-3xl bg-orange-500/10 text-orange-500 flex items-center justify-center mx-auto mb-8 shadow-inner border border-orange-500/20">
             <Lock size={40} />
           </div>
-          <h1 className={cn("text-3xl font-black mb-2 uppercase", isDark ? "text-white" : "text-gray-900")}>{t('filemanager.publicShare.encryptedTitle')}</h1>
+          <h1 className={cn("text-3xl font-black mb-2", isDark ? "text-white" : "text-gray-900")}>{t('filemanager.publicShare.encryptedTitle')}</h1>
           <p className="text-sm opacity-50 font-bold mb-8">{t('filemanager.publicShare.passwordRequiredDesc')}</p>
           <div className="space-y-4">
             <PasswordInput
@@ -202,7 +202,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
               placeholder={t('filemanager.publicShare.enterPassword')}
               inputClassName={cn("h-16 text-center text-xl tracking-widest font-black rounded-2xl", isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200")}
             />
-             <Button type="button" className="w-full h-16 text-lg font-black uppercase rounded-2xl" onClick={fetchShare}>{t('filemanager.publicShare.unlockBtn')}</Button>
+             <Button type="button" className="w-full h-16 text-lg font-black rounded-2xl" onClick={fetchShare}>{t('filemanager.publicShare.unlockBtn')}</Button>
           </div>
         </div>
       </div>
@@ -250,10 +250,10 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                 <QRCodeSVG value={getQrUrl()} size={160} level="M" />
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-black uppercase tracking-[0.2em] text-primary">{t('filemanager.publicShare.qrMobileAccess')}</p>
-                <p className="text-[14px] font-bold opacity-40 uppercase tracking-widest px-4">{t('filemanager.publicShare.qrScanDesc')}</p>
+                <p className="text-sm font-black tracking-[0.2em] text-primary">{t('filemanager.publicShare.qrMobileAccess')}</p>
+                <p className="text-[14px] font-bold opacity-40 tracking-widest px-4">{t('filemanager.publicShare.qrScanDesc')}</p>
               </div>
-              <Button type="button" variant="ghost" className="text-sm font-black uppercase opacity-40" onClick={() => setShowQr(false)}>{t('filemanager.publicShare.qrBackToInfo')}</Button>
+              <Button type="button" variant="ghost" className="text-sm font-black opacity-40" onClick={() => setShowQr(false)}>{t('filemanager.publicShare.qrBackToInfo')}</Button>
             </div>
           ) : (
             <>
@@ -263,7 +263,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
               
               <div className="space-y-3 mb-10 w-full">
                 <h1 className={cn("text-2xl font-black break-all leading-tight", isDark ? "text-white" : "text-gray-900")}>{shareInfo.file_name}</h1>
-                <div className="flex flex-wrap items-center justify-center gap-3 text-[14px] font-black uppercase tracking-widest opacity-40">
+                <div className="flex flex-wrap items-center justify-center gap-3 text-[14px] font-black tracking-widest opacity-40">
                   <span className={cn("flex items-center gap-1.5 px-2 py-1 rounded-full border", isDark ? "bg-white/5 border-white/5" : "bg-gray-100 border-gray-200")}><Calendar size={10} /> {new Date(shareInfo.created_at).toLocaleDateString()}</span>
                   {shareInfo.expire_at && <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20"><Clock size={10} /> Expiring</span>}
                 </div>
@@ -274,21 +274,21 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                   "p-4 rounded-2xl border flex items-center justify-between group transition-all",
                   isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/5" : "bg-white border-gray-100 hover:bg-gray-50"
                 )}>
-                  <span className="text-[14px] font-black uppercase opacity-30 tracking-widest">{t('filemanager.publicShare.views')}</span>
+                  <span className="text-[14px] font-black opacity-30 tracking-widest">{t('filemanager.publicShare.views')}</span>
                   <span className="text-lg font-black text-primary group-hover:scale-110 transition-transform">{shareInfo.view_count ?? 0}</span>
                 </div>
                 <div className={cn(
                   "p-4 rounded-2xl border flex items-center justify-between",
                   isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-gray-100"
                 )}>
-                  <span className="text-[14px] font-black uppercase opacity-30 tracking-widest">{t('filemanager.publicShare.status')}</span>
-                  <span className="text-sm font-black text-green-500 uppercase flex items-center gap-1.5"><ShieldCheck size={18} /> {t('filemanager.publicShare.active')}</span>
+                  <span className="text-[14px] font-black opacity-30 tracking-widest">{t('filemanager.publicShare.status')}</span>
+                  <span className="text-sm font-black text-green-500 flex items-center gap-1.5"><ShieldCheck size={18} /> {t('filemanager.publicShare.active')}</span>
                 </div>
               </div>
 
               {!isBaseDir && (
                 <div className="w-full mt-auto">
-                  <Button type="button" className="w-full h-16 text-lg font-black uppercase rounded-2xl shadow-lg shadow-primary/20 group" onClick={() => downloadItem('/')} disabled={!baseFileDirectAllowed}>
+                  <Button type="button" className="w-full h-16 text-lg font-black rounded-2xl shadow-lg shadow-primary/20 group" onClick={() => downloadItem('/')} disabled={!baseFileDirectAllowed}>
                     <Download size={24} className="mr-3 group-hover:animate-bounce" /> {t('filemanager.publicShare.downloadNow')}
                   </Button>
                   {!baseFileDirectAllowed && (
@@ -313,7 +313,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                       <ArrowLeft size={18} />
                     </button>
                   )}
-                  <div className="flex items-center gap-2 text-sm font-black uppercase tracking-widest opacity-40 truncate">
+                  <div className="flex items-center gap-2 text-sm font-black tracking-widest opacity-40 truncate">
                     <Share2 size={18} className="text-primary shrink-0" />
                     <span className={cn("truncate", isDark ? "text-white" : "text-gray-900")}>Root{currentPath !== '/' && currentPath}</span>
                   </div>
@@ -336,7 +336,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                           </div>
                           <div className="min-w-0">
                             <p className={cn("text-sm font-bold truncate", isDark ? "text-white/90" : "text-gray-900")}>{item.name}</p>
-                            <div className="flex items-center gap-3 text-[14px] font-black uppercase tracking-widest opacity-30">
+                            <div className="flex items-center gap-3 text-[14px] font-black tracking-widest opacity-30">
                               {!item.is_dir && <span>{formatSize(item.size)}</span>}
                               <span>{new Date(item.modified).toLocaleDateString()}</span>
                             </div>
@@ -385,7 +385,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
                   {!listLoading && contents.length === 0 && (
                     <div className="h-64 flex flex-col items-center justify-center opacity-20">
                       <FileIconLucide size={48} className="mb-4" />
-                      <p className="font-black uppercase text-sm tracking-widest">{t('filemanager.publicShare.emptyFolder')}</p>
+                      <p className="font-black text-sm tracking-widest">{t('filemanager.publicShare.emptyFolder')}</p>
                     </div>
                   )}
                 </div>
@@ -395,7 +395,7 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
             <div className="flex-1 flex flex-col items-center justify-center p-10 text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
                <div className="max-w-md space-y-6">
                   <div className={cn("p-6 rounded-[2rem] border space-y-4", isDark ? "bg-white/[0.02] border-white/5" : "bg-white border-gray-100 shadow-sm")}>
-                    <p className="text-sm font-black uppercase tracking-[0.2em] opacity-30">{t('filemanager.publicShare.previewNotAvailable')}</p>
+                    <p className="text-sm font-black tracking-[0.2em] opacity-30">{t('filemanager.publicShare.previewNotAvailable')}</p>
                     <p className={cn("text-sm font-medium opacity-50 leading-relaxed", !isDark && "text-gray-900")}>
                       You are viewing a direct share of a file. Click the button on the left to download the content directly to your device.
                     </p>

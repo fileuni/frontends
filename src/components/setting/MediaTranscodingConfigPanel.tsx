@@ -272,7 +272,7 @@ const sectionCardClass = (isDark: boolean) =>
 
 const fieldLabelClass = (isDark: boolean) =>
   cn(
-    "text-xs font-black uppercase tracking-wide",
+    "text-xs font-black tracking-wide",
     isDark ? "text-slate-400" : "text-slate-600",
   );
 
@@ -379,7 +379,7 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
             className="mt-1 h-4 w-4 rounded border-slate-300"
           />
           <div>
-            <div className="text-sm font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.enable")}</div>
+            <div className="text-sm font-black tracking-wide">{t("admin.config.mediaTranscoding.enable")}</div>
           </div>
         </div>
 
@@ -451,7 +451,7 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
             className="mt-1 h-4 w-4 rounded border-slate-300"
           />
           <div>
-            <div className="text-sm font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.hardwareEnabled")}</div>
+            <div className="text-sm font-black tracking-wide">{t("admin.config.mediaTranscoding.hardwareEnabled")}</div>
           </div>
         </div>
 
@@ -471,7 +471,7 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
             isDark ? "border-white/10 bg-white/[0.03] text-slate-300" : "border-slate-200 bg-slate-50 text-slate-700",
           )}
         >
-          <div className="font-black uppercase tracking-wide">{t("admin.config.mediaTranscoding.platformNotesTitle")}</div>
+          <div className="font-black tracking-wide">{t("admin.config.mediaTranscoding.platformNotesTitle")}</div>
           <div className="mt-2">{t("admin.config.mediaTranscoding.platformLinux")}</div>
           <div>{t("admin.config.mediaTranscoding.platformWindowsIntel")}</div>
           <div>{t("admin.config.mediaTranscoding.platformWindowsNvidia")}</div>
@@ -535,7 +535,7 @@ const MediaTranscodingForm: React.FC<PanelProps & { draft: MediaTranscodingDraft
                   : "border-rose-200 bg-rose-50 text-rose-900",
             )}
           >
-            <div className="font-black uppercase tracking-wide">{probeResult.summary}</div>
+            <div className="font-black tracking-wide">{probeResult.summary}</div>
             {probeResult.detail && <div className="mt-1 opacity-90">{probeResult.detail}</div>}
           </div>
         )}
@@ -634,7 +634,7 @@ export const MediaTranscodingConfigModal: React.FC<MediaTranscodingConfigModalPr
       )}>
         <div className={cn("flex items-center justify-between gap-3 border-b px-4 py-4 sm:px-6 shrink-0", isDark ? "border-white/10 bg-slate-900/50" : "border-slate-100 bg-slate-50/50") }>
           <div>
-            <h3 className="text-sm sm:text-base font-black uppercase tracking-widest">{t("admin.config.mediaTranscoding.title")}</h3>
+            <h3 className="text-sm sm:text-base font-black tracking-widest">{t("admin.config.mediaTranscoding.title")}</h3>
             <p className={cn("text-xs font-bold mt-1", isDark ? "text-slate-400" : "text-slate-500")}>{t("admin.config.mediaTranscoding.subtitle")}</p>
           </div>
           <button type="button" onClick={onClose} className={cn("h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors shrink-0", isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-gray-200 text-slate-600 hover:bg-gray-100")}>×</button>

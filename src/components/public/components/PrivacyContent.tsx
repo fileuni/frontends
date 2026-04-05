@@ -25,15 +25,15 @@ export const PrivacyContent = () => {
         isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200"
       )}>
         <section>
-          <h2 className="text-xl font-black text-primary uppercase tracking-widest mb-4">1. {t('privacy.dataCollection.title')}</h2>
+          <h2 className="text-xl font-black text-primary tracking-widest mb-4">1. {t('privacy.dataCollection.title')}</h2>
           <p>{t('privacy.dataCollection.content')}</p>
         </section>
         <section>
-          <h2 className="text-xl font-black text-primary uppercase tracking-widest mb-4">2. {t('privacy.storageSecurity.title')}</h2>
+          <h2 className="text-xl font-black text-primary tracking-widest mb-4">2. {t('privacy.storageSecurity.title')}</h2>
           <p>{t('privacy.storageSecurity.content')}</p>
         </section>
         <section>
-          <h2 className="text-xl font-black text-primary uppercase tracking-widest mb-4">3. {t('privacy.cookieUsage.title')}</h2>
+          <h2 className="text-xl font-black text-primary tracking-widest mb-4">3. {t('privacy.cookieUsage.title')}</h2>
           <p>{t('privacy.cookieUsage.content')}</p>
         </section>
       </div>
@@ -41,7 +41,7 @@ export const PrivacyContent = () => {
         <a 
           href={`${base}mod=public&page=index`} 
           className={cn(
-            "btn btn-ghost font-black uppercase tracking-widest transition-all",
+            "btn btn-ghost font-black tracking-widest transition-all",
             "opacity-40 hover:opacity-100"
           )}
         >

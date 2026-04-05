@@ -404,7 +404,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
           <div
             className={cn(
-              "text-xs font-black uppercase tracking-widest opacity-60",
+              "text-xs font-black tracking-widest opacity-60",
               isDark ? "text-slate-200" : "text-slate-600",
             )}
           >
@@ -446,7 +446,7 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
               : "border-rose-200 bg-rose-50 text-rose-900",
           )}
         >
-          <div className="text-xs font-black uppercase tracking-widest mb-2">
+          <div className="text-xs font-black tracking-widest mb-2">
             {t("admin.config.storage.validation.title")}
           </div>
           <div className="space-y-1 text-sm font-mono font-bold">
@@ -545,12 +545,12 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
               <HardDrive size={18} className="text-cyan-500 shrink-0" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-sm sm:text-base font-black uppercase tracking-widest truncate">
+              <h3 className="text-sm sm:text-base font-black tracking-widest truncate">
                 {t("admin.config.storage.title")}
               </h3>
               <p
                 className={cn(
-                  "text-[10px] font-bold uppercase tracking-widest mt-0.5",
+                  "text-[10px] font-bold tracking-widest mt-0.5",
                   isDark ? "text-slate-500" : "text-slate-400",
                 )}
               >

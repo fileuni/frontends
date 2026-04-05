@@ -85,7 +85,7 @@ export const VfsStorageMainSection: React.FC<VfsStorageMainSectionProps> = ({
     )}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+          <div className={cn('text-xs font-black tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
             {t('admin.config.storage.main.hint')}
           </div>
         </div>
@@ -144,10 +144,10 @@ export const VfsStorageMainSection: React.FC<VfsStorageMainSectionProps> = ({
         )}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-sm font-black uppercase tracking-wide truncate">
+              <div className="text-sm font-black tracking-wide truncate">
                 {mainConnector.name || t('admin.config.storage.connectors.connector')}
               </div>
-              <div className={cn('text-xs font-bold uppercase tracking-widest mt-0.5 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
+              <div className={cn('text-xs font-bold tracking-widest mt-0.5 opacity-60', isDark ? 'text-slate-400' : 'text-slate-500')}>
                 {driverLabel(mainConnector.driver)}
               </div>
             </div>
@@ -312,9 +312,9 @@ export const VfsStorageAdvancedSection: React.FC<VfsStorageAdvancedSectionProps>
 
       {(showAllSections || tab === 'connectors') && (
         <div className="space-y-3">
-          {showAllSections && <div className={cn('text-sm font-black uppercase tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.connectors')}</div>}
+          {showAllSections && <div className={cn('text-sm font-black tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.connectors')}</div>}
           <div className="flex items-center justify-between">
-            <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+            <div className={cn('text-xs font-black tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
               {t('admin.config.storage.connectors.title')}
             </div>
             <button type="button" className={cn('h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-colors', isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50')} onClick={onAddConnector}>
@@ -343,9 +343,9 @@ export const VfsStorageAdvancedSection: React.FC<VfsStorageAdvancedSectionProps>
 
       {(showAllSections || tab === 'pools') && (
         <div className="space-y-3">
-          {showAllSections && <div className={cn('text-sm font-black uppercase tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.pools')}</div>}
+          {showAllSections && <div className={cn('text-sm font-black tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.pools')}</div>}
           <div className="flex items-center justify-between">
-            <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+            <div className={cn('text-xs font-black tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
               {t('admin.config.storage.pools.title')}
             </div>
             <button type="button" className={cn('h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-colors', isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50')} onClick={onAddPool}>
@@ -372,9 +372,9 @@ export const VfsStorageAdvancedSection: React.FC<VfsStorageAdvancedSectionProps>
 
       {(showAllSections || tab === 'policies') && (
         <div className="space-y-3">
-          {showAllSections && <div className={cn('text-sm font-black uppercase tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.policies')}</div>}
+          {showAllSections && <div className={cn('text-sm font-black tracking-wide', isDark ? 'text-slate-100' : 'text-slate-900')}>{t('admin.config.storage.sections.policies')}</div>}
           <div className="flex items-center justify-between">
-            <div className={cn('text-xs font-black uppercase tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
+            <div className={cn('text-xs font-black tracking-widest opacity-60', isDark ? 'text-slate-300' : 'text-slate-600')}>
               {t('admin.config.storage.policies.title')}
             </div>
             <button type="button" className={cn('h-9 px-3 rounded-lg border text-sm font-black inline-flex items-center gap-2 transition-colors', isDark ? 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10' : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50')} onClick={onAddPolicy}>

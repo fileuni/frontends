@@ -235,8 +235,8 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
   if (error || !data) return (
     <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4 bg-background text-red-500">
       <AlertCircle size={64} />
-      <p className="text-xl font-black uppercase tracking-widest">{error || "File Not Found"}</p>
-      <Button variant="outline" onClick={onClose} className="mt-4 rounded-2xl h-12 px-8 uppercase font-black">{t('common.close')}</Button>
+      <p className="text-xl font-black tracking-widest">{error || "File Not Found"}</p>
+      <Button variant="outline" onClick={onClose} className="mt-4 rounded-2xl h-12 px-8 font-black">{t('common.close')}</Button>
     </div>
   );
 
@@ -245,8 +245,8 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
     return (
       <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4 bg-background text-red-500">
         <AlertCircle size={64} />
-        <p className="text-xl font-black uppercase tracking-widest">{t('filemanager.errors.loadFailed') || 'Preview target not found'}</p>
-        <Button variant="outline" onClick={onClose} className="mt-4 rounded-2xl h-12 px-8 uppercase font-black">{t('common.close')}</Button>
+        <p className="text-xl font-black tracking-widest">{t('filemanager.errors.loadFailed') || 'Preview target not found'}</p>
+        <Button variant="outline" onClick={onClose} className="mt-4 rounded-2xl h-12 px-8 font-black">{t('common.close')}</Button>
       </div>
     );
   }
@@ -326,12 +326,12 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
                 <AlertCircle size={48} />
               </div>
               <div className="text-center">
-                <p className="text-xl font-black uppercase tracking-widest">{t('filemanager.errors.unsupportedType') || 'Unsupported File Type'}</p>
+                <p className="text-xl font-black tracking-widest">{t('filemanager.errors.unsupportedType') || 'Unsupported File Type'}</p>
                 <p className="text-sm font-mono opacity-40 mt-2">{activeFile.name}</p>
               </div>
               <div className="flex items-center gap-4">
-                  <OpenWithMenu file={activeFile} variant="outline" className="h-12 px-8 rounded-2xl font-black uppercase" />
-                  <Button variant="ghost" onClick={onClose} className="h-12 px-8 rounded-2xl font-black uppercase">{t('common.close')}</Button>
+                  <OpenWithMenu file={activeFile} variant="outline" className="h-12 px-8 rounded-2xl font-black" />
+                  <Button variant="ghost" onClick={onClose} className="h-12 px-8 rounded-2xl font-black">{t('common.close')}</Button>
               </div>
           </div>
       )}

@@ -73,7 +73,7 @@ export const AccountsView = () => {
             >
               <LogOut size={18} className="mr-2" /> {t('common.logout')}
             </Button>
-            <p className="text-sm text-center opacity-30 font-bold uppercase tracking-widest px-6">
+            <p className="text-sm text-center opacity-30 font-bold tracking-widest px-6">
               {t('auth.manageAccountsDesc')}
             </p>
           </div>

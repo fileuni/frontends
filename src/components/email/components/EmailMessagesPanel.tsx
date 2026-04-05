@@ -50,7 +50,7 @@ export const EmailMessagesPanel: React.FC<EmailMessagesPanelProps> = ({
               <button type="button" key={draft.id} onClick={() => onResumeDraft(draft)} className="w-full p-3.5 border-b border-border/30 text-left hover:bg-orange-500/5 cursor-pointer transition-all">
                 <div className="flex justify-between items-start gap-2 text-foreground">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2"><span className="text-sm font-black uppercase text-orange-600 bg-orange-500/10 px-1.5 rounded">{t("email.draft")}</span><span className="font-bold text-sm truncate">{draft.to_addr || t("email.noRecipient")}</span></div>
+                    <div className="flex items-center gap-2"><span className="text-sm font-black text-orange-600 bg-orange-500/10 px-1.5 rounded">{t("email.draft")}</span><span className="font-bold text-sm truncate">{draft.to_addr || t("email.noRecipient")}</span></div>
                     <p className="font-black text-sm truncate mt-1">{draft.subject || t("email.noSubject")}</p>
                   </div>
                   <span className="text-[14px] opacity-40 whitespace-nowrap">{formatDate(draft.updated_at)}</span>

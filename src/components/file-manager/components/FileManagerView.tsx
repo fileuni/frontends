@@ -550,7 +550,7 @@ export const FileManagerView = () => {
           {fmMode === 'files' && isSearchMode && searchKeyword && (
             <div className="mx-2 mt-2 flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
               <div className="min-w-0">
-                <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-primary">
+                <div className="flex items-center gap-2 text-sm font-black tracking-[0.18em] text-primary">
                   <Search size={14} />
                   <span>{t('filemanager.searchActive') || t('filemanager.search')}</span>
                 </div>

@@ -1272,7 +1272,7 @@ export function Launcher() {
                       })}
                   </p>
                   <div className="mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-slate-700/60 dark:bg-slate-950/40">
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    <p className="text-xs font-black tracking-[0.18em] text-slate-500 dark:text-slate-400">
                       {t("systemConfig.setup.final.nextSteps")}
                     </p>
                     <div className="mt-3 space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
@@ -1381,7 +1381,7 @@ export function Launcher() {
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight truncate bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
                   {t("launcher.title")}
                 </h1>
-                <p className="hidden sm:block text-slate-500 dark:text-slate-400 font-bold text-sm tracking-widest uppercase mt-1 opacity-80">
+                <p className="hidden sm:block text-slate-500 dark:text-slate-400 font-bold text-sm tracking-widest mt-1 opacity-80">
                   {t("launcher.subtitle")} • v{version}
                 </p>
               </div>
@@ -1474,7 +1474,7 @@ export function Launcher() {
                           />
                         </div>
                         <div className="min-w-0 space-y-3">
-                          <div className="text-sm font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                          <div className="text-sm font-black tracking-wider text-slate-400 dark:text-slate-500">
                             {t("launcher.runtime_paths")}
                           </div>
                           <div className="text-sm font-mono text-slate-600 dark:text-slate-300 break-all">
@@ -1551,7 +1551,7 @@ export function Launcher() {
 
           {/* Footer */}
           <div className="flex justify-center items-center pt-6 pb-[calc(1.5rem+var(--safe-area-bottom))] border-t border-slate-200/50 dark:border-slate-800/40 bg-slate-50/50 dark:bg-slate-900/30">
-            <div className="flex items-center gap-8 text-sm text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase opacity-70">
+            <div className="flex items-center gap-8 text-sm text-slate-400 dark:text-slate-500 font-bold tracking-widest opacity-70">
               <span className="flex items-center gap-2.5">
                 <span className="w-2 h-2 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
                 {t("launcher.footer_product")} v{version}
@@ -1617,7 +1617,7 @@ export function Launcher() {
                     </p>
                     <div className="space-y-3 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
                       <div className="space-y-1.5">
-                        <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                        <p className="text-xs font-black tracking-[0.18em] text-slate-500 dark:text-slate-400">
                           {t("launcher.runtime_config_blocked_missing_file")}
                         </p>
                         <div className="font-mono break-all">
@@ -1625,7 +1625,7 @@ export function Launcher() {
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                        <p className="text-xs font-black tracking-[0.18em] text-slate-500 dark:text-slate-400">
                           {t("launcher.runtime_config_blocked_lock_file")}
                         </p>
                         <div className="font-mono break-all">

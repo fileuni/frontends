@@ -272,7 +272,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                 type="button"
                 onClick={() => setIsSidebarExpanded((prev) => !prev)}
                 className={cn(
-                  "mb-2 flex w-full items-center justify-center rounded-xl border px-2 py-2 text-[11px] font-black uppercase tracking-[0.18em] transition-colors",
+                  "mb-2 flex w-full items-center justify-center rounded-xl border px-2 py-2 text-[11px] font-black tracking-[0.18em] transition-colors",
                   isDark
                     ? "border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/10"
                     : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100",
@@ -424,7 +424,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                         >
                           <div
                             className={cn(
-                              "text-[11px] font-black uppercase tracking-[0.18em]",
+                              "text-[11px] font-black tracking-[0.18em]",
                               isDark ? "text-slate-400" : "text-slate-500",
                             )}
                           >

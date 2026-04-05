@@ -51,13 +51,13 @@ export const AudioPreviewSidebar = ({
   return (
     <aside className="flex min-h-0 flex-col gap-4">
       <div className={cn('grid grid-cols-3 gap-2 rounded-2xl border p-1 lg:hidden', isDark ? 'border-white/10 bg-white/5' : 'border-white/80 bg-white/80')}>
-        <button type="button" onClick={() => setMobileTab('lyrics')} className={cn('h-11 rounded-[1rem] text-sm font-black uppercase tracking-[0.22em] transition-all', mobileTab === 'lyrics' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
+        <button type="button" onClick={() => setMobileTab('lyrics')} className={cn('h-11 rounded-[1rem] text-sm font-black tracking-[0.22em] transition-all', mobileTab === 'lyrics' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
           {t('filemanager.audio.lyrics')}
         </button>
-        <button type="button" onClick={() => setMobileTab('playlist')} className={cn('h-11 rounded-[1rem] text-sm font-black uppercase tracking-[0.22em] transition-all', mobileTab === 'playlist' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
+        <button type="button" onClick={() => setMobileTab('playlist')} className={cn('h-11 rounded-[1rem] text-sm font-black tracking-[0.22em] transition-all', mobileTab === 'playlist' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
           {t('filemanager.player.playlist')}
         </button>
-        <button type="button" onClick={() => setMobileTab('recent')} className={cn('h-11 rounded-[1rem] text-sm font-black uppercase tracking-[0.22em] transition-all', mobileTab === 'recent' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
+        <button type="button" onClick={() => setMobileTab('recent')} className={cn('h-11 rounded-[1rem] text-sm font-black tracking-[0.22em] transition-all', mobileTab === 'recent' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/65' : 'text-slate-500')}>
           {t('filemanager.player.recentlyPlayed')}
         </button>
       </div>
@@ -67,7 +67,7 @@ export const AudioPreviewSidebar = ({
           <div className="flex items-center gap-3">
             <div className={cn('flex h-10 w-10 items-center justify-center rounded-2xl', isDark ? 'bg-white/5 text-primary' : 'bg-primary/10 text-primary')}><Mic2 size={18} /></div>
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.28em]">{t('filemanager.audio.lyrics')}</p>
+              <p className="text-sm font-black tracking-[0.28em]">{t('filemanager.audio.lyrics')}</p>
               <p className={cn('text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>
                 {lyricsState.status === 'ready' && lyricsState.synced ? t('filemanager.audio.syncedLyrics') : t('filemanager.audio.plainLyrics')}
               </p>
@@ -132,7 +132,7 @@ export const AudioPreviewSidebar = ({
           <div className="flex items-center gap-3">
             <div className={cn('flex h-10 w-10 items-center justify-center rounded-2xl', isDark ? 'bg-white/5 text-primary' : 'bg-primary/10 text-primary')}><ListMusic size={18} /></div>
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.28em]">{t('filemanager.player.playlist')}</p>
+              <p className="text-sm font-black tracking-[0.28em]">{t('filemanager.player.playlist')}</p>
               <p className={cn('text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{t('filemanager.player.queue', { count: playlist.length })}</p>
             </div>
           </div>
@@ -164,7 +164,7 @@ export const AudioPreviewSidebar = ({
       <section className={cn('flex min-h-[14rem] max-h-[24rem] flex-col rounded-[1.75rem] border p-4 shadow-xl sm:p-5 lg:min-h-0 lg:max-h-[30%]', mobileTab !== 'recent' && 'hidden lg:flex', isDark ? 'border-white/10 bg-slate-950/45' : 'border-white/80 bg-white/80')}>
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.28em]">{t('filemanager.player.recentlyPlayed')}</p>
+            <p className="text-sm font-black tracking-[0.28em]">{t('filemanager.player.recentlyPlayed')}</p>
             <p className={cn('text-xs', isDark ? 'text-white/40' : 'text-slate-500')}>{filteredRecentRecords.length > 0 ? t('filemanager.player.queue', { count: filteredRecentRecords.length }) : t('filemanager.player.historyEmpty')}</p>
           </div>
           {recentRecords.length > 0 && (
@@ -180,13 +180,13 @@ export const AudioPreviewSidebar = ({
         </div>
 
         <div className={cn('mb-4 grid grid-cols-3 gap-2 rounded-2xl border p-1', isDark ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-slate-50')}>
-          <button type="button" onClick={() => setRecentFilter('all')} className={cn('h-9 rounded-xl text-xs font-black uppercase tracking-[0.22em] transition-all', recentFilter === 'all' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+          <button type="button" onClick={() => setRecentFilter('all')} className={cn('h-9 rounded-xl text-xs font-black tracking-[0.22em] transition-all', recentFilter === 'all' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
             {t('common.all')}
           </button>
-          <button type="button" onClick={() => setRecentFilter('audio')} className={cn('h-9 rounded-xl text-xs font-black uppercase tracking-[0.22em] transition-all', recentFilter === 'audio' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+          <button type="button" onClick={() => setRecentFilter('audio')} className={cn('h-9 rounded-xl text-xs font-black tracking-[0.22em] transition-all', recentFilter === 'audio' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
             {t('filemanager.player.filterAudio')}
           </button>
-          <button type="button" onClick={() => setRecentFilter('video')} className={cn('h-9 rounded-xl text-xs font-black uppercase tracking-[0.22em] transition-all', recentFilter === 'video' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
+          <button type="button" onClick={() => setRecentFilter('video')} className={cn('h-9 rounded-xl text-xs font-black tracking-[0.22em] transition-all', recentFilter === 'video' ? 'bg-primary text-primary-foreground' : isDark ? 'text-white/60' : 'text-slate-500')}>
             {t('filemanager.player.filterVideo')}
           </button>
         </div>

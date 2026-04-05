@@ -870,13 +870,13 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
           {playbackPreparing && (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/55 text-white backdrop-blur-sm">
               <Loader2 className="animate-spin" size={32} />
-              <p className="text-sm font-black uppercase tracking-[0.24em]">{t('filemanager.preview.preparing') || 'Preparing preview...'}</p>
+              <p className="text-sm font-black tracking-[0.24em]">{t('filemanager.preview.preparing') || 'Preparing preview...'}</p>
             </div>
           )}
 
           {playbackError && !playbackPreparing && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/65 px-6 text-center text-white backdrop-blur-sm">
-              <p className="text-sm font-black uppercase tracking-[0.2em]">{playbackError}</p>
+              <p className="text-sm font-black tracking-[0.2em]">{playbackError}</p>
             </div>
           )}
 
@@ -933,7 +933,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                   </button>
                   <input type="range" min={0} max={1} step={0.01} value={volume} onChange={(event) => changeVolume(Number(event.target.value))} className="music-range h-2.5 w-24 cursor-pointer" aria-label={t('filemanager.audio.volume')} />
                 </div>
-                <label className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-black uppercase">
+                <label className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-black">
                   <span>{t('filemanager.audio.speed')}</span>
                   <select value={playbackRate} onChange={(event) => changePlaybackRate(Number(event.target.value))} className="bg-transparent text-white outline-none">
                     {PLAYBACK_SPEEDS.map((speed) => (
@@ -941,7 +941,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                     ))}
                   </select>
                 </label>
-                <button type="button" onClick={() => setPlayMode(PLAY_MODE_CONFIG[playMode].next)} className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full text-sm font-black uppercase">
+                <button type="button" onClick={() => setPlayMode(PLAY_MODE_CONFIG[playMode].next)} className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full text-sm font-black">
                   <PlayModeIcon size={18} /> {getPlayModeLabel(t, playMode)}
                 </button>
               </div>
@@ -951,7 +951,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
           {showSubtitlePanel && (
             <div className="absolute top-20 right-6 w-72 bg-zinc-900/95 border border-white/10 rounded-2xl shadow-2xl p-2 z-30">
               <div className="px-2 pt-2 pb-1">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-white/40">{t('filemanager.player.subtitle')}</p>
+                <p className="text-xs font-black tracking-[0.24em] text-white/40">{t('filemanager.player.subtitle')}</p>
               </div>
               <button type="button" onClick={() => disableSubtitle()} className={cn('w-full text-left px-4 py-2 rounded-xl text-sm font-bold', !currentSubtitle ? 'bg-primary text-white' : 'text-white/60 hover:bg-white/5')}>
                 {t('filemanager.player.subtitlesOff')}
@@ -963,7 +963,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
               ))}
 
               <div className="mt-3 border-t border-white/10 px-2 pt-3 pb-1">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-white/40">{t('filemanager.player.subtitleStyle')}</p>
+                <p className="text-xs font-black tracking-[0.24em] text-white/40">{t('filemanager.player.subtitleStyle')}</p>
               </div>
               <div className="space-y-3 px-2 pb-1">
                 <div className="grid grid-cols-3 gap-2 rounded-xl bg-white/5 p-1">
@@ -972,14 +972,14 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                       key={mode}
                       type="button"
                       onClick={() => setSubtitleStyleMode(mode)}
-                      className={cn('h-9 rounded-lg text-[11px] font-black uppercase tracking-[0.16em] transition-all', subtitleStyleMode === mode ? 'bg-primary text-white' : 'text-white/60 hover:bg-white/5')}
+                      className={cn('h-9 rounded-lg text-[11px] font-black tracking-[0.16em] transition-all', subtitleStyleMode === mode ? 'bg-primary text-white' : 'text-white/60 hover:bg-white/5')}
                     >
                       {getSubtitleStyleLabel(t, mode)}
                     </button>
                   ))}
                 </div>
 
-                <label className="block text-xs font-black uppercase tracking-[0.18em] text-white/40">
+                <label className="block text-xs font-black tracking-[0.18em] text-white/40">
                   {t('filemanager.player.subtitleFontSize')}
                   <div className="mt-2 flex items-center gap-3">
                     <input type="range" min={0.8} max={1.6} step={0.05} value={subtitleScale} onChange={(event) => setSubtitleScale(Number(event.target.value))} className="music-range h-2.5 w-full cursor-pointer" />
@@ -987,7 +987,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                   </div>
                 </label>
 
-                <label className="block text-xs font-black uppercase tracking-[0.18em] text-white/40">
+                <label className="block text-xs font-black tracking-[0.18em] text-white/40">
                   {t('filemanager.player.subtitleColor')}
                   <div className="mt-2 flex items-center gap-3">
                     <input type="color" value={subtitleTextColor} onChange={(event) => setSubtitleTextColor(event.target.value)} className="h-9 w-12 rounded-lg border border-white/10 bg-transparent" />
@@ -995,7 +995,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                   </div>
                 </label>
 
-                <label className="block text-xs font-black uppercase tracking-[0.18em] text-white/40">
+                <label className="block text-xs font-black tracking-[0.18em] text-white/40">
                   {t('filemanager.player.subtitleBackground')}
                   <div className="mt-2 flex items-center gap-3">
                     <input type="range" min={0} max={0.9} step={0.05} value={subtitleBackgroundOpacity} onChange={(event) => setSubtitleBackgroundOpacity(Number(event.target.value))} className="music-range h-2.5 w-full cursor-pointer" />
@@ -1003,7 +1003,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
                   </div>
                 </label>
 
-                <label className="block text-xs font-black uppercase tracking-[0.18em] text-white/40">
+                <label className="block text-xs font-black tracking-[0.18em] text-white/40">
                   {t('filemanager.player.subtitleOffset')}
                   <div className="mt-2 flex items-center gap-3">
                     <input type="range" min={0} max={12} step={1} value={subtitleBottomOffset} onChange={(event) => setSubtitleBottomOffset(Number(event.target.value))} className="music-range h-2.5 w-full cursor-pointer" />
@@ -1013,7 +1013,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
               </div>
 
               <div className="mt-3 border-t border-white/10 px-2 pt-3 pb-1">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-white/40">{t('filemanager.player.audioTrack')}</p>
+                <p className="text-xs font-black tracking-[0.24em] text-white/40">{t('filemanager.player.audioTrack')}</p>
               </div>
               {availableAudioTracks.length > 0 ? availableAudioTracks.map((track) => (
                 <button type="button" key={`${track.index}-${track.label}`} onClick={() => applyAudioTrackSelection(track.index)} className={cn('mt-1 w-full rounded-xl px-4 py-2 text-left text-sm font-bold', currentAudioTrackIndex === track.index ? 'bg-primary text-white' : 'text-white/60 hover:bg-white/5')}>
@@ -1026,17 +1026,17 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
 
         <div className="w-full shrink-0 border-t border-border bg-accent/5 lg:w-80 lg:border-l lg:border-t-0 flex flex-col">
           <div className="grid grid-cols-2 gap-2 p-3 border-b border-border">
-            <button type="button" onClick={() => setSidebarTab('playlist')} className={cn('h-10 rounded-xl text-sm font-black uppercase tracking-[0.22em] transition-all', sidebarTab === 'playlist' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-muted-foreground')}>
+            <button type="button" onClick={() => setSidebarTab('playlist')} className={cn('h-10 rounded-xl text-sm font-black tracking-[0.22em] transition-all', sidebarTab === 'playlist' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-muted-foreground')}>
               {t('filemanager.player.playlist')}
             </button>
-            <button type="button" onClick={() => setSidebarTab('recent')} className={cn('h-10 rounded-xl text-sm font-black uppercase tracking-[0.22em] transition-all', sidebarTab === 'recent' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-muted-foreground')}>
+            <button type="button" onClick={() => setSidebarTab('recent')} className={cn('h-10 rounded-xl text-sm font-black tracking-[0.22em] transition-all', sidebarTab === 'recent' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-muted-foreground')}>
               {t('filemanager.player.recentlyPlayed')}
             </button>
           </div>
 
           <div className="p-4 border-b border-border flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground">{sidebarTab === 'playlist' ? t('filemanager.player.playlist') : t('filemanager.player.recentlyPlayed')}</h3>
+              <h3 className="text-sm font-black tracking-widest text-muted-foreground">{sidebarTab === 'playlist' ? t('filemanager.player.playlist') : t('filemanager.player.recentlyPlayed')}</h3>
               <p className="text-xs text-muted-foreground mt-1">{sidebarTab === 'playlist' ? `${currentIndex + 1} / ${playlist.length}` : filteredRecentRecords.length > 0 ? t('filemanager.player.queue', { count: filteredRecentRecords.length }) : t('filemanager.player.historyEmpty')}</p>
             </div>
             {sidebarTab === 'recent' ? (
@@ -1059,13 +1059,13 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
             )) : (
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-2 rounded-xl border border-border p-1">
-                  <button type="button" onClick={() => setRecentFilter('all')} className={cn('h-8 rounded-lg text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'all' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
+                  <button type="button" onClick={() => setRecentFilter('all')} className={cn('h-8 rounded-lg text-[11px] font-black tracking-[0.18em] transition-all', recentFilter === 'all' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
                     {t('common.all')}
                   </button>
-                  <button type="button" onClick={() => setRecentFilter('audio')} className={cn('h-8 rounded-lg text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'audio' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
+                  <button type="button" onClick={() => setRecentFilter('audio')} className={cn('h-8 rounded-lg text-[11px] font-black tracking-[0.18em] transition-all', recentFilter === 'audio' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
                     {t('filemanager.player.filterAudio')}
                   </button>
-                  <button type="button" onClick={() => setRecentFilter('video')} className={cn('h-8 rounded-lg text-[11px] font-black uppercase tracking-[0.18em] transition-all', recentFilter === 'video' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
+                  <button type="button" onClick={() => setRecentFilter('video')} className={cn('h-8 rounded-lg text-[11px] font-black tracking-[0.18em] transition-all', recentFilter === 'video' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
                     {t('filemanager.player.filterVideo')}
                   </button>
                 </div>

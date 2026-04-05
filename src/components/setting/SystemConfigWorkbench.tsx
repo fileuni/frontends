@@ -304,7 +304,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
     return (
       <div
         className={cn(
-          "h-64 flex items-center justify-center font-black animate-pulse uppercase tracking-widest",
+          "h-64 flex items-center justify-center font-black animate-pulse tracking-widest",
           isDark ? "text-white opacity-50" : "text-slate-900 opacity-40",
         )}
       >
@@ -319,7 +319,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         <button
           type="button"
           className={cn(
-            "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border font-black uppercase tracking-wide transition-all inline-flex items-center gap-1.5 shadow-sm",
+            "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border font-black tracking-wide transition-all inline-flex items-center gap-1.5 shadow-sm",
             isDark
               ? "border-white/15 hover:bg-white/10 text-slate-300"
               : "border-slate-300 bg-white hover:bg-slate-50 text-slate-900",
@@ -348,7 +348,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         <div>
           <div
             className={cn(
-              "text-sm font-black uppercase tracking-wide",
+              "text-sm font-black tracking-wide",
               isDark ? "text-slate-200" : "text-slate-900",
             )}
           >
@@ -680,7 +680,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
               )}
             >
               <AlertTriangle size={16} className="animate-pulse sm:w-[18px]" />
-              <h3 className="text-sm sm:text-sm font-black uppercase tracking-wide">
+              <h3 className="text-sm sm:text-sm font-black tracking-wide">
                 {t("admin.config.testFailed")} ({validationErrors.length})
               </h3>
             </div>
@@ -688,7 +688,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
               <button
                 type="button"
                 className={cn(
-                  "h-7 px-2 text-sm uppercase font-black transition-opacity",
+                  "h-7 px-2 text-sm font-black transition-opacity",
                   isDark
                     ? "text-slate-400 opacity-50 hover:opacity-100"
                     : "text-red-800 opacity-70 hover:opacity-100",
@@ -789,7 +789,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm sm:text-sm">
             <span
               className={cn(
-                "rounded-lg border px-2 py-0.5 font-black uppercase tracking-wide",
+                "rounded-lg border px-2 py-0.5 font-black tracking-wide",
                 isDirty
                   ? isDark
                     ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
@@ -805,7 +805,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
             </span>
             <span
               className={cn(
-                "font-black uppercase tracking-widest",
+                "font-black tracking-widest",
                 isDark ? "text-white opacity-30" : "text-slate-900 opacity-40",
               )}
             >

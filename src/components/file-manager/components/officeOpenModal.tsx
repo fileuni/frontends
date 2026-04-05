@@ -144,7 +144,7 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
         )}
 
         {loading ? (
-          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] opacity-50">
+          <div className="flex items-center gap-2 text-sm font-bold tracking-[0.2em] opacity-50">
             <Loader2 size={18} className="animate-spin" />
             {t('filemanager.officeLite.loadingApps')}
           </div>
@@ -152,30 +152,30 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
           <div className="grid gap-3">
             {apps.some(app => app.id === 'office-lite') && (
               <Button variant="primary" className="h-12 rounded-2xl justify-between px-4" onClick={openOfficeLite}>
-                <span className="text-sm font-black uppercase tracking-[0.2em]">{t('filemanager.officeLite.openLite')}</span>
+                <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openLite')}</span>
                 <FileText size={16} />
               </Button>
             )}
             {apps.some(app => app.id === 'wopi-office') && enableWopi && (
               <Button variant="outline" className="h-12 rounded-2xl justify-between px-4" onClick={openWopi}>
-                <span className="text-sm font-black uppercase tracking-[0.2em]">{t('filemanager.officeLite.openWopi')}</span>
+                <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openWopi')}</span>
                 <ExternalLink size={16} />
               </Button>
             )}
             {enableMicrosoftViewer && (
               <Button variant="outline" className="h-12 rounded-2xl justify-between px-4" onClick={() => openExternalViewer('microsoft')}>
-                <span className="text-sm font-black uppercase tracking-[0.2em]">{t('filemanager.officeLite.openMicrosoftViewer')}</span>
+                <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openMicrosoftViewer')}</span>
                 <ExternalLink size={16} />
               </Button>
             )}
             {enableGoogleViewer && (
               <Button variant="outline" className="h-12 rounded-2xl justify-between px-4" onClick={() => openExternalViewer('google')}>
-                <span className="text-sm font-black uppercase tracking-[0.2em]">{t('filemanager.officeLite.openGoogleViewer')}</span>
+                <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openGoogleViewer')}</span>
                 <ExternalLink size={16} />
               </Button>
             )}
             <Button variant="ghost" className="h-12 rounded-2xl justify-between px-4" onClick={downloadFile}>
-              <span className="text-sm font-black uppercase tracking-[0.2em]">{t('filemanager.officeLite.openDownload')}</span>
+              <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openDownload')}</span>
               <Download size={16} />
             </Button>
           </div>

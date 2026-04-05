@@ -149,18 +149,18 @@ export const FileManagerNavigationBar = () => {
       {mountContext && (
         <div className="mt-2 rounded-2xl border border-amber-500/15 bg-amber-500/10 px-4 py-3 text-sm">
           <div className="flex flex-wrap items-center gap-3 text-amber-100">
-            <div className="flex items-center gap-2 font-black uppercase tracking-widest text-[11px]">
+            <div className="flex items-center gap-2 font-black tracking-widest text-[11px]">
               <Globe size={14} />
               <span>{t('filemanager.mounts.currentMounted') || 'Remote mount active'}</span>
             </div>
-            <span className="rounded-full border border-white/10 px-2 py-0.5 font-black text-[11px] uppercase tracking-widest">
+            <span className="rounded-full border border-white/10 px-2 py-0.5 font-black text-[11px] tracking-widest">
               {mountContext.name || mountContext.mount_dir}
             </span>
-            <span className="text-[11px] font-black uppercase tracking-widest opacity-70">
+            <span className="text-[11px] font-black tracking-widest opacity-70">
               {t('filemanager.mounts.driverLabel') || 'Driver'}: {mountContext.driver}
             </span>
             {mountContext.last_sync_status && (
-              <span className="flex items-center gap-1 text-[11px] font-black uppercase tracking-widest opacity-80">
+              <span className="flex items-center gap-1 text-[11px] font-black tracking-widest opacity-80">
                 <RefreshCw size={12} />
                 {mountContext.last_sync_status}
               </span>
@@ -186,14 +186,14 @@ export const FileManagerNavigationBar = () => {
           focusedRootPath === currentPath && "ring-2 ring-cyan-300/60 shadow-[0_0_0_1px_rgba(103,232,249,0.18)] animate-pulse"
         )}>
           <div className="flex flex-wrap items-center gap-3 text-cyan-100">
-            <div className="flex items-center gap-2 font-black uppercase tracking-widest text-[11px]">
+            <div className="flex items-center gap-2 font-black tracking-widest text-[11px]">
               <HardDrive size={14} />
               <span>{t('filemanager.protectedStorage.title') || 'Protected Storage'}</span>
             </div>
-            <span className="rounded-full border border-white/10 px-2 py-0.5 font-black text-[11px] uppercase tracking-widest">
+            <span className="rounded-full border border-white/10 px-2 py-0.5 font-black text-[11px] tracking-widest">
               {protectedStatus.protected_root || '/'}
             </span>
-            <span className="text-[11px] font-black uppercase tracking-widest opacity-70">
+            <span className="text-[11px] font-black tracking-widest opacity-70">
               {protectedMode === 'disabled' || protectedMode === 'obfuscate' || protectedMode === 'encrypt'
                 ? getProtectedStorageModeLabel(t, protectedMode)
                 : protectedMode}

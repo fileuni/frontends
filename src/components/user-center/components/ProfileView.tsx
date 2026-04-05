@@ -192,7 +192,7 @@ export const ProfileView = () => {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between ml-1">
-                <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('profile.extraPhones')}</div>
+                <div className="text-sm font-black tracking-widest opacity-40">{t('profile.extraPhones')}</div>
                 <button type="button" onClick={addPhone} className="text-sm font-black text-primary flex items-center gap-1 hover:underline">
                   <Plus size={18} /> {t('profile.addNew')}
                 </button>
@@ -238,7 +238,7 @@ export const ProfileView = () => {
           variant="glass"
           className="p-8 overflow-hidden relative"
           title={t('profile.readonlyIdentity')}
-          titleClassName="text-sm uppercase tracking-widest opacity-30"
+          titleClassName="text-sm tracking-widest opacity-30"
           headerClassName="mb-6"
         >
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -246,14 +246,14 @@ export const ProfileView = () => {
           </div>
           <div className="space-y-6">
             <div className="space-y-1">
-              <span className="text-sm font-bold opacity-40 uppercase">{t('profile.primaryEmail')}</span>
+              <span className="text-sm font-bold opacity-40">{t('profile.primaryEmail')}</span>
               <div className="flex items-center gap-2 font-mono text-sm font-black">
                 {form.email || t('profile.none')}
                 {form.email && <CheckCircle2 size={18} className="text-green-500" />}
               </div>
             </div>
             <div className="space-y-1">
-              <span className="text-sm font-bold opacity-40 uppercase">{t('profile.verifiedPhone')}</span>
+              <span className="text-sm font-bold opacity-40">{t('profile.verifiedPhone')}</span>
               <div className="flex items-center gap-2 font-mono text-sm font-black">
                 {form.phone || t('profile.none')}
                 {form.phone && <CheckCircle2 size={18} className="text-green-500" />}

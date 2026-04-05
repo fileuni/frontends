@@ -205,7 +205,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                 type="button"
                 onClick={() => setActiveTab("tasks")}
                 className={cn(
-                  "flex-1 py-3 text-sm font-black uppercase tracking-widest transition-all relative",
+                  "flex-1 py-3 text-sm font-black tracking-widest transition-all relative",
                   activeTab === "tasks"
                     ? "text-primary"
                     : "opacity-40 hover:opacity-100",
@@ -223,7 +223,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                 type="button"
                 onClick={() => setActiveTab("notifications")}
                 className={cn(
-                  "flex-1 py-3 text-sm font-black uppercase tracking-widest transition-all relative",
+                  "flex-1 py-3 text-sm font-black tracking-widest transition-all relative",
                   activeTab === "notifications"
                     ? "text-primary"
                     : "opacity-40 hover:opacity-100",
@@ -242,7 +242,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                   type="button"
                   onClick={() => setActiveTab("chat")}
                   className={cn(
-                    "flex-1 py-3 text-sm font-black uppercase tracking-widest transition-all relative",
+                    "flex-1 py-3 text-sm font-black tracking-widest transition-all relative",
                     activeTab === "chat"
                       ? "text-primary"
                       : "opacity-40 hover:opacity-100",
@@ -262,7 +262,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                   type="button"
                   onClick={() => setActiveTab("emails")}
                   className={cn(
-                    "flex-1 py-3 text-sm font-black uppercase tracking-widest transition-all relative",
+                    "flex-1 py-3 text-sm font-black tracking-widest transition-all relative",
                     activeTab === "emails"
                       ? "text-primary"
                       : "opacity-40 hover:opacity-100",
@@ -317,7 +317,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                 <button
                   type="button"
                   onClick={() => markAllAsRead()}
-                  className="text-sm font-black uppercase opacity-40 hover:opacity-100 transition-all flex items-center gap-1"
+                  className="text-sm font-black opacity-40 hover:opacity-100 transition-all flex items-center gap-1"
                 >
                   <Check size={18} />
                   {t("common.markAllRead", {
@@ -351,7 +351,7 @@ const ChatList = ({
         {rooms.length === 0 ? (
           <div className="py-12 flex flex-col items-center justify-center opacity-20 gap-3">
             <MessageSquare size={40} />
-            <p className="text-sm font-black uppercase tracking-widest">
+            <p className="text-sm font-black tracking-widest">
               {t("chat.noConversations")}
             </p>
           </div>
@@ -384,7 +384,7 @@ const ChatList = ({
                 <div className="flex justify-between items-start gap-2">
                   <p className="text-sm font-black truncate">{room.name}</p>
                   {room.lastMessage && (
-                    <span className="text-[14px] font-black uppercase opacity-30 whitespace-nowrap">
+                    <span className="text-[14px] font-black opacity-30 whitespace-nowrap">
                       {formatDistanceToNow(new Date(room.lastMessage.timestamp), {
                         addSuffix: true,
                       })}
@@ -496,7 +496,7 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
         )}
       </div>
       <div className="mt-3 space-y-1.5">
-        <div className="flex justify-between text-[14px] font-black uppercase tracking-tight">
+        <div className="flex justify-between text-[14px] font-black tracking-tight">
           <span
             className={cn(
               task.status === "success"
@@ -542,7 +542,7 @@ const TaskList = ({
     return (
       <div className="py-12 flex flex-col items-center justify-center opacity-20 gap-3">
         <RefreshCw size={40} className="animate-spin-slow" />
-        <p className="text-sm font-black uppercase tracking-widest">
+        <p className="text-sm font-black tracking-widest">
           {t("filemanager.task.allFinished")}
         </p>
       </div>
@@ -552,13 +552,13 @@ const TaskList = ({
   return (
     <div className="space-y-1">
       <div className="flex justify-between items-center px-2 mb-2">
-        <span className="text-sm font-black opacity-30 uppercase tracking-widest">
+        <span className="text-sm font-black opacity-30 tracking-widest">
           Active Tasks
         </span>
         <button
           type="button"
           onClick={clearFinishedTasks}
-          className="text-sm text-destructive font-black uppercase opacity-40 hover:opacity-100"
+          className="text-sm text-destructive font-black opacity-40 hover:opacity-100"
         >
           Clear
         </button>
@@ -592,7 +592,7 @@ const NotificationList = ({
     return (
       <div className="py-12 flex flex-col items-center justify-center opacity-20 gap-3">
         <Inbox size={40} />
-        <p className="text-sm font-black uppercase tracking-widest">
+        <p className="text-sm font-black tracking-widest">
           {t("common.noNotifications", { defaultValue: "No notifications" })}
         </p>
       </div>
@@ -666,7 +666,7 @@ const NotificationList = ({
                     {n.content}
                   </p>
                 </button>
-                <span className="text-[14px] font-black uppercase opacity-30 whitespace-nowrap">
+                <span className="text-[14px] font-black opacity-30 whitespace-nowrap">
                   {formatDistanceToNow(new Date(n.created_at), {
                     addSuffix: true,
                     locale: dateLocale,
@@ -793,7 +793,7 @@ const EmailTabContent = ({
         ) : accounts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3 opacity-40">
             <Mail size={40} />
-            <p className="text-sm font-black uppercase tracking-widest">{t("email.noAccounts")}</p>
+            <p className="text-sm font-black tracking-widest">{t("email.noAccounts")}</p>
           </div>
         ) : (
           accounts.map((account) => (
@@ -846,7 +846,7 @@ const EmailTabContent = ({
       <div className="p-3 border-t flex items-center justify-between mt-2">
         <div className="flex flex-col">
           {externalTotalUnread > 0 && (
-            <span className="text-sm font-black uppercase text-primary tracking-tighter">
+            <span className="text-sm font-black text-primary tracking-tighter">
               {externalTotalUnread} {t("email.unreadMessages")}
             </span>
           )}

@@ -143,7 +143,7 @@ export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
       <label
         htmlFor={inputId}
         className={cn(
-          "text-xs font-black uppercase tracking-wide break-words",
+          "text-xs font-black tracking-wide break-words",
           isDark ? "text-slate-400" : "text-slate-600",
         )}
       >
@@ -190,7 +190,7 @@ export const ExternalToolPathField: React.FC<ExternalToolPathFieldProps> = ({
                   : "border-rose-200 bg-rose-50 text-rose-900",
           )}
         >
-          <div className="font-black uppercase tracking-wide">{lastResult.summary}</div>
+          <div className="font-black tracking-wide">{lastResult.summary}</div>
           {lastResult.detail && <div className="mt-1 break-all opacity-90">{lastResult.detail}</div>}
         </div>
       )}

@@ -132,7 +132,7 @@ const P2PHelpContent: React.FC = () => {
 
       <div className="p-3 bg-muted/30 rounded-xl flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-orange-500" />
-        <p className="text-sm text-muted-foreground uppercase font-black tracking-widest">
+        <p className="text-sm text-muted-foreground font-black tracking-widest">
           {t("chat.p2pHelpDetail4")}
         </p>
       </div>
@@ -209,7 +209,7 @@ const VideoCallOverlay: React.FC<{
             >
               <PhoneOff size={28} />
             </button>
-            <span className="text-sm text-white/60 font-black uppercase tracking-widest">
+            <span className="text-sm text-white/60 font-black tracking-widest">
               {t("chat.endCall")}
             </span>
           </div>
@@ -670,9 +670,9 @@ export const ChatUnifiedUI: React.FC = () => {
             {activeSideTab === "profile" && auth.type === "guest" && (
               <div className="p-4 lg:p-5 space-y-6">
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-muted-foreground">
+                  <div className="text-sm font-medium text-muted-foreground">
                     {t("chat.yourNickname")}
-                  </label>
+                  </div>
                   <div className="relative">
                     <Input
                       value={nicknameInput}
@@ -881,9 +881,9 @@ export const ChatUnifiedUI: React.FC = () => {
                     {t("chat.networkSettings")}
                   </h4>
                   <div className="p-4 rounded-xl bg-muted border border-border space-y-3">
-                    <label className="text-sm font-medium text-muted-foreground">
+                    <div className="text-sm font-medium text-muted-foreground">
                       {t("chat.transportBackend")}
-                    </label>
+                    </div>
                     <select
                       className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm outline-none focus:border-primary transition-all"
                       value={chatConfig.transportBackend}
@@ -1178,9 +1178,9 @@ export const ChatUnifiedUI: React.FC = () => {
       >
         <div className="space-y-5 py-2">
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <div className="text-sm font-medium">
               {t("chat.defaultNickname")}
-            </label>
+            </div>
             <Input
               value={inviteDefaultNickname}
               onChange={(e) => setInviteDefaultNickname(e.target.value)}
@@ -1193,7 +1193,7 @@ export const ChatUnifiedUI: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">{t("chat.daysValid")}</label>
+            <div className="text-sm font-medium">{t("chat.daysValid")}</div>
             <Input
               type="number"
               value={inviteDays}
@@ -1292,7 +1292,7 @@ export const ChatUnifiedUI: React.FC = () => {
       >
         <div className="space-y-5 py-2">
           <div className="space-y-2">
-            <label className="text-sm font-medium">{t("chat.groupName")}</label>
+            <div className="text-sm font-medium">{t("chat.groupName")}</div>
             <Input
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
@@ -1301,9 +1301,9 @@ export const ChatUnifiedUI: React.FC = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <div className="text-sm font-medium">
               {t("chat.groupMembers")}
-            </label>
+            </div>
             <Input
               value={groupMembers}
               onChange={(e) => setGroupMembers(e.target.value)}

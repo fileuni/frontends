@@ -116,13 +116,13 @@ export const SessionsView = () => {
             <ShieldCheck size={20} />
           </div>
         )}
-        titleClassName="text-xl font-black tracking-tight uppercase"
+        titleClassName="text-xl font-black tracking-tight"
         headerClassName="mb-0"
       >
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex-1 space-y-4">
             <div className="space-y-2 max-w-md">
-              <div className="flex justify-between text-sm font-black uppercase tracking-widest opacity-40">
+              <div className="flex justify-between text-sm font-black tracking-widest opacity-40">
                 <span>{t('sessions.slotsOccupied')}</span>
                 <span className={cn(usagePercent > 80 ? "text-red-500" : "text-primary")}>{limitInfo.total} / {limitInfo.max}</span>
               </div>
@@ -178,7 +178,7 @@ export const SessionsView = () => {
                   <h4 className="text-lg font-bold">{session.device_name || t('sessions.unknownDevice')}</h4>
                   {session.is_current && <Badge variant="success">{t('sessions.current')}</Badge>}
                 </div>
-                <div className="flex items-center gap-4 mt-1 text-sm font-mono font-black opacity-40 uppercase tracking-tighter">
+                <div className="flex items-center gap-4 mt-1 text-sm font-mono font-black opacity-40 tracking-tighter">
                   <span className="flex items-center gap-1"><Globe size={18} /> {session.ip_address}</span>
                   <span className="flex items-center gap-1"><Clock size={18} /> {t('sessions.lastActive')}: {mounted ? new Date(session.last_accessed_at).toLocaleString() : '...'}</span>
                 </div>
@@ -205,7 +205,7 @@ export const SessionsView = () => {
           <ShieldCheck size={24} />
         </div>
         <div>
-          <h5 className="text-blue-400 font-black text-sm uppercase tracking-[0.2em] mb-2">{t('sessions.adviceTitle')}</h5>
+          <h5 className="text-blue-400 font-black text-sm tracking-[0.2em] mb-2">{t('sessions.adviceTitle')}</h5>
           <p className="text-sm font-medium opacity-60 leading-relaxed italic">
             {t('sessions.adviceDesc')}
           </p>

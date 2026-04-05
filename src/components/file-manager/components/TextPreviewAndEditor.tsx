@@ -231,7 +231,7 @@ export const TextPreviewAndEditor = ({
                 <Button
                   variant="outline"
                   className={cn(
-                    "h-10 px-4 rounded-xl text-sm font-black uppercase",
+                    "h-10 px-4 rounded-xl text-sm font-black",
                     isDark
                       ? "border-white/10 bg-white/5 hover:bg-white/10 text-white"
                       : "border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-900"
@@ -252,7 +252,7 @@ export const TextPreviewAndEditor = ({
                    type="button"
                    onClick={() => setIsEditing(false)}
                   className={cn(
-                    "px-5 h-9 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2", 
+                    "px-5 h-9 rounded-xl text-sm font-black transition-all flex items-center gap-2", 
                     !isEditing 
                       ? (isDark ? "bg-white/10 text-white shadow-lg" : "bg-white shadow-md text-zinc-900 border border-zinc-200") 
                       : "opacity-40 hover:opacity-100 text-foreground"
@@ -264,7 +264,7 @@ export const TextPreviewAndEditor = ({
                    type="button"
                    onClick={() => setIsEditing(true)}
                   className={cn(
-                    "px-5 h-9 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2", 
+                    "px-5 h-9 rounded-xl text-sm font-black transition-all flex items-center gap-2", 
                     isEditing 
                       ? "bg-amber-500 text-zinc-950 shadow-lg shadow-amber-500/20" 
                       : "opacity-40 hover:opacity-100 text-foreground"
@@ -278,7 +278,7 @@ export const TextPreviewAndEditor = ({
             {isEditing && (
               <Button 
                 variant="primary" 
-                className="h-10 px-6 rounded-xl text-sm font-black uppercase bg-primary text-white hover:brightness-110 shadow-xl shadow-primary/20 transition-all border-none" 
+                className="h-10 px-6 rounded-xl text-sm font-black bg-primary text-white hover:brightness-110 shadow-xl shadow-primary/20 transition-all border-none" 
                 onClick={() => { void saveContent('manual'); }} 
                 disabled={saving || loading}
               >
@@ -294,7 +294,7 @@ export const TextPreviewAndEditor = ({
         {loading ? (
           <div className="h-full flex flex-col items-center justify-center gap-4 opacity-50">
             <Loader2 className="animate-spin text-primary" size={40} />
-            <p className="text-sm font-black uppercase tracking-[0.3em]">Opening {fileName}...</p>
+            <p className="text-sm font-black tracking-[0.3em]">Opening {fileName}...</p>
           </div>
         ) : (
           markdownPreview && !isEditing ? (

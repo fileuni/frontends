@@ -142,7 +142,7 @@ export const DashboardLayout: React.FC<{
           </div>
         )}
 
-        <p className={cn("px-4 text-sm font-black uppercase tracking-widest opacity-30 mb-4", isDark ? "text-white" : "text-gray-900")}>
+        <p className={cn("px-4 text-sm font-black tracking-widest opacity-30 mb-4", isDark ? "text-white" : "text-gray-900")}>
           {t("common.manage")}
         </p>
         
@@ -187,7 +187,7 @@ export const DashboardLayout: React.FC<{
 
         {isAdmin && (
           <div className={cn("mt-8 pt-4 border-t", isDark ? "border-white/5" : "border-gray-200")}>
-            <p className="px-4 text-sm font-black uppercase tracking-widest opacity-30 mb-4 text-red-500">
+            <p className="px-4 text-sm font-black tracking-widest opacity-30 mb-4 text-red-500">
               {t("common.admin")}
             </p>
             {filteredAdminItems.map((item) => (
@@ -214,12 +214,12 @@ export const DashboardLayout: React.FC<{
       </div>
 
       <div className={cn("mt-auto pt-4 border-t flex flex-wrap gap-x-4 gap-y-2 px-2 pb-2", isDark ? "border-white/5" : "border-gray-200")}>
-        <button type="button" onClick={() => navigateToHash('#mod=public&page=tos')} className="text-sm font-black uppercase tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all">{t("pages.tos.title")}</button>
-        <button type="button" onClick={() => navigateToHash('#mod=public&page=privacy')} className="text-sm font-black uppercase tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all">{t("pages.privacy.title")}</button>
+        <button type="button" onClick={() => navigateToHash('#mod=public&page=tos')} className="text-sm font-black tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all">{t("pages.tos.title")}</button>
+        <button type="button" onClick={() => navigateToHash('#mod=public&page=privacy')} className="text-sm font-black tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all">{t("pages.privacy.title")}</button>
         <button
           type="button"
           onClick={() => window.dispatchEvent(new Event('fileuni:open-about'))}
-          className="text-sm font-black uppercase tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all"
+          className="text-sm font-black tracking-widest opacity-20 hover:opacity-100 hover:text-primary transition-all"
         >
           {t('about.open')}
         </button>
@@ -238,7 +238,7 @@ export const DashboardLayout: React.FC<{
         >
           {isMobileMenuOpen ? <IconRenderer name="X" size={20} /> : <IconRenderer name="Menu" size={20} />}
         </button>
-        <span className={cn("ml-2 text-sm font-black uppercase tracking-widest opacity-50", isDark ? "text-white" : "text-gray-900")}>
+        <span className={cn("ml-2 text-sm font-black tracking-widest opacity-50", isDark ? "text-white" : "text-gray-900")}>
           {title || t("nav.dashboard")}
         </span>
       </div>

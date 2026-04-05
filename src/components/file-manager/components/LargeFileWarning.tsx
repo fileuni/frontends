@@ -34,10 +34,10 @@ export const LargeFileWarning = ({ file, onForcePreview, onCancel, isDark }: Pro
             <div className="h-px bg-border/50 w-full" />
 
             <div className="flex gap-4 justify-center">
-                <Button variant="ghost" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={onCancel}>
+                <Button variant="ghost" className="h-10 px-6 rounded-xl font-bold tracking-widest text-sm" onClick={onCancel}>
                     <X size={18} className="mr-2" /> {t('common.cancel')}
                 </Button>
-                <Button variant="outline" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-sm" onClick={onForcePreview}>
+                <Button variant="outline" className="h-10 px-6 rounded-xl font-bold tracking-widest text-sm" onClick={onForcePreview}>
                     <ChevronRight size={18} className="mr-2" /> {t('filemanager.preview.previewAnyway')}
                 </Button>
             </div>

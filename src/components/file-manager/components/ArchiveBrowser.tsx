@@ -185,7 +185,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
         {loading ? (
           <div className="h-full flex flex-col items-center justify-center gap-4 opacity-40">
             <Loader2 size={48} className="animate-spin text-primary" />
-            <p className="text-sm font-black uppercase tracking-widest">{t('common.loadingArchive') || 'Opening Archive...'}</p>
+            <p className="text-sm font-black tracking-widest">{t('common.loadingArchive') || 'Opening Archive...'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4">
@@ -230,7 +230,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
             {currentEntries.length === 0 && (
                 <div className="col-span-full py-20 flex flex-col items-center justify-center opacity-20">
                     <Archive size={64} strokeWidth={1} />
-                    <p className="text-sm font-black mt-4 uppercase tracking-widest">{t('common.noItems')}</p>
+                    <p className="text-sm font-black mt-4 tracking-widest">{t('common.noItems')}</p>
                 </div>
             )}
           </div>
@@ -238,7 +238,7 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
       </div>
 
       {/* Footer */}
-      <div className="h-10 border-t border-border bg-card/30 px-4 flex items-center justify-between text-sm font-bold text-muted-foreground uppercase tracking-widest">
+      <div className="h-10 border-t border-border bg-card/30 px-4 flex items-center justify-between text-sm font-bold text-muted-foreground tracking-widest">
         <div className="flex gap-4">
             <span>{currentSubPath || '/'}</span>
         </div>

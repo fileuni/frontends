@@ -122,12 +122,12 @@ export const CacheManagerView: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
           <DashboardCard variant="subtle" className="rounded-2xl p-4 bg-background/40">
-            <div className="text-sm uppercase tracking-widest opacity-55">{t("cacheManager.managedCacheSize")}</div>
+            <div className="text-sm tracking-widest opacity-55">{t("cacheManager.managedCacheSize")}</div>
             <div className="text-2xl font-black mt-1">{cacheManager.formatBytes(summary.managed_total_bytes)}</div>
             <div className="text-sm opacity-70 mt-1">{t("cacheManager.managedKeys", { count: summary.managed_total_keys })}</div>
           </DashboardCard>
           <DashboardCard variant="subtle" className="rounded-2xl p-4 bg-background/40">
-            <div className="text-sm uppercase tracking-widest opacity-55">{t("cacheManager.totalLocalStorage")}</div>
+            <div className="text-sm tracking-widest opacity-55">{t("cacheManager.totalLocalStorage")}</div>
             <div className="text-2xl font-black mt-1">{cacheManager.formatBytes(summary.local_total_bytes)}</div>
             <div className="text-sm opacity-70 mt-1">{t("cacheManager.localKeys", { count: summary.local_total_keys })}</div>
           </DashboardCard>

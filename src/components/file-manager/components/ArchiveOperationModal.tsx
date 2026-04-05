@@ -185,7 +185,7 @@ export function ArchiveOperationModal({
         {mode === 'decompress' ? (
           <>
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase opacity-60">
+              <div className="text-sm font-black opacity-60">
                 {t('filemanager.archive.targetPath')}
               </div>
               <Input
@@ -227,7 +227,7 @@ export function ArchiveOperationModal({
             </div>
 
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase opacity-60">
+              <div className="text-sm font-black opacity-60">
                 {t('filemanager.archive.passwordOptional')}
               </div>
               <PasswordInput
@@ -241,7 +241,7 @@ export function ArchiveOperationModal({
         ) : (
           <>
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase opacity-60">
+              <div className="text-sm font-black opacity-60">
                 {t('filemanager.archive.archiveName')}
               </div>
               <Input
@@ -260,7 +260,7 @@ export function ArchiveOperationModal({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <div className="text-sm font-black uppercase opacity-60 text-foreground">
+                <div className="text-sm font-black opacity-60 text-foreground">
                   {t('filemanager.archive.format')}
                 </div>
                 <select
@@ -275,7 +275,7 @@ export function ArchiveOperationModal({
                 </select>
               </div>
               <div className="space-y-2">
-                <div className="text-sm font-black uppercase opacity-60 text-foreground">
+                <div className="text-sm font-black opacity-60 text-foreground">
                   {t('filemanager.archive.level')} (Max: {maxLevel})
                 </div>
                 <Input
@@ -323,7 +323,7 @@ export function ArchiveOperationModal({
             </div>
 
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase opacity-60">
+              <div className="text-sm font-black opacity-60">
                 {t('filemanager.archive.passwordOptional')}
               </div>
               <PasswordInput

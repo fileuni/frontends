@@ -52,7 +52,7 @@ export const SavedAccountsShortcut = ({
           <p className={cn('text-sm font-black leading-tight', isDark ? 'text-white' : 'text-gray-900')}>
             {title}
           </p>
-          <p className="text-sm opacity-40 font-bold uppercase tracking-tighter">{description}</p>
+          <p className="text-sm opacity-40 font-bold tracking-tighter">{description}</p>
         </div>
       </div>
       <ChevronRight size={18} className="opacity-20 group-hover:opacity-100 transition-opacity" />

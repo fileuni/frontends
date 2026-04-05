@@ -229,7 +229,7 @@ const Section: React.FC<{
       <div>
         <div
           className={cn(
-            "text-xs font-black uppercase tracking-wide",
+            "text-xs font-black tracking-wide",
             isDark ? "text-slate-400" : "text-slate-700",
           )}
         >
@@ -255,7 +255,7 @@ const Label: React.FC<{ text: string; isDark: boolean }> = ({ text, isDark }) =>
   return (
     <div
       className={cn(
-        "text-xs font-black uppercase tracking-wide",
+        "text-xs font-black tracking-wide",
         isDark ? "text-slate-400" : "text-slate-700",
       )}
     >

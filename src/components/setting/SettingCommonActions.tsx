@@ -129,7 +129,7 @@ const LicenseInlinePanel: React.FC<LicenseInlinePanelProps> = ({
           <span>{t("admin.config.license.title")}</span>
           <span
             className={cn(
-              "rounded-full px-2 py-0.5 text-[11px] font-black uppercase tracking-[0.18em]",
+              "rounded-full px-2 py-0.5 text-[11px] font-black tracking-[0.18em]",
               statusTone,
             )}
           >
@@ -176,7 +176,7 @@ const LicenseInlinePanel: React.FC<LicenseInlinePanelProps> = ({
             />
             <div
               className={cn(
-                "text-[11px] font-black uppercase tracking-[0.18em]",
+                "text-[11px] font-black tracking-[0.18em]",
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >
@@ -211,7 +211,7 @@ const LicenseInlinePanel: React.FC<LicenseInlinePanelProps> = ({
             />
             <div
               className={cn(
-                "text-[11px] font-black uppercase tracking-[0.18em]",
+                "text-[11px] font-black tracking-[0.18em]",
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >
@@ -236,7 +236,7 @@ const LicenseInlinePanel: React.FC<LicenseInlinePanelProps> = ({
             />
             <div
               className={cn(
-                "text-[11px] font-black uppercase tracking-[0.18em]",
+                "text-[11px] font-black tracking-[0.18em]",
                 isDark ? "text-slate-400" : "text-slate-500",
               )}
             >

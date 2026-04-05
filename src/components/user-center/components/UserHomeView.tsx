@@ -140,7 +140,7 @@ export const UserHomeView = () => {
                   : ""}
                 !
               </h2>
-                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-sm font-bold uppercase tracking-widest">
+                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-sm font-bold tracking-widest">
                 {mounted && hasPermission("admin.access")
                   ? t("common.admin")
                   : t("auth.selectUserTitle")}
@@ -173,7 +173,7 @@ export const UserHomeView = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {navGroups.map((group) => (
           <div key={group.title} className="space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-[0.2em] opacity-30 ml-4">
+            <h3 className="text-sm font-black tracking-[0.2em] opacity-30 ml-4">
               {group.title}
             </h3>
             <div className="space-y-4">

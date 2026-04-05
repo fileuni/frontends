@@ -88,7 +88,7 @@ export const MySharesView = () => {
       {/* Toolbar Area - Unified Style */}
       <div className="h-16 border-b border-white/5 bg-white/[0.01] flex items-center justify-between px-4 md:px-6 shrink-0">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+          <h2 className="text-xl font-black tracking-tighter flex items-center gap-3">
             <Share2 className="text-primary" size={24} />
             {t('filemanager.shares.title')}
           </h2>
@@ -98,7 +98,7 @@ export const MySharesView = () => {
               type="button"
               onClick={() => { setShareFilter({ enableDirect: null }); fetchShares(1); }}
               className={cn(
-                "px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-widest transition-all",
+                "px-4 py-1.5 rounded-full text-sm font-black tracking-widest transition-all",
                 shareFilter.enableDirect === null ? "bg-primary text-white shadow-lg shadow-primary/20" : "bg-white/5 opacity-40 hover:opacity-100"
               )}
             >
@@ -108,7 +108,7 @@ export const MySharesView = () => {
               type="button"
               onClick={toggleDirectFilter}
               className={cn(
-                "px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-widest transition-all flex items-center gap-2",
+                "px-4 py-1.5 rounded-full text-sm font-black tracking-widest transition-all flex items-center gap-2",
                 shareFilter.enableDirect === true ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/20" : "bg-white/5 opacity-40 hover:opacity-100"
               )}
             >

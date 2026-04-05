@@ -319,7 +319,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const previewPanel = useMemo(() => {
     if (!canRender) {
       return (
-        <div className="h-full w-full flex items-center justify-center text-sm font-bold uppercase tracking-[0.2em] opacity-40">
+        <div className="h-full w-full flex items-center justify-center text-sm font-bold tracking-[0.2em] opacity-40">
           {t('filemanager.texPreview.disabled') || 'Preview disabled'}
         </div>
       );
@@ -327,7 +327,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
 
     if (rendering) {
       return (
-        <div className="h-full w-full flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-[0.2em] opacity-60">
+        <div className="h-full w-full flex items-center justify-center gap-2 text-sm font-bold tracking-[0.2em] opacity-60">
           <Loader2 size={18} className="animate-spin" />
           {t('filemanager.texPreview.rendering') || 'Rendering'}
         </div>
@@ -337,7 +337,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     if (previewMode === 'latexmk') {
       if (!previewUrl) {
         return (
-          <div className="h-full w-full flex items-center justify-center text-sm font-bold uppercase tracking-[0.2em] opacity-40">
+          <div className="h-full w-full flex items-center justify-center text-sm font-bold tracking-[0.2em] opacity-40">
             {t('filemanager.texPreview.noPreview') || 'No preview'}
           </div>
         );
@@ -354,7 +354,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     if (previewMode === 'latexjs') {
       if (!previewHtml) {
         return (
-          <div className="h-full w-full flex items-center justify-center text-sm font-bold uppercase tracking-[0.2em] opacity-40">
+          <div className="h-full w-full flex items-center justify-center text-sm font-bold tracking-[0.2em] opacity-40">
             {t('filemanager.texPreview.noPreview') || 'No preview'}
           </div>
         );
@@ -382,7 +382,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
-              className="h-10 px-4 rounded-xl text-sm font-black uppercase"
+               className="h-10 px-4 rounded-xl text-sm font-black"
               onClick={() => setForcePlainTextarea((v) => !v)}
               title={useCodeEditor ? (t('common.editorEngine.switchToTextarea') || 'Switch to Textarea') : (t('common.editorEngine.switchToCodeMirror') || 'Switch to CodeMirror')}
             >
@@ -391,7 +391,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
             <div className="relative">
               <Button
                 variant="outline"
-                className="h-10 px-4 rounded-xl text-sm font-black uppercase flex items-center gap-2"
+                className="h-10 px-4 rounded-xl text-sm font-black flex items-center gap-2"
                 onClick={() => setModeOpen(!modeOpen)}
               >
                 {getLatexPreviewModeLabel(t, previewMode) || previewMode}
@@ -403,7 +403,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
                     <button
                       type="button"
                       key={mode}
-                      className="w-full px-4 py-2 text-left text-sm font-black uppercase hover:bg-accent"
+                      className="w-full px-4 py-2 text-left text-sm font-black hover:bg-accent"
                       onClick={() => {
                         setPreviewMode(mode);
                         setModeOpen(false);
@@ -423,7 +423,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
             {canRender && (
               <Button
                 variant="outline"
-                className="h-10 px-6 rounded-xl text-sm font-black uppercase"
+                className="h-10 px-6 rounded-xl text-sm font-black"
                 onClick={handleRender}
                 disabled={rendering || loading}
               >
@@ -433,7 +433,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
             )}
             <Button
               variant="primary"
-              className="h-10 px-6 rounded-xl text-sm font-black uppercase"
+              className="h-10 px-6 rounded-xl text-sm font-black"
               onClick={() => { void saveContent('manual'); }}
               disabled={saving || loading}
             >
@@ -447,7 +447,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
       <main className="flex-1 min-h-0 flex flex-col md:flex-row gap-4 p-4">
         <section className="flex-1 min-h-0 rounded-2xl border border-border overflow-hidden">
           {loading ? (
-            <div className="h-full w-full flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-[0.2em] opacity-60">
+            <div className="h-full w-full flex items-center justify-center gap-2 text-sm font-bold tracking-[0.2em] opacity-60">
               <Loader2 size={18} className="animate-spin" />
               {t('filemanager.editor.opening') || 'Opening'}
             </div>

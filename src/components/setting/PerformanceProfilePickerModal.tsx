@@ -52,7 +52,7 @@ export const PerformanceProfilePickerModal: React.FC<
           <div>
             <div
               className={cn(
-                "text-sm font-black uppercase tracking-[0.18em]",
+                "text-sm font-black tracking-[0.18em]",
                 isDark ? "text-slate-100" : "text-slate-900",
               )}
             >

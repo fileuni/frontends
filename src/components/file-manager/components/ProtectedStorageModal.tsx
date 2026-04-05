@@ -74,7 +74,7 @@ const InfoCard = ({
           <Icon size={16} />
         </div>
         <div className="min-w-0">
-          <div className="text-xs font-black uppercase tracking-widest opacity-60">{label}</div>
+          <div className="text-xs font-black tracking-widest opacity-60">{label}</div>
           <div className="mt-1 text-sm font-bold leading-6">{value}</div>
         </div>
       </div>

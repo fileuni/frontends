@@ -318,7 +318,7 @@ export const ChatPage: React.FC = () => {
                     {activeRoom?.isGroup && (
                       <Badge
                         variant="outline"
-                        className="text-[14px] font-black uppercase tracking-widest h-4 bg-muted/50 border-none"
+                        className="text-[14px] font-black tracking-widest h-4 bg-muted/50 border-none"
                       >
                         {t("chat.group")}
                       </Badge>
@@ -333,7 +333,7 @@ export const ChatPage: React.FC = () => {
                           : "bg-zinc-400",
                       )}
                     />
-                    <span className="text-sm font-black uppercase opacity-40 tracking-[0.15em] flex items-center gap-1.5">
+                    <span className="text-sm font-black opacity-40 tracking-[0.15em] flex items-center gap-1.5">
                       {isConnected
                         ? t("chat.statusOnline")
                         : t("chat.statusOffline")}
@@ -426,7 +426,7 @@ export const ChatPage: React.FC = () => {
                 <div className="w-14 h-14 rounded-2xl bg-background border border-border shadow-sm flex items-center justify-center text-primary/60">
                   <Shield size={28} />
                 </div>
-                <span className="text-sm font-black uppercase opacity-40 tracking-[0.2em]">
+                <span className="text-sm font-black opacity-40 tracking-[0.2em]">
                   {t("chat.e2eEncryption")}
                 </span>
               </div>
@@ -434,7 +434,7 @@ export const ChatPage: React.FC = () => {
                 <div className="w-14 h-14 rounded-2xl bg-background border border-border shadow-sm flex items-center justify-center text-green-500/60">
                   <Zap size={28} />
                 </div>
-                <span className="text-sm font-black uppercase opacity-40 tracking-[0.2em]">
+                <span className="text-sm font-black opacity-40 tracking-[0.2em]">
                   {t("chat.p2pTransport")}
                 </span>
               </div>
@@ -442,7 +442,7 @@ export const ChatPage: React.FC = () => {
                 <div className="w-14 h-14 rounded-2xl bg-background border border-border shadow-sm flex items-center justify-center text-blue-500/60">
                   <Globe size={28} />
                 </div>
-                <span className="text-sm font-black uppercase opacity-40 tracking-[0.2em]">
+                <span className="text-sm font-black opacity-40 tracking-[0.2em]">
                   {t("chat.multiBackend")}
                 </span>
               </div>
@@ -494,7 +494,7 @@ export const ChatPage: React.FC = () => {
                     <p className="font-black text-sm tracking-tight">
                       {u.nickname || u.username}
                     </p>
-                    <p className="text-sm opacity-40 uppercase font-black">
+                    <p className="text-sm opacity-40 font-black">
                       ID: {u.user_id}
                     </p>
                   </div>
@@ -518,7 +518,7 @@ export const ChatPage: React.FC = () => {
       >
         <div className="space-y-8 py-2">
           <section className="space-y-4">
-            <h4 className="text-sm font-black uppercase tracking-[0.3em] opacity-40 ml-1">
+            <h4 className="text-sm font-black tracking-[0.3em] opacity-40 ml-1">
               {t("chat.generalSettings")}
             </h4>
             <div className="grid gap-3">
@@ -545,13 +545,13 @@ export const ChatPage: React.FC = () => {
           </section>
 
           <section className="space-y-4">
-            <h4 className="text-sm font-black uppercase tracking-[0.3em] opacity-40 ml-1">
+            <h4 className="text-sm font-black tracking-[0.3em] opacity-40 ml-1">
               {t("chat.networkSettings")}
             </h4>
             <div className="p-5 rounded-3xl bg-muted/20 border border-border/50 space-y-3">
-              <label className="text-sm font-black uppercase opacity-60 ml-1">
+              <div className="text-sm font-black opacity-60 ml-1">
                 {t("chat.transportBackend")}
-              </label>
+              </div>
               <select
                 className="w-full h-12 px-4 rounded-2xl bg-background border-none shadow-inner outline-none transition-all font-bold text-sm"
                 value={chatConfig.transportBackend}
@@ -586,9 +586,9 @@ export const ChatPage: React.FC = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-3 gap-4 p-6 rounded-3xl bg-primary/5 border border-primary/10 items-end shadow-inner">
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase opacity-60 ml-1">
+              <div className="text-sm font-black opacity-60 ml-1">
                 {t("chat.nickname")}
-              </label>
+              </div>
               <Input
                 value={inviteNickname}
                 placeholder={t('chat.nicknameOptional')}
@@ -597,9 +597,9 @@ export const ChatPage: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase opacity-60 ml-1">
+              <div className="text-sm font-black opacity-60 ml-1">
                 {t("chat.inviteDays")}
-              </label>
+              </div>
               <Input
                 type="number"
                 value={inviteDays}
@@ -609,7 +609,7 @@ export const ChatPage: React.FC = () => {
             </div>
             <Button
               onClick={handleCreateInvite}
-              className="h-11 rounded-2xl shadow-lg shadow-primary/20 font-black uppercase tracking-widest text-sm"
+              className="h-11 rounded-2xl shadow-lg shadow-primary/20 font-black tracking-widest text-sm"
             >
               {t("chat.createInvite")}
             </Button>
@@ -627,7 +627,7 @@ export const ChatPage: React.FC = () => {
                       {invite.nickname}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm opacity-40 font-black uppercase tracking-[0.1em]">
+                  <div className="flex items-center gap-3 text-sm opacity-40 font-black tracking-[0.1em]">
                     <span className="font-mono truncate">{invite.id}</span>
                     <span className="w-1 h-1 bg-current rounded-full shrink-0" />
                     <span className="flex items-center gap-1 shrink-0">
@@ -660,7 +660,7 @@ export const ChatPage: React.FC = () => {
               </div>
             ))}
             {inviteList.length === 0 && (
-              <div className="py-20 text-center opacity-10 font-black uppercase tracking-[0.5em] text-sm">
+              <div className="py-20 text-center opacity-10 font-black tracking-[0.5em] text-sm">
                 {t("chat.noInvites")}
               </div>
             )}
@@ -677,7 +677,7 @@ export const ChatPage: React.FC = () => {
       >
         <div className="space-y-8">
           <div className="space-y-4 p-6 rounded-3xl bg-muted/30 border border-border/50">
-            <h4 className="text-sm font-black uppercase tracking-[0.3em] opacity-40 ml-1">
+            <h4 className="text-sm font-black tracking-[0.3em] opacity-40 ml-1">
               {t("chat.createGroup")}
             </h4>
             <div className="space-y-4">
@@ -688,9 +688,9 @@ export const ChatPage: React.FC = () => {
                 onChange={(e) => setGroupName(e.target.value)}
               />
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase opacity-40 ml-1">
+                <div className="text-sm font-black opacity-40 ml-1">
                   {t("chat.groupMembers")}
-                </label>
+                </div>
                 <Input
                   placeholder={t("chat.groupMembersPlaceholder")}
                   value={groupMembers}
@@ -700,7 +700,7 @@ export const ChatPage: React.FC = () => {
               </div>
               <Button
                 onClick={handleCreateGroup}
-                className="w-full h-12 rounded-2xl gap-2 font-black uppercase tracking-widest text-sm shadow-lg shadow-primary/20"
+                className="w-full h-12 rounded-2xl gap-2 font-black tracking-widest text-sm shadow-lg shadow-primary/20"
               >
                 <UserPlus size={18} /> {t("chat.createGroup")}
               </Button>
@@ -719,7 +719,7 @@ export const ChatPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-black tracking-tight">{group.name}</p>
-                    <p className="text-sm opacity-40 font-black uppercase tracking-wider">
+                    <p className="text-sm opacity-40 font-black tracking-wider">
                       ID: {group.group_id.slice(0, 8)}...
                     </p>
                   </div>

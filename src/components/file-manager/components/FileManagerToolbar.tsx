@@ -194,7 +194,7 @@ export const FileManagerToolbar = () => {
                   className="bg-white/5 border border-white/5 hover:bg-white/10 h-9 md:h-10 px-2 md:px-3 rounded-xl flex items-center gap-2 transition-all shrink-0"
                 >
                   <Plus size={16} className="text-primary" />
-                  <span className="text-sm font-bold uppercase opacity-60 hidden lg:inline">{t('common.new')}</span>
+                  <span className="text-sm font-bold opacity-60 hidden lg:inline">{t('common.new')}</span>
                   <ChevronDown size={18} className={cn("opacity-30 transition-transform", showNewMenu && "rotate-180")} />
                 </Button>
 
@@ -229,7 +229,7 @@ export const FileManagerToolbar = () => {
                 className="bg-white/5 border border-white/5 hover:bg-white/10 h-9 md:h-10 px-3 rounded-xl flex items-center gap-2 transition-all shrink-0"
               >
                 <Globe size={16} className="text-primary" />
-                <span className="text-sm font-bold uppercase opacity-60 hidden lg:inline">{t('filemanager.mounts.button') || 'Mounts'}</span>
+                <span className="text-sm font-bold opacity-60 hidden lg:inline">{t('filemanager.mounts.button') || 'Mounts'}</span>
               </Button>
             </div>
           )}
@@ -251,7 +251,7 @@ export const FileManagerToolbar = () => {
             <Button 
               variant="ghost" 
               onClick={handleBulkClear}
-              className="h-9 px-3 rounded-xl text-sm font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-all shrink-0 border border-red-500/20"
+              className="h-9 px-3 rounded-xl text-sm font-black tracking-widest text-red-500 hover:bg-red-500/10 transition-all shrink-0 border border-red-500/20"
             >
               <RefreshCcw size={18} className="mr-2 opacity-50" />
               {getBulkClearLabel()}
@@ -494,7 +494,7 @@ export const FileManagerToolbar = () => {
               const checked = !disabledValue;
               return (
                 <div key={item.key as string} className="flex items-center justify-between gap-4 rounded-xl border border-white/5 px-3 py-2">
-                  <div className="text-sm font-bold uppercase tracking-widest opacity-70">
+                  <div className="text-sm font-bold tracking-widest opacity-70">
                     {item.label}
                   </div>
                   <Switch

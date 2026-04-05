@@ -233,7 +233,7 @@ export const NextcloudDirectEditingView: React.FC = () => {
       )}>
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="animate-spin text-primary" size={42} />
-          <p className="text-sm font-black uppercase tracking-[0.24em] opacity-50">
+          <p className="text-sm font-black tracking-[0.24em] opacity-50">
             {t('filemanager.editor.connectingCdn') || 'Loading editor'}
           </p>
         </div>
@@ -251,7 +251,7 @@ export const NextcloudDirectEditingView: React.FC = () => {
           <h1 className="text-xl font-black tracking-tight">{t('common.error') || 'Error'}</h1>
           <p className="mt-3 text-sm opacity-70">{error || 'Failed to open direct editing session'}</p>
           <div className="mt-6 flex justify-center">
-            <Button variant="outline" className="h-11 rounded-2xl px-6 font-black uppercase" onClick={handleClose}>
+            <Button variant="outline" className="h-11 rounded-2xl px-6 font-black" onClick={handleClose}>
               {t('common.close') || 'Close'}
             </Button>
           </div>
@@ -275,7 +275,7 @@ export const NextcloudDirectEditingView: React.FC = () => {
           <Button
             variant="outline"
             className={cn(
-              'h-10 rounded-xl font-black uppercase',
+              'h-10 rounded-xl font-black',
               isCompactLayout ? 'w-10 px-0 justify-center' : 'px-4',
             )}
             onClick={handleShare}
@@ -295,7 +295,7 @@ export const NextcloudDirectEditingView: React.FC = () => {
         'pointer-events-none fixed z-[261] rounded-2xl border border-border/60 bg-background/85 px-4 py-3 text-xs shadow-xl backdrop-blur-md',
         isCompactLayout ? 'hidden' : 'bottom-5 left-5',
       )}>
-        <div className="flex items-center gap-2 font-black uppercase tracking-[0.18em] opacity-60">
+        <div className="flex items-center gap-2 font-black tracking-[0.18em] opacity-60">
           <Link2 size={14} />
           {state.notes_path}
         </div>

@@ -52,7 +52,7 @@ export const ConfigWorkbenchShell: React.FC<ConfigWorkbenchShellProps> = ({
       >
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
-            <div className="text-sm sm:text-base font-black uppercase tracking-wide truncate">
+            <div className="text-sm sm:text-base font-black tracking-wide truncate">
               {title}
             </div>
             {subtitle && (

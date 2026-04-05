@@ -136,7 +136,7 @@ export const NextcloudLoginView: React.FC = () => {
             <div className="inline-flex items-center justify-center mb-4">
               <img src="/favicon.svg" alt={t('common.logoAlt')} width={64} height={64} className="shadow-lg" />
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.24em] text-primary mb-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-black tracking-[0.24em] text-primary mb-4">
               <Smartphone size={14} />
               {t('auth.nextcloudAccessBadge')}
             </div>
