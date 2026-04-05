@@ -29,7 +29,7 @@ type BlacklistMessages = { [Key in keyof (typeof blacklistBundle)['en']]: string
 
 export const blacklistByResourceLocale = {
   'zh-CN': blacklistBundle['zh-CN'],
-  'zh-Hant': blacklistBundle['zh-CN'],
+  'zh-Hant': blacklistBundle['zh-Hant'],
   en: blacklistBundle.en,
   es: blacklistBundle.es,
   de: blacklistBundle.de,

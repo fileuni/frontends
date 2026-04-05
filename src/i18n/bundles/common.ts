@@ -642,7 +642,7 @@ type CommonMessages = LocaleShape<(typeof commonBundle)['en']>;
 
 export const commonByResourceLocale = {
   'zh-CN': commonBundle['zh-CN'],
-  'zh-Hant': commonBundle['zh-CN'],
+  'zh-Hant': commonBundle['zh-Hant'],
   en: commonBundle.en,
   es: commonBundle.es,
   de: commonBundle.de,

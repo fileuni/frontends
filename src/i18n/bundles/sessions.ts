@@ -92,7 +92,7 @@ type SessionsMessages = LocaleShape<(typeof sessionsBundle)['en']>;
 
 export const sessionsByResourceLocale = {
   'zh-CN': sessionsBundle['zh-CN'],
-  'zh-Hant': sessionsBundle['zh-CN'],
+  'zh-Hant': sessionsBundle['zh-Hant'],
   en: sessionsBundle.en,
   es: sessionsBundle.es,
   de: sessionsBundle.de,

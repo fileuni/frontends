@@ -120,7 +120,7 @@ type TosMessages = LocaleShape<(typeof tosBundle)['en']>;
 
 export const tosByResourceLocale = {
   'zh-CN': tosBundle['zh-CN'],
-  'zh-Hant': tosBundle['zh-CN'],
+  'zh-Hant': tosBundle['zh-Hant'],
   en: tosBundle.en,
   es: tosBundle.es,
   de: tosBundle.de,

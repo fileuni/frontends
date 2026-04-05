@@ -131,8 +131,8 @@ const navBundle = defineLocaleBundle({
 type NavMessages = LocaleShape<(typeof navBundle)['en']>;
 export const navByResourceLocale = {
     'zh-CN': navBundle['zh-CN'],
-    'zh-Hant': navBundle['zh-CN'],
-    en: navBundle.en,
+  'zh-Hant': navBundle['zh-Hant'],
+  en: navBundle.en,
     es: navBundle.es,
     de: navBundle.de,
     fr: navBundle.fr,

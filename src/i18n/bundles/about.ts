@@ -197,7 +197,7 @@ type AboutMessages = LocaleShape<(typeof aboutBundle)['en']>;
 
 export const aboutByResourceLocale = {
   'zh-CN': aboutBundle['zh-CN'],
-  'zh-Hant': aboutBundle['zh-CN'],
+  'zh-Hant': aboutBundle['zh-Hant'],
   en: aboutBundle.en,
   es: aboutBundle.es,
   de: aboutBundle.de,

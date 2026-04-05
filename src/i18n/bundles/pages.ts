@@ -413,7 +413,7 @@ type PagesMessages = LocaleShape<(typeof pagesBundle)['en']>;
 
 export const pagesByResourceLocale = {
   'zh-CN': pagesBundle['zh-CN'],
-  'zh-Hant': pagesBundle['zh-CN'],
+  'zh-Hant': pagesBundle['zh-Hant'],
   en: pagesBundle.en,
   es: pagesBundle.es,
   de: pagesBundle.de,

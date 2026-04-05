@@ -7257,8 +7257,8 @@ const adminSettingBundle = defineLocaleBundle({
 type AdminSettingMessages = LocaleShape<(typeof adminSettingBundle)['en']>;
 export const adminSettingByResourceLocale = {
     'zh-CN': adminSettingBundle['zh-CN'],
-    'zh-Hant': adminSettingBundle['zh-CN'],
-    en: adminSettingBundle.en,
+  'zh-Hant': adminSettingBundle['zh-Hant'],
+  en: adminSettingBundle.en,
     es: adminSettingBundle.es,
     de: adminSettingBundle.de,
     fr: adminSettingBundle.fr,

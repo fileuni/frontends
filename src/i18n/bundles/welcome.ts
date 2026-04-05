@@ -63,8 +63,8 @@ type WelcomeMessages = {
 };
 export const welcomeByResourceLocale = {
     'zh-CN': welcomeBundle['zh-CN'],
-    'zh-Hant': welcomeBundle['zh-CN'],
-    en: welcomeBundle.en,
+  'zh-Hant': welcomeBundle['zh-Hant'],
+  en: welcomeBundle.en,
     es: welcomeBundle.es,
     de: welcomeBundle.de,
     fr: welcomeBundle.fr,

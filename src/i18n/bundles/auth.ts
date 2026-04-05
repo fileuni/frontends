@@ -491,7 +491,7 @@ type AuthMessages = LocaleShape<(typeof authBundle)['en']>;
 
 export const authByResourceLocale = {
   'zh-CN': authBundle['zh-CN'],
-  'zh-Hant': authBundle['zh-CN'],
+  'zh-Hant': authBundle['zh-Hant'],
   en: authBundle.en,
   es: authBundle.es,
   de: authBundle.de,

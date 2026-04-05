@@ -86,7 +86,7 @@ type LanguageLabels = { [Key in keyof (typeof languagesBundle)['en']]: string };
 export const languagesByResourceLocale = {
   en: languagesBundle.en,
   'zh-CN': languagesBundle['zh-CN'],
-  'zh-Hant': languagesBundle['zh-CN'],
+  'zh-Hant': languagesBundle['zh-Hant'],
   es: languagesBundle.es,
   de: languagesBundle.de,
   fr: languagesBundle.fr,

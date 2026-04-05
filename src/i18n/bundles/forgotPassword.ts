@@ -166,8 +166,8 @@ const forgotPasswordBundle = defineLocaleBundle({
 type ForgotPasswordMessages = LocaleShape<(typeof forgotPasswordBundle)['en']>;
 export const forgotPasswordByResourceLocale = {
     'zh-CN': forgotPasswordBundle['zh-CN'],
-    'zh-Hant': forgotPasswordBundle['zh-CN'],
-    en: forgotPasswordBundle.en,
+  'zh-Hant': forgotPasswordBundle['zh-Hant'],
+  en: forgotPasswordBundle.en,
     es: forgotPasswordBundle.es,
     de: forgotPasswordBundle.de,
     fr: forgotPasswordBundle.fr,

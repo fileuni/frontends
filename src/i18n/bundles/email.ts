@@ -643,7 +643,7 @@ type EmailMessages = LocaleShape<(typeof emailBundle)['en']>;
 
 export const emailByResourceLocale = {
   'zh-CN': emailBundle['zh-CN'],
-  'zh-Hant': emailBundle['zh-CN'],
+  'zh-Hant': emailBundle['zh-Hant'],
   en: emailBundle.en,
   es: emailBundle.es,
   de: emailBundle.de,

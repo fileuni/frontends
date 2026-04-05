@@ -25,38 +25,38 @@ export const SortMenu = ({ className }: SortMenuProps) => {
   const getSortOptions = (): SortOption[] => {
     if (fmMode === 'trash') {
       return [
-        { field: 'trashed_at', label: t('filemanager.sort.deletedAt') || '删除时间' },
-        { field: 'name', label: t('filemanager.sort.name') || '文件名' },
-        { field: 'path', label: t('filemanager.sort.path') || '路径' },
-        { field: 'original_path', label: t('filemanager.sort.originalPath') || '原始路径' },
-        { field: 'size', label: t('filemanager.sort.size') || '大小' },
-        { field: 'modified', label: t('filemanager.sort.modified') || '修改时间' },
+        { field: 'trashed_at', label: t('filemanager.sort.deletedAt') },
+        { field: 'name', label: t('filemanager.sort.name') },
+        { field: 'path', label: t('filemanager.sort.path') },
+        { field: 'original_path', label: t('filemanager.sort.originalPath') },
+        { field: 'size', label: t('filemanager.sort.size') },
+        { field: 'modified', label: t('filemanager.sort.modified') },
       ];
     } else if (fmMode === 'shares') {
       return [
-        { field: 'created_at', label: t('filemanager.sort.shareTime') || '分享时间' },
-        { field: 'expire_at', label: t('filemanager.sort.expireTime') || '过期时间' },
-        { field: 'view_count', label: t('filemanager.sort.viewCount') || '访问次数' },
-        { field: 'name', label: t('filemanager.sort.name') || '文件名' },
-        { field: 'path', label: t('filemanager.sort.path') || '路径' },
-        { field: 'size', label: t('filemanager.sort.file_size') || '文件大小' },
+        { field: 'created_at', label: t('filemanager.sort.shareTime') },
+        { field: 'expire_at', label: t('filemanager.sort.expireTime') },
+        { field: 'view_count', label: t('filemanager.sort.viewCount') },
+        { field: 'name', label: t('filemanager.sort.name') },
+        { field: 'path', label: t('filemanager.sort.path') },
+        { field: 'size', label: t('filemanager.sort.file_size') },
       ];
     } else if (fmMode === 'recent') {
       return [
-        { field: 'modified', label: t('filemanager.sort.accessedAt') || '访问时间' },
-        { field: 'name', label: t('filemanager.sort.name') || '文件名' },
-        { field: 'path', label: t('filemanager.sort.path') || '路径' },
-        { field: 'size', label: t('filemanager.sort.size') || '大小' },
+        { field: 'modified', label: t('filemanager.sort.accessedAt') },
+        { field: 'name', label: t('filemanager.sort.name') },
+        { field: 'path', label: t('filemanager.sort.path') },
+        { field: 'size', label: t('filemanager.sort.size') },
       ];
     } else {
       const options = [
-        { field: 'name', label: t('filemanager.sort.name') || '文件名' },
-        { field: 'size', label: t('filemanager.sort.size') || '大小' },
-        { field: 'modified', label: t('filemanager.sort.modified') || '修改时间' },
+        { field: 'name', label: t('filemanager.sort.name') },
+        { field: 'size', label: t('filemanager.sort.size') },
+        { field: 'modified', label: t('filemanager.sort.modified') },
       ];
       // Only show path sorting in search mode
       if (store.getIsSearchMode()) {
-        options.splice(1, 0, { field: 'path', label: t('filemanager.sort.path') || '路径' });
+        options.splice(1, 0, { field: 'path', label: t('filemanager.sort.path') });
       }
       return options;
     }

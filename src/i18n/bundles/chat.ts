@@ -808,8 +808,8 @@ const chatBundle = defineLocaleBundle({
 type ChatMessages = LocaleShape<(typeof chatBundle)['en']>;
 export const chatByResourceLocale = {
     'zh-CN': chatBundle['zh-CN'],
-    'zh-Hant': chatBundle['zh-CN'],
-    en: chatBundle.en,
+  'zh-Hant': chatBundle['zh-Hant'],
+  en: chatBundle.en,
     es: chatBundle.es,
     de: chatBundle.de,
     fr: chatBundle.fr,

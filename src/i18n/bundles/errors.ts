@@ -47,8 +47,8 @@ const errorsBundle = defineLocaleBundle({
 type ErrorMessages = LocaleShape<(typeof errorsBundle)['en']>;
 export const errorsByResourceLocale = {
     'zh-CN': errorsBundle['zh-CN'],
-    'zh-Hant': errorsBundle['zh-CN'],
-    en: errorsBundle.en,
+  'zh-Hant': errorsBundle['zh-Hant'],
+  en: errorsBundle.en,
     es: errorsBundle.es,
     de: errorsBundle.de,
     fr: errorsBundle.fr,

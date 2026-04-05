@@ -1,3 +1,58 @@
-import zhCnTranslation from '../zh-CN/index';
+import { adminByResourceLocale } from '../bundles/admin';
+import { adminSettingByResourceLocale } from '../bundles/adminSetting';
+import { aboutByResourceLocale } from '../bundles/about';
+import { authByResourceLocale } from '../bundles/auth';
+import { commonByResourceLocale } from '../bundles/common';
+import { emailByResourceLocale } from '../bundles/email';
+import { errorsByResourceLocale } from '../bundles/errors';
+import { forgotPasswordByResourceLocale } from '../bundles/forgotPassword';
+import { launcherByResourceLocale } from '../bundles/launcher';
+import { navByResourceLocale } from '../bundles/nav';
+import { privacyByResourceLocale } from '../bundles/privacy';
+import { profileByResourceLocale } from '../bundles/profile';
+import { securityByResourceLocale } from '../bundles/security';
+import { sessionsByResourceLocale } from '../bundles/sessions';
+import { tosByResourceLocale } from '../bundles/tos';
+import { cacheManagerByResourceLocale } from '../bundles/cacheManager';
+import { chatByResourceLocale } from '../bundles/chat';
+import { filemanagerByResourceLocale } from '../bundles/filemanager';
+import { pagesByResourceLocale } from '../bundles/pages';
+import { systemConfigByResourceLocale } from '../bundles/systemConfig';
+import { blacklistByResourceLocale } from '../bundles/blacklist';
+import { languagesByResourceLocale } from '../bundles/languages';
+import { playerByResourceLocale } from '../bundles/player';
+import { themesByResourceLocale } from '../bundles/themes';
+import { welcomeByResourceLocale } from '../bundles/welcome';
 
-export default zhCnTranslation;
+const translation = {
+  about: aboutByResourceLocale['zh-Hant'],
+  admin: {
+    ...adminByResourceLocale['zh-Hant'],
+    settings: adminSettingByResourceLocale['zh-Hant'].admin.settings,
+    config: adminSettingByResourceLocale['zh-Hant'].admin.config,
+  },
+  auth: authByResourceLocale['zh-Hant'],
+  blacklist: blacklistByResourceLocale['zh-Hant'],
+  cacheManager: cacheManagerByResourceLocale['zh-Hant'],
+  chat: chatByResourceLocale['zh-Hant'],
+  common: commonByResourceLocale['zh-Hant'],
+  email: emailByResourceLocale['zh-Hant'],
+  errors: errorsByResourceLocale['zh-Hant'],
+  filemanager: filemanagerByResourceLocale['zh-Hant'],
+  forgotPassword: forgotPasswordByResourceLocale['zh-Hant'],
+  languages: languagesByResourceLocale['zh-Hant'],
+  launcher: launcherByResourceLocale['zh-Hant'],
+  nav: navByResourceLocale['zh-Hant'],
+  pages: pagesByResourceLocale['zh-Hant'],
+  player: playerByResourceLocale['zh-Hant'],
+  privacy: privacyByResourceLocale['zh-Hant'],
+  profile: profileByResourceLocale['zh-Hant'],
+  security: securityByResourceLocale['zh-Hant'],
+  sessions: sessionsByResourceLocale['zh-Hant'],
+  systemConfig: systemConfigByResourceLocale['zh-Hant'],
+  themes: themesByResourceLocale['zh-Hant'],
+  tos: tosByResourceLocale['zh-Hant'],
+  welcome: welcomeByResourceLocale['zh-Hant'],
+} as const;
+
+export default translation;

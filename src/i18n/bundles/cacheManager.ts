@@ -309,7 +309,7 @@ type CacheManagerMessages = LocaleShape<(typeof cacheManagerBundle)['en']>;
 
 export const cacheManagerByResourceLocale = {
   'zh-CN': cacheManagerBundle['zh-CN'],
-  'zh-Hant': cacheManagerBundle['zh-CN'],
+  'zh-Hant': cacheManagerBundle['zh-Hant'],
   en: cacheManagerBundle.en,
   es: cacheManagerBundle.es,
   de: cacheManagerBundle.de,

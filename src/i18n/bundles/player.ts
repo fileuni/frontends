@@ -14,8 +14,8 @@ type PlayerMessages = {
 };
 export const playerByResourceLocale = {
     'zh-CN': playerBundle['zh-CN'],
-    'zh-Hant': playerBundle['zh-CN'],
-    en: playerBundle.en,
+  'zh-Hant': playerBundle['zh-Hant'],
+  en: playerBundle.en,
     es: playerBundle.es,
     de: playerBundle.de,
     fr: playerBundle.fr,

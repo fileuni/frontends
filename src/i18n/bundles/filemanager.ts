@@ -3939,8 +3939,8 @@ const filemanagerBundle = defineLocaleBundle({
 type FilemanagerMessages = LocaleShape<(typeof filemanagerBundle)['en']>;
 export const filemanagerByResourceLocale = {
     'zh-CN': filemanagerBundle['zh-CN'],
-    'zh-Hant': filemanagerBundle['zh-CN'],
-    en: filemanagerBundle.en,
+  'zh-Hant': filemanagerBundle['zh-Hant'],
+  en: filemanagerBundle.en,
     es: filemanagerBundle.es,
     de: filemanagerBundle.de,
     fr: filemanagerBundle.fr,

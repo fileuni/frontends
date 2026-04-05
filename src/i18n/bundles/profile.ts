@@ -162,7 +162,7 @@ type ProfileMessages = LocaleShape<(typeof profileBundle)['en']>;
 
 export const profileByResourceLocale = {
   'zh-CN': profileBundle['zh-CN'],
-  'zh-Hant': profileBundle['zh-CN'],
+  'zh-Hant': profileBundle['zh-Hant'],
   en: profileBundle.en,
   es: profileBundle.es,
   de: profileBundle.de,

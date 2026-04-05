@@ -42,8 +42,8 @@ type ThemeLabels = {
 };
 export const themesByResourceLocale = {
     'zh-CN': themesBundle['zh-CN'],
-    'zh-Hant': themesBundle['zh-CN'],
-    en: themesBundle.en,
+  'zh-Hant': themesBundle['zh-Hant'],
+  en: themesBundle.en,
     es: themesBundle.es,
     de: themesBundle.de,
     fr: themesBundle.fr,
