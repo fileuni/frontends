@@ -91,6 +91,78 @@ export const SystemConfigAdmin = () => {
   const [pendingAdminPassword, setPendingAdminPassword] = useState("");
   const { currentUserData } = useAuthStore();
 
+  const loadSystemConfigWorkbench = useCallback(async () => {
+    const [config, notePayload, capabilities, osInfo] = await Promise.all([
+      extractData<ConfigRawResponse>(client.GET("/api/v1/admin/system/config/raw")),
+      extractData<ConfigNotesResponse>(
+        client.GET("/api/v1/admin/system/config/notes"),
+      ),
+      extractData<BackendCapabilitiesResponse>(
+        client.GET("/api/v1/system/backend-capabilities-handshake"),
+      ),
+      extractData<SystemHardwareInfo>(client.GET("/api/v1/system/os-info")).catch(
+        (error) => {
+          console.warn("Failed to fetch system os info during admin config load", error);
+          return null;
+        },
+      ),
+    ]);
+
+    return {
+      configPath: config?.config_path ?? "",
+      content: config?.toml_content ?? "",
+      notes: normalizeConfigNotes(
+        (notePayload?.notes ?? {}) as Record<
+          string,
+          components["schemas"]["ConfigNoteEntry"]
+        >,
+      ),
+      runtimeOs:
+        typeof capabilities?.runtime_os === "string"
+          ? capabilities.runtime_os
+          : "",
+      systemHardware: osInfo ?? null,
+    };
+  }, []);
+
+  const loadAdminLicenseStatus = useCallback(async () => {
+    try {
+      return await extractData<ConfigWorkbenchLicenseStatus>(
+        client.GET("/api/v1/users/admin/license/status"),
+      );
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }, []);
+
+  const updateAdminLicense = useCallback(
+    async (nextLicenseKey: string) => {
+      const res = await client.POST("/api/v1/users/admin/license/update", {
+        body: { license_key: nextLicenseKey },
+      });
+      if (!res.data?.["success"]) {
+        return { clearLicenseKey: false };
+      }
+      const nextStatus = await extractData<ConfigWorkbenchLicenseStatus>(
+        client.GET("/api/v1/users/admin/license/status"),
+      );
+      addToast(t("admin.saveSuccess"), "success");
+      return {
+        licenseStatus: nextStatus,
+        clearLicenseKey: true,
+      };
+    },
+    [addToast, t],
+  );
+
+  const handleAdminLicenseError = useCallback(
+    async (error: unknown) => {
+      await addToast(handleApiError(error, t), "error");
+    },
+    [addToast, t],
+  );
+
   const {
     loading,
     configPath,
@@ -114,63 +186,10 @@ export const SystemConfigAdmin = () => {
     quickSettingsLicense,
     resetToSaved,
   } = useConfigWorkbenchController<ConfigWorkbenchLicenseStatus>({
-    load: async () => {
-      const [config, notePayload, capabilities, osInfo] = await Promise.all([
-        extractData<ConfigRawResponse>(client.GET("/api/v1/admin/system/config/raw")),
-        extractData<ConfigNotesResponse>(
-          client.GET("/api/v1/admin/system/config/notes"),
-        ),
-        extractData<BackendCapabilitiesResponse>(
-          client.GET("/api/v1/system/backend-capabilities-handshake"),
-        ),
-        extractData<SystemHardwareInfo>(client.GET("/api/v1/system/os-info")),
-      ]);
-
-      return {
-        configPath: config?.config_path ?? "",
-        content: config?.toml_content ?? "",
-        notes: normalizeConfigNotes(
-          (notePayload?.notes ?? {}) as Record<
-            string,
-            components["schemas"]["ConfigNoteEntry"]
-          >,
-        ),
-        runtimeOs:
-          typeof capabilities?.runtime_os === "string"
-            ? capabilities.runtime_os
-            : "",
-        systemHardware: osInfo ?? null,
-      };
-    },
-    loadLicenseStatus: async () => {
-      try {
-        return await extractData<ConfigWorkbenchLicenseStatus>(
-          client.GET("/api/v1/users/admin/license/status"),
-        );
-      } catch (error) {
-        console.error(error);
-        return null;
-      }
-    },
-    updateLicense: async (nextLicenseKey) => {
-      const res = await client.POST("/api/v1/users/admin/license/update", {
-        body: { license_key: nextLicenseKey },
-      });
-      if (!res.data?.["success"]) {
-        return { clearLicenseKey: false };
-      }
-      const nextStatus = await extractData<ConfigWorkbenchLicenseStatus>(
-        client.GET("/api/v1/users/admin/license/status"),
-      );
-      addToast(t("admin.saveSuccess"), "success");
-      return {
-        licenseStatus: nextStatus,
-        clearLicenseKey: true,
-      };
-    },
-    onLicenseError: async (error) => {
-      await addToast(handleApiError(error, t), "error");
-    },
+    load: loadSystemConfigWorkbench,
+    loadLicenseStatus: loadAdminLicenseStatus,
+    updateLicense: updateAdminLicense,
+    onLicenseError: handleAdminLicenseError,
   });
 
   const { hasPermission } = useAuthzStore();

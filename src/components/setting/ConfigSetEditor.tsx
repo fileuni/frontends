@@ -57,6 +57,88 @@ export const ConfigSetEditor: React.FC = () => {
   const [completed, setCompleted] = useState(false);
   const [finishing, setFinishing] = useState(false);
 
+  const loadConfigSetWorkbench = useCallback(async () => {
+    const [template, notePayload, capabilities, osInfo] = await Promise.all([
+      extractData<ConfigTemplateResponse>(client.GET("/api/v1/config-set/template")),
+      extractData<ConfigNotesResponse>(client.GET("/api/v1/config-set/notes")),
+      extractData<BackendCapabilitiesResponse>(
+        client.GET("/api/v1/system/backend-capabilities-handshake"),
+      ),
+      extractData<SystemHardwareInfo>(client.GET("/api/v1/system/os-info")).catch(
+        (error) => {
+          console.warn("Failed to fetch system os info during config-set init", error);
+          return null;
+        },
+      ),
+    ]);
+
+    const currentContent = template?.current_config_content ?? "";
+    setConfigExists(template?.config_exists === true);
+
+    let licenseKeyFromToml: string | undefined;
+    try {
+      const parsed = toml.parse(currentContent) as unknown;
+      if (typeof parsed === "object" && parsed !== null) {
+        const root = parsed as Record<string, unknown>;
+        const license = root["license"];
+        if (typeof license === "object" && license !== null) {
+          const value = (license as Record<string, unknown>)["license_key"];
+          if (typeof value === "string" && value.trim().length > 0) {
+            licenseKeyFromToml = value;
+          }
+        }
+      }
+    } catch {
+      // Ignore broken inline parse while loading the editor.
+    }
+
+    return {
+      configPath: template?.current_config_path ?? "",
+      content: currentContent,
+      notes: normalizeConfigNotes(notePayload?.notes ?? {}),
+      runtimeOs:
+        typeof capabilities?.runtime_os === "string"
+          ? capabilities.runtime_os
+          : "",
+      systemHardware: osInfo ?? null,
+      ...(licenseKeyFromToml ? { licenseKey: licenseKeyFromToml } : {}),
+    };
+  }, []);
+
+  const loadConfigSetLicenseStatus = useCallback(async () => {
+    try {
+      return await extractData<ConfigWorkbenchLicenseStatus>(
+        client.GET("/api/v1/config-set/license/status"),
+      );
+    } catch (error) {
+      console.warn("Failed to fetch config-set license status", error);
+      return null;
+    }
+  }, []);
+
+  const updateConfigSetLicense = useCallback(
+    async (nextLicenseKey: string) => {
+      const nextStatus = await extractData<ConfigWorkbenchLicenseStatus>(
+        client.POST("/api/v1/config-set/license/update", {
+          body: { license_key: nextLicenseKey },
+        }),
+      );
+      addToast(t("admin.config.saveSuccess"), "success");
+      return {
+        licenseStatus: nextStatus,
+        clearLicenseKey: false,
+      };
+    },
+    [addToast, t],
+  );
+
+  const handleConfigSetLicenseError = useCallback(
+    async (error: unknown) => {
+      await addToast(handleApiError(error, t), "error");
+    },
+    [addToast, t],
+  );
+
   const {
     loading,
     configPath,
@@ -73,73 +155,10 @@ export const ConfigSetEditor: React.FC = () => {
     loadWorkbench,
     resetToSaved,
   } = useConfigWorkbenchController<ConfigWorkbenchLicenseStatus>({
-    load: async () => {
-      const [template, notePayload, capabilities, osInfo] = await Promise.all([
-        extractData<ConfigTemplateResponse>(client.GET("/api/v1/config-set/template")),
-        extractData<ConfigNotesResponse>(client.GET("/api/v1/config-set/notes")),
-        extractData<BackendCapabilitiesResponse>(
-          client.GET("/api/v1/system/backend-capabilities-handshake"),
-        ),
-        extractData<SystemHardwareInfo>(client.GET("/api/v1/system/os-info")),
-      ]);
-
-      const currentContent = template?.current_config_content ?? "";
-      setConfigExists(template?.config_exists === true);
-
-      let licenseKeyFromToml: string | undefined;
-      try {
-        const parsed = toml.parse(currentContent) as unknown;
-        if (typeof parsed === "object" && parsed !== null) {
-          const root = parsed as Record<string, unknown>;
-          const license = root["license"];
-          if (typeof license === "object" && license !== null) {
-            const value = (license as Record<string, unknown>)["license_key"];
-            if (typeof value === "string" && value.trim().length > 0) {
-              licenseKeyFromToml = value;
-            }
-          }
-        }
-      } catch {
-        // Ignore broken inline parse while loading the editor.
-      }
-
-      return {
-        configPath: template?.current_config_path ?? "",
-        content: currentContent,
-        notes: normalizeConfigNotes(notePayload?.notes ?? {}),
-        runtimeOs:
-          typeof capabilities?.runtime_os === "string"
-            ? capabilities.runtime_os
-            : "",
-        systemHardware: osInfo ?? null,
-        ...(licenseKeyFromToml ? { licenseKey: licenseKeyFromToml } : {}),
-      };
-    },
-    loadLicenseStatus: async () => {
-      try {
-        return await extractData<ConfigWorkbenchLicenseStatus>(
-          client.GET("/api/v1/config-set/license/status"),
-        );
-      } catch (error) {
-        console.warn("Failed to fetch config-set license status", error);
-        return null;
-      }
-    },
-    updateLicense: async (nextLicenseKey) => {
-      const nextStatus = await extractData<ConfigWorkbenchLicenseStatus>(
-        client.POST("/api/v1/config-set/license/update", {
-          body: { license_key: nextLicenseKey },
-        }),
-      );
-      addToast(t("admin.config.saveSuccess"), "success");
-      return {
-        licenseStatus: nextStatus,
-        clearLicenseKey: false,
-      };
-    },
-    onLicenseError: async (error) => {
-      await addToast(handleApiError(error, t), "error");
-    },
+    load: loadConfigSetWorkbench,
+    loadLicenseStatus: loadConfigSetLicenseStatus,
+    updateLicense: updateConfigSetLicense,
+    onLicenseError: handleConfigSetLicenseError,
   });
 
   const fetchStatus = useCallback(async () => {
