@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils.ts";
 import { useChat, type Message } from "../context/ChatContext";
+import { getTransportDisplayLabel } from "../types";
 import { DecryptFailedBadge } from "./DecryptFailedBadge";
 import { toast } from '@/stores/toast';
 
@@ -395,13 +396,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     ) : (
                       <Server size={8} />
                     )}
-                    {msg.transport === "webrtc"
-                      ? "P2P"
-                      : msg.transport === "mqtt-proxy"
-                        ? "MQTT-Proxy"
-                        : msg.transport === "mqtt-external"
-                          ? "MQTT-Ext"
-                          : msg.transport.toUpperCase()}
+                    {getTransportDisplayLabel(msg.transport, t)}
                   </span>
                   {isSelf && (
                     <span

@@ -3,6 +3,17 @@
 export type TransportBackend = "ws" | "mqtt-proxy" | "mqtt-external";
 export type TransportType = TransportBackend | "webrtc";
 
+export const getTransportDisplayLabel = (
+  transport: TransportType,
+  translate: (key: string) => string,
+): string => {
+  if (transport === "webrtc") return "P2P";
+  if (transport === "ws") return translate("chat.transport.ws");
+  if (transport === "mqtt-proxy") return translate("chat.transport.mqttProxy");
+  if (transport === "mqtt-external") return translate("chat.transport.mqttExternal");
+  return transport;
+};
+
 export interface Message {
   id: string;
   from: string;

@@ -15,7 +15,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAuthStore } from "@/stores/auth";
 import { client } from "@/lib/api";
 import { storageHub } from '@/lib/storageHub';
-import { resolveTopic } from "../types";
+import { getTransportDisplayLabel, resolveTopic } from "../types";
 import type {
   Message,
   Room,
@@ -268,9 +268,9 @@ export const ChatProvider: React.FC<{
         from: "system",
         to: "me",
         content: i18next.t("chat.transportSwitched", {
-          from: prevTransportRef.current.toUpperCase(),
-          to: transport.toUpperCase(),
-          defaultValue: `Transport switched: ${prevTransportRef.current.toUpperCase()} ➔ ${transport.toUpperCase()}`,
+          from: getTransportDisplayLabel(prevTransportRef.current, i18next.t.bind(i18next)),
+          to: getTransportDisplayLabel(transport, i18next.t.bind(i18next)),
+          defaultValue: `Transport switched: ${getTransportDisplayLabel(prevTransportRef.current, i18next.t.bind(i18next))} -> ${getTransportDisplayLabel(transport, i18next.t.bind(i18next))}`,
         }),
         isEncrypted: false,
         isGroup: false,
@@ -1007,7 +1007,9 @@ export const ChatProvider: React.FC<{
     rooms.forEach((r) => {
       if (!nicknames[r.id]) unknownIds.add(r.id);
     });
-    unknownIds.forEach((id) => fetchNickname(id));
+    for (const id of unknownIds) {
+      fetchNickname(id);
+    }
   }, [messages, rooms, nicknames, fetchNickname]);
 
   useEffect(() => {

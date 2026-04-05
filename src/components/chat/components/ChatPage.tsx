@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils.ts";
 import { useChat } from "../context/ChatContext";
 import { client } from "@/lib/api.ts";
 import { useConfigStore } from "@/stores/config.ts";
-import type { TransportBackend } from "../types";
+import { getTransportDisplayLabel, type TransportBackend } from "../types";
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
 import { Modal } from "@/components/ui/Modal.tsx";
@@ -348,7 +348,7 @@ export const ChatPage: React.FC = () => {
                         ) : (
                           <Globe size={10} className="inline mr-1" />
                         )}
-                        {transport.toUpperCase()}
+                        {getTransportDisplayLabel(transport, t)}
                       </span>
                     </span>
                   </div>

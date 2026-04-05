@@ -38,7 +38,7 @@ import { SessionKeyModal } from "./SessionKeyModal";
 import { toast } from "@/stores/toast";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { client } from "@/lib/api";
-import type { InviteInfo, GroupInfo, TransportBackend } from "../types";
+import { getTransportDisplayLabel, type InviteInfo, type GroupInfo, type TransportBackend } from "../types";
 import { Modal } from "@/components/ui/Modal.tsx";
 import { Input } from "@/components/ui/Input.tsx";
 import { Button } from "@/components/ui/Button.tsx";
@@ -1020,9 +1020,7 @@ export const ChatUnifiedUI: React.FC = () => {
                             : "bg-muted text-muted-foreground",
                         )}
                       >
-                        {transport === "webrtc"
-                          ? "P2P"
-                          : transport.toUpperCase()}
+                        {getTransportDisplayLabel(transport, t)}
                       </span>
                     </div>
                   </div>
