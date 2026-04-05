@@ -15,7 +15,8 @@ import {
 import { cn } from '@/lib/utils.ts';
 import { AUTO_LOCALE_PREFERENCE, LOCALE_PICKER_OPTIONS, buildLocaleUrl } from '@/i18n/core';
 import { StatusIndicator } from './StatusIndicator.tsx';
-import { ThemeLanguageControls } from './ThemeLanguageControls.tsx';
+import { LanguageMenuButton } from './LanguageMenuButton.tsx';
+import { ThemeToggleButton } from './ThemeToggleButton.tsx';
 import { ChatContext } from '@/components/chat/context/ChatContext';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
 
@@ -204,7 +205,8 @@ export const Navbar = () => {
           {isLoggedIn && <StatusIndicator isDark={isDark} />}
 
           {/* Quick toggles (always visible) */}
-          <ThemeLanguageControls />
+          <LanguageMenuButton />
+          <ThemeToggleButton />
            
           <button 
             type="button"

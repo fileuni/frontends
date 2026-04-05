@@ -1,5 +1,6 @@
 import React from "react";
-import { ThemeLanguageControls } from "@/components/public/components/ThemeLanguageControls";
+import { LanguageMenuButton } from "@/components/public/components/LanguageMenuButton";
+import { ThemeToggleButton } from "@/components/public/components/ThemeToggleButton";
 
 interface SettingSurfaceControlsProps {
   className?: string | undefined;
@@ -10,5 +11,12 @@ export const SettingSurfaceControls: React.FC<SettingSurfaceControlsProps> = ({
   className,
   compact = false,
 }) => {
-  return <ThemeLanguageControls className={className} compact={compact} />;
+  return (
+    <div className={className}>
+      <div className="flex items-center gap-2">
+        <LanguageMenuButton compact={compact} />
+        <ThemeToggleButton />
+      </div>
+    </div>
+  );
 };
