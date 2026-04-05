@@ -1052,7 +1052,7 @@ export const FileSystemAdmin = () => {
                                 <input type="checkbox" aria-label={`${t('admin.fs.wal_select_issue') || 'Select issue'} #${issue.id}`} checked={selected} onChange={() => toggleWalSelection(issue.id)} className="h-4 w-4 rounded border-white/20 bg-transparent" />
                               </div>
                             ) : null}
-                            <Badge variant={badgeVariant}>{issue.status.toUpperCase()}</Badge>
+                            <Badge variant={badgeVariant}>{issue.status.replace(/_/g, ' ')}</Badge>
                             <Badge variant="ghost">#{issue.id}</Badge>
                             <Badge variant="ghost">{issue.operation_type}</Badge>
                           </div>

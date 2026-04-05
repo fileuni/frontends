@@ -215,7 +215,7 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
   }, [currentIndex, onIndexChange]);
 
   const activeFile = playlist[currentIndex] ?? null;
-  const currentExtension = activeFile?.name.split('.').pop()?.toUpperCase() || 'AUDIO';
+  const currentExtension = activeFile?.name.split('.').pop() || 'audio';
   const playedPercent = duration > 0 ? clamp((currentTime / duration) * 100, 0, 100) : 0;
   const bufferedPercent = duration > 0 ? clamp((bufferedTime / duration) * 100, 0, 100) : 0;
   const playModeConfig = PLAY_MODE_CONFIG[playMode];
