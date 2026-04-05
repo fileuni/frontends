@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
 import { normalizeFrontendStoredLocale } from "@/i18n/locale-adapter";
+import { toTraditionalChineseString } from "@/i18n/core";
 import { useToastStore } from '@/stores/toast';
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
@@ -196,7 +197,11 @@ export const PermissionAdmin = () => {
                       {items.map((item) => {
                         const checked = draftPermissions.includes(item.perm_key);
                         const description =
-                          resolvedLocale === 'zh-CN' ? item.desc_zh : item.desc_en;
+                          resolvedLocale === 'zh-Hant'
+                            ? toTraditionalChineseString(item.desc_zh)
+                            : resolvedLocale === 'zh-CN'
+                              ? item.desc_zh
+                              : item.desc_en;
                         return (
                           <div
                             key={item.perm_key}

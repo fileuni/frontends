@@ -1,13 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { normalizeFrontendStoredLocale } from '@/i18n/locale-adapter';
 import { useLanguageStore, type Language } from '@/stores/language';
 import {
   AUTO_LOCALE_PREFERENCE,
+  FILEUNI_THEME_TOGGLE_CLASSNAMES,
   FILEUNI_LANGUAGE_MENU_CLASSNAMES,
   LOCALE_PICKER_OPTIONS,
+  createDisclosureState,
   getLocaleFlag,
+  getNextBinaryTheme,
+  reduceDisclosureState,
 } from '@/i18n/core';
 import { useThemeStore } from '@/stores/theme';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
@@ -28,7 +32,11 @@ export const ThemeLanguageControls: React.FC<ThemeLanguageControlsProps> = ({ co
   const { setTheme } = useThemeStore();
   const { language, setLanguage } = useLanguageStore();
   const resolvedTheme = useResolvedTheme();
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [langMenuState, dispatchLangMenu] = useReducer(
+    reduceDisclosureState,
+    undefined,
+    () => createDisclosureState(false),
+  );
   const langMenuRef = useRef<HTMLDivElement>(null);
 
   const isDark = resolvedTheme === 'dark';
@@ -38,18 +46,18 @@ export const ThemeLanguageControls: React.FC<ThemeLanguageControlsProps> = ({ co
 
   useEffect(() => {
     const onDocMouseDown = (event: MouseEvent) => {
-      if (!isLangMenuOpen) return;
+      if (!langMenuState.open) return;
       const target = event.target as Node | null;
       if (langMenuRef.current && target && !langMenuRef.current.contains(target)) {
-        setIsLangMenuOpen(false);
+        dispatchLangMenu({ type: 'close' });
       }
     };
     document.addEventListener('mousedown', onDocMouseDown);
     return () => document.removeEventListener('mousedown', onDocMouseDown);
-  }, [isLangMenuOpen]);
+  }, [langMenuState.open]);
 
   const toggleTheme = () => {
-    setTheme(isDark ? 'light' : 'dark');
+    setTheme(getNextBinaryTheme(isDark ? 'dark' : 'light'));
   };
 
   return (
@@ -57,7 +65,7 @@ export const ThemeLanguageControls: React.FC<ThemeLanguageControlsProps> = ({ co
       <div className="relative" ref={langMenuRef}>
         <button
           type="button"
-          onClick={() => setIsLangMenuOpen((v) => !v)}
+          onClick={() => dispatchLangMenu({ type: 'toggle' })}
           className={cn(
             compact ? 'h-9 w-10 rounded-xl' : FILEUNI_LANGUAGE_MENU_CLASSNAMES.trigger,
             isDark ? FILEUNI_LANGUAGE_MENU_CLASSNAMES.triggerDark : FILEUNI_LANGUAGE_MENU_CLASSNAMES.triggerLight,
@@ -67,7 +75,7 @@ export const ThemeLanguageControls: React.FC<ThemeLanguageControlsProps> = ({ co
         >
           <span className="text-lg leading-none" aria-hidden>{langFlag}</span>
         </button>
-        {isLangMenuOpen && (
+        {langMenuState.open && (
           <div className={cn(
             FILEUNI_LANGUAGE_MENU_CLASSNAMES.menu,
             isDark ? FILEUNI_LANGUAGE_MENU_CLASSNAMES.menuDark : FILEUNI_LANGUAGE_MENU_CLASSNAMES.menuLight,
@@ -78,7 +86,7 @@ export const ThemeLanguageControls: React.FC<ThemeLanguageControlsProps> = ({ co
                 type="button"
                 onClick={() => {
                   setLanguage(opt.id);
-                  setIsLangMenuOpen(false);
+                  dispatchLangMenu({ type: 'close' });
                 }}
                 className={cn(
                   FILEUNI_LANGUAGE_MENU_CLASSNAMES.item,
@@ -102,8 +110,8 @@ export const ThemeLanguageControls: React.FC<ThemeLanguageControlsProps> = ({ co
         type="button"
         onClick={toggleTheme}
         className={cn(
-          'h-9 w-10 rounded-xl border inline-flex items-center justify-center transition-all',
-          isDark ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-gray-100 border-gray-200 hover:bg-gray-200',
+          FILEUNI_THEME_TOGGLE_CLASSNAMES.button,
+          isDark ? FILEUNI_THEME_TOGGLE_CLASSNAMES.dark : FILEUNI_THEME_TOGGLE_CLASSNAMES.light,
         )}
         aria-label={t('launcher.toggle_theme')}
         title={t('launcher.toggle_theme')}
