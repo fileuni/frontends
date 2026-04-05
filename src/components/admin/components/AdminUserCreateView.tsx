@@ -101,7 +101,7 @@ export const AdminUserCreateView = () => {
           </div>
         }
         subtitle={
-          <span className="text-sm font-bold opacity-40 uppercase tracking-widest">
+          <span className="text-sm font-bold opacity-40 tracking-widest">
             {t("pages.admin.userCreate.manualAccountCreation")}
           </span>
         }
@@ -115,7 +115,7 @@ export const AdminUserCreateView = () => {
         <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.username")} *
               </div>
               <Input
@@ -126,7 +126,7 @@ export const AdminUserCreateView = () => {
               />
             </div>
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.fullName")}
               </div>
               <Input
@@ -139,7 +139,7 @@ export const AdminUserCreateView = () => {
             </div>
 
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.initialPassword")} *
               </div>
               <PasswordInput
@@ -150,7 +150,7 @@ export const AdminUserCreateView = () => {
               />
             </div>
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.confirmPassword")} *
               </div>
               <PasswordInput
@@ -166,7 +166,7 @@ export const AdminUserCreateView = () => {
             </div>
 
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.role")}
               </div>
               <select
@@ -191,7 +191,7 @@ export const AdminUserCreateView = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+              <div className="text-sm font-black tracking-widest opacity-40 ml-1">
                 {t("pages.admin.userCreate.status")}
               </div>
               <select
@@ -215,7 +215,7 @@ export const AdminUserCreateView = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {capabilities?.enable_email_auth !== false && (
               <div className="space-y-2">
-                <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+                <div className="text-sm font-black tracking-widest opacity-40 ml-1">
                   {t("pages.admin.userCreate.email")}
                 </div>
                 <Input
@@ -228,7 +228,7 @@ export const AdminUserCreateView = () => {
             )}
             {capabilities?.enable_mobile_auth !== false && (
               <div className="space-y-2">
-                <div className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">
+                <div className="text-sm font-black tracking-widest opacity-40 ml-1">
                   {t("pages.admin.userCreate.phone")}
                 </div>
                 <Input

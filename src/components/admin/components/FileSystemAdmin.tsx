@@ -701,30 +701,30 @@ export const FileSystemAdmin = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
             <Database className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 -rotate-12 group-hover:scale-110 transition-transform" />
-            <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.cluster_storage')}</p>
+            <p className="text-sm font-black tracking-widest opacity-40 mb-1">{t('admin.fs.cluster_storage')}</p>
             <h3 className="text-3xl font-black">{formatSize(stats?.total_used ?? null, t)}</h3>
-            <p className="text-sm font-bold mt-4 text-primary uppercase tracking-widest">
+            <p className="text-sm font-bold mt-4 text-primary tracking-widest">
               {t('admin.fs.system_status')}: {maintenanceStatus ? (maintenanceStatus.is_global_maintenance ? t('common.on') : t('common.off')) : t('common.na')}
             </p>
           </AdminCard>
 
           <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
             <Activity className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 group-hover:scale-110 transition-transform" />
-            <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.usage_efficiency')}</p>
+            <p className="text-sm font-black tracking-widest opacity-40 mb-1">{t('admin.fs.usage_efficiency')}</p>
             <h3 className="text-3xl font-black">{quotaPct === null ? t('common.na') : `${quotaPct.toFixed(1)}%`}</h3>
             <div className="mt-4 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
               <div className="h-full bg-green-500" style={{ width: `${quotaPct ?? 0}%` }} />
             </div>
-            <p className="text-sm font-bold mt-4 opacity-40 uppercase tracking-widest">
+            <p className="text-sm font-bold mt-4 opacity-40 tracking-widest">
               {formatSize(stats?.total_used ?? null, t)} / {formatSize(stats?.total_quota ?? null, t)}
             </p>
           </AdminCard>
 
           <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
             <Cpu className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 group-hover:scale-110 transition-transform" />
-            <p className="text-sm font-black uppercase tracking-widest opacity-40 mb-1">{t('admin.fs.total_users')}</p>
+            <p className="text-sm font-black tracking-widest opacity-40 mb-1">{t('admin.fs.total_users')}</p>
             <h3 className="text-3xl font-black tabular-nums">{typeof stats?.total_users === 'number' ? stats.total_users : t('common.na')}</h3>
-            <p className="text-sm font-bold mt-4 opacity-40 uppercase tracking-widest">
+            <p className="text-sm font-bold mt-4 opacity-40 tracking-widest">
               {t('admin.fs.locked_users')}: {maintenanceStatus ? lockedUsers.length : t('common.na')}
             </p>
           </AdminCard>
@@ -735,7 +735,7 @@ export const FileSystemAdmin = () => {
             <div className="flex items-center justify-between px-4">
               <div className="flex items-center gap-3">
                 <HardDrive size={18} className="text-primary" />
-                <h2 className="text-sm font-black uppercase tracking-widest">{t('admin.fs.global_ops')}</h2>
+                <h2 className="text-sm font-black tracking-widest">{t('admin.fs.global_ops')}</h2>
               </div>
               <Button variant="ghost" size="sm" onClick={refreshAll} className="opacity-50 hover:opacity-100">
                 <RefreshCw size={18} className="mr-2" /> {t('common.refresh')}
@@ -747,7 +747,7 @@ export const FileSystemAdmin = () => {
               <Button variant="outline" className="h-16 justify-between group w-full" onClick={handleFullSync} disabled={syncing}>
                 <span className="flex items-center gap-3">
                   <RefreshCw size={20} className={syncing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'} />
-                  <span className="font-black uppercase tracking-widest text-sm">{t('admin.fs.sync_index')}</span>
+                  <span className="font-black tracking-widest text-sm">{t('admin.fs.sync_index')}</span>
                 </span>
                 <span className="text-sm opacity-30 font-bold">RE-INDEX CLUSTER</span>
               </Button>
@@ -758,11 +758,11 @@ export const FileSystemAdmin = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Button variant="outline" className="h-12 px-5 justify-center" onClick={handleSyncIndexForUser} disabled={syncingUserIndex || rebuildingUserIndex}>
                     <RefreshCw size={18} className={syncingUserIndex ? 'animate-spin mr-2' : 'mr-2'} />
-                    <span className="font-black uppercase tracking-widest text-sm">{t('admin.fs.sync_user_index')}</span>
+                    <span className="font-black tracking-widest text-sm">{t('admin.fs.sync_user_index')}</span>
                   </Button>
                   <Button variant="outline" className="h-12 px-5 justify-center" onClick={handleRebuildIndexForUser} disabled={rebuildingUserIndex || syncingUserIndex}>
                     <RefreshCw size={18} className={rebuildingUserIndex ? 'animate-spin mr-2' : 'mr-2'} />
-                    <span className="font-black uppercase tracking-widest text-sm">{t('admin.fs.rebuild_user_index')}</span>
+                    <span className="font-black tracking-widest text-sm">{t('admin.fs.rebuild_user_index')}</span>
                   </Button>
                 </div>
                 <p className="text-xs font-bold opacity-40 italic">{t('admin.fs.rebuild_user_index_desc')}</p>
@@ -771,13 +771,13 @@ export const FileSystemAdmin = () => {
 
             <div className="flex items-center gap-3 px-4 pt-4">
               <ShieldAlert size={18} className="text-red-500" />
-              <h2 className="text-sm font-black uppercase tracking-widest text-red-500">{t('admin.fs.emergency_control')}</h2>
+              <h2 className="text-sm font-black tracking-widest text-red-500">{t('admin.fs.emergency_control')}</h2>
             </div>
             <AdminCard className="bg-red-500/5 border border-red-500/10 rounded-[2.5rem] p-8 shadow-xl space-y-6">
               <p className="text-sm font-bold text-red-400/60 italic">{t('admin.fs.emergency_desc')}</p>
               <Button variant="outline" className="w-full h-16 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white group" onClick={handleGlobalUnlock} disabled={unlocking}>
                 <RotateCcw size={20} className="mr-3 group-hover:scale-110 transition-transform" />
-                <span className="font-black uppercase tracking-widest text-sm">{t('admin.fs.force_unlock')}</span>
+                <span className="font-black tracking-widest text-sm">{t('admin.fs.force_unlock')}</span>
               </Button>
             </AdminCard>
           </div>
@@ -786,7 +786,7 @@ export const FileSystemAdmin = () => {
             <div className="flex items-center justify-between px-4">
               <div className="flex items-center gap-3">
                 <Users size={18} className="text-orange-500" />
-                <h2 className="text-sm font-black uppercase tracking-widest">{t('admin.fs.locked_users')}</h2>
+                <h2 className="text-sm font-black tracking-widest">{t('admin.fs.locked_users')}</h2>
               </div>
               <Button variant="ghost" size="sm" onClick={refreshAll} className="opacity-50 hover:opacity-100">
                 <RefreshCw size={18} className="mr-2" /> {t('common.refresh')}
@@ -796,12 +796,12 @@ export const FileSystemAdmin = () => {
               {!maintenanceStatus ? (
                 <div className="h-full flex flex-col items-center justify-center py-20 opacity-30 italic text-center">
                   <AlertTriangle size={48} className="mb-4" />
-                  <p className="font-black uppercase tracking-widest text-sm">{t('admin.fs.maintenance_status_unavailable')}</p>
+                  <p className="font-black tracking-widest text-sm">{t('admin.fs.maintenance_status_unavailable')}</p>
                 </div>
               ) : lockedUsers.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center py-20 opacity-20 italic">
                   <CheckCircle2 size={48} className="mb-4" />
-                  <p className="font-black uppercase tracking-widest text-sm">{t('admin.fs.no_locked_users')}</p>
+                  <p className="font-black tracking-widest text-sm">{t('admin.fs.no_locked_users')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -825,7 +825,7 @@ export const FileSystemAdmin = () => {
             <div className="flex items-center gap-3">
               <Wrench size={18} className="text-amber-400" />
               <div>
-                <h2 className="text-sm font-black uppercase tracking-widest">{t('admin.fs.wal_title')}</h2>
+                <h2 className="text-sm font-black tracking-widest">{t('admin.fs.wal_title')}</h2>
                 <p className="text-sm opacity-50 mt-1">{walScope === 'issues' ? t('admin.fs.wal_desc') : t('admin.fs.wal_history_desc')}</p>
               </div>
             </div>
@@ -858,7 +858,7 @@ export const FileSystemAdmin = () => {
                       setWalDiagnostics(null);
                     }}
                     className={[
-                      'px-4 h-10 rounded-2xl border text-sm font-black uppercase tracking-widest transition-all',
+                      'px-4 h-10 rounded-2xl border text-sm font-black tracking-widest transition-all',
                       walScope === item.value ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-white/5 border-white/10 opacity-60 hover:opacity-100',
                     ].join(' ')}
                   >
@@ -869,11 +869,11 @@ export const FileSystemAdmin = () => {
 
               <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
                 <div className="xl:col-span-2 space-y-2">
-                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_user')}</div>
+                  <div className="text-xs font-black tracking-widest opacity-40">{t('admin.fs.wal_filter_user')}</div>
                   <Input value={walUserFilterDraft} onChange={(e) => setWalUserFilterDraft(e.target.value)} placeholder={t('admin.fs.wal_user_filter_placeholder')} className="h-11 font-mono" />
                 </div>
                 <div className="space-y-2">
-                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_status')}</div>
+                  <div className="text-xs font-black tracking-widest opacity-40">{t('admin.fs.wal_filter_status')}</div>
                   <div className="flex flex-wrap gap-2">
                     {walStatusButtons.map((item) => (
                       <button
@@ -884,7 +884,7 @@ export const FileSystemAdmin = () => {
                           setWalPage(1);
                         }}
                         className={[
-                          'px-3 h-10 rounded-2xl border text-xs font-black uppercase tracking-widest transition-all',
+                          'px-3 h-10 rounded-2xl border text-xs font-black tracking-widest transition-all',
                           walStatusFilter === item.value ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-white/5 border-white/10 opacity-60 hover:opacity-100',
                         ].join(' ')}
                       >
@@ -894,7 +894,7 @@ export const FileSystemAdmin = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_operation')}</div>
+                  <div className="text-xs font-black tracking-widest opacity-40">{t('admin.fs.wal_filter_operation')}</div>
                   <select value={walOperationFilter} onChange={(e) => { setWalOperationFilter(e.target.value); setWalPage(1); }} className="w-full h-11 rounded-xl bg-background border border-border px-4 font-bold text-sm">
                     {WAL_OPERATION_OPTIONS.map((item) => (
                       <option key={item} value={item}>{item === 'all' ? t('admin.fs.wal_operation_all') : item}</option>
@@ -902,17 +902,17 @@ export const FileSystemAdmin = () => {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_updated_from')}</div>
+                  <div className="text-xs font-black tracking-widest opacity-40">{t('admin.fs.wal_filter_updated_from')}</div>
                   <Input type="datetime-local" value={walUpdatedFromDraft} onChange={(e) => setWalUpdatedFromDraft(e.target.value)} className="h-11" />
                 </div>
                 <div className="space-y-2">
-                  <div className="text-xs font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_filter_updated_to')}</div>
+                  <div className="text-xs font-black tracking-widest opacity-40">{t('admin.fs.wal_filter_updated_to')}</div>
                   <Input type="datetime-local" value={walUpdatedToDraft} onChange={(e) => setWalUpdatedToDraft(e.target.value)} className="h-11" />
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-3 items-center justify-between">
-                <div className="flex flex-wrap gap-3 text-xs font-bold uppercase tracking-widest opacity-40">
+                <div className="flex flex-wrap gap-3 text-xs font-bold tracking-widest opacity-40">
                   <span>{t('admin.fs.wal_total', { total: walTotal })}</span>
                   <span>{t('admin.fs.wal_filter_user')}: {walUserFilter || t('common.na')}</span>
                   <span>{t('admin.fs.wal_filter_operation')}: {walOperationFilter === 'all' ? t('admin.fs.wal_operation_all') : walOperationFilter}</span>
@@ -936,7 +936,7 @@ export const FileSystemAdmin = () => {
                       <input type="checkbox" aria-label={t('admin.fs.wal_select_all_visible')} checked={allVisibleSelected} onChange={toggleSelectAllVisible} className="h-4 w-4 rounded border-white/20 bg-transparent" />
                       <span>{t('admin.fs.wal_select_all_visible')}</span>
                     </div>
-                    <span className="opacity-40 uppercase tracking-widest">{t('admin.fs.wal_selected_count', { count: selectedWalIds.length })}</span>
+                    <span className="opacity-40 tracking-widest">{t('admin.fs.wal_selected_count', { count: selectedWalIds.length })}</span>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="outline" className="h-11 px-4" onClick={handleReplayWalBatch} disabled={selectedWalIds.length === 0 || walActionId === -1}>
@@ -956,7 +956,7 @@ export const FileSystemAdmin = () => {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Stethoscope size={18} className="text-primary" />
-                      <h3 className="text-sm font-black uppercase tracking-widest">{t('admin.fs.wal_diagnostics_title')}</h3>
+                      <h3 className="text-sm font-black tracking-widest">{t('admin.fs.wal_diagnostics_title')}</h3>
                     </div>
                     <p className="text-sm opacity-60">#{walDiagnostics.issue.id} · {walDiagnostics.issue.operation_type} · {summarizeWalOperation(walDiagnostics.issue.operation_data)}</p>
                   </div>
@@ -966,7 +966,7 @@ export const FileSystemAdmin = () => {
                 </div>
 
                 <div className="rounded-[1.75rem] border border-white/8 bg-black/20 p-5 space-y-3">
-                  <p className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_recommended_actions')}</p>
+                  <p className="text-sm font-black tracking-widest opacity-40">{t('admin.fs.wal_recommended_actions')}</p>
                   <div className="space-y-3">
                     {walDiagnostics.recommended_actions.map((action) => (
                       <div key={`${action.action}-${action.reason_code}`} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 space-y-2">
@@ -996,14 +996,14 @@ export const FileSystemAdmin = () => {
                         {item.mismatch_flags.length > 0 ? item.mismatch_flags.map((flag) => <Badge key={flag} variant="warning">{flag}</Badge>) : <Badge variant="success">{t('admin.fs.wal_no_mismatch')}</Badge>}
                       </div>
                       <div className="space-y-1 text-sm">
-                        <p className="font-black uppercase tracking-widest opacity-40">Logical</p>
+                        <p className="font-black tracking-widest opacity-40">Logical</p>
                         <p className="font-mono break-all">{item.logical_path}</p>
-                        <p className="font-black uppercase tracking-widest opacity-40 pt-2">Physical</p>
+                        <p className="font-black tracking-widest opacity-40 pt-2">Physical</p>
                         <p className="font-mono break-all">{item.physical_path}</p>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div className="rounded-2xl border border-white/8 bg-black/20 p-4 space-y-2">
-                          <p className="font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_physical_state')}</p>
+                          <p className="font-black tracking-widest opacity-40">{t('admin.fs.wal_physical_state')}</p>
                           <p>{t('admin.fs.wal_exists')}: {item.physical.exists ? t('common.yes') : t('common.no')}</p>
                           <p>{t('admin.fs.wal_kind')}: {item.physical.is_dir === undefined || item.physical.is_dir === null ? t('common.na') : item.physical.is_dir ? 'dir' : 'file'}</p>
                           <p>{t('admin.fs.wal_size')}: {item.physical.size ?? t('common.na')}</p>
@@ -1011,7 +1011,7 @@ export const FileSystemAdmin = () => {
                           <p className="whitespace-pre-wrap break-words">{item.physical.error || t('admin.fs.wal_no_error')}</p>
                         </div>
                         <div className="rounded-2xl border border-white/8 bg-black/20 p-4 space-y-2">
-                          <p className="font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_index_state')}</p>
+                          <p className="font-black tracking-widest opacity-40">{t('admin.fs.wal_index_state')}</p>
                           <p>{t('admin.fs.wal_exists')}: {item.index.exists ? t('common.yes') : t('common.no')}</p>
                           <p>{t('admin.fs.wal_kind')}: {item.index.is_dir === undefined || item.index.is_dir === null ? t('common.na') : item.index.is_dir ? 'dir' : 'file'}</p>
                           <p>{t('admin.fs.wal_size')}: {item.index.size ?? t('common.na')}</p>
@@ -1029,12 +1029,12 @@ export const FileSystemAdmin = () => {
               {issuesLoading ? (
                 <div className="h-full flex flex-col items-center justify-center py-20 opacity-40 italic text-center">
                   <RefreshCw size={40} className="mb-4 animate-spin" />
-                  <p className="font-black uppercase tracking-widest text-sm">{t('admin.fs.wal_loading')}</p>
+                  <p className="font-black tracking-widest text-sm">{t('admin.fs.wal_loading')}</p>
                 </div>
               ) : walEntries.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center py-20 opacity-20 italic text-center">
                   <CheckCircle2 size={48} className="mb-4" />
-                  <p className="font-black uppercase tracking-widest text-sm">{walScope === 'issues' ? t('admin.fs.wal_empty') : t('admin.fs.wal_history_empty')}</p>
+                  <p className="font-black tracking-widest text-sm">{walScope === 'issues' ? t('admin.fs.wal_empty') : t('admin.fs.wal_history_empty')}</p>
                 </div>
               ) : (
                 walEntries.map((issue) => {
@@ -1056,7 +1056,7 @@ export const FileSystemAdmin = () => {
                             <Badge variant="ghost">#{issue.id}</Badge>
                             <Badge variant="ghost">{issue.operation_type}</Badge>
                           </div>
-                          <div className="text-sm font-black uppercase tracking-widest opacity-60">
+                          <div className="text-sm font-black tracking-widest opacity-60">
                             {t('admin.fs.wal_filter_user')}: <span className="font-mono normal-case tracking-normal opacity-100">{issue.user_id}</span>
                           </div>
                           <div className="text-base font-bold break-all">{summarizeWalOperation(issue.operation_data)}</div>
@@ -1082,20 +1082,20 @@ export const FileSystemAdmin = () => {
 
                       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 text-sm">
                         <div className="rounded-2xl bg-white/[0.03] border border-white/6 p-4 space-y-2">
-                          <p className="font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_summary')}</p>
+                          <p className="font-black tracking-widest opacity-40">{t('admin.fs.wal_summary')}</p>
                           <p className="font-bold break-all">{summarizeWalOperation(issue.operation_data)}</p>
                           <p className="text-xs opacity-50">{t('admin.fs.wal_created_at')}: {formatTime(issue.created_at, t('common.na'))}</p>
                           <p className="text-xs opacity-50">{t('admin.fs.wal_updated_at')}: {formatTime(issue.updated_at, t('common.na'))}</p>
                           {walScope === 'history' ? <p className="text-xs opacity-50">{t('admin.fs.wal_completed_at')}: {formatTime(issue.completed_at, t('common.na'))}</p> : null}
                         </div>
                         <div className="rounded-2xl bg-white/[0.03] border border-white/6 p-4 space-y-2 xl:col-span-2">
-                          <p className="font-black uppercase tracking-widest opacity-40">{t('admin.fs.wal_failure_reason')}</p>
+                          <p className="font-black tracking-widest opacity-40">{t('admin.fs.wal_failure_reason')}</p>
                           <p className="text-sm leading-6 whitespace-pre-wrap break-words min-h-[3rem]">{issue.failure_reason?.trim() || t('admin.fs.wal_no_failure_reason')}</p>
                         </div>
                       </div>
 
                       <div className="rounded-2xl bg-zinc-950/60 border border-white/6 p-4">
-                        <p className="font-black uppercase tracking-widest opacity-40 text-xs mb-3">{t('admin.fs.wal_operation')}</p>
+                        <p className="font-black tracking-widest opacity-40 text-xs mb-3">{t('admin.fs.wal_operation')}</p>
                         <pre className="text-xs leading-6 whitespace-pre-wrap break-all opacity-80 overflow-x-auto">{truncateText(prettyWalOperation(issue.operation_data))}</pre>
                       </div>
                     </div>
@@ -1130,5 +1130,5 @@ const Badge = ({ children, variant = 'ghost' }: { children: React.ReactNode; var
     ghost: 'bg-white/5 text-white/40 border-white/10',
   };
 
-  return <span className={`px-2 py-1 rounded-md text-sm font-black border uppercase tracking-tighter ${styles[variant]}`}>{children}</span>;
+  return <span className={`px-2 py-1 rounded-md text-sm font-black border tracking-tighter ${styles[variant]}`}>{children}</span>;
 };

@@ -150,7 +150,7 @@ export const SystemBackupAdmin: React.FC = () => {
           <Button
             onClick={handleExport}
             disabled={loading}
-            className="h-14 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-primary/20"
+            className="h-14 rounded-2xl font-black tracking-widest text-sm shadow-lg shadow-primary/20"
           >
             {loading ? <RefreshCw className="animate-spin mr-2" size={18} /> : <Download className="mr-2" size={18} />}
             {loading ? t("common.loading") : t("admin.backup.exportBtn")}
@@ -177,7 +177,7 @@ export const SystemBackupAdmin: React.FC = () => {
             onClick={handleLocalBackup}
             disabled={localLoading}
             variant="outline"
-            className="h-14 rounded-2xl font-black uppercase tracking-widest text-sm border-indigo-500/30 hover:bg-indigo-500/10"
+            className="h-14 rounded-2xl font-black tracking-widest text-sm border-indigo-500/30 hover:bg-indigo-500/10"
           >
             {localLoading ? <RefreshCw className="animate-spin mr-2" size={18} /> : <Archive className="mr-2" size={18} />}
             {localLoading ? t("common.loading") : t("admin.backup.localBtn")}
@@ -213,7 +213,7 @@ export const SystemBackupAdmin: React.FC = () => {
             <Button
                 variant="destructive"
                 disabled={loading}
-                className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-red-500/20"
+                className="w-full h-14 rounded-2xl font-black tracking-widest text-sm shadow-lg shadow-red-500/20"
             >
                 {loading ? <RefreshCw className="animate-spin mr-2" size={18} /> : <Upload className="mr-2" size={18} />}
                 {loading ? t("common.loading") : t("admin.backup.importBtn")}
@@ -235,7 +235,7 @@ export const SystemBackupAdmin: React.FC = () => {
           <div className="p-4 rounded-2xl bg-red-600/20 border border-red-500/50 text-red-500">
             <div className="flex items-center gap-3 mb-2">
               <AlertTriangle size={20} />
-              <span className="font-black uppercase text-sm tracking-widest">Critical Action</span>
+              <span className="font-black text-sm tracking-widest">Critical Action</span>
             </div>
             <p className="text-sm font-bold leading-relaxed">
               {t("admin.backup.confirmMsg")}

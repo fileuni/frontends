@@ -31,14 +31,14 @@ export const DdnsInspectModal = ({
     >
       <div className="space-y-6 p-1 text-foreground">
         {!result ? (
-          <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+          <div className="py-16 text-center opacity-40 font-bold tracking-widest">
             {t('common.noData') || 'No data'}
           </div>
         ) : (
           <div className={sectionCardBase}>
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <div className="text-sm font-black uppercase tracking-widest opacity-60">FQDN</div>
+                <div className="text-sm font-black tracking-widest opacity-60">FQDN</div>
                 <div className="mt-1 font-mono text-sm truncate">{result.fqdn}</div>
                 <div className="mt-2 text-[14px] opacity-60">
                   {result.dns_used_server ? `DoH: ${result.dns_used_server}` : (t('admin.domain.dnsDiagHint') || 'DoH not available')}
@@ -53,7 +53,7 @@ export const DdnsInspectModal = ({
                 <Badge
                   variant="outline"
                   className={cn(
-                    'h-8 px-3 rounded-xl font-black uppercase tracking-widest',
+                    'h-8 px-3 rounded-xl font-black tracking-widest',
                     needUpdate
                       ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400'
                       : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400',
@@ -66,14 +66,14 @@ export const DdnsInspectModal = ({
 
             {result.last_error && (
               <div className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3">
-                <div className="text-[12px] font-black uppercase tracking-widest opacity-60">LAST ERROR</div>
+                <div className="text-[12px] font-black tracking-widest opacity-60">LAST ERROR</div>
                 <div className="mt-1 text-[14px] font-bold text-red-700 dark:text-red-400 break-words">{result.last_error}</div>
               </div>
             )}
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
-                <div className="text-[12px] font-black uppercase tracking-widest opacity-50">IPv4</div>
+                <div className="text-[12px] font-black tracking-widest opacity-50">IPv4</div>
                 <div className="mt-2 text-[14px] font-mono opacity-80">detected: {result.detected_ipv4 || '-'}</div>
                 <div className="mt-2 text-[14px] font-mono opacity-60">last: {result.last_ipv4 || '-'}</div>
                 <div className="mt-2 text-[14px] font-mono opacity-60">dns: {result.dns_ipv4?.length ? result.dns_ipv4.join(', ') : '-'}</div>
@@ -99,7 +99,7 @@ export const DdnsInspectModal = ({
               </div>
 
               <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
-                <div className="text-[12px] font-black uppercase tracking-widest opacity-50">IPv6</div>
+                <div className="text-[12px] font-black tracking-widest opacity-50">IPv6</div>
                 <div className="mt-2 text-[14px] font-mono opacity-80">detected: {result.detected_ipv6 || '-'}</div>
                 <div className="mt-2 text-[14px] font-mono opacity-60">last: {result.last_ipv6 || '-'}</div>
                 <div className="mt-2 text-[14px] font-mono opacity-60">dns: {result.dns_ipv6?.length ? result.dns_ipv6.join(', ') : '-'}</div>

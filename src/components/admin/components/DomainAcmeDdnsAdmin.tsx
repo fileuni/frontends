@@ -1110,7 +1110,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const renderCards = () => {
     if (loading && (!ddnsEntries.length && !certificates.length)) {
       return (
-        <div className="sm:col-span-2 px-5 py-10 text-center text-foreground/40 font-bold uppercase tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
+        <div className="sm:col-span-2 px-5 py-10 text-center text-foreground/40 font-bold tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
           <RefreshCw className="animate-spin mb-3 mx-auto" size={26} />
           {t('common.loading')}
         </div>
@@ -1119,7 +1119,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
     if (cardsData.length === 0) {
       return (
-        <div className="sm:col-span-2 px-5 py-12 text-center text-foreground/30 font-bold uppercase tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
+        <div className="sm:col-span-2 px-5 py-12 text-center text-foreground/30 font-bold tracking-widest rounded-3xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-white/[0.03]">
           {isDdns ? <Globe className="mx-auto mb-3" size={40} /> : <ShieldCheck className="mx-auto mb-3" size={40} />}
           {isDdns ? t('admin.domain.noDdnsEntries') : t('admin.domain.noCertificates')}
         </div>
@@ -1147,11 +1147,11 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
               {isDdnsItem && (
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 uppercase font-black">
+                  <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 font-black">
                     TTL {item.ttl}
                   </Badge>
                   {item.proxied && (
-                    <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 uppercase font-black">
+                    <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 font-black">
                       {t('admin.domain.proxyBadge')}
                     </Badge>
                   )}
@@ -1256,7 +1256,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 isDdns ? 'bg-blue-500 shadow-blue-500/60' : 'bg-green-500 shadow-green-500/60',
               )}
             />
-            <p className="text-sm font-bold opacity-60 dark:opacity-40 uppercase tracking-widest truncate text-foreground">
+            <p className="text-sm font-bold opacity-60 dark:opacity-40 tracking-widest truncate text-foreground">
               {isDdns
                 ? `${ddnsEntries.length} ${t('admin.domain.statsDdnsEntries')}`
                 : `${certificates.length} ${t('admin.domain.statsCertificates')}`}
@@ -1411,27 +1411,27 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-zinc-200 dark:border-white/5 bg-zinc-50/50 dark:bg-white/[0.02]">
-                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30 bg-zinc-50/90 dark:bg-black/40 backdrop-blur">
+                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black tracking-widest text-foreground/50 dark:text-white/30 bg-zinc-50/90 dark:bg-black/40 backdrop-blur">
                   {isDdns ? t('common.name') : t('admin.acme.table.name')}
                 </th>
-                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30 bg-zinc-50/90 dark:bg-black/40 backdrop-blur">
+                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black tracking-widest text-foreground/50 dark:text-white/30 bg-zinc-50/90 dark:bg-black/40 backdrop-blur">
                   {isDdns ? 'Target / Details' : t('admin.acme.table.status')}
                 </th>
-                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30 bg-zinc-50/90 dark:bg-black/40 backdrop-blur">{t('admin.acme.table.status')}</th>
-                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-white/30 text-right bg-zinc-50/90 dark:bg-black/40 backdrop-blur">{t('common.actions')}</th>
+                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black tracking-widest text-foreground/50 dark:text-white/30 bg-zinc-50/90 dark:bg-black/40 backdrop-blur">{t('admin.acme.table.status')}</th>
+                <th className="sticky top-0 z-10 px-8 py-5 text-[14px] font-black tracking-widest text-foreground/50 dark:text-white/30 text-right bg-zinc-50/90 dark:bg-black/40 backdrop-blur">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {loading && (!ddnsEntries.length && !certificates.length) ? (
                 <tr>
-                  <td colSpan={4} className="px-8 py-20 text-center text-foreground/30 font-bold uppercase tracking-widest">
+                  <td colSpan={4} className="px-8 py-20 text-center text-foreground/30 font-bold tracking-widest">
                     <RefreshCw className="animate-spin mb-4 mx-auto" size={32} />
                     {t('common.loading')}
                   </td>
                 </tr>
               ) : (isDdns ? ddnsEntries : certificates).length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-8 py-20 text-center text-foreground/20 font-bold uppercase tracking-widest">
+                  <td colSpan={4} className="px-8 py-20 text-center text-foreground/20 font-bold tracking-widest">
                     {isDdns ? <Globe className="mx-auto mb-4" size={48} /> : <ShieldCheck className="mx-auto mb-4" size={48} />}
                     {isDdns ? t('admin.domain.noDdnsEntries') : t('admin.domain.noCertificates')}
                   </td>
@@ -1461,8 +1461,8 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                     <td className="px-8 py-5">
                       {isDdns ? (
                          <div className="flex items-center gap-2">
-                             <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 uppercase font-black">TTL {isDdnsEntryItem(item) ? item.ttl : 0}</Badge>
-                             {isDdnsEntryItem(item) && item.proxied && <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 uppercase font-black">{t('admin.domain.proxyBadge')}</Badge>}
+                             <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-foreground/60 dark:text-white/40 font-black">TTL {isDdnsEntryItem(item) ? item.ttl : 0}</Badge>
+                              {isDdnsEntryItem(item) && item.proxied && <Badge variant="outline" className="text-[14px] h-5 px-1.5 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-500 font-black">{t('admin.domain.proxyBadge')}</Badge>}
                              {isDdnsEntryItem(item) && (item.last_ipv4 || item.last_ipv6) && (
                                <span className="ml-2 text-[14px] font-mono opacity-60">
                                  {item.last_ipv4 ? `v4 ${item.last_ipv4}` : ''}{item.last_ipv4 && item.last_ipv6 ? '  ' : ''}{item.last_ipv6 ? `v6 ${item.last_ipv6}` : ''}
@@ -1470,7 +1470,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                              )}
                          </div>
                       ) : (
-                        <div className="flex items-center gap-2 text-[14px] font-bold opacity-60 dark:opacity-40 uppercase tracking-widest text-foreground">
+                        <div className="flex items-center gap-2 text-[14px] font-bold opacity-60 dark:opacity-40 tracking-widest text-foreground">
                            <Calendar size={18} className="text-primary" />
                            {!isDdnsEntryItem(item) && item.expires_at ? new Date(item.expires_at).toLocaleDateString() : t('admin.domain.noExpiry')}
                         </div>
@@ -1713,11 +1713,11 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
               <SectionHeader icon={Info} title={t('admin.domain.basicInfo')} desc={t('admin.domain.basicInfo')} colorClass="bg-blue-500/10 text-blue-600 dark:text-blue-500 border-blue-500/20" />
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="space-y-2">
-                   <div className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('common.name')}</div>
+                   <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('common.name')}</div>
                    <Input placeholder={t('admin.domain.ddnsNamePlaceholder')} value={ddnsDraft.name} onChange={(e) => setDdnsDraft({ ...ddnsDraft, name: e.target.value })} className={controlBase} />
                  </div>
                  <div className="space-y-2">
-                   <div className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.panelProvider')}</div>
+                   <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.panelProvider')}</div>
                    <div className="flex gap-2">
                      <select className={selectBase} style={selectStyle} value={ddnsDraft.provider_account_id} onChange={(e) => setDdnsDraft({ ...ddnsDraft, provider_account_id: e.target.value })}>
                        <option value="">{ddnsProviders.length === 0 ? t('admin.domain.noProviders') : t('admin.domain.ddnsProviderPlaceholder')}</option>
@@ -1727,7 +1727,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   </div>
 
                   {selectedDdnsProviderAccount && (
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] font-black uppercase tracking-widest opacity-70">
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] font-black tracking-widest opacity-70">
                       {selectedDdnsProviderAccount.enabled === false && (
                         <Badge variant="outline" className="h-6 px-2 rounded-lg opacity-70">
                           {t('common.disabled') || 'disabled'}
@@ -1764,7 +1764,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
                 <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5">
                   <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <div className="text-[12px] font-black uppercase tracking-widest opacity-60">
+                    <div className="text-[12px] font-black tracking-widest opacity-60">
                       {t('admin.domain.fqdnHelper') || 'FQDN Helper'}
                     </div>
                   </div>
@@ -1811,7 +1811,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                  <div className="space-y-2 min-w-0">
-                   <div className="text-[14px] font-black uppercase tracking-wider md:tracking-widest text-foreground/50 dark:text-foreground/40 ml-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                   <div className="text-[14px] font-black tracking-wider md:tracking-widest text-foreground/50 dark:text-foreground/40 ml-1 whitespace-nowrap overflow-hidden text-ellipsis">
                      {t('admin.domain.zoneLabel') || 'Zone'}
                    </div>
                    <Input
@@ -1822,7 +1822,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                    />
                  </div>
                  <div className="space-y-2 min-w-0">
-                   <div className="text-[14px] font-black uppercase tracking-wider md:tracking-widest text-foreground/50 dark:text-foreground/40 ml-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                   <div className="text-[14px] font-black tracking-wider md:tracking-widest text-foreground/50 dark:text-foreground/40 ml-1 whitespace-nowrap overflow-hidden text-ellipsis">
                      {t('admin.domain.hostLabel') || 'Host'}
                    </div>
                    <Input
@@ -1833,7 +1833,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                    />
                  </div>
                  <div className="space-y-2 min-w-0">
-                   <div className="text-[14px] font-black uppercase tracking-wider md:tracking-widest text-foreground/50 dark:text-foreground/40 ml-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                   <div className="text-[14px] font-black tracking-wider md:tracking-widest text-foreground/50 dark:text-foreground/40 ml-1 whitespace-nowrap overflow-hidden text-ellipsis">
                      {t('admin.domain.ttlLabel') || 'TTL'}
                    </div>
                    <Input
@@ -1848,7 +1848,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                </div>
 
                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5">
-                 <div className="text-[14px] font-black uppercase tracking-widest opacity-60">FQDN</div>
+                 <div className="text-[14px] font-black tracking-widest opacity-60">FQDN</div>
                  <div className="mt-2 font-mono text-sm">
                    {(ddnsDraft.host.trim() === '@' || !ddnsDraft.host.trim())
                      ? (ddnsDraft.zone.trim() || '-')
@@ -1874,7 +1874,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
                 {bulkCreateOpen && (
                   <div className="space-y-2">
-                    <div className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                    <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
                       {t('admin.domain.hostsListLabel') || 'Hosts list'}
                     </div>
                     <textarea
@@ -1916,7 +1916,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <div className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.forceUpdate') || 'Force Update'}</div>
+                  <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.forceUpdate') || 'Force Update'}</div>
                   <div className="flex items-center justify-between p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
                     <div className="text-sm font-bold opacity-70">
                       {ddnsDraft.force_update ? (t('admin.domain.automaticUpdates') || 'Enabled') : (t('admin.domain.statusIdle') || 'Idle')}
@@ -1929,7 +1929,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                  <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
                     {t('admin.domain.webhookJson') || 'Webhook Fields'}
                   </div>
                   <KeyValueForm
@@ -1958,16 +1958,16 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
               <div className="flex items-start gap-4 group text-foreground">
                 <div className="pt-1"><Switch checked={ddnsDraft.enabled} onChange={(v) => setDdnsDraft({ ...ddnsDraft, enabled: v })} /></div>
                 <div>
-                    <div className="text-sm font-black uppercase tracking-widest group-hover:text-primary transition-colors opacity-80">{t('admin.domain.enableService')}</div>
-                    <div className="text-[14px] opacity-60 dark:opacity-30 font-bold uppercase tracking-tighter">{t('admin.domain.automaticUpdates')}</div>
+                    <div className="text-sm font-black tracking-widest group-hover:text-primary transition-colors opacity-80">{t('admin.domain.enableService')}</div>
+                    <div className="text-[14px] opacity-60 dark:opacity-30 font-bold tracking-tighter">{t('admin.domain.automaticUpdates')}</div>
                 </div>
               </div>
               {selectedDdnsProviderKey === 'cloudflare' && (
                 <div className="flex items-start gap-4 group text-foreground">
                   <div className="pt-1"><Switch checked={ddnsDraft.proxied} onChange={(v) => setDdnsDraft({ ...ddnsDraft, proxied: v })} /></div>
                   <div>
-                      <div className="text-sm font-black uppercase tracking-widest group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors opacity-80">{t('admin.domain.cdnProxy')}</div>
-                      <div className="text-[14px] opacity-60 dark:opacity-30 font-bold uppercase tracking-tighter">{t('admin.domain.cloudflareProxy')}</div>
+                      <div className="text-sm font-black tracking-widest group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors opacity-80">{t('admin.domain.cdnProxy')}</div>
+                      <div className="text-[14px] opacity-60 dark:opacity-30 font-bold tracking-tighter">{t('admin.domain.cloudflareProxy')}</div>
                   </div>
                 </div>
               )}
@@ -1975,7 +1975,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           </div>
 
           <div className="sticky bottom-0 -mx-1 px-1 py-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-white/5 bg-white/85 dark:bg-black/40 backdrop-blur-xl">
-            <Button variant="outline" onClick={() => setDdnsModalOpen(false)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black uppercase tracking-widest text-sm shadow-sm text-foreground">{t('common.cancel')}</Button>
+            <Button variant="outline" onClick={() => setDdnsModalOpen(false)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black tracking-widest text-sm shadow-sm text-foreground">{t('common.cancel')}</Button>
             <Button onClick={saveDdns} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">{t('common.save')}</Button>
           </div>
         </div>
@@ -2036,22 +2036,22 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
               <div className="flex items-start gap-4 group text-foreground">
                 <div className="pt-1"><Switch checked={sslDraft.enabled} onChange={(v) => setSslDraft({ ...sslDraft, enabled: v })} /></div>
                 <div>
-                    <div className="text-sm font-black uppercase tracking-widest group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors opacity-80">{t('admin.domain.enableCert')}</div>
-                    <div className="text-[14px] opacity-60 dark:opacity-30 font-bold uppercase tracking-tighter">{t('admin.domain.activeForWeb')}</div>
+                    <div className="text-sm font-black tracking-widest group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors opacity-80">{t('admin.domain.enableCert')}</div>
+                    <div className="text-[14px] opacity-60 dark:opacity-30 font-bold tracking-tighter">{t('admin.domain.activeForWeb')}</div>
                 </div>
               </div>
               <div className="flex items-start gap-4 group text-foreground">
                 <div className="pt-1"><Switch checked={sslDraft.auto_renew} onChange={(v) => setSslDraft({ ...sslDraft, auto_renew: v })} /></div>
                 <div>
-                    <div className="text-sm font-black uppercase tracking-widest group-hover:text-primary transition-colors opacity-80">{t('admin.domain.autoRenew')}</div>
-                    <div className="text-[14px] opacity-60 dark:opacity-30 font-bold uppercase tracking-tighter">{t('admin.domain.autoRenewalCheck')}</div>
+                    <div className="text-sm font-black tracking-widest group-hover:text-primary transition-colors opacity-80">{t('admin.domain.autoRenew')}</div>
+                    <div className="text-[14px] opacity-60 dark:opacity-30 font-bold tracking-tighter">{t('admin.domain.autoRenewalCheck')}</div>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="sticky bottom-0 -mx-1 px-1 py-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-white/5 bg-white/85 dark:bg-black/40 backdrop-blur-xl">
-            <Button variant="outline" onClick={() => setSslModalOpen(false)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black uppercase tracking-widest text-sm shadow-sm text-foreground">{t('common.cancel')}</Button>
+            <Button variant="outline" onClick={() => setSslModalOpen(false)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black tracking-widest text-sm shadow-sm text-foreground">{t('common.cancel')}</Button>
             <Button onClick={saveSsl} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">{t('common.save')}</Button>
           </div>
         </div>
@@ -2063,7 +2063,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           {showProviderList ? (
             <div className="space-y-6">
               <div className="flex justify-between items-center px-2">
-                <h3 className="text-sm font-black uppercase tracking-widest opacity-70">{t('common.manage')}</h3>
+                <h3 className="text-sm font-black tracking-widest opacity-70">{t('common.manage')}</h3>
                 <Button onClick={() => { setProviderDraft(newProviderDraft()); setShowProviderList(false); }} size="sm" className="h-10 px-4 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all border border-primary/20 font-bold">
                   <Plus size={16} className="mr-2" /> {t('common.new')}
                 </Button>
@@ -2071,7 +2071,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
               <div className="grid gap-3">
                 {providersForCurrentView.length === 0 ? (
-                  <div className="py-12 text-center opacity-30 font-bold uppercase tracking-widest text-sm border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-3xl">
+                  <div className="py-12 text-center opacity-30 font-bold tracking-widest text-sm border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-3xl">
                     {t('admin.domain.noProviders')}
                   </div>
                 ) : (
@@ -2137,7 +2137,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                                 </span>
                               )}
                             </div>
-                            <div className="text-[14px] opacity-50 font-mono uppercase flex items-center gap-2">
+                            <div className="text-[14px] opacity-50 font-mono flex items-center gap-2">
                               <span>{p.provider_key}</span>
                               {profile?.vendor_type === 'ddns_only' && (
                                 <Badge variant="outline" className="text-[10px] h-4 px-1 bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400">DDNS ONLY</Badge>
@@ -2184,7 +2184,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 )}
               </div>
               <div className="sticky bottom-0 -mx-1 px-1 py-4 flex justify-end border-t border-zinc-200 dark:border-white/5 bg-white/85 dark:bg-black/40 backdrop-blur-xl">
-                <Button variant="outline" onClick={() => setProviderModalOpen(false)} className="h-12 px-6 rounded-xl font-bold uppercase tracking-widest text-sm">{t('common.close')}</Button>
+                <Button variant="outline" onClick={() => setProviderModalOpen(false)} className="h-12 px-6 rounded-xl font-bold tracking-widest text-sm">{t('common.close')}</Button>
               </div>
             </div>
           ) : (
@@ -2194,11 +2194,11 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                   <SectionHeader icon={Server} title={t('admin.domain.accountIdentity')} desc={t('admin.domain.providerAccountIdentity')} colorClass="bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 border-indigo-500/20" />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <div className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('common.name')}</div>
+                      <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('common.name')}</div>
                       <Input value={providerDraft.name} onChange={(e) => setProviderDraft((prev) => ({ ...prev, name: e.target.value }))} className={controlBase} />
                     </div>
                     <div className="space-y-2">
-                      <div className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.detectionSource')}</div>
+                      <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.detectionSource')}</div>
                       <select className={selectBase} style={selectStyle} value={providerDraft.provider_key} onChange={(e) => setProviderDraft((prev) => ({ ...prev, provider_key: e.target.value }))}>
                         {providerProfilesForCurrentView.map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
                       </select>
@@ -2245,7 +2245,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <div className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">
+                        <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">
                           {t('admin.domain.zoneLabel') || 'Zone'}
                         </div>
                         <Input
@@ -2256,7 +2256,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                         />
                       </div>
                       <div className="space-y-2">
-                        <div className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">
+                        <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">
                           {t('admin.domain.hostLabel') || 'Host'}
                         </div>
                         <Input
@@ -2328,14 +2328,14 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
                 <div className="flex items-start gap-4 group">
                   <div className="pt-1"><Switch checked={providerDraft.enabled} onChange={(v) => setProviderDraft((prev) => ({ ...prev, enabled: v }))} /></div>
                   <div>
-                      <div className="text-sm font-black uppercase tracking-widest group-hover:text-primary transition-colors opacity-80">{t('admin.domain.statusEnabled')}</div>
-                      <div className="text-[14px] opacity-60 dark:opacity-30 font-bold uppercase tracking-tighter">{t('admin.domain.readyForDdns')}</div>
+                      <div className="text-sm font-black tracking-widest group-hover:text-primary transition-colors opacity-80">{t('admin.domain.statusEnabled')}</div>
+                      <div className="text-[14px] opacity-60 dark:opacity-30 font-bold tracking-tighter">{t('admin.domain.readyForDdns')}</div>
                   </div>
                 </div>
               </div>
 
               <div className="sticky bottom-0 -mx-1 px-1 py-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-white/5 bg-white/85 dark:bg-black/40 backdrop-blur-xl">
-                <Button variant="outline" onClick={() => setShowProviderList(true)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black uppercase tracking-widest text-sm shadow-sm text-foreground">{t('common.back')}</Button>
+                <Button variant="outline" onClick={() => setShowProviderList(true)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black tracking-widest text-sm shadow-sm text-foreground">{t('common.back')}</Button>
                 <Button onClick={saveProviderQuick} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">
                   {providerDraft.id ? t('common.save') : t('admin.domain.create')}
                 </Button>
@@ -2353,15 +2353,15 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
               <SectionHeader icon={LinkIcon} title={t('admin.acme.form.zerosslEab')} desc={t('admin.domain.zerosslEabDesc')} colorClass="bg-cyan-500/10 text-cyan-600 dark:text-cyan-500 border-cyan-500/20" />
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <div className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.remark')}</div>
+                  <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.remark')}</div>
                   <Input value={zerosslDraft.name} onChange={(e) => setZeroSslDraft({ ...zerosslDraft, name: e.target.value })} className={controlBase} />
                 </div>
                 <div className="space-y-2">
-                  <div className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.eabKid')}</div>
+                  <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.eabKid')}</div>
                   <Input value={zerosslDraft.eab_kid} onChange={(e) => setZeroSslDraft({ ...zerosslDraft, eab_kid: e.target.value })} className={cn(controlBase, "font-mono text-[14px] tracking-tight")} />
                 </div>
                 <div className="space-y-2">
-                  <div className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.eabHmac')}</div>
+                  <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.eabHmac')}</div>
                   <PasswordInput value={zerosslDraft.eab_hmac_key} onChange={(e) => setZeroSslDraft({ ...zerosslDraft, eab_hmac_key: e.target.value })} inputClassName={cn(controlBase, "font-mono text-[14px] tracking-tight")} />
                 </div>
               </div>
@@ -2372,14 +2372,14 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
              <div className="flex items-start gap-4 group">
                 <div className="pt-1"><Switch checked={zerosslDraft.enabled} onChange={(v) => setZeroSslDraft({ ...zerosslDraft, enabled: v })} /></div>
                 <div>
-                   <div className="text-sm font-black uppercase tracking-widest group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors opacity-80">{t('admin.domain.statusEnabled')}</div>
-                   <div className="text-[14px] opacity-60 dark:opacity-30 font-bold uppercase tracking-tighter">{t('admin.domain.availableForZerossl')}</div>
+                   <div className="text-sm font-black tracking-widest group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors opacity-80">{t('admin.domain.statusEnabled')}</div>
+                   <div className="text-[14px] opacity-60 dark:opacity-30 font-bold tracking-tighter">{t('admin.domain.availableForZerossl')}</div>
                 </div>
              </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-6 border-t border-zinc-200 dark:border-white/5">
-            <Button variant="outline" onClick={() => setZeroSslModalOpen(false)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black uppercase tracking-widest text-sm shadow-sm text-foreground">{t('common.cancel')}</Button>
+            <Button variant="outline" onClick={() => setZeroSslModalOpen(false)} className="h-14 px-8 rounded-2xl border-zinc-300 dark:border-white/5 bg-white dark:bg-white/5 font-black tracking-widest text-sm shadow-sm text-foreground">{t('common.cancel')}</Button>
             <Button onClick={saveZeroSslQuick} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">{t('admin.domain.create')}</Button>
           </div>
         </div>

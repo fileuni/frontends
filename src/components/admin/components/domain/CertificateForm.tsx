@@ -46,8 +46,8 @@ const SectionHeader = ({ icon: Icon, title, desc }: { icon: LucideIcon, title: s
       <Icon size={16} />
     </div>
     <div>
-      <h4 className="text-sm font-black uppercase tracking-widest text-foreground/80 leading-none mb-1">{title}</h4>
-      {desc && <p className="text-[14px] opacity-60 dark:opacity-40 font-bold uppercase tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">{desc}</p>}
+      <h4 className="text-sm font-black tracking-widest text-foreground/80 leading-none mb-1">{title}</h4>
+      {desc && <p className="text-[14px] opacity-60 dark:opacity-40 font-bold tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">{desc}</p>}
     </div>
   </div>
 );
@@ -162,14 +162,14 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
         <div className="space-y-4">
           <SectionHeader icon={Shield} title={t('admin.domain.certIdentity')} desc={t('admin.domain.certIdentityDesc')} />
           <div className="space-y-2">
-            <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.name')}</label>
+            <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.name')}</div>
             <Input value={name} onChange={(e) => onChangeName(e.target.value)} placeholder={t('admin.domain.certNamePlaceholder')} className={controlBase} />
           </div>
         </div>
         <div className="space-y-4">
           <SectionHeader icon={Mail} title={t('admin.domain.contactInfo')} desc={t('admin.domain.contactInfoDesc')} />
           <div className="space-y-2">
-            <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.accountEmail')}</label>
+            <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.accountEmail')}</div>
             <Input value={accountEmail} onChange={(e) => onChangeAccountEmail(e.target.value)} placeholder={t('admin.domain.certAccountEmailPlaceholder')} className={controlBase} />
           </div>
         </div>
@@ -206,7 +206,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
               </Badge>
               );
             })}
-            {domains.length === 0 && <div className="w-full flex items-center justify-center text-[14px] font-black uppercase tracking-widest opacity-40 dark:opacity-20 py-2 italic">{t('admin.domain.noDomainAssets')}</div>}
+            {domains.length === 0 && <div className="w-full flex items-center justify-center text-[14px] font-black tracking-widest opacity-40 dark:opacity-20 py-2 italic">{t('admin.domain.noDomainAssets')}</div>}
           </div>
         </div>
       </div>
@@ -217,7 +217,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
           <SectionHeader icon={Settings} title={t('admin.domain.issuanceChallenge')} desc={t('admin.domain.issuanceChallengeDesc')} />
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.caProvider')}</label>
+              <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.caProvider')}</div>
               <select className={selectBase} style={selectStyle} value={caProvider} onChange={(e) => onChangeCaProvider(e.target.value)}>
                 <option value="letsencrypt">Let's Encrypt</option>
                 <option value="letsencrypt-staging">Staging (Test)</option>
@@ -225,7 +225,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.challengeType')}</label>
+              <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.challengeType')}</div>
               <select className={selectBase} style={selectStyle} value={challengeType} onChange={(e) => onChangeChallengeType(parseChallengeType(e.target.value))}>
                 <option value="dns01">DNS-01</option>
                 <option value="http01">HTTP-01</option>
@@ -235,7 +235,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
 
           {challengeType === 'dns01' && (
             <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-              <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.dnsProvider')}</label>
+              <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.dnsProvider')}</div>
               <div className="flex gap-2">
                 <select className={selectBase} style={selectStyle} value={providerAccountId || ''} onChange={(e) => onChangeProviderAccountId(e.target.value)}>
                   <option value="">{t('admin.acme.form.providerSelectPlaceholder')}</option>
@@ -247,7 +247,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
               </div>
 
               {selectedProvider && (
-                <div className="flex flex-wrap items-center gap-2 text-[12px] font-black uppercase tracking-widest opacity-70">
+                <div className="flex flex-wrap items-center gap-2 text-[12px] font-black tracking-widest opacity-70">
                   {selectedProvider.enabled === false && (
                     <Badge variant="outline" className="h-6 px-2 rounded-lg opacity-70">
                       {t('common.disabled') || 'disabled'}
@@ -282,7 +282,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
               )}
 
               <div className="pt-2 space-y-2">
-                <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.zoneLabel') || 'Managed Zone'}</label>
+                <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.zoneLabel') || 'Managed Zone'}</div>
                 <div className="flex gap-2">
                   <Input
                     value={getConfigValue('dns_zone') || getConfigValue('zone')}
@@ -309,7 +309,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
 
           {challengeType === 'http01' && (
             <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-              <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.httpWebroot')}</label>
+              <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.acme.form.httpWebroot')}</div>
               <Input value={getConfigValue('webroot') || getConfigValue('http_webroot')} onChange={(e) => updateDnsConfig('webroot', e.target.value)} placeholder={t('admin.domain.certHttpWebrootInputPlaceholder')} className={controlBase} />
               {hasWildcard && (
                 <div className="mt-2 p-3 rounded-xl bg-red-500/5 border border-red-500/20 text-[14px] font-bold text-red-700 dark:text-red-400">
@@ -325,9 +325,9 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
           
           {caProvider === 'zerossl' && (
             <div className="space-y-2 p-4 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/5 border border-cyan-500/20 dark:border-cyan-500/10 animate-in fade-in zoom-in-95 shadow-sm">
-              <label className="text-[14px] font-black uppercase tracking-widest text-cyan-700 dark:text-cyan-400 opacity-80 flex items-center gap-2">
+              <div className="text-[14px] font-black tracking-widest text-cyan-700 dark:text-cyan-400 opacity-80 flex items-center gap-2">
                 <LinkIcon size={18}/> {t('admin.domain.zerosslEab')}
-              </label>
+              </div>
               <div className="flex gap-2">
                 <select className={cn(selectBase, "border-cyan-500/30 dark:border-cyan-500/20")} style={selectStyle} value={getConfigValue('zerossl_account_id')} onChange={(e) => updateDnsConfig('zerossl_account_id', e.target.value)}>
                   <option value="">{t('admin.acme.form.providerSelectPlaceholder')}</option>
@@ -341,7 +341,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
           )}
 
           <div className="space-y-2">
-            <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.exportPath')}</label>
+            <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.exportPath')}</div>
             <div className="relative">
               <Input value={exportPath || ''} onChange={(e) => onChangeExportPath(e.target.value)} placeholder={t('admin.domain.certExportPlaceholder')} className={controlBase} />
               <ExternalLink size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/20 dark:text-white/20" />

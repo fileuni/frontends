@@ -39,14 +39,14 @@ export const CertLogsModal = ({
     >
       <div className="space-y-6 p-1 text-foreground">
         {!cert ? (
-          <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+          <div className="py-16 text-center opacity-40 font-bold tracking-widest">
             {t('common.noData') || 'No data'}
           </div>
         ) : (
           <div className={sectionCardBase}>
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
-                <div className="text-sm font-black uppercase tracking-widest opacity-70 truncate">
+                <div className="text-sm font-black tracking-widest opacity-70 truncate">
                   {cert.name}
                 </div>
                 <div className="mt-1 text-[14px] font-mono opacity-60 truncate">
@@ -60,7 +60,7 @@ export const CertLogsModal = ({
                   })()}
                 </div>
               </div>
-              <div className="shrink-0 text-[14px] font-black uppercase tracking-widest opacity-50">
+              <div className="shrink-0 text-[14px] font-black tracking-widest opacity-50">
                 {total}
               </div>
             </div>
@@ -69,16 +69,16 @@ export const CertLogsModal = ({
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-zinc-200 dark:border-white/5">
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">
                       {t('common.time') || 'Time'}
                     </th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">
                       {t('admin.acme.table.status') || 'Status'}
                     </th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">
                       {t('admin.domain.certExpiresAt') || 'Expires'}
                     </th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">
                       {t('common.message') || 'Message'}
                     </th>
                   </tr>
@@ -88,7 +88,7 @@ export const CertLogsModal = ({
                     <tr>
                       <td
                         colSpan={4}
-                        className="py-10 text-center opacity-50 font-bold uppercase tracking-widest"
+                        className="py-10 text-center opacity-50 font-bold tracking-widest"
                       >
                         <RefreshCw className="animate-spin mb-3 mx-auto" size={22} />
                         {t('common.loading')}
@@ -98,7 +98,7 @@ export const CertLogsModal = ({
                     <tr>
                       <td
                         colSpan={4}
-                        className="py-10 text-center opacity-40 font-bold uppercase tracking-widest"
+                        className="py-10 text-center opacity-40 font-bold tracking-widest"
                       >
                         {t('common.noData') || 'No data'}
                       </td>

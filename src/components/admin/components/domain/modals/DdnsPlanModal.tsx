@@ -125,7 +125,7 @@ export const DdnsPlanModal = ({
         <div className={sectionCardBase}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-sm font-black uppercase tracking-widest opacity-60">
+              <div className="text-sm font-black tracking-widest opacity-60">
                 {t('admin.domain.ddnsPlanDesc') || 'Preview what will be updated and why.'}
               </div>
               {data && (
@@ -136,7 +136,7 @@ export const DdnsPlanModal = ({
             </div>
             <div className="flex flex-wrap items-center justify-end gap-3">
               <div className="flex items-center gap-2">
-                <div className="text-[12px] font-black uppercase tracking-widest opacity-50">
+                <div className="text-[12px] font-black tracking-widest opacity-50">
                   {t('admin.domain.filter') || 'Filter'}
                 </div>
                 <select
@@ -164,7 +164,7 @@ export const DdnsPlanModal = ({
               />
 
               <div className="flex items-center gap-2">
-                <div className="text-[12px] font-black uppercase tracking-widest opacity-50">
+                <div className="text-[12px] font-black tracking-widest opacity-50">
                   {t('admin.domain.concurrency') || 'Concurrency'}
                 </div>
                 <select
@@ -203,11 +203,11 @@ export const DdnsPlanModal = ({
 
         <div className={sectionCardBase}>
           {!data ? (
-            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+            <div className="py-16 text-center opacity-40 font-bold tracking-widest">
               {loading ? (t('common.loading') || 'Loading') : (t('common.noData') || 'No data')}
             </div>
           ) : items.length === 0 ? (
-            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+            <div className="py-16 text-center opacity-40 font-bold tracking-widest">
               {t('admin.domain.noPlanItems') || 'No items'}
             </div>
           ) : (
@@ -215,12 +215,12 @@ export const DdnsPlanModal = ({
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-zinc-200 dark:border-white/5">
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">FQDN</th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">Action</th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">IPv4</th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">IPv6</th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">Reasons</th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">Ops</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">FQDN</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">Action</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">IPv4</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">IPv6</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">Reasons</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">Ops</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -241,7 +241,7 @@ export const DdnsPlanModal = ({
                           <div className="mt-1 text-[12px] font-bold opacity-40">{it.provider_key}</div>
                         </td>
                         <td className="py-3">
-                          <Badge variant="outline" className={cn('h-7 px-2 rounded-lg font-black uppercase tracking-widest', actionColor)}>
+                          <Badge variant="outline" className={cn('h-7 px-2 rounded-lg font-black tracking-widest', actionColor)}>
                             {it.action}
                           </Badge>
                         </td>

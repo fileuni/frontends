@@ -116,7 +116,7 @@ export const AuditLogAdmin = () => {
         subtitle={
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] shrink-0" />
-            <p className="text-sm font-bold opacity-40 uppercase tracking-widest truncate">
+            <p className="text-sm font-bold opacity-40 tracking-widest truncate">
               {t('admin.audit.eventsTotal', { count: total })}
             </p>
           </div>
@@ -184,12 +184,12 @@ export const AuditLogAdmin = () => {
           <table className="w-full text-left border-collapse table-fixed">
             <thead>
               <tr className="border-b border-white/5 bg-white/[0.02]">
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-48">{t('admin.audit.table.time')}</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-40">{t('admin.audit.table.user')}</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-32">{t('admin.audit.table.type')}</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-48">{t('admin.audit.table.action')}</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-64">{t('admin.audit.table.details')}</th>
-                <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-30 w-32">{t('admin.audit.table.status')}</th>
+                <th className="px-6 py-4 text-sm font-black tracking-widest opacity-30 w-48">{t('admin.audit.table.time')}</th>
+                <th className="px-6 py-4 text-sm font-black tracking-widest opacity-30 w-40">{t('admin.audit.table.user')}</th>
+                <th className="px-6 py-4 text-sm font-black tracking-widest opacity-30 w-32">{t('admin.audit.table.type')}</th>
+                <th className="px-6 py-4 text-sm font-black tracking-widest opacity-30 w-48">{t('admin.audit.table.action')}</th>
+                <th className="px-6 py-4 text-sm font-black tracking-widest opacity-30 w-64">{t('admin.audit.table.details')}</th>
+                <th className="px-6 py-4 text-sm font-black tracking-widest opacity-30 w-32">{t('admin.audit.table.status')}</th>
               </tr>
             </thead>
             <tbody>
@@ -198,7 +198,7 @@ export const AuditLogAdmin = () => {
                   <td colSpan={6} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center gap-4 opacity-30">
                       <RefreshCw className="animate-spin" size={32} />
-                      <p className="text-sm font-black uppercase tracking-widest">{t('admin.loading') || 'Loading...'}</p>
+                      <p className="text-sm font-black tracking-widest">{t('admin.loading') || 'Loading...'}</p>
                     </div>
                   </td>
                 </tr>
@@ -207,7 +207,7 @@ export const AuditLogAdmin = () => {
                   <td colSpan={6} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center gap-4 opacity-30">
                       <ClipboardList size={32} />
-                      <p className="text-sm font-black uppercase tracking-widest">{t('admin.audit.noLogsFound')}</p>
+                      <p className="text-sm font-black tracking-widest">{t('admin.audit.noLogsFound')}</p>
                     </div>
                   </td>
                 </tr>
@@ -237,12 +237,12 @@ export const AuditLogAdmin = () => {
                     <td className="px-6 py-4">
                       <div className="space-y-1">
                         <div className="text-sm opacity-60 truncate" title={log.src_info}>
-                          <span className="font-bold uppercase mr-1 opacity-40">Src:</span>
+                          <span className="font-bold mr-1 opacity-40">Src:</span>
                           {log.src_info}
                         </div>
                         {log.dst_info && (
                           <div className="text-sm opacity-60 truncate" title={log.dst_info}>
-                            <span className="font-bold uppercase mr-1 opacity-40">Dst:</span>
+                            <span className="font-bold mr-1 opacity-40">Dst:</span>
                             {log.dst_info}
                           </div>
                         )}

@@ -19,7 +19,7 @@ export const WebSitesTable = ({
 }) => {
   return (
     <AdminCard variant="shadcn" className="rounded-[1.5rem] overflow-hidden">
-      <div className="grid grid-cols-12 gap-2 px-4 py-3 text-sm font-black uppercase tracking-wider opacity-60 border-b border-border">
+      <div className="grid grid-cols-12 gap-2 px-4 py-3 text-sm font-black tracking-wider opacity-60 border-b border-border">
         <div className="col-span-3">{t('admin.web.table.site')}</div>
         <div className="col-span-2">{t('admin.web.table.bindings')}</div>
         <div className="col-span-2">{t('admin.web.table.hostnames')}</div>
@@ -55,7 +55,7 @@ export const WebSitesTable = ({
                 </div>
               </div>
               <div className="col-span-1">
-                <span className="rounded-full border border-border px-2 py-1 text-sm font-bold uppercase">{site.route_mode}</span>
+                <span className="rounded-full border border-border px-2 py-1 text-sm font-bold">{site.route_mode}</span>
               </div>
               <div className="col-span-1">
                 {site.tls_enabled ? (

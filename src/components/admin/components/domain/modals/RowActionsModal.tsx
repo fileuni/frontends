@@ -67,7 +67,7 @@ export const RowActionsModal = ({
       <div className="space-y-5 p-1 text-foreground">
         {target && (
           <div className={cn(sectionCardBase, 'p-5')}>
-            <div className="text-sm font-black uppercase tracking-widest opacity-60">
+            <div className="text-sm font-black tracking-widest opacity-60">
               {target.kind === 'ddns' ? 'DDNS' : 'SSL/TLS'}
             </div>
             <div className="mt-1 text-base font-black truncate">

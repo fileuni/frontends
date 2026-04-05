@@ -154,7 +154,7 @@ export const AdminAboutPage: React.FC = () => {
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className={cn('text-xs font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
+              <div className={cn('text-xs font-black tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
                 {t('common.system')}
               </div>
               <div className={cn('mt-1 text-lg font-black tracking-tight', isDark ? 'text-white' : 'text-gray-900')}>
@@ -168,13 +168,13 @@ export const AdminAboutPage: React.FC = () => {
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className={cn('rounded-xl border p-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-gray-200 bg-gray-50')}>
-              <div className={cn('text-[10px] font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
+              <div className={cn('text-[10px] font-black tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
                 Service Kind
               </div>
               <div className="mt-1 font-mono text-sm font-black text-primary">{runtimeKindLabel}</div>
             </div>
             <div className={cn('rounded-xl border p-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-gray-200 bg-gray-50')}>
-              <div className={cn('text-[10px] font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
+              <div className={cn('text-[10px] font-black tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
                 Runtime OS
               </div>
               <div className="mt-1 font-mono text-sm font-black text-primary">
@@ -182,7 +182,7 @@ export const AdminAboutPage: React.FC = () => {
               </div>
             </div>
             <div className={cn('rounded-xl border p-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-gray-200 bg-gray-50')}>
-              <div className={cn('text-[10px] font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
+              <div className={cn('text-[10px] font-black tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
                 CPU Arch
               </div>
               <div className="mt-1 font-mono text-sm font-black text-primary">
@@ -190,7 +190,7 @@ export const AdminAboutPage: React.FC = () => {
               </div>
             </div>
             <div className={cn('rounded-xl border p-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-gray-200 bg-gray-50')}>
-              <div className={cn('text-[10px] font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
+              <div className={cn('text-[10px] font-black tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
                 Runtime Bits
               </div>
               <div className="mt-1 font-mono text-sm font-black text-primary">
@@ -198,7 +198,7 @@ export const AdminAboutPage: React.FC = () => {
               </div>
             </div>
             <div className={cn('rounded-xl border p-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-gray-200 bg-gray-50')}>
-              <div className={cn('text-[10px] font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
+              <div className={cn('text-[10px] font-black tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
                 OS Version
               </div>
               <div className="mt-1 font-mono text-sm font-black text-primary">
@@ -211,14 +211,14 @@ export const AdminAboutPage: React.FC = () => {
               )}
             </div>
             <div className={cn('rounded-xl border p-4', isDark ? 'border-white/10 bg-white/[0.03]' : 'border-gray-200 bg-gray-50')}>
-              <div className={cn('text-[10px] font-black uppercase tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
+              <div className={cn('text-[10px] font-black tracking-widest opacity-50', isDark ? 'text-white' : 'text-gray-900')}>
                 Platform
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <span className="font-mono text-sm font-black text-primary">
                   {osInfo?.is_mobile ? 'mobile' : 'desktop'}
                 </span>
-                <span className={cn('text-xs font-black uppercase tracking-widest opacity-40', isDark ? 'text-white' : 'text-gray-900')}>
+                <span className={cn('text-xs font-black tracking-widest opacity-40', isDark ? 'text-white' : 'text-gray-900')}>
                   service={osInfo?.support_service ? 'yes' : 'no'}
                 </span>
               </div>

@@ -60,7 +60,7 @@ export const WebSiteModal = ({
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.siteName')}</label>
+            <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.siteName')}</div>
             <Input
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
@@ -68,7 +68,7 @@ export const WebSiteModal = ({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.routeMode')}</label>
+            <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.routeMode')}</div>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 type="button"
@@ -93,11 +93,11 @@ export const WebSiteModal = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-2xl border border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.enabled')}</span>
+              <span className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.enabled')}</span>
               <Switch checked={draft.enabled} onChange={(v) => setDraft({ ...draft, enabled: v })} />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.tls')}</span>
+              <span className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.tls')}</span>
               <Switch checked={draft.tls_enabled} onChange={(v) => setDraft({ ...draft, tls_enabled: v })} />
             </div>
           </div>
@@ -105,7 +105,7 @@ export const WebSiteModal = ({
           <div className="rounded-2xl border border-border p-4 space-y-3">
             {draft.route_mode === 'static' ? (
               <>
-                <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.staticRoot')}</label>
+                <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.staticRoot')}</div>
                 <Input
                   value={draft.static_root}
                   onChange={(e) => setDraft({ ...draft, static_root: e.target.value })}
@@ -114,7 +114,7 @@ export const WebSiteModal = ({
               </>
             ) : (
               <>
-                <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.proxyUpstream')}</label>
+                <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.proxyUpstream')}</div>
                 <div className="flex gap-2">
                   <Input
                     value={draft.proxy_upstream}
@@ -128,7 +128,7 @@ export const WebSiteModal = ({
                 </div>
                 <div className="rounded-xl border border-border p-3 mt-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.proxyTlsInsecure')}</span>
+                    <span className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.proxyTlsInsecure')}</span>
                     <Switch
                       checked={draft.proxy_tls_insecure_skip_verify}
                       disabled={!canToggleProxyTlsInsecure}
@@ -146,7 +146,7 @@ export const WebSiteModal = ({
 
         <div className="rounded-2xl border border-border p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-wider">{t('admin.web.form.bindings')}</h3>
+            <h3 className="text-sm font-black tracking-wider">{t('admin.web.form.bindings')}</h3>
             <Button type="button" variant="outline" size="sm" onClick={onAddBinding}>
               <Plus size={18} className="mr-1" /> {t('admin.web.form.addBinding')}
             </Button>
@@ -156,7 +156,7 @@ export const WebSiteModal = ({
             {draft.bindings.map((binding, index) => (
               <div key={`${binding.listen_ip}:${binding.listen_port}:${binding.hostnames.join('|')}:${binding.is_default ? 'default' : 'normal'}`} className="grid grid-cols-12 gap-2 rounded-xl border border-border p-3">
                 <div className="col-span-12 md:col-span-3 space-y-1">
-                  <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.ip')}</label>
+                  <div className="text-sm font-bold tracking-wider opacity-60">{t('admin.web.form.ip')}</div>
                   <Input
                     value={binding.listen_ip}
                     onChange={(e) => onUpdateBinding(index, { listen_ip: e.target.value })}
@@ -164,7 +164,7 @@ export const WebSiteModal = ({
                   />
                 </div>
                 <div className="col-span-12 md:col-span-2 space-y-1">
-                  <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.port')}</label>
+                  <div className="text-sm font-bold tracking-wider opacity-60">{t('admin.web.form.port')}</div>
                   <Input
                     value={String(binding.listen_port)}
                     onChange={(e) => {
@@ -175,7 +175,7 @@ export const WebSiteModal = ({
                   />
                 </div>
                 <div className="col-span-12 md:col-span-5 space-y-1">
-                  <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.hostnames')}</label>
+                  <div className="text-sm font-bold tracking-wider opacity-60">{t('admin.web.form.hostnames')}</div>
                   <Input
                     value={binding.hostnames.join(', ')}
                     onChange={(e) => onUpdateBinding(index, { hostnames: normalizeHostnames(e.target.value) })}
@@ -185,7 +185,7 @@ export const WebSiteModal = ({
                   <p className="text-sm opacity-60">{t('admin.web.form.hostnameSuggestionHint')}</p>
                 </div>
                 <div className="col-span-8 md:col-span-1 space-y-1">
-                  <label className="text-sm font-bold uppercase tracking-wider opacity-60">{t('admin.web.form.default')}</label>
+                  <div className="text-sm font-bold tracking-wider opacity-60">{t('admin.web.form.default')}</div>
                   <div className="h-12 flex items-center">
                     <Switch checked={binding.is_default} onChange={(v) => onUpdateBinding(index, { is_default: v })} />
                   </div>
@@ -210,7 +210,7 @@ export const WebSiteModal = ({
 
         <div className="rounded-2xl border border-border p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-wider">{t('admin.web.diagnostics.title')}</h3>
+            <h3 className="text-sm font-black tracking-wider">{t('admin.web.diagnostics.title')}</h3>
             <span className="text-sm font-bold opacity-60">
               {t('admin.web.diagnostics.listenerCount', { count: listenerDiagnostics.length })}
             </span>
@@ -229,7 +229,7 @@ export const WebSiteModal = ({
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-black">{diag.listenerKey}</span>
                   <span
-                    className={`text-sm font-bold uppercase ${diag.errors.length > 0 ? 'text-amber-700' : 'text-emerald-700'}`}
+                    className={`text-sm font-bold ${diag.errors.length > 0 ? 'text-amber-700' : 'text-emerald-700'}`}
                   >
                     {diag.errors.length > 0
                       ? t('admin.web.diagnostics.conflict')
@@ -266,7 +266,7 @@ export const WebSiteModal = ({
 
         {draftWarnings.length > 0 && (
           <div className="rounded-xl border border-amber-400/40 bg-amber-500/10 p-3">
-            <p className="text-sm font-black uppercase tracking-wider text-amber-700">{t('admin.web.warnings.title')}</p>
+            <p className="text-sm font-black tracking-wider text-amber-700">{t('admin.web.warnings.title')}</p>
             <div className="mt-2 space-y-1">
               {draftWarnings.map((item) => (
                 <p key={item} className="text-sm text-amber-800">
@@ -280,7 +280,7 @@ export const WebSiteModal = ({
         {draft.tls_enabled && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.tlsAcmeCert')}</label>
+              <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.tlsAcmeCert')}</div>
               <select
                 className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm"
                 value={draft.tls_acme_cert_id}
@@ -296,7 +296,7 @@ export const WebSiteModal = ({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.tlsCertPath')}</label>
+                <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.tlsCertPath')}</div>
                 <Input
                   value={draft.tls_cert_path}
                   onChange={(e) => setDraft({ ...draft, tls_cert_path: e.target.value })}
@@ -305,7 +305,7 @@ export const WebSiteModal = ({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-wider opacity-70">{t('admin.web.form.tlsKeyPath')}</label>
+                <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.tlsKeyPath')}</div>
                 <Input
                   value={draft.tls_key_path}
                   onChange={(e) => setDraft({ ...draft, tls_key_path: e.target.value })}

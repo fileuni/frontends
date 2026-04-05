@@ -30,14 +30,14 @@ export const CertCheckModal = ({
     >
       <div className="space-y-6 p-1 text-foreground">
         {!result ? (
-          <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+          <div className="py-16 text-center opacity-40 font-bold tracking-widest">
             {t('common.noData') || 'No data'}
           </div>
         ) : (
           <div className={sectionCardBase}>
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <div className="text-sm font-black uppercase tracking-widest opacity-60">
+                <div className="text-sm font-black tracking-widest opacity-60">
                   CERT
                 </div>
                 <div className="mt-1 text-base font-black truncate">{result.name}</div>
@@ -46,7 +46,7 @@ export const CertCheckModal = ({
                 <Badge
                   variant="outline"
                   className={cn(
-                    'h-8 px-3 rounded-xl font-black uppercase tracking-widest',
+                    'h-8 px-3 rounded-xl font-black tracking-widest',
                     result.overall_status === 'fail'
                       ? 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400'
                       : result.overall_status === 'warn'
@@ -74,7 +74,7 @@ export const CertCheckModal = ({
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <div className="text-[12px] font-black uppercase tracking-widest opacity-60">
+                      <div className="text-[12px] font-black tracking-widest opacity-60">
                         {it.key}
                       </div>
                       <div className="mt-1 text-[14px] font-bold opacity-80">
@@ -84,7 +84,7 @@ export const CertCheckModal = ({
                     <Badge
                       variant="outline"
                       className={cn(
-                        'h-7 px-2 rounded-lg font-black uppercase tracking-widest',
+                        'h-7 px-2 rounded-lg font-black tracking-widest',
                         it.status === 'fail'
                           ? 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400'
                           : it.status === 'warn'

@@ -76,7 +76,7 @@ const buildFieldDefsFromProfile = (
 };
 
 export const ProviderForm: React.FC<ProviderFormProps> = ({
-  providerKey,
+  providerKey: _providerKey,
   credentialJson,
   configJson,
   onChangeCredential,
@@ -91,7 +91,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
     const cred = parseJsonObjectToStringMap(credentialJson);
     const conf = parseJsonObjectToStringMap(configJson);
     setFields({ ...cred, ...conf });
-  }, [providerKey, credentialJson, configJson]);
+  }, [credentialJson, configJson]);
 
   const handleFieldChange = (key: string, value: string) => {
     const newFields = { ...fields, [key]: value };
@@ -129,7 +129,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
     return (
       <div className="space-y-6 text-foreground">
         <div className="space-y-2">
-          <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.credentialJson')}</label>
+          <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.credentialJson')}</div>
           <KeyValueForm
             value={fallbackCred}
             onChange={(obj) => onChangeCredential(JSON.stringify(obj))}
@@ -139,7 +139,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[14px] font-black uppercase tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.configJson')}</label>
+          <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.configJson')}</div>
           <KeyValueForm
             value={fallbackConf}
             onChange={(obj) => onChangeConfig(JSON.stringify(obj))}
@@ -157,10 +157,10 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
       <div className="grid grid-cols-1 gap-4">
         {currentDefs.map((def) => (
           <div key={def.key} className="space-y-1.5">
-            <label className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+            <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
               {def.label}
               {def.required && !isEdit && <span className="text-red-500 ml-1">*</span>}
-            </label>
+            </div>
             {(def.type === 'password' || isSensitiveKeyName(def.key)) ? (
               <PasswordInput
                 value={fields[def.key] || ''}

@@ -11,7 +11,7 @@ export const AdminLoadingState = ({ label, className }: LoadingProps) => {
   return (
     <div className={cn('flex flex-col items-center justify-center py-20 opacity-40', className)}>
       <RefreshCw className="animate-spin mb-4" size={28} />
-      <p className="text-sm font-black uppercase tracking-widest">{label}</p>
+      <p className="text-sm font-black tracking-widest">{label}</p>
     </div>
   );
 };
@@ -27,7 +27,7 @@ export const AdminEmptyState = ({ icon, title, description, className }: EmptyPr
   return (
     <div className={cn('py-16 text-center opacity-60', className)}>
       {icon ? <div className="mx-auto mb-4 flex justify-center">{icon}</div> : null}
-      <div className="text-sm font-black uppercase tracking-widest">{title}</div>
+      <div className="text-sm font-black tracking-widest">{title}</div>
       {description ? <div className="mt-2 text-sm opacity-70">{description}</div> : null}
     </div>
   );

@@ -174,7 +174,7 @@ export const PermissionAdmin = () => {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-xl font-black">{activeRole.name}</h3>
-                  <p className="text-sm uppercase tracking-widest opacity-40">{activeRole.role_key}</p>
+                  <p className="text-sm tracking-widest opacity-40">{activeRole.role_key}</p>
                 </div>
                 <Button onClick={() => void handleSave()} disabled={saving}>
                   {saving ? <RefreshCw size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />}
@@ -183,7 +183,7 @@ export const PermissionAdmin = () => {
               </div>
 
               <div className="space-y-2">
-                <div className="text-sm font-black uppercase tracking-widest opacity-40">
+                <div className="text-sm font-black tracking-widest opacity-40">
                   {t("admin.edit.quota")} ({bytesToText(Number(draftQuota) || 0)})
                 </div>
                 <Input value={draftQuota} onChange={(event) => setDraftQuota(event.target.value)} />
@@ -192,7 +192,7 @@ export const PermissionAdmin = () => {
               <div className="space-y-6">
                 {groupedPermissions.map(([moduleKey, items]) => (
                   <div key={moduleKey} className="space-y-3">
-                    <h4 className="text-sm font-black uppercase tracking-widest opacity-50">{moduleKey}</h4>
+                    <h4 className="text-sm font-black tracking-widest opacity-50">{moduleKey}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {items.map((item) => {
                         const checked = draftPermissions.includes(item.perm_key);

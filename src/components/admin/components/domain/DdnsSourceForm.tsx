@@ -155,8 +155,8 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
             <Network size={16} />
           </div>
           <div>
-            <h4 className="text-sm font-black uppercase tracking-widest text-foreground/80 leading-none mb-1">{label}</h4>
-            <p className="text-[14px] opacity-60 dark:opacity-40 font-bold uppercase tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">{t('admin.domain.detectionSourceDesc')}</p>
+            <h4 className="text-sm font-black tracking-widest text-foreground/80 leading-none mb-1">{label}</h4>
+            <p className="text-[14px] opacity-60 dark:opacity-40 font-bold tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">{t('admin.domain.detectionSourceDesc')}</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -174,7 +174,7 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-4 items-center">
               <div className="space-y-1.5">
-                <div className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.detectionSource')}</div>
+                <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.detectionSource')}</div>
                 <div className="relative text-foreground">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40 dark:text-white/40 pointer-events-none">
                     {getIcon(config.type)}
@@ -195,7 +195,7 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
               </div>
 
               <div className="space-y-1.5">
-                <div className="text-[14px] font-black uppercase tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
                   {config.type === 'url' ? t('admin.domain.endpointUrl') : 
                    config.type === 'interface' ? t('admin.domain.interfaceName') :
                    config.type === 'static' ? t('admin.domain.fixedAddress') :
@@ -227,12 +227,12 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
                       <button
                         type="button"
                         onClick={applyRecommendedUrls}
-                        className="text-[14px] font-black uppercase tracking-widest text-primary underline underline-offset-4 opacity-70 hover:opacity-100 transition-opacity"
+                        className="text-[14px] font-black tracking-widest text-primary underline underline-offset-4 opacity-70 hover:opacity-100 transition-opacity"
                       >
                         {t('admin.domain.useRecommendedUrls') || 'Use recommended URLs'}
                       </button>
                     </div>
-                    <p className="text-[14px] opacity-50 dark:opacity-30 font-bold uppercase tracking-tighter text-foreground/60">{t('admin.domain.multiUrlHint')}</p>
+                    <p className="text-[14px] opacity-50 dark:opacity-30 font-bold tracking-tighter text-foreground/60">{t('admin.domain.multiUrlHint')}</p>
                   </div>
                 )}
 
@@ -262,12 +262,12 @@ export const DdnsSourceForm: React.FC<DdnsSourceFormProps> = ({
                       onChange={(e) => updateConfig({ ...config, cmd: e.target.value })}
                       className={cn(controlBase, "font-mono")}
                     />
-                    <p className="text-[14px] opacity-50 dark:opacity-30 font-bold uppercase tracking-tighter text-foreground/60">{t('admin.domain.requiresSystemPermission')}</p>
+                    <p className="text-[14px] opacity-50 dark:opacity-30 font-bold tracking-tighter text-foreground/60">{t('admin.domain.requiresSystemPermission')}</p>
                   </div>
                 )}
 
                 {config.type === 'inherit_last' && (
-                  <div className="h-11 flex items-center px-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-[14px] font-black uppercase tracking-widest opacity-40 dark:opacity-30 italic text-foreground">
+                  <div className="h-11 flex items-center px-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-[14px] font-black tracking-widest opacity-40 dark:opacity-30 italic text-foreground">
                     {t('admin.domain.inheritLastDesc')}
                   </div>
                 )}

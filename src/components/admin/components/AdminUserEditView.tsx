@@ -323,12 +323,12 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
               <div className="flex items-center gap-4 min-w-0">
                 <span className="text-4xl font-black tracking-tight truncate">{rawUser?.username}</span>
                 {rawUser?.is_deleted && (
-                  <span className="text-sm bg-red-500 text-white px-2 py-1 rounded font-black uppercase shrink-0">
+                  <span className="text-sm bg-red-500 text-white px-2 py-1 rounded font-black shrink-0">
                     {t('admin.users.status.deleted')}
                   </span>
                 )}
               </div>
-              <div className="text-sm font-mono opacity-40 uppercase tracking-widest mt-1 flex items-center gap-2">
+              <div className="text-sm font-mono opacity-40 tracking-widest mt-1 flex items-center gap-2">
                 <Hash size={10} /> {userId}
               </div>
             </div>
@@ -343,20 +343,20 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
               <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
                 <UserCircle size={20} />
               </div>
-              <h3 className="text-xl font-black tracking-tight uppercase">{t('admin.edit.identity')}</h3>
+              <h3 className="text-xl font-black tracking-tight">{t('admin.edit.identity')}</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.fullName')}</label>
+                <div className="text-sm font-black tracking-widest opacity-40 ml-1">{t('admin.edit.fullName')}</div>
                 <Input value={form.full_name || ''} onChange={e => setForm({ ...form, full_name: e.target.value })} placeholder={t('admin.edit.fullNamePlaceholder')} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.nickname')}</label>
+                <div className="text-sm font-black tracking-widest opacity-40 ml-1">{t('admin.edit.nickname')}</div>
                 <Input value={form.nickname || ''} onChange={e => setForm({ ...form, nickname: e.target.value })} placeholder={t('admin.edit.nicknamePlaceholder')} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.email')}</label>
+                <div className="text-sm font-black tracking-widest opacity-40 ml-1">{t('admin.edit.email')}</div>
                 <Input
                   type="email"
                   value={form.email || ''}
@@ -366,7 +366,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.phone') || 'Phone'}</label>
+                <div className="text-sm font-black tracking-widest opacity-40 ml-1">{t('admin.edit.phone') || 'Phone'}</div>
                 <Input
                   value={form.phone || ''}
                   onChange={e => setForm({ ...form, phone: e.target.value })}
@@ -375,7 +375,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.role')}</label>
+                <div className="text-sm font-black tracking-widest opacity-40 ml-1">{t('admin.edit.role')}</div>
                 <select value={form.role_id ?? 100} onChange={e => setForm({ ...form, role_id: Number(e.target.value) })} className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 font-bold focus:border-primary transition-all">
                   {roles.length === 0 ? (
                     <>
@@ -395,7 +395,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
 
             <div className="space-y-4">
               <div className="flex items-center justify-between ml-1">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('profile.extraPhones') || 'Extra Phones'}</label>
+                <div className="text-sm font-black tracking-widest opacity-40">{t('profile.extraPhones') || 'Extra Phones'}</div>
                 <button
                   type="button"
                   onClick={() => {
@@ -449,24 +449,24 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 <div className="w-10 h-10 rounded-xl bg-yellow-500/10 text-yellow-500 flex items-center justify-center shadow-inner">
                   <HardDrive size={20} />
                 </div>
-                <h3 className="text-xl font-black tracking-tight uppercase">{t('admin.edit.storageVfs')}</h3>
+                <h3 className="text-xl font-black tracking-tight">{t('admin.edit.storageVfs')}</h3>
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.homeDir')}</label>
+                <div className="text-sm font-black tracking-widest opacity-40 ml-1">{t('admin.edit.homeDir')}</div>
                 <Input value={fileSettings.base_dir || ''} onChange={e => setFileSettings({ ...fileSettings, base_dir: e.target.value })} placeholder={t('admin.edit.homeDirPlaceholder')} className="font-mono text-sm" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1 flex justify-between">
+                  <div className="text-sm font-black tracking-widest opacity-40 ml-1 flex justify-between">
                     <span>{t('admin.edit.quota')}</span>
                     <span className="text-primary font-black">{Number(fileSettings.storage_quota) > 0 ? formatSize(Number(fileSettings.storage_quota)) : t('admin.edit.unlimited')}</span>
-                  </label>
+                  </div>
                   <Input type="number" value={fileSettings.storage_quota ?? 0} onChange={e => setFileSettings({ ...fileSettings, storage_quota: Number(e.target.value) })} placeholder={t('admin.edit.quotaPlaceholder')} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.pool')}</label>
+                  <div className="text-sm font-black tracking-widest opacity-40 ml-1">{t('admin.edit.pool')}</div>
                   <Input value={fileSettings.pool_name || ''} onChange={e => setFileSettings({ ...fileSettings, pool_name: e.target.value })} placeholder={t('admin.edit.poolPlaceholder')} />
                 </div>
               </div>
@@ -475,7 +475,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 <div className="flex items-center gap-3">
                   <Lock size={18} className="text-orange-500" />
                   <div>
-                    <span className="text-sm font-black uppercase tracking-widest block">{t('admin.edit.sftpPass')}</span>
+                    <span className="text-sm font-black tracking-widest block">{t('admin.edit.sftpPass')}</span>
                     <p className="text-sm opacity-40 font-bold">{t('admin.edit.sftpPassDesc') || 'Allow login to SFTP using password'}</p>
                   </div>
                 </div>
@@ -490,12 +490,12 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-inner">
                     <Cloud className="w-5 h-5" />
                   </div>
-                  <h3 className="text-xl font-black tracking-tight uppercase">{t('admin.edit.s3Credentials')}</h3>
+                  <h3 className="text-xl font-black tracking-tight">{t('admin.edit.s3Credentials')}</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
-                    <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.s3AccessKey') || 'S3 Access Key'}</label>
+                    <div className="text-sm font-black tracking-widest opacity-40 ml-1">{t('admin.edit.s3AccessKey') || 'S3 Access Key'}</div>
                     <PasswordInput
                       defaultVisible
                       value={fileSettings.s3_access_key || ''}
@@ -505,7 +505,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-black uppercase tracking-widest opacity-40 ml-1">{t('admin.edit.s3SecretKey') || 'S3 Secret Key'}</label>
+                    <div className="text-sm font-black tracking-widest opacity-40 ml-1">{t('admin.edit.s3SecretKey') || 'S3 Secret Key'}</div>
                     <PasswordInput
                       value={fileSettings.s3_secret_key || ''}
                       onChange={e => setFileSettings({ ...fileSettings, s3_secret_key: e.target.value })}
@@ -514,7 +514,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                     />
                   </div>
                 </div>
-                <p className="text-[14px] opacity-30 font-bold uppercase tracking-widest ml-1 italic">
+                <p className="text-[14px] opacity-30 font-bold tracking-widest ml-1 italic">
                   {t('admin.edit.s3KeysHint')}
                 </p>
               </div>
@@ -525,7 +525,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center shadow-inner">
                   <ShieldAlert size={20} />
                 </div>
-                <h3 className="text-xl font-black tracking-tight uppercase">{t('pages.admin.permissions.title')}</h3>
+                <h3 className="text-xl font-black tracking-tight">{t('pages.admin.permissions.title')}</h3>
               </div>
               <p className="text-sm opacity-50">{t('admin.perms.subtitle') || 'User override has higher priority than role permission'}</p>
               <div className="space-y-3">
@@ -564,7 +564,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
 
         <div className="lg:col-span-4 space-y-6">
           <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl">
-            <h3 className="text-sm font-black uppercase tracking-widest opacity-30 mb-6 flex items-center gap-2">
+            <h3 className="text-sm font-black tracking-widest opacity-30 mb-6 flex items-center gap-2">
               <Database size={18} /> {t('admin.edit.usageStats')}
             </h3>
             <div className="space-y-6">
@@ -576,12 +576,12 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 >
                   <RefreshCw size={18} className={recalibrating ? "animate-spin" : ""} />
                 </button>
-                <p className="text-sm font-black opacity-40 uppercase mb-1">{t('admin.edit.occupied')}</p>
+                <p className="text-sm font-black opacity-40 mb-1">{t('admin.edit.occupied')}</p>
                 <p className="text-2xl font-black">{formatSize(Number(fileSettings.storage_used))}</p>
               </div>
               
               <div className="space-y-2 px-2">
-                <div className="flex justify-between text-sm font-black uppercase opacity-40">
+                <div className="flex justify-between text-sm font-black opacity-40">
                   <span>{t('admin.edit.quotaUsage')}</span>
                   <span>{Number(fileSettings.storage_quota) > 0 ? Math.round((Number(fileSettings.storage_used) / Number(fileSettings.storage_quota)) * 100) : 0}%</span>
                 </div>
@@ -594,11 +594,11 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
               </div>
 
               <div className="pt-4 border-t border-white/5 space-y-3">
-                <div className="flex justify-between items-center text-sm font-black uppercase">
+                <div className="flex justify-between items-center text-sm font-black">
                   <span className="opacity-40">{t('admin.users.table.created')}</span>
                   <span className="opacity-70">{new Date(rawUser?.created_at || '').toLocaleDateString()}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm font-black uppercase">
+                <div className="flex justify-between items-center text-sm font-black">
                   <span className="opacity-40">{t('admin.users.table.status')}</span>
                   <span className="opacity-70">
                     {form.status ? getAdminUserStatusLabel(t, form.status) : '-'}
@@ -609,7 +609,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
           </AdminCard>
 
           <AdminCard className="bg-red-500/5 border border-red-500/10 rounded-[2.5rem] p-8 shadow-xl">
-            <h3 className="text-sm font-black uppercase tracking-widest text-red-500/50 mb-6 flex items-center gap-2">
+            <h3 className="text-sm font-black tracking-widest text-red-500/50 mb-6 flex items-center gap-2">
               <ShieldAlert size={18} /> {t('admin.edit.criticalActions')}
             </h3>
             <div className="space-y-3">
@@ -663,7 +663,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
           </p>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.newPassword')}</label>
+              <div className="text-sm font-black tracking-widest opacity-40">{t('admin.users.newPassword')}</div>
               <PasswordInput
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
@@ -671,7 +671,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.confirmPassword')}</label>
+              <div className="text-sm font-black tracking-widest opacity-40">{t('admin.users.confirmPassword')}</div>
               <PasswordInput
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}

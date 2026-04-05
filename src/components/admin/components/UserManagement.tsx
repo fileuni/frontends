@@ -188,7 +188,7 @@ export const UserManagement = () => {
         subtitle={
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] shrink-0" />
-            <p className="text-sm font-bold opacity-40 uppercase tracking-widest truncate">
+            <p className="text-sm font-bold opacity-40 tracking-widest truncate">
               {total} {t('admin.users.table.user')} Total
             </p>
           </div>
@@ -205,7 +205,7 @@ export const UserManagement = () => {
               />
             </form>
             <div className="flex items-center gap-2 px-4 rounded-xl bg-white/5 border border-white/5 h-12 shrink-0">
-              <span className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.showDeleted')}</span>
+              <span className="text-sm font-black tracking-widest opacity-40">{t('admin.users.showDeleted')}</span>
               <Switch checked={includeDeleted} onChange={setIncludeDeleted} />
             </div>
             <Button className="h-12 px-6 rounded-xl shadow-lg shadow-primary/20 shrink-0" onClick={() => window.location.hash = 'mod=admin&page=user-create'}>
@@ -221,11 +221,11 @@ export const UserManagement = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/5 bg-white/[0.02]">
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30">{t('admin.users.table.user')}</th>
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30">{t('admin.users.table.role')}</th>
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30">{t('admin.users.table.status')}</th>
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30">{t('admin.users.table.created')}</th>
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30 text-right">{t('admin.users.table.actions')}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.users.table.user')}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.users.table.role')}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.users.table.status')}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.users.table.created')}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30 text-right">{t('admin.users.table.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -234,7 +234,7 @@ export const UserManagement = () => {
                   <td colSpan={5} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center gap-4 opacity-30">
                       <RefreshCw className="animate-spin" size={32} />
-                      <p className="text-sm font-black uppercase tracking-widest">{t('admin.loading')}</p>
+                      <p className="text-sm font-black tracking-widest">{t('admin.loading')}</p>
                     </div>
                   </td>
                 </tr>
@@ -243,7 +243,7 @@ export const UserManagement = () => {
                   <td colSpan={5} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center gap-4 opacity-30">
                       <Users size={32} />
-                      <p className="text-sm font-black uppercase tracking-widest">{t('admin.users.noUsers')}</p>
+                      <p className="text-sm font-black tracking-widest">{t('admin.users.noUsers')}</p>
                     </div>
                   </td>
                 </tr>
@@ -269,7 +269,7 @@ export const UserManagement = () => {
                         const roleName = roles.find((role) => role.role_id === user.role_id)?.name;
                         return (
                       <span className={cn(
-                        "px-3 py-1 rounded-full text-sm font-black uppercase whitespace-nowrap border",
+                        "px-3 py-1 rounded-full text-sm font-black whitespace-nowrap border",
                         user.role_id === 0 ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-primary/10 text-primary border-primary/20"
                       )}>
                         {roleName || (user.role_id === 0 ? t('admin.users.roles.admin') : `${t('admin.users.roles.user')} #${user.role_id}`)}
@@ -281,7 +281,7 @@ export const UserManagement = () => {
                       {getStatusBadge(user)}
                     </td>
                     <td className="px-8 py-6">
-                      <div className="flex items-center gap-2 text-sm font-bold opacity-40 uppercase">
+                      <div className="flex items-center gap-2 text-sm font-bold opacity-40">
                         <Calendar size={18} />
                         {new Date(user.created_at).toLocaleDateString()}
                       </div>
@@ -363,7 +363,7 @@ export const UserManagement = () => {
           </p>
           <div className="space-y-4">
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.newPassword')}</div>
+              <div className="text-sm font-black tracking-widest opacity-40">{t('admin.users.newPassword')}</div>
               <PasswordInput
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
@@ -372,7 +372,7 @@ export const UserManagement = () => {
               />
             </div>
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.users.confirmPassword')}</div>
+              <div className="text-sm font-black tracking-widest opacity-40">{t('admin.users.confirmPassword')}</div>
               <PasswordInput
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
@@ -382,7 +382,7 @@ export const UserManagement = () => {
               {isPasswordMismatch && (
                 <div className="flex items-center gap-2 text-red-500 mt-2 animate-in fade-in slide-in-from-top-1">
                   <AlertCircle size={18} />
-                  <span className="text-sm font-black uppercase tracking-widest">{t('common.passwordMismatch')}</span>
+                  <span className="text-sm font-black tracking-widest">{t('common.passwordMismatch')}</span>
                 </div>
               )}
             </div>
@@ -411,7 +411,7 @@ export const UserManagement = () => {
             <div className="p-4 rounded-2xl bg-red-600/20 border border-red-500/50 text-red-500 animate-pulse">
               <div className="flex items-center gap-3 mb-2">
                 <ShieldAlert size={20} />
-                <span className="font-black uppercase text-sm tracking-widest">{t('admin.users.roles.admin')}</span>
+                <span className="font-black text-sm tracking-widest">{t('admin.users.roles.admin')}</span>
               </div>
               <p className="text-sm font-bold leading-relaxed">
                 {t('admin.users.deleteAdminWarning')}
@@ -426,7 +426,7 @@ export const UserManagement = () => {
             </p>
           </div>
           
-          <p className="text-sm opacity-40 uppercase tracking-widest font-black px-1">
+          <p className="text-sm opacity-40 tracking-widest font-black px-1">
             {t('admin.users.deleteWarning')}
           </p>
 

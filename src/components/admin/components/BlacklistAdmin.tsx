@@ -133,9 +133,9 @@ export const BlacklistAdmin = () => {
 
   const getGuardBadge = (type: string) => {
     if (type === 'high_risk') {
-      return <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20 uppercase font-black text-[14px] tracking-widest">{t('admin.blacklist.highRisk') || 'High Risk'}</Badge>;
+      return <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20 font-black text-[14px] tracking-widest">{t('admin.blacklist.highRisk') || 'High Risk'}</Badge>;
     }
-    return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 uppercase font-black text-[14px] tracking-widest">{t('admin.blacklist.blacklisted') || 'Blacklisted'}</Badge>;
+    return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 font-black text-[14px] tracking-widest">{t('admin.blacklist.blacklisted') || 'Blacklisted'}</Badge>;
   };
 
   return (
@@ -147,7 +147,7 @@ export const BlacklistAdmin = () => {
         subtitle={
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-            <p className="text-sm font-bold opacity-40 uppercase tracking-widest">
+            <p className="text-sm font-bold opacity-40 tracking-widest">
               {total} {t('admin.blacklist.totalEntries') || 'Security Constraints Active'}
             </p>
           </div>
@@ -159,7 +159,7 @@ export const BlacklistAdmin = () => {
               type="button"
               onClick={() => setGuardType('blacklist')}
               className={cn(
-                "px-4 py-2 rounded-lg text-sm font-black uppercase tracking-widest transition-all",
+                "px-4 py-2 rounded-lg text-sm font-black tracking-widest transition-all",
                 guardType === 'blacklist' ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : "opacity-40 hover:opacity-100"
               )}
             >
@@ -169,7 +169,7 @@ export const BlacklistAdmin = () => {
               type="button"
               onClick={() => setGuardType('high_risk')}
               className={cn(
-                "px-4 py-2 rounded-lg text-sm font-black uppercase tracking-widest transition-all",
+                "px-4 py-2 rounded-lg text-sm font-black tracking-widest transition-all",
                 guardType === 'high_risk' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "opacity-40 hover:opacity-100"
               )}
             >
@@ -197,7 +197,7 @@ export const BlacklistAdmin = () => {
             <RefreshCw size={20} />
           </div>
           <div>
-            <div className="text-sm font-black opacity-30 uppercase tracking-widest">{t('admin.blacklist.stats.ipConstraints') || 'IP Constraints'}</div>
+            <div className="text-sm font-black opacity-30 tracking-widest">{t('admin.blacklist.stats.ipConstraints') || 'IP Constraints'}</div>
             <div className="text-xl font-bold">{items.filter(i => i.blacklist_type === 'ip').length}</div>
           </div>
         </div>
@@ -206,7 +206,7 @@ export const BlacklistAdmin = () => {
             <UserX size={20} />
           </div>
           <div>
-            <div className="text-sm font-black opacity-30 uppercase tracking-widest">{t('admin.blacklist.stats.userBlocks') || 'User Blocks'}</div>
+            <div className="text-sm font-black opacity-30 tracking-widest">{t('admin.blacklist.stats.userBlocks') || 'User Blocks'}</div>
             <div className="text-xl font-bold">{items.filter(i => i.blacklist_type === 'user_id').length}</div>
           </div>
         </div>
@@ -215,7 +215,7 @@ export const BlacklistAdmin = () => {
             <Calendar size={20} />
           </div>
           <div>
-            <div className="text-sm font-black opacity-30 uppercase tracking-widest">{t('admin.blacklist.stats.expiringSoon') || 'Expiring Soon'}</div>
+            <div className="text-sm font-black opacity-30 tracking-widest">{t('admin.blacklist.stats.expiringSoon') || 'Expiring Soon'}</div>
             <div className="text-xl font-bold">{items.filter(i => i.expires_at).length}</div>
           </div>
         </div>
@@ -227,12 +227,12 @@ export const BlacklistAdmin = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/5 bg-white/[0.02]">
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30">{t('admin.blacklist.table.type') || 'Subject Type'}</th>
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30">{t('admin.blacklist.table.value') || 'Value / Identifier'}</th>
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30">{t('admin.blacklist.table.status') || 'Level'}</th>
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30">{t('admin.blacklist.table.reason') || 'Reason'}</th>
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30">{t('admin.blacklist.table.expires') || 'Expires At'}</th>
-                <th className="px-8 py-6 text-sm font-black uppercase tracking-widest opacity-30 text-right">{t('admin.blacklist.table.actions') || 'Actions'}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.blacklist.table.type') || 'Subject Type'}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.blacklist.table.value') || 'Value / Identifier'}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.blacklist.table.status') || 'Level'}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.blacklist.table.reason') || 'Reason'}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.blacklist.table.expires') || 'Expires At'}</th>
+                <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30 text-right">{t('admin.blacklist.table.actions') || 'Actions'}</th>
               </tr>
             </thead>
             <tbody>
@@ -241,7 +241,7 @@ export const BlacklistAdmin = () => {
                   <td colSpan={6} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center gap-4 opacity-30">
                       <RefreshCw className="animate-spin" size={32} />
-                      <p className="text-sm font-black uppercase tracking-widest">{t('admin.loading')}</p>
+                      <p className="text-sm font-black tracking-widest">{t('admin.loading')}</p>
                     </div>
                   </td>
                 </tr>
@@ -250,7 +250,7 @@ export const BlacklistAdmin = () => {
                   <td colSpan={6} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center gap-4 opacity-30">
                       <ShieldCheck size={32} />
-                      <p className="text-sm font-black uppercase tracking-widest">{t('admin.blacklist.noEntries') || 'No Security Constraints'}</p>
+                      <p className="text-sm font-black tracking-widest">{t('admin.blacklist.noEntries') || 'No Security Constraints'}</p>
                     </div>
                   </td>
                 </tr>
@@ -267,7 +267,7 @@ export const BlacklistAdmin = () => {
                         )}>
                           {getTypeIcon(item.blacklist_type)}
                         </div>
-                        <span className="text-sm font-black uppercase tracking-wider">{item.blacklist_type}</span>
+                        <span className="text-sm font-black tracking-wider">{item.blacklist_type}</span>
                       </div>
                     </td>
                     <td className="px-8 py-6">
@@ -284,7 +284,7 @@ export const BlacklistAdmin = () => {
                       </p>
                     </td>
                     <td className="px-8 py-6">
-                      <div className="flex items-center gap-2 text-sm font-bold opacity-40 uppercase">
+                      <div className="flex items-center gap-2 text-sm font-bold opacity-40">
                         <Calendar size={18} />
                         {item.expires_at ? new Date(item.expires_at).toLocaleString() : 'Permanent'}
                       </div>
@@ -325,7 +325,7 @@ export const BlacklistAdmin = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.guardLevel') || 'Guard Level'}</div>
+              <div className="text-sm font-black tracking-widest opacity-40">{t('admin.blacklist.form.guardLevel') || 'Guard Level'}</div>
               <select 
                 value={newGuardType}
                 onChange={e => setNewGuardType(e.target.value)}
@@ -336,7 +336,7 @@ export const BlacklistAdmin = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.subjectType') || 'Subject Type'}</div>
+              <div className="text-sm font-black tracking-widest opacity-40">{t('admin.blacklist.form.subjectType') || 'Subject Type'}</div>
               <select 
                 value={newBlacklistType}
                 onChange={e => setNewBlacklistType(e.target.value)}
@@ -350,7 +350,7 @@ export const BlacklistAdmin = () => {
           </div>
 
           <div className="space-y-2">
-            <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.identifierValue') || 'Identifier Value'}</div>
+            <div className="text-sm font-black tracking-widest opacity-40">{t('admin.blacklist.form.identifierValue') || 'Identifier Value'}</div>
             <Input 
               value={newValue}
               onChange={e => setNewValue(e.target.value)}
@@ -360,7 +360,7 @@ export const BlacklistAdmin = () => {
           </div>
 
           <div className="space-y-2">
-            <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.reason') || 'Reason / Note'}</div>
+            <div className="text-sm font-black tracking-widest opacity-40">{t('admin.blacklist.form.reason') || 'Reason / Note'}</div>
             <Input 
               value={newReason}
               onChange={e => setNewReason(e.target.value)}
@@ -370,7 +370,7 @@ export const BlacklistAdmin = () => {
           </div>
 
           <div className="space-y-2">
-            <div className="text-sm font-black uppercase tracking-widest opacity-40">{t('admin.blacklist.form.expiration') || 'Expiration (Optional)'}</div>
+            <div className="text-sm font-black tracking-widest opacity-40">{t('admin.blacklist.form.expiration') || 'Expiration (Optional)'}</div>
             <Input 
               type="datetime-local"
               value={newExpiresAt}

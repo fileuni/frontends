@@ -97,11 +97,11 @@ export const SectionHeader = ({
       <Icon size={16} />
     </div>
     <div>
-      <h4 className="text-sm font-black uppercase tracking-widest text-foreground/80 leading-none mb-1">
+      <h4 className="text-sm font-black tracking-widest text-foreground/80 leading-none mb-1">
         {title}
       </h4>
       {desc && (
-        <p className="text-[14px] opacity-60 dark:opacity-40 font-bold uppercase tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">
+        <p className="text-[14px] opacity-60 dark:opacity-40 font-bold tracking-tighter leading-none text-foreground/60 dark:text-foreground/40">
           {desc}
         </p>
       )}

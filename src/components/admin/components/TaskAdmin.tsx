@@ -117,7 +117,7 @@ export const TaskAdmin = () => {
           title={t('admin.tasks.title') || 'Tasks'}
           subtitle={t('admin.loading') || 'Loading...'}
         />
-        <div className="h-64 flex items-center justify-center font-black animate-pulse opacity-50 uppercase tracking-widest">
+        <div className="h-64 flex items-center justify-center font-black animate-pulse opacity-50 tracking-widest">
           {t('admin.loading')}
         </div>
       </AdminPage>
@@ -138,7 +138,7 @@ export const TaskAdmin = () => {
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <Clock size={18} className="text-primary" />
-            <h2 className="text-sm font-black uppercase tracking-widest">{t('admin.tasks.scheduled_jobs') || 'Scheduled Maintenance Tasks'}</h2>
+            <h2 className="text-sm font-black tracking-widest">{t('admin.tasks.scheduled_jobs') || 'Scheduled Maintenance Tasks'}</h2>
           </div>
           <Button variant="ghost" size="sm" onClick={fetchScheduledJobs} className="opacity-50 hover:opacity-100">
             <RefreshCw size={18} className="mr-2" /> {t('common.refresh')}
@@ -153,10 +153,10 @@ export const TaskAdmin = () => {
             scheduledJobs.map(job => (
               <AdminCard key={job.id} variant="glass" className="rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden group">
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-black text-sm uppercase tracking-tight">{job.id}</h3>
+                  <h3 className="font-black text-sm tracking-tight">{job.id}</h3>
                   <span className="text-sm font-mono bg-primary/10 text-primary px-2 py-0.5 rounded-full">{job.cron}</span>
                 </div>
-                <div className="space-y-2 opacity-60 text-sm font-bold uppercase tracking-widest">
+                <div className="space-y-2 opacity-60 text-sm font-bold tracking-widest">
                   <div className="flex justify-between">
                     <span>Last Run:</span>
                     <span>{job.last_run ? new Date(job.last_run).toLocaleString() : 'Never'}</span>
@@ -177,7 +177,7 @@ export const TaskAdmin = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-3">
             <Activity size={18} className="text-primary" />
-            <h2 className="text-sm font-black uppercase tracking-widest">{t('admin.tasks.async_tasks') || 'Active & History Tasks'}</h2>
+            <h2 className="text-sm font-black tracking-widest">{t('admin.tasks.async_tasks') || 'Active & History Tasks'}</h2>
           </div>
           <div className="flex items-center gap-2">
             <select 
@@ -202,20 +202,20 @@ export const TaskAdmin = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/5 bg-white/[0.02]">
-                  <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">{t('admin.tasks.type') || 'Type'}</th>
-                  <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">{t('admin.tasks.user') || 'User'}</th>
-                  <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">{t('admin.tasks.progress') || 'Progress'}</th>
-                  <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">
+                  <th className="px-6 py-4 text-sm font-black tracking-widest opacity-40">{t('admin.tasks.type') || 'Type'}</th>
+                  <th className="px-6 py-4 text-sm font-black tracking-widest opacity-40">{t('admin.tasks.user') || 'User'}</th>
+                  <th className="px-6 py-4 text-sm font-black tracking-widest opacity-40">{t('admin.tasks.progress') || 'Progress'}</th>
+                  <th className="px-6 py-4 text-sm font-black tracking-widest opacity-40">
                     {t('common.status', { defaultValue: 'Status' })}
                   </th>
-                  <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40">{t('admin.tasks.time') || 'Created At'}</th>
-                  <th className="px-6 py-4 text-sm font-black uppercase tracking-widest opacity-40 text-right">{t('common.actions')}</th>
+                  <th className="px-6 py-4 text-sm font-black tracking-widest opacity-40">{t('admin.tasks.time') || 'Created At'}</th>
+                  <th className="px-6 py-4 text-sm font-black tracking-widest opacity-40 text-right">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {tasks.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-20 text-center opacity-20 italic font-black uppercase tracking-widest">
+                    <td colSpan={6} className="px-6 py-20 text-center opacity-20 italic font-black tracking-widest">
                       {t('admin.tasks.no_tasks') || 'No tasks found'}
                     </td>
                   </tr>
@@ -223,7 +223,7 @@ export const TaskAdmin = () => {
                   tasks.map(task => (
                     <tr key={task.id} className="hover:bg-white/[0.01] transition-colors group">
                       <td className="px-6 py-4">
-                        <span className="font-mono text-sm font-black uppercase tracking-tight">{task.task_type}</span>
+                        <span className="font-mono text-sm font-black tracking-tight">{task.task_type}</span>
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-sm font-bold opacity-60">{task.user_id}</span>
@@ -244,7 +244,7 @@ export const TaskAdmin = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 uppercase text-sm font-black">
+                        <div className="flex items-center gap-2 text-sm font-black">
                           {getStatusIcon(task.status)}
                           <span>{task.status}</span>
                         </div>
@@ -274,7 +274,7 @@ export const TaskAdmin = () => {
           {/* Pagination */}
           {total > pageSize && (
             <div className="px-6 py-4 border-t border-white/5 flex items-center justify-between bg-white/[0.01]">
-              <p className="text-sm font-bold opacity-40 uppercase tracking-widest">
+              <p className="text-sm font-bold opacity-40 tracking-widest">
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total} tasks
               </p>
               <div className="flex gap-2">

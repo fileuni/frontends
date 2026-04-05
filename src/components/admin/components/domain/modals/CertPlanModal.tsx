@@ -60,7 +60,7 @@ export const CertPlanModal = ({
         <div className={sectionCardBase}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-sm font-black uppercase tracking-widest opacity-60">
+              <div className="text-sm font-black tracking-widest opacity-60">
                 {t('admin.domain.sslPlanDesc') || 'Preview planned renewals and why.'}
               </div>
               {data && (
@@ -110,11 +110,11 @@ export const CertPlanModal = ({
 
         <div className={sectionCardBase}>
           {!data ? (
-            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+            <div className="py-16 text-center opacity-40 font-bold tracking-widest">
               {loading ? (t('common.loading') || 'Loading') : (t('common.noData') || 'No data')}
             </div>
           ) : items.length === 0 ? (
-            <div className="py-16 text-center opacity-40 font-bold uppercase tracking-widest">
+            <div className="py-16 text-center opacity-40 font-bold tracking-widest">
               {t('admin.domain.noPlanItems') || 'No items'}
             </div>
           ) : (
@@ -122,11 +122,11 @@ export const CertPlanModal = ({
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-zinc-200 dark:border-white/5">
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">CERT</th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">Action</th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">Due</th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">Reason</th>
-                    <th className="py-3 text-[12px] font-black uppercase tracking-widest opacity-50">Ops</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">CERT</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">Action</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">Due</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">Reason</th>
+                    <th className="py-3 text-[12px] font-black tracking-widest opacity-50">Ops</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -145,7 +145,7 @@ export const CertPlanModal = ({
                           <Badge
                             variant="outline"
                             className={cn(
-                              'h-7 px-2 rounded-lg font-black uppercase tracking-widest',
+                              'h-7 px-2 rounded-lg font-black tracking-widest',
                               isNeed
                                 ? 'bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-400'
                                 : 'bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400',
