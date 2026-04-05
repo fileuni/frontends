@@ -19,7 +19,7 @@ const navBundle = defineLocaleBundle({
         about: 'About',
         activeWorkspace: 'Active Workspace'
     },
-    'zh-cn': {
+    'zh-CN': {
         dashboard: '控制台',
         profile: '个人资料',
         security: '安全设置',
@@ -130,7 +130,8 @@ const navBundle = defineLocaleBundle({
 });
 type NavMessages = LocaleShape<(typeof navBundle)['en']>;
 export const navByResourceLocale = {
-    'zh-cn': navBundle['zh-cn'],
+    'zh-CN': navBundle['zh-CN'],
+    'zh-Hant': navBundle['zh-CN'],
     en: navBundle.en,
     es: navBundle.es,
     de: navBundle.de,

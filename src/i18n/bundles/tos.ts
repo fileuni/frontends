@@ -18,7 +18,7 @@ const tosBundle = defineLocaleBundle({
       content: 'FileUni is provided "as is". While we aim for 99.9% uptime, we recommend maintaining external backups for critical data.',
     },
   },
-  'zh-cn': {
+  'zh-CN': {
     title: '服务协议',
     backToWorkspace: '返回工作区',
     acceptableUse: {
@@ -119,7 +119,8 @@ const tosBundle = defineLocaleBundle({
 type TosMessages = LocaleShape<(typeof tosBundle)['en']>;
 
 export const tosByResourceLocale = {
-  'zh-cn': tosBundle['zh-cn'],
+  'zh-CN': tosBundle['zh-CN'],
+  'zh-Hant': tosBundle['zh-CN'],
   en: tosBundle.en,
   es: tosBundle.es,
   de: tosBundle.de,

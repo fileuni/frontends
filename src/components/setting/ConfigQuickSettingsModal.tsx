@@ -90,13 +90,13 @@ export const defaultDraft: FriendlyDraft = {
   captchaPreheatMode: "balanced",
   databaseType: "sqlite",
   postgresDsn: "postgres://postgres:admin888@localhost:5432/fileuni",
-  sqliteDsn: "sqlite://{RUNTIMEDIR}/fileuni.db",
+  sqliteDsn: "sqlite://{RUNTIMEDIR}/fileuni-database.db",
   dbHost: "localhost",
   dbPort: "5432",
   dbUser: "postgres",
   dbPass: "admin888",
   dbName: "fileuni",
-  sqlitePath: "{RUNTIMEDIR}/fileuni.db",
+  sqlitePath: "{RUNTIMEDIR}/fileuni-database.db",
   dbHealthTimeoutSeconds: "5",
   cacheType: "database",
   cacheRedisUrl: "redis://:admin888@127.0.0.1:6379",
@@ -567,8 +567,8 @@ export const applyPerformanceTemplateToDraft = (
   };
 
   if (preset.recommendations.databaseType === "sqlite") {
-    next.sqlitePath = "{RUNTIMEDIR}/fileuni.db";
-    next.sqliteDsn = "sqlite://{RUNTIMEDIR}/fileuni.db";
+    next.sqlitePath = "{RUNTIMEDIR}/fileuni-database.db";
+    next.sqliteDsn = "sqlite://{RUNTIMEDIR}/fileuni-database.db";
   }
 
   return next;

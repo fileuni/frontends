@@ -6,7 +6,7 @@ const themesBundle = defineLocaleBundle({
         dark: 'Dark',
         system: 'System'
     },
-    'zh-cn': {
+    'zh-CN': {
         light: '明亮',
         dark: '暗黑',
         system: '系统'
@@ -41,7 +41,8 @@ type ThemeLabels = {
     [Key in keyof (typeof themesBundle)['en']]: string;
 };
 export const themesByResourceLocale = {
-    'zh-cn': themesBundle['zh-cn'],
+    'zh-CN': themesBundle['zh-CN'],
+    'zh-Hant': themesBundle['zh-CN'],
     en: themesBundle.en,
     es: themesBundle.es,
     de: themesBundle.de,

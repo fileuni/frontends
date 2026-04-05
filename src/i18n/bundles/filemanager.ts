@@ -563,7 +563,7 @@ const filemanagerBundle = defineLocaleBundle({
             "deep blue": "Deep Blue"
         }
     },
-    "zh-cn": {
+    "zh-CN": {
         "allFiles": "所有文件",
         "favorites": "我的收藏",
         "recent": "最近使用",
@@ -3938,7 +3938,8 @@ const filemanagerBundle = defineLocaleBundle({
 });
 type FilemanagerMessages = LocaleShape<(typeof filemanagerBundle)['en']>;
 export const filemanagerByResourceLocale = {
-    'zh-cn': filemanagerBundle['zh-cn'],
+    'zh-CN': filemanagerBundle['zh-CN'],
+    'zh-Hant': filemanagerBundle['zh-CN'],
     en: filemanagerBundle.en,
     es: filemanagerBundle.es,
     de: filemanagerBundle.de,

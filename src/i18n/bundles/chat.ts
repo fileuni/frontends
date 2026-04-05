@@ -135,7 +135,7 @@ const chatEn = {
 } as const;
 const chatBundle = defineLocaleBundle({
     en: chatEn,
-    'zh-cn': mergeLocale(chatEn, {
+    'zh-CN': mergeLocale(chatEn, {
         "pageTitle": "聊天",
         "openFull": "打开完整聊天",
         "searchPlaceholder": "搜索消息",
@@ -807,7 +807,8 @@ const chatBundle = defineLocaleBundle({
 });
 type ChatMessages = LocaleShape<(typeof chatBundle)['en']>;
 export const chatByResourceLocale = {
-    'zh-cn': chatBundle['zh-cn'],
+    'zh-CN': chatBundle['zh-CN'],
+    'zh-Hant': chatBundle['zh-CN'],
     en: chatBundle.en,
     es: chatBundle.es,
     de: chatBundle.de,

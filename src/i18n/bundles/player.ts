@@ -2,7 +2,7 @@ import { defineLocaleBundle } from '@/i18n/core';
 import type { FrontendResourceLocale } from '@/i18n/locale-adapter';
 const playerBundle = defineLocaleBundle({
     en: {},
-    'zh-cn': {},
+    'zh-CN': {},
     es: {},
     de: {},
     fr: {},
@@ -13,7 +13,8 @@ type PlayerMessages = {
     [Key in keyof (typeof playerBundle)['en']]: string;
 };
 export const playerByResourceLocale = {
-    'zh-cn': playerBundle['zh-cn'],
+    'zh-CN': playerBundle['zh-CN'],
+    'zh-Hant': playerBundle['zh-CN'],
     en: playerBundle.en,
     es: playerBundle.es,
     de: playerBundle.de,

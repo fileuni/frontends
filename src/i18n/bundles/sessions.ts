@@ -14,7 +14,7 @@ const sessionsBundle = defineLocaleBundle({
     activeDeviceStatus: 'Active Device Status',
     slotsOccupied: 'Slots Occupied',
   },
-  'zh-cn': {
+  'zh-CN': {
     loading: '正在同步会话...',
     unknownDevice: '未知设备',
     current: '当前',
@@ -91,7 +91,8 @@ const sessionsBundle = defineLocaleBundle({
 type SessionsMessages = LocaleShape<(typeof sessionsBundle)['en']>;
 
 export const sessionsByResourceLocale = {
-  'zh-cn': sessionsBundle['zh-cn'],
+  'zh-CN': sessionsBundle['zh-CN'],
+  'zh-Hant': sessionsBundle['zh-CN'],
   en: sessionsBundle.en,
   es: sessionsBundle.es,
   de: sessionsBundle.de,

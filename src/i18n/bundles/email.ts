@@ -107,7 +107,7 @@ const emailEn = {
 
 const emailBundle = defineLocaleBundle({
   en: emailEn,
-  'zh-cn': {
+  'zh-CN': {
     ...emailEn,
     title: '邮件',
     subtitle: '多账号邮件管理',
@@ -642,7 +642,8 @@ const emailBundle = defineLocaleBundle({
 type EmailMessages = LocaleShape<(typeof emailBundle)['en']>;
 
 export const emailByResourceLocale = {
-  'zh-cn': emailBundle['zh-cn'],
+  'zh-CN': emailBundle['zh-CN'],
+  'zh-Hant': emailBundle['zh-CN'],
   en: emailBundle.en,
   es: emailBundle.es,
   de: emailBundle.de,

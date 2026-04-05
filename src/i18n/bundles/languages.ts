@@ -3,7 +3,8 @@ import type { FrontendResourceLocale } from '@/i18n/locale-adapter';
 
 const languagesBundle = defineLocaleBundle({
   en: {
-    'zh-cn': 'Chinese',
+    'zh-CN': 'Chinese',
+    'zh-Hant': 'Traditional Chinese',
     en: 'English',
     es: 'Spanish',
     de: 'German',
@@ -12,8 +13,9 @@ const languagesBundle = defineLocaleBundle({
     ja: 'Japanese',
     auto: 'Auto',
   },
-  'zh-cn': {
-    'zh-cn': '中文',
+  'zh-CN': {
+    'zh-CN': '中文',
+    'zh-Hant': '繁體中文',
     en: 'English',
     es: 'Español',
     de: 'Deutsch',
@@ -23,7 +25,8 @@ const languagesBundle = defineLocaleBundle({
     auto: '自动',
   },
   es: {
-    'zh-cn': 'Chino',
+    'zh-CN': 'Chino',
+    'zh-Hant': 'Chino tradicional',
     en: 'Inglés',
     es: 'Español',
     de: 'Alemán',
@@ -33,7 +36,8 @@ const languagesBundle = defineLocaleBundle({
     auto: 'Automático',
   },
   de: {
-    'zh-cn': 'Chinesisch',
+    'zh-CN': 'Chinesisch',
+    'zh-Hant': 'Traditionelles Chinesisch',
     en: 'Englisch',
     es: 'Spanisch',
     de: 'Deutsch',
@@ -43,7 +47,8 @@ const languagesBundle = defineLocaleBundle({
     auto: 'Automatisch',
   },
   fr: {
-    'zh-cn': 'Chinois',
+    'zh-CN': 'Chinois',
+    'zh-Hant': 'Chinois traditionnel',
     en: 'Anglais',
     es: 'Espagnol',
     de: 'Allemand',
@@ -53,7 +58,8 @@ const languagesBundle = defineLocaleBundle({
     auto: 'Automatique',
   },
   ru: {
-    'zh-cn': 'Китайский',
+    'zh-CN': 'Китайский',
+    'zh-Hant': 'Традиционный китайский',
     en: 'Английский',
     es: 'Испанский',
     de: 'Немецкий',
@@ -63,7 +69,8 @@ const languagesBundle = defineLocaleBundle({
     auto: 'Авто',
   },
   ja: {
-    'zh-cn': '中国語',
+    'zh-CN': '中国語',
+    'zh-Hant': '繁体字中国語',
     en: '英語',
     es: 'スペイン語',
     de: 'ドイツ語',
@@ -78,7 +85,8 @@ type LanguageLabels = { [Key in keyof (typeof languagesBundle)['en']]: string };
 
 export const languagesByResourceLocale = {
   en: languagesBundle.en,
-  'zh-cn': languagesBundle['zh-cn'],
+  'zh-CN': languagesBundle['zh-CN'],
+  'zh-Hant': languagesBundle['zh-CN'],
   es: languagesBundle.es,
   de: languagesBundle.de,
   fr: languagesBundle.fr,

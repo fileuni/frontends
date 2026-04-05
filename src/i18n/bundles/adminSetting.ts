@@ -1037,7 +1037,7 @@ const adminSettingBundle = defineLocaleBundle({
             "codePlaceholder": "6-digit"
         }
     },
-    "zh-cn": {
+    "zh-CN": {
         "setup": {
             "center": {
                 "title": "欢迎使用 FileUni 设置中心",
@@ -7256,7 +7256,8 @@ const adminSettingBundle = defineLocaleBundle({
 });
 type AdminSettingMessages = LocaleShape<(typeof adminSettingBundle)['en']>;
 export const adminSettingByResourceLocale = {
-    'zh-cn': adminSettingBundle['zh-cn'],
+    'zh-CN': adminSettingBundle['zh-CN'],
+    'zh-Hant': adminSettingBundle['zh-CN'],
     en: adminSettingBundle.en,
     es: adminSettingBundle.es,
     de: adminSettingBundle.de,

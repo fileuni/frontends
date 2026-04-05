@@ -7,7 +7,7 @@ const errorsBundle = defineLocaleBundle({
         "PERMISSION_DENIED": "Access denied: insufficient permissions",
         "INVALID_PARAMETER": "Invalid request parameter"
     },
-    'zh-cn': {
+    'zh-CN': {
         "INTERNAL_ERROR": "系统内部错误，请稍后再试",
         "TOO_MANY_ATTEMPTS": "尝试次数过多，请稍后再试",
         "PERMISSION_DENIED": "拒绝访问：权限不足",
@@ -46,7 +46,8 @@ const errorsBundle = defineLocaleBundle({
 });
 type ErrorMessages = LocaleShape<(typeof errorsBundle)['en']>;
 export const errorsByResourceLocale = {
-    'zh-cn': errorsBundle['zh-cn'],
+    'zh-CN': errorsBundle['zh-CN'],
+    'zh-Hant': errorsBundle['zh-CN'],
     en: errorsBundle.en,
     es: errorsBundle.es,
     de: errorsBundle.de,

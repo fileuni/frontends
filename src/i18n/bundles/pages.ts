@@ -87,7 +87,7 @@ const pagesEn = {
 
 const pagesBundle = defineLocaleBundle({
   en: pagesEn,
-  'zh-cn': mergeLocale(pagesEn, {
+  'zh-CN': mergeLocale(pagesEn, {
     "tos": { "title": "服务协议" },
     "privacy": { "title": "隐私政策" },
     "admin": {
@@ -412,7 +412,8 @@ const pagesBundle = defineLocaleBundle({
 type PagesMessages = LocaleShape<(typeof pagesBundle)['en']>;
 
 export const pagesByResourceLocale = {
-  'zh-cn': pagesBundle['zh-cn'],
+  'zh-CN': pagesBundle['zh-CN'],
+  'zh-Hant': pagesBundle['zh-CN'],
   en: pagesBundle.en,
   es: pagesBundle.es,
   de: pagesBundle.de,

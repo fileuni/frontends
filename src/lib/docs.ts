@@ -1,21 +1,15 @@
 import i18next from '@/lib/i18n';
+import { LOCALE_PICKER_OPTIONS } from '@/i18n/core';
 
 const DOCS_ORIGIN = 'https://docs.fileuni.com';
 
-type DocsLocalePrefix = '' | '/zh-cn' | '/es' | '/de' | '/fr' | '/ru' | '/ja';
-
-const resolveDocsLocalePrefix = (lang: string | undefined): DocsLocalePrefix => {
+const resolveDocsLocalePrefix = (lang: string | undefined): string => {
   const raw = (lang || '').toLowerCase();
   const base = raw.split('-')[0] || '';
 
-  const map: Record<string, DocsLocalePrefix> = {
-    zh: '/zh-cn',
-    es: '/es',
-    de: '/de',
-    fr: '/fr',
-    ru: '/ru',
-    ja: '/ja',
-  };
+  const map = Object.fromEntries(
+    LOCALE_PICKER_OPTIONS.map((option) => [option.code.split('-')[0] || option.code, option.pathPrefix]),
+  ) as Record<string, string>;
   return map[base] ?? '';
 };
 
@@ -37,7 +31,7 @@ export function docsUrl(path: string = '/', lang?: string): string {
   const p = normalizePath(path);
 
   // If caller already provided a locale-prefixed path, keep it.
-  const knownPrefixes: DocsLocalePrefix[] = ['/zh-cn', '/es', '/de', '/fr', '/ru', '/ja'];
+  const knownPrefixes = LOCALE_PICKER_OPTIONS.map((option) => option.pathPrefix).filter(Boolean);
   if (
     knownPrefixes.some((candidate) => p === candidate || p.startsWith(`${candidate}/`))
   ) {

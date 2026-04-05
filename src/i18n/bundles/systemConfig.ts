@@ -209,7 +209,7 @@ const systemConfigEn = {
 } as const;
 const systemConfigBundle = defineLocaleBundle({
     en: systemConfigEn,
-    'zh-cn': mergeLocale(systemConfigEn, {
+    'zh-CN': mergeLocale(systemConfigEn, {
         "setup": {
             "center": { "title": "欢迎使用 FileUni 设置中心", "subtitle": "完成首次设置后即可开始使用" },
             "guide": {
@@ -795,7 +795,8 @@ const systemConfigBundle = defineLocaleBundle({
 });
 type SystemConfigMessages = LocaleShape<(typeof systemConfigBundle)['en']>;
 export const systemConfigByResourceLocale = {
-    'zh-cn': systemConfigBundle['zh-cn'],
+    'zh-CN': systemConfigBundle['zh-CN'],
+    'zh-Hant': systemConfigBundle['zh-CN'],
     en: systemConfigBundle.en,
     es: systemConfigBundle.es,
     de: systemConfigBundle.de,

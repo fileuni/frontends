@@ -94,7 +94,7 @@ const commonEn = {
 
 const commonBundle = defineLocaleBundle({
   en: commonEn,
-  'zh-cn': {
+  'zh-CN': {
     ...commonEn,
     login: '登录',
     register: '注册',
@@ -641,7 +641,8 @@ const commonBundle = defineLocaleBundle({
 type CommonMessages = LocaleShape<(typeof commonBundle)['en']>;
 
 export const commonByResourceLocale = {
-  'zh-cn': commonBundle['zh-cn'],
+  'zh-CN': commonBundle['zh-CN'],
+  'zh-Hant': commonBundle['zh-CN'],
   en: commonBundle.en,
   es: commonBundle.es,
   de: commonBundle.de,

@@ -45,7 +45,7 @@ const cacheManagerBundle = defineLocaleBundle({
       },
     },
   },
-  'zh-cn': {
+  'zh-CN': {
     title: '缓存管理器',
     subtitle: '集中查看和清理前端缓存，默认操作仅影响当前账号。',
     managedCacheSize: '受管缓存',
@@ -308,7 +308,8 @@ const cacheManagerBundle = defineLocaleBundle({
 type CacheManagerMessages = LocaleShape<(typeof cacheManagerBundle)['en']>;
 
 export const cacheManagerByResourceLocale = {
-  'zh-cn': cacheManagerBundle['zh-cn'],
+  'zh-CN': cacheManagerBundle['zh-CN'],
+  'zh-Hant': cacheManagerBundle['zh-CN'],
   en: cacheManagerBundle.en,
   es: cacheManagerBundle.es,
   de: cacheManagerBundle.de,

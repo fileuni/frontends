@@ -71,7 +71,7 @@ const authBundle = defineLocaleBundle({
     nextcloudReturnHintV2: 'Return to the Nextcloud client after authorization completes.',
     nextcloudReturnHintLegacy: 'After authorization, the browser will try to return to the Nextcloud client automatically.',
   },
-  'zh-cn': {
+  'zh-CN': {
     loginTitle: '用户登录',
     selectUserTitle: '选择账号',
     manageAccounts: '账户管理',
@@ -490,7 +490,8 @@ const authBundle = defineLocaleBundle({
 type AuthMessages = LocaleShape<(typeof authBundle)['en']>;
 
 export const authByResourceLocale = {
-  'zh-cn': authBundle['zh-cn'],
+  'zh-CN': authBundle['zh-CN'],
+  'zh-Hant': authBundle['zh-CN'],
   en: authBundle.en,
   es: authBundle.es,
   de: authBundle.de,

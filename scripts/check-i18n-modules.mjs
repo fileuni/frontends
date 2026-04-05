@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import i18next from 'i18next';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(scriptDir, '..');
@@ -114,11 +115,12 @@ if (localeJsonFiles.length > 0) {
   throw new Error(`legacy i18n json files remain:\n${listed}`);
 }
 
-const [core, adapter, en, zhCn, es, de, fr, ru, ja] = await Promise.all([
+const [core, adapter, en, zhCn, zhHant, es, de, fr, ru, ja] = await Promise.all([
   importLocalModule('src/i18n/core.ts'),
   importLocalModule('src/i18n/locale-adapter.ts'),
   importLocalModule('src/i18n/en/index.ts'),
-  importLocalModule('src/i18n/zh-cn/index.ts'),
+  importLocalModule('src/i18n/zh-CN/index.ts'),
+  importLocalModule('src/i18n/zh-Hant/index.ts'),
   importLocalModule('src/i18n/es/index.ts'),
   importLocalModule('src/i18n/de/index.ts'),
   importLocalModule('src/i18n/fr/index.ts'),
@@ -128,7 +130,8 @@ const [core, adapter, en, zhCn, es, de, fr, ru, ja] = await Promise.all([
 
 const translationByResourceLocale = {
   en: en.default,
-  'zh-cn': zhCn.default,
+  'zh-CN': zhCn.default,
+  'zh-Hant': zhHant.default,
   es: es.default,
   de: de.default,
   fr: fr.default,
@@ -147,12 +150,54 @@ assert(
   'frontend canonical-to-resource locale mapping must be one-to-one',
 );
 
-assert(adapter.normalizeFrontendStoredLocale('zh-cn') === 'zh-cn', 'zh-cn must remain canonical');
-assert(adapter.toFrontendResourceLocale('zh-cn') === 'zh-cn', 'zh-cn must map to zh-cn resource locale');
+assert(adapter.normalizeFrontendStoredLocale('zh-CN') === 'zh-CN', 'zh-CN must remain canonical');
+assert(adapter.normalizeFrontendStoredLocale('ZH_cn') === 'zh-CN', 'mixed-case zh locale must normalize to zh-CN');
+assert(adapter.toFrontendResourceLocale('zh-CN') === 'zh-CN', 'zh-CN must map to zh-CN resource locale');
+assert(adapter.toI18nextLocale('zh-CN') === 'zh-CN', 'zh-CN must map to zh-CN for i18next');
 
 for (const resourceLocale of adapter.FRONTEND_RESOURCE_LOCALES) {
   compareShape(translationByResourceLocale.en, translationByResourceLocale[resourceLocale], `translation.${resourceLocale}`);
   comparePlaceholders(translationByResourceLocale.en, translationByResourceLocale[resourceLocale], `translation.${resourceLocale}`);
+}
+
+const i18nextInstance = i18next.createInstance();
+const i18nextResources = Object.fromEntries(
+  adapter.FRONTEND_RESOURCE_LOCALES.map((resourceLocale) => [
+    adapter.toI18nextLocale(resourceLocale),
+    { translation: translationByResourceLocale[resourceLocale] },
+  ]),
+);
+
+await i18nextInstance.init({
+  resources: i18nextResources,
+  lng: adapter.toI18nextLocale('en'),
+  supportedLngs: adapter.FRONTEND_RESOURCE_LOCALES.map((resourceLocale) =>
+    adapter.toI18nextLocale(resourceLocale),
+  ),
+  interpolation: {
+    escapeValue: false,
+  },
+  initImmediate: false,
+});
+
+for (const resourceLocale of adapter.FRONTEND_RESOURCE_LOCALES) {
+  const i18nextLocale = adapter.toI18nextLocale(resourceLocale);
+  await i18nextInstance.changeLanguage(i18nextLocale);
+  assert(
+    adapter.normalizeFrontendStoredLocale(
+      i18nextInstance.resolvedLanguage || i18nextInstance.language,
+    ) === resourceLocale,
+    `i18next locale roundtrip failed for ${resourceLocale}`,
+  );
+  assert(
+    i18nextInstance.t('common.processing') === translationByResourceLocale[resourceLocale].common.processing,
+    `i18next runtime lookup failed for ${resourceLocale}`,
+  );
+  assert(
+    i18nextInstance.t('systemConfig.setup.admin.password')
+      === translationByResourceLocale[resourceLocale].systemConfig.setup.admin.password,
+    `i18next runtime settings lookup failed for ${resourceLocale}`,
+  );
 }
 
 console.log('i18n module check passed.');

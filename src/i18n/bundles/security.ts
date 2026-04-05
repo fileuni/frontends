@@ -53,7 +53,7 @@ const securityBundle = defineLocaleBundle({
     currentPassword: 'Current Password',
     deleteEverything: 'I UNDERSTAND, DELETE EVERYTHING',
   },
-  'zh-cn': {
+  'zh-CN': {
     loading: '安全环境检测中...',
     emailTitle: '安全邮箱',
     emailDesc: '用于找回密码和安全通知。',
@@ -364,7 +364,8 @@ const securityBundle = defineLocaleBundle({
 type SecurityMessages = LocaleShape<(typeof securityBundle)['en']>;
 
 export const securityByResourceLocale = {
-  'zh-cn': securityBundle['zh-cn'],
+  'zh-CN': securityBundle['zh-CN'],
+  'zh-Hant': securityBundle['zh-CN'],
   en: securityBundle.en,
   es: securityBundle.es,
   de: securityBundle.de,

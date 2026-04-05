@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils.ts";
 import { client, extractData } from "@/lib/api.ts";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from '@/stores/toast';
-import { zhCN, enUS } from "date-fns/locale";
+import { zhCN, zhTW, enUS } from "date-fns/locale";
 import { useLanguageStore } from '@/stores/language';
 import { ChatContext, type ChatContextProps, type Room } from "@/components/chat/context/ChatContext";
 import { useConfigStore } from "@/stores/config.ts";
@@ -586,7 +586,7 @@ const NotificationList = ({
 }: NotificationListProps) => {
   const { t } = useTranslation();
   const { language } = useLanguageStore();
-  const dateLocale = language === 'zh-cn' ? zhCN : enUS;
+  const dateLocale = language === 'zh-CN' ? zhCN : language === 'zh-Hant' ? zhTW : enUS;
 
   if (notifications.length === 0) {
     return (

@@ -1,11 +1,16 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import i18next from 'i18next';
-import { changeLanguage, type SupportedLang } from '@/lib/i18n';
-import { detectFrontendLocale, toHtmlLang } from '@/i18n/locale-adapter';
+import i18next, { changeLanguage, type SupportedLang } from '@/lib/i18n';
+import { detectFrontendLocale, toHtmlLang, toI18nextLocale } from '@/i18n/locale-adapter';
+import {
+  AUTO_LOCALE_PREFERENCE,
+  FILEUNI_LANGUAGE_STORAGE_KEY,
+  resolveLocalePreference,
+  type LocalePreference,
+} from '@/i18n/core';
 import { storageHub } from '../lib/storageHub';
 
-export type Language = 'auto' | 'en' | 'zh-cn' | 'es' | 'de' | 'fr' | 'ru' | 'ja';
+export type Language = LocalePreference;
 
 interface LanguageState {
   language: Language;
@@ -18,14 +23,14 @@ interface LanguageState {
 export const useLanguageStore = create<LanguageState>()(
   persist(
     (set) => ({
-      language: 'auto',
+      language: AUTO_LOCALE_PREFERENCE,
       setLanguage: (lang) => {
         set({ language: lang });
         applyLanguage(lang);
       },
     }),
     {
-      name: 'fileuni-language',
+      name: FILEUNI_LANGUAGE_STORAGE_KEY,
       storage: createJSONStorage(() => storageHub.createZustandStorage()),
       onRehydrateStorage: () => (state) => {
         if (state) applyLanguage(state.language);
@@ -40,17 +45,11 @@ export const useLanguageStore = create<LanguageState>()(
 export function applyLanguage(lang: Language) {
   if (typeof window === 'undefined') return;
 
-  let targetLang: SupportedLang = lang === 'auto' ? 'en' : lang;
-  if (lang === 'auto') {
-    targetLang = detectFrontendLocale(navigator.language, navigator.languages);
-  }
-
-  const normalized = (['en', 'zh-cn', 'es', 'de', 'fr', 'ru', 'ja'] as const).includes(targetLang as SupportedLang)
-    ? (targetLang as SupportedLang)
-    : 'en';
+  const targetLang = resolveLocalePreference(lang, navigator.language, navigator.languages);
+  const normalized = detectFrontendLocale(targetLang, [targetLang]) as SupportedLang;
   void changeLanguage(normalized).catch(() => {
     // Fallback to i18next internal changeLanguage on unexpected errors.
-    void i18next.changeLanguage(normalized);
+    void i18next.changeLanguage(toI18nextLocale(normalized));
   });
   document.documentElement.lang = toHtmlLang(targetLang);
 }

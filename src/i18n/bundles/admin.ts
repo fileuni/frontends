@@ -1036,7 +1036,7 @@ const adminBundle = defineLocaleBundle({
             "recalibrateSuccess": "Storage usage recalibrated"
         }
     },
-    "zh-cn": {
+    "zh-CN": {
         "loading": "加载中...",
         "saveSuccess": "配置保存成功",
         "saveError": "保存失败",
@@ -7249,7 +7249,8 @@ const adminBundle = defineLocaleBundle({
 });
 type AdminMessages = LocaleShape<(typeof adminBundle)['en']>;
 export const adminByResourceLocale = {
-    'zh-cn': adminBundle['zh-cn'],
+    'zh-CN': adminBundle['zh-CN'],
+    'zh-Hant': adminBundle['zh-CN'],
     en: adminBundle.en,
     es: adminBundle.es,
     de: adminBundle.de,

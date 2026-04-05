@@ -4,16 +4,22 @@ import {
   FRONTEND_RESOURCE_LOCALES,
   detectFrontendLocale,
   normalizeFrontendStoredLocale,
+  toI18nextLocale,
+  type FrontendI18nextLocale,
   type FrontendResourceLocale,
 } from '@/i18n/locale-adapter';
 
 export type SupportedLang = FrontendResourceLocale;
 
 const supportedLangs: SupportedLang[] = [...FRONTEND_RESOURCE_LOCALES];
+const supportedI18nextLangs: FrontendI18nextLocale[] = supportedLangs.map((lang) =>
+  toI18nextLocale(lang),
+);
 
 const loaders: Record<SupportedLang, () => Promise<{ default: Record<string, unknown> }>> = {
   en: () => import('@/i18n/en/index.ts'),
-  'zh-cn': () => import('@/i18n/zh-cn/index.ts'),
+  'zh-CN': () => import('@/i18n/zh-CN/index.ts'),
+  'zh-Hant': () => import('@/i18n/zh-CN/index.ts'),
   es: () => import('@/i18n/es/index.ts'),
   de: () => import('@/i18n/de/index.ts'),
   fr: () => import('@/i18n/fr/index.ts'),
@@ -54,29 +60,33 @@ const loadTranslationFor = async (lang: SupportedLang): Promise<Record<string, u
 };
 
 export const ensureLanguageLoaded = async (lang: SupportedLang): Promise<void> => {
-  if (i18next.hasResourceBundle(lang, 'translation')) return;
+  const i18nextLocale = toI18nextLocale(lang);
+  if (i18next.hasResourceBundle(i18nextLocale, 'translation')) return;
   const resources = await loadTranslationFor(lang);
-  i18next.addResourceBundle(lang, 'translation', resources, true, true);
+  i18next.addResourceBundle(i18nextLocale, 'translation', resources, true, true);
 };
 
 export const changeLanguage = async (lang: SupportedLang): Promise<void> => {
   await ensureLanguageLoaded('en');
   await ensureLanguageLoaded(lang);
-  await i18next.changeLanguage(lang);
+  await i18next.changeLanguage(toI18nextLocale(lang));
 };
 
 // Must initialize at the top level of the module so React components can translate immediately.
 const initialLang = detectInitialLang();
+const initialI18nextLang = toI18nextLocale(initialLang);
 const enTranslation = await loadTranslationFor('en');
 const initialTranslation = initialLang === 'en' ? enTranslation : await loadTranslationFor(initialLang);
 
 i18next.use(initReactI18next).init({
   resources: {
     en: { translation: enTranslation },
-    ...(initialLang === 'en' ? {} : { [initialLang]: { translation: initialTranslation } })
+    ...(initialLang === 'en'
+      ? {}
+      : { [initialI18nextLang]: { translation: initialTranslation } })
   },
-  lng: initialLang,
-  supportedLngs: supportedLangs,
+  lng: initialI18nextLang,
+  supportedLngs: supportedI18nextLangs,
   interpolation: {
     escapeValue: false
   },

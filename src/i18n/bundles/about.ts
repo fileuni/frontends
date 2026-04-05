@@ -29,7 +29,7 @@ const aboutBundle = defineLocaleBundle({
       docs: 'Documentation',
     },
   },
-  'zh-cn': {
+  'zh-CN': {
     open: '关于 FileUni',
     title: '关于 FileUni',
     subtitle: '查看当前版本、官方入口与最新版本信息。',
@@ -196,7 +196,8 @@ const aboutBundle = defineLocaleBundle({
 type AboutMessages = LocaleShape<(typeof aboutBundle)['en']>;
 
 export const aboutByResourceLocale = {
-  'zh-cn': aboutBundle['zh-cn'],
+  'zh-CN': aboutBundle['zh-CN'],
+  'zh-Hant': aboutBundle['zh-CN'],
   en: aboutBundle.en,
   es: aboutBundle.es,
   de: aboutBundle.de,

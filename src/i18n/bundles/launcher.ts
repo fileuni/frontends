@@ -64,7 +64,7 @@ const launcherBundle = defineLocaleBundle({
         install_level_user: 'User',
         install_autostart: 'Autostart on boot'
     },
-    'zh-cn': {
+    'zh-CN': {
         title: 'FileUni 启动器',
         subtitle: '高性能文件内核',
         service_control: '服务控制',
@@ -445,7 +445,8 @@ const launcherBundle = defineLocaleBundle({
 });
 type LauncherMessages = LocaleShape<(typeof launcherBundle)['en']>;
 export const launcherByResourceLocale = {
-    'zh-cn': launcherBundle['zh-cn'],
+    'zh-CN': launcherBundle['zh-CN'],
+    'zh-Hant': launcherBundle['zh-CN'],
     en: launcherBundle.en,
     es: launcherBundle.es,
     de: launcherBundle.de,

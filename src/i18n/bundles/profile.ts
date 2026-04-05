@@ -24,7 +24,7 @@ const profileBundle = defineLocaleBundle({
     invalidPhoneList: 'There are invalid phone numbers. Please fix them before saving',
     phonePlaceholder: '+86 138...',
   },
-  'zh-cn': {
+  'zh-CN': {
     loading: '正在加载资料...',
     fullName: '真实姓名',
     fullNamePlaceholder: '您的真实姓名',
@@ -161,7 +161,8 @@ const profileBundle = defineLocaleBundle({
 type ProfileMessages = LocaleShape<(typeof profileBundle)['en']>;
 
 export const profileByResourceLocale = {
-  'zh-cn': profileBundle['zh-cn'],
+  'zh-CN': profileBundle['zh-CN'],
+  'zh-Hant': profileBundle['zh-CN'],
   en: profileBundle.en,
   es: profileBundle.es,
   de: profileBundle.de,

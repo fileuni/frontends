@@ -9,6 +9,7 @@ import {
 } from '@/components/modals/AboutModal';
 
 import { useLanguageStore } from '@/stores/language';
+import { AUTO_LOCALE_PREFERENCE, buildLocaleUrl } from '@/i18n/core';
 import { useThemeStore } from '@/stores/theme';
 
 import { cn } from '@/lib/utils';
@@ -106,7 +107,9 @@ export const AdminAboutPage: React.FC = () => {
   }, [theme]);
 
   const updateGuideBaseUrl = useMemo(() => {
-    return language === 'en' ? 'https://fileuni.com/update' : 'https://fileuni.com/zh-cn/update';
+    return language === AUTO_LOCALE_PREFERENCE
+      ? 'https://fileuni.com/update'
+      : buildLocaleUrl('https://fileuni.com', language, '/update');
   }, [language]);
 
   const runtimeKindLabel = useMemo(() => {

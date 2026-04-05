@@ -24,7 +24,7 @@ const forgotPasswordBundle = defineLocaleBundle({
         resetSuccess: 'Password reset successfully',
         adminRecovery: 'Admin Recovery Guide'
     },
-    'zh-cn': {
+    'zh-CN': {
         accountRecovery: '账号找回',
         verifyIdentity: '验证身份',
         findAccount: '查找账号',
@@ -165,7 +165,8 @@ const forgotPasswordBundle = defineLocaleBundle({
 });
 type ForgotPasswordMessages = LocaleShape<(typeof forgotPasswordBundle)['en']>;
 export const forgotPasswordByResourceLocale = {
-    'zh-cn': forgotPasswordBundle['zh-cn'],
+    'zh-CN': forgotPasswordBundle['zh-CN'],
+    'zh-Hant': forgotPasswordBundle['zh-CN'],
     en: forgotPasswordBundle.en,
     es: forgotPasswordBundle.es,
     de: forgotPasswordBundle.de,

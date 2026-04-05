@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
+import { normalizeFrontendStoredLocale } from "@/i18n/locale-adapter";
 import { useToastStore } from '@/stores/toast';
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
@@ -25,6 +26,8 @@ const bytesToText = (value: number): string => {
 export const PermissionAdmin = () => {
   const { t, i18n } = useTranslation();
   const { addToast } = useToastStore();
+  const resolvedLocale =
+    normalizeFrontendStoredLocale(i18n.resolvedLanguage || i18n.language) ?? 'en';
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState<RolePermissionView[]>([]);
   const [permissions, setPermissions] = useState<PermissionCatalogItem[]>([]);
@@ -192,7 +195,8 @@ export const PermissionAdmin = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {items.map((item) => {
                         const checked = draftPermissions.includes(item.perm_key);
-                        const description = i18n.language === 'zh-cn' ? item.desc_zh : item.desc_en;
+                        const description =
+                          resolvedLocale === 'zh-CN' ? item.desc_zh : item.desc_en;
                         return (
                           <div
                             key={item.perm_key}

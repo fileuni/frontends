@@ -35,7 +35,7 @@ const { title } = Astro.props;
 				const normalizeLocale = (value) => {
 					if (typeof value !== 'string') return null;
 					const normalized = value.trim().toLowerCase().replace(/_/g, '-');
-					if (normalized === 'zh-cn' || normalized === 'zh' || normalized.startsWith('zh-')) return 'zh-cn';
+					if (normalized === 'zh' || normalized.startsWith('zh-')) return 'zh-CN';
 					if (normalized === 'en' || normalized.startsWith('en-')) return 'en';
 					if (normalized === 'es' || normalized.startsWith('es-')) return 'es';
 					if (normalized === 'de' || normalized.startsWith('de-')) return 'de';

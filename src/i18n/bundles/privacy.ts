@@ -18,7 +18,7 @@ const privacyBundle = defineLocaleBundle({
       content: 'We use local persistent storage (StorageHub: LocalStorage + IndexedDB) to remember theme preferences, language settings, and active session tokens.',
     },
   },
-  'zh-cn': {
+  'zh-CN': {
     title: '隐私政策',
     backToWorkspace: '返回工作区',
     dataCollection: {
@@ -119,7 +119,8 @@ const privacyBundle = defineLocaleBundle({
 type PrivacyMessages = LocaleShape<(typeof privacyBundle)['en']>;
 
 export const privacyByResourceLocale = {
-  'zh-cn': privacyBundle['zh-cn'],
+  'zh-CN': privacyBundle['zh-CN'],
+  'zh-Hant': privacyBundle['zh-CN'],
   en: privacyBundle.en,
   es: privacyBundle.es,
   de: privacyBundle.de,

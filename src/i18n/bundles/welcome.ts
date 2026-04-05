@@ -9,7 +9,7 @@ const welcomeBundle = defineLocaleBundle({
         fileManager: 'File Manager',
         cacheManager: 'Cache management and cleanup'
     },
-    'zh-cn': {
+    'zh-CN': {
         title: '欢迎使用 FileUni',
         subtitle: '开启美好的一天',
         getStarted: '登录',
@@ -62,7 +62,8 @@ type WelcomeMessages = {
     [Key in keyof (typeof welcomeBundle)['en']]: string;
 };
 export const welcomeByResourceLocale = {
-    'zh-cn': welcomeBundle['zh-cn'],
+    'zh-CN': welcomeBundle['zh-CN'],
+    'zh-Hant': welcomeBundle['zh-CN'],
     en: welcomeBundle.en,
     es: welcomeBundle.es,
     de: welcomeBundle.de,

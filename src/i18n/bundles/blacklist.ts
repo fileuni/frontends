@@ -5,7 +5,7 @@ const blacklistBundle = defineLocaleBundle({
   en: {
     noReason: 'No reason provided',
   },
-  'zh-cn': {
+  'zh-CN': {
     noReason: '未提供原因',
   },
   es: {
@@ -28,7 +28,8 @@ const blacklistBundle = defineLocaleBundle({
 type BlacklistMessages = { [Key in keyof (typeof blacklistBundle)['en']]: string };
 
 export const blacklistByResourceLocale = {
-  'zh-cn': blacklistBundle['zh-cn'],
+  'zh-CN': blacklistBundle['zh-CN'],
+  'zh-Hant': blacklistBundle['zh-CN'],
   en: blacklistBundle.en,
   es: blacklistBundle.es,
   de: blacklistBundle.de,

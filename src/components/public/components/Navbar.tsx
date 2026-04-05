@@ -13,6 +13,7 @@ import {
   Users, MessageSquare, Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
+import { AUTO_LOCALE_PREFERENCE, LOCALE_PICKER_OPTIONS, buildLocaleUrl } from '@/i18n/core';
 import { StatusIndicator } from './StatusIndicator.tsx';
 import { ThemeLanguageControls } from './ThemeLanguageControls.tsx';
 import { ChatContext } from '@/components/chat/context/ChatContext';
@@ -20,12 +21,14 @@ import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
 
 const getLanguageLabel = (t: ReturnType<typeof useTranslation>['t'], language: Language): string => {
   switch (language) {
-    case 'auto':
+    case AUTO_LOCALE_PREFERENCE:
       return t('languages.auto');
     case 'en':
       return t('languages.en');
-    case 'zh-cn':
-      return t('languages.zh-cn');
+    case 'zh-CN':
+      return t('languages.zh-CN');
+    case 'zh-Hant':
+      return t('languages.zh-Hant');
     case 'es':
       return t('languages.es');
     case 'de':
@@ -103,7 +106,10 @@ export const Navbar = () => {
   const canAccessAdmin = hasPermission("admin.access");
   const canUseChat = hasPermission("feature.chat.use") && capabilities?.enable_chat !== false;
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  const updateGuideBaseUrl = language === 'en' ? 'https://fileuni.com/update' : 'https://fileuni.com/zh-cn/update';
+  const updateGuideBaseUrl =
+    language === AUTO_LOCALE_PREFERENCE
+      ? 'https://fileuni.com/update'
+      : buildLocaleUrl('https://fileuni.com', language, '/update');
 
   const navItems = useMemo(() => {
     if (capabilities?.is_config_set_mode) return []; // Config-set mode: hide nav links
@@ -323,7 +329,7 @@ export const Navbar = () => {
                 <div>
                   <p className={cn("text-sm font-black uppercase tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.language')}</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
-                    {(['auto', 'en', 'zh-cn', 'es', 'de', 'fr', 'ru', 'ja'] as Language[]).map((lang) => (
+                    {([AUTO_LOCALE_PREFERENCE, ...LOCALE_PICKER_OPTIONS.map((option) => option.code)] as Language[]).map((lang) => (
                       <button 
                         type="button"
                         key={lang}
