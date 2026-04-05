@@ -10,6 +10,8 @@ import { EditorView } from "@codemirror/view";
 import { AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { CodeMirrorEditor } from "@/components/editors/CodeMirrorEditor";
+import { normalizeFrontendStoredLocale } from "@/i18n/locale-adapter";
+import { toTraditionalChineseString } from "@/i18n/core";
 import { cn } from "@/lib/utils";
 
 export interface ConfigNoteEntry {
@@ -103,10 +105,21 @@ const resolveActivePathFromDoc = (doc: Text, lineNumber: number): string => {
 };
 
 const getLocalizedNote = (note: ConfigNoteEntry, lang: string) => {
-  const isEn = lang.startsWith("en");
+  const resolvedLocale = normalizeFrontendStoredLocale(lang) ?? "en";
+  const isEn = resolvedLocale === "en";
   return {
-    title: isEn ? "Configuration Detail" : "配置详情",
-    description: isEn ? note.desc_en : note.desc_zh,
+    title:
+      resolvedLocale === "zh-Hant"
+        ? "設定詳情"
+        : isEn
+          ? "Configuration Detail"
+          : "配置详情",
+    description:
+      resolvedLocale === "zh-Hant"
+        ? toTraditionalChineseString(note.desc_zh)
+        : isEn
+          ? note.desc_en
+          : note.desc_zh,
   };
 };
 

@@ -8,6 +8,8 @@ import { Switch } from '@/components/ui/Switch';
 import { Badge } from '@/components/ui/Badge';
 import { Pagination } from '@/components/ui/Pagination';
 import { client, extractData, handleApiError } from '@/lib/api';
+import { normalizeFrontendStoredLocale } from '@/i18n/locale-adapter';
+import { toTraditionalChineseString } from '@/i18n/core';
 import { useToastStore } from '@/stores/toast';
 import { ProviderForm } from './domain/ProviderForm';
 import { DdnsSourceForm } from './domain/DdnsSourceForm';
@@ -91,7 +93,7 @@ const createZeroSslAccount = async (payload: ZeroSslDraft): Promise<ZeroSslAccou
 };
 
 export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { addToast } = useToastStore();
 
   const [loading, setLoading] = useState(false);
@@ -638,7 +640,15 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           return;
         }
 
-        addToast(`正在创建 ${targets.length} 个条目...`, 'info');
+        const resolvedLocale =
+          normalizeFrontendStoredLocale(i18n.resolvedLanguage || i18n.language) ?? 'en';
+        const creatingMessage =
+          resolvedLocale === 'zh-Hant'
+            ? toTraditionalChineseString(`正在创建 ${targets.length} 个条目...`)
+            : resolvedLocale === 'zh-CN'
+              ? `正在创建 ${targets.length} 个条目...`
+              : t('admin.domain.ddnsCreated');
+        addToast(creatingMessage, 'info');
         for (const target of targets) {
           const fqdn = buildFqdn(zone, target.host);
           const payload: DdnsEntryPayload = {

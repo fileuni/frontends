@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Boxes, Check, PenLine, Sparkles, X as XIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { normalizeFrontendStoredLocale } from "@/i18n/locale-adapter";
+import { toTraditionalChineseString } from "@/i18n/core";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
@@ -1589,8 +1591,10 @@ export const DatabaseInlinePanel: React.FC<DatabasePanelProps> = ({
   runtimeOs,
   onTestDatabase,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isDark = useResolvedTheme() === "dark";
+  const resolvedLocale =
+    normalizeFrontendStoredLocale(i18n.resolvedLanguage || i18n.language) ?? "en";
   const fallbackPolicy = recommendedAllocatorPolicyForRuntime(runtimeOs);
   const createDraft = useCallback(
     (source: string) => {
@@ -1661,7 +1665,13 @@ export const DatabaseInlinePanel: React.FC<DatabasePanelProps> = ({
                   : "text-slate-700 hover:bg-white",
             )}
           >
-            {type === "sqlite" ? "本地数据库" : "PostgreSQL"}
+            {type === "sqlite"
+              ? resolvedLocale === "zh-Hant"
+                ? toTraditionalChineseString("本地数据库")
+                : resolvedLocale === "zh-CN"
+                  ? "本地数据库"
+                  : "Local database"
+              : "PostgreSQL"}
           </button>
         ))}
       </div>
