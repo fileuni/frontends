@@ -32,4 +32,4 @@ export {
   type LocaleShape,
   type LocalePickerOption,
   type SupportedLocale,
-} from '../../../ts_shared/i18n-core';
+} from '@fileuni/ts-shared/i18n-core';
