@@ -8,7 +8,7 @@
     "dev:tauri": "astro dev --host 0.0.0.0 --port 1420 --strictPort",
     "build": "astro build",
     "preview": "astro preview",
-    "check:i18n": "bun scripts/check-i18n-modules.mjs && bun scripts/check-i18n-usage.mjs",
+    "check:i18n": "bun ../script/check-canonical-locales.mjs && bun scripts/check-i18n-modules.mjs && bun scripts/check-i18n-usage.mjs",
     "typecheck": "bunx tsc --noEmit --pretty false",
     "check": "astro check",
     "lint": "eslint \"src/**/*.{ts,tsx,astro}\" --max-warnings=0",

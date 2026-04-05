@@ -18,49 +18,10 @@ const { title } = Astro.props;
 		<meta name="theme-color" content="#0082c9" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<script is:inline>
-			// Theme Detection
-			const theme = (() => {
-				if (typeof localStorage !== 'undefined' && localStorage.getItem('fileuni-theme')) {
-					const saved = JSON.parse(localStorage.getItem('fileuni-theme'));
-					if (saved.state.theme === 'dark' || saved.state.theme === 'light') return saved.state.theme;
-				}
-				return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-			})();
-			document.documentElement.classList.remove('light', 'dark');
-			document.documentElement.classList.add(theme);
+		<script>
+			import { initFrontendLayoutBootstrap } from '../scripts/layout-bootstrap';
 
-			// Language Detection
-			const lang = (() => {
-				const normalizeLocale = (value) => {
-					if (typeof value !== 'string') return null;
-					const normalized = value.trim().toLowerCase().replace(/_/g, '-');
-					if (normalized === 'zh' || normalized.startsWith('zh-')) return 'zh-CN';
-					if (normalized === 'en' || normalized.startsWith('en-')) return 'en';
-					if (normalized === 'es' || normalized.startsWith('es-')) return 'es';
-					if (normalized === 'de' || normalized.startsWith('de-')) return 'de';
-					if (normalized === 'fr' || normalized.startsWith('fr-')) return 'fr';
-					if (normalized === 'ru' || normalized.startsWith('ru-')) return 'ru';
-					if (normalized === 'ja' || normalized.startsWith('ja-')) return 'ja';
-					return null;
-				};
-				try {
-					const state = localStorage.getItem('fileuni-language');
-					if (state) {
-						const parsed = JSON.parse(state);
-						const value = parsed?.state?.language;
-						const normalized = normalizeLocale(value);
-						if (normalized) return normalized;
-					if (value === 'auto') {
-						return normalizeLocale(navigator.language) || 'en';
-					}
-				}
-				} catch (_error) {
-					void _error;
-				}
-				return normalizeLocale(navigator.language) || 'en';
-			})();
-			document.documentElement.lang = lang;
+			initFrontendLayoutBootstrap();
 		</script>
 	</head>
 	<body class="bg-background text-foreground transition-colors duration-300 min-h-screen flex flex-col">
