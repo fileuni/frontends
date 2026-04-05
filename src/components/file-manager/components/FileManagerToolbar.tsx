@@ -180,6 +180,7 @@ export const FileManagerToolbar = () => {
             <div className="flex items-center gap-1.5 md:gap-2">
               <Button 
                 onClick={() => setShowUploadModal(true)}
+                aria-label="Open upload dialog"
                 className="bg-primary hover:bg-primary/90 text-white h-9 md:h-10 px-3 md:px-4 rounded-xl font-bold text-sm md:text-sm flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
               >
                 <Upload size={16} />
