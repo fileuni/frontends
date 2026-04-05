@@ -1,6 +1,7 @@
 ---
 import '../styles/globals.css';
 import '@/lib/i18n.ts'; // Init i18n
+import { FILEUNI_LANGUAGE_STORAGE_KEY } from '@/i18n/core';
 
 interface Props {
 	title: string;
@@ -18,10 +19,83 @@ const { title } = Astro.props;
 		<meta name="theme-color" content="#0082c9" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<script>
-			import { initFrontendLayoutBootstrap } from '../scripts/layout-bootstrap';
+		<script is:inline define:vars={{ fileuniLanguageStorageKey: FILEUNI_LANGUAGE_STORAGE_KEY }}>
+			const detectFileUniLocale = (value) => {
+				if (typeof value !== 'string') return null;
+				const normalized = value.trim().toLowerCase().replace(/_/g, '-');
+				if (!normalized) return null;
+				if (
+					normalized === 'zh-hant' ||
+					normalized === 'zh-tw' ||
+					normalized === 'zh-hk' ||
+					normalized === 'zh-mo' ||
+					normalized.startsWith('zh-hant-')
+				) return 'zh-Hant';
+				if (
+					normalized === 'zh' ||
+					normalized === 'zh-cn' ||
+					normalized === 'zh-sg' ||
+					normalized === 'zh-hans' ||
+					normalized.startsWith('zh-cn-') ||
+					normalized.startsWith('zh-sg-') ||
+					normalized.startsWith('zh-hans-')
+				) return 'zh-CN';
+				if (normalized.startsWith('zh-')) return 'zh-Hant';
+				if (normalized === 'en' || normalized.startsWith('en-')) return 'en';
+				if (normalized === 'es' || normalized.startsWith('es-')) return 'es';
+				if (normalized === 'de' || normalized.startsWith('de-')) return 'de';
+				if (normalized === 'fr' || normalized.startsWith('fr-')) return 'fr';
+				if (normalized === 'ru' || normalized.startsWith('ru-')) return 'ru';
+				if (normalized === 'ja' || normalized.startsWith('ja-')) return 'ja';
+				return null;
+			};
 
-			initFrontendLayoutBootstrap();
+			const detectNavigatorLocale = () => {
+				const candidates = Array.isArray(navigator.languages)
+					? navigator.languages
+					: [navigator.language];
+				for (const candidate of candidates) {
+					const detected = detectFileUniLocale(candidate);
+					if (detected) return detected;
+				}
+				return 'en';
+			};
+
+			const theme = (() => {
+				if (typeof localStorage !== 'undefined') {
+					try {
+						const saved = JSON.parse(localStorage.getItem('fileuni-theme') || 'null');
+						const value = saved?.state?.theme;
+						if (value === 'dark' || value === 'light') return value;
+					} catch (_error) {
+						void _error;
+					}
+				}
+				return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			})();
+
+			document.documentElement.classList.remove('light', 'dark');
+			document.documentElement.classList.add(theme);
+
+			const lang = (() => {
+				if (typeof localStorage !== 'undefined') {
+					try {
+						const state = localStorage.getItem(fileuniLanguageStorageKey);
+						if (state) {
+							const parsed = JSON.parse(state);
+							const value = parsed?.state?.language;
+							const normalized = detectFileUniLocale(value);
+							if (normalized) return normalized;
+							if (value === 'auto') return detectNavigatorLocale();
+						}
+					} catch (_error) {
+						void _error;
+					}
+				}
+				return detectNavigatorLocale();
+			})();
+
+			document.documentElement.lang = lang;
 		</script>
 	</head>
 	<body class="bg-background text-foreground transition-colors duration-300 min-h-screen flex flex-col">
