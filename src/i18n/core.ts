@@ -10,6 +10,7 @@ export {
   LOCALE_METADATA,
   SUPPORTED_LOCALES,
   buildLocaleUrl,
+  buildThemeHeadBootstrap,
   createDisclosureState,
   defineLocaleBundle,
   detectLocale,
@@ -31,5 +32,7 @@ export {
   type LocalePreference,
   type LocaleShape,
   type LocalePickerOption,
+  type ThemeHeadBootstrap,
+  type ThemeHeadBootstrapOptions,
   type SupportedLocale,
 } from '@fileuni/ts-shared/i18n-core';

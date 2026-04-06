@@ -1,13 +1,29 @@
 ---
 import '../styles/globals.css';
 import '@/lib/i18n.ts'; // Init i18n
-import { FILEUNI_LANGUAGE_STORAGE_KEY } from '@/i18n/core';
+import { buildThemeHeadBootstrap, FILEUNI_LANGUAGE_STORAGE_KEY } from '@/i18n/core';
 
 interface Props {
 	title: string;
 }
 
 const { title } = Astro.props;
+const themeHeadBootstrap = buildThemeHeadBootstrap({
+  storage: {
+    type: 'zustand-local-storage',
+    key: 'fileuni-theme',
+    autoValues: ['system'],
+  },
+  mode: {
+    type: 'class-pair',
+    darkClass: 'dark',
+    lightClass: 'light',
+  },
+  lightBackground: 'hsl(210 40% 98%)',
+  darkBackground: 'hsl(222 47% 4%)',
+  lightText: 'hsl(222.2 84% 4.9%)',
+  darkText: 'hsl(210 40% 98%)',
+});
 ---
 
 <!doctype html>
@@ -15,6 +31,8 @@ const { title } = Astro.props;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+		<style is:inline set:html={themeHeadBootstrap.style}></style>
+		<script is:inline set:html={themeHeadBootstrap.script}></script>
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="theme-color" content="#0082c9" />
 		<meta name="generator" content={Astro.generator} />
@@ -60,22 +78,6 @@ const { title } = Astro.props;
 				}
 				return 'en';
 			};
-
-			const theme = (() => {
-				if (typeof localStorage !== 'undefined') {
-					try {
-						const saved = JSON.parse(localStorage.getItem('fileuni-theme') || 'null');
-						const value = saved?.state?.theme;
-						if (value === 'dark' || value === 'light') return value;
-					} catch (_error) {
-						void _error;
-					}
-				}
-				return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-			})();
-
-			document.documentElement.classList.remove('light', 'dark');
-			document.documentElement.classList.add(theme);
 
 			const lang = (() => {
 				if (typeof localStorage !== 'undefined') {

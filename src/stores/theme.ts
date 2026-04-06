@@ -55,4 +55,6 @@ export function applyTheme(theme: Theme) {
   const resolved = resolveTheme(theme);
   root.classList.remove('light', 'dark');
   root.classList.add(resolved);
+  root.setAttribute('data-fileuni-resolved-theme', resolved);
+  root.style.colorScheme = resolved;
 }
