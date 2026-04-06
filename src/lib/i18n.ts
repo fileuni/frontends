@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import enTranslation from '@/i18n/en/index.ts';
 import {
   FRONTEND_RESOURCE_LOCALES,
   detectFrontendLocale,
@@ -72,20 +73,13 @@ export const changeLanguage = async (lang: SupportedLang): Promise<void> => {
   await i18next.changeLanguage(toI18nextLocale(lang));
 };
 
-// Must initialize at the top level of the module so React components can translate immediately.
 const initialLang = detectInitialLang();
-const initialI18nextLang = toI18nextLocale(initialLang);
-const enTranslation = await loadTranslationFor('en');
-const initialTranslation = initialLang === 'en' ? enTranslation : await loadTranslationFor(initialLang);
 
 i18next.use(initReactI18next).init({
   resources: {
     en: { translation: enTranslation },
-    ...(initialLang === 'en'
-      ? {}
-      : { [initialI18nextLang]: { translation: initialTranslation } })
   },
-  lng: initialI18nextLang,
+  lng: 'en',
   supportedLngs: supportedI18nextLangs,
   interpolation: {
     escapeValue: false
@@ -96,5 +90,11 @@ i18next.use(initReactI18next).init({
   // Ensure stable hydration for first paint.
   initImmediate: false
 });
+
+if (initialLang !== 'en') {
+  void changeLanguage(initialLang).catch(() => {
+    void i18next.changeLanguage('en');
+  });
+}
 
 export default i18next;
