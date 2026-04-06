@@ -5,7 +5,7 @@ import type { TFunction } from 'i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { client, extractData } from '@/lib/api.ts';
-import { fetchTextFileContent } from '@/lib/fileTokens.ts';
+import { fetchTextFileContent, getFilePreviewImageUrl } from '@/lib/fileTokens.ts';
 import { useToastStore } from '@/stores/toast';
 import { useConfigStore } from '@/stores/config.ts';
 import { cn } from '@/lib/utils.ts';
@@ -108,6 +108,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const [rendering, setRendering] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+  const [fallbackPreviewUrl, setFallbackPreviewUrl] = useState<string | null>(null);
 
   const lastSavedContentRef = useRef('');
   const lastSavedAtRef = useRef<number>(0);
@@ -169,6 +170,24 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
       canceled = true;
     };
   }, [addToast, fileName, path, t]);
+
+  useEffect(() => {
+    let canceled = false;
+    void getFilePreviewImageUrl(path)
+      .then((url) => {
+        if (!canceled) {
+          setFallbackPreviewUrl(url);
+        }
+      })
+      .catch(() => {
+        if (!canceled) {
+          setFallbackPreviewUrl(null);
+        }
+      });
+    return () => {
+      canceled = true;
+    };
+  }, [path]);
 
   useEffect(() => {
     return () => {
@@ -310,8 +329,22 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const previewPanel = useMemo(() => {
     if (!canRender) {
       return (
-        <div className="h-full w-full flex items-center justify-center text-sm font-bold tracking-[0.2em] opacity-40">
-          {t('filemanager.texPreview.disabled') || 'Preview disabled'}
+        <div className="h-full w-full flex flex-col items-center justify-center gap-5 px-6 text-center">
+          {fallbackPreviewUrl && (
+            <img
+              src={fallbackPreviewUrl}
+              alt="LaTeX preview fallback"
+              className="max-h-[65%] w-full max-w-4xl rounded-3xl border border-white/10 object-contain"
+            />
+          )}
+          <div className="space-y-2">
+            <p className="text-sm font-bold tracking-[0.2em] opacity-75">
+              {t('filemanager.texPreview.disabled') || 'Preview disabled'}
+            </p>
+            <p className="text-xs font-bold tracking-[0.14em] opacity-50">
+              Demo runtime on Cloudflare does not provide local TeX rendering tools.
+            </p>
+          </div>
         </div>
       );
     }
@@ -360,7 +393,7 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     }
 
     return null;
-  }, [canRender, previewHtml, previewMode, previewUrl, rendering, t]);
+  }, [canRender, fallbackPreviewUrl, previewHtml, previewMode, previewUrl, rendering, t]);
 
   return (
     <div className={cn('h-screen w-screen flex flex-col overflow-hidden', isDark ? 'dark bg-[#09090b] text-white' : 'bg-white text-zinc-900')}>

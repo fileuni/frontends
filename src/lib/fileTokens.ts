@@ -76,6 +76,10 @@ export const getFileContentUrl = async (
   return buildFileContentUrl(token, options);
 };
 
+export const getFilePreviewImageUrl = async (path: string): Promise<string> => {
+  return getFileContentUrl(path, { inline: true, mode: 'preview-image' });
+};
+
 export const fetchTextFileContent = async (path: string): Promise<string> => {
   const url = await getFileContentUrl(path, { inline: true, mode: 'text' });
   const response = await fetch(url);

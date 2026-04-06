@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
-import { getFileContentUrl } from '@/lib/fileTokens.ts';
+import { getFileContentUrl, getFilePreviewImageUrl } from '@/lib/fileTokens.ts';
 import {
   Loader2,
   AlertCircle,
@@ -60,6 +60,7 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fallbackPreviewUrl, setFallbackPreviewUrl] = useState<string | null>(null);
 
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
@@ -82,6 +83,8 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
 
   const executeLoad = useCallback(async (filePath: string) => {
     setProcessing(true);
+    setError(null);
+    setFallbackPreviewUrl(null);
     try {
       const url = await getFileContentUrl(filePath, { inline: true });
       const response = await fetch(url);
@@ -98,6 +101,16 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
       setProcessing(false);
     }
   }, []);
+
+  const loadFallbackPreview = useCallback(async () => {
+    try {
+      const url = await getFilePreviewImageUrl(path);
+      setFallbackPreviewUrl(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [path]);
 
   useEffect(() => {
     const init = async () => {
@@ -133,7 +146,7 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
         <Loader2 className="animate-spin text-primary" size={32} />
       </div>
     );
-  if (error)
+  if (error && !fallbackPreviewUrl)
     return (
       <div className="h-full w-full flex flex-col items-center justify-center gap-4 text-red-500">
         <AlertCircle size={48} />
@@ -206,11 +219,37 @@ export const PdfPreview = ({ path, isDark, headerExtra, onClose }: Props) => {
         className="flex-1 bg-zinc-900 overflow-auto flex justify-center p-4 sm:p-8 custom-scrollbar"
         ref={containerRef}
       >
-        {pdfUrl ? (
+        {fallbackPreviewUrl ? (
+          <div className="w-full max-w-6xl flex flex-col items-center gap-6">
+            <img
+              src={fallbackPreviewUrl}
+              alt="PDF preview fallback"
+              className="w-full h-auto rounded-3xl border border-white/10 shadow-2xl"
+              onError={() => setFallbackPreviewUrl(null)}
+            />
+            <p className="text-sm font-bold tracking-[0.18em] text-white/60">
+              {t('filemanager.player.pdfEngine') || 'PDF preview'}: static demo fallback
+            </p>
+          </div>
+        ) : pdfUrl ? (
           <div className="shadow-2xl h-fit">
             <Document
               file={documentFile}
               onLoadSuccess={onDocumentLoadSuccess}
+              onLoadError={() => {
+                void loadFallbackPreview().then((loaded) => {
+                  if (!loaded) {
+                    setError('Failed to render PDF.');
+                  }
+                });
+              }}
+              onSourceError={() => {
+                void loadFallbackPreview().then((loaded) => {
+                  if (!loaded) {
+                    setError('Failed to load PDF source.');
+                  }
+                });
+              }}
               loading={
                 <div className="flex flex-col items-center p-20 gap-4">
                   <Loader2 className="animate-spin text-primary" size={40} />

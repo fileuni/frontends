@@ -7,6 +7,7 @@ import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { useThemeStore } from '@/stores/theme';
 import { useConfigStore } from '@/stores/config.ts';
 import { BASE_URL, client, extractData } from '@/lib/api.ts';
+import { getFilePreviewImageUrl } from '@/lib/fileTokens.ts';
 import { buildJsdelivrGhUrl, fetchFileStatSize, getFileExtension, isComplexOfficeFile, resolveLimitBytes } from '../utils/officeLite.ts';
 
 interface Props {
@@ -98,6 +99,7 @@ export const PptxLitePreview: React.FC<Props> = ({ path, onClose }) => {
   const [forceOpen, setForceOpen] = useState(false);
   const [fileSize, setFileSize] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [fallbackPreviewUrl, setFallbackPreviewUrl] = useState<string | null>(null);
 
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const officeLimitBytes = resolveLimitBytes(capabilities?.preview_size_limits?.office_mb);
@@ -157,6 +159,24 @@ export const PptxLitePreview: React.FC<Props> = ({ path, onClose }) => {
     loadPreview();
   }, [loadPreview]);
 
+  useEffect(() => {
+    let canceled = false;
+    void getFilePreviewImageUrl(path)
+      .then((url) => {
+        if (!canceled) {
+          setFallbackPreviewUrl(url);
+        }
+      })
+      .catch(() => {
+        if (!canceled) {
+          setFallbackPreviewUrl(null);
+        }
+      });
+    return () => {
+      canceled = true;
+    };
+  }, [path]);
+
   if (isLargeFile && !forceOpen) {
     return (
       <div className="fixed inset-0 z-[210] flex flex-col items-center justify-center bg-background text-center gap-4 px-6">
@@ -198,8 +218,9 @@ export const PptxLitePreview: React.FC<Props> = ({ path, onClose }) => {
           </div>
         )}
         {!loading && error && (
-          <div className="h-full flex items-center justify-center text-sm font-bold tracking-[0.2em] opacity-60">
-            {error}
+          <div className="h-full flex flex-col items-center justify-center gap-5 p-6 text-center text-sm font-bold tracking-[0.2em] opacity-60">
+            {fallbackPreviewUrl && <img src={fallbackPreviewUrl} alt="PPTX preview fallback" className="max-w-full max-h-[60vh] rounded-3xl border border-white/10" />}
+            <div>{error}</div>
           </div>
         )}
         {!loading && !error && <div ref={containerRef} className="pptx-preview-container px-6 py-4" />}

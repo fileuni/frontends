@@ -10,6 +10,7 @@ import { useThemeStore } from '@/stores/theme';
 import { useToastStore } from '@/stores/toast';
 import { useConfigStore } from '@/stores/config.ts';
 import { blobToBase64, fetchFileArrayBuffer, fetchFileStatSize, getFileExtension, isComplexOfficeFile, resolveLimitBytes, uploadBase64File } from '../utils/officeLite.ts';
+import { getFilePreviewImageUrl } from '@/lib/fileTokens.ts';
 import {
   notifyEditorSaveError,
   OFFICE_EDITOR_AUTO_SAVE,
@@ -141,6 +142,7 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
   const [editorText, setEditorText] = useState('');
   const [isComplex, setIsComplex] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fallbackPreviewUrl, setFallbackPreviewUrl] = useState<string | null>(null);
 
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const officeLimitBytes = resolveLimitBytes(capabilities?.preview_size_limits?.office_mb);
@@ -225,6 +227,24 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
   useEffect(() => {
     loadDocx();
   }, [loadDocx]);
+
+  useEffect(() => {
+    let canceled = false;
+    void getFilePreviewImageUrl(path)
+      .then((url) => {
+        if (!canceled) {
+          setFallbackPreviewUrl(url);
+        }
+      })
+      .catch(() => {
+        if (!canceled) {
+          setFallbackPreviewUrl(null);
+        }
+      });
+    return () => {
+      canceled = true;
+    };
+  }, [path]);
 
   const saveDocx = async (reason: 'manual' | 'auto') => {
     if (savingRef.current) return;
@@ -345,8 +365,9 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
             </div>
           )}
           {!loading && error && (
-            <div className="h-full flex items-center justify-center text-sm font-bold tracking-[0.2em] opacity-60">
-              {error}
+            <div className="h-full flex flex-col items-center justify-center gap-5 p-6 text-center text-sm font-bold tracking-[0.2em] opacity-60">
+              {fallbackPreviewUrl && <img src={fallbackPreviewUrl} alt="DOCX preview fallback" className="max-w-full max-h-[60vh] rounded-3xl border border-black/10" />}
+              <div>{error}</div>
             </div>
           )}
           {!loading && !error && <div ref={previewRef} className="docx-preview p-6" />}
