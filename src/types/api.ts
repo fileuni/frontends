@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/admin/about/latest-release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_check_latest_release"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/domain-acme-ddns/assets/certs": {
         parameters: {
             query?: never;
@@ -774,6 +790,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/system/tasks/cancel/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin cancel specific background task */
+        post: operations["admin_cancel_task"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/system/tasks/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin get all background tasks */
+        post: operations["admin_query_tasks"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/system/tasks/scheduled": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin get scheduled jobs status */
+        get: operations["admin_get_scheduled_jobs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/website-manage/reload": {
         parameters: {
             query?: never;
@@ -817,6 +884,22 @@ export interface paths {
         put: operations["update_site"];
         post?: never;
         delete: operations["delete_site"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/website-manage/test-upstream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_upstream"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2914,6 +2997,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/system/backend-capabilities-handshake": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_capabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/os-info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_system_os_info"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_public_version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/admin/blacklist": {
         parameters: {
             query?: never;
@@ -4277,6 +4408,11 @@ export interface components {
              */
             path?: string | null;
         };
+        InstallSourceInfo: {
+            confidence: string;
+            evidence: string[];
+            source: string;
+        };
         /** @description Invite info (i.e., temp user info) */
         InviteInfo: {
             /**
@@ -4338,6 +4474,18 @@ export interface components {
         KvCheckRequest: {
             connection_string: string;
             kv_type: string;
+        };
+        LatestReleaseInfo: {
+            artifact_kind: string;
+            current_channel: string;
+            current_version: string;
+            has_update: boolean;
+            install_source: components["schemas"]["InstallSourceInfo"];
+            prerelease?: null | components["schemas"]["ReleaseChannelInfo"];
+            stable?: null | components["schemas"]["ReleaseChannelInfo"];
+            target_arch: string;
+            target_libc?: string | null;
+            target_os: string;
         };
         LatexRenderRequest: {
             content: string;
@@ -4480,6 +4628,23 @@ export interface components {
             /** Format: uuid */
             sender_id?: string | null;
             title: string;
+        };
+        NotificationSelectionRequest: {
+            ids: string[];
+        };
+        OSInfo: {
+            arch: string;
+            is_mobile: boolean;
+            kernel_version?: string | null;
+            logical_cpu_count: number;
+            nixos_hint: boolean;
+            os_type: string;
+            os_version?: string | null;
+            physical_cpu_count?: number | null;
+            suggested_performance_template: string;
+            support_service: boolean;
+            /** Format: int64 */
+            total_memory_bytes: number;
         };
         PaginatedResponse_FileInfo: {
             data: {
@@ -4718,6 +4883,14 @@ export interface components {
             phone_configured: boolean;
             username: boolean;
         };
+        ReleaseChannelInfo: {
+            channel: string;
+            has_update: boolean;
+            published_at?: string | null;
+            release_page_url: string;
+            target_download_url?: string | null;
+            version: string;
+        };
         ReloadResult: {
             success: boolean;
         };
@@ -4784,6 +4957,8 @@ export interface components {
             old_path: string;
         };
         ResetPasswordBySecurityRequest: {
+            captcha_code?: string | null;
+            captcha_token?: string | null;
             new_password: string;
             security_answer: string;
             security_question: string;
@@ -4841,6 +5016,9 @@ export interface components {
             role_id: number;
             role_key: string;
         };
+        RuntimeVersionInfo: {
+            version: string;
+        };
         /** @description Save attachment to VFS request */
         SaveAttachmentRequest: {
             /** @description Target path in VFS */
@@ -4858,6 +5036,14 @@ export interface components {
             id?: string | null;
             subject?: string | null;
             to_addr?: string | null;
+        };
+        ScheduledJobStatus: {
+            cron: string;
+            id: string;
+            /** Format: date-time */
+            last_run?: string | null;
+            /** Format: date-time */
+            next_run?: string | null;
         };
         SendCaptchaCodeResponse: {
             message: string;
@@ -5129,6 +5315,16 @@ export interface components {
         };
         /** @enum {string} */
         TargetType: "Phone" | "Email" | "Graphic";
+        /** @description Task query filter parameters */
+        TaskQueryRequest: {
+            /** Format: int64 */
+            page: number;
+            /** Format: int64 */
+            page_size: number;
+            status?: string | null;
+            task_type?: string | null;
+            user_id?: string | null;
+        };
         /** @description Test connection request */
         TestConnectionRequest: {
             email_address: string;
@@ -5149,6 +5345,13 @@ export interface components {
             imap_ok: boolean;
             smtp_error?: string | null;
             smtp_ok: boolean;
+        };
+        TestUpstreamPayload: {
+            upstream: string;
+        };
+        TestUpstreamResult: {
+            message: string;
+            success: boolean;
         };
         ThumbnailCapabilities: {
             cache_mode: string;
@@ -5188,9 +5391,16 @@ export interface components {
         /** @description Update email account request */
         UpdateAccountRequest: {
             display_name?: string | null;
+            email_address?: string | null;
+            imap_host?: string | null;
+            /** Format: int32 */
+            imap_port?: number | null;
             imap_security?: null | components["schemas"]["ConnectionSecurity"];
             is_active?: boolean | null;
             password?: string | null;
+            smtp_host?: string | null;
+            /** Format: int32 */
+            smtp_port?: number | null;
             smtp_security?: null | components["schemas"]["ConnectionSecurity"];
             sync_enabled?: boolean | null;
         };
@@ -5635,6 +5845,26 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    admin_check_latest_release: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Latest release information for current server target */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
     list_cert_assets: {
         parameters: {
             query?: never;
@@ -5657,7 +5887,10 @@ export interface operations {
     };
     list_certs: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number | null;
+                page_size?: number | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -5773,9 +6006,13 @@ export interface operations {
     };
     list_cert_logs: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number | null;
+                page_size?: number | null;
+            };
             header?: never;
             path: {
+                /** @description Certificate ID */
                 id: string;
             };
             cookie?: never;
@@ -5809,7 +6046,10 @@ export interface operations {
     };
     list_ddns_entries: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number | null;
+                page_size?: number | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -5885,9 +6125,13 @@ export interface operations {
     };
     list_ddns_entry_logs: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number | null;
+                page_size?: number | null;
+            };
             header?: never;
             path: {
+                /** @description DDNS entry ID */
                 id: string;
             };
             cookie?: never;
@@ -6811,6 +7055,73 @@ export interface operations {
             };
         };
     };
+    admin_cancel_task: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Task ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Task cancelled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    admin_query_tasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskQueryRequest"];
+            };
+        };
+        responses: {
+            /** @description Task list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    admin_get_scheduled_jobs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scheduled jobs status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
     reload_runtime: {
         parameters: {
             query?: never;
@@ -6921,6 +7232,30 @@ export interface operations {
                 };
                 content: {
                     "text/plain": boolean;
+                };
+            };
+        };
+    };
+    test_upstream: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestUpstreamPayload"];
+            };
+        };
+        responses: {
+            /** @description Test proxy upstream connection */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestUpstreamResult"];
                 };
             };
         };
@@ -10694,7 +11029,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MarkReadRequest"];
+                "application/json": components["schemas"]["NotificationSelectionRequest"];
             };
         };
         responses: {
@@ -10717,7 +11052,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MarkReadRequest"];
+                "application/json": components["schemas"]["NotificationSelectionRequest"];
             };
         };
         responses: {
@@ -10799,6 +11134,66 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Client IP address */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    get_capabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Backend capabilities handshake for frontend adaptation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    get_system_os_info: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current runtime OS information */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    get_public_version: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current runtime version */
             200: {
                 headers: {
                     [name: string]: unknown;

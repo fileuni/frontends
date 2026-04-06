@@ -59,18 +59,6 @@ type MultipartOperation<TData, TBody, TQuery = never, TPath = never> = {
   responses: JsonSuccessResponse<TData>;
 };
 
-type GetPathItem<TData, TQuery = never, TPath = never> = {
-  parameters: EmptyParameters;
-  get: JsonOperation<TData, TQuery, TPath>;
-  put?: never;
-  post?: never;
-  delete?: never;
-  options?: never;
-  head?: never;
-  patch?: never;
-  trace?: never;
-};
-
 type PostPathItem<TData, TBody = never, TQuery = never, TPath = never> = {
   parameters: EmptyParameters;
   get?: never;
@@ -83,49 +71,7 @@ type PostPathItem<TData, TBody = never, TQuery = never, TPath = never> = {
   trace?: never;
 };
 
-type GetPostPathItem<TGetData, TPostData, TPostBody = never, TGetQuery = never, TGetPath = never, TPostQuery = never, TPostPath = never> = {
-  parameters: EmptyParameters;
-  get: JsonOperation<TGetData, TGetQuery, TGetPath>;
-  put?: never;
-  post: JsonOperation<TPostData, TPostQuery, TPostPath, TPostBody>;
-  delete?: never;
-  options?: never;
-  head?: never;
-  patch?: never;
-  trace?: never;
-};
-
-type GetDeletePathItem<TGetData, TDeleteData, TGetQuery = never, TGetPath = never, TDeleteQuery = never, TDeletePath = never, TDeleteBody = never> = {
-  parameters: EmptyParameters;
-  get: JsonOperation<TGetData, TGetQuery, TGetPath>;
-  put?: never;
-  post?: never;
-  delete: JsonOperation<TDeleteData, TDeleteQuery, TDeletePath, TDeleteBody>;
-  options?: never;
-  head?: never;
-  patch?: never;
-  trace?: never;
-};
-
-type RuntimeVersionPayload = {
-  version: string;
-};
-
-type SystemOsInfoPayload = {
-  os_type?: string;
-  arch?: string;
-  logical_cpu_count?: number | null;
-  physical_cpu_count?: number | null;
-  total_memory_bytes?: number | null;
-  suggested_performance_template?: string | null;
-};
-
 type LocalPathOverrides = {
-  "/api/v1/admin/about/latest-release": GetPathItem<BaseResponse<Record<string, unknown>>>;
-  "/api/v1/admin/domain-acme-ddns/certs": GetPostPathItem<Record<string, unknown>, Record<string, unknown>, object, { page?: number | null; page_size?: number | null }>;
-  "/api/v1/admin/domain-acme-ddns/certs/{id}/logs": GetPathItem<Record<string, unknown>, { page?: number | null; page_size?: number | null }, { id: string }>;
-  "/api/v1/admin/domain-acme-ddns/ddns/entries": GetPostPathItem<Record<string, unknown>, Record<string, unknown>, object, { page?: number | null; page_size?: number | null }>;
-  "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/logs": GetPathItem<Record<string, unknown>, { page?: number | null; page_size?: number | null }, { id: string }>;
   "/api/v1/admin/system/backup/export": PostPathItem<Record<string, unknown>>;
   "/api/v1/admin/system/backup/import": {
     parameters: EmptyParameters;
@@ -139,76 +85,6 @@ type LocalPathOverrides = {
     trace?: never;
   };
   "/api/v1/admin/system/backup/run-local": PostPathItem<BaseResponse<string>>;
-  "/api/v1/admin/system/tasks/cancel/{id}": PostPathItem<BaseResponse<Record<string, unknown>>, never, never, { id: string }>;
-  "/api/v1/admin/system/tasks/query": PostPathItem<BaseResponse<Record<string, unknown>>, {
-    page: number;
-    page_size: number;
-    status?: string | null;
-    user_id?: string | null;
-  }>;
-  "/api/v1/admin/system/tasks/scheduled": GetPathItem<BaseResponse<Record<string, unknown>>>;
-  "/api/v1/admin/web/reload": PostPathItem<BaseResponse<Record<string, unknown>>>;
-  "/api/v1/admin/web/sites": GetPostPathItem<BaseResponse<Record<string, unknown>>, BaseResponse<Record<string, unknown>>, object>;
-  "/api/v1/admin/web/sites/{id}": {
-    parameters: EmptyParameters;
-    get?: never;
-    put: JsonOperation<BaseResponse<Record<string, unknown>>, never, { id: string }, object>;
-    post?: never;
-    delete: JsonOperation<BaseResponse<Record<string, unknown>>, never, { id: string }>;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/admin/web/test-upstream": PostPathItem<BaseResponse<Record<string, unknown>>, { upstream: string }>;
-  "/api/v1/email/accounts": GetPostPathItem<BaseResponse<Record<string, unknown>>, BaseResponse<Record<string, unknown>>, {
-    display_name?: string | null;
-    email_address: string;
-    imap_host: string;
-    imap_port: number;
-    imap_security: "None" | "SslTls" | "StartTls";
-    is_ssl: boolean;
-    password: string;
-    smtp_host: string;
-    smtp_port: number;
-    smtp_security: "None" | "SslTls" | "StartTls";
-  }>;
-  "/api/v1/email/accounts/{id}": {
-    parameters: EmptyParameters;
-    get?: never;
-    put: JsonOperation<BaseResponse<Record<string, unknown>>, never, { id: string }, {
-      email_address: string;
-      display_name?: string | null;
-      password?: string | null;
-      imap_host: string;
-      imap_port: number;
-      imap_security: "None" | "SslTls" | "StartTls";
-      smtp_host: string;
-      smtp_port: number;
-      smtp_security: "None" | "SslTls" | "StartTls";
-      is_active?: boolean | null;
-      sync_enabled?: boolean | null;
-    }>;
-    post?: never;
-    delete: JsonOperation<BaseResponse<Record<string, unknown>>, never, { id: string }>;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/notifications": GetDeletePathItem<BaseResponse<Record<string, unknown>>, BaseResponse<Record<string, unknown>>, { page?: number | null; page_size?: number | null }, never, never, never, { ids: string[] }>;
-  "/api/v1/notifications/read": PostPathItem<BaseResponse<number>, { ids: string[] }>;
-  "/api/v1/system/backend-capabilities-handshake": GetPathItem<BaseResponse<components["schemas"]["SystemCapabilities"]>>;
-  "/api/v1/system/os-info": GetPathItem<BaseResponse<SystemOsInfoPayload>>;
-  "/api/v1/system/version": GetPathItem<BaseResponse<RuntimeVersionPayload>>;
-  "/api/v1/users/public/reset-password-by-security": PostPathItem<BaseResponse<Record<string, unknown>>, {
-    username_or_email_or_phone_or_uid: string;
-    security_question: string;
-    security_answer: string;
-    new_password: string;
-    captcha_token?: string | null;
-    captcha_code?: string | null;
-  }>;
 };
 
 export type paths = Omit<MainPaths, keyof LocalPathOverrides> & ConfigSetPaths & LocalPathOverrides;

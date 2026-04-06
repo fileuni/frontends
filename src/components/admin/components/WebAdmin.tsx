@@ -180,7 +180,7 @@ export const WebAdmin: React.FC = () => {
 
   const loadSites = useCallback(async () => {
     try {
-      const data = await extractData<SiteView[]>(client.GET('/api/v1/admin/web/sites'));
+      const data = await extractData<SiteView[]>(client.GET('/api/v1/admin/website-manage/sites'));
       setSites(Array.isArray(data) ? data : []);
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -278,14 +278,14 @@ export const WebAdmin: React.FC = () => {
       const payload = toPayload(draft);
       if (draft.id) {
         await extractData<SiteView>(
-          client.PUT('/api/v1/admin/web/sites/{id}', {
+          client.PUT('/api/v1/admin/website-manage/sites/{id}', {
             params: { path: { id: draft.id } },
             body: payload,
           }),
         );
       } else {
         await extractData<SiteView>(
-          client.POST('/api/v1/admin/web/sites', {
+          client.POST('/api/v1/admin/website-manage/sites', {
             body: payload,
           }),
         );
@@ -309,7 +309,7 @@ export const WebAdmin: React.FC = () => {
 
     try {
       await extractData<boolean>(
-        client.DELETE('/api/v1/admin/web/sites/{id}', {
+        client.DELETE('/api/v1/admin/website-manage/sites/{id}', {
           params: { path: { id: site.id } },
         }),
       );
@@ -322,7 +322,7 @@ export const WebAdmin: React.FC = () => {
 
   const reloadRuntime = async () => {
     try {
-      await extractData<{ success: boolean }>(client.POST('/api/v1/admin/web/reload'));
+      await extractData<{ success: boolean }>(client.POST('/api/v1/admin/website-manage/reload'));
       addToast(t('admin.web.reloadSuccess'), 'success');
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
@@ -339,7 +339,7 @@ export const WebAdmin: React.FC = () => {
     setTesting(true);
     try {
       const result = await extractData<{ success: boolean; message: string }>(
-        client.POST('/api/v1/admin/web/test-upstream', {
+        client.POST('/api/v1/admin/website-manage/test-upstream', {
           body: { upstream },
         }),
       );
