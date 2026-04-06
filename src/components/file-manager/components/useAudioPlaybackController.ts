@@ -4,6 +4,7 @@ import type { FileInfo } from '../types/index.ts';
 import { getFileContentUrl } from '@/lib/fileTokens.ts';
 import { resolveMediaResumePosition, upsertMediaPlaybackRecord } from '@/lib/mediaPlaybackHistory.ts';
 import { loadAudioMetadata, type AudioMetadata } from './audioMetadata.ts';
+import { resolveSeekableMediaSource } from './mediaSeekableSource.ts';
 import {
   EMPTY_LYRICS,
   PLAY_MODE_CONFIG,
@@ -153,6 +154,7 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
   const lastVolumeRef = useRef(0.82);
   const restoredPathRef = useRef<string | null>(null);
   const lastPersistedSecondRef = useRef(-1);
+  const sourceCleanupRef = useRef<(() => void) | null>(null);
   const latestSnapshotRef = useRef<{
     file: FileInfo | null;
     currentTime: number;
@@ -188,6 +190,11 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
     return audio;
   }, []);
 
+  const cleanupAudioSource = useCallback(() => {
+    sourceCleanupRef.current?.();
+    sourceCleanupRef.current = null;
+  }, []);
+
   useEffect(() => {
     const audio = ensureAudio();
     return () => {
@@ -195,8 +202,9 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
       if (audio) {
         audio.src = '';
       }
+      cleanupAudioSource();
     };
-  }, [ensureAudio]);
+  }, [cleanupAudioSource, ensureAudio]);
 
   useEffect(() => {
     setCurrentIndex(clamp(initialIndex, 0, Math.max(playlist.length - 1, 0)));
@@ -479,6 +487,7 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
     let canceled = false;
     restoredPathRef.current = null;
     lastPersistedSecondRef.current = -1;
+    cleanupAudioSource();
 
     const loadTrack = async () => {
       setIsTrackLoading(true);
@@ -493,8 +502,14 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
 
       try {
         const url = await getAudioUrl(activeFile.path);
+        const resolvedSource = await resolveSeekableMediaSource(url);
+        if (canceled) {
+          resolvedSource.cleanup?.();
+          return;
+        }
         if (!canceled) {
-          setAudioSrc(url);
+          sourceCleanupRef.current = resolvedSource.cleanup ?? null;
+          setAudioSrc(resolvedSource.url);
         }
       } catch (error) {
         console.error('Failed to load audio track', error);
@@ -511,7 +526,7 @@ export const useAudioPlaybackController = ({ playlist, initialIndex = 0, onIndex
     return () => {
       canceled = true;
     };
-  }, [activeFile, reloadSeed, t]);
+  }, [activeFile, cleanupAudioSource, reloadSeed, t]);
 
   useEffect(() => {
     const audio = ensureAudio();

@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
 import { formatTime, PLAYBACK_SPEEDS } from './audioPreviewShared.ts';
+import { resolveSeekableMediaSource } from './mediaSeekableSource.ts';
 
 type PlayMode = 'list' | 'loop' | 'shuffle' | 'single';
 type SidebarTab = 'playlist' | 'recent';
@@ -185,6 +186,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
   const lastVolumeRef = useRef(initialPrefsRef.current.volume > 0 ? initialPrefsRef.current.volume : 1);
   const subtitleRestorePathRef = useRef<string | null>(null);
   const audioTrackRestorePathRef = useRef<string | null>(null);
+  const sourceCleanupRef = useRef<(() => void) | null>(null);
   const tapStateRef = useRef<{ left: number; right: number }>({ left: 0, right: 0 });
   const gestureTimerRef = useRef<number | null>(null);
   const touchGestureRef = useRef<{ side: 'left' | 'right' | null; startX: number; startY: number; startVolume: number; startBrightness: number; moved: boolean }>({
@@ -201,6 +203,11 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
   const subtitleSyncKey = `${activePath}:${currentSubtitle?.file.path || 'none'}:${subtitlesLoaded ? '1' : '0'}`;
 
   const playedPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
+
+  const cleanupPlaybackSource = useCallback(() => {
+    sourceCleanupRef.current?.();
+    sourceCleanupRef.current = null;
+  }, []);
 
   const persistVideoRecord = useCallback((completed = false) => {
     if (!activeFile) return;
@@ -477,6 +484,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
     const playerContainer = playerContainerRef.current;
     if (!playerContainer || !activeFile) return undefined;
     let mounted = true;
+    cleanupPlaybackSource();
     restoredPathRef.current = null;
     lastPersistedSecondRef.current = -1;
     subtitleRestorePathRef.current = null;
@@ -494,9 +502,18 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
         throw new Error(t('filemanager.errors.loadFailed') || 'Load failed');
       }
 
+      const resolvedSource = playback.mode === 'direct'
+        ? await resolveSeekableMediaSource(playback.url)
+        : { url: playback.url };
+      if (!mounted) {
+        resolvedSource.cleanup?.();
+        return;
+      }
+      sourceCleanupRef.current = resolvedSource.cleanup ?? null;
+
       const player = new Player({
         el: playerContainer,
-        url: playback.url,
+        url: resolvedSource.url,
         width: '100%',
         height: '100%',
         autoplay: true,
@@ -564,10 +581,11 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
           duration: durationRef.current,
         });
       }
+      cleanupPlaybackSource();
       playerRef.current?.destroy();
       playerRef.current = null;
     };
-  }, [activeFile, isFlv, loadSubtitles, playlist.length, resolvePlaybackEntry, t]);
+  }, [activeFile, cleanupPlaybackSource, isFlv, loadSubtitles, playlist.length, resolvePlaybackEntry, t]);
 
   useEffect(() => {
     if (!playerRef.current) return undefined;
