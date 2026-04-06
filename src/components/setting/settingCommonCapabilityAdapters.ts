@@ -11,14 +11,42 @@ type ToastHandler = (
   type: "success" | "error",
 ) => void | Promise<void>;
 
+type CheckDbPath =
+  | "/api/v1/admin/system/config/check-db"
+  | "/api/v1/config-set/check-db";
+
+type CheckKvPath =
+  | "/api/v1/admin/system/config/check-kv"
+  | "/api/v1/config-set/check-kv";
+
+type DiagnoseExternalToolsPath =
+  | "/api/v1/admin/system/config/external-tools/diagnose"
+  | "/api/v1/config-set/external-tools/diagnose";
+
+type ProbeExternalToolPath =
+  | "/api/v1/admin/system/config/external-tools/probe"
+  | "/api/v1/config-set/external-tools/probe";
+
+type ProbeMediaBackendPath =
+  | "/api/v1/admin/system/config/media-backend/probe"
+  | "/api/v1/config-set/media-backend/probe";
+
+type TestPreStartupPath =
+  | "/api/v1/admin/startup-commands/test-pre-startup"
+  | "/api/v1/config-set/startup-commands/test-pre-startup";
+
+type TestPostStartupPath =
+  | "/api/v1/admin/startup-commands/test-post-startup"
+  | "/api/v1/config-set/startup-commands/test-post-startup";
+
 type HttpCapabilityPaths = {
-  checkDb: string;
-  checkKv: string;
-  diagnoseExternalTools: string;
-  probeExternalTool: string;
-  probeMediaBackend: string;
-  testPreStartup: string;
-  testPostStartup: string;
+  checkDb: CheckDbPath;
+  checkKv: CheckKvPath;
+  diagnoseExternalTools: DiagnoseExternalToolsPath;
+  probeExternalTool: ProbeExternalToolPath;
+  probeMediaBackend: ProbeMediaBackendPath;
+  testPreStartup: TestPreStartupPath;
+  testPostStartup: TestPostStartupPath;
 };
 
 type CreateHttpSettingCommonCapabilityHandlersParams = {
@@ -84,8 +112,8 @@ const TAURI_COMMANDS: TauriCapabilityCommands = {
 
 const NO_TOAST_HEADERS = { "X-No-Toast": "true" };
 
-const withHeaders = (
-  body: Record<string, unknown>,
+const withHeaders = <TBody extends Record<string, unknown>>(
+  body: TBody,
   headers?: Record<string, string>,
 ) => {
   if (!headers) {

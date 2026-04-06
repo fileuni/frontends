@@ -13,7 +13,7 @@ import { toast } from '@/stores/toast';
 import { ChatCrypto } from "../crypto";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAuthStore } from "@/stores/auth";
-import { client } from "@/lib/api";
+import { client, extractData } from "@/lib/api";
 import { storageHub } from '@/lib/storageHub';
 import { getTransportDisplayLabel, resolveTopic } from "../types";
 import type {
@@ -792,19 +792,14 @@ export const ChatProvider: React.FC<{
 
   const fetchCapabilities = useCallback(async (retryCount = 0) => {
     try {
-      const { data, error } = await (client.GET as (path: string) => Promise<{ data?: unknown; error?: unknown }>)("/api/v1/chat/public/capabilities");
-      if (
-        typeof data === 'object' &&
-        data !== null &&
-        'success' in data &&
-        (data as { success?: boolean }).success === true &&
-        'data' in data &&
-        isChatCapabilities((data as { data?: unknown }).data)
-      ) {
-        setCapabilities((data as { data: ChatCapabilities }).data);
+      const data = await extractData<ChatCapabilities>(
+        client.GET("/api/v1/chat/public/capabilities"),
+      );
+      if (isChatCapabilities(data)) {
+        setCapabilities(data);
         console.log("[Chat] Capabilities loaded successfully");
       } else {
-        throw new Error(error ? JSON.stringify(error) : "Success false");
+        throw new Error("Invalid chat capabilities response");
       }
     } catch (err) {
       console.error(`[Chat] Failed to fetch capabilities (attempt ${retryCount + 1}):`, err);
@@ -1517,19 +1512,17 @@ export const ChatProvider: React.FC<{
   const isFirstLoad = useRef(true);
   useEffect(() => {
     if (auth.type === "system") {
-      client
-        .GET<{ success: boolean; data: { settings_json?: string | null; is_enabled?: boolean | null } }>(
-          "/api/v1/chat/settings",
-        )
-        .then(({ data }) => {
-          if (data?.success && data.data.settings_json) {
+      extractData<{ settings_json?: string | null; is_enabled?: boolean | null }>(
+        client.GET("/api/v1/chat/settings"),
+      ).then((data) => {
+          if (data.settings_json) {
             try {
-              const p = JSON.parse(data.data.settings_json);
+              const p = JSON.parse(data.settings_json);
               isFirstLoad.current = true;
               setChatConfig((prev: ChatUserConfig) => ({
                 ...prev,
                 ...p,
-                enabled: data.data.is_enabled ?? prev.enabled,
+                enabled: data.is_enabled ?? prev.enabled,
               }));
             } catch (_error) {
               void _error;

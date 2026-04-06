@@ -54,8 +54,7 @@ export const TaskAdmin = () => {
           body: {
             page,
             page_size: pageSize,
-            status: statusFilter || undefined,
-            user_id: undefined,
+            ...(statusFilter ? { status: statusFilter } : {}),
           },
         }),
       );

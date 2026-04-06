@@ -53,8 +53,8 @@ export const BlacklistAdmin = () => {
             query: {
               page,
               page_size: pageSize,
-              guard_type: guardType || undefined,
-              blacklist_type: blacklistType || undefined,
+              ...(guardType ? { guard_type: guardType } : {}),
+              ...(blacklistType ? { blacklist_type: blacklistType } : {}),
             },
           },
         }),
@@ -82,8 +82,8 @@ export const BlacklistAdmin = () => {
             guard_type: newGuardType,
             blacklist_type: newBlacklistType,
             value: newValue.trim(),
-            reason: newReason.trim() || undefined,
-            expires_at: newExpiresAt || undefined,
+            ...(newReason.trim() ? { reason: newReason.trim() } : {}),
+            ...(newExpiresAt ? { expires_at: newExpiresAt } : {}),
           },
         }),
       );

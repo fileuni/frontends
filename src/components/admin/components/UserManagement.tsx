@@ -69,7 +69,7 @@ export const UserManagement = () => {
               page,
               page_size: pageSize,
               include_deleted: includeDeleted,
-              keyword: search || undefined,
+              ...(search ? { keyword: search } : {}),
             },
           },
         }),

@@ -227,15 +227,43 @@ export const EmailAccountModal: React.FC<EmailAccountModalProps> = ({
         <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.smtpSecurity")}</span><select value={formSmtpSecurity} onChange={e => setFormSmtpSecurity(e.target.value as "None" | "SslTls" | "StartTls")} className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-bold text-foreground outline-none"><option value="SslTls" className="bg-background text-foreground">{t("email.securitySslTls")}</option><option value="StartTls" className="bg-background text-foreground">{t("email.securityStartTls")}</option><option value="None" className="bg-background text-foreground">{t("email.securityNone")}</option></select></div>
         <div className="flex gap-2 pt-4">
           <Button variant="outline" className="flex-1 rounded-2xl h-11 font-black text-sm" onClick={() => setShowAccountModal(false)}>{t("common.cancel")}</Button>
-          <Button className="flex-1 rounded-2xl h-11 shadow-lg font-black text-sm" onClick={async () => {
-            try {
-              if(editingAccount) {
-                await extractData(client.PUT("/api/v1/email/accounts/{id}", { params: { path: { id: editingAccount.id } }, body: { email_address: formEmail, display_name: formDisplayName, password: formPassword || undefined, imap_host: formImapHost, imap_port: formImapPort, imap_security: formImapSecurity, smtp_host: formSmtpHost, smtp_port: formSmtpPort, smtp_security: formSmtpSecurity, is_active: true, sync_enabled: true } }));
-                toast.success(t("email.accountUpdated"));
-              } else {
-                await extractData(client.POST("/api/v1/email/accounts", { body: { email_address: formEmail, password: formPassword, display_name: formDisplayName, imap_host: formImapHost, imap_port: formImapPort, imap_security: formImapSecurity, smtp_host: formSmtpHost, smtp_port: formSmtpPort, smtp_security: formSmtpSecurity } }));
-                toast.success(t("email.accountAdded"));
-              }
+	          <Button className="flex-1 rounded-2xl h-11 shadow-lg font-black text-sm" onClick={async () => {
+	            try {
+	              if(editingAccount) {
+	                await extractData(client.PUT("/api/v1/email/accounts/{id}", {
+	                  params: { path: { id: editingAccount.id } },
+	                  body: {
+	                    email_address: formEmail,
+	                    display_name: formDisplayName,
+	                    imap_host: formImapHost,
+	                    imap_port: formImapPort,
+	                    imap_security: formImapSecurity,
+	                    smtp_host: formSmtpHost,
+	                    smtp_port: formSmtpPort,
+	                    smtp_security: formSmtpSecurity,
+	                    is_active: true,
+	                    sync_enabled: true,
+	                    ...(formPassword ? { password: formPassword } : {}),
+	                  },
+	                }));
+	                toast.success(t("email.accountUpdated"));
+	              } else {
+	                await extractData(client.POST("/api/v1/email/accounts", {
+	                  body: {
+	                    email_address: formEmail,
+	                    password: formPassword,
+	                    display_name: formDisplayName,
+	                    imap_host: formImapHost,
+	                    imap_port: formImapPort,
+	                    imap_security: formImapSecurity,
+	                    smtp_host: formSmtpHost,
+	                    smtp_port: formSmtpPort,
+	                    smtp_security: formSmtpSecurity,
+	                    is_ssl: formImapSecurity === "SslTls" || formSmtpSecurity === "SslTls",
+	                  },
+	                }));
+	                toast.success(t("email.accountAdded"));
+	              }
               setShowAccountModal(false);
               setEditingAccount(null);
               onSaved();

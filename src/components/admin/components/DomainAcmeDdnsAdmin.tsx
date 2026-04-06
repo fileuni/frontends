@@ -1023,7 +1023,10 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       const res = await extractData<ProviderTestDnsResult>(
         client.POST('/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-dns', {
           params: { path: { id: providerDraft.id } },
-          body: { zone: providerTestZone.trim(), host: providerTestHost.trim() || undefined },
+          body: {
+            zone: providerTestZone.trim(),
+            ...(providerTestHost.trim() ? { host: providerTestHost.trim() } : {}),
+          },
         }),
       );
 

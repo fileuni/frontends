@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils.ts";
 import { useChat } from "../context/ChatContext";
-import { client } from "@/lib/api.ts";
+import { client, extractData } from "@/lib/api.ts";
 import { useConfigStore } from "@/stores/config.ts";
 import { getTransportDisplayLabel, type TransportBackend } from "../types";
 import { Button } from "@/components/ui/Button.tsx";
@@ -150,17 +150,15 @@ export const ChatPage: React.FC = () => {
 
   const refreshInvites = useCallback(async () => {
     try {
-      const { data } = await client.GET("/api/v1/chat/invites");
-      if (data?.['success']) {
-        setInviteList(
-          (data['data'] as InviteInfo[]).sort((a, b) => {
-            return (
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime()
-            );
-          }),
-        );
-      }
+      const data = await extractData<InviteInfo[]>(client.GET("/api/v1/chat/invites"));
+      setInviteList(
+        data.sort((a, b) => {
+          return (
+            new Date(b.created_at).getTime() -
+            new Date(a.created_at).getTime()
+          );
+        }),
+      );
     } catch (err) {
       console.error(err);
     }
@@ -168,10 +166,8 @@ export const ChatPage: React.FC = () => {
 
   const refreshGroups = useCallback(async () => {
     try {
-      const { data } = await client.GET("/api/v1/chat/groups");
-      if (data?.['success']) {
-        setGroupList(data['data'] as GroupInfo[]);
-      }
+      const data = await extractData<GroupInfo[]>(client.GET("/api/v1/chat/groups"));
+      setGroupList(data);
     } catch (err) {
       console.error(err);
     }
@@ -189,37 +185,34 @@ export const ChatPage: React.FC = () => {
 
   const handleSearchUsers = async () => {
     if (!userSearchKeyword.trim()) return;
-    const { data } = await client.GET("/api/v1/chat/users/search", {
+    const data = await extractData<UserSearchResult[]>(client.GET("/api/v1/chat/users/search", {
       params: { query: { keyword: userSearchKeyword } },
-    });
-    if (data?.['success']) {
-      setUserSearchResults(data['data'] as UserSearchResult[]);
-    }
+    }));
+    setUserSearchResults(data);
   };
 
   const handleCreateInvite = async () => {
     const expiresAt = new Date(
       Date.now() + inviteDays * 24 * 60 * 60 * 1000,
     ).toISOString();
-    const { data } = await client.POST("/api/v1/chat/invites", {
-      body: { nickname: inviteNickname || undefined, expires_at: expiresAt },
-    });
-    if (data?.['success']) {
-      refreshInvites();
-      toast.success(t("chat.inviteCreated"));
-      setInviteNickname("");
-    }
+    await extractData(client.POST("/api/v1/chat/invites", {
+      body: {
+        expires_at: expiresAt,
+        ...(inviteNickname ? { nickname: inviteNickname } : {}),
+      },
+    }));
+    refreshInvites();
+    toast.success(t("chat.inviteCreated"));
+    setInviteNickname("");
   };
 
   const handleDeleteInvite = async (id: string) => {
     if (!window.confirm(t("chat.confirmDeleteInvite"))) return;
-    const { data } = await client.DELETE("/api/v1/chat/invites/{id}", {
+    await extractData(client.DELETE("/api/v1/chat/invites/{id}", {
       params: { path: { id } },
-    });
-    if (data?.['success']) {
-      refreshInvites();
-      toast.success(t("chat.inviteDeleted"));
-    }
+    }));
+    refreshInvites();
+    toast.success(t("chat.inviteDeleted"));
   };
 
   const handleCreateGroup = async () => {
@@ -231,30 +224,27 @@ export const ChatPage: React.FC = () => {
       .split(",")
       .map((v) => v.trim())
       .filter(Boolean);
-    const { data, error } = await client.POST("/api/v1/chat/groups", {
+    try {
+      await extractData(client.POST("/api/v1/chat/groups", {
       body: { name: groupName, member_ids: members },
-    });
-
-    if (data?.['success']) {
+      }));
       setGroupName("");
       setGroupMembers("");
       refreshGroups();
       setShowGroupModal(false);
       toast.success(t("chat.groupCreated"));
-    } else if (error) {
+    } catch (error) {
       toast.error(getErrorMessage(error, t("common.error")));
     }
   };
 
   const handleDisbandGroup = async (groupId: string) => {
-    const { data } = await client.DELETE("/api/v1/chat/groups/{group_id}", {
+    await extractData(client.DELETE("/api/v1/chat/groups/{group_id}", {
       params: { path: { group_id: groupId } },
-    });
-    if (data?.['success']) {
-      refreshGroups();
-      if (activeTarget === groupId) setActiveTarget("");
-      toast.success(t("chat.groupDisbanded"));
-    }
+    }));
+    refreshGroups();
+    if (activeTarget === groupId) setActiveTarget("");
+    toast.success(t("chat.groupDisbanded"));
   };
 
   const handleSend = async (content: string) => {

@@ -235,10 +235,10 @@ export const useChatWebRTC = (options: WebRTCOptions) => {
 
       pc.onnegotiationneeded = async () => {
         try {
-          if (pc!.signalingState !== "stable") return;
+          if (pc.signalingState !== "stable") return;
           makingOfferRef.current.set(targetId, true);
-          await pc!.setLocalDescription();
-          const localDescription = pc!.localDescription;
+          await pc.setLocalDescription();
+          const localDescription = pc.localDescription;
           if (!localDescription) {
             return;
           }

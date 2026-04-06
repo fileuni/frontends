@@ -10,7 +10,7 @@ import {
   LayoutDashboard,
   Users,
 } from "lucide-react";
-import { client } from "@/lib/api";
+import { client, extractData } from "@/lib/api";
 import { ConfigSetEditor } from "@/components/setting/ConfigSetEditor";
 import { useAuthStore } from "@/stores/auth.ts";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
@@ -31,13 +31,10 @@ export const WelcomeView = () => {
 
   const checkCapabilities = useCallback(async () => {
     try {
-      const { data } = await client.GET(
-        "/api/v1/system/backend-capabilities-handshake",
+      const caps = await extractData<SystemCapabilities>(
+        client.GET("/api/v1/system/backend-capabilities-handshake"),
       );
-      if (data?.['data']) {
-        const caps = data['data'] as unknown as SystemCapabilities;
-        setSettingsCenterMode(!!caps.is_config_set_mode);
-      }
+      setSettingsCenterMode(caps.is_config_set_mode === true);
     } catch (e) {
       console.error("Failed to fetch capabilities", e);
     } finally {

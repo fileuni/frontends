@@ -32,6 +32,7 @@ import { useLanguageStore } from '@/stores/language';
 import { ChatContext, type ChatContextProps, type Room } from "@/components/chat/context/ChatContext";
 import { useConfigStore } from "@/stores/config.ts";
 import { useAuthzStore } from "@/stores/authz.ts";
+import { isRecord } from "@/lib/configObject.ts";
 
 const getTaskTypeLabel = (
   t: ReturnType<typeof useTranslation>['t'],
@@ -51,6 +52,30 @@ const getTaskTypeLabel = (
     default:
       return taskType;
   }
+};
+
+const isTaskStatusValue = (
+  value: unknown,
+): value is TaskState["status"] => {
+  return value === "pending"
+    || value === "running"
+    || value === "success"
+    || value === "failed"
+    || value === "interrupted";
+};
+
+const isTaskStatusUpdate = (
+  value: unknown,
+): value is Pick<TaskState, "status" | "progress"> & { message?: string } => {
+  if (!isRecord(value)) return false;
+  if (!isTaskStatusValue(value["status"])) return false;
+  if (typeof value["progress"] !== "number" || !Number.isFinite(value["progress"])) {
+    return false;
+  }
+  if (value["message"] !== undefined && typeof value["message"] !== "string") {
+    return false;
+  }
+  return true;
 };
 
 export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
@@ -442,20 +467,15 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
 
     const interval = setInterval(async () => {
       try {
-        const { data, error } = await client.GET("/api/v1/file/task/{id}", {
+        const taskData = await extractData<unknown>(client.GET("/api/v1/file/task/{id}", {
           params: { path: { id: task.id } },
-        });
+        }));
 
-        if (!error && data?.['success']) {
-          const tData = data['data'] as unknown as {
-            status: TaskState["status"];
-            progress: number;
-            message?: string;
-          };
+        if (isTaskStatusUpdate(taskData)) {
           updateTask(task.id, {
-            status: tData.status,
-            progress: tData.progress,
-            ...(tData.message ? { message: tData.message } : {}),
+            status: taskData.status,
+            progress: taskData.progress,
+            ...(taskData.message ? { message: taskData.message } : {}),
           });
         }
       } catch (e) {

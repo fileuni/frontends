@@ -186,10 +186,10 @@ export const SecurityView = () => {
         body: { 
           target: normalizedTarget, 
           target_type: type as "email" | "phone", 
-          user_id: currentUserData?.user.id,
           scene: type === 'email' ? 'bind_email' : 'bind_phone',
           captcha_token: captchaTokenForSubmit || null,
           captcha_code: isTurnstileCaptcha ? null : (captchaCode || null),
+          ...(currentUserData?.user.id ? { user_id: currentUserData.user.id } : {}),
         }
       }));
       const serverTarget = payload.target?.trim() || '';

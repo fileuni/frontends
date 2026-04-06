@@ -37,7 +37,7 @@ import { ChatInput } from "@/components/chat/components/ChatInput";
 import { SessionKeyModal } from "./SessionKeyModal";
 import { toast } from "@/stores/toast";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
-import { client } from "@/lib/api";
+import { client, extractData } from "@/lib/api";
 import { getTransportDisplayLabel, type InviteInfo, type GroupInfo, type TransportBackend } from "../types";
 import { Modal } from "@/components/ui/Modal.tsx";
 import { Input } from "@/components/ui/Input.tsx";
@@ -328,23 +328,19 @@ export const ChatUnifiedUI: React.FC = () => {
   }, []);
 
   const fetchInvites = useCallback(async () => {
-    const { data } = await client.GET("/api/v1/chat/invites");
-    if (data?.['success']) {
-      setInvites(
-        (data['data'] as InviteInfo[]).sort((a, b) => {
-          return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          );
-        }),
-      );
-    }
+    const data = await extractData<InviteInfo[]>(client.GET("/api/v1/chat/invites"));
+    setInvites(
+      data.sort((a, b) => {
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      }),
+    );
   }, []);
 
   const fetchGroups = useCallback(async () => {
-    const { data } = await client.GET("/api/v1/chat/groups");
-    if (data?.['success']) {
-      setGroups(data['data'] as GroupInfo[]);
-    }
+    const data = await extractData<GroupInfo[]>(client.GET("/api/v1/chat/groups"));
+    setGroups(data);
   }, []);
 
   const inviteUrl = useCallback((id: string) => {
@@ -357,46 +353,39 @@ export const ChatUnifiedUI: React.FC = () => {
     ).toISOString();
 
     if (editingInvite) {
-      const { data } = await client.PUT("/api/v1/chat/invites/{id}", {
+      await extractData(client.PUT("/api/v1/chat/invites/{id}", {
         params: { path: { id: editingInvite.id } },
         body: {
           expires_at: expiresAt,
-          nickname: inviteDefaultNickname || undefined,
+          ...(inviteDefaultNickname ? { nickname: inviteDefaultNickname } : {}),
         },
-      });
-      if (data?.['success']) {
-        toast.success(t("chat.inviteUpdated"));
-        setInviteModalOpen(false);
-        fetchInvites();
-      }
+      }));
+      toast.success(t("chat.inviteUpdated"));
+      setInviteModalOpen(false);
+      fetchInvites();
     } else {
-      const { data } = await client.POST("/api/v1/chat/invites", {
+      const inviteId = await extractData<string>(client.POST("/api/v1/chat/invites", {
         body: {
           expires_at: expiresAt,
-          nickname: inviteDefaultNickname || undefined,
+          ...(inviteDefaultNickname ? { nickname: inviteDefaultNickname } : {}),
         },
-      });
-      if (data?.['success']) {
-        const inviteId = data['data'] as string;
-        navigator.clipboard.writeText(inviteUrl(inviteId));
-        toast.success(t("chat.inviteCreatedAndCopied"));
-        setInviteModalOpen(false);
-        setInviteDefaultNickname("");
-        fetchInvites();
-      }
+      }));
+      navigator.clipboard.writeText(inviteUrl(inviteId));
+      toast.success(t("chat.inviteCreatedAndCopied"));
+      setInviteModalOpen(false);
+      setInviteDefaultNickname("");
+      fetchInvites();
     }
   }, [editingInvite, inviteDays, inviteDefaultNickname, fetchInvites, inviteUrl, t]);
 
   const handleSoftDelete = useCallback(
     async (id: string) => {
       if (!window.confirm(t("chat.confirmDeleteInvite"))) return;
-      const { data } = await client.DELETE("/api/v1/chat/invites/{id}", {
+      await extractData(client.DELETE("/api/v1/chat/invites/{id}", {
         params: { path: { id } },
-      });
-      if (data?.['success']) {
-        toast.success(t("chat.inviteDeleted"));
-        fetchInvites();
-      }
+      }));
+      toast.success(t("chat.inviteDeleted"));
+      fetchInvites();
     },
     [fetchInvites, t],
   );
@@ -406,16 +395,14 @@ export const ChatUnifiedUI: React.FC = () => {
       return;
     setIsUpdatingNickname(true);
     try {
-      const { data, error } = await client.PUT("/api/v1/chat/guests/nickname", {
+      await extractData(client.PUT("/api/v1/chat/guests/nickname", {
         body: { id: selfId, nickname: nicknameInput.trim() },
-      });
-      if (data?.['success']) {
-        updateNickname(selfId, nicknameInput.trim());
-        setNicknameInput("");
-        toast.success(t("chat.nicknameUpdated"));
-      } else if (error) {
-        toast.error(getErrorMessage(error, t("common.error")));
-      }
+      }));
+      updateNickname(selfId, nicknameInput.trim());
+      setNicknameInput("");
+      toast.success(t("chat.nicknameUpdated"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("common.error")));
     } finally {
       setIsUpdatingNickname(false);
     }
@@ -423,12 +410,10 @@ export const ChatUnifiedUI: React.FC = () => {
 
   const handleSearchUsers = useCallback(async () => {
     if (!userSearchKeyword.trim()) return;
-    const { data } = await client.GET("/api/v1/chat/users/search", {
+    const data = await extractData<UserSearchResult[]>(client.GET("/api/v1/chat/users/search", {
       params: { query: { keyword: userSearchKeyword } },
-    });
-    if (data?.['success']) {
-      setUserSearchResults(data['data'] as UserSearchResult[]);
-    }
+    }));
+    setUserSearchResults(data);
   }, [userSearchKeyword]);
 
   const handleCreateGroup = useCallback(async () => {
@@ -440,30 +425,28 @@ export const ChatUnifiedUI: React.FC = () => {
       .split(",")
       .map((v) => v.trim())
       .filter(Boolean);
-    const { data, error } = await client.POST("/api/v1/chat/groups", {
+    try {
+      await extractData(client.POST("/api/v1/chat/groups", {
       body: { name: groupName, member_ids: members },
-    });
-    if (data?.['success']) {
+      }));
       setGroupName("");
       setGroupMembers("");
       fetchGroups();
       setShowGroupModal(false);
       toast.success(t("chat.groupCreated"));
-    } else if (error) {
+    } catch (error) {
       toast.error(getErrorMessage(error, t("common.error")));
     }
   }, [groupName, groupMembers, fetchGroups, t]);
 
   const handleDisbandGroup = useCallback(
     async (groupId: string) => {
-      const { data } = await client.DELETE("/api/v1/chat/groups/{group_id}", {
+      await extractData(client.DELETE("/api/v1/chat/groups/{group_id}", {
         params: { path: { group_id: groupId } },
-      });
-      if (data?.['success']) {
-        fetchGroups();
-        if (activeTarget === groupId) setActiveTarget("");
-        toast.success(t("chat.groupDisbanded"));
-      }
+      }));
+      fetchGroups();
+      if (activeTarget === groupId) setActiveTarget("");
+      toast.success(t("chat.groupDisbanded"));
     },
     [activeTarget, setActiveTarget, fetchGroups, t],
   );

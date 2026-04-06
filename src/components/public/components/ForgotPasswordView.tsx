@@ -303,6 +303,7 @@ export const ForgotPasswordView = () => {
           headers: { "X-No-Toast": "true" },
           body: { 
             username_or_email_or_phone_or_uid: identifier, 
+            security_question: options.security_question ?? '',
             security_answer: verifyForm.answer,
             new_password: resetForm.newPassword,
             captcha_token: captchaTokenForSubmit || null,

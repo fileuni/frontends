@@ -622,15 +622,15 @@ export const useEmailPageController = (): UseEmailPageController => {
     try {
       const saved = await extractData<DraftSavePayload>(client.POST("/api/v1/email/drafts", {
         body: {
-          id: currentDraftId || undefined,
-          account_id: composeFromAccount || undefined,
-          to_addr: composeTo || undefined,
-          cc_addr: composeCc || undefined,
-          bcc_addr: composeBcc || undefined,
-          subject: composeSubject || undefined,
           body_html: composeBody,
           context_type: activeRefId ? "reply" : "new",
-          context_ref_id: activeRefId || undefined
+          ...(currentDraftId ? { id: currentDraftId } : {}),
+          ...(composeFromAccount ? { account_id: composeFromAccount } : {}),
+          ...(composeTo ? { to_addr: composeTo } : {}),
+          ...(composeCc ? { cc_addr: composeCc } : {}),
+          ...(composeBcc ? { bcc_addr: composeBcc } : {}),
+          ...(composeSubject ? { subject: composeSubject } : {}),
+          ...(activeRefId ? { context_ref_id: activeRefId } : {}),
         }
       }));
       if (saved.id) {
@@ -814,10 +814,10 @@ export const useEmailPageController = (): UseEmailPageController => {
         body: {
           from_account_id: composeFromAccount,
           to: composeTo.split(",").map(s => s.trim()).filter(Boolean),
-          cc: composeCc ? composeCc.split(",").map(s => s.trim()).filter(Boolean) : undefined,
-          bcc: composeBcc ? composeBcc.split(",").map(s => s.trim()).filter(Boolean) : undefined,
           subject: composeSubject, body_text: stripHtml(composeBody), body_html: composeBody,
-          attachment_vfs_paths: attachment_vfs_paths.length > 0 ? attachment_vfs_paths : undefined
+          ...(composeCc ? { cc: composeCc.split(",").map(s => s.trim()).filter(Boolean) } : {}),
+          ...(composeBcc ? { bcc: composeBcc.split(",").map(s => s.trim()).filter(Boolean) } : {}),
+          ...(attachment_vfs_paths.length > 0 ? { attachment_vfs_paths } : {}),
         }
       }));
       if (currentDraftId) await client.DELETE("/api/v1/email/drafts/{id}", { params: { path: { id: currentDraftId } } });

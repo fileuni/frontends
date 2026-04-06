@@ -336,6 +336,20 @@ export const FileSystemAdmin = () => {
   const [diagnosticsLoadingId, setDiagnosticsLoadingId] = useState<number | null>(null);
   const [walDiagnostics, setWalDiagnostics] = useState<WalIssueDiagnosticsResponse | null>(null);
 
+  const buildWalQuery = useCallback(
+    () => ({
+      page: walPage,
+      page_size: walPageSize,
+      scope: walScope,
+      status: walStatusFilter,
+      ...(walUserFilter ? { user_id: walUserFilter } : {}),
+      ...(walOperationFilter !== 'all' ? { operation_type: walOperationFilter } : {}),
+      ...(walUpdatedFrom ? { updated_from: walUpdatedFrom } : {}),
+      ...(walUpdatedTo ? { updated_to: walUpdatedTo } : {}),
+    }),
+    [walOperationFilter, walPage, walPageSize, walScope, walStatusFilter, walUpdatedFrom, walUpdatedTo, walUserFilter],
+  );
+
   const fetchOverview = useCallback(async () => {
     const [statsRes, maintenanceRes] = await Promise.allSettled([
       extractData<unknown>(client.GET('/api/v1/file/admin/storage-stats')),
@@ -357,16 +371,7 @@ export const FileSystemAdmin = () => {
       const data = await extractData<unknown>(
         client.GET('/api/v1/file/admin/file-manager/wal/issues', {
           params: {
-            query: {
-              page: walPage,
-              page_size: walPageSize,
-              scope: walScope,
-              status: walStatusFilter,
-              user_id: walUserFilter || undefined,
-              operation_type: walOperationFilter === 'all' ? undefined : walOperationFilter,
-              updated_from: walUpdatedFrom,
-              updated_to: walUpdatedTo,
-            },
+            query: buildWalQuery(),
           },
         }),
       );
@@ -387,7 +392,7 @@ export const FileSystemAdmin = () => {
     } finally {
       setIssuesLoading(false);
     }
-  }, [walPage, walPageSize, walScope, walStatusFilter, walUserFilter, walOperationFilter, walUpdatedFrom, walUpdatedTo, addToast, t]);
+  }, [addToast, buildWalQuery, t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -440,7 +445,13 @@ export const FileSystemAdmin = () => {
     setSyncingUserIndex(true);
     try {
       const data = await extractData<{ task_id: string; user_id: string }>(
-        client.POST(`/api/v1/file/admin/index-sync/${encodeURIComponent(userId)}`),
+        client.POST('/api/v1/file/admin/index-sync/{user_id}', {
+          params: {
+            path: {
+              user_id: userId,
+            },
+          },
+        }),
       );
       addToast(t('admin.fs.sync_user_success', { user_id: data.user_id, task_id: data.task_id }), 'success');
       setUserIdForIndexSync('');
@@ -461,7 +472,12 @@ export const FileSystemAdmin = () => {
     setRebuildingUserIndex(true);
     try {
       const data = await extractData<{ task_id: string; user_id: string }>(
-        client.POST(`/api/v1/file/admin/index-rebuild/${encodeURIComponent(userId)}`, {
+        client.POST('/api/v1/file/admin/index-rebuild/{user_id}', {
+          params: {
+            path: {
+              user_id: userId,
+            },
+          },
           body: { path: '/', max_directories: 200000 },
         }),
       );
@@ -512,7 +528,15 @@ export const FileSystemAdmin = () => {
     if (!window.confirm(t('admin.fs.wal_replay_confirm', { id: issue.id }))) return;
     setWalActionId(issue.id);
     try {
-      await extractData<WalIssueActionResponse>(client.POST(`/api/v1/file/admin/file-manager/wal/${issue.id}/replay`));
+      await extractData<WalIssueActionResponse>(
+        client.POST('/api/v1/file/admin/file-manager/wal/{id}/replay', {
+          params: {
+            path: {
+              id: issue.id,
+            },
+          },
+        }),
+      );
       addToast(t('admin.fs.wal_replay_success', { id: issue.id }), 'success');
       await Promise.all([fetchOverview(), fetchWalEntries()]);
     } catch (e) {
@@ -528,8 +552,15 @@ export const FileSystemAdmin = () => {
     setWalActionId(issue.id);
     try {
       await extractData<WalIssueActionResponse>(
-        client.POST(`/api/v1/file/admin/file-manager/wal/${issue.id}/mark-handled`, {
-          body: { note: note.trim() || undefined },
+        client.POST('/api/v1/file/admin/file-manager/wal/{id}/mark-handled', {
+          params: {
+            path: {
+              id: issue.id,
+            },
+          },
+          body: {
+            ...(note.trim() ? { note: note.trim() } : {}),
+          },
         }),
       );
       addToast(t('admin.fs.wal_mark_handled_success', { id: issue.id }), 'success');
@@ -577,7 +608,10 @@ export const FileSystemAdmin = () => {
     try {
       const data = await extractData<unknown>(
         client.POST('/api/v1/file/admin/file-manager/wal/mark-handled-batch', {
-          body: { ids: selectedWalIds, note: note.trim() || undefined },
+          body: {
+            ids: selectedWalIds,
+            ...(note.trim() ? { note: note.trim() } : {}),
+          },
         }),
       );
       if (isWalIssueBatchActionResponse(data)) {
@@ -598,14 +632,7 @@ export const FileSystemAdmin = () => {
     try {
       const response = await client.GET('/api/v1/file/admin/file-manager/wal/export', {
         params: {
-          query: {
-            scope: walScope,
-            status: walStatusFilter,
-            user_id: walUserFilter || undefined,
-            operation_type: walOperationFilter === 'all' ? undefined : walOperationFilter,
-            updated_from: walUpdatedFrom,
-            updated_to: walUpdatedTo,
-          },
+          query: buildWalQuery(),
         },
         parseAs: 'blob',
       });
@@ -626,7 +653,13 @@ export const FileSystemAdmin = () => {
     setDiagnosticsLoadingId(issue.id);
     try {
       const data = await extractData<unknown>(
-        client.GET(`/api/v1/file/admin/file-manager/wal/${issue.id}/diagnostics`),
+        client.GET('/api/v1/file/admin/file-manager/wal/{id}/diagnostics', {
+          params: {
+            path: {
+              id: issue.id,
+            },
+          },
+        }),
       );
       if (isWalIssueDiagnosticsResponse(data)) {
         setWalDiagnostics(data);

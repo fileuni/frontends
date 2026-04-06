@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toast';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
-import { client } from '@/lib/api.ts';
+import { client, extractData } from '@/lib/api.ts';
 import { Archive, Download, Upload, AlertTriangle, RefreshCw, Database, Server } from 'lucide-react';
 import { AdminCard, AdminPage, AdminPageHeader } from './admin-ui';
 
@@ -32,17 +32,10 @@ export const SystemBackupAdmin: React.FC = () => {
     
     setLoading(true);
     try {
-        const response = await client.POST("/api/v1/admin/system/backup/export", {
-            parseAs: "blob",
-        });
-        
-        if (response.error) {
-            addToast(t("admin.saveError") + ": " + JSON.stringify(response.error), "error");
-            return;
-        }
-
-        const blob = response.data;
-        if (!(blob instanceof Blob)) return;
+	        const blob = await extractData<Blob>(client.POST("/api/v1/admin/system/backup/export", {
+	            parseAs: "blob",
+	        }));
+	        if (!(blob instanceof Blob)) return;
 
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -66,12 +59,8 @@ export const SystemBackupAdmin: React.FC = () => {
     if (localLoading) return;
     setLocalLoading(true);
     try {
-        const { data, error } = await client.POST("/api/v1/admin/system/backup/run-local");
-        if (error) {
-            addToast(t("admin.saveError") + ": " + JSON.stringify(error), "error");
-        } else {
-            addToast(t("admin.backup.localSuccess", { path: data?.['data'] }), "success");
-        }
+        const path = await extractData<string>(client.POST("/api/v1/admin/system/backup/run-local"));
+        addToast(t("admin.backup.localSuccess", { path }), "success");
     } catch (e: unknown) {
         addToast(t("admin.saveError") + ": " + getErrorMessage(e), "error");
     } finally {
