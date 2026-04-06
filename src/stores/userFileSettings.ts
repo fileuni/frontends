@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { client } from "@/lib/api";
+import { client, extractData } from "@/lib/api";
 
 let userSettingsPromise: Promise<UserFileSettings | null> | null = null;
 
@@ -50,14 +50,8 @@ export const useUserFileSettingsStore = create<UserFileSettingsState>((set, get)
 
     set({ isLoading: true });
     try {
-      userSettingsPromise = client.GET("/api/v1/file/user-settings")
-        .then(({ data, error }) => {
-          if (data?.['success'] && data['data']) {
-            return data['data'] as UserFileSettings;
-          }
-          console.error("Failed to fetch user file settings", error || data?.['msg']);
-          return null;
-        })
+      userSettingsPromise = extractData<UserFileSettings>(client.GET("/api/v1/file/user-settings"))
+        .then((data) => data)
         .catch((err) => {
           console.error("Error fetching user file settings", err);
           return null;
