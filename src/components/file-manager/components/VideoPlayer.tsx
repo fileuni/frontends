@@ -474,7 +474,8 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
   }, [t]);
 
   useEffect(() => {
-    if (!playerContainerRef.current || !activeFile) return undefined;
+    const playerContainer = playerContainerRef.current;
+    if (!playerContainer || !activeFile) return undefined;
     let mounted = true;
     restoredPathRef.current = null;
     lastPersistedSecondRef.current = -1;
@@ -494,7 +495,7 @@ export const VideoPlayer = ({ playlist, initialIndex = 0, headerExtra, onClose }
       }
 
       const player = new Player({
-        el: playerContainerRef.current!,
+        el: playerContainer,
         url: playback.url,
         width: '100%',
         height: '100%',

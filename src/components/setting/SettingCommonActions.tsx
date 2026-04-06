@@ -299,7 +299,7 @@ interface BuildSettingCommonActionsParams {
     onValueChange: (password: string) => void;
     hint: string;
   };
-  license: {
+  license?: {
     status: SettingLicenseStatusLike | null;
     licenseKey: string;
     onLicenseKeyChange: (value: string) => void;
@@ -335,7 +335,7 @@ export const buildSettingCommonActions = ({
     onTestPostStartup,
   } = sharedCapabilities;
 
-  return [
+  const actions: SettingActionItem[] = [
     {
       id: "performance",
       routeKey: "Performance",
@@ -466,29 +466,6 @@ export const buildSettingCommonActions = ({
       ),
     },
     {
-      id: "license",
-      routeKey: "license",
-      label: t("admin.config.license.title"),
-      description: "",
-      icon: settingCommonIcons.license,
-      renderPanel: () => (
-        <LicenseInlinePanel
-          licenseStatus={license.status}
-          licenseKey={license.licenseKey}
-          onLicenseKeyChange={license.onLicenseKeyChange}
-        />
-      ),
-      actions: [
-        {
-          id: "save",
-          label: t("systemConfig.setup.guide.card3Action"),
-          onClick: license.onApplyLicense,
-          variant: "primary",
-          disabled: license.saving,
-        },
-      ],
-    },
-    {
       id: "cache-acceleration",
       routeKey: "cache_acceleration",
       label: t("systemConfig.setup.storageCache.title"),
@@ -584,4 +561,32 @@ export const buildSettingCommonActions = ({
       ),
     },
   ];
+
+  if (license) {
+    actions.splice(5, 0, {
+      id: "license",
+      routeKey: "license",
+      label: t("admin.config.license.title"),
+      description: "",
+      icon: settingCommonIcons.license,
+      renderPanel: () => (
+        <LicenseInlinePanel
+          licenseStatus={license.status}
+          licenseKey={license.licenseKey}
+          onLicenseKeyChange={license.onLicenseKeyChange}
+        />
+      ),
+      actions: [
+        {
+          id: "save",
+          label: t("systemConfig.setup.guide.card3Action"),
+          onClick: license.onApplyLicense,
+          variant: "primary",
+          disabled: license.saving,
+        },
+      ],
+    });
+  }
+
+  return actions;
 };

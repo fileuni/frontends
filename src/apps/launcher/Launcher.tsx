@@ -645,7 +645,7 @@ export function Launcher() {
       onValueChange: setPendingAdminPassword,
       hint: t("systemConfig.setup.admin.resetRuleHint"),
     },
-    license: settingLicenseBinding!,
+    ...(settingLicenseBinding ? { license: settingLicenseBinding } : {}),
     storage: {
       onPrimaryAction: () => {
         void handleFinalizeSettingsCenter();

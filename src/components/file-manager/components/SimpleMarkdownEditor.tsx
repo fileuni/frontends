@@ -321,10 +321,10 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
     ];
   }, [contentMode, isDark]);
 
-  const handleAction = useCallback((action: () => void) => {
+  const handleAction = useCallback((action: (view: EditorView) => void) => {
     const view = editorRef.current;
     if (!view) return;
-    action();
+    action(view);
     const next = view.state.doc.toString();
     setContent(next);
     lastEditAtRef.current = Date.now();
@@ -334,23 +334,23 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
   const activeLayout = canSplit ? layoutMode : layoutMode === 'preview' ? 'preview' : 'edit';
 
   const toolbarButtons = [
-    { label: 'B', action: () => handleAction(() => wrapSelection(editorRef.current!, '**', '**', 'bold')) },
-    { label: 'I', action: () => handleAction(() => wrapSelection(editorRef.current!, '*', '*', 'italic')) },
-    { label: 'Link', action: () => handleAction(() => wrapSelection(editorRef.current!, '[', '](https://example.com)', 'link text')) },
-    { label: 'Image', action: () => handleAction(() => wrapSelection(editorRef.current!, '![', '](/Notes/media.png)', 'alt text')) },
-    { label: 'H1', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '# ')) },
-    { label: 'H2', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '## ')) },
-    { label: 'H3', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '### ')) },
-    { label: 'H4', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '#### ')) },
-    { label: 'H5', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '##### ')) },
-    { label: 'H6', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '###### ')) },
-    { label: 'UL', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '- ')) },
-    { label: 'OL', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '1. ')) },
-    { label: '[ ]', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '- [ ] ')) },
-    { label: '[x]', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '- [x] ')) },
-    { label: 'Quote', action: () => handleAction(() => prefixSelectionLines(editorRef.current!, '> ')) },
-    { label: 'Code', action: () => handleAction(() => wrapSelection(editorRef.current!, '```\n', '\n```', 'code')) },
-    { label: 'Table', action: () => handleAction(() => insertSnippet(editorRef.current!, '| Col 1 | Col 2 |\n| --- | --- |\n| Cell | Cell |')) },
+    { label: 'B', action: () => handleAction((view) => wrapSelection(view, '**', '**', 'bold')) },
+    { label: 'I', action: () => handleAction((view) => wrapSelection(view, '*', '*', 'italic')) },
+    { label: 'Link', action: () => handleAction((view) => wrapSelection(view, '[', '](https://example.com)', 'link text')) },
+    { label: 'Image', action: () => handleAction((view) => wrapSelection(view, '![', '](/Notes/media.png)', 'alt text')) },
+    { label: 'H1', action: () => handleAction((view) => prefixSelectionLines(view, '# ')) },
+    { label: 'H2', action: () => handleAction((view) => prefixSelectionLines(view, '## ')) },
+    { label: 'H3', action: () => handleAction((view) => prefixSelectionLines(view, '### ')) },
+    { label: 'H4', action: () => handleAction((view) => prefixSelectionLines(view, '#### ')) },
+    { label: 'H5', action: () => handleAction((view) => prefixSelectionLines(view, '##### ')) },
+    { label: 'H6', action: () => handleAction((view) => prefixSelectionLines(view, '###### ')) },
+    { label: 'UL', action: () => handleAction((view) => prefixSelectionLines(view, '- ')) },
+    { label: 'OL', action: () => handleAction((view) => prefixSelectionLines(view, '1. ')) },
+    { label: '[ ]', action: () => handleAction((view) => prefixSelectionLines(view, '- [ ] ')) },
+    { label: '[x]', action: () => handleAction((view) => prefixSelectionLines(view, '- [x] ')) },
+    { label: 'Quote', action: () => handleAction((view) => prefixSelectionLines(view, '> ')) },
+    { label: 'Code', action: () => handleAction((view) => wrapSelection(view, '```\n', '\n```', 'code')) },
+    { label: 'Table', action: () => handleAction((view) => insertSnippet(view, '| Col 1 | Col 2 |\n| --- | --- |\n| Cell | Cell |')) },
   ];
 
   return (
