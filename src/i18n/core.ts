@@ -2,6 +2,8 @@ export {
   AUTO_LOCALE_PREFERENCE,
   DEFAULT_LOCALE,
   FILEUNI_LANGUAGE_STORAGE_KEY,
+  LOCALE_METADATA,
+  SUPPORTED_LOCALES,
   buildLocaleUrl,
   defineLocaleBundle,
   detectLocale,
@@ -13,8 +15,6 @@ export {
   toTraditionalChineseString,
   type LocalePreference,
   type LocaleShape,
-  type ThemeHeadBootstrap,
-  type ThemeHeadBootstrapOptions,
   type SupportedLocale,
 } from '@fileuni/ts-shared/locale';
 
@@ -39,4 +39,6 @@ export {
   getNextBinaryTheme,
   initPathLocaleThemeBootstrap,
   parseBrowserThemePreference,
+  type ThemeHeadBootstrap,
+  type ThemeHeadBootstrapOptions,
 } from '@fileuni/ts-shared/theme';
