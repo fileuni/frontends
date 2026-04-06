@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { toast } from '@/stores/toast';
-import { client, BASE_URL } from '@/lib/api.ts';
+import { client, BASE_URL, extractData } from '@/lib/api.ts';
 import { useAuthStore } from '@/stores/auth.ts';
 
 // Batch task progress modal: poll task status by task_id.
@@ -265,14 +265,11 @@ export function BatchOperationProgress({
       }
 
       try {
-        const { data: statsResp, error: statsError } = await client.GET(
+        const stats = await extractData<BatchStatistics>(client.GET(
           '/api/v1/file/task/{id}/statistics',
           { params: { path: { id: taskId } } },
-        );
-
-        if (!statsError && statsResp?.['success'] && statsResp['data']) {
-          setStatistics(statsResp['data'] as BatchStatistics);
-        }
+        ));
+        setStatistics(stats);
       } catch (error) {
         console.error('Error fetching task statistics:', error);
       }
@@ -300,12 +297,10 @@ export function BatchOperationProgress({
 
       const fetchStatus = async () => {
         try {
-          const { data: taskResp, error: taskError } = await client.GET(
+          const task = await extractData<TaskStatus>(client.GET(
             '/api/v1/file/task/{id}',
             { params: { path: { id: taskId } } },
-          );
-          if (taskError || !taskResp?.['success'] || !taskResp['data']) return;
-          const task = taskResp['data'] as TaskStatus;
+          ));
           applySnapshot(task);
 
           if (task.status === 'running' || task.status === 'success' || task.status === 'failed') {
@@ -382,12 +377,10 @@ export function BatchOperationProgress({
             // Server indicates the SSE receiver lagged; refresh snapshot once.
             void (async () => {
               try {
-                const { data: taskResp, error: taskError } = await client.GET(
+                const task = await extractData<TaskStatus>(client.GET(
                   '/api/v1/file/task/{id}',
                   { params: { path: { id: taskId } } },
-                );
-                if (taskError || !taskResp?.['success'] || !taskResp['data']) return;
-                const task = taskResp['data'] as TaskStatus;
+                ));
                 applySnapshot(task);
               } catch {
                 // Ignore resync failures; polling fallback may recover.

@@ -1,4 +1,5 @@
 import { BASE_URL } from '@/lib/api.ts';
+import type { components as ApiComponents } from '@/lib/api.ts';
 import type { FileInfo } from '../types/index.ts';
 
 export type SharePasswordMode = 'keep' | 'change' | 'remove';
@@ -25,6 +26,9 @@ export interface ShareClipboardLabels {
   directUser: string;
   directPass: string;
 }
+
+type ShareCreateBody = ApiComponents['schemas']['ShareRequest'];
+type ShareUpdateBody = ApiComponents['schemas']['UpdateShareRequest'];
 
 const DIRECT_SHARE_SEGMENT_RE = /^[\p{L}\p{N} ._\-()\[\]]+$/u;
 
@@ -93,7 +97,7 @@ export const currentShareHasPassword = (
 export const buildShareCreateBody = (
   file: FileInfo,
   form: ShareFormState,
-): Record<string, unknown> => {
+): ShareCreateBody => {
   const expireDays = getShareExpireDays(form.expireDate);
   return {
     path: file.path,
@@ -110,9 +114,9 @@ export const buildShareCreateBody = (
 export const buildShareUpdateBody = (
   file: FileInfo,
   form: ShareFormState,
-): Record<string, unknown> => {
+): ShareUpdateBody => {
   const days = getShareExpireDays(form.expireDate);
-  const body: Record<string, unknown> = {
+  const body: ShareUpdateBody = {
     enable_direct: form.enableDirect,
     expire_days: form.expireDate === '' ? null : (days !== undefined ? days : null),
     max_downloads: form.maxDownloads > 0 ? form.maxDownloads : null,
@@ -122,9 +126,9 @@ export const buildShareUpdateBody = (
   };
 
   if (form.passwordMode === 'change') {
-    body['password'] = form.password || null;
+    body.password = form.password || null;
   } else if (form.passwordMode === 'remove') {
-    body['password'] = null;
+    body.password = null;
   }
 
   return body;

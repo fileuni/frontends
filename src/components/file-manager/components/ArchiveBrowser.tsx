@@ -37,7 +37,12 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
       setLoading(true);
       try {
         const nextEntries = await extractData<ArchiveEntry[]>(client.GET('/api/v1/file/archive/list', {
-          params: { query: { path: archivePath, password } }
+          params: {
+            query: {
+              path: archivePath,
+              ...(password ? { password } : {}),
+            },
+          },
         }));
         setEntries(nextEntries);
       } catch (e: unknown) {

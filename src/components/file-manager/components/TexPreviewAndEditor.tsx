@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { FilePreviewHeader } from './FilePreviewHeader.tsx';
-import { client } from '@/lib/api.ts';
+import { client, extractData } from '@/lib/api.ts';
 import { fetchTextFileContent } from '@/lib/fileTokens.ts';
 import { useToastStore } from '@/stores/toast';
 import { useConfigStore } from '@/stores/config.ts';
@@ -248,18 +248,9 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const renderWithLatexmk = async () => {
     setRendering(true);
     try {
-      const { data, error } = await client.POST('/api/v1/file/preview/latex', {
+      const payload = await extractData<{ content_base64: string; content_type: string }>(client.POST('/api/v1/file/preview/latex', {
         body: { path, content }
-      });
-      if (error || !data?.['success'] || !data?.['data']) {
-        const errMsgRaw = (error as Record<string, unknown> | null)?.['msg'];
-        const errMsg = typeof errMsgRaw === 'string' ? errMsgRaw : undefined;
-        const dataMsgRaw = data?.['msg'];
-        const dataMsg = typeof dataMsgRaw === 'string' ? dataMsgRaw : undefined;
-        addToast(errMsg ?? dataMsg ?? 'Render failed', 'error');
-        return;
-      }
-      const payload = data['data'] as unknown as { content_base64: string; content_type: string };
+      }));
       const binary = atob(payload.content_base64);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i += 1) {

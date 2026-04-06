@@ -7,7 +7,7 @@ import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { useUserFileSettingsStore } from '@/stores/userFileSettings.ts';
 import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
-import { getThumbnailCategory } from '../utils/thumbnailUtils.ts';
+import { getThumbnailCategory, isThumbnailCategoryEnabled } from '../utils/thumbnailUtils.ts';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -110,7 +110,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
         if (['image', 'video', 'audio'].includes(currentType)) {
             try {
                 const { data: res } = await client.GET('/api/v1/file/list', { 
-                    params: { query: { path: parent } } 
+                    params: { query: { path: parent, base: {} } } 
                 });
                 
                 const allFiles = extractFileListItems(res?.['data']);
@@ -162,8 +162,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
     const category = getThumbnailCategory(activeExt);
     if (!category) return undefined;
 
-    const thumbnailCapabilities = capabilities?.thumbnail as Record<string, unknown> | undefined;
-    if (thumbnailCapabilities?.[category] !== true) return undefined;
+    if (!isThumbnailCategoryEnabled(capabilities?.thumbnail, category)) return undefined;
 
     if (settings && category) {
       if (category === 'image' && settings.thumbnail_disable_image) return undefined;

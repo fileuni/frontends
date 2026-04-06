@@ -4,7 +4,7 @@ import type { FileInfo, ViewMode, FileManagerMode, ClipboardItem } from '../type
 import { useAuthStore } from '@/stores/auth.ts';
 import { useSelectionStore } from './useSelectionStore.ts';
 import { storageHub } from '@/lib/storageHub';
-import { client, extractData } from '@/lib/api.ts';
+import { client, extractData, type components as ApiComponents } from '@/lib/api.ts';
 import { parseFileListResult } from '../utils/fileListResponse.ts';
 
 export type { FileManagerMode };
@@ -29,6 +29,8 @@ export interface TaskState {
   message?: string;
   createdAt: string;
 }
+
+type BaseListQuery = ApiComponents["schemas"]["BaseListQuery"];
 
 // Data bucket for each user
 interface UserFileData {
@@ -704,57 +706,83 @@ export const useFileStore = create<FileState>()(
 
         set({ loading: true });
         try {
-          type FileListEndpoint =
-            | "/api/v1/file/list"
-            | "/api/v1/file/search"
-            | "/api/v1/file/favorites/list"
-            | "/api/v1/file/recycle-bin/list"
-            | "/api/v1/file/shares/my";
-
-          let endpoint: FileListEndpoint = "/api/v1/file/list";
-
-          const query: Record<string, string | number | boolean | null | undefined> = {
-            path: effectivePath,
-            page: page,
-            page_size: effectivePageSize,
-            check_share: showShareStatus,
+          const baseQuery: BaseListQuery = {
+            page: String(page),
+            page_size: String(effectivePageSize),
+            ...(sortConfig.field
+              ? {
+                  sort_by: sortConfig.field,
+                  order: sortConfig.order,
+                }
+              : {}),
           };
 
-          if (sortConfig.field) {
-            query['sort_by'] = sortConfig.field;
-            query['order'] = sortConfig.order;
-          }
-
           const keyword = searchKeyword.trim();
-          if (isSearchMode && keyword) {
-            query['keyword'] = keyword;
-          }
+          let result: FileInfo[] | unknown;
 
           if (activeMode === 'files' && isSearchMode && keyword) {
-            endpoint = "/api/v1/file/search";
-            query['path'] = effectivePath;
-            delete query['check_share'];
-          }
-
-          if (activeMode === 'favorites') {
-            endpoint = "/api/v1/file/favorites/list";
-            if (favoriteFilterColor !== null) query['color'] = favoriteFilterColor ?? null;
+            result = await extractData<FileInfo[] | unknown>(
+              client.GET("/api/v1/file/search", {
+                params: {
+                  query: {
+                    ...baseQuery,
+                    keyword,
+                    path: effectivePath,
+                  },
+                },
+              }),
+            );
+          } else if (activeMode === 'favorites') {
+            result = await extractData<FileInfo[] | unknown>(
+              client.GET("/api/v1/file/favorites/list", {
+                params: {
+                  query: {
+                    base: baseQuery,
+                    ...(favoriteFilterColor !== null ? { color: favoriteFilterColor } : {}),
+                  },
+                },
+              }),
+            );
           } else if (activeMode === 'trash') {
-            endpoint = "/api/v1/file/recycle-bin/list";
-            delete query['path'];
+            result = await extractData<FileInfo[] | unknown>(
+              client.GET("/api/v1/file/recycle-bin/list", {
+                params: {
+                  query: {
+                    base: baseQuery,
+                  },
+                },
+              }),
+            );
           } else if (activeMode === 'shares') {
-            endpoint = "/api/v1/file/shares/my";
-            delete query['path'];
             const shareFilter = fileStore.getShareFilter();
-            if (shareFilter.hasPassword !== null) query['has_password'] = shareFilter.hasPassword ?? null;
-            if (shareFilter.enableDirect !== null) query['enable_direct'] = shareFilter.enableDirect ?? null;
+            result = await extractData<FileInfo[] | unknown>(
+              client.GET("/api/v1/file/shares/my", {
+                params: {
+                  query: {
+                    base: baseQuery,
+                    ...(shareFilter.hasPassword !== null
+                      ? { has_password: shareFilter.hasPassword }
+                      : {}),
+                    ...(shareFilter.enableDirect !== null
+                      ? { enable_direct: shareFilter.enableDirect }
+                      : {}),
+                  },
+                },
+              }),
+            );
+          } else {
+            result = await extractData<FileInfo[] | unknown>(
+              client.GET("/api/v1/file/list", {
+                params: {
+                  query: {
+                    path: effectivePath,
+                    base: baseQuery,
+                    check_share: showShareStatus,
+                  },
+                },
+              }),
+            );
           }
-
-          const result = await extractData<FileInfo[] | unknown>(
-            client.GET(endpoint, {
-              params: { query: query as unknown as never },
-            }),
-          );
 
           const parsedResult = parseFileListResult(result);
           const filesArray = parsedResult.items;

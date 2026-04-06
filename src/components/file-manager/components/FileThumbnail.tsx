@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
 import { FileIcon } from './FileIcon.tsx';
 import { getFileExtension, resolvePublicBaseUrl } from '../utils/officeLite.ts';
-import { getThumbnailCategory } from '../utils/thumbnailUtils.ts';
+import { getThumbnailCategory, isThumbnailCategoryEnabled } from '../utils/thumbnailUtils.ts';
 import { useUserFileSettingsStore } from '@/stores/userFileSettings.ts';
 import { getFileDownloadToken } from '@/lib/fileTokens.ts';
 import { shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
@@ -40,7 +40,7 @@ export const FileThumbnail = ({ file, size = 64, className }: FileThumbnailProps
   const isMarkdown = useMemo(() => ext === 'md' || ext === 'markdown', [ext]);
   const category = useMemo(() => getThumbnailCategory(ext), [ext]);
   const thumbCaps = capabilities?.thumbnail;
-  const enabled = !!thumbCaps?.enabled && !!category && ((thumbCaps as unknown as Record<string, boolean>)[category]);
+  const enabled = isThumbnailCategoryEnabled(thumbCaps, category);
   const isProtectedThumbnailDisabled = shouldDisableThumbnailForPath(file.path, protectedStatus);
 
   const isUserDisabled = (() => {

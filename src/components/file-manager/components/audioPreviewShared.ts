@@ -128,7 +128,9 @@ export const getRandomIndex = (length: number, currentIndex: number) => {
 };
 
 export const listFolderFiles = async (path: string): Promise<FileInfo[]> => {
-  const { data: res } = await client.GET('/api/v1/file/list', { params: { query: { path } } });
+  const { data: res } = await client.GET('/api/v1/file/list', {
+    params: { query: { path, base: {} } },
+  });
   return extractFileListItems(res?.['data']);
 };
 

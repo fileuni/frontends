@@ -1,3 +1,4 @@
+import type { SystemCapabilities } from '@/stores/config.ts';
 import { OFFICE_DOCX_EXTS, OFFICE_XLSX_EXTS, OFFICE_PPTX_EXTS } from './officeLite.ts';
 
 export type ThumbnailCategory = 'image' | 'video' | 'pdf' | 'office' | 'text' | 'tex' | 'model3d';
@@ -31,4 +32,28 @@ export function getThumbnailCategory(ext: string): ThumbnailCategory | null {
   if (OFFICE_DOCX_EXTS.has(ext) || OFFICE_XLSX_EXTS.has(ext) || OFFICE_PPTX_EXTS.has(ext)) return 'office';
   if (TEXT_EXTS.has(ext)) return 'text';
   return null;
+}
+
+export function isThumbnailCategoryEnabled(
+  capabilities: SystemCapabilities['thumbnail'] | null | undefined,
+  category: ThumbnailCategory | null,
+): boolean {
+  if (!capabilities?.enabled || !category) return false;
+
+  switch (category) {
+    case 'image':
+      return capabilities.image === true;
+    case 'model3d':
+      return capabilities.model3d === true;
+    case 'video':
+      return capabilities.video === true;
+    case 'pdf':
+      return capabilities.pdf === true;
+    case 'office':
+      return capabilities.office === true;
+    case 'text':
+      return capabilities.text === true;
+    case 'tex':
+      return capabilities.tex === true;
+  }
 }

@@ -4,7 +4,40 @@ import { useAuthStore } from '@/stores/auth.ts';
 import { useFileStore } from '../store/useFileStore.ts';
 import { useFileActions } from './useFileActions.ts';
 import { BASE_URL } from '@/lib/api.ts';
+import { isRecord } from '@/lib/configObject.ts';
 import type { FileInfo } from '../types/index.ts';
+
+const normalizeUploadedFileInfo = (value: unknown): FileInfo | null => {
+  if (!isRecord(value)) return null;
+
+  const name = value['name'];
+  const path = value['path'];
+  const isDir = value['is_dir'];
+  const size = value['size'];
+  const modified = value['modified'];
+
+  if (
+    typeof name !== 'string' ||
+    typeof path !== 'string' ||
+    typeof isDir !== 'boolean' ||
+    typeof size !== 'number' ||
+    typeof modified !== 'string'
+  ) {
+    return null;
+  }
+
+  return {
+    name,
+    path,
+    is_dir: isDir,
+    size,
+    modified,
+    favorite_color: typeof value['favorite_color'] === 'number' ? value['favorite_color'] : 0,
+    ...(typeof value['id'] === 'string' ? { id: value['id'] } : {}),
+    ...(typeof value['has_active_share'] === 'boolean' ? { has_active_share: value['has_active_share'] } : {}),
+    ...(typeof value['has_active_direct'] === 'boolean' ? { has_active_direct: value['has_active_direct'] } : {}),
+  };
+};
 
 export function useUploadActions() {
   const { updateTask, setUploading } = useUploadStore();
@@ -45,23 +78,30 @@ export function useUploadActions() {
       delete activeRequests.current[task.id];
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
-          const response = JSON.parse(xhr.responseText);
-          if (response.success) {
+          const response: unknown = JSON.parse(xhr.responseText);
+          if (isRecord(response) && response['success'] === true) {
             updateTask(task.id, { status: 'completed', progress: 100 });
             
             // Partial refresh: if target matches latest currentPath, append and highlight
             const latestStore = useFileStore.getState();
             const latestCurrentPath = latestStore.getCurrentPath();
             
-            if (task.targetPath === latestCurrentPath && response.data) {
-              const newFile = response.data as unknown as FileInfo;
+            if (task.targetPath === latestCurrentPath) {
+              const newFile = normalizeUploadedFileInfo(response['data']);
+              if (!newFile) {
+                throw new Error('Invalid upload response payload');
+              }
               latestStore.appendFiles([newFile]);
               latestStore.setHighlightedPath(newFile.path);
             }
             
             loadStorageStats();
           } else {
-            updateTask(task.id, { status: 'error', errorMsg: response.msg || 'Upload failed' });
+              const errorMsg =
+              isRecord(response) && typeof response['msg'] === 'string'
+                ? response['msg']
+                : 'Upload failed';
+            updateTask(task.id, { status: 'error', errorMsg: errorMsg });
           }
         } catch (_error) {
           updateTask(task.id, { status: 'error', errorMsg: 'Invalid response from server' });

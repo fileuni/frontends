@@ -65,10 +65,10 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
         params: {
           path: { id: token },
           query: {
-            password: password || undefined,
-            path: path
-          }
-        }
+            ...(password ? { password } : {}),
+            path,
+          },
+        },
       }));
 
       setContents(data);
@@ -97,8 +97,8 @@ export const PublicShareView = ({ token: propToken }: { token?: string }) => {
       const data = await extractData<ShareInfoWithMetrics>(client.GET('/api/v1/file/public/share/{id}', {
         params: { 
           path: { id: token },
-          query: { password: password || undefined }
-        }
+          query: password ? { password } : {}
+        },
       }));
 
       if (!data.is_public && !password) {

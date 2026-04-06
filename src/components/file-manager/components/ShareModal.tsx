@@ -106,7 +106,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     setLoading(true);
     try {
       const shareResult = await extractData<{ id: string }>(client.POST('/api/v1/file/shares/create', {
-        body: buildShareCreateBody(file, form) as unknown as never,
+        body: buildShareCreateBody(file, form),
       }));
       setCompletedShareId(shareResult.id);
       addToast(t('filemanager.shareModal.successTitle'), 'success');
@@ -125,7 +125,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     try {
       await extractData(client.PATCH('/api/v1/file/shares/{id}', {
         params: { path: { id: file.id } },
-        body: buildShareUpdateBody(file, form) as unknown as never,
+        body: buildShareUpdateBody(file, form),
       }));
 
       addToast(t('common.manage') || 'Updated successfully', 'success');
