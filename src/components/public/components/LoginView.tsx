@@ -155,7 +155,45 @@ export const LoginView = () => {
       );
 
       addToast(t("auth.loginSuccess"), "success");
-      navigate({ mod: "user", page: "welcome" });
+      
+      // 解析重定向参数 / Parse redirect parameter from hash
+      const hash = window.location.hash.slice(1);
+      const hashParams = new URLSearchParams(hash);
+      const redirect = hashParams.get('redirect');
+      
+      if (redirect) {
+        // 优先处理完整 URL 或相对路径 / Prioritize full URL or relative path
+        if (redirect.startsWith('http://') || redirect.startsWith('https://') || redirect.startsWith('/')) {
+          try {
+            const url = new URL(redirect, window.location.origin);
+            if (url.origin === window.location.origin) {
+              // 同源则允许重定向；如果是相同路径则仅更新 Hash / Allow redirect if same origin; update hash if same path
+              if (url.pathname === window.location.pathname && url.hash) {
+                window.location.hash = url.hash;
+              } else {
+                window.location.href = redirect;
+              }
+              return;
+            }
+          } catch (e) {
+            console.error('Invalid redirect URL', e);
+          }
+        }
+        
+        // 降级到原有的 Hash 逻辑 / Fallback to legacy Hash-based logic
+        if (redirect.includes('mod=') || redirect.startsWith('mod=')) {
+          window.location.hash = redirect.startsWith('#') ? redirect : `#${redirect}`;
+        } else {
+          navigate({ mod: "file-manager" });
+        }
+      } else {
+        // 如果没有显式重定向参数，检查当前 Hash 是否已经指向了非公开模块 / If no explicit redirect param, check if current hash already points to a non-public module
+        if (hash.includes('mod=') && !hash.includes('mod=public')) {
+          // 保持在当前页面，Router 会因为 isLoggedIn 变为 true 而渲染正确的内容 / Stay on current page, Router will render correct content as isLoggedIn becomes true
+          return;
+        }
+        navigate({ mod: "file-manager" });
+      }
     } catch (e: unknown) {
       if (isApiError(e)) {
         if (e.code === 40301) {
@@ -275,7 +313,7 @@ export const LoginView = () => {
               isDark={isDark}
               title={t('auth.switchToExistingAccount')}
               description={t('auth.manageAccountsDescShort') || 'Select from logged in users'}
-              onClick={() => navigate({ mod: 'user', page: 'accounts' })}
+              onClick={() => navigate({ mod: 'user', page: 'accounts', ...(redirect ? { redirect } : {}) })}
             />
 
             <form onSubmit={handleLogin} className="space-y-6">

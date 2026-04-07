@@ -369,7 +369,8 @@ const refreshTokenAction = async () => {
     // Refresh token also invalid, logout user
     logout();
     if (typeof window !== 'undefined') {
-      window.location.hash = "mod=public&page=login&reason=session_expired";
+      const currentUrl = window.location.href;
+      window.location.hash = `mod=public&page=login&reason=session_expired&redirect=${encodeURIComponent(currentUrl)}`;
     }
     throw error;
   }

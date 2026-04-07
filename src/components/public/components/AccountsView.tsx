@@ -17,7 +17,22 @@ export const AccountsView = () => {
     const redirect = params['redirect'];
     if (!redirect) return { mod: 'user', page: 'welcome' };
 
-    // If it's a full hash string, parse it
+    // 处理完整 URL 或路径，尝试从中提取 Hash 参数 / Handle full URL or path, try to extract hash params from it
+    if (redirect.startsWith('http://') || redirect.startsWith('https://') || redirect.startsWith('/')) {
+      try {
+        const url = new URL(redirect, window.location.origin);
+        if (url.hash) {
+          const p = new URLSearchParams(url.hash.substring(1));
+          const result: Partial<RouteParams> = {};
+          p.forEach((v, k) => { result[k] = v; });
+          if (Object.keys(result).length > 0) return result;
+        }
+      } catch (e) {
+        console.error('Invalid redirect URL in AccountsView', e);
+      }
+    }
+
+    // 兼容原有的 Hash 字符串 / Compatible with original Hash string
     if (redirect.includes('mod=')) {
       const p = new URLSearchParams(redirect.startsWith('#') ? redirect.substring(1) : redirect);
       const result: Partial<RouteParams> = {};

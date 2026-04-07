@@ -160,8 +160,8 @@ export const FileManagerToolbar = () => {
 
   return (
     <>
-      <div className="h-16 border-b border-white/5 bg-white/[0.01] flex items-center justify-between px-4 md:px-6 shrink-0">
-        <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
+      <div className="min-h-16 h-auto py-2 md:h-16 border-b border-white/5 bg-white/[0.01] flex flex-wrap items-center justify-between px-4 md:px-6 shrink-0 gap-y-2">
+        <div className="flex items-center gap-2 md:gap-4 min-w-0">
           {fmMode === 'files' && (
             <>
               <div className="flex items-center gap-1">
@@ -242,11 +242,9 @@ export const FileManagerToolbar = () => {
                t('filemanager.recent')}
             </h2>
           )}
-          
-          <div className="flex-1" />
         </div>
 
-        <div className="flex items-center gap-1.5 md:gap-3 ml-2">
+        <div className="flex items-center gap-1.5 md:gap-3 ml-auto flex-wrap justify-end">
           {showBulkClear && (
             <Button 
               variant="ghost" 

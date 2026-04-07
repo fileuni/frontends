@@ -1,67 +1,28 @@
 import React, { useMemo, useState, useEffect, useContext } from 'react';
 import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo } from '@/components/modals/AboutModal';
-import { useThemeStore, type Theme } from '@/stores/theme';
-import { useLanguageStore, type Language } from '@/stores/language';
+import { useThemeStore } from '@/stores/theme';
+import { useLanguageStore } from '@/stores/language';
 import { useAuthStore } from '@/stores/auth.ts';
 import { useAuthzStore } from '@/stores/authz.ts';
 import { useConfigStore } from '@/stores/config.ts';
 import { useNavigationStore } from '@/stores/navigation.ts';
 import { useTranslation } from 'react-i18next';
 import { 
-  Sun, Moon, Laptop, LayoutDashboard, FolderOpen, 
+  LayoutDashboard, FolderOpen, 
   ShieldAlert, LogIn, UserPlus, Home, Menu, X, LogOut,
   Users, MessageSquare, Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
-import { AUTO_LOCALE_PREFERENCE, LOCALE_PICKER_OPTIONS, buildLocaleUrl } from '@/i18n/core';
+import { AUTO_LOCALE_PREFERENCE, buildLocaleUrl } from '@/i18n/core';
 import { StatusIndicator } from './StatusIndicator.tsx';
 import { LanguageMenuButton } from './LanguageMenuButton.tsx';
 import { ThemeToggleButton } from './ThemeToggleButton.tsx';
-import { ChatContext } from '@/components/chat/context/ChatContext';
+import { ChatContext, type Room } from '@/components/chat/context/ChatContext';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
 
-const getLanguageLabel = (t: ReturnType<typeof useTranslation>['t'], language: Language): string => {
-  switch (language) {
-    case AUTO_LOCALE_PREFERENCE:
-      return t('languages.auto');
-    case 'en':
-      return t('languages.en');
-    case 'zh-CN':
-      return t('languages.zh-CN');
-    case 'zh-Hant':
-      return t('languages.zh-Hant');
-    case 'es':
-      return t('languages.es');
-    case 'de':
-      return t('languages.de');
-    case 'fr':
-      return t('languages.fr');
-    case 'ru':
-      return t('languages.ru');
-    case 'ja':
-      return t('languages.ja');
-    default:
-      return language;
-  }
-};
-
-const getThemeLabel = (t: ReturnType<typeof useTranslation>['t'], theme: Theme): string => {
-  switch (theme) {
-    case 'system':
-      return t('themes.system');
-    case 'light':
-      return t('themes.light');
-    case 'dark':
-      return t('themes.dark');
-    default:
-      return theme;
-  }
-};
-
-
 export const Navbar = () => {
-  const { theme, setTheme } = useThemeStore();
-  const { language, setLanguage } = useLanguageStore();
+  const { theme } = useThemeStore();
+  const { language } = useLanguageStore();
   const { currentUserData, isLoggedIn, logout } = useAuthStore();
   const { hasPermission } = useAuthzStore();
   const { capabilities, fetchCapabilities } = useConfigStore();
@@ -155,8 +116,10 @@ export const Navbar = () => {
   if (!mounted) return null;
 
   const handleLogout = () => {
+    const currentUrl = window.location.href;
     logout();
-    window.location.hash = `mod=public&page=login`;
+    // 退出后跳转到登录页并带上跳回参数 / Redirect to login with current location as redirect param
+    window.location.hash = `mod=public&page=login&redirect=${encodeURIComponent(currentUrl)}`;
   };
 
   const handleOpenAbout = () => {
@@ -262,7 +225,7 @@ export const Navbar = () => {
                   <div className="divider divider-horizontal mx-0 h-8 border-primary/20" />
                   
                   <a 
-                    href={`#mod=user&page=accounts&redirect=${encodeURIComponent(window.location.hash)}`}
+                    href={`#mod=user&page=accounts&redirect=${encodeURIComponent(window.location.href)}`}
                     className="p-2 rounded-xl bg-primary/20 text-primary hover:bg-primary hover:text-white transition-all shadow-inner"
                     title={t('auth.switchUser')}
                   >
@@ -326,54 +289,6 @@ export const Navbar = () => {
                     <Info size={18} />
                     {t('about.open')}
                   </button>
-                </div>
-
-                <div>
-                  <p className={cn("text-sm font-black tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.language')}</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
-                    {([AUTO_LOCALE_PREFERENCE, ...LOCALE_PICKER_OPTIONS.map((option) => option.code)] as Language[]).map((lang) => (
-                      <button 
-                        type="button"
-                        key={lang}
-                        onClick={() => setLanguage(lang)}
-                        className={cn(
-                          "px-2 py-2.5 rounded-xl text-xs font-black transition-all flex flex-col items-center gap-1 min-w-0",
-                          language === lang 
-                            ? "bg-primary text-white shadow-md shadow-primary/20" 
-                            : cn("opacity-40 hover:opacity-100", isDark ? "hover:bg-white/5" : "hover:bg-gray-100")
-                        )}
-                      >
-                        {lang === 'auto' && <Laptop size={18} />}
-                        <span className="truncate w-full text-center">{getLanguageLabel(t, lang)}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className={cn("text-sm font-black tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.theme')}</p>
-                  <div className="grid grid-cols-3 gap-2 p-1">
-                    {([
-                      { id: 'system', icon: Laptop },
-                      { id: 'light', icon: Sun },
-                      { id: 'dark', icon: Moon }
-                    ] as { id: Theme, icon: React.ElementType }[]).map((mode) => (
-                      <button 
-                        type="button"
-                        key={mode.id}
-                        onClick={() => setTheme(mode.id)}
-                        className={cn(
-                          "px-3 py-2.5 rounded-xl text-sm font-black transition-all flex flex-col items-center gap-1",
-                          theme === mode.id 
-                            ? "bg-primary text-white shadow-md shadow-primary/20" 
-                            : cn("opacity-40 hover:opacity-100", isDark ? "hover:bg-white/5" : "hover:bg-gray-100")
-                        )}
-                      >
-                        <mode.icon size={18} />
-                        <span>{getThemeLabel(t, mode.id)}</span>
-                      </button>
-                    ))}
-                  </div>
                 </div>
               </div>
 
