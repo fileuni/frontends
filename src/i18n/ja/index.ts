@@ -21,15 +21,16 @@ import { tosByResourceLocale } from '../bundles/tos';
 import { filemanagerByResourceLocale } from '../bundles/filemanager';
 import { playerByResourceLocale } from '../bundles/player';
 import { welcomeByResourceLocale } from '../bundles/welcome';
-import { languagesByResourceLocale } from '../bundles/languages';
-import { themesByResourceLocale } from '../bundles/themes';
 
 const translation = {
   "about": aboutByResourceLocale.ja,
   "admin": {
     ...adminByResourceLocale.ja,
     "settings": adminSettingByResourceLocale.ja.admin.settings,
-    "config": adminSettingByResourceLocale.ja.admin.config,
+    "config": {
+      ...adminByResourceLocale.ja.config,
+      ...adminSettingByResourceLocale.ja.admin.config,
+    },
   },
   "auth": authByResourceLocale.ja,
   "blacklist": blacklistByResourceLocale.ja,
@@ -40,7 +41,6 @@ const translation = {
   "errors": errorsByResourceLocale.ja,
   "filemanager": filemanagerByResourceLocale.ja,
   "forgotPassword": forgotPasswordByResourceLocale.ja,
-  "languages": languagesByResourceLocale.ja,
   "launcher": launcherByResourceLocale.ja,
   "nav": navByResourceLocale.ja,
   "pages": pagesByResourceLocale.ja,
@@ -50,7 +50,6 @@ const translation = {
   "security": securityByResourceLocale.ja,
   "sessions": sessionsByResourceLocale.ja,
   "systemConfig": systemConfigByResourceLocale.ja,
-  "themes": themesByResourceLocale.ja,
   "tos": tosByResourceLocale.ja,
   "welcome": welcomeByResourceLocale.ja,
 } as const;

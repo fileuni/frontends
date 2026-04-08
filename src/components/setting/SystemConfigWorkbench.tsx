@@ -106,9 +106,21 @@ export interface SystemConfigWorkbenchProps {
     expiresAt?: string | null | undefined;
     features?: string[] | undefined;
     licenseKey: string;
+    status: import("./useConfigWorkbenchController").ConfigWorkbenchLicenseStatus | null;
     saving: boolean;
     onLicenseKeyChange: (value: string) => void;
-    onApplyLicense: () => void;
+    onApplyLicense: (
+      update?: {
+        registration?: { key?: string | null; enabled: boolean } | null;
+        branding_license?: { key?: string | null; enabled: boolean } | null;
+        storage_encryption?: { key?: string | null; enabled: boolean } | null;
+        branding?: {
+          logo_url?: string | null;
+          logo_name?: string | null;
+          footer_text?: string | null;
+        } | null;
+      }
+    ) => void;
   };
   quickSettingsEnabled?: boolean | undefined;
   runtimeOs?: string | undefined;
@@ -972,35 +984,46 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         <LicenseManagementModal
           isOpen={isLicenseOpen}
           onClose={() => setIsLicenseOpen(false)}
-          isValid={quickSettingsLicense.isValid}
-          statusMessage={quickSettingsLicense.msg}
-          currentUsers={quickSettingsLicense.currentUsers}
-          maxUsers={quickSettingsLicense.maxUsers}
-          deviceCode={quickSettingsLicense.deviceCode}
-          hwId={quickSettingsLicense.hwId}
-          auxId={quickSettingsLicense.auxId}
-          licenseKey={quickSettingsLicense.licenseKey}
+          status={quickSettingsLicense.status}
           saving={quickSettingsLicense.saving}
-          onLicenseKeyChange={quickSettingsLicense.onLicenseKeyChange}
-          expiresAt={quickSettingsLicense.expiresAt}
-          features={quickSettingsLicense.features}
-          onApplyLicense={() => {
-            const nextKey = quickSettingsLicense.licenseKey.trim();
-            if (nextKey.length > 0) {
-              try {
-                const parsed = tomlAdapter.parse(content);
-                if (isRecord(parsed)) {
-                  const nextConfig = deepClone(parsed);
-                  const licenseSection = ensureRecord(nextConfig, "license");
-                  licenseSection["license_key"] = nextKey;
-                  const nextContent = tomlAdapter.stringify(nextConfig);
-                  onChange(nextContent);
+          onApplyLicense={(update) => {
+            quickSettingsLicense.onApplyLicense(update);
+            
+            // Also update the TOML content in the background to keep it in sync
+            try {
+              const parsed = tomlAdapter.parse(content);
+              if (isRecord(parsed)) {
+                const nextConfig = deepClone(parsed);
+                const licenseSection = ensureRecord(nextConfig, "license");
+                
+                if (update.registration) {
+                  const reg = ensureRecord(licenseSection, "registration");
+                  if (update.registration.key !== undefined) reg["key"] = update.registration.key;
+                  if (update.registration.enabled !== undefined) reg["enabled"] = update.registration.enabled;
                 }
-              } catch {
-                // Ignore TOML parse errors; backend apply may still validate.
+                if (update.branding_license) {
+                  const brLic = ensureRecord(licenseSection, "branding_license");
+                  if (update.branding_license.key !== undefined) brLic["key"] = update.branding_license.key;
+                  if (update.branding_license.enabled !== undefined) brLic["enabled"] = update.branding_license.enabled;
+                }
+                if (update.storage_encryption) {
+                  const stLic = ensureRecord(licenseSection, "storage_encryption");
+                  if (update.storage_encryption.key !== undefined) stLic["key"] = update.storage_encryption.key;
+                  if (update.storage_encryption.enabled !== undefined) stLic["enabled"] = update.storage_encryption.enabled;
+                }
+                if (update.branding) {
+                  const br = ensureRecord(licenseSection, "branding");
+                  if (update.branding.logo_url !== undefined) br["logo_url"] = update.branding.logo_url;
+                  if (update.branding.logo_name !== undefined) br["logo_name"] = update.branding.logo_name;
+                  if (update.branding.footer_text !== undefined) br["footer_text"] = update.branding.footer_text;
+                }
+
+                const nextContent = tomlAdapter.stringify(nextConfig);
+                onChange(nextContent);
               }
+            } catch (e) {
+              console.warn("Failed to sync TOML after license update", e);
             }
-            quickSettingsLicense.onApplyLicense();
           }}
         />
       )}

@@ -17,10 +17,13 @@ import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { cn } from "@/lib/utils.ts";
 import type { SystemCapabilities } from "@/stores/config.ts";
 
+import { useConfigStore } from "@/stores/config.ts";
+
 export const WelcomeView = () => {
   const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
   const { isLoggedIn, usersMap, _hasHydrated } = useAuthStore();
+  const capabilities = useConfigStore((state) => state.capabilities);
   const [mounted, setMounted] = useState(false);
   const [settingsCenterMode, setSettingsCenterMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -73,11 +76,11 @@ export const WelcomeView = () => {
       <div className="relative z-10 max-w-5xl w-full px-6 py-12 text-center">
         <div className="inline-flex mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
           <img
-            src="/favicon.svg"
+            src={capabilities?.branding?.logo_url || "/favicon.svg"}
             alt={t("common.logoAlt")}
             width={80}
             height={80}
-            className="shadow-2xl shadow-primary/20"
+            className="shadow-2xl shadow-primary/20 rounded-2xl"
           />
         </div>
 
@@ -207,6 +210,13 @@ export const WelcomeView = () => {
             </span>
           </div>
         </div>
+
+        {/* Custom Footer if available */}
+        {capabilities?.branding?.footer_text && (
+          <div className="mt-20 pt-10 border-t border-dashed border-white/5 text-sm opacity-40 font-bold tracking-widest leading-relaxed">
+            {capabilities.branding.footer_text}
+          </div>
+        )}
       </div>
     </div>
   );

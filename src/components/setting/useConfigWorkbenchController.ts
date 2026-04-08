@@ -2,16 +2,28 @@ import { useCallback, useMemo, useState } from "react";
 import type { ConfigError, ConfigNoteEntry } from "./ConfigRawEditor";
 import type { SystemHardwareInfo } from "./ConfigQuickSettingsModal";
 
-export type ConfigWorkbenchLicenseStatus = {
+export type ConfigWorkbenchLicenseItemStatus = {
   is_valid: boolean;
-  msg: string;
-  device_code: string;
-  hw_id: string;
-  aux_id: string;
-  current_users: number;
-  max_users: number;
+  enabled: boolean;
   expires_at?: string | null;
   features: string[];
+  msg: string;
+};
+
+export type ConfigWorkbenchLicenseStatus = {
+  registration: ConfigWorkbenchLicenseItemStatus;
+  branding: ConfigWorkbenchLicenseItemStatus;
+  storage_encryption: ConfigWorkbenchLicenseItemStatus;
+  branding_config: {
+    logo_url?: string | null;
+    logo_name?: string | null;
+    footer_text?: string | null;
+  };
+  max_users: number;
+  current_users: number;
+  hw_id: string;
+  aux_id: string;
+  device_code: string;
 };
 
 export type ConfigWorkbenchSummaryLevel =
@@ -28,7 +40,11 @@ export type ConfigWorkbenchData<
   notes: Record<string, ConfigNoteEntry>;
   runtimeOs?: string;
   systemHardware?: SystemHardwareInfo | null;
-  licenseKey?: string;
+  licenseKeys?: {
+    registration?: string;
+    branding?: string;
+    storage_encryption?: string;
+  };
   licenseStatus?: TLicenseStatus | null;
 };
 
@@ -42,21 +58,30 @@ type LicenseUpdateResult<TLicenseStatus extends ConfigWorkbenchLicenseStatus> =
       clearLicenseKey?: boolean;
     };
 
-type UseConfigWorkbenchControllerOptions<
+export type UseConfigWorkbenchControllerOptions<
   TLicenseStatus extends ConfigWorkbenchLicenseStatus,
 > = {
   initialLoading?: boolean;
   load?: (() => Promise<ConfigWorkbenchData<TLicenseStatus>>) | undefined;
   loadLicenseStatus?: (() => Promise<TLicenseStatus | null>) | undefined;
   updateLicense?: (
-    licenseKey: string,
+    licenseUpdate: {
+      registration?: { key?: string | null; enabled: boolean } | null;
+      branding_license?: { key?: string | null; enabled: boolean } | null;
+      storage_encryption?: { key?: string | null; enabled: boolean } | null;
+      branding?: {
+        logo_url?: string | null;
+        logo_name?: string | null;
+        footer_text?: string | null;
+      } | null;
+    }
   ) => Promise<LicenseUpdateResult<TLicenseStatus>>;
   onLicenseError?: ((error: unknown) => void | Promise<void>) | undefined;
 };
 
 export type ConfigWorkbenchQuickSettingsLicense = {
   isValid: boolean;
-  msg?: string;
+  msg: string | undefined;
   currentUsers: number;
   maxUsers: number;
   deviceCode: string;
@@ -65,9 +90,21 @@ export type ConfigWorkbenchQuickSettingsLicense = {
   expiresAt?: string | null;
   features?: string[];
   licenseKey: string;
+  status: ConfigWorkbenchLicenseStatus | null;
   saving: boolean;
   onLicenseKeyChange: (value: string) => void;
-  onApplyLicense: () => void;
+  onApplyLicense: (
+    update?: {
+      registration?: { key?: string | null; enabled: boolean } | null;
+      branding_license?: { key?: string | null; enabled: boolean } | null;
+      storage_encryption?: { key?: string | null; enabled: boolean } | null;
+      branding?: {
+        logo_url?: string | null;
+        logo_name?: string | null;
+        footer_text?: string | null;
+      } | null;
+    }
+  ) => void;
 };
 
 type ConfigWorkbenchValidationLike = {
@@ -192,8 +229,8 @@ export const useConfigWorkbenchController = <
     useState<SystemHardwareInfo | null>(null);
   const [licenseStatus, setLicenseStatus] =
     useState<TLicenseStatus | null>(null);
-  const [licenseKey, setLicenseKey] = useState("");
   const [licenseSaving, setLicenseSaving] = useState(false);
+  const [draftLicenseKey, setDraftLicenseKey] = useState("");
 
   const clearReloadSummary = useCallback(() => {
     setReloadSummary("");
@@ -210,9 +247,6 @@ export const useConfigWorkbenchController = <
       clearReloadSummary();
       setRuntimeOs(data.runtimeOs ?? "");
       setSystemHardware(data.systemHardware ?? null);
-      if (typeof data.licenseKey === "string") {
-        setLicenseKey(data.licenseKey);
-      }
       if ("licenseStatus" in data) {
         setLicenseStatus(data.licenseStatus ?? null);
       }
@@ -249,25 +283,16 @@ export const useConfigWorkbenchController = <
     return nextStatus;
   }, [loadLicenseStatus]);
 
-  const applyLicenseKey = useCallback(async () => {
+  const applyLicenseUpdate = useCallback(async (update: Parameters<NonNullable<UseConfigWorkbenchControllerOptions<TLicenseStatus>["updateLicense"]>>[0]) => {
     if (!updateLicense) {
-      return null;
-    }
-    const trimmed = licenseKey.trim();
-    if (!trimmed) {
       return null;
     }
     setLicenseSaving(true);
     try {
-      const result = await updateLicense(trimmed);
+      const result = await updateLicense(update);
       if (isLicenseUpdatePayload(result)) {
         if ("licenseStatus" in result) {
           setLicenseStatus(result.licenseStatus ?? null);
-        }
-        if (typeof result.licenseKey === "string") {
-          setLicenseKey(result.licenseKey);
-        } else if (result.clearLicenseKey) {
-          setLicenseKey("");
         }
         return result;
       }
@@ -278,15 +303,15 @@ export const useConfigWorkbenchController = <
     } finally {
       setLicenseSaving(false);
     }
-  }, [licenseKey, updateLicense]);
+  }, [updateLicense]);
 
-  const safeApplyLicenseKey = useCallback(async () => {
+  const safeApplyLicenseUpdate = useCallback(async (update: Parameters<NonNullable<UseConfigWorkbenchControllerOptions<TLicenseStatus>["updateLicense"]>>[0]) => {
     try {
-      await applyLicenseKey();
+      await applyLicenseUpdate(update);
     } catch (error) {
       await onLicenseError?.(error);
     }
-  }, [applyLicenseKey, onLicenseError]);
+  }, [applyLicenseUpdate, onLicenseError]);
 
   const resetToSaved = useCallback(() => {
     setContent(savedContent);
@@ -311,39 +336,52 @@ export const useConfigWorkbenchController = <
     }
     return {
       status: licenseStatus,
-      licenseKey,
-      onLicenseKeyChange: setLicenseKey,
-      onApplyLicense: () => {
-        void safeApplyLicenseKey();
+      onApplyLicense: (update?: Parameters<NonNullable<UseConfigWorkbenchControllerOptions<TLicenseStatus>["updateLicense"]>>[0]) => {
+        if (update) {
+          void safeApplyLicenseUpdate(update);
+        } else {
+          // If no update passed, we might be calling from a button that expects a default action
+          // but for the modal it always passes an update.
+        }
       },
       saving: licenseSaving,
     };
-  }, [licenseKey, licenseSaving, licenseStatus, safeApplyLicenseKey, updateLicense]);
+  }, [licenseSaving, licenseStatus, safeApplyLicenseUpdate, updateLicense]);
 
-  const quickSettingsLicense = useMemo<
-    ConfigWorkbenchQuickSettingsLicense | undefined
-  >(() => {
-    if (!updateLicense) {
+  const quickSettingsLicense = useMemo(() => {
+    if (!updateLicense || !licenseStatus) {
       return undefined;
     }
+    const reg = licenseStatus.registration;
+    const hasAnyValid =
+      reg.is_valid ||
+      licenseStatus.branding.is_valid ||
+      licenseStatus.storage_encryption.is_valid;
     return {
-      isValid: Boolean(licenseStatus?.is_valid),
-      ...(licenseStatus?.msg ? { msg: licenseStatus.msg } : {}),
-      currentUsers: licenseStatus?.current_users ?? 0,
-      maxUsers: licenseStatus?.max_users ?? 0,
-      deviceCode: licenseStatus?.device_code ?? "",
-      ...(licenseStatus?.hw_id ? { hwId: licenseStatus.hw_id } : {}),
-      ...(licenseStatus?.aux_id ? { auxId: licenseStatus.aux_id } : {}),
-      expiresAt: licenseStatus?.expires_at ?? null,
-      features: licenseStatus?.features ?? [],
-      licenseKey,
+      isValid: hasAnyValid,
+      msg: hasAnyValid ? undefined : reg.msg,
+      currentUsers: licenseStatus.current_users,
+      maxUsers: licenseStatus.max_users,
+      deviceCode: licenseStatus.device_code,
+      hwId: licenseStatus.hw_id,
+      auxId: licenseStatus.aux_id,
+      expiresAt: reg.expires_at,
+      features: reg.features,
+      licenseKey: draftLicenseKey,
+      status: licenseStatus,
       saving: licenseSaving,
-      onLicenseKeyChange: setLicenseKey,
-      onApplyLicense: () => {
-        void safeApplyLicenseKey();
+      onLicenseKeyChange: (key: string) => {
+        setDraftLicenseKey(key);
+      },
+      onApplyLicense: (update?: Parameters<NonNullable<UseConfigWorkbenchControllerOptions<TLicenseStatus>["updateLicense"]>>[0]) => {
+        if (update) {
+          void safeApplyLicenseUpdate(update);
+        } else {
+          void safeApplyLicenseUpdate({ registration: { key: draftLicenseKey, enabled: true } });
+        }
       },
     };
-  }, [licenseKey, licenseSaving, licenseStatus, safeApplyLicenseKey, updateLicense]);
+  }, [licenseSaving, licenseStatus, safeApplyLicenseUpdate, updateLicense, draftLicenseKey]);
 
   return {
     loading,
@@ -369,13 +407,11 @@ export const useConfigWorkbenchController = <
     setSystemHardware,
     licenseStatus,
     setLicenseStatus,
-    licenseKey,
-    setLicenseKey,
     licenseSaving,
     loadWorkbench,
     refreshLicenseStatus,
-    applyLicenseKey,
-    safeApplyLicenseKey,
+    applyLicenseUpdate,
+    safeApplyLicenseUpdate,
     applyWorkbenchData,
     resetToSaved,
     settingLicenseBinding,

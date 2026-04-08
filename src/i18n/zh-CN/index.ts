@@ -19,9 +19,7 @@ import { filemanagerByResourceLocale } from '../bundles/filemanager';
 import { pagesByResourceLocale } from '../bundles/pages';
 import { systemConfigByResourceLocale } from '../bundles/systemConfig';
 import { blacklistByResourceLocale } from '../bundles/blacklist';
-import { languagesByResourceLocale } from '../bundles/languages';
 import { playerByResourceLocale } from '../bundles/player';
-import { themesByResourceLocale } from '../bundles/themes';
 import { welcomeByResourceLocale } from '../bundles/welcome';
 
 const translation = {
@@ -29,7 +27,10 @@ const translation = {
   "admin": {
     ...adminByResourceLocale['zh-CN'],
     "settings": adminSettingByResourceLocale['zh-CN'].admin.settings,
-    "config": adminSettingByResourceLocale['zh-CN'].admin.config,
+    "config": {
+      ...adminByResourceLocale['zh-CN'].config,
+      ...adminSettingByResourceLocale['zh-CN'].admin.config,
+    },
   },
   "auth": authByResourceLocale['zh-CN'],
   "blacklist": blacklistByResourceLocale['zh-CN'],
@@ -40,7 +41,6 @@ const translation = {
   "errors": errorsByResourceLocale['zh-CN'],
   "filemanager": filemanagerByResourceLocale['zh-CN'],
   "forgotPassword": forgotPasswordByResourceLocale['zh-CN'],
-  "languages": languagesByResourceLocale['zh-CN'],
   "launcher": launcherByResourceLocale['zh-CN'],
   "nav": navByResourceLocale['zh-CN'],
   "pages": pagesByResourceLocale['zh-CN'],
@@ -50,7 +50,6 @@ const translation = {
   "security": securityByResourceLocale['zh-CN'],
   "sessions": sessionsByResourceLocale['zh-CN'],
   "systemConfig": systemConfigByResourceLocale['zh-CN'],
-  "themes": themesByResourceLocale['zh-CN'],
   "tos": tosByResourceLocale['zh-CN'],
   "welcome": welcomeByResourceLocale['zh-CN'],
 } as const;

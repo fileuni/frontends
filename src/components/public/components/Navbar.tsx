@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useContext } from 'react';
+import { useMemo, useState, useEffect, useContext } from 'react';
 import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo } from '@/components/modals/AboutModal';
 import { useThemeStore } from '@/stores/theme';
 import { useLanguageStore } from '@/stores/language';
@@ -17,7 +17,7 @@ import { AUTO_LOCALE_PREFERENCE, buildLocaleUrl } from '@/i18n/core';
 import { StatusIndicator } from './StatusIndicator.tsx';
 import { LanguageMenuButton } from './LanguageMenuButton.tsx';
 import { ThemeToggleButton } from './ThemeToggleButton.tsx';
-import { ChatContext, type Room } from '@/components/chat/context/ChatContext';
+import { ChatContext } from '@/components/chat/context/ChatContext';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
 
 export const Navbar = () => {
@@ -150,8 +150,16 @@ export const Navbar = () => {
       )}>
         {/* Brand */}
         <a href={`${base}mod=public&page=index`} className="flex items-center gap-3 group shrink-0">
-						<img src="/favicon.svg" alt={t('common.logoAlt')} width={36} height={36} className="shadow-lg rounded-xl" />
-          <span className={cn("font-black text-lg tracking-tight hidden sm:block", isDark ? "text-white" : "text-gray-900")}>{t('common.brandName')}</span>
+          <img
+            src={capabilities?.branding?.logo_url || "/favicon.svg"}
+            alt={t('common.logoAlt')}
+            width={36}
+            height={36}
+            className="shadow-lg rounded-xl"
+          />
+          <span className={cn("font-black text-lg tracking-tight hidden sm:block", isDark ? "text-white" : "text-gray-900")}>
+            {capabilities?.branding?.logo_name || t('common.brandName')}
+          </span>
         </a>
 
         {/* Right Section */}

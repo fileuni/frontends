@@ -3902,6 +3902,15 @@ export interface components {
             /** Format: int64 */
             total: number;
         };
+        /** @description Branding configuration for UI customization */
+        BrandingConfig: {
+            /** @description Custom footer text/HTML */
+            footer_text?: string | null;
+            /** @description Custom site/app name */
+            logo_name?: string | null;
+            /** @description Custom logo image URL */
+            logo_url?: string | null;
+        };
         /** @enum {string} */
         CaptchaDifficulty: "Easy" | "Medium" | "Hard";
         CaptchaPolicyRequest: {
@@ -4496,21 +4505,35 @@ export interface components {
             content_type: string;
             log?: string | null;
         };
-        /** @description License status information */
-        LicenseStatus: {
-            allow_registration: boolean;
-            aux_id: string;
-            /** Format: int32 */
-            current_users: number;
-            device_code: string;
+        /** @description Individual license item with key and toggle */
+        LicenseItem: {
+            /** @description Whether this license-controlled feature is enabled */
+            enabled: boolean;
+            /** @description License key string (Base64) */
+            key?: string | null;
+        };
+        /** @description Individual license validation result */
+        LicenseItemStatus: {
+            enabled: boolean;
             /** Format: date-time */
             expires_at?: string | null;
             features: string[];
-            hw_id: string;
             is_valid: boolean;
+            msg: string;
+        };
+        /** @description Global license status information */
+        LicenseStatus: {
+            aux_id: string;
+            branding: components["schemas"]["LicenseItemStatus"];
+            branding_config: components["schemas"]["BrandingConfig"];
+            /** Format: int32 */
+            current_users: number;
+            device_code: string;
+            hw_id: string;
             /** Format: int32 */
             max_users: number;
-            msg: string;
+            registration: components["schemas"]["LicenseItemStatus"];
+            storage_encryption: components["schemas"]["LicenseItemStatus"];
         };
         /** @description Email list query parameters */
         ListMessagesQuery: {
@@ -5259,6 +5282,7 @@ export interface components {
             allocator_effective: string;
             allocator_profile: string;
             allocator_requested: string;
+            branding?: null | components["schemas"]["BrandingConfig"];
             /** Format: int32 */
             captcha_max_attempts: number;
             chat_max_groups_joined_per_user: number;
@@ -5428,7 +5452,10 @@ export interface components {
             nickname?: string | null;
         };
         UpdateLicenseRequest: {
-            license_key: string;
+            branding?: null | components["schemas"]["BrandingConfig"];
+            branding_license?: null | components["schemas"]["LicenseItem"];
+            registration?: null | components["schemas"]["LicenseItem"];
+            storage_encryption?: null | components["schemas"]["LicenseItem"];
         };
         UpdateProfileRequest: {
             bio?: string | null;

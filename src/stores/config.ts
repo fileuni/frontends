@@ -13,8 +13,15 @@ type PreviewCapabilities = {
   tex: boolean;
 };
 
+export type BrandingConfig = {
+  logo_url?: string | null;
+  logo_name?: string | null;
+  footer_text?: string | null;
+};
+
 export type SystemCapabilities = ApiComponents["schemas"]["SystemCapabilities"] & {
   preview?: PreviewCapabilities;
+  branding?: BrandingConfig;
 };
 
 interface ConfigState {

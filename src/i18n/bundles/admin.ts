@@ -554,22 +554,7 @@ const adminBundle = defineLocaleBundle({
         "config": {
             "title": "Configuration Editor",
             "loading": "Loading configuration...",
-            "save": "Save",
-            "saveAndReload": "Save & Reload",
-            "testContent": "Test Content",
             "saveSuccess": "Configuration saved",
-            "test": "Test",
-            "testSuccess": "Configuration test passed",
-            "testFailed": "Configuration test failed",
-            "reload": "ReloadConfig",
-            "reloadSuccess": "Configuration reloaded",
-            "reloadFailed": "Configuration reload failed",
-            "reset": "Reset to example template",
-            "resetNotice": "Template loaded. Review and save to apply changes.",
-            "resetUnavailable": "Embedded template not available",
-            "resetHintTitle": "Reset Reminder",
-            "resetHint": "Reset restores the default settings. Save when you are ready.",
-            "restartNotice": "Some settings require a server restart to take full effect.",
             "thumbnail": {
                 "title": "Thumbnail Settings",
                 "subtitle": "Configure the built-in image pipeline, desktop-only external tools, and video frame capture strategy without editing TOML by hand.",
@@ -612,8 +597,6 @@ const adminBundle = defineLocaleBundle({
                     "writeFailed": "Failed to write external dependency configuration"
                 }
             },
-            "unsaved": "Unsaved",
-            "saved": "Saved",
             "pendingChanges": "Pending changes",
             "noPendingChanges": "No pending changes",
             "diffSummary": "Diff summary",
@@ -629,24 +612,29 @@ const adminBundle = defineLocaleBundle({
             "noteEmpty": "No note available for the current key.",
             "license": {
                 "title": "License Management",
+                "subtitle": "Multi-License Management",
                 "technical": {
                     "hwId": "HW ID",
                     "auxId": "AUX ID"
                 },
-                "featureCatalog": {
-                    "free": {
-                        "title": "Free",
-                        "desc": "Core features for personal or light usage."
-                    },
-                    "premium": {
-                        "title": "Premium",
-                        "desc": "Unlock advanced features and higher limits."
-                    },
-                    "storage": {
-                        "title": "Storage",
-                        "desc": "Storage-related enhancements and policy controls."
-                    }
-                }
+                "features": {
+                    "registration": "User Self-Registration",
+                    "branding": "Branding Customization",
+                    "storageEncryption": "Storage Encryption"
+                },
+                "updateKey": "Update License Key",
+                "pasteKey": "Paste new key...",
+                "noStatus": "No status available",
+                "brandingDetails": "Branding Customization Details",
+                "logoUrl": "Logo URL",
+                "logoName": "Logo Name",
+                "footerText": "Footer Text",
+                "placeholders": {
+                    "logoUrl": "e.g. /my-logo.png",
+                    "logoName": "e.g. My Storage",
+                    "footerText": "e.g. (c) 2026 My Company"
+                },
+                "hint": "Each feature requires its own license key. Ensure the enabled toggle is ON to activate authorized features."
             },
             "storage": {
                 "title": "Storage Pools & Backends",
@@ -1589,22 +1577,7 @@ const adminBundle = defineLocaleBundle({
         "config": {
             "title": "配置编辑器",
             "loading": "正在加载配置...",
-            "save": "保存",
-            "saveAndReload": "保存并重载",
-            "testContent": "测试内容",
-            "saveSuccess": "配置已保存",
-            "test": "测试",
-            "testSuccess": "配置测试通过",
-            "testFailed": "配置测试失败",
-            "reload": "热重载配置",
-            "reloadSuccess": "配置已重载",
-            "reloadFailed": "配置重载失败",
-            "reset": "初始化为示例配置",
-            "resetNotice": "模板已加载。请检查并保存以应用更改。",
-            "resetUnavailable": "内置模板不可用",
-            "resetHintTitle": "重置提醒",
-            "resetHint": "重置后会恢复默认设置，请确认后再保存。",
-            "restartNotice": "少数配置项需要重启服务器才能完全生效。",
+            "saveSuccess": "配置保存成功",
             "thumbnail": {
                 "title": "缩略图配置",
                 "subtitle": "配置内置图片缩略图管线、桌面外部工具路径与视频截帧策略，无需手写 TOML。",
@@ -1638,7 +1611,7 @@ const adminBundle = defineLocaleBundle({
                 "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
             },
             "externalTools": {
-                "mobileDisabled": "Android 与 iOS 的图片缩略图默认走内置 Rust 管线，视频缩略图走系统媒体框架。FFmpeg、ImageMagick、LibreOffice、libvips、7-Zip 这类桌面外部二进制在移动端仍不可用，请保持依赖这些工具的功能关闭。",
+                "mobileDisabled": "Android 和 iOS 将保持内置 Rust 图片缩略图管线，并使用系统媒体框架进行视频截帧。FFmpeg, ImageMagick, LibreOffice, libvips 和 7-Zip 等外部二进制工具在移动端不可用，请保持这些功能处于禁用状态。",
                 "placeholders": {
                     "ffmpeg": "ffmpeg"
                 },
@@ -1647,41 +1620,44 @@ const adminBundle = defineLocaleBundle({
                     "writeFailed": "写入外部依赖配置失败"
                 }
             },
-            "unsaved": "未保存",
-            "saved": "已保存",
-            "pendingChanges": "待提交修改",
-            "noPendingChanges": "无待提交修改",
-            "diffSummary": "差异统计",
-            "changedLines": "变更",
+            "pendingChanges": "待保存更改",
+            "noPendingChanges": "暂无更改",
+            "diffSummary": "差异摘要",
+            "changedLines": "修改",
             "addedLines": "新增",
             "removedLines": "删除",
             "shortcuts": {
-                "title": "快捷入口",
-                "subtitle": "常用功能入口"
+                "title": "快速导航",
+                "subtitle": "常用工具与配置项"
             },
-            "pathUnavailable": "配置文件路径不可用",
-            "example": "示例配置",
-            "noteEmpty": "当前项没有可用说明。",
+            "pathUnavailable": "配置路径不可用",
+            "example": "示例",
+            "noteEmpty": "当前配置项暂无说明。",
             "license": {
                 "title": "授权管理",
+                "subtitle": "多授权码管理",
                 "technical": {
                     "hwId": "HW ID",
                     "auxId": "AUX ID"
                 },
-                "featureCatalog": {
-                    "free": {
-                        "title": "免费版",
-                        "desc": "基础功能可用，适合个人或轻量使用。"
-                    },
-                    "premium": {
-                        "title": "高级授权",
-                        "desc": "解锁高级功能与更高配额。"
-                    },
-                    "storage": {
-                        "title": "存储能力",
-                        "desc": "启用存储相关的增强功能与限制策略。"
-                    }
-                }
+                "features": {
+                    "registration": "用户自助注册",
+                    "branding": "品牌定制",
+                    "storageEncryption": "存储加密"
+                },
+                "updateKey": "更新授权码",
+                "pasteKey": "粘贴新授权码...",
+                "noStatus": "暂无状态信息",
+                "brandingDetails": "品牌定制详情",
+                "logoUrl": "Logo URL",
+                "logoName": "Logo 名称",
+                "footerText": "页脚文字",
+                "placeholders": {
+                    "logoUrl": "例如 /my-logo.png",
+                    "logoName": "例如 My Storage",
+                    "footerText": "例如 (c) 2026 My Company"
+                },
+                "hint": "每个功能需要独立的授权码，请确保启用开关已打开以激活已授权的功能。"
             },
             "storage": {
                 "title": "存储池与后端",
@@ -2624,22 +2600,7 @@ const adminBundle = defineLocaleBundle({
         "config": {
             "title": "Configuration Editor",
             "loading": "Loading configuration...",
-            "save": "Save",
-            "saveAndReload": "Save & Reload",
-            "testContent": "Test Content",
             "saveSuccess": "Configuration saved",
-            "test": "Test",
-            "testSuccess": "Configuration test passed",
-            "testFailed": "Configuration test failed",
-            "reload": "ReloadConfig",
-            "reloadSuccess": "Configuration reloaded",
-            "reloadFailed": "Configuration reload failed",
-            "reset": "Reset to example template",
-            "resetNotice": "Template loaded. Review and save to apply changes.",
-            "resetUnavailable": "Embedded template not available",
-            "resetHintTitle": "Reset Reminder",
-            "resetHint": "Reset restores the default settings. Save when you are ready.",
-            "restartNotice": "Some settings require a server restart to take full effect.",
             "thumbnail": {
                 "title": "Thumbnail Settings",
                 "subtitle": "Configure the built-in image pipeline, desktop-only external tools, and video frame capture strategy without editing TOML by hand.",
@@ -2682,8 +2643,6 @@ const adminBundle = defineLocaleBundle({
                     "writeFailed": "Failed to write external dependency configuration"
                 }
             },
-            "unsaved": "Unsaved",
-            "saved": "Saved",
             "pendingChanges": "Pending changes",
             "noPendingChanges": "No pending changes",
             "diffSummary": "Diff summary",
@@ -2698,25 +2657,30 @@ const adminBundle = defineLocaleBundle({
             "example": "example",
             "noteEmpty": "No note available for the current key.",
             "license": {
-                "title": "License Management",
+                "title": "Gestion de licencias",
+                "subtitle": "Gestion de multiples licencias",
                 "technical": {
                     "hwId": "HW ID",
                     "auxId": "AUX ID"
                 },
-                "featureCatalog": {
-                    "free": {
-                        "title": "Free",
-                        "desc": "Core features for personal or light usage."
-                    },
-                    "premium": {
-                        "title": "Premium",
-                        "desc": "Unlock advanced features and higher limits."
-                    },
-                    "storage": {
-                        "title": "Storage",
-                        "desc": "Storage-related enhancements and policy controls."
-                    }
-                }
+                "features": {
+                    "registration": "Auto-registro de usuarios",
+                    "branding": "Personalizacion de marca",
+                    "storageEncryption": "Cifrado de almacenamiento"
+                },
+                "updateKey": "Actualizar clave de licencia",
+                "pasteKey": "Pegar nueva clave...",
+                "noStatus": "Sin estado disponible",
+                "brandingDetails": "Detalles de personalizacion de marca",
+                "logoUrl": "URL del logo",
+                "logoName": "Nombre del logo",
+                "footerText": "Texto del pie de pagina",
+                "placeholders": {
+                    "logoUrl": "ej. /my-logo.png",
+                    "logoName": "ej. My Storage",
+                    "footerText": "ej. (c) 2026 Mi Empresa"
+                },
+                "hint": "Cada funcion requiere su propia clave de licencia. Asegurese de que el interruptor este activado para activar las funciones autorizadas."
             },
             "storage": {
                 "title": "Storage Pools & Backends",
@@ -3659,22 +3623,7 @@ const adminBundle = defineLocaleBundle({
         "config": {
             "title": "Configuration Editor",
             "loading": "Loading configuration...",
-            "save": "Save",
-            "saveAndReload": "Save & Reload",
-            "testContent": "Test Content",
             "saveSuccess": "Configuration saved",
-            "test": "Test",
-            "testSuccess": "Configuration test passed",
-            "testFailed": "Configuration test failed",
-            "reload": "ReloadConfig",
-            "reloadSuccess": "Configuration reloaded",
-            "reloadFailed": "Configuration reload failed",
-            "reset": "Reset to example template",
-            "resetNotice": "Template loaded. Review and save to apply changes.",
-            "resetUnavailable": "Embedded template not available",
-            "resetHintTitle": "Reset Reminder",
-            "resetHint": "Reset restores the default settings. Save when you are ready.",
-            "restartNotice": "Some settings require a server restart to take full effect.",
             "thumbnail": {
                 "title": "Thumbnail Settings",
                 "subtitle": "Configure the built-in image pipeline, desktop-only external tools, and video frame capture strategy without editing TOML by hand.",
@@ -3717,8 +3666,6 @@ const adminBundle = defineLocaleBundle({
                     "writeFailed": "Failed to write external dependency configuration"
                 }
             },
-            "unsaved": "Unsaved",
-            "saved": "Saved",
             "pendingChanges": "Pending changes",
             "noPendingChanges": "No pending changes",
             "diffSummary": "Diff summary",
@@ -3733,25 +3680,30 @@ const adminBundle = defineLocaleBundle({
             "example": "example",
             "noteEmpty": "No note available for the current key.",
             "license": {
-                "title": "License Management",
+                "title": "Lizenzverwaltung",
+                "subtitle": "Multi-Lizenzverwaltung",
                 "technical": {
                     "hwId": "HW ID",
                     "auxId": "AUX ID"
                 },
-                "featureCatalog": {
-                    "free": {
-                        "title": "Free",
-                        "desc": "Core features for personal or light usage."
-                    },
-                    "premium": {
-                        "title": "Premium",
-                        "desc": "Unlock advanced features and higher limits."
-                    },
-                    "storage": {
-                        "title": "Storage",
-                        "desc": "Storage-related enhancements and policy controls."
-                    }
-                }
+                "features": {
+                    "registration": "Benutzer-Selbstregistrierung",
+                    "branding": "Markenanpassung",
+                    "storageEncryption": "Speicherverschlusselung"
+                },
+                "updateKey": "Lizenzschlussel aktualisieren",
+                "pasteKey": "Neuen Schlussel einfugen...",
+                "noStatus": "Kein Status verfugbar",
+                "brandingDetails": "Details zur Markenanpassung",
+                "logoUrl": "Logo-URL",
+                "logoName": "Logo-Name",
+                "footerText": "Fusszeilen-Text",
+                "placeholders": {
+                    "logoUrl": "z.B. /my-logo.png",
+                    "logoName": "z.B. My Storage",
+                    "footerText": "z.B. (c) 2026 Meine Firma"
+                },
+                "hint": "Jede Funktion benotigt einen eigenen Lizenzschlussel. Stellen Sie sicher, dass der Schalter aktiviert ist, um autorisierte Funktionen zu aktivieren."
             },
             "storage": {
                 "title": "Storage Pools & Backends",
@@ -4694,22 +4646,7 @@ const adminBundle = defineLocaleBundle({
         "config": {
             "title": "Configuration Editor",
             "loading": "Loading configuration...",
-            "save": "Save",
-            "saveAndReload": "Save & Reload",
-            "testContent": "Test Content",
             "saveSuccess": "Configuration saved",
-            "test": "Test",
-            "testSuccess": "Configuration test passed",
-            "testFailed": "Configuration test failed",
-            "reload": "ReloadConfig",
-            "reloadSuccess": "Configuration reloaded",
-            "reloadFailed": "Configuration reload failed",
-            "reset": "Reset to example template",
-            "resetNotice": "Template loaded. Review and save to apply changes.",
-            "resetUnavailable": "Embedded template not available",
-            "resetHintTitle": "Reset Reminder",
-            "resetHint": "Reset restores the default settings. Save when you are ready.",
-            "restartNotice": "Some settings require a server restart to take full effect.",
             "thumbnail": {
                 "title": "Thumbnail Settings",
                 "subtitle": "Configure the built-in image pipeline, desktop-only external tools, and video frame capture strategy without editing TOML by hand.",
@@ -4752,8 +4689,6 @@ const adminBundle = defineLocaleBundle({
                     "writeFailed": "Failed to write external dependency configuration"
                 }
             },
-            "unsaved": "Unsaved",
-            "saved": "Saved",
             "pendingChanges": "Pending changes",
             "noPendingChanges": "No pending changes",
             "diffSummary": "Diff summary",
@@ -4768,25 +4703,30 @@ const adminBundle = defineLocaleBundle({
             "example": "example",
             "noteEmpty": "No note available for the current key.",
             "license": {
-                "title": "License Management",
+                "title": "Gestion des licences",
+                "subtitle": "Gestion multi-licences",
                 "technical": {
                     "hwId": "HW ID",
                     "auxId": "AUX ID"
                 },
-                "featureCatalog": {
-                    "free": {
-                        "title": "Free",
-                        "desc": "Core features for personal or light usage."
-                    },
-                    "premium": {
-                        "title": "Premium",
-                        "desc": "Unlock advanced features and higher limits."
-                    },
-                    "storage": {
-                        "title": "Storage",
-                        "desc": "Storage-related enhancements and policy controls."
-                    }
-                }
+                "features": {
+                    "registration": "Auto-inscription des utilisateurs",
+                    "branding": "Personnalisation de la marque",
+                    "storageEncryption": "Chiffrement du stockage"
+                },
+                "updateKey": "Mettre a jour la cle de licence",
+                "pasteKey": "Coller une nouvelle cle...",
+                "noStatus": "Aucun statut disponible",
+                "brandingDetails": "Details de personnalisation de la marque",
+                "logoUrl": "URL du logo",
+                "logoName": "Nom du logo",
+                "footerText": "Texte du pied de page",
+                "placeholders": {
+                    "logoUrl": "ex. /my-logo.png",
+                    "logoName": "ex. My Storage",
+                    "footerText": "ex. (c) 2026 Mon Entreprise"
+                },
+                "hint": "Chaque fonctionnalite necessite sa propre cle de licence. Assurez-vous que le commutateur est active pour activer les fonctionnalites autorisees."
             },
             "storage": {
                 "title": "Storage Pools & Backends",
@@ -5729,22 +5669,7 @@ const adminBundle = defineLocaleBundle({
         "config": {
             "title": "Configuration Editor",
             "loading": "Loading configuration...",
-            "save": "Save",
-            "saveAndReload": "Save & Reload",
-            "testContent": "Test Content",
             "saveSuccess": "Configuration saved",
-            "test": "Test",
-            "testSuccess": "Configuration test passed",
-            "testFailed": "Configuration test failed",
-            "reload": "ReloadConfig",
-            "reloadSuccess": "Configuration reloaded",
-            "reloadFailed": "Configuration reload failed",
-            "reset": "Reset to example template",
-            "resetNotice": "Template loaded. Review and save to apply changes.",
-            "resetUnavailable": "Embedded template not available",
-            "resetHintTitle": "Reset Reminder",
-            "resetHint": "Reset restores the default settings. Save when you are ready.",
-            "restartNotice": "Some settings require a server restart to take full effect.",
             "thumbnail": {
                 "title": "Thumbnail Settings",
                 "subtitle": "Configure the built-in image pipeline, desktop-only external tools, and video frame capture strategy without editing TOML by hand.",
@@ -5787,8 +5712,6 @@ const adminBundle = defineLocaleBundle({
                     "writeFailed": "Failed to write external dependency configuration"
                 }
             },
-            "unsaved": "Unsaved",
-            "saved": "Saved",
             "pendingChanges": "Pending changes",
             "noPendingChanges": "No pending changes",
             "diffSummary": "Diff summary",
@@ -5803,25 +5726,30 @@ const adminBundle = defineLocaleBundle({
             "example": "example",
             "noteEmpty": "No note available for the current key.",
             "license": {
-                "title": "License Management",
+                "title": "Управление лицензиями",
+                "subtitle": "Управление несколькими лицензиями",
                 "technical": {
                     "hwId": "HW ID",
                     "auxId": "AUX ID"
                 },
-                "featureCatalog": {
-                    "free": {
-                        "title": "Free",
-                        "desc": "Core features for personal or light usage."
-                    },
-                    "premium": {
-                        "title": "Premium",
-                        "desc": "Unlock advanced features and higher limits."
-                    },
-                    "storage": {
-                        "title": "Storage",
-                        "desc": "Storage-related enhancements and policy controls."
-                    }
-                }
+                "features": {
+                    "registration": "Самостоятельная регистрация",
+                    "branding": "Настройка бренда",
+                    "storageEncryption": "Шифрование хранилища"
+                },
+                "updateKey": "Обновить лицензионный ключ",
+                "pasteKey": "Вставьте новый ключ...",
+                "noStatus": "Статус недоступен",
+                "brandingDetails": "Детали настройки бренда",
+                "logoUrl": "URL логотипа",
+                "logoName": "Название логотипа",
+                "footerText": "Текст подвала",
+                "placeholders": {
+                    "logoUrl": "напр. /my-logo.png",
+                    "logoName": "напр. My Storage",
+                    "footerText": "напр. (c) 2026 Моя Компания"
+                },
+                "hint": "Каждая функция требует собственного лицензионного ключа. Убедитесь, что переключатель включен для активации авторизованных функций."
             },
             "storage": {
                 "title": "Storage Pools & Backends",
@@ -6764,22 +6692,7 @@ const adminBundle = defineLocaleBundle({
         "config": {
             "title": "Configuration Editor",
             "loading": "Loading configuration...",
-            "save": "Save",
-            "saveAndReload": "Save & Reload",
-            "testContent": "Test Content",
             "saveSuccess": "Configuration saved",
-            "test": "Test",
-            "testSuccess": "Configuration test passed",
-            "testFailed": "Configuration test failed",
-            "reload": "ReloadConfig",
-            "reloadSuccess": "Configuration reloaded",
-            "reloadFailed": "Configuration reload failed",
-            "reset": "Reset to example template",
-            "resetNotice": "Template loaded. Review and save to apply changes.",
-            "resetUnavailable": "Embedded template not available",
-            "resetHintTitle": "Reset Reminder",
-            "resetHint": "Reset restores the default settings. Save when you are ready.",
-            "restartNotice": "Some settings require a server restart to take full effect.",
             "thumbnail": {
                 "title": "Thumbnail Settings",
                 "subtitle": "Configure the built-in image pipeline, desktop-only external tools, and video frame capture strategy without editing TOML by hand.",
@@ -6822,8 +6735,6 @@ const adminBundle = defineLocaleBundle({
                     "writeFailed": "Failed to write external dependency configuration"
                 }
             },
-            "unsaved": "Unsaved",
-            "saved": "Saved",
             "pendingChanges": "Pending changes",
             "noPendingChanges": "No pending changes",
             "diffSummary": "Diff summary",
@@ -6838,25 +6749,30 @@ const adminBundle = defineLocaleBundle({
             "example": "example",
             "noteEmpty": "No note available for the current key.",
             "license": {
-                "title": "License Management",
+                "title": "ライセンス管理",
+                "subtitle": "マルチライセンス管理",
                 "technical": {
                     "hwId": "HW ID",
                     "auxId": "AUX ID"
                 },
-                "featureCatalog": {
-                    "free": {
-                        "title": "Free",
-                        "desc": "Core features for personal or light usage."
-                    },
-                    "premium": {
-                        "title": "Premium",
-                        "desc": "Unlock advanced features and higher limits."
-                    },
-                    "storage": {
-                        "title": "Storage",
-                        "desc": "Storage-related enhancements and policy controls."
-                    }
-                }
+                "features": {
+                    "registration": "ユーザー自己登録",
+                    "branding": "ブランドカスタマイズ",
+                    "storageEncryption": "ストレージ暗号化"
+                },
+                "updateKey": "ライセンスキーを更新",
+                "pasteKey": "新しいキーを貼り付け...",
+                "noStatus": "ステータス情報なし",
+                "brandingDetails": "ブランドカスタマイズ詳細",
+                "logoUrl": "ロゴ URL",
+                "logoName": "ロゴ名",
+                "footerText": "フッターテキスト",
+                "placeholders": {
+                    "logoUrl": "例: /my-logo.png",
+                    "logoName": "例: My Storage",
+                    "footerText": "例: (c) 2026 My Company"
+                },
+                "hint": "各機能には専用のライセンスキーが必要です。認可された機能を有効にするには、有効スイッチがオンになっていることを確認してください。"
             },
             "storage": {
                 "title": "Storage Pools & Backends",

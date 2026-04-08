@@ -54,14 +54,41 @@ export interface SettingCommonCapabilityHandlers {
 }
 
 export interface SettingLicenseStatusLike {
-  is_valid: boolean;
-  msg?: string;
-  current_users: number;
+  registration?: {
+    is_valid: boolean;
+    enabled: boolean;
+    expires_at?: string | null;
+    features: string[];
+    msg: string;
+  };
+  branding?: {
+    is_valid: boolean;
+    enabled: boolean;
+    expires_at?: string | null;
+    features: string[];
+    msg: string;
+  };
+  storage_encryption?: {
+    is_valid: boolean;
+    enabled: boolean;
+    expires_at?: string | null;
+    features: string[];
+    msg: string;
+  };
+  branding_config?: {
+    logo_url?: string | null;
+    logo_name?: string | null;
+    footer_text?: string | null;
+  };
   max_users: number;
-  expires_at?: string | null;
+  current_users: number;
   device_code?: string;
   hw_id?: string;
   aux_id?: string;
+  // Backward compatibility for LicenseInlinePanel
+  is_valid?: boolean;
+  msg?: string;
+  expires_at?: string | null;
 }
 
 interface LicenseInlinePanelProps {
@@ -78,17 +105,26 @@ const LicenseInlinePanel: React.FC<LicenseInlinePanelProps> = ({
   const { t, i18n } = useTranslation();
   const isDark = useResolvedTheme() === "dark";
 
+  // Derive top-level status from multi-license status if needed
+  const isValid = licenseStatus?.is_valid ?? (
+    licenseStatus?.registration?.is_valid ||
+    licenseStatus?.branding?.is_valid ||
+    licenseStatus?.storage_encryption?.is_valid
+  ) ?? false;
+
+  const expiresAt = licenseStatus?.expires_at ?? licenseStatus?.registration?.expires_at;
+
   const statusText = !licenseStatus
     ? t("common.loading")
-    : licenseStatus.is_valid
+    : isValid
       ? t("admin.config.quickSettings.options.licenseAuthorized")
       : t("admin.config.quickSettings.options.licenseUnauthorized");
 
   const expiresText = (() => {
     if (!licenseStatus) return t("common.loading");
-    if (!licenseStatus.expires_at) return t("common.none");
-    const dt = new Date(licenseStatus.expires_at);
-    if (Number.isNaN(dt.getTime())) return licenseStatus.expires_at;
+    if (!expiresAt) return t("common.none");
+    const dt = new Date(expiresAt);
+    if (Number.isNaN(dt.getTime())) return expiresAt;
     try {
       return new Intl.DateTimeFormat(i18n.language || undefined, {
         year: "numeric",
@@ -106,7 +142,7 @@ const LicenseInlinePanel: React.FC<LicenseInlinePanelProps> = ({
     ? isDark
       ? "border-white/10 bg-black/20 text-slate-200"
       : "border-slate-200 bg-white text-slate-700"
-    : licenseStatus.is_valid
+    : isValid
       ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-100"
       : "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100";
 
@@ -139,9 +175,7 @@ const LicenseInlinePanel: React.FC<LicenseInlinePanelProps> = ({
         <textarea
           value={licenseKey}
           onChange={(event) => onLicenseKeyChange(event.target.value)}
-          placeholder={t(
-            "admin.config.quickSettings.fields.licenseInputPlaceholder",
-          )}
+          placeholder={t("admin.config.license.pasteKey")}
           className={cn(
             "mt-2 min-h-28 w-full rounded-2xl border px-3 py-3 text-sm font-mono shadow-inner transition-colors",
             isDark
@@ -300,11 +334,20 @@ interface BuildSettingCommonActionsParams {
     hint: string;
   };
   license?: {
-    status: SettingLicenseStatusLike | null;
-    licenseKey: string;
-    onLicenseKeyChange: (value: string) => void;
-    onApplyLicense: () => void;
-    saving: boolean;
+    status?: SettingLicenseStatusLike | null;
+    licenseKey?: string;
+    onLicenseKeyChange?: (value: string) => void;
+    onApplyLicense?: (update?: {
+      registration?: { key?: string | null; enabled: boolean } | null;
+      branding_license?: { key?: string | null; enabled: boolean } | null;
+      storage_encryption?: { key?: string | null; enabled: boolean } | null;
+      branding?: {
+        logo_url?: string | null;
+        logo_name?: string | null;
+        footer_text?: string | null;
+      } | null;
+    }) => void;
+    saving?: boolean;
   };
   storage: {
     onPrimaryAction: () => void;
@@ -571,18 +614,18 @@ export const buildSettingCommonActions = ({
       icon: settingCommonIcons.license,
       renderPanel: () => (
         <LicenseInlinePanel
-          licenseStatus={license.status}
-          licenseKey={license.licenseKey}
-          onLicenseKeyChange={license.onLicenseKeyChange}
+          licenseStatus={license.status ?? null}
+          licenseKey={license.licenseKey ?? ""}
+          onLicenseKeyChange={license.onLicenseKeyChange ?? (() => {})}
         />
       ),
       actions: [
         {
           id: "save",
           label: t("systemConfig.setup.guide.card3Action"),
-          onClick: license.onApplyLicense,
+          onClick: () => license.onApplyLicense?.(),
           variant: "primary",
-          disabled: license.saving,
+          disabled: license.saving ?? false,
         },
       ],
     });

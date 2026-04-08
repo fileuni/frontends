@@ -518,27 +518,6 @@ const adminSettingBundle = defineLocaleBundle({
                 "pathUnavailable": "Config path unavailable",
                 "example": "example",
                 "noteEmpty": "No note available for the current key.",
-                "license": {
-                    "title": "License Management",
-                    "technical": {
-                        "hwId": "HW ID",
-                        "auxId": "AUX ID"
-                    },
-                    "featureCatalog": {
-                        "free": {
-                            "title": "Free",
-                            "desc": "Core features for personal or light usage."
-                        },
-                        "premium": {
-                            "title": "Premium",
-                            "desc": "Unlock advanced features and higher limits."
-                        },
-                        "storage": {
-                            "title": "Storage",
-                            "desc": "Storage-related enhancements and policy controls."
-                        }
-                    }
-                },
                 "storage": {
                     "title": "Storage Pools & Backends",
                     "subtitle": "Visual editor for vfs_storage_hub storage configuration",
@@ -716,10 +695,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "licenseStatus": "License Status",
                         "currentHardwareCode": "Current Hardware Code",
                         "hwFingerprint": "Hardware Fingerprint",
-                        "licenseKey": "License Key",
-                        "licenseInputPlaceholder": "Paste your Base64 license key here...",
                         "expiresAt": "Expires At",
-                        "features": "Enabled Features",
                         "licenseHint": "Get your license key from the official website. The device code is used for hardware binding."
                     },
                     "hints": {
@@ -746,7 +722,6 @@ const adminSettingBundle = defineLocaleBundle({
                         "next": "Next",
                         "done": "Back to settings",
                         "doneSetup": "Back to settings page",
-                        "applyLicense": "Check License",
                         "setAdminPassword": "Set Sign-In Password"
                     },
                     "setupAdvanced": {
@@ -1554,27 +1529,6 @@ const adminSettingBundle = defineLocaleBundle({
                 "pathUnavailable": "配置文件路径不可用",
                 "example": "示例配置",
                 "noteEmpty": "当前项没有可用说明。",
-                "license": {
-                    "title": "授权管理",
-                    "technical": {
-                        "hwId": "HW ID",
-                        "auxId": "AUX ID"
-                    },
-                    "featureCatalog": {
-                        "free": {
-                            "title": "免费版",
-                            "desc": "基础功能可用，适合个人或轻量使用。"
-                        },
-                        "premium": {
-                            "title": "高级授权",
-                            "desc": "解锁高级功能与更高配额。"
-                        },
-                        "storage": {
-                            "title": "存储能力",
-                            "desc": "启用存储相关的增强功能与限制策略。"
-                        }
-                    }
-                },
                 "storage": {
                     "title": "存储池与后端",
                     "subtitle": "可视化编辑 vfs_storage_hub 存储配置",
@@ -1752,10 +1706,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "licenseStatus": "授权状态",
                         "currentHardwareCode": "当前硬件码",
                         "hwFingerprint": "硬件指纹",
-                        "licenseKey": "授权密钥",
-                        "licenseInputPlaceholder": "请输入获取到的 Base64 授权码...",
                         "expiresAt": "到期时间",
-                        "features": "已启用功能",
                         "licenseHint": "请从官网获取授权码。设备代码用于硬件绑定。"
                     },
                     "hints": {
@@ -1782,7 +1733,6 @@ const adminSettingBundle = defineLocaleBundle({
                         "next": "下一步",
                         "done": "返回设置页",
                         "doneSetup": "返回设置页面",
-                        "applyLicense": "检查授权",
                         "setAdminPassword": "设置登录密码"
                     },
                     "setupAdvanced": {
@@ -2590,27 +2540,6 @@ const adminSettingBundle = defineLocaleBundle({
                 "pathUnavailable": "Ruta de configuración no disponible",
                 "example": "ejemplo",
                 "noteEmpty": "No hay nota disponible para la clave actual.",
-                "license": {
-                    "title": "Gestión de licencias",
-                    "technical": {
-                        "hwId": "HW ID",
-                        "auxId": "AUX ID"
-                    },
-                    "featureCatalog": {
-                        "free": {
-                            "title": "Gratis",
-                            "desc": "Funciones básicas para uso personal o ligero."
-                        },
-                        "premium": {
-                            "title": "Premium",
-                            "desc": "Desbloquea funciones avanzadas y límites más altos."
-                        },
-                        "storage": {
-                            "title": "Almacenamiento",
-                            "desc": "Mejoras relacionadas con almacenamiento y controles de política."
-                        }
-                    }
-                },
                 "storage": {
                     "title": "Pools y backends de almacenamiento",
                     "subtitle": "Editor visual para configuración de almacenamiento de vfs_storage_hub",
@@ -2788,10 +2717,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "licenseStatus": "Estado de licencia",
                         "currentHardwareCode": "Current Hardware Code",
                         "hwFingerprint": "Huella de hardware",
-                        "licenseKey": "Clave de licencia",
-                        "licenseInputPlaceholder": "Pegue aquí su clave de licencia Base64...",
                         "expiresAt": "Caduca el",
-                        "features": "Funciones habilitadas",
                         "licenseHint": "Obtenga su clave de licencia en el sitio oficial. El código del dispositivo se usa para vinculación de hardware."
                     },
                     "hints": {
@@ -2818,7 +2744,6 @@ const adminSettingBundle = defineLocaleBundle({
                         "next": "Siguiente",
                         "done": "Ver archivo de configuración completo",
                         "doneSetup": "返回设置页面",
-                        "applyLicense": "Comprobar licencia",
                         "setAdminPassword": "Establecer contraseña de admin"
                     },
                     "setupAdvanced": {
@@ -3626,27 +3551,6 @@ const adminSettingBundle = defineLocaleBundle({
                 "pathUnavailable": "配置文件路径不可用",
                 "example": "示例配置",
                 "noteEmpty": "当前项没有可用说明。",
-                "license": {
-                    "title": "授权管理",
-                    "technical": {
-                        "hwId": "HW ID",
-                        "auxId": "AUX ID"
-                    },
-                    "featureCatalog": {
-                        "free": {
-                            "title": "免费版",
-                            "desc": "基础功能可用，适合个人或轻量使用。"
-                        },
-                        "premium": {
-                            "title": "高级授权",
-                            "desc": "解锁高级功能与更高配额。"
-                        },
-                        "storage": {
-                            "title": "Speicher",
-                            "desc": "启用存储相关的增强功能与限制策略。"
-                        }
-                    }
-                },
                 "storage": {
                     "title": "存储池与后端",
                     "subtitle": "可视化编辑 vfs_storage_hub 存储配置",
@@ -3824,10 +3728,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "licenseStatus": "授权状态",
                         "currentHardwareCode": "Current Hardware Code",
                         "hwFingerprint": "硬件指纹",
-                        "licenseKey": "授权密钥",
-                        "licenseInputPlaceholder": "请输入获取到的 Base64 授权码...",
                         "expiresAt": "Läuft ab am",
-                        "features": "已启用功能",
                         "licenseHint": "请从官网获取授权码。设备代码用于硬件绑定。"
                     },
                     "hints": {
@@ -3854,7 +3755,6 @@ const adminSettingBundle = defineLocaleBundle({
                         "next": "Weiter",
                         "done": "返回设置页",
                         "doneSetup": "返回设置页面",
-                        "applyLicense": "检查授权",
                         "setAdminPassword": "设置登录密码"
                     },
                     "setupAdvanced": {
@@ -4662,27 +4562,6 @@ const adminSettingBundle = defineLocaleBundle({
                 "pathUnavailable": "Chemin de configuration indisponible",
                 "example": "exemple",
                 "noteEmpty": "Aucune note disponible pour la clé actuelle.",
-                "license": {
-                    "title": "Gestion des licences",
-                    "technical": {
-                        "hwId": "HW ID",
-                        "auxId": "AUX ID"
-                    },
-                    "featureCatalog": {
-                        "free": {
-                            "title": "Gratuit",
-                            "desc": "Fonctionnalités de base pour un usage personnel ou léger."
-                        },
-                        "premium": {
-                            "title": "Premium",
-                            "desc": "Déverrouille des fonctionnalités avancées et des limites plus élevées."
-                        },
-                        "storage": {
-                            "title": "Stockage",
-                            "desc": "Améliorations liées au stockage et contrôles de politiques."
-                        }
-                    }
-                },
                 "storage": {
                     "title": "Pools et backends de stockage",
                     "subtitle": "Éditeur visuel de configuration de stockage vfs_storage_hub",
@@ -4860,10 +4739,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "licenseStatus": "Statut de licence",
                         "currentHardwareCode": "Current Hardware Code",
                         "hwFingerprint": "Empreinte matérielle",
-                        "licenseKey": "Clé de licence",
-                        "licenseInputPlaceholder": "Collez ici votre clé de licence Base64...",
                         "expiresAt": "Expire le",
-                        "features": "Fonctionnalités activées",
                         "licenseHint": "Obtenez votre clé de licence sur le site officiel. Le code appareil est utilisé pour la liaison matérielle."
                     },
                     "hints": {
@@ -4890,7 +4766,6 @@ const adminSettingBundle = defineLocaleBundle({
                         "next": "Suivant",
                         "done": "Voir le fichier de configuration complet",
                         "doneSetup": "返回设置页面",
-                        "applyLicense": "Vérifier la licence",
                         "setAdminPassword": "Définir le mot de passe admin"
                     },
                     "setupAdvanced": {
@@ -5698,27 +5573,6 @@ const adminSettingBundle = defineLocaleBundle({
                 "pathUnavailable": "Путь конфигурации недоступен",
                 "example": "пример",
                 "noteEmpty": "Для текущего ключа заметка недоступна.",
-                "license": {
-                    "title": "Управление лицензией",
-                    "technical": {
-                        "hwId": "HW ID",
-                        "auxId": "AUX ID"
-                    },
-                    "featureCatalog": {
-                        "free": {
-                            "title": "Бесплатно",
-                            "desc": "Базовые функции для персонального или легкого использования."
-                        },
-                        "premium": {
-                            "title": "Премиум",
-                            "desc": "Открывает расширенные функции и более высокие лимиты."
-                        },
-                        "storage": {
-                            "title": "Хранилище",
-                            "desc": "Улучшения, связанные с хранилищем, и контроль политик."
-                        }
-                    }
-                },
                 "storage": {
                     "title": "Пулы и backend'ы хранилища",
                     "subtitle": "Визуальный редактор конфигурации хранения vfs_storage_hub",
@@ -5896,10 +5750,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "licenseStatus": "Статус лицензии",
                         "currentHardwareCode": "Current Hardware Code",
                         "hwFingerprint": "Аппаратный отпечаток",
-                        "licenseKey": "Лицензионный ключ",
-                        "licenseInputPlaceholder": "Вставьте сюда ваш Base64 лицензионный ключ...",
                         "expiresAt": "Истекает",
-                        "features": "Включенные функции",
                         "licenseHint": "Получите лицензионный ключ на официальном сайте. Код устройства используется для привязки к оборудованию."
                     },
                     "hints": {
@@ -5926,7 +5777,6 @@ const adminSettingBundle = defineLocaleBundle({
                         "next": "Далее",
                         "done": "Просмотреть полный файл конфигурации",
                         "doneSetup": "返回设置页面",
-                        "applyLicense": "Проверить лицензию",
                         "setAdminPassword": "Установить пароль администратора"
                     },
                     "setupAdvanced": {
@@ -6734,27 +6584,6 @@ const adminSettingBundle = defineLocaleBundle({
                 "pathUnavailable": "設定パスを取得できません",
                 "example": "例",
                 "noteEmpty": "現在のキーに対応するノートはありません。",
-                "license": {
-                    "title": "ライセンス管理",
-                    "technical": {
-                        "hwId": "HW ID",
-                        "auxId": "AUX ID"
-                    },
-                    "featureCatalog": {
-                        "free": {
-                            "title": "Free",
-                            "desc": "個人または軽負荷利用向けの基本機能。"
-                        },
-                        "premium": {
-                            "title": "Premium",
-                            "desc": "高度な機能と上位制限を解放します。"
-                        },
-                        "storage": {
-                            "title": "ストレージ",
-                            "desc": "ストレージ関連の拡張とポリシー制御。"
-                        }
-                    }
-                },
                 "storage": {
                     "title": "ストレージプールとバックエンド",
                     "subtitle": "vfs_storage_hub ストレージ設定のビジュアルエディター",
@@ -6932,10 +6761,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "licenseStatus": "ライセンス状態",
                         "currentHardwareCode": "Current Hardware Code",
                         "hwFingerprint": "ハードウェアフィンガープリント",
-                        "licenseKey": "ライセンスキー",
-                        "licenseInputPlaceholder": "Base64 ライセンスキーをここに貼り付け...",
                         "expiresAt": "有効期限",
-                        "features": "有効機能",
                         "licenseHint": "ライセンスキーは公式サイトから取得してください。デバイスコードはハードウェアバインディングに使用されます。"
                     },
                     "hints": {
@@ -6962,7 +6788,6 @@ const adminSettingBundle = defineLocaleBundle({
                         "next": "次へ",
                         "done": "完全な設定ファイルを表示",
                         "doneSetup": "返回设置页面",
-                        "applyLicense": "ライセンスを確認",
                         "setAdminPassword": "管理者パスワードを設定"
                     },
                     "setupAdvanced": {

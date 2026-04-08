@@ -62,6 +62,11 @@ export const LoginView = () => {
   const savedUsers = Object.values(usersMap);
   const isTurnstileCaptcha = captchaData?.captcha_type === "turnstile";
   const captchaTokenForSubmit = isTurnstileCaptcha ? turnstileToken : (captchaData?.token ?? "");
+  
+  const hash = window.location.hash.slice(1);
+  const hashParams = new URLSearchParams(hash);
+  const redirect = hashParams.get('redirect') || undefined;
+  
   useEffect(() => {
     void fetchCapabilities();
   }, [fetchCapabilities]);
@@ -298,10 +303,16 @@ export const LoginView = () => {
         <>
           <div className="text-center mb-10">
               <div className="inline-flex items-center justify-center mb-4">
-                <img src="/favicon.svg" alt={t('common.logoAlt')} width={64} height={64} className="shadow-lg" />
+                <img
+                  src={capabilities?.branding?.logo_url || "/favicon.svg"}
+                  alt={capabilities?.branding?.logo_name || t('common.logoAlt')}
+                  width={64}
+                  height={64}
+                  className="shadow-lg"
+                />
               </div>
               <h1 className={cn("text-3xl font-black tracking-tight mb-1", isDark ? "text-white" : "text-gray-900")}>
-                {t("common.login")}
+                {capabilities?.branding?.logo_name || t("common.login")}
               </h1>
               <p className="text-sm opacity-50 font-bold tracking-widest">
                 {t("auth.loginTitle")}

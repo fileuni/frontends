@@ -15,6 +15,7 @@ import {
   extractConfigValidationErrorsFromException,
   normalizeConfigNotes,
   type ConfigWorkbenchLicenseStatus,
+  type UseConfigWorkbenchControllerOptions,
   useConfigWorkbenchController,
 } from "@/components/setting/useConfigWorkbenchController";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
@@ -137,12 +138,12 @@ export const SystemConfigAdmin = () => {
   }, []);
 
   const updateAdminLicense = useCallback(
-    async (nextLicenseKey: string) => {
+    async (update: Parameters<NonNullable<UseConfigWorkbenchControllerOptions<ConfigWorkbenchLicenseStatus>["updateLicense"]>>[0]) => {
       const res = await client.POST("/api/v1/users/admin/license/update", {
-        body: { license_key: nextLicenseKey },
+        body: update,
       });
-      if (!res.data?.["success"]) {
-        return { clearLicenseKey: false };
+      if (res.error) {
+        throw res.error;
       }
       const nextStatus = await extractData<ConfigWorkbenchLicenseStatus>(
         client.GET("/api/v1/users/admin/license/status"),
@@ -150,7 +151,6 @@ export const SystemConfigAdmin = () => {
       addToast(t("admin.saveSuccess"), "success");
       return {
         licenseStatus: nextStatus,
-        clearLicenseKey: true,
       };
     },
     [addToast, t],

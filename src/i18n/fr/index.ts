@@ -21,15 +21,16 @@ import { tosByResourceLocale } from '../bundles/tos';
 import { filemanagerByResourceLocale } from '../bundles/filemanager';
 import { playerByResourceLocale } from '../bundles/player';
 import { welcomeByResourceLocale } from '../bundles/welcome';
-import { languagesByResourceLocale } from '../bundles/languages';
-import { themesByResourceLocale } from '../bundles/themes';
 
 const translation = {
   "about": aboutByResourceLocale.fr,
   "admin": {
     ...adminByResourceLocale.fr,
     "settings": adminSettingByResourceLocale.fr.admin.settings,
-    "config": adminSettingByResourceLocale.fr.admin.config,
+    "config": {
+      ...adminByResourceLocale.fr.config,
+      ...adminSettingByResourceLocale.fr.admin.config,
+    },
   },
   "auth": authByResourceLocale.fr,
   "blacklist": blacklistByResourceLocale.fr,
@@ -40,7 +41,6 @@ const translation = {
   "errors": errorsByResourceLocale.fr,
   "filemanager": filemanagerByResourceLocale.fr,
   "forgotPassword": forgotPasswordByResourceLocale.fr,
-  "languages": languagesByResourceLocale.fr,
   "launcher": launcherByResourceLocale.fr,
   "nav": navByResourceLocale.fr,
   "pages": pagesByResourceLocale.fr,
@@ -50,7 +50,6 @@ const translation = {
   "security": securityByResourceLocale.fr,
   "sessions": sessionsByResourceLocale.fr,
   "systemConfig": systemConfigByResourceLocale.fr,
-  "themes": themesByResourceLocale.fr,
   "tos": tosByResourceLocale.fr,
   "welcome": welcomeByResourceLocale.fr,
 } as const;

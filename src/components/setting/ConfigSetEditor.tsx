@@ -17,6 +17,7 @@ import {
   extractConfigValidationErrorsFromException,
   normalizeConfigNotes,
   type ConfigWorkbenchLicenseStatus,
+  type UseConfigWorkbenchControllerOptions,
   useConfigWorkbenchController,
 } from "@/components/setting/useConfigWorkbenchController";
 import { SettingSetupEntryView } from "@/components/setting/SettingSetupEntryView";
@@ -117,16 +118,15 @@ export const ConfigSetEditor: React.FC = () => {
   }, []);
 
   const updateConfigSetLicense = useCallback(
-    async (nextLicenseKey: string) => {
+    async (update: Parameters<NonNullable<UseConfigWorkbenchControllerOptions<ConfigWorkbenchLicenseStatus>["updateLicense"]>>[0]) => {
       const nextStatus = await extractData<ConfigWorkbenchLicenseStatus>(
         client.POST("/api/v1/config-set/license/update", {
-          body: { license_key: nextLicenseKey },
+          body: update,
         }),
       );
       addToast(t("admin.config.saveSuccess"), "success");
       return {
         licenseStatus: nextStatus,
-        clearLicenseKey: false,
       };
     },
     [addToast, t],

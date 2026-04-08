@@ -19,9 +19,7 @@ import { filemanagerByResourceLocale } from '../bundles/filemanager';
 import { pagesByResourceLocale } from '../bundles/pages';
 import { systemConfigByResourceLocale } from '../bundles/systemConfig';
 import { blacklistByResourceLocale } from '../bundles/blacklist';
-import { languagesByResourceLocale } from '../bundles/languages';
 import { playerByResourceLocale } from '../bundles/player';
-import { themesByResourceLocale } from '../bundles/themes';
 import { welcomeByResourceLocale } from '../bundles/welcome';
 
 const translation = {
@@ -29,7 +27,10 @@ const translation = {
   admin: {
     ...adminByResourceLocale['zh-Hant'],
     settings: adminSettingByResourceLocale['zh-Hant'].admin.settings,
-    config: adminSettingByResourceLocale['zh-Hant'].admin.config,
+    config: {
+      ...adminByResourceLocale['zh-Hant'].config,
+      ...adminSettingByResourceLocale['zh-Hant'].admin.config,
+    },
   },
   auth: authByResourceLocale['zh-Hant'],
   blacklist: blacklistByResourceLocale['zh-Hant'],
@@ -40,7 +41,6 @@ const translation = {
   errors: errorsByResourceLocale['zh-Hant'],
   filemanager: filemanagerByResourceLocale['zh-Hant'],
   forgotPassword: forgotPasswordByResourceLocale['zh-Hant'],
-  languages: languagesByResourceLocale['zh-Hant'],
   launcher: launcherByResourceLocale['zh-Hant'],
   nav: navByResourceLocale['zh-Hant'],
   pages: pagesByResourceLocale['zh-Hant'],
@@ -50,7 +50,6 @@ const translation = {
   security: securityByResourceLocale['zh-Hant'],
   sessions: sessionsByResourceLocale['zh-Hant'],
   systemConfig: systemConfigByResourceLocale['zh-Hant'],
-  themes: themesByResourceLocale['zh-Hant'],
   tos: tosByResourceLocale['zh-Hant'],
   welcome: welcomeByResourceLocale['zh-Hant'],
 } as const;

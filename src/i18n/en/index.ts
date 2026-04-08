@@ -19,9 +19,7 @@ import { filemanagerByResourceLocale } from '../bundles/filemanager';
 import { pagesByResourceLocale } from '../bundles/pages';
 import { systemConfigByResourceLocale } from '../bundles/systemConfig';
 import { blacklistByResourceLocale } from '../bundles/blacklist';
-import { languagesByResourceLocale } from '../bundles/languages';
 import { playerByResourceLocale } from '../bundles/player';
-import { themesByResourceLocale } from '../bundles/themes';
 import { welcomeByResourceLocale } from '../bundles/welcome';
 
 const translation = {
@@ -29,7 +27,10 @@ const translation = {
   "admin": {
     ...adminByResourceLocale.en,
     "settings": adminSettingByResourceLocale.en.admin.settings,
-    "config": adminSettingByResourceLocale.en.admin.config,
+    "config": {
+      ...adminByResourceLocale.en.config,
+      ...adminSettingByResourceLocale.en.admin.config,
+    },
   },
   "auth": authByResourceLocale.en,
   "blacklist": blacklistByResourceLocale.en,
@@ -40,7 +41,6 @@ const translation = {
   "errors": errorsByResourceLocale.en,
   "filemanager": filemanagerByResourceLocale.en,
   "forgotPassword": forgotPasswordByResourceLocale.en,
-  "languages": languagesByResourceLocale.en,
   "launcher": launcherByResourceLocale.en,
   "nav": navByResourceLocale.en,
   "pages": pagesByResourceLocale.en,
@@ -50,7 +50,6 @@ const translation = {
   "security": securityByResourceLocale.en,
   "sessions": sessionsByResourceLocale.en,
   "systemConfig": systemConfigByResourceLocale.en,
-  "themes": themesByResourceLocale.en,
   "tos": tosByResourceLocale.en,
   "welcome": welcomeByResourceLocale.en,
 } as const;

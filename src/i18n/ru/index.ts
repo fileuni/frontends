@@ -21,15 +21,16 @@ import { tosByResourceLocale } from '../bundles/tos';
 import { filemanagerByResourceLocale } from '../bundles/filemanager';
 import { playerByResourceLocale } from '../bundles/player';
 import { welcomeByResourceLocale } from '../bundles/welcome';
-import { languagesByResourceLocale } from '../bundles/languages';
-import { themesByResourceLocale } from '../bundles/themes';
 
 const translation = {
   "about": aboutByResourceLocale.ru,
   "admin": {
     ...adminByResourceLocale.ru,
     "settings": adminSettingByResourceLocale.ru.admin.settings,
-    "config": adminSettingByResourceLocale.ru.admin.config,
+    "config": {
+      ...adminByResourceLocale.ru.config,
+      ...adminSettingByResourceLocale.ru.admin.config,
+    },
   },
   "auth": authByResourceLocale.ru,
   "blacklist": blacklistByResourceLocale.ru,
@@ -40,7 +41,6 @@ const translation = {
   "errors": errorsByResourceLocale.ru,
   "filemanager": filemanagerByResourceLocale.ru,
   "forgotPassword": forgotPasswordByResourceLocale.ru,
-  "languages": languagesByResourceLocale.ru,
   "launcher": launcherByResourceLocale.ru,
   "nav": navByResourceLocale.ru,
   "pages": pagesByResourceLocale.ru,
@@ -50,7 +50,6 @@ const translation = {
   "security": securityByResourceLocale.ru,
   "sessions": sessionsByResourceLocale.ru,
   "systemConfig": systemConfigByResourceLocale.ru,
-  "themes": themesByResourceLocale.ru,
   "tos": tosByResourceLocale.ru,
   "welcome": welcomeByResourceLocale.ru,
 } as const;

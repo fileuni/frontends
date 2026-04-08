@@ -296,6 +296,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description Branding configuration for UI customization */
+        BrandingConfig: {
+            /** @description Custom footer text/HTML */
+            footer_text?: string | null;
+            /** @description Custom site/app name */
+            logo_name?: string | null;
+            /** @description Custom logo image URL */
+            logo_url?: string | null;
+        };
         ConfigError: {
             column: number;
             key?: string | null;
@@ -324,20 +333,22 @@ export interface components {
         };
         ConfigSetLicenseStatusResponse: {
             aux_id: string;
+            branding: components["schemas"]["LicenseItemStatus"];
+            branding_config: components["schemas"]["BrandingConfig"];
             /** Format: int32 */
             current_users: number;
             device_code: string;
-            /** Format: date-time */
-            expires_at?: string | null;
-            features: string[];
             hw_id: string;
-            is_valid: boolean;
             /** Format: int32 */
             max_users: number;
-            msg: string;
+            registration: components["schemas"]["LicenseItemStatus"];
+            storage_encryption: components["schemas"]["LicenseItemStatus"];
         };
         ConfigSetLicenseUpdateRequest: {
-            license_key: string;
+            branding?: null | components["schemas"]["BrandingConfig"];
+            branding_license?: null | components["schemas"]["LicenseItem"];
+            registration?: null | components["schemas"]["LicenseItem"];
+            storage_encryption?: null | components["schemas"]["LicenseItem"];
         };
         ConfigSetStatusResponse: {
             is_config_set_mode: boolean;
@@ -402,6 +413,22 @@ export interface components {
         KvCheckRequest: {
             connection_string: string;
             kv_type: string;
+        };
+        /** @description Individual license item with key and toggle */
+        LicenseItem: {
+            /** @description Whether this license-controlled feature is enabled */
+            enabled: boolean;
+            /** @description License key string (Base64) */
+            key?: string | null;
+        };
+        /** @description Individual license validation result */
+        LicenseItemStatus: {
+            enabled: boolean;
+            /** Format: date-time */
+            expires_at?: string | null;
+            features: string[];
+            is_valid: boolean;
+            msg: string;
         };
         MediaBackendProbeReq: {
             backend: string;
@@ -877,17 +904,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description License key verified */
+            /** @description Update license and branding */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-            /** @description Invalid license key */
-            400: {
                 headers: {
                     [name: string]: unknown;
                 };

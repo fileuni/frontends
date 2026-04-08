@@ -198,8 +198,8 @@ export function Launcher() {
         return null;
       }
     },
-    updateLicense: async (nextLicenseKey) => {
-      await safeInvoke<void>("update_license_key", { licenseKey: nextLicenseKey });
+    updateLicense: async (update) => {
+      await safeInvoke<void>("update_license_key", { update });
       toast.success(t("admin.saveSuccess"));
       const nextStatus = await safeInvoke<LicenseStatusPayload>("get_license_status");
       return {
