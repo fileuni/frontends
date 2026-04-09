@@ -98,8 +98,6 @@ export interface SystemConfigWorkbenchProps {
   quickSettingsLicense?: {
     isValid: boolean;
     msg?: string | undefined;
-    currentUsers: number;
-    maxUsers: number;
     deviceCode: string;
     hwId?: string | undefined;
     auxId?: string | undefined;

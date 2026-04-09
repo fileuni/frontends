@@ -4527,11 +4527,9 @@ export interface components {
             branding: components["schemas"]["LicenseItemStatus"];
             branding_config: components["schemas"]["BrandingConfig"];
             /** Format: int32 */
-            current_users: number;
             device_code: string;
             hw_id: string;
             /** Format: int32 */
-            max_users: number;
             registration: components["schemas"]["LicenseItemStatus"];
             storage_encryption: components["schemas"]["LicenseItemStatus"];
         };

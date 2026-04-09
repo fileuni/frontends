@@ -19,8 +19,6 @@ export type ConfigWorkbenchLicenseStatus = {
     logo_name?: string | null;
     footer_text?: string | null;
   };
-  max_users: number;
-  current_users: number;
   hw_id: string;
   aux_id: string;
   device_code: string;
@@ -82,8 +80,6 @@ export type UseConfigWorkbenchControllerOptions<
 export type ConfigWorkbenchQuickSettingsLicense = {
   isValid: boolean;
   msg: string | undefined;
-  currentUsers: number;
-  maxUsers: number;
   deviceCode: string;
   hwId?: string;
   auxId?: string;
@@ -360,8 +356,6 @@ export const useConfigWorkbenchController = <
     return {
       isValid: hasAnyValid,
       msg: hasAnyValid ? undefined : reg.msg,
-      currentUsers: licenseStatus.current_users,
-      maxUsers: licenseStatus.max_users,
       deviceCode: licenseStatus.device_code,
       hwId: licenseStatus.hw_id,
       auxId: licenseStatus.aux_id,

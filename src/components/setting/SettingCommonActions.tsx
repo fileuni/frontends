@@ -80,8 +80,6 @@ export interface SettingLicenseStatusLike {
     logo_name?: string | null;
     footer_text?: string | null;
   };
-  max_users: number;
-  current_users: number;
   device_code?: string;
   hw_id?: string;
   aux_id?: string;
