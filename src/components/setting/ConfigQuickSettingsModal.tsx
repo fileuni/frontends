@@ -1377,7 +1377,7 @@ export const parsePostgresDsn = (
   "dbHost" | "dbPort" | "dbUser" | "dbPass" | "dbName"
 > => {
   const match = dsn.match(
-    /^postgres:\/\/(?:([^:\/?#@]*)(?::([^@\/?#]*))?@)?([^:\/?#]+)?(?::(\d+))?\/([^?#]+)$/i,
+    /^postgres:\/\/(?:([^:/?#@]*)(?::([^@/?#]*))?@)?([^:/?#]+)?(?::(\d+))?\/([^?#]+)$/i,
   );
   if (!match) {
     return {
@@ -1432,7 +1432,7 @@ export const parseRedisUrl = (
   "cacheHost" | "cachePort" | "cacheUser" | "cachePass" | "cacheUseTls"
 > => {
   const match = url.match(
-    /^(rediss?):\/\/(?:([^:\/?#@]*)(?::([^@\/?#]*))?@)?([^:\/?#]+)?(?::(\d+))?/i,
+    /^(rediss?):\/\/(?:([^:/?#@]*)(?::([^@/?#]*))?@)?([^:/?#]+)?(?::(\d+))?/i,
   );
   if (!match) {
     return {

@@ -268,7 +268,7 @@ export const SystemConfigAdmin = () => {
     return null;
   }, [pendingAdminPassword, t]);
 
-  const handleReload = useCallback(async () => {
+  const handleSaveConfig = useCallback(async () => {
     if (reloading || testing) return;
     const passwordError = validatePendingAdminPassword();
     if (passwordError) {
@@ -283,7 +283,7 @@ export const SystemConfigAdmin = () => {
       const currentContent = content;
       await withTimeout(
         extractData<{ message?: string }>(
-          client.POST("/api/v1/admin/system/config/reload", {
+          client.POST("/api/v1/admin/system/config/save", {
             body: { toml_content: currentContent },
             headers: { "X-No-Toast": "true" },
           }),
@@ -322,19 +322,19 @@ export const SystemConfigAdmin = () => {
         setPendingAdminPassword("");
       }
 
-      addToast(t("admin.config.reloadSuccess"), "success");
+      addToast(t("admin.config.saveSuccess"), "success");
       const diffSummary = formatLineDiffSummary(
         calculateLineDiffStats(currentContent, serverContent),
       );
       if (serverContent !== currentContent) {
-        const summary = `${t("admin.config.reloadSuccess")} ${diffSummary}`;
+        const summary = `${t("admin.config.saveSuccess")} ${diffSummary}`;
         setSummary(summary, "warning");
       } else {
-        const summary = `${t("admin.config.reloadSuccess")} ${diffSummary}`;
+        const summary = `${t("admin.config.saveSuccess")} ${diffSummary}`;
         setSummary(summary, "success");
       }
     } catch (e) {
-      console.error("Config reload exception:", e);
+      console.error("Config save exception:", e);
       const errData = extractConfigValidationErrorsFromException(e);
       if (errData.length > 0) {
         const firstError = errData[0];
@@ -345,7 +345,7 @@ export const SystemConfigAdmin = () => {
           return;
         }
         setValidationErrors(errData);
-        const summary = `${t("admin.config.reloadFailed")}: ${firstError.message}`;
+        const summary = `${t("admin.config.saveFailed")}: ${firstError.message}`;
         setSummary(summary, "error");
         addToast(summary, "error");
       } else {
@@ -403,9 +403,9 @@ export const SystemConfigAdmin = () => {
         ...(settingLicenseBinding ? { license: settingLicenseBinding } : {}),
         storage: {
           onPrimaryAction: () => {
-            void handleReload();
+            void handleSaveConfig();
           },
-          primaryActionLabel: t("admin.config.saveAndReload"),
+          primaryActionLabel: t("admin.config.saveConfig"),
         },
       }),
     [
@@ -418,7 +418,7 @@ export const SystemConfigAdmin = () => {
       setContent,
       sharedCapabilities,
       settingLicenseBinding,
-      handleReload,
+      handleSaveConfig,
     ],
   );
 
@@ -455,9 +455,9 @@ export const SystemConfigAdmin = () => {
           disabled: testing || reloading,
         }}
         primaryAction={{
-          label: t("admin.config.saveAndReload"),
+          label: t("admin.config.saveConfig"),
           onClick: () => {
-            void handleReload();
+            void handleSaveConfig();
           },
           disabled: testing || reloading,
         }}
@@ -472,7 +472,7 @@ export const SystemConfigAdmin = () => {
           busy: testing || reloading,
           onChange: setContent,
           onTest: handleTest,
-          onSave: handleReload,
+          onSave: handleSaveConfig,
           onCancel: resetToSaved,
           showCancel: false,
           onClearValidationErrors: clearValidationErrors,

@@ -888,7 +888,7 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         onCancel={onCancel || (() => {})}
         title={editorTitle || t("admin.config.title")}
         testLabel={testLabel || t("admin.config.testContent")}
-        saveLabel={saveLabel || t("admin.config.saveAndReload")}
+        saveLabel={saveLabel || t("admin.config.saveConfig")}
         cancelLabel={t("common.cancel")}
         showCancel={showCancel}
         isDark={isDark}

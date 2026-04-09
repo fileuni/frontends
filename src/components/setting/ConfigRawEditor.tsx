@@ -90,7 +90,7 @@ const resolveActivePathFromDoc = (doc: Text, lineNumber: number): string => {
   for (let i = lineNumber; i >= 1; i -= 1) {
     const line = doc.line(i).text.trim();
     if (line.startsWith("[") && line.endsWith("]")) {
-      currentSection = line.replace(/[\[\]]/g, "");
+      currentSection = line.slice(1, -1);
       break;
     }
   }
