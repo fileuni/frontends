@@ -3904,12 +3904,21 @@ export interface components {
         };
         /** @description Branding configuration for UI customization */
         BrandingConfig: {
-            /** @description Custom footer text/HTML */
-            footer_text?: string | null;
-            /** @description Custom site/app name */
-            logo_name?: string | null;
-            /** @description Custom logo image URL */
-            logo_url?: string | null;
+            /**
+             * @description Custom footer text/HTML
+             * @default null
+             */
+            footer_text: string | null;
+            /**
+             * @description Custom site/app name
+             * @default null
+             */
+            logo_name: string | null;
+            /**
+             * @description Custom logo image URL
+             * @default null
+             */
+            logo_url: string | null;
         };
         /** @enum {string} */
         CaptchaDifficulty: "Easy" | "Medium" | "Hard";
@@ -4507,10 +4516,16 @@ export interface components {
         };
         /** @description Individual license item with key and toggle */
         LicenseItem: {
-            /** @description Whether this license-controlled feature is enabled */
+            /**
+             * @description Whether this license-controlled feature is enabled
+             * @default false
+             */
             enabled: boolean;
-            /** @description License key string (Base64) */
-            key?: string | null;
+            /**
+             * @description License key string (Base64)
+             * @default null
+             */
+            key: string | null;
         };
         /** @description Individual license validation result */
         LicenseItemStatus: {
@@ -4526,10 +4541,8 @@ export interface components {
             aux_id: string;
             branding: components["schemas"]["LicenseItemStatus"];
             branding_config: components["schemas"]["BrandingConfig"];
-            /** Format: int32 */
             device_code: string;
             hw_id: string;
-            /** Format: int32 */
             registration: components["schemas"]["LicenseItemStatus"];
             storage_encryption: components["schemas"]["LicenseItemStatus"];
         };
