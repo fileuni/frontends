@@ -175,10 +175,10 @@ export const SystemConfigAdmin = () => {
     validationErrors,
     setValidationErrors,
     clearValidationErrors,
-    reloadSummary,
-    reloadSummaryLevel,
+    saveSummary,
+    saveSummaryLevel,
     setSummary,
-    clearReloadSummary,
+    clearSaveSummary,
     runtimeOs,
     systemHardware,
     loadWorkbench,
@@ -278,7 +278,7 @@ export const SystemConfigAdmin = () => {
     }
     setReloading(true);
     clearValidationErrors();
-    clearReloadSummary();
+    clearSaveSummary();
     try {
       const currentContent = content;
       await withTimeout(
@@ -358,7 +358,7 @@ export const SystemConfigAdmin = () => {
     }
   }, [
     addToast,
-    clearReloadSummary,
+      clearSaveSummary,
     clearValidationErrors,
     configPath,
     content,
@@ -477,8 +477,8 @@ export const SystemConfigAdmin = () => {
           showCancel: false,
           onClearValidationErrors: clearValidationErrors,
           restartNotice: t("admin.config.restartNotice"),
-          reloadSummary,
-          reloadSummaryLevel,
+          saveSummary,
+          saveSummaryLevel,
           runtimeOs,
           systemHardware,
           onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,

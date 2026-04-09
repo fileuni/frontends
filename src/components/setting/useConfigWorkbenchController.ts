@@ -210,8 +210,8 @@ export const useConfigWorkbenchController = <
   const [savedContent, setSavedContent] = useState("");
   const [notes, setNotes] = useState<Record<string, ConfigNoteEntry>>({});
   const [validationErrors, setValidationErrors] = useState<ConfigError[]>([]);
-  const [reloadSummary, setReloadSummary] = useState("");
-  const [reloadSummaryLevel, setReloadSummaryLevel] =
+  const [saveSummary, setSaveSummary] = useState("");
+  const [saveSummaryLevel, setSaveSummaryLevel] =
     useState<ConfigWorkbenchSummaryLevel>("info");
   const [runtimeOs, setRuntimeOs] = useState("");
   const [systemHardware, setSystemHardware] =
@@ -221,9 +221,9 @@ export const useConfigWorkbenchController = <
   const [licenseSaving, setLicenseSaving] = useState(false);
   const [draftLicenseKey, setDraftLicenseKey] = useState("");
 
-  const clearReloadSummary = useCallback(() => {
-    setReloadSummary("");
-    setReloadSummaryLevel("info");
+  const clearSaveSummary = useCallback(() => {
+    setSaveSummary("");
+    setSaveSummaryLevel("info");
   }, []);
 
   const applyWorkbenchData = useCallback(
@@ -233,14 +233,14 @@ export const useConfigWorkbenchController = <
       setSavedContent(data.content);
       setNotes(data.notes);
       setValidationErrors([]);
-      clearReloadSummary();
+      clearSaveSummary();
       setRuntimeOs(data.runtimeOs ?? "");
       setSystemHardware(data.systemHardware ?? null);
       if ("licenseStatus" in data) {
         setLicenseStatus(data.licenseStatus ?? null);
       }
     },
-    [clearReloadSummary],
+    [clearSaveSummary],
   );
 
   const loadWorkbench = useCallback(async () => {
@@ -313,8 +313,8 @@ export const useConfigWorkbenchController = <
 
   const setSummary = useCallback(
     (summary: string, level: ConfigWorkbenchSummaryLevel) => {
-      setReloadSummary(summary);
-      setReloadSummaryLevel(level);
+      setSaveSummary(summary);
+      setSaveSummaryLevel(level);
     },
     [],
   );
@@ -384,10 +384,10 @@ export const useConfigWorkbenchController = <
     validationErrors,
     setValidationErrors,
     clearValidationErrors,
-    reloadSummary,
-    reloadSummaryLevel,
+    saveSummary,
+    saveSummaryLevel,
     setSummary,
-    clearReloadSummary,
+    clearSaveSummary,
     runtimeOs,
     setRuntimeOs,
     systemHardware,

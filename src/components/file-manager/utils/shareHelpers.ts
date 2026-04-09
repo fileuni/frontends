@@ -30,7 +30,7 @@ export interface ShareClipboardLabels {
 type ShareCreateBody = ApiComponents['schemas']['ShareRequest'];
 type ShareUpdateBody = ApiComponents['schemas']['UpdateShareRequest'];
 
-const DIRECT_SHARE_SEGMENT_RE = /^[\p{L}\p{N} ._-()[\]]+$/u;
+const DIRECT_SHARE_SEGMENT_RE = /^[\p{L}\p{N} ._()[\]-]+$/u;
 
 export const EMPTY_SHARE_FORM: ShareFormState = {
   password: '',

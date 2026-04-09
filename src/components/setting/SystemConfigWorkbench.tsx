@@ -93,8 +93,8 @@ export interface SystemConfigWorkbenchProps {
   showCancel?: boolean | undefined;
   allowSaveWithoutChanges?: boolean | undefined;
   forceEnableSave?: boolean | undefined;
-  reloadSummary?: string | undefined;
-  reloadSummaryLevel?: "success" | "warning" | "error" | "info" | undefined;
+  saveSummary?: string | undefined;
+  saveSummaryLevel?: "success" | "warning" | "error" | "info" | undefined;
   restartNotice?: string | undefined;
   quickSettingsLicense?: {
     isValid: boolean;
@@ -160,8 +160,8 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
   showCancel = false,
   allowSaveWithoutChanges = false,
   forceEnableSave = false,
-  reloadSummary = "",
-  reloadSummaryLevel = "info",
+  saveSummary = "",
+  saveSummaryLevel = "info",
   restartNotice,
   quickSettingsLicense,
   quickSettingsEnabled = true,
@@ -922,29 +922,29 @@ export const SystemConfigWorkbench: React.FC<SystemConfigWorkbenchProps> = ({
         }
       />
 
-      {reloadSummary && (
+      {saveSummary && (
         <div
           className={cn(
             "mt-3 rounded-xl px-3 py-2 text-sm sm:text-sm font-mono border font-bold shadow-sm transition-colors",
-            reloadSummaryLevel === "success" &&
+            saveSummaryLevel === "success" &&
               (isDark
                 ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
                 : "bg-emerald-50 text-emerald-900 border-emerald-200"),
-            reloadSummaryLevel === "warning" &&
+            saveSummaryLevel === "warning" &&
               (isDark
                 ? "bg-amber-500/10 text-amber-200 border-amber-500/30"
                 : "bg-amber-50 text-amber-900 border-amber-200"),
-            reloadSummaryLevel === "error" &&
+            saveSummaryLevel === "error" &&
               (isDark
                 ? "bg-red-500/10 text-red-200 border-red-500/30"
                 : "bg-red-50 text-red-900 border-red-200"),
-            reloadSummaryLevel === "info" &&
+            saveSummaryLevel === "info" &&
               (isDark
                 ? "bg-white/5 text-white/70 border-white/10"
                 : "bg-slate-100 text-slate-800 border-slate-200"),
           )}
         >
-          {reloadSummary}
+          {saveSummary}
         </div>
       )}
 
