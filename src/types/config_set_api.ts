@@ -52,7 +52,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/config-set/config-reload": {
+    "/api/v1/config-set/config-save": {
         parameters: {
             query?: never;
             header?: never;
@@ -61,7 +61,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["config_reload"];
+        post: operations["config_save"];
         delete?: never;
         options?: never;
         head?: never;
@@ -632,7 +632,7 @@ export interface operations {
             };
         };
     };
-    config_reload: {
+    config_save: {
         parameters: {
             query?: never;
             header?: never;
