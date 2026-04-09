@@ -85,6 +85,7 @@ type LocalPathOverrides = {
     trace?: never;
   };
   "/api/v1/admin/system/backup/run-local": PostPathItem<BaseResponse<string>>;
+  "/api/v1/admin/system/config/save": MainPaths["/api/v1/admin/system/config/save"];
 };
 
 export type paths = Omit<MainPaths, keyof LocalPathOverrides> & ConfigSetPaths & LocalPathOverrides;
