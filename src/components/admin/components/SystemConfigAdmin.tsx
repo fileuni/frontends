@@ -289,7 +289,7 @@ export const SystemConfigAdmin = () => {
           }),
         ),
         20_000,
-        "Config reload request timeout",
+        "Config save request timeout",
       );
 
       const refreshed = await withTimeout(
@@ -327,10 +327,10 @@ export const SystemConfigAdmin = () => {
         calculateLineDiffStats(currentContent, serverContent),
       );
       if (serverContent !== currentContent) {
-        const summary = `Config synced with server: ${diffSummary}`;
+        const summary = `${t("admin.config.reloadSuccess")} ${diffSummary}`;
         setSummary(summary, "warning");
       } else {
-        const summary = `Config synced with server: ${diffSummary}`;
+        const summary = `${t("admin.config.reloadSuccess")} ${diffSummary}`;
         setSummary(summary, "success");
       }
     } catch (e) {

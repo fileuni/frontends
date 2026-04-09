@@ -1812,6 +1812,7 @@ export function Launcher() {
                   showCancel: false,
                   reloadSummary: configSummary,
                   reloadSummaryLevel: configSummaryLevel,
+                  restartNotice: t("admin.config.restartNotice"),
                   runtimeOs: osInfo?.os_type,
                   systemHardware: osInfo,
                   onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,

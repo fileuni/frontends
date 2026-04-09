@@ -76,23 +76,6 @@ export const ConfigSetEditor: React.FC = () => {
     const currentContent = template?.current_config_content ?? "";
     setConfigExists(template?.config_exists === true);
 
-    let licenseKeyFromToml: string | undefined;
-    try {
-      const parsed = toml.parse(currentContent) as unknown;
-      if (typeof parsed === "object" && parsed !== null) {
-        const root = parsed as Record<string, unknown>;
-        const license = root["license"];
-        if (typeof license === "object" && license !== null) {
-          const value = (license as Record<string, unknown>)["license_key"];
-          if (typeof value === "string" && value.trim().length > 0) {
-            licenseKeyFromToml = value;
-          }
-        }
-      }
-    } catch {
-      // Ignore broken inline parse while loading the editor.
-    }
-
     return {
       configPath: template?.current_config_path ?? "",
       content: currentContent,
@@ -102,7 +85,6 @@ export const ConfigSetEditor: React.FC = () => {
           ? capabilities.runtime_os
           : "",
       systemHardware: osInfo ?? null,
-      ...(licenseKeyFromToml ? { licenseKey: licenseKeyFromToml } : {}),
     };
   }, []);
 
@@ -607,6 +589,7 @@ export const ConfigSetEditor: React.FC = () => {
         forceEnableSave: true,
         editorTitle: t("systemConfig.setup.editor.title"),
         testLabel: t("systemConfig.setup.editor.check"),
+        restartNotice: t("admin.config.restartNotice"),
         onClearValidationErrors: clearValidationErrors,
         runtimeOs,
         systemHardware,

@@ -9,19 +9,17 @@ import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { Button } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/common/PasswordInput";
-import type { ConfigWorkbenchLicenseStatus } from "./useConfigWorkbenchController";
+import type {
+  ConfigWorkbenchLicenseStatus,
+  ConfigWorkbenchLicenseUpdate,
+} from "./useConfigWorkbenchController";
 
 export interface LicenseManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   status: ConfigWorkbenchLicenseStatus | null;
   saving: boolean;
-  onApplyLicense: (update: {
-    registration?: { key?: string; enabled: boolean };
-    branding_license?: { key?: string; enabled: boolean };
-    storage_encryption?: { key?: string; enabled: boolean };
-    branding?: { logo_url?: string; logo_name?: string; footer_text?: string };
-  }) => void;
+  onApplyLicense: (update: ConfigWorkbenchLicenseUpdate) => void;
 }
 
 const LicenseItemCard: React.FC<{
@@ -32,7 +30,7 @@ const LicenseItemCard: React.FC<{
   msg: string;
   expiresAt?: string | null;
   saving: boolean;
-  onApply: (key: string, enabled: boolean) => void;
+  onApply: (key: string | null, enabled: boolean) => void;
   isDark: boolean;
 }> = ({ title, featureKey: _featureKey, isValid, enabled, msg, expiresAt, saving, onApply, isDark }) => {
   const { t, i18n } = useTranslation();
@@ -72,7 +70,7 @@ const LicenseItemCard: React.FC<{
           </span>
           <button
             type="button"
-            onClick={() => onApply(localKey, !enabled)}
+            onClick={() => onApply(null, !enabled)}
             className={cn(
               "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
               enabled ? "bg-primary" : "bg-slate-200 dark:bg-slate-800"
@@ -136,6 +134,23 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
   const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
   const isDark = resolvedTheme === "dark";
+
+  const normalizeLicenseKey = (key: string | null): string | null => {
+    if (key === null) {
+      return null;
+    }
+    return key.trim();
+  };
+
+  const buildBrandingUpdate = (
+    patch: Partial<ConfigWorkbenchLicenseStatus["branding_config"]>,
+  ): ConfigWorkbenchLicenseUpdate => ({
+    branding: {
+      logo_url: patch.logo_url ?? status?.branding_config.logo_url ?? null,
+      logo_name: patch.logo_name ?? status?.branding_config.logo_name ?? null,
+      footer_text: patch.footer_text ?? status?.branding_config.footer_text ?? null,
+    },
+  });
 
   useEscapeToCloseTopLayer({
     active: isOpen,
@@ -230,7 +245,11 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               expiresAt={status?.registration.expires_at ?? null}
               saving={saving}
               isDark={isDark}
-              onApply={(key, enabled) => onApplyLicense({ registration: { key: key || "", enabled } })}
+              onApply={(key, enabled) =>
+                onApplyLicense({
+                  registration: { key: normalizeLicenseKey(key), enabled },
+                })
+              }
             />
 
             {/* Branding License */}
@@ -243,7 +262,11 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               expiresAt={status?.branding.expires_at ?? null}
               saving={saving}
               isDark={isDark}
-              onApply={(key, enabled) => onApplyLicense({ branding_license: { key: key || "", enabled } })}
+              onApply={(key, enabled) =>
+                onApplyLicense({
+                  branding_license: { key: normalizeLicenseKey(key), enabled },
+                })
+              }
             />
 
             {/* Storage Encryption License */}
@@ -256,7 +279,11 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               expiresAt={status?.storage_encryption.expires_at ?? null}
               saving={saving}
               isDark={isDark}
-              onApply={(key, enabled) => onApplyLicense({ storage_encryption: { key: key || "", enabled } })}
+              onApply={(key, enabled) =>
+                onApplyLicense({
+                  storage_encryption: { key: normalizeLicenseKey(key), enabled },
+                })
+              }
             />
 
             {/* Branding Details Config (Only if authorized) */}
@@ -282,7 +309,9 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                       )}
                       placeholder={t("admin.config.license.placeholders.logoUrl")}
                       defaultValue={status.branding_config?.logo_url || ""}
-                      onBlur={(e) => onApplyLicense({ branding: { logo_url: e.target.value } })}
+                      onBlur={(e) =>
+                        onApplyLicense(buildBrandingUpdate({ logo_url: e.target.value }))
+                      }
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -296,7 +325,9 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                       )}
                       placeholder={t("admin.config.license.placeholders.logoName")}
                       defaultValue={status.branding_config?.logo_name || ""}
-                      onBlur={(e) => onApplyLicense({ branding: { logo_name: e.target.value } })}
+                      onBlur={(e) =>
+                        onApplyLicense(buildBrandingUpdate({ logo_name: e.target.value }))
+                      }
                     />
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
@@ -310,7 +341,9 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
                       )}
                       placeholder={t("admin.config.license.placeholders.footerText")}
                       defaultValue={status.branding_config?.footer_text || ""}
-                      onBlur={(e) => onApplyLicense({ branding: { footer_text: e.target.value } })}
+                      onBlur={(e) =>
+                        onApplyLicense(buildBrandingUpdate({ footer_text: e.target.value }))
+                      }
                     />
                   </div>
                 </div>

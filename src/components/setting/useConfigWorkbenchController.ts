@@ -15,13 +15,24 @@ export type ConfigWorkbenchLicenseStatus = {
   branding: ConfigWorkbenchLicenseItemStatus;
   storage_encryption: ConfigWorkbenchLicenseItemStatus;
   branding_config: {
-    logo_url?: string | null;
-    logo_name?: string | null;
-    footer_text?: string | null;
+    logo_url: string | null;
+    logo_name: string | null;
+    footer_text: string | null;
   };
   hw_id: string;
   aux_id: string;
   device_code: string;
+};
+
+export type ConfigWorkbenchLicenseUpdate = {
+  registration?: { key: string | null; enabled: boolean } | null;
+  branding_license?: { key: string | null; enabled: boolean } | null;
+  storage_encryption?: { key: string | null; enabled: boolean } | null;
+  branding?: {
+    logo_url: string | null;
+    logo_name: string | null;
+    footer_text: string | null;
+  } | null;
 };
 
 export type ConfigWorkbenchSummaryLevel =
@@ -63,16 +74,7 @@ export type UseConfigWorkbenchControllerOptions<
   load?: (() => Promise<ConfigWorkbenchData<TLicenseStatus>>) | undefined;
   loadLicenseStatus?: (() => Promise<TLicenseStatus | null>) | undefined;
   updateLicense?: (
-    licenseUpdate: {
-      registration?: { key?: string | null; enabled: boolean } | null;
-      branding_license?: { key?: string | null; enabled: boolean } | null;
-      storage_encryption?: { key?: string | null; enabled: boolean } | null;
-      branding?: {
-        logo_url?: string | null;
-        logo_name?: string | null;
-        footer_text?: string | null;
-      } | null;
-    }
+    licenseUpdate: ConfigWorkbenchLicenseUpdate,
   ) => Promise<LicenseUpdateResult<TLicenseStatus>>;
   onLicenseError?: ((error: unknown) => void | Promise<void>) | undefined;
 };
@@ -90,16 +92,7 @@ export type ConfigWorkbenchQuickSettingsLicense = {
   saving: boolean;
   onLicenseKeyChange: (value: string) => void;
   onApplyLicense: (
-    update?: {
-      registration?: { key?: string | null; enabled: boolean } | null;
-      branding_license?: { key?: string | null; enabled: boolean } | null;
-      storage_encryption?: { key?: string | null; enabled: boolean } | null;
-      branding?: {
-        logo_url?: string | null;
-        logo_name?: string | null;
-        footer_text?: string | null;
-      } | null;
-    }
+    update?: ConfigWorkbenchLicenseUpdate,
   ) => void;
 };
 

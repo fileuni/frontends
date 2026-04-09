@@ -30,6 +30,7 @@ import type {
 } from "./ExternalDependencyConfigModal";
 import type { ProbeExternalTool } from "./SharedFfmpegField";
 import type { SystemHardwareInfo } from "./ConfigQuickSettingsModal";
+import type { ConfigWorkbenchLicenseUpdate } from "./useConfigWorkbenchController";
 
 export type DatabaseCheckPayload = {
   databaseType: "sqlite" | "postgres";
@@ -335,16 +336,7 @@ interface BuildSettingCommonActionsParams {
     status?: SettingLicenseStatusLike | null;
     licenseKey?: string;
     onLicenseKeyChange?: (value: string) => void;
-    onApplyLicense?: (update?: {
-      registration?: { key?: string | null; enabled: boolean } | null;
-      branding_license?: { key?: string | null; enabled: boolean } | null;
-      storage_encryption?: { key?: string | null; enabled: boolean } | null;
-      branding?: {
-        logo_url?: string | null;
-        logo_name?: string | null;
-        footer_text?: string | null;
-      } | null;
-    }) => void;
+    onApplyLicense?: (update?: ConfigWorkbenchLicenseUpdate) => void;
     saving?: boolean;
   };
   storage: {

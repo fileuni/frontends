@@ -4889,7 +4889,6 @@ export interface components {
             is_dir: boolean;
             is_public: boolean;
             seo_noindex: boolean;
-            user_id: string;
         };
         PublicShareWriteQuery: {
             password?: string | null;
@@ -7022,7 +7021,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Configuration reloaded */
+            /** @description Configuration saved */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7031,7 +7030,7 @@ export interface operations {
                     "application/json": components["schemas"]["Resp"];
                 };
             };
-            /** @description Configuration reload failed */
+            /** @description Configuration save failed */
             400: {
                 headers: {
                     [name: string]: unknown;
