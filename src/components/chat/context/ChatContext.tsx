@@ -220,7 +220,7 @@ export const ChatProvider: React.FC<{
   const [isHistoryHydrated, setIsHistoryHydrated] = useState(false);
 
   const trimHistory = useCallback((next: Message[]) => {
-    let trimmed = [...next];
+    const trimmed = [...next];
     const encoder = new TextEncoder();
     while (trimmed.length > MAX_HISTORY_COUNT) trimmed.shift();
     while (trimmed.length > 0) {

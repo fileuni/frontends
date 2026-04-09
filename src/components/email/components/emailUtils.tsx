@@ -34,7 +34,7 @@ export const resolveAttachmentFileName = (
     return decodeURIComponent(utf8Name[1]);
   }
 
-  const asciiName = contentDisposition.match(/filename=\"?([^\";]+)\"?/i);
+  const asciiName = contentDisposition.match(/filename="?([^";]+)"?/i);
   if (asciiName && asciiName[1]) {
     return asciiName[1];
   }
