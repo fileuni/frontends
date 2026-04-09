@@ -128,7 +128,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
         body: buildShareUpdateBody(file, form),
       }));
 
-      addToast(t('common.manage') || 'Updated successfully', 'success');
+      addToast(t('filemanager.shareModal.successTitle'), 'success');
       void loadFiles();
       setCompletedShareId(file.id);
       setMainTab('view');
@@ -143,6 +143,23 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     setCompletedShareId(null);
     setForm(EMPTY_SHARE_FORM);
     onClose();
+  };
+
+  const handleDeleteShare = async () => {
+    if (!file?.id) return;
+    setLoading(true);
+    try {
+      await extractData(client.DELETE('/api/v1/file/shares/{id}', {
+        params: { path: { id: file.id } },
+      }));
+      addToast(t('filemanager.shareModal.cancelShareBtn'), 'success');
+      void loadFiles();
+      handleClose();
+    } catch (error: unknown) {
+      showApiErrorToast(addToast, t, error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const copyToClipboard = async (text: string) => {
@@ -173,6 +190,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
         directUrl: t('filemanager.shareModal.copyFormat.url'),
         directUser: t('filemanager.shareModal.copyFormat.user'),
         directPass: t('filemanager.shareModal.copyFormat.pass'),
+        directUserHint: t('filemanager.shareModal.copyFormat.userHint'),
       },
       fileName: file?.name || '',
       shareUrl,
@@ -310,17 +328,20 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                         <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 font-mono text-sm text-primary/60 break-all leading-relaxed shadow-inner">
                           {directUrl}
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-2">
                           <div className="space-y-1">
                             <span className="flex items-center gap-1.5 text-[14px] font-black opacity-40"><User size={10} /> {t('filemanager.shareModal.directUser')}</span>
                             <div className="bg-black/20 p-2 rounded-lg font-mono text-sm text-center border border-white/5 opacity-80 text-primary">fileuni</div>
+                            <p className="text-[14px] opacity-50 font-medium">{t('filemanager.shareModal.directUserHint')}</p>
                           </div>
-                          <div className="space-y-1">
-                            <span className="flex items-center gap-1.5 text-[14px] font-black opacity-40"><Lock size={10} /> {t('filemanager.shareModal.directPass')}</span>
-                            <div className="bg-black/20 p-2 rounded-lg font-mono text-sm text-center border border-white/5 truncate opacity-80 text-yellow-500">
-                              {(form.passwordMode === 'change' || !isEditing) && form.password ? form.password : '********'}
+                          {hasCurrentPassword && (
+                            <div className="space-y-1">
+                              <span className="flex items-center gap-1.5 text-[14px] font-black opacity-40"><Lock size={10} /> {t('filemanager.shareModal.directPass')}</span>
+                              <div className="bg-black/20 p-2 rounded-lg font-mono text-sm text-center border border-white/5 truncate opacity-80 text-yellow-500">
+                                {(form.passwordMode === 'change' || !isEditing) && form.password ? form.password : '********'}
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -367,9 +388,9 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                   <div className="space-y-2">
                       <div className="text-[14px] font-black tracking-widest opacity-40 ml-1 flex items-center gap-2"><Lock size={10} /> {t('filemanager.shareModal.passwordLabel')}</div>
                     {isEditing && (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {(['keep', 'remove', 'change'] as const).map((mode) => (
-                          <button key={mode} type="button" onClick={() => setForm({...form, passwordMode: mode})} className={cn("flex-1 py-1.5 rounded-lg text-[14px] font-black transition-all border whitespace-nowrap px-2", form.passwordMode === mode ? (mode === 'remove' ? "bg-red-500/20 border-red-500/50 text-red-500" : "bg-primary/20 border-primary text-primary") : "bg-white/5 border-transparent opacity-40")}>{mode === 'keep' ? t('filemanager.shareModal.keepOldPassword') : mode === 'remove' ? t('filemanager.shareModal.removePassword') : t('common.manage')}</button>
+                          <button key={mode} type="button" onClick={() => setForm({...form, passwordMode: mode})} className={cn("min-h-10 rounded-xl text-sm font-black transition-all border px-3 text-center", form.passwordMode === mode ? (mode === 'remove' ? "bg-red-500/20 border-red-500/50 text-red-500" : mode === 'change' ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" : "bg-primary/15 border-primary/40 text-primary") : "bg-white/5 border-white/10 opacity-70 hover:opacity-100")}>{mode === 'keep' ? t('filemanager.shareModal.keepOldPassword') : mode === 'remove' ? t('filemanager.shareModal.removePassword') : t('filemanager.shareModal.changePassword')}</button>
                         ))}
                       </div>
                     )}
@@ -395,12 +416,12 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                   {file?.is_dir && (
                     <div className="space-y-2">
                       <div className="text-[14px] font-black tracking-widest opacity-40 ml-1">{t('filemanager.shareModal.writePermissionsLabel')}</div>
-                      <div className="grid grid-cols-1 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <button
                           type="button"
                           onClick={() => setForm(prev => ({ ...prev, canUpload: !prev.canUpload }))}
                           className={cn(
-                            "h-9 rounded-xl border text-sm font-black tracking-widest transition-all flex items-center justify-center gap-2",
+                            "min-h-10 rounded-xl border text-sm font-black transition-all flex items-center justify-center gap-2 px-3",
                             form.canUpload ? "bg-primary/20 border-primary text-primary" : "bg-white/5 border-white/5 opacity-50 hover:opacity-100"
                           )}
                         >
@@ -410,7 +431,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                           type="button"
                           onClick={() => setForm(prev => ({ ...prev, canUpdateNoCreate: !prev.canUpdateNoCreate }))}
                           className={cn(
-                            "h-9 rounded-xl border text-sm font-black tracking-widest transition-all flex items-center justify-center gap-2",
+                            "min-h-10 rounded-xl border text-sm font-black transition-all flex items-center justify-center gap-2 px-3",
                             form.canUpdateNoCreate ? "bg-primary/20 border-primary text-primary" : "bg-white/5 border-white/5 opacity-50 hover:opacity-100"
                           )}
                         >
@@ -420,14 +441,14 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                           type="button"
                           onClick={() => setForm(prev => ({ ...prev, canDelete: !prev.canDelete }))}
                           className={cn(
-                            "h-9 rounded-xl border text-sm font-black tracking-widest transition-all flex items-center justify-center gap-2",
+                            "min-h-10 rounded-xl border text-sm font-black transition-all flex items-center justify-center gap-2 px-3",
                             form.canDelete ? "bg-red-500/20 border-red-500 text-red-500" : "bg-white/5 border-white/5 opacity-50 hover:opacity-100"
                           )}
                         >
                           <Trash2 size={18} /> {t('filemanager.shareModal.permissionDelete')}
                         </button>
                       </div>
-                      <p className="text-[14px] opacity-40 font-medium px-1">{t('filemanager.shareModal.writePermissionsDesc')}</p>
+                      <p className="text-[14px] opacity-50 font-medium px-1">{form.canUpload || form.canUpdateNoCreate || form.canDelete ? t('filemanager.shareModal.writePermissionsEnabledHint') : t('filemanager.shareModal.writePermissionsDisabledHint')}</p>
                     </div>
                   )}
                 </div>
@@ -462,9 +483,14 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
             </div>
 
             <div className="p-4 pt-0 border-t border-white/5 bg-white/[0.01] shrink-0">
-              <Button className="w-full h-10 rounded-xl text-sm font-black tracking-widest shadow-lg shadow-primary/20" onClick={isEditing ? handleUpdateShare : handleCreateShare} disabled={loading}>
-                {loading ? <span className="loading-spinner animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" /> : isEditing ? t('filemanager.shareModal.updateBtn') : t('filemanager.shareModal.generateBtn')}
-              </Button>
+                <Button className="w-full h-11 rounded-xl text-sm font-black tracking-widest shadow-lg shadow-primary/20" onClick={isEditing ? handleUpdateShare : handleCreateShare} disabled={loading}>
+                  {loading ? <span className="loading-spinner animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" /> : isEditing ? t('filemanager.shareModal.updateBtn') : t('filemanager.shareModal.generateBtn')}
+                </Button>
+              {isEditing && file?.id && (
+                <Button variant="outline" className="mt-3 w-full h-10 rounded-xl text-sm font-black tracking-widest border-red-500/30 text-red-500 hover:bg-red-500/10" onClick={handleDeleteShare} disabled={loading}>
+                  {t('filemanager.shareModal.cancelShareBtn')}
+                </Button>
+              )}
             </div>
           </div>
         )}

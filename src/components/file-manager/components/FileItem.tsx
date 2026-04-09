@@ -30,7 +30,7 @@ interface FileItemProps {
  * MacOS Style Status Component
  * Favorites use refined small dots that don't break list alignment.
  */
-const StatusIcons = ({ file, mode, className }: { file: FileInfo, mode: 'grid' | 'list', className?: string }) => {
+const StatusIcons = ({ file, mode, className, onAction, shareLabel }: { file: FileInfo, mode: 'grid' | 'list', className?: string, onAction?: ((action: string, target: FileInfo | null) => void) | undefined, shareLabel: string }) => {
   const isFavorite = file.favorite_color > 0;
   const isShared = file.has_active_share;
   const isDirect = file.has_active_direct;
@@ -47,7 +47,19 @@ const StatusIcons = ({ file, mode, className }: { file: FileInfo, mode: 'grid' |
         {isFavorite && (
           <div className={cn("w-2 h-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.2)]", favoriteColorClass)} />
         )}
-        {isShared && <Share2 size={10} className="text-primary" />}
+        {isShared && (
+          <button
+            type="button"
+            className="rounded-full p-0.5 text-primary transition hover:bg-primary/20"
+            onClick={(event) => {
+              event.stopPropagation();
+              onAction?.('share', file);
+            }}
+            title={shareLabel}
+          >
+            <Share2 size={10} className="text-primary" />
+          </button>
+        )}
         {isDirect && <Zap size={10} className="text-yellow-500" fill="currentColor" />}
         {isMountRoot && mountFailed && <AlertTriangle size={10} className="text-amber-300" />}
       </div>
@@ -61,7 +73,19 @@ const StatusIcons = ({ file, mode, className }: { file: FileInfo, mode: 'grid' |
       {isFavorite && (
         <div className={cn("w-2 h-2 rounded-full shrink-0 shadow-sm", favoriteColorClass)} />
       )}
-      {isShared && <Share2 size={18} className="text-primary shrink-0" />}
+      {isShared && (
+        <button
+          type="button"
+          className="rounded-lg p-1 text-primary transition hover:bg-primary/10 shrink-0"
+          onClick={(event) => {
+            event.stopPropagation();
+            onAction?.('share', file);
+          }}
+          title={shareLabel}
+        >
+          <Share2 size={18} className="text-primary shrink-0" />
+        </button>
+      )}
       {isDirect && <Zap size={18} className="text-yellow-500 shrink-0" fill="currentColor" />}
       {isMountRoot && mountFailed && <AlertTriangle size={18} className="text-amber-400 shrink-0" />}
     </div>
@@ -216,7 +240,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
           !selected && !isOver && "bg-white/[0.03] hover:border-white/10 hover:bg-white/[0.05]"
         )}
       >
-        <StatusIcons file={file} mode="grid" className="absolute top-2 right-2 z-10" />
+        <StatusIcons file={file} mode="grid" className="absolute top-2 right-2 z-10" onAction={onAction} shareLabel={t('filemanager.actions.share')} />
 
         <div className="mb-3 mt-2 transform group-hover:scale-110 transition-transform duration-300">
           {file.is_dir ? (
@@ -270,7 +294,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
     >
       {/* Fixed width prefix area for alignment */}
       <div className="shrink-0 flex items-center gap-3 min-w-[72px] justify-end">
-        <StatusIcons file={file} mode="list" />
+        <StatusIcons file={file} mode="list" onAction={onAction} shareLabel={t('filemanager.actions.share')} />
         {file.is_dir ? (
           <FileIcon name={displayName || file.name} isDir={file.is_dir} size={24} />
         ) : (

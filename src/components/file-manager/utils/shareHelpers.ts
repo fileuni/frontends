@@ -25,6 +25,7 @@ export interface ShareClipboardLabels {
   directUrl: string;
   directUser: string;
   directPass: string;
+  directUserHint: string;
 }
 
 type ShareCreateBody = ApiComponents['schemas']['ShareRequest'];
@@ -207,7 +208,7 @@ export const buildShareClipboardText = ({
   }
 
   if (directEnabled) {
-    info += `\n\n${labels.directTitle}\n${labels.directUrl}: ${directUrl}\n${labels.directUser}: fileuni`;
+    info += `\n\n${labels.directTitle}\n${labels.directUrl}: ${directUrl}\n${labels.directUser}: fileuni\n${labels.directUserHint}`;
     if (hasVisiblePassword) {
       info += `\n${labels.directPass}: ${password}`;
     } else if (hasExistingPassword) {

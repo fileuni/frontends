@@ -758,7 +758,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/system/config/save": {
+    "/api/v1/admin/system/config/reload": {
         parameters: {
             query?: never;
             header?: never;
@@ -767,7 +767,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["config_save"];
+        post: operations["config_reload"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4065,8 +4065,8 @@ export interface components {
             /** @description Raw TOML content */
             toml_content: string;
         };
-        /** @description Config save response */
-        ConfigSaveResponse: {
+        /** @description Config reload response */
+        ConfigReloadResponse: {
             /** @description Result message */
             message: string;
         };
@@ -7008,7 +7008,7 @@ export interface operations {
             };
         };
     };
-    config_save: {
+    config_reload: {
         parameters: {
             query?: never;
             header?: never;

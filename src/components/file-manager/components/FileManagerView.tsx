@@ -308,8 +308,8 @@ export const FileManagerView = () => {
       case "remove_from_history": removeFromHistory(paths); deselectAll(); break;
       case "clear_history": clearHistory(); break;
       case "download": if (target) downloadFile(target.path); break;
-      case "share": if (target) setActiveShareFile(target); break;
       case "cancel_share": if (selectedIds.size > 0) { for (const id of Array.from(selectedIds)) cancelShare(id); deselectAll(); } else if (target?.id) cancelShare(target.id); break;
+      case "share": if (target) setActiveShareFile(target); break;
       case "copy": case "cut": {
         const items: ClipboardItem[] = paths.map((p) =>
           buildClipboardItem(p, action as 'copy' | 'cut'),
