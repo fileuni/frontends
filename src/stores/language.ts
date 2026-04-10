@@ -5,12 +5,17 @@ import { detectFrontendLocale, toHtmlLang, toI18nextLocale } from '@/i18n/locale
 import {
   AUTO_LOCALE_PREFERENCE,
   FILEUNI_LANGUAGE_STORAGE_KEY,
+  parseLocalePreference,
   resolveLocalePreference,
   type LocalePreference,
 } from '@/i18n/core';
 import { storageHub } from '../lib/storageHub';
 
 export type Language = LocalePreference;
+
+function normalizeLanguagePreference(value: string | null | undefined): Language {
+  return parseLocalePreference(value) ?? AUTO_LOCALE_PREFERENCE;
+}
 
 interface LanguageState {
   language: Language;
@@ -25,15 +30,21 @@ export const useLanguageStore = create<LanguageState>()(
     (set) => ({
       language: AUTO_LOCALE_PREFERENCE,
       setLanguage: (lang) => {
-        set({ language: lang });
-        applyLanguage(lang);
+        const normalized = normalizeLanguagePreference(lang);
+        set({ language: normalized });
+        applyLanguage(normalized);
       },
     }),
     {
       name: FILEUNI_LANGUAGE_STORAGE_KEY,
       storage: createJSONStorage(() => storageHub.createZustandStorage()),
       onRehydrateStorage: () => (state) => {
-        if (state) applyLanguage(state.language);
+        if (!state) return;
+        const normalized = normalizeLanguagePreference(state.language);
+        if (state.language !== normalized) {
+          state.language = normalized;
+        }
+        applyLanguage(normalized);
       }
     }
   )
