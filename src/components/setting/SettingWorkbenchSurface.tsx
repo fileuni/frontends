@@ -59,12 +59,12 @@ export const SettingWorkbenchSurface: React.FC<
   const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
 
   const headerActions = (
-    <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
+    <div className="flex w-full flex-wrap items-stretch gap-2 lg:w-auto lg:justify-end">
       <button
         type="button"
         onClick={testAction.onClick}
         disabled={testAction.disabled}
-        className="h-9 rounded-full border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-200 dark:hover:bg-white/10 sm:px-4"
+        className="h-9 min-w-0 flex-1 rounded-full border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-200 dark:hover:bg-white/10 sm:flex-none sm:px-4"
       >
         {testAction.label}
       </button>
@@ -72,15 +72,15 @@ export const SettingWorkbenchSurface: React.FC<
         type="button"
         onClick={primaryAction.onClick}
         disabled={primaryAction.disabled}
-        className="h-9 rounded-full bg-primary px-3 text-sm font-black text-white shadow-sm transition-colors hover:opacity-90 disabled:opacity-50 sm:px-4"
+        className="h-9 min-w-0 flex-1 rounded-full bg-primary px-3 text-sm font-black text-white shadow-sm transition-colors hover:opacity-90 disabled:opacity-50 sm:flex-none sm:px-4"
       >
         {primaryAction.label}
       </button>
-      <div className="inline-flex min-w-0 items-center rounded-full border border-slate-200 bg-white p-1 dark:border-white/10 dark:bg-white/[0.03]">
+      <div className="inline-flex w-full min-w-0 items-center justify-center rounded-full border border-slate-200 bg-white p-1 dark:border-white/10 dark:bg-white/[0.03] sm:w-auto sm:justify-start">
         <button
           type="button"
           onClick={() => setViewMode("visual")}
-          className={`h-9 rounded-full px-3 text-sm font-black transition-colors ${
+          className={`h-9 min-w-0 flex-1 rounded-full px-3 text-sm font-black transition-colors sm:flex-none ${
             viewMode === "visual"
               ? "bg-primary text-white shadow-sm"
               : "text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/10"
@@ -91,7 +91,7 @@ export const SettingWorkbenchSurface: React.FC<
         <button
           type="button"
           onClick={() => setViewMode("raw")}
-          className={`h-9 rounded-full px-3 text-sm font-black transition-colors ${
+          className={`h-9 min-w-0 flex-1 rounded-full px-3 text-sm font-black transition-colors sm:flex-none ${
             viewMode === "raw"
               ? "bg-primary text-white shadow-sm"
               : "text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/10"

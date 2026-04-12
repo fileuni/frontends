@@ -9,7 +9,7 @@ type Props = {
 
 export const AdminPage = ({ children, className, withBottomPadding = true }: Props) => {
   return (
-    <div className={cn('space-y-8', withBottomPadding && 'pb-20', className)}>
+    <div className={cn('space-y-6 sm:space-y-8', withBottomPadding && 'pb-20', className)}>
       {children}
     </div>
   );

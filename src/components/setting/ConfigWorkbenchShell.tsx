@@ -66,7 +66,7 @@ export const ConfigWorkbenchShell: React.FC<ConfigWorkbenchShellProps> = ({
               </div>
             )}
             {configPath && (
-              <div className="mt-2 flex min-w-0 items-start gap-2">
+              <div className="mt-2 flex min-w-0 flex-col items-stretch gap-2 sm:flex-row sm:items-start">
                 <div
                   className={cn(
                     "min-w-0 flex-1 rounded-xl border px-2.5 py-1.5 font-mono text-[11px] leading-5 sm:text-xs break-all",
@@ -82,14 +82,14 @@ export const ConfigWorkbenchShell: React.FC<ConfigWorkbenchShellProps> = ({
             )}
           </div>
           {(headerActions || onClose) && (
-            <div className="flex flex-wrap items-center gap-2 lg:justify-end lg:pl-4">
+            <div className="flex w-full flex-wrap items-stretch gap-2 lg:w-auto lg:justify-end lg:pl-4">
               {headerActions}
               {onClose && (
                 <button
                   type="button"
                   onClick={onClose}
                   className={cn(
-                    "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
+                    "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors",
                     isDark
                       ? "border-white/20 text-slate-300 hover:bg-white/10"
                       : "border-slate-200 text-slate-600 hover:bg-slate-100",

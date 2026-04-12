@@ -66,8 +66,8 @@ export const PublicCenteredCard: React.FC<Props> = ({
   return (
     <div
       className={cn(
-        'min-h-screen flex items-center justify-center p-6 bg-background relative overflow-hidden',
-        topPadding && 'pt-16',
+        'min-h-[100dvh] flex justify-start sm:justify-center px-3 py-[calc(0.75rem+var(--safe-area-top,0px))] pb-[calc(0.75rem+var(--safe-area-bottom,0px))] sm:p-6 bg-background relative overflow-hidden',
+        topPadding && 'pt-[calc(4rem+var(--safe-area-top,0px))] sm:pt-16',
         outerClassName,
       )}
     >
@@ -82,7 +82,7 @@ export const PublicCenteredCard: React.FC<Props> = ({
       >
         <div
           className={cn(
-            'backdrop-blur-xl border rounded-[2.5rem] overflow-hidden shadow-2xl transition-all',
+            'backdrop-blur-xl border rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl transition-all',
             isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200',
             cardClassName,
           )}
@@ -91,7 +91,7 @@ export const PublicCenteredCard: React.FC<Props> = ({
             <div className={cn('h-1.5 opacity-80', accentBarClassName)} />
           )}
 
-          <div className={cn('p-10 pt-12', bodyClassName)}>
+          <div className={cn('p-5 pt-6 sm:p-10 sm:pt-12', bodyClassName)}>
             {renderChildren(children, { isDark })}
           </div>
         </div>

@@ -119,63 +119,86 @@ export const FileManagerNavigationBar = () => {
 
   return (
     <div className="px-6 py-2 bg-white/[0.02] border-b border-white/5 shrink-0">
-      <div className="flex items-center gap-3">
-        {!isEditMode && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 shrink-0 rounded-lg text-primary/60 hover:text-primary"
-            onClick={startEditMode}
-            aria-label={t('filemanager.editPath') || 'Edit path'}
-            title={t('filemanager.editPath') || 'Edit path'}
-          >
-            <PencilLine size={16} />
-          </Button>
-        )}
-        <div className={cn(
-          "flex-1 h-9 rounded-xl flex items-center px-3 transition-all relative overflow-hidden",
-          isEditMode ? "bg-white/10 border border-primary/30" : "hover:bg-white/5 border border-transparent cursor-text"
-        )}>
-          {!isEditMode ? (
-            <>
-              <button type="button" className="absolute inset-0" onClick={startEditMode} aria-label={t('filemanager.editPath') || 'Edit path'} />
-              <div className="relative z-10 flex items-center gap-1 overflow-x-auto no-scrollbar font-bold text-sm w-full h-full">
-              <Button variant="ghost" className="p-1.5 h-9 rounded-lg text-primary/60 hover:text-primary shrink-0" onClick={(e) => { e.stopPropagation(); setCurrentPath("/"); }}>
-                <HardDrive size={18} />
-              </Button>
-              {pathSegments.length > 4 && (
-                <><span className="opacity-10 shrink-0">/</span><span className="px-1 opacity-40 font-black">...</span></>
-              )}
-              {pathSegments.map((segment, i) => {
-                if (pathSegments.length > 4 && i < pathSegments.length - 4) return null;
-                return (
-                  <React.Fragment key={`/${pathSegments.slice(0, i + 1).join('/')}`}>
-                    <span className="opacity-10 shrink-0">/</span>
-                    <Button variant="ghost" className="px-2 h-9 rounded-lg whitespace-nowrap shrink-0 opacity-60 hover:opacity-100 max-w-[120px]" onClick={(e) => { e.stopPropagation(); navigateTo(i); }}>
-                      <span className="truncate">{segment}</span>
+      <div className={cn(
+        "rounded-xl border transition-all",
+        isEditMode ? "bg-white/10 border-primary/30" : "bg-white/[0.02] border-white/5"
+      )}>
+        {!isEditMode ? (
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 px-3 py-2">
+            <button
+              type="button"
+              className="min-w-0 cursor-text rounded-lg px-0.5 py-0.5 outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              onClick={startEditMode}
+              aria-label={t('filemanager.editPath') || 'Edit path'}
+            >
+              <div className="flex min-w-0 flex-wrap items-start gap-x-1 gap-y-1 font-bold text-sm leading-5">
+                <Button
+                  variant="ghost"
+                  className="h-9 shrink-0 rounded-lg p-1.5 text-primary/60 hover:text-primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentPath("/");
+                  }}
+                >
+                  <HardDrive size={18} />
+                </Button>
+
+                {pathSegments.length === 0 && (
+                  <span className="flex min-h-9 items-center px-2 text-sm font-black tracking-[0.12em] text-primary/40">
+                    /
+                  </span>
+                )}
+
+                {pathSegments.map((segment, i) => (
+                  <div
+                    key={`/${pathSegments.slice(0, i + 1).join('/')}`}
+                    className="flex min-w-0 max-w-full items-start gap-1"
+                  >
+                    <span className="pt-2 text-primary/20 shrink-0">/</span>
+                    <Button
+                      variant="ghost"
+                      className="h-auto min-h-9 min-w-0 max-w-full items-start justify-start rounded-lg px-2 py-1.5 text-left opacity-65 hover:opacity-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigateTo(i);
+                      }}
+                    >
+                      <span className="block break-all leading-5">{segment}</span>
                     </Button>
-                  </React.Fragment>
-                );
-              })}
-              <div className="flex-1 h-full min-w-[20px]" />
+                  </div>
+                ))}
               </div>
-            </>
-          ) : (
-            <form onSubmit={handleAddressSubmit} className="flex items-center w-full gap-2">
-              <Input
-                ref={addressInputRef}
-                className="bg-transparent border-none p-0 h-full text-sm font-mono focus-visible:ring-0 focus-visible:ring-offset-0"
-                value={pathInput}
-                onChange={(e) => setPathInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape') {
-                    e.preventDefault();
-                    cancelEditMode();
-                  }
-                }}
-                placeholder={t('filemanager.pathPlaceholder') || '/folder/subfolder'}
-                aria-label={t('filemanager.editPath') || 'Edit path'}
-              />
+            </button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mt-0.5 h-9 w-9 shrink-0 rounded-lg border border-white/5 bg-white/[0.03] text-primary/60 hover:text-primary"
+              onClick={startEditMode}
+              aria-label={t('filemanager.editPath') || 'Edit path'}
+              title={t('filemanager.editPath') || 'Edit path'}
+            >
+              <PencilLine size={16} />
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleAddressSubmit} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 px-3 py-2">
+            <Input
+              ref={addressInputRef}
+              className="h-9 min-w-0 bg-transparent border-none p-0 text-sm font-mono focus-visible:ring-0 focus-visible:ring-offset-0"
+              value={pathInput}
+              onChange={(e) => setPathInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.preventDefault();
+                  cancelEditMode();
+                }
+              }}
+              placeholder={t('filemanager.pathPlaceholder') || '/folder/subfolder'}
+              aria-label={t('filemanager.editPath') || 'Edit path'}
+            />
+
+            <div className="flex items-center gap-1">
               <Button
                 type="button"
                 variant="ghost"
@@ -195,9 +218,9 @@ export const FileManagerNavigationBar = () => {
               >
                 <ArrowRight size={18} />
               </button>
-            </form>
-          )}
-        </div>
+            </div>
+          </form>
+        )}
       </div>
 
       {mountContext && (

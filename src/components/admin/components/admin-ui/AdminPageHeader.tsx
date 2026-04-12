@@ -21,7 +21,7 @@ export const AdminPageHeader = ({
   return (
     <div
       className={cn(
-        'flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6',
+        'flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 sm:gap-6',
         className,
       )}
     >
@@ -36,12 +36,12 @@ export const AdminPageHeader = ({
         </div>
 
         <div className="min-w-0">
-          <h2 className="text-2xl font-black tracking-tight truncate">{title}</h2>
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight truncate">{title}</h2>
           {subtitle ? <div className="mt-1 text-sm text-foreground/60">{subtitle}</div> : null}
         </div>
       </div>
 
-      {actions ? <div className="w-full xl:w-auto flex items-center gap-3">{actions}</div> : null}
+      {actions ? <div className="w-full xl:w-auto flex flex-wrap items-stretch sm:items-center gap-3">{actions}</div> : null}
     </div>
   );
 };
