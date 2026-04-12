@@ -38,7 +38,7 @@
     --background: 222 47% 4%; /* Deep Black-Blue */
     --foreground: 210 40% 98%;
     --primary: 199 89% 48%; /* Brighter blue for dark mode */
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 12.5%; /* Deep navy muted */
     --muted-foreground: 215 20.2% 65.1%;
     --border: 217.2 32.6% 17.5%;
@@ -58,6 +58,7 @@
 
 @theme {
   --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 }

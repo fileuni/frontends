@@ -146,13 +146,14 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
   return (
     <div className="fixed inset-0 z-[150] bg-background flex flex-col animate-in fade-in duration-300">
       {/* Top Navigation */}
-      <div className="h-16 border-b border-border bg-card/50 backdrop-blur-md px-4 flex items-center justify-between">
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0">
+      <div className="border-b border-border bg-card/50 px-3 py-2 backdrop-blur-md sm:px-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+          <Button type="button" variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0 shrink-0">
             <ArrowLeft size={20} />
           </Button>
           
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar whitespace-nowrap scroll-smooth">
+          <div className="flex min-w-0 items-center gap-1 overflow-x-auto no-scrollbar whitespace-nowrap scroll-smooth">
             {breadcrumbs.map((bc, i) => (
               <React.Fragment key={bc.path}>
                 {i > 0 && <span className="opacity-20 mx-1">/</span>}
@@ -167,75 +168,96 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
                   {bc.name}
                 </button>
               </React.Fragment>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
-            <div className="relative hidden md:block">
+        <div className="flex items-center gap-2 shrink-0">
+            <div className="relative hidden sm:block">
                 <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" />
                 <input 
                     type="text"
                     value={searchKeyword}
                     onChange={(e) => setSearchKeyword(e.target.value)}
                     placeholder={t('common.search')}
-                    className="h-9 w-48 bg-muted/50 border border-border rounded-xl pl-9 pr-4 text-sm font-bold focus:w-64 transition-all outline-none focus:border-primary"
+                    className="h-10 w-36 sm:w-44 md:w-48 bg-muted/50 border border-border rounded-xl pl-9 pr-4 text-sm font-bold outline-none transition-all focus:border-primary md:focus:w-64"
                 />
             </div>
-            <Badge variant="ghost" className="bg-primary/10 text-primary border-0 font-black hidden sm:flex">
+            <Badge variant="ghost" className="bg-primary/10 text-primary border-0 font-black hidden md:flex">
                 {entries.length} {t('common.items')}
             </Badge>
-            <Button type="button" variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0 text-muted-foreground hover:text-destructive">
+            <Button type="button" variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0 text-muted-foreground hover:text-destructive shrink-0">
                 <X size={20} />
             </Button>
+        </div>
+        </div>
+
+        <div className="mt-2 sm:hidden">
+          <div className="relative">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" />
+            <input 
+              type="text"
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              placeholder={t('common.search')}
+              className="h-10 w-full bg-muted/50 border border-border rounded-xl pl-9 pr-4 text-sm font-bold outline-none transition-all focus:border-primary"
+            />
+          </div>
         </div>
       </div>
 
       {/* File Display Area */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4">
         {loading ? (
           <div className="h-full flex flex-col items-center justify-center gap-4 opacity-40">
             <Loader2 size={48} className="animate-spin text-primary" />
             <p className="text-sm font-black tracking-widest">{t('common.loadingArchive') || 'Opening Archive...'}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4">
+          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3 sm:gap-4">
             {currentEntries.map((entry) => (
-              <button
-                type="button"
-                key={entry.path}
-                onDoubleClick={() => handleEntryClick(entry)}
-                className="group flex flex-col items-center p-4 rounded-[2rem] hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all cursor-pointer text-center relative"
-              >
-                <div className="mb-3 transform group-hover:scale-110 transition-transform duration-300">
-                  {entry.is_dir ? (
-                    <div className="w-12 h-12 flex items-center justify-center bg-blue-500/10 text-blue-500 rounded-2xl">
-                        <Folder size={32} fill="currentColor" fillOpacity={0.2} />
-                    </div>
-                  ) : (
-                    <div className="w-12 h-12 flex items-center justify-center bg-primary/10 text-primary rounded-2xl">
-                        <File size={32} strokeWidth={1.5} />
-                    </div>
-                  )}
-                </div>
-                <span className="text-sm font-bold truncate w-full px-1 text-foreground opacity-80 group-hover:opacity-100">
-                  {entry.path.split('/').filter(Boolean).pop()}
-                </span>
-                {!entry.is_dir && (
-                  <span className="text-[14px] opacity-30 mt-1 font-mono">
-                    {(entry.size / 1024).toFixed(1)} KB
+              <div key={entry.path} className="group relative">
+                <button
+                  type="button"
+                  onDoubleClick={() => handleEntryClick(entry)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleEntryClick(entry);
+                    }
+                  }}
+                  className="flex w-full flex-col items-center p-3 sm:p-4 rounded-[1.5rem] sm:rounded-[2rem] hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all cursor-pointer text-center relative"
+                >
+                  <div className="mb-3 transform group-hover:scale-110 transition-transform duration-300">
+                    {entry.is_dir ? (
+                      <div className="w-12 h-12 flex items-center justify-center bg-blue-500/10 text-blue-500 rounded-2xl">
+                          <Folder size={32} fill="currentColor" fillOpacity={0.2} />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 flex items-center justify-center bg-primary/10 text-primary rounded-2xl">
+                          <File size={32} strokeWidth={1.5} />
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-sm font-bold truncate w-full px-1 text-foreground opacity-80 group-hover:opacity-100">
+                    {entry.path.split('/').filter(Boolean).pop()}
                   </span>
-                )}
+                  {!entry.is_dir && (
+                    <span className="text-[14px] opacity-30 mt-1 font-mono">
+                      {(entry.size / 1024).toFixed(1)} KB
+                    </span>
+                  )}
+                </button>
                 {!entry.is_dir && (
-                    <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); handleDownload(entry.path); }}
-                        className="absolute top-2 right-2 p-1.5 rounded-full bg-background border border-border opacity-0 group-hover:opacity-100 transition-all hover:bg-primary hover:text-white"
-                    >
-                        <Download size={10} />
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(entry.path)}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-background border border-border opacity-0 group-hover:opacity-100 transition-all hover:bg-primary hover:text-white"
+                  >
+                    <Download size={10} />
+                  </button>
                 )}
-              </button>
+              </div>
             ))}
             
             {currentEntries.length === 0 && (
@@ -249,12 +271,14 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
       </div>
 
       {/* Footer */}
-      <div className="h-10 border-t border-border bg-card/30 px-4 flex items-center justify-between text-sm font-bold text-muted-foreground tracking-widest">
-        <div className="flex gap-4">
+      <div className="border-t border-border bg-card/30 px-3 py-2 text-xs sm:text-sm font-bold text-muted-foreground tracking-wide sm:tracking-widest">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex gap-4 min-w-0">
             <span>{currentSubPath || '/'}</span>
         </div>
         <div className="flex gap-4">
             <span>{t('filemanager.archive.browserMode')}</span>
+        </div>
         </div>
       </div>
     </div>

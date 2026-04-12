@@ -66,19 +66,21 @@ export const PublicCenteredCard: React.FC<Props> = ({
   return (
     <div
       className={cn(
-        'min-h-[100dvh] flex justify-start sm:justify-center px-3 py-[calc(0.75rem+var(--safe-area-top,0px))] pb-[calc(0.75rem+var(--safe-area-bottom,0px))] sm:p-6 bg-background relative overflow-hidden',
-        topPadding && 'pt-[calc(4rem+var(--safe-area-top,0px))] sm:pt-16',
+        'relative flex min-h-[calc(100dvh-var(--public-header-offset,0px))] flex-col items-center justify-start bg-background px-3 overflow-x-hidden overflow-y-auto sm:px-6',
+        topPadding
+          ? 'pt-[calc(4rem+var(--safe-area-top,0px))] pb-[calc(1.5rem+var(--safe-area-bottom,0px))] sm:pt-[calc(5rem+var(--safe-area-top,0px))] sm:pb-[calc(2rem+var(--safe-area-bottom,0px))] md:pt-[calc(6rem+var(--safe-area-top,0px))]'
+          : 'pt-[calc(1.5rem+var(--safe-area-top,0px))] pb-[calc(1rem+var(--safe-area-bottom,0px))] sm:pt-[calc(2rem+var(--safe-area-top,0px))] sm:pb-[calc(1.5rem+var(--safe-area-bottom,0px))]',
         outerClassName,
       )}
     >
       {decorative}
 
-      <div
-        className={cn(
-          'w-full relative z-10',
-          cardMaxWidthClass,
-          animate && 'animate-in fade-in slide-in-from-bottom-4 duration-700',
-        )}
+        <div
+          className={cn(
+            'relative z-10 w-full',
+            cardMaxWidthClass,
+            animate && 'animate-in fade-in slide-in-from-bottom-4 duration-700',
+          )}
       >
         <div
           className={cn(

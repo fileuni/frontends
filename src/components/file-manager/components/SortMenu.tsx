@@ -87,10 +87,10 @@ export const SortMenu = ({ className }: SortMenuProps) => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 h-10 rounded-xl border border-white/5 bg-white/5 opacity-40 hover:opacity-100 transition-all"
+        className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-3 py-2 opacity-40 transition-all hover:opacity-100"
       >
         <ArrowUpDown size={18} />
-        <span className="text-sm font-black tracking-wider">
+        <span className="whitespace-nowrap text-sm font-black tracking-wider">
           {currentLabel}
         </span>
         <ChevronDown size={18} className={cn("transition-transform", isOpen && "rotate-180")} />

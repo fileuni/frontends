@@ -122,29 +122,29 @@ export const AuditLogAdmin = () => {
           </div>
         }
         actions={
-          <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-3">
-            <div className="relative group min-w-[150px]">
+          <form onSubmit={handleSearch} className="flex w-full flex-wrap items-stretch gap-3 xl:w-auto xl:justify-end">
+            <div className="relative min-w-0 flex-1 group sm:min-w-[150px] xl:flex-none">
                <User className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
                <Input 
-                value={userIdFilter} 
-                onChange={e => setUserIdFilter(e.target.value)} 
-                placeholder={t('admin.audit.userIdPlaceholder')} 
-                className="pl-9 h-10 text-sm"
-              />
-            </div>
-            <div className="relative group min-w-[120px]">
+                 value={userIdFilter} 
+                 onChange={e => setUserIdFilter(e.target.value)} 
+                 placeholder={t('admin.audit.userIdPlaceholder')} 
+                 className="pl-9 h-10 text-sm"
+               />
+             </div>
+            <div className="relative min-w-0 flex-1 group sm:min-w-[120px] xl:flex-none">
                <Activity className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
                <Input 
-                value={actionFilter} 
-                onChange={e => setActionFilter(e.target.value)} 
-                placeholder={t('admin.audit.actionPlaceholder')} 
-                className="pl-9 h-10 text-sm"
-              />
-            </div>
+                 value={actionFilter} 
+                 onChange={e => setActionFilter(e.target.value)} 
+                 placeholder={t('admin.audit.actionPlaceholder')} 
+                  className="pl-9 h-10 text-sm"
+               />
+             </div>
             <select 
               value={typeFilter} 
               onChange={e => setTypeFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-white/5 border border-white/5 text-sm outline-none focus:border-primary/50 transition-all"
+              className="h-10 min-w-0 flex-1 rounded-xl border border-white/5 bg-white/5 px-3 text-sm outline-none transition-all focus:border-primary/50 sm:min-w-[150px] xl:flex-none"
             >
               <option value="">{t('admin.audit.allTypes')}</option>
               <option value="FILE">{t('admin.audit.typeFile')}</option>
@@ -156,14 +156,14 @@ export const AuditLogAdmin = () => {
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-white/5 border border-white/5 text-sm outline-none focus:border-primary/50 transition-all"
+              className="h-10 min-w-0 flex-1 rounded-xl border border-white/5 bg-white/5 px-3 text-sm outline-none transition-all focus:border-primary/50 sm:min-w-[150px] xl:flex-none"
             >
               <option value="">{t('admin.audit.allStatus')}</option>
               <option value="SUCCESS">{t('admin.audit.statusSuccess')}</option>
               <option value="FAIL">{t('admin.audit.statusFail')}</option>
               <option value="START">{t('admin.audit.statusStart')}</option>
             </select>
-            <button type="submit" className="h-10 px-4 rounded-xl bg-primary text-white font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+            <button type="submit" className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-white transition-all shadow-lg shadow-primary/20 hover:opacity-90 sm:flex-none">
               <Search size={18} />
               {t('common.search') || 'Search'}
             </button>
@@ -172,7 +172,7 @@ export const AuditLogAdmin = () => {
                setActionFilter('');
                setTypeFilter('');
                setStatusFilter('');
-            }} className="h-10 px-4 rounded-xl bg-white/5 border border-white/5 font-bold text-sm flex items-center gap-2 hover:bg-white/10 transition-all">
+            }} className="flex h-10 items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 text-sm font-bold transition-all hover:bg-white/10 sm:w-10 sm:px-0">
               <RefreshCw size={18} />
             </button>
           </form>
@@ -180,8 +180,61 @@ export const AuditLogAdmin = () => {
       />
 
       <AdminCard variant="glass" className="rounded-[2.5rem] overflow-hidden shadow-2xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse table-fixed">
+        <div className="divide-y divide-white/5 md:hidden">
+          {loading ? (
+            <div className="px-5 py-16 text-center">
+              <div className="flex flex-col items-center gap-4 opacity-30">
+                <RefreshCw className="animate-spin" size={32} />
+                <p className="text-sm font-black tracking-widest">{t('admin.loading') || 'Loading...'}</p>
+              </div>
+            </div>
+          ) : logs.length === 0 ? (
+            <div className="px-5 py-16 text-center">
+              <div className="flex flex-col items-center gap-4 opacity-30">
+                <ClipboardList size={32} />
+                <p className="text-sm font-black tracking-widest">{t('admin.audit.noLogsFound')}</p>
+              </div>
+            </div>
+          ) : (
+            logs.map((log) => (
+              <article key={log.id} className="space-y-3 px-4 py-4 text-sm">
+                <div className="flex flex-wrap items-center gap-2">
+                  {getStatusBadge(log.status)}
+                  {getTypeBadge(log.journal_type)}
+                </div>
+                <div className="space-y-1">
+                  <div className="font-black break-words">{log.action}</div>
+                  <div className="flex items-center gap-2 text-xs opacity-60 break-all">
+                    <Calendar size={14} className="shrink-0" />
+                    <span>{new Date(log.created_at).toLocaleString()}</span>
+                  </div>
+                  <div className="text-xs opacity-60 break-all">{log.user_id}</div>
+                </div>
+                <div className="rounded-2xl border border-white/5 bg-white/[0.02] px-3 py-3 space-y-2">
+                  <div className="text-xs break-all">
+                    <span className="mr-2 font-black opacity-40">Src</span>
+                    <span className="opacity-80">{log.src_info}</span>
+                  </div>
+                  {log.dst_info && (
+                    <div className="text-xs break-all">
+                      <span className="mr-2 font-black opacity-40">Dst</span>
+                      <span className="opacity-80">{log.dst_info}</span>
+                    </div>
+                  )}
+                  {log.error && (
+                    <div className="flex items-start gap-2 text-xs text-red-400 break-all">
+                      <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                      <span>{log.error}</span>
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
+          <table className="min-w-[960px] w-full text-left border-collapse table-fixed">
             <thead>
               <tr className="border-b border-white/5 bg-white/[0.02]">
                 <th className="px-6 py-4 text-sm font-black tracking-widest opacity-30 w-48">{t('admin.audit.table.time')}</th>

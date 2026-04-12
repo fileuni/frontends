@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils.ts';
 import { currentPathMountContextFromFiles } from '../utils/mounts.ts';
 import { pathMatchesProtectedRoot, shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
 
-export const FileManagerToolbar = () => {
+export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean }) => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const store = useFileStore();
@@ -160,12 +160,20 @@ export const FileManagerToolbar = () => {
 
   return (
     <>
-      <div className="min-h-16 py-2 border-b border-white/5 bg-white/[0.01] flex flex-wrap items-center justify-between px-4 md:px-6 shrink-0 gap-y-2">
-        <div className="flex items-center gap-2 md:gap-4 min-w-0">
+      <div className={cn(
+        "min-h-16 shrink-0 px-3 py-2 sm:px-4 md:px-6",
+        embedded
+          ? "border-b-0 bg-transparent"
+          : isDark
+            ? "border-b border-white/5 bg-white/[0.01]"
+            : "border-b border-zinc-200 bg-zinc-50/85"
+      )}>
+        <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 md:gap-4 xl:flex-1 xl:justify-start">
           {fmMode === 'files' && (
             <>
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" className="p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl" onClick={() => window.history.back()}>
+              <div className="flex items-center gap-1 shrink-0">
+                <Button variant="ghost" className="p-2 h-10 w-10 rounded-xl" onClick={() => window.history.back()}>
                   <ChevronLeft size={18} />
                 </Button>
                 <Button variant="ghost" className="hidden sm:flex p-2 h-10 w-10 rounded-xl" onClick={() => window.history.forward()}>
@@ -177,11 +185,11 @@ export const FileManagerToolbar = () => {
           )}
           
           {canModify && (
-            <div className="flex items-center gap-1.5 md:gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5 md:gap-2">
               <Button 
                 onClick={() => setShowUploadModal(true)}
                 aria-label="Open upload dialog"
-                className="bg-primary hover:bg-primary/90 text-white h-9 md:h-10 px-3 md:px-4 rounded-xl font-bold text-sm md:text-sm flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
+                className="bg-primary hover:bg-primary/90 text-white h-10 px-3 md:px-4 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
               >
                 <Upload size={16} />
                 <span className="hidden xs:inline">{t('filemanager.upload')}</span>
@@ -191,10 +199,10 @@ export const FileManagerToolbar = () => {
                 <Button 
                   variant="ghost" 
                   onClick={() => setShowNewMenu(!showNewMenu)}
-                  className="bg-white/5 border border-white/5 hover:bg-white/10 h-9 md:h-10 px-2 md:px-3 rounded-xl flex items-center gap-2 transition-all shrink-0"
+                  className="bg-white/5 border border-white/5 hover:bg-white/10 h-10 px-2 md:px-3 rounded-xl flex items-center gap-2 whitespace-nowrap transition-all shrink-0"
                 >
                   <Plus size={16} className="text-primary" />
-                  <span className="text-sm font-bold opacity-60 hidden lg:inline">{t('common.new')}</span>
+                  <span className="hidden text-sm font-bold opacity-60 sm:inline whitespace-nowrap">{t('common.new')}</span>
                   <ChevronDown size={18} className={cn("opacity-30 transition-transform", showNewMenu && "rotate-180")} />
                 </Button>
 
@@ -226,30 +234,30 @@ export const FileManagerToolbar = () => {
               <Button
                 variant="ghost"
                 onClick={() => setShowMountModal(true)}
-                className="bg-white/5 border border-white/5 hover:bg-white/10 h-9 md:h-10 px-3 rounded-xl flex items-center gap-2 transition-all shrink-0"
+                className="bg-white/5 border border-white/5 hover:bg-white/10 h-10 px-3 rounded-xl flex items-center gap-2 whitespace-nowrap transition-all shrink-0"
               >
                 <Globe size={16} className="text-primary" />
-                <span className="text-sm font-bold opacity-60 hidden lg:inline">{t('filemanager.mounts.button') || 'Mounts'}</span>
+                <span className="text-sm font-bold opacity-60 hidden md:inline">{t('filemanager.mounts.button') || 'Mounts'}</span>
               </Button>
             </div>
           )}
 
           {isMinimal && (
-            <h2 className="text-sm md:text-xl font-black tracking-tight truncate">
+            <h2 className="min-w-0 text-sm md:text-xl font-black tracking-tight truncate">
               {fmMode === 'favorites' ? t('filemanager.favorites') : 
                fmMode === 'trash' ? t('filemanager.trash') : 
                fmMode === 'shares' ? t('filemanager.shares.title') : 
-               t('filemanager.recent')}
+                t('filemanager.recent')}
             </h2>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 md:gap-3 ml-auto flex-wrap justify-end">
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end md:gap-3 xl:ml-auto">
           {showBulkClear && (
             <Button 
               variant="ghost" 
               onClick={handleBulkClear}
-              className="h-9 px-3 rounded-xl text-sm font-black tracking-widest text-red-500 hover:bg-red-500/10 transition-all shrink-0 border border-red-500/20"
+              className="h-10 px-3 rounded-xl text-sm font-black tracking-widest text-red-500 hover:bg-red-500/10 transition-all shrink-0 border border-red-500/20"
             >
               <RefreshCcw size={18} className="mr-2 opacity-50" />
               {getBulkClearLabel()}
@@ -260,7 +268,7 @@ export const FileManagerToolbar = () => {
             variant="ghost" 
             onClick={() => setShowHelpModal(true)}
             title={t('filemanager.actions.help') || "Shortcuts Help"}
-            className="p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border border-white/5 transition-all opacity-40 hover:opacity-100 hidden sm:flex"
+            className="hidden sm:flex p-2 h-10 w-10 rounded-xl border border-white/5 transition-all opacity-40 hover:opacity-100 shrink-0"
           >
             <HelpCircle size={18} />
           </Button>
@@ -270,7 +278,7 @@ export const FileManagerToolbar = () => {
             onClick={() => setShowSearchModal(true)}
             title={t('filemanager.search')}
             className={cn(
-              "p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border transition-all",
+              "p-2 h-10 w-10 rounded-xl border transition-all shrink-0",
               isSearchMode
                 ? "border-primary/20 bg-primary/10 text-primary opacity-100"
                 : "border-white/5 opacity-40 hover:opacity-100"
@@ -285,7 +293,7 @@ export const FileManagerToolbar = () => {
               onClick={() => setShowProtectedStorage(true)}
               title={t('filemanager.protectedStorage.title') || 'Protected Storage'}
               className={cn(
-                "p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border transition-all",
+                "p-2 h-10 w-10 rounded-xl border transition-all shrink-0",
                 protectedButtonTone === 'muted'
                   ? "border-white/5 opacity-40 hover:opacity-100"
                   : protectedButtonTone === 'active'
@@ -304,22 +312,22 @@ export const FileManagerToolbar = () => {
               variant="ghost"
               onClick={() => { setShowThumbnailSettings(true); fetchSettings(); }}
               title={t('filemanager.thumbnail.settingsTitle') || 'Thumbnail Settings'}
-              className="p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border border-white/5 transition-all opacity-40 hover:opacity-100"
+              className="p-2 h-10 w-10 rounded-xl border border-white/5 transition-all opacity-40 hover:opacity-100 shrink-0"
             >
               <Settings size={18} />
             </Button>
           )}
 
-          <div className="hidden md:flex"><SortMenu /></div>
+          <div className="shrink-0"><SortMenu /></div>
 
           {fmMode === 'shares' && (
-            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/5 scale-90 md:scale-100">
+            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/5 shrink-0">
               <Button 
                 variant="ghost" 
                 onClick={togglePasswordFilter}
                 title={t('filemanager.shares.filterPassword')}
                 className={cn(
-                  "p-1.5 md:p-2 h-7 w-7 md:h-8 md:w-8 rounded-lg transition-all",
+                  "p-2 h-10 w-10 rounded-lg transition-all",
                   shareFilter.hasPassword === true ? "bg-primary text-white shadow-lg" : 
                   shareFilter.hasPassword === false ? "bg-red-500/20 text-red-500" : "opacity-40 hover:opacity-100"
                 )}
@@ -331,7 +339,7 @@ export const FileManagerToolbar = () => {
                 onClick={toggleDirectFilter}
                 title={t('filemanager.shares.filterDirect')}
                 className={cn(
-                  "p-1.5 md:p-2 h-7 w-7 md:h-8 md:w-8 rounded-lg transition-all",
+                  "p-2 h-10 w-10 rounded-lg transition-all",
                   shareFilter.enableDirect === true ? "bg-yellow-500 text-black shadow-lg" : 
                   shareFilter.enableDirect === false ? "bg-blue-500/20 text-blue-500" : "opacity-40 hover:opacity-100"
                 )}
@@ -347,7 +355,7 @@ export const FileManagerToolbar = () => {
               onClick={toggleShareStatus}
               title={t('filemanager.showShareStatus')}
               className={cn(
-                "p-2 h-9 w-9 md:h-10 md:w-10 rounded-xl border border-white/5 transition-all",
+                "p-2 h-10 w-10 rounded-xl border border-white/5 transition-all shrink-0",
                 showShareStatus ? "bg-primary/20 text-primary border-primary/20" : "bg-white/5 opacity-40 hover:opacity-100 hidden xs:flex"
               )}
             >
@@ -355,11 +363,11 @@ export const FileManagerToolbar = () => {
             </Button>
           )}
 
-          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/5 scale-90 md:scale-100">
+          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/5 shrink-0">
             <Button 
               variant="ghost" 
               onClick={() => setViewMode('grid')}
-              className={cn("p-1.5 md:p-2 h-7 w-7 md:h-8 md:w-8 rounded-lg", viewMode === 'grid' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
+              className={cn("p-2 h-10 w-10 rounded-lg", viewMode === 'grid' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
               title={t('filemanager.gridView')}
             >
               <Grid size={18} />
@@ -367,7 +375,7 @@ export const FileManagerToolbar = () => {
             <Button 
               variant="ghost" 
               onClick={() => setViewMode('list')}
-              className={cn("p-1.5 md:p-2 h-7 w-7 md:h-8 md:w-8 rounded-lg", viewMode === 'list' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
+              className={cn("p-2 h-10 w-10 rounded-lg", viewMode === 'list' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
               title={t('filemanager.listView')}
             >
               <List size={18} />
@@ -376,10 +384,10 @@ export const FileManagerToolbar = () => {
 
           {fmMode !== 'recent' && (
             <div className="relative">
-              <div className="flex items-center bg-white/5 rounded-xl border border-white/5 overflow-hidden scale-90 md:scale-100">
+              <div className="flex items-center bg-white/5 rounded-xl border border-white/5 overflow-hidden shrink-0">
                 <Button 
                   variant="ghost" 
-                  className="p-2 h-9 w-9 md:h-10 md:w-10 rounded-none border-r border-white/5" 
+                  className="p-2 h-10 w-10 rounded-none border-r border-white/5" 
                   onClick={handleRefresh}
                   title={t('filemanager.refresh')}
                 >
@@ -387,7 +395,7 @@ export const FileManagerToolbar = () => {
                 </Button>
                 <Button 
                   variant="ghost" 
-                  className="p-1 h-9 w-5 md:h-10 md:w-6 rounded-none opacity-30 hover:opacity-100"
+                  className="p-1 h-10 w-10 rounded-none opacity-30 hover:opacity-100"
                   onClick={() => setShowRefreshMenu(!showRefreshMenu)}
                 >
                   <ChevronDown size={18} />
@@ -450,6 +458,7 @@ export const FileManagerToolbar = () => {
               )}
             </div>
           )}
+        </div>
         </div>
       </div>
       

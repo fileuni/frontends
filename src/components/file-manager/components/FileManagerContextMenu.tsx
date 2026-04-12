@@ -7,7 +7,7 @@ import { useThemeStore } from '@/stores/theme';
 import {
   FolderOpen, Eye, Download, Share2, Scissors, Copy, Pencil, Trash2,
   RotateCw, PlusSquare, FolderPlus, Clipboard, Undo2, Zap, Archive, StarOff, Star,
-  ChevronRight, X, FolderSearch, Lock, Unlock, Globe, AlertTriangle, type LucideIcon
+  ChevronRight, X, FolderSearch, Lock, Unlock, Cloud, AlertTriangle, type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
@@ -238,7 +238,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
             isDark ? 'border-amber-500/20 bg-amber-500/10 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-900',
           )}>
             <div className="flex items-center gap-2 font-black">
-              {mountRootTarget ? <Globe size={14} /> : <AlertTriangle size={14} />}
+              {mountRootTarget ? <Cloud size={14} /> : <AlertTriangle size={14} />}
               <span>{mountRootTarget ? (t('filemanager.mounts.rootBadge') || 'Mounted') : (t('filemanager.mounts.remoteDeleteBadge') || 'Remote delete')}</span>
             </div>
             <div className="mt-1 text-xs leading-5 opacity-80">

@@ -110,6 +110,7 @@ export const DashboardLayout: React.FC<{
     adminItems: [
       { name: t("nav.userList"), icon: "Users", m: "admin", p: "users", path: "#mod=admin&page=users" },
       { name: t("nav.maintenance"), icon: "HardDrive", m: "admin", p: "files", path: "#mod=admin&page=files" },
+      { name: t('admin.mounts.title') || 'Remote Mounts', icon: 'Cloud', m: 'admin', p: 'mounts', path: '#mod=admin&page=mounts' },
       { name: t("common.manage"), icon: "ShieldAlert", m: "admin", p: "permissions", path: "#mod=admin&page=permissions" },
       { name: t("admin.blacklist.title") || "Access Guard", icon: "ShieldAlert", m: "admin", p: "blacklist", path: "#mod=admin&page=blacklist" },
       { name: t("admin.backup.title") || "System Backup", icon: "Archive", m: "admin", p: "backup", path: "#mod=admin&page=backup" },

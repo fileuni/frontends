@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button.tsx';
 import { useTranslation } from 'react-i18next';
 import type { FileInfo } from '../types/index.ts';
 import { FileIcon } from './FileIcon.tsx';
-import { Calendar, HardDrive, Hash, Info, Type, Clock, Eye, Globe, AlertTriangle, type LucideIcon } from 'lucide-react';
+import { Calendar, HardDrive, Hash, Info, Type, Clock, Eye, Cloud, AlertTriangle, type LucideIcon } from 'lucide-react';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import {
@@ -109,7 +109,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
           <PropertyItem icon={Calendar} label={t('filemanager.prop.modified')} value={new Date(file.modified).toLocaleString()} />
 
           {file.mount_id && (
-            <PropertyItem icon={Globe} label={t('filemanager.mounts.rootBadge') || 'Mounted'} value={file.mount_name || file.mount_dir || file.path} />
+            <PropertyItem icon={Cloud} label={t('filemanager.mounts.rootBadge') || 'Mounted'} value={file.mount_name || file.mount_dir || file.path} />
           )}
 
           {file.mount_driver && (

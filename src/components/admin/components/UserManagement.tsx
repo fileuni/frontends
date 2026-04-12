@@ -195,7 +195,7 @@ export const UserManagement = () => {
         }
         actions={
           <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-            <form onSubmit={handleSearch} className="relative flex-1 md:w-80 min-w-[200px] group">
+            <form onSubmit={handleSearch} className="relative group w-full min-w-0 flex-1 sm:min-w-[200px] md:w-80 xl:w-auto">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary transition-all" size={18} />
               <Input 
                 value={search} 
@@ -204,21 +204,116 @@ export const UserManagement = () => {
                 className="pl-12 h-12"
               />
             </form>
-            <div className="flex items-center gap-2 px-4 rounded-xl bg-white/5 border border-white/5 h-12 shrink-0">
+            <div className="flex h-12 w-full items-center justify-between gap-2 rounded-xl border border-white/5 bg-white/5 px-4 sm:w-auto sm:shrink-0">
               <span className="text-sm font-black tracking-widest opacity-40">{t('admin.users.showDeleted')}</span>
               <Switch checked={includeDeleted} onChange={setIncludeDeleted} />
             </div>
-            <Button className="h-12 px-6 rounded-xl shadow-lg shadow-primary/20 shrink-0" onClick={() => window.location.hash = 'mod=admin&page=user-create'}>
+            <Button className="h-12 w-full px-6 rounded-xl shadow-lg shadow-primary/20 sm:w-auto sm:shrink-0" onClick={() => window.location.hash = 'mod=admin&page=user-create'}>
               <UserPlus size={18} className="mr-2" />
               <span className="hidden sm:inline">{t('admin.users.addUser')}</span>
+              <span className="sm:hidden">{t('admin.users.addUser')}</span>
             </Button>
           </div>
         }
       />
 
       <AdminCard variant="glass" className="rounded-[2.5rem] overflow-hidden shadow-2xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="divide-y divide-white/5 md:hidden">
+          {loading ? (
+            <div className="px-5 py-16 text-center">
+              <div className="flex flex-col items-center gap-4 opacity-30">
+                <RefreshCw className="animate-spin" size={32} />
+                <p className="text-sm font-black tracking-widest">{t('admin.loading')}</p>
+              </div>
+            </div>
+          ) : users.length === 0 ? (
+            <div className="px-5 py-16 text-center">
+              <div className="flex flex-col items-center gap-4 opacity-30">
+                <Users size={32} />
+                <p className="text-sm font-black tracking-widest">{t('admin.users.noUsers')}</p>
+              </div>
+            </div>
+          ) : (
+            users.map((user) => {
+              const roleName = roles.find((role) => role.role_id === user.role_id)?.name;
+              return (
+                <article key={user.id} className={cn("space-y-4 px-4 py-4 text-sm", user.is_deleted && "opacity-60 grayscale-[0.5]")}>
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/5 bg-white/5 font-black text-sm">
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold break-words">{user.username}</p>
+                      <p className="text-xs font-mono opacity-40 break-all">{user.id}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <span className={cn(
+                      "rounded-full border px-3 py-1 text-xs font-black whitespace-nowrap",
+                      user.role_id === 0 ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-primary/10 text-primary border-primary/20"
+                    )}>
+                      {roleName || (user.role_id === 0 ? t('admin.users.roles.admin') : `${t('admin.users.roles.user')} #${user.role_id}`)}
+                    </span>
+                    {getStatusBadge(user)}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs font-bold opacity-50 break-all">
+                    <Calendar size={14} className="shrink-0" />
+                    <span>{new Date(user.created_at).toLocaleDateString()}</span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {user.is_deleted ? (
+                      <button 
+                        type="button"
+                        onClick={() => handleRestore(user)}
+                        title={t('admin.users.restore')}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 transition-all hover:border-green-500 hover:bg-green-500 hover:text-white shadow-inner"
+                      >
+                        <RotateCcw size={16} />
+                        <span>{t('admin.users.restore')}</span>
+                      </button>
+                    ) : (
+                      <>
+                        <button 
+                          type="button"
+                          onClick={() => setResetPwdUser(user)}
+                          title={t('admin.users.resetPassword')}
+                          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 transition-all hover:border-yellow-500 hover:bg-yellow-500 hover:text-white shadow-inner"
+                        >
+                          <Key size={16} />
+                          <span>{t('admin.users.resetPassword')}</span>
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => window.location.hash = `mod=admin&page=user-edit&id=${user.id}`}
+                          title={t('admin.users.edit')}
+                          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 transition-all hover:border-primary hover:bg-primary hover:text-white shadow-inner"
+                        >
+                          <Edit3 size={16} />
+                          <span>{t('admin.users.edit')}</span>
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => setDeleteUser(user)}
+                          title={t('admin.users.delete')}
+                          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 transition-all hover:border-red-500 hover:bg-red-500 hover:text-white shadow-inner"
+                        >
+                          <Trash2 size={16} />
+                          <span>{t('admin.users.delete')}</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </article>
+              );
+            })
+          )}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
+          <table className="min-w-[820px] w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/5 bg-white/[0.02]">
                 <th className="px-8 py-6 text-sm font-black tracking-widest opacity-30">{t('admin.users.table.user')}</th>
@@ -387,7 +482,7 @@ export const UserManagement = () => {
               )}
             </div>
           </div>
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
             <Button variant="outline" onClick={() => setResetPwdUser(null)}>{t('common.cancel')}</Button>
             <Button 
               disabled={isResetting || newPassword !== confirmPassword || newPassword.length < 6}
@@ -430,7 +525,7 @@ export const UserManagement = () => {
             {t('admin.users.deleteWarning')}
           </p>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
             <Button variant="outline" onClick={() => setDeleteUser(null)}>{t('common.cancel')}</Button>
             <Button 
               variant="destructive"

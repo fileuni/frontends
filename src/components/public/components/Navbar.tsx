@@ -215,19 +215,19 @@ export const Navbar = () => {
             onClick={() => setIsMenuOpen(false)}
           />
           <div className={cn(
-            "fixed top-16 right-0 z-[110] w-full md:w-80 h-[calc(100vh-4rem)] overflow-y-auto animate-in slide-in-from-right-2 duration-200 shadow-2xl border-l",
+            "fixed top-16 right-0 z-[110] h-[calc(100dvh-4rem)] w-full overflow-y-auto animate-in slide-in-from-right-2 duration-200 shadow-2xl border-l md:w-80",
             isDark ? "bg-zinc-950 border-white/5" : "bg-white border-gray-100"
           )}>
-            <div className="p-6 space-y-8">
+            <div className="p-4 space-y-6 sm:p-6 sm:space-y-8">
               {/* Active User (Top) */}
               {isLoggedIn && (
-                <div className="flex items-center gap-4 p-4 rounded-[2rem] bg-primary/10 border border-primary/20 relative group">
-                  <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-primary/20 shrink-0">
+                <div className="relative group flex items-center gap-3 rounded-[1.5rem] bg-primary/10 border border-primary/20 p-3 sm:gap-4 sm:rounded-[2rem] sm:p-4">
+                  <div className="w-10 h-10 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20 shrink-0 sm:w-12 sm:h-12 sm:text-2xl">
                     {currentUserData?.user.username.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-black text-lg truncate leading-tight">{currentUserData?.user.username}</p>
-                    <p className="text-sm font-black opacity-40 tracking-widest">{t('nav.activeWorkspace')}</p>
+                    <p className="font-black text-base sm:text-lg truncate leading-tight">{currentUserData?.user.username}</p>
+                    <p className="text-xs sm:text-sm font-black opacity-40 tracking-wide sm:tracking-widest">{t('nav.activeWorkspace')}</p>
                   </div>
                   
                   <div className="divider divider-horizontal mx-0 h-8 border-primary/20" />
@@ -244,7 +244,7 @@ export const Navbar = () => {
 
               {/* Navigation Items */}
               <div>
-                <p className={cn("text-sm font-black tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('common.menu')}</p>
+                <p className={cn("text-xs sm:text-sm font-black tracking-[0.16em] sm:tracking-[0.2em] opacity-30 mb-3 sm:mb-4 px-2")}>{t('common.menu')}</p>
                 <div className="space-y-1">
                   {navItems.map(item => {
                     const content = (
@@ -254,7 +254,7 @@ export const Navbar = () => {
                       </>
                     );
                     const commonClass = cn(
-                      "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-black transition-all w-full text-left min-w-0",
+                      "flex min-h-11 items-center gap-4 px-4 py-3 rounded-2xl text-sm font-black transition-all w-full text-left min-w-0",
                       item.active 
                         ? "bg-primary text-white shadow-lg shadow-primary/20" 
                         : cn("opacity-60 hover:opacity-100", isDark ? "hover:bg-white/5" : "hover:bg-gray-100"),
@@ -285,12 +285,12 @@ export const Navbar = () => {
               {/* System Actions */}
               <div className="space-y-6">
                 <div>
-                  <p className={cn("text-sm font-black tracking-[0.2em] opacity-30 mb-4 px-2")}>{t('about.open')}</p>
+                  <p className={cn("text-xs sm:text-sm font-black tracking-[0.16em] sm:tracking-[0.2em] opacity-30 mb-3 sm:mb-4 px-2")}>{t('about.open')}</p>
                   <button
                     type="button"
                     onClick={handleOpenAbout}
                     className={cn(
-                      'w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-black transition-all text-left',
+                      'w-full flex min-h-11 items-center gap-4 px-4 py-3 rounded-2xl text-sm font-black transition-all text-left',
                       isDark ? 'hover:bg-white/5 opacity-70 hover:opacity-100' : 'hover:bg-gray-100 opacity-70 hover:opacity-100'
                     )}
                   >
@@ -307,7 +307,7 @@ export const Navbar = () => {
                     type="button"
                     onClick={handleLogout}
                     className={cn(
-                      "w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl text-sm font-black transition-all border shadow-sm",
+                      "w-full flex min-h-11 items-center justify-center gap-3 px-4 py-3 rounded-2xl text-sm font-black transition-all border shadow-sm",
                       isDark 
                         ? "text-red-500 border-red-500/20 hover:bg-red-500/10" 
                         : "text-red-600 border-red-200 bg-red-50/50 hover:bg-red-50"

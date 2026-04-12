@@ -301,8 +301,8 @@ export const LoginView = () => {
     >
       {({ isDark }) => (
         <>
-          <div className="text-center mb-10">
-              <div className="inline-flex items-center justify-center mb-4">
+          <div className="mb-6 text-center sm:mb-10">
+              <div className="mb-3 inline-flex items-center justify-center sm:mb-4">
                 <img
                   src={capabilities?.branding?.logo_url || "/favicon.svg"}
                   alt={capabilities?.branding?.logo_name || t('common.logoAlt')}
@@ -311,10 +311,10 @@ export const LoginView = () => {
                   className="shadow-lg"
                 />
               </div>
-              <h1 className={cn("text-3xl font-black tracking-tight mb-1", isDark ? "text-white" : "text-gray-900")}>
+              <h1 className={cn("mb-1 text-2xl font-black tracking-tight sm:text-3xl", isDark ? "text-white" : "text-gray-900")}>
                 {capabilities?.branding?.logo_name || t("common.login")}
               </h1>
-              <p className="text-sm opacity-50 font-bold tracking-widest">
+              <p className="text-xs font-bold tracking-wide opacity-50 sm:text-sm sm:tracking-widest">
                 {t("auth.loginTitle")}
               </p>
             </div>
@@ -327,7 +327,7 @@ export const LoginView = () => {
               onClick={() => navigate({ mod: 'user', page: 'accounts', ...(redirect ? { redirect } : {}) })}
             />
 
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleLogin} className="space-y-5 sm:space-y-6">
               <FormField
                 label={
                   capabilities?.enable_mobile_auth && capabilities?.enable_email_auth
@@ -371,11 +371,11 @@ export const LoginView = () => {
               )}
 
               <FormField label={null}>
-                <div className="flex justify-between items-center ml-1 -mt-1 mb-2">
-                  <span className="text-sm font-black tracking-widest opacity-40">{t("common.password")}</span>
+                <div className="mb-2 ml-1 -mt-1 flex items-center justify-between gap-3">
+                  <span className="text-sm font-black tracking-wide opacity-40 sm:tracking-widest">{t("common.password")}</span>
                   <a
                     href="#mod=public&page=forgot-password"
-                    className="text-sm font-black text-primary hover:underline"
+                    className="shrink-0 text-sm font-black text-primary hover:underline"
                   >
                     {t("common.forgotPassword")}
                   </a>
@@ -400,7 +400,7 @@ export const LoginView = () => {
                         isDark ? "border-white/10 bg-white/5 checked:bg-primary" : "border-gray-300 bg-white checked:bg-primary"
                     )}
                   />
-                  <span className="text-sm font-bold opacity-60 leading-tight">
+                  <span className="text-sm font-bold leading-tight opacity-60">
                     {t("common.rememberMe")}
                   </span>
                 </label>
@@ -415,7 +415,7 @@ export const LoginView = () => {
                         isDark ? "border-white/10 bg-white/5 checked:bg-primary" : "border-gray-300 bg-white checked:bg-primary"
                     )}
                   />
-                  <span className="text-sm font-bold opacity-60 leading-tight">
+                  <span className="break-words text-sm font-bold leading-tight opacity-60">
                     {t("auth.agreementPrefix")}
                     <a
                       href="#mod=public&page=privacy"
@@ -434,7 +434,7 @@ export const LoginView = () => {
                 </label>
               </div>
 
-              <Button type="submit" className="w-full h-14 text-lg" disabled={loading}>
+              <Button type="submit" className="h-12 w-full text-base sm:h-14 sm:text-lg" disabled={loading}>
                 {loading ? (
                   <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
@@ -446,13 +446,13 @@ export const LoginView = () => {
             </form>
 
           {capabilities?.enable_registration !== false && (
-            <div className={cn("mt-10 pt-10 border-t text-center", isDark ? "border-white/5" : "border-gray-100")}>
+            <div className={cn("mt-6 border-t pt-6 text-center sm:mt-10 sm:pt-10", isDark ? "border-white/5" : "border-gray-100")}>
               <p className="text-sm font-bold opacity-50 mb-4">
                 {t("auth.noAccount")}
               </p>
               <a
                 href="#mod=public&page=register"
-                className="inline-flex items-center justify-center px-8 py-3 rounded-xl border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all font-black text-sm tracking-widest"
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-primary px-6 py-3 text-sm font-black tracking-wide text-primary transition-all hover:bg-primary hover:text-white sm:px-8 sm:tracking-widest"
               >
                 {t("common.register")}
               </a>
@@ -466,7 +466,7 @@ export const LoginView = () => {
             title={t("auth.deviceLimitExceeded")}
             className="max-w-lg"
           >
-            <div className="space-y-6">
+              <div className="space-y-5 sm:space-y-6">
               <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-start gap-4">
                 <AlertTriangle
                   className="text-orange-500 shrink-0 mt-1"
@@ -480,27 +480,27 @@ export const LoginView = () => {
                 </p>
               </div>
 
-              <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                <div className="space-y-3 max-h-[min(300px,45dvh)] overflow-y-auto custom-scrollbar pr-2">
                 {sessions.map((session) => (
                   <div
                     key={session.id}
                     className={cn(
-                      "flex items-center justify-between p-4 rounded-2xl border group transition-all",
+                        "group flex flex-col gap-3 rounded-2xl border p-4 transition-all sm:flex-row sm:items-center sm:justify-between",
                       isDark ? "bg-white/[0.03] border-white/5" : "bg-gray-50 border-gray-100"
                     )}
                   >
-                    <div className="flex items-center gap-4">
+                      <div className="flex min-w-0 items-center gap-4">
                       <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", isDark ? "bg-white/5" : "bg-white border border-gray-100")}>
                         {getDeviceIcon(session.device_name)}
                       </div>
-                      <div>
+                        <div className="min-w-0">
                         <p className={cn("text-sm font-bold", isDark ? "text-white" : "text-gray-900")}>
                           {session.device_name || t("sessions.unknownDevice")}
                         </p>
-                        <div className="flex items-center gap-3 mt-0.5 text-[14px] font-mono opacity-40 tracking-tighter">
-                          <span className="flex items-center gap-1">
-                            <Globe size={10} /> {session.ip_address}
-                          </span>
+                          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[13px] font-mono tracking-tighter opacity-40">
+                            <span className="flex min-w-0 items-center gap-1 break-all">
+                              <Globe size={10} /> {session.ip_address}
+                            </span>
                           <span className="flex items-center gap-1">
                             <Clock size={10} />{" "}
                             {new Date(
@@ -513,7 +513,7 @@ export const LoginView = () => {
                     <button
                       type="button"
                       onClick={() => handleRevokeSession(session.id || "")}
-                      className="p-2 rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all border border-transparent hover:border-red-500/20 shadow-inner"
+                        className="self-end rounded-xl border border-transparent p-2 text-red-500 shadow-inner transition-all hover:border-red-500/20 hover:bg-red-500 hover:text-white sm:self-auto"
                       title={t("sessions.revokeAccess")}
                     >
                       <XCircle size={18} />

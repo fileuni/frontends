@@ -1655,6 +1655,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/file/admin/mounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_list_remote_mounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/admin/mounts/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_create_mount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/admin/mounts/{user_id}/{mount_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin_update_mount"];
+        post?: never;
+        delete: operations["admin_delete_mount"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/admin/mounts/{user_id}/{mount_id}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_sync_mount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/file/admin/quota/recalibrate": {
         parameters: {
             query?: never;
@@ -3719,6 +3783,20 @@ export interface components {
             role_id: number;
             security_answer?: string | null;
             security_question?: string | null;
+            username: string;
+        };
+        AdminRemoteMountListDto: {
+            items: components["schemas"]["AdminRemoteMountRecordDto"][];
+        };
+        AdminRemoteMountRecordDto: {
+            mount: components["schemas"]["RemoteMountDto"];
+            policy: components["schemas"]["RemoteMountPolicyDto"];
+            user: components["schemas"]["AdminRemoteMountUserDto"];
+        };
+        AdminRemoteMountUserDto: {
+            /** Format: int32 */
+            role_id: number;
+            user_id: string;
             username: string;
         };
         AdminResetPasswordRequest: {
@@ -8890,6 +8968,125 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    admin_list_remote_mounts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All user remote mounts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    admin_create_mount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RemoteMountUpsertRequest"];
+            };
+        };
+        responses: {
+            /** @description Mount created for user */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    admin_update_mount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+                mount_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RemoteMountUpsertRequest"];
+            };
+        };
+        responses: {
+            /** @description Mount updated for user */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    admin_delete_mount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+                mount_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Mount deleted for user */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    admin_sync_mount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+                mount_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Mount sync started for user */
             200: {
                 headers: {
                     [name: string]: unknown;

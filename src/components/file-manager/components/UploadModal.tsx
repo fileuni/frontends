@@ -134,11 +134,11 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
           </button>
 
           {/* Manual Selection Buttons */}
-          <div className="grid grid-cols-2 gap-4 mt-8">
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
             <button 
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center gap-3 h-14 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all active:scale-95 group"
+              className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-white/5 bg-white/5 transition-all active:scale-95 hover:bg-white/10"
             >
               <FileUp size={18} className="text-blue-400 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all" />
               <span className="text-sm font-bold text-white/80">{t('filemanager.actions.uploadFiles') || "Select Files"}</span>
@@ -146,7 +146,7 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
             <button 
               type="button"
               onClick={() => dirInputRef.current?.click()}
-              className="flex items-center justify-center gap-3 h-14 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all active:scale-95 group"
+              className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-white/5 bg-white/5 transition-all active:scale-95 hover:bg-white/10"
             >
               <FolderUp size={18} className="text-yellow-400 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all" />
               <span className="text-sm font-bold text-white/80">{t('filemanager.actions.uploadDirectory') || "Select Folder"}</span>

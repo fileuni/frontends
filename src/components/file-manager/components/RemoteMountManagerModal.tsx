@@ -41,6 +41,22 @@ type MountListDto = {
   policy: PolicyDto;
 };
 
+type AdminMountUserDto = {
+  user_id: string;
+  username: string;
+  role_id: number;
+};
+
+type AdminMountRecordDto = {
+  user: AdminMountUserDto;
+  mount: MountDto;
+  policy: PolicyDto;
+};
+
+type AdminMountListDto = {
+  items: AdminMountRecordDto[];
+};
+
 type Draft = {
   id?: string;
   name: string;
@@ -257,7 +273,9 @@ export const RemoteMountManagerModal: React.FC<{
   onClose: () => void;
   currentPath: string;
   onChanged?: () => void;
-}> = ({ isOpen, onClose, currentPath, onChanged }) => {
+  targetUserId?: string;
+  title?: string;
+}> = ({ isOpen, onClose, currentPath, onChanged, targetUserId, title }) => {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
   const [loading, setLoading] = useState(false);
@@ -276,18 +294,28 @@ export const RemoteMountManagerModal: React.FC<{
   const refreshMounts = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await extractData<MountListDto>(client.GET('/api/v1/file/mounts'));
-      setMounts(result.mounts);
-      setPolicy(result.policy);
-      if (!editingId) {
-        setDraft(createDraft(currentPath, result.policy, result.mounts.length));
+      if (targetUserId) {
+        const result = await extractData<AdminMountListDto>(client.GET('/api/v1/file/admin/mounts', {}));
+        const userItems = result.items.filter((item) => item.user.user_id === targetUserId);
+        setMounts(userItems.map((item) => item.mount));
+        setPolicy(userItems[0]?.policy ?? null);
+        if (!editingId) {
+          setDraft(createDraft(currentPath, userItems[0]?.policy ?? null, userItems.length));
+        }
+      } else {
+        const result = await extractData<MountListDto>(client.GET('/api/v1/file/mounts', {}));
+        setMounts(result.mounts);
+        setPolicy(result.policy);
+        if (!editingId) {
+          setDraft(createDraft(currentPath, result.policy, result.mounts.length));
+        }
       }
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     } finally {
       setLoading(false);
     }
-  }, [addToast, currentPath, editingId, t]);
+  }, [addToast, currentPath, editingId, t, targetUserId]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -319,12 +347,22 @@ export const RemoteMountManagerModal: React.FC<{
         enable: draft.enable,
         options: Object.fromEntries(Object.entries(draft.options).filter(([key]) => key.trim().length > 0)),
       };
-      const request = editingId
-        ? client.PUT('/api/v1/file/mounts/{mount_id}', {
-          params: { path: { mount_id: editingId } },
-          body: payload,
-        })
-        : client.POST('/api/v1/file/mounts', { body: payload });
+      const request = targetUserId
+        ? editingId
+          ? client.PUT('/api/v1/file/admin/mounts/{user_id}/{mount_id}', {
+            params: { path: { user_id: targetUserId, mount_id: editingId } },
+            body: payload,
+          })
+          : client.POST('/api/v1/file/admin/mounts/{user_id}', {
+            params: { path: { user_id: targetUserId } },
+            body: payload,
+          })
+        : editingId
+          ? client.PUT('/api/v1/file/mounts/{mount_id}', {
+            params: { path: { mount_id: editingId } },
+            body: payload,
+          })
+          : client.POST('/api/v1/file/mounts', { body: payload });
       await extractData<MountDto>(request);
       addToast(t('filemanager.mounts.messages.saved') || 'Saved', 'success');
       resetDraft();
@@ -340,9 +378,15 @@ export const RemoteMountManagerModal: React.FC<{
   const handleDelete = async (mountId: string) => {
     if (!window.confirm(t('filemanager.mounts.messages.confirmDelete') || 'Delete this mount?')) return;
     try {
-      await extractData(client.DELETE('/api/v1/file/mounts/{mount_id}', {
-        params: { path: { mount_id: mountId } },
-      }));
+      if (targetUserId) {
+        await extractData(client.DELETE('/api/v1/file/admin/mounts/{user_id}/{mount_id}', {
+          params: { path: { user_id: targetUserId, mount_id: mountId } },
+        }));
+      } else {
+        await extractData(client.DELETE('/api/v1/file/mounts/{mount_id}', {
+          params: { path: { mount_id: mountId } },
+        }));
+      }
       addToast(t('filemanager.mounts.messages.deleted') || 'Deleted', 'success');
       if (editingId === mountId) {
         resetDraft();
@@ -356,9 +400,15 @@ export const RemoteMountManagerModal: React.FC<{
 
   const handleSync = async (mountId: string) => {
     try {
-      await extractData(client.POST('/api/v1/file/mounts/{mount_id}/sync', {
-        params: { path: { mount_id: mountId } },
-      }));
+      if (targetUserId) {
+        await extractData(client.POST('/api/v1/file/admin/mounts/{user_id}/{mount_id}/sync', {
+          params: { path: { user_id: targetUserId, mount_id: mountId } },
+        }));
+      } else {
+        await extractData(client.POST('/api/v1/file/mounts/{mount_id}/sync', {
+          params: { path: { mount_id: mountId } },
+        }));
+      }
       addToast(t('filemanager.mounts.messages.synced') || 'Synchronized', 'success');
       await refreshMounts();
     } catch (error) {
@@ -370,7 +420,7 @@ export const RemoteMountManagerModal: React.FC<{
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t('filemanager.mounts.title') || 'Remote Mounts'}
+      title={title || t('filemanager.mounts.title') || 'Remote Mounts'}
       maxWidth="max-w-6xl"
       bodyClassName="space-y-4"
     >

@@ -85,7 +85,12 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
     if (typeof window === "undefined") {
       return;
     }
-    setIsSidebarExpanded(window.innerWidth >= 1024);
+    const syncSidebarState = () => {
+      setIsSidebarExpanded(window.innerWidth >= 1024);
+    };
+    syncSidebarState();
+    window.addEventListener("resize", syncSidebarState);
+    return () => window.removeEventListener("resize", syncSidebarState);
   }, []);
 
   const steps = useMemo(

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { Pagination } from '@/components/ui/Pagination.tsx';
 import {
-  Activity,
   AlertTriangle,
   CheckCircle2,
   Cpu,
@@ -711,11 +710,6 @@ export const FileSystemAdmin = () => {
     );
   }
 
-  const quotaPct =
-    typeof stats?.total_used === 'number' && typeof stats?.total_quota === 'number' && stats.total_quota > 0
-      ? Math.min(100, (stats.total_used / stats.total_quota) * 100)
-      : null;
-
   return (
     <AdminPage>
       <AdminPageHeader
@@ -731,25 +725,13 @@ export const FileSystemAdmin = () => {
       />
 
       <div className="space-y-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
             <Database className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 -rotate-12 group-hover:scale-110 transition-transform" />
             <p className="text-sm font-black tracking-widest opacity-40 mb-1">{t('admin.fs.cluster_storage')}</p>
             <h3 className="text-3xl font-black">{formatSize(stats?.total_used ?? null, t)}</h3>
             <p className="text-sm font-bold mt-4 text-primary tracking-widest">
               {t('admin.fs.system_status')}: {maintenanceStatus ? (maintenanceStatus.is_global_maintenance ? t('common.on') : t('common.off')) : t('common.na')}
-            </p>
-          </AdminCard>
-
-          <AdminCard variant="glass" className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
-            <Activity className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 group-hover:scale-110 transition-transform" />
-            <p className="text-sm font-black tracking-widest opacity-40 mb-1">{t('admin.fs.usage_efficiency')}</p>
-            <h3 className="text-3xl font-black">{quotaPct === null ? t('common.na') : `${quotaPct.toFixed(1)}%`}</h3>
-            <div className="mt-4 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-              <div className="h-full bg-green-500" style={{ width: `${quotaPct ?? 0}%` }} />
-            </div>
-            <p className="text-sm font-bold mt-4 opacity-40 tracking-widest">
-              {formatSize(stats?.total_used ?? null, t)} / {formatSize(stats?.total_quota ?? null, t)}
             </p>
           </AdminCard>
 

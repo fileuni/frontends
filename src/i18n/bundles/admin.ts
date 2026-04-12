@@ -403,6 +403,22 @@ const adminBundle = defineLocaleBundle({
             "confirmDelete": "Confirm Delete",
             "deleteAdminWarning": "Warning: You are attempting to delete a System Administrator. This may lead to loss of management access or system risks."
         },
+        "mounts": {
+            "title": "Remote Mounts",
+            "subtitle": "Review and manage all user remote mounts and sync rules",
+            "search": "Search user or mount path",
+            "empty": "No remote mounts found",
+            "emptyDesc": "Users have not configured any remote mount yet.",
+            "role": "Role",
+            "count": "Mounts",
+            "limit": "Limit",
+            "minSyncInterval": "Min Sync",
+            "maxSyncTimeout": "Max Timeout",
+            "manage": "Manage",
+            "manageTitle": "Remote Mounts: {{user}}",
+            "enabled": "Enabled",
+            "disabled": "Disabled"
+        },
         "fs": {
             "title": "File System",
             "subtitle": "Storage stats and maintenance",
@@ -1424,6 +1440,22 @@ const adminBundle = defineLocaleBundle({
             "deleteWarning": "警告：用户将被软删除，其所有数据将被保留但无法登录。您可以在以后恢复该用户。",
             "confirmDelete": "确认删除",
             "deleteAdminWarning": "注意：您正在尝试删除一名系统管理员。这可能会导致管理权限缺失或系统风险。"
+        },
+        "mounts": {
+            "title": "远程挂载",
+            "subtitle": "查看并管理所有用户的远程挂载与同步规则",
+            "search": "搜索用户或挂载路径",
+            "empty": "暂无远程挂载",
+            "emptyDesc": "当前还没有用户配置远程挂载。",
+            "role": "角色",
+            "count": "挂载数",
+            "limit": "上限",
+            "minSyncInterval": "最小同步",
+            "maxSyncTimeout": "最大超时",
+            "manage": "管理",
+            "manageTitle": "远程挂载：{{user}}",
+            "enabled": "已启用",
+            "disabled": "已禁用"
         },
         "fs": {
             "title": "文件系统",
@@ -2447,6 +2479,22 @@ const adminBundle = defineLocaleBundle({
             "confirmDelete": "Confirmar eliminación",
             "deleteAdminWarning": "Advertencia: está intentando eliminar a un administrador del sistema. Esto puede provocar pérdida de acceso de gestión o riesgos del sistema."
         },
+        "mounts": {
+            "title": "Remote Mounts",
+            "subtitle": "Review and manage all user remote mounts and sync rules",
+            "search": "Search user or mount path",
+            "empty": "No remote mounts found",
+            "emptyDesc": "Users have not configured any remote mount yet.",
+            "role": "Role",
+            "count": "Mounts",
+            "limit": "Limit",
+            "minSyncInterval": "Min Sync",
+            "maxSyncTimeout": "Max Timeout",
+            "manage": "Manage",
+            "manageTitle": "Remote Mounts: {{user}}",
+            "enabled": "Enabled",
+            "disabled": "Disabled"
+        },
         "fs": {
             "title": "Sistema de archivos",
             "subtitle": "Estadísticas de almacenamiento y mantenimiento",
@@ -3468,6 +3516,22 @@ const adminBundle = defineLocaleBundle({
             "deleteWarning": "Warning: The user will be soft-deleted. All data remains but login will be disabled. You can restore the user later.",
             "confirmDelete": "Confirm Delete",
             "deleteAdminWarning": "Warning: You are attempting to delete a System Administrator. This may lead to loss of management access or system risks."
+        },
+        "mounts": {
+            "title": "Remote Mounts",
+            "subtitle": "Review and manage all user remote mounts and sync rules",
+            "search": "Search user or mount path",
+            "empty": "No remote mounts found",
+            "emptyDesc": "Users have not configured any remote mount yet.",
+            "role": "Role",
+            "count": "Mounts",
+            "limit": "Limit",
+            "minSyncInterval": "Min Sync",
+            "maxSyncTimeout": "Max Timeout",
+            "manage": "Manage",
+            "manageTitle": "Remote Mounts: {{user}}",
+            "enabled": "Enabled",
+            "disabled": "Disabled"
         },
         "fs": {
             "title": "File System",
@@ -4491,6 +4555,22 @@ const adminBundle = defineLocaleBundle({
             "confirmDelete": "Confirmer la suppression",
             "deleteAdminWarning": "Attention : vous tentez de supprimer un administrateur système. Cela peut entraîner une perte d'accès à la gestion ou des risques système."
         },
+        "mounts": {
+            "title": "Remote Mounts",
+            "subtitle": "Review and manage all user remote mounts and sync rules",
+            "search": "Search user or mount path",
+            "empty": "No remote mounts found",
+            "emptyDesc": "Users have not configured any remote mount yet.",
+            "role": "Role",
+            "count": "Mounts",
+            "limit": "Limit",
+            "minSyncInterval": "Min Sync",
+            "maxSyncTimeout": "Max Timeout",
+            "manage": "Manage",
+            "manageTitle": "Remote Mounts: {{user}}",
+            "enabled": "Enabled",
+            "disabled": "Disabled"
+        },
         "fs": {
             "title": "Système de fichiers",
             "subtitle": "Statistiques de stockage et maintenance",
@@ -5513,6 +5593,22 @@ const adminBundle = defineLocaleBundle({
             "confirmDelete": "Подтвердить удаление",
             "deleteAdminWarning": "Внимание: вы пытаетесь удалить системного администратора. Это может привести к потере доступа к управлению или рискам для системы."
         },
+        "mounts": {
+            "title": "Remote Mounts",
+            "subtitle": "Review and manage all user remote mounts and sync rules",
+            "search": "Search user or mount path",
+            "empty": "No remote mounts found",
+            "emptyDesc": "Users have not configured any remote mount yet.",
+            "role": "Role",
+            "count": "Mounts",
+            "limit": "Limit",
+            "minSyncInterval": "Min Sync",
+            "maxSyncTimeout": "Max Timeout",
+            "manage": "Manage",
+            "manageTitle": "Remote Mounts: {{user}}",
+            "enabled": "Enabled",
+            "disabled": "Disabled"
+        },
         "fs": {
             "title": "Файловая система",
             "subtitle": "Статистика хранилища и обслуживание",
@@ -6534,6 +6630,22 @@ const adminBundle = defineLocaleBundle({
             "deleteWarning": "警告: ユーザーはソフト削除されます。データは残りますがログインは無効になります。後で復元できます。",
             "confirmDelete": "削除を確認",
             "deleteAdminWarning": "警告: システム管理者を削除しようとしています。管理アクセスの喪失やシステムリスクにつながる可能性があります。"
+        },
+        "mounts": {
+            "title": "Remote Mounts",
+            "subtitle": "Review and manage all user remote mounts and sync rules",
+            "search": "Search user or mount path",
+            "empty": "No remote mounts found",
+            "emptyDesc": "Users have not configured any remote mount yet.",
+            "role": "Role",
+            "count": "Mounts",
+            "limit": "Limit",
+            "minSyncInterval": "Min Sync",
+            "maxSyncTimeout": "Max Timeout",
+            "manage": "Manage",
+            "manageTitle": "Remote Mounts: {{user}}",
+            "enabled": "Enabled",
+            "disabled": "Disabled"
         },
         "fs": {
             "title": "ファイルシステム",

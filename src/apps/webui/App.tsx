@@ -14,6 +14,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useAuthzStore } from "@/stores/authz";
 import { useConfigStore } from "@/stores/config";
 import { MustChangePasswordModal } from "@/components/public/components/MustChangePasswordModal.tsx";
+import { cn } from "@/lib/utils.ts";
 
 const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -63,7 +64,7 @@ export const App: React.FC = () => {
   const content = (
     <>
       {canInitFeatures && <Navbar />}
-      <main className="flex-1 flex flex-col">
+      <main className={cn("flex-1 flex flex-col", canInitFeatures && "pt-16 [--public-header-offset:4rem]")}>
         <AppRouter />
       </main>
       {canInitFeatures && <GlobalAudioPlayer />}
@@ -79,7 +80,6 @@ export const App: React.FC = () => {
     void fetchEntitlements();
   }, [
     isLoggedIn,
-    currentUserId,
     fetchEntitlements,
     clearEntitlements,
     canInitFeatures,

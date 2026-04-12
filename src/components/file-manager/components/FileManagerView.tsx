@@ -26,6 +26,8 @@ import { useToastStore } from "@/stores/toast";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { useConfigStore } from "@/stores/config.ts";
 import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
+import { useResolvedTheme } from '@/hooks/useResolvedTheme';
+import { cn } from '@/lib/utils.ts';
 import { Search, X } from "lucide-react";
 
 import { FileManagerTabs } from "./FileManagerTabs.tsx";
@@ -41,6 +43,7 @@ import { shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
 
 export const FileManagerView = () => {
   const { t } = useTranslation();
+  const resolvedTheme = useResolvedTheme();
   const { capabilities } = useConfigStore();
   const protectedStatus = useProtectedStorageStore((state) => state.status);
   const { params, navigate } = useNavigationStore();
@@ -498,6 +501,7 @@ export const FileManagerView = () => {
   const isOfficePreview = previewPath ? isOfficeExtension(getFileExtension(previewPath)) : false;
   const routePage = params.page;
   const routePath = params["path"];
+  const isDark = resolvedTheme === 'dark';
 
   const closePreview = useCallback(() => {
     const nextPage = routePage || fmMode || 'files';
@@ -546,9 +550,16 @@ export const FileManagerView = () => {
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background">
       {!isMinimal && <FileManagerTabs />}
       <div className="flex flex-col flex-1 overflow-hidden bg-background px-4">
-        <FileManagerToolbar />
+        <div className={cn(
+          "shrink-0 overflow-hidden rounded-[1.25rem] border",
+          isDark
+            ? "border-white/5 bg-white/[0.015]"
+            : "border-zinc-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]"
+        )}>
+          <FileManagerToolbar embedded />
+          {fmMode === "files" && !isMinimal && <FileManagerNavigationBar />}
+        </div>
         {fmMode === "recent" && <FileManagerRecentStats onClear={() => handleAction("clear_history", null)} />}
-        {fmMode === "files" && !isMinimal && <FileManagerNavigationBar />}
         {fmMode === "favorites" && <FileManagerFavoriteFilter />}
         <div className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
           {fmMode === 'files' && isSearchMode && searchKeyword && (

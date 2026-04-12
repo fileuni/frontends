@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 
-import { AlertTriangle, Globe, Share2, Zap } from 'lucide-react';
+import { AlertTriangle, Cloud, Share2, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const COLOR_MAP: Record<number, string> = {
@@ -43,7 +43,7 @@ const StatusIcons = ({ file, mode, className, onAction, shareLabel }: { file: Fi
   if (mode === 'grid') {
     return (
       <div className={cn("flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2 py-1 rounded-full border border-white/5 shadow-lg", className)}>
-        {isMountRoot && <Globe size={10} className="text-cyan-300" />}
+        {isMountRoot && <Cloud size={10} className="text-cyan-300" />}
         {isFavorite && (
           <div className={cn("w-2 h-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.2)]", favoriteColorClass)} />
         )}
@@ -69,7 +69,7 @@ const StatusIcons = ({ file, mode, className, onAction, shareLabel }: { file: Fi
   // List mode: compact layout with dot as primary indicator
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      {isMountRoot && <Globe size={18} className="text-cyan-400 shrink-0" />}
+      {isMountRoot && <Cloud size={18} className="text-cyan-400 shrink-0" />}
       {isFavorite && (
         <div className={cn("w-2 h-2 rounded-full shrink-0 shadow-sm", favoriteColorClass)} />
       )}

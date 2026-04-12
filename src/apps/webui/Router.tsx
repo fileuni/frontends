@@ -138,6 +138,11 @@ const FileSystemAdmin = lazy(() =>
     default: m.FileSystemAdmin,
   })),
 );
+const RemoteMountAdmin = lazy(() =>
+  import("@/components/admin/components/RemoteMountAdmin").then((m) => ({
+    default: m.RemoteMountAdmin,
+  })),
+);
 const SystemBackupAdmin = lazy(() =>
   import("@/components/admin/components/SystemBackupAdmin").then((m) => ({
     default: m.SystemBackupAdmin,
@@ -362,6 +367,12 @@ const PageRenderer: React.FC<{
         return (
           <DashboardLayout title={t("pages.admin.fs.title")}>
             <FileSystemAdmin />
+          </DashboardLayout>
+        );
+      case "mounts":
+        return (
+          <DashboardLayout title={t('admin.mounts.title') || 'Remote Mounts'}>
+            <RemoteMountAdmin />
           </DashboardLayout>
         );
       case "backup":
