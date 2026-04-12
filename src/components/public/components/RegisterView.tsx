@@ -14,6 +14,7 @@ import { normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import {
+  ArrowRight,
   Mail,
   Phone,
   Send,
@@ -133,9 +134,18 @@ export const RegisterView = () => {
     } as Record<RegisterMethod, { enabled: boolean; reason: string }>;
   }, [registrationMethods, t]);
 
-  const disabledMethodHints = METHOD_ORDER.filter((item) => !methodStates[item].enabled).map(
-    (item) => ({ item, reason: methodStates[item].reason }),
-  );
+  const handleSelectMethod = (item: RegisterMethod) => {
+    if (!methodStates[item].enabled) {
+      addToast(t('auth.registrationMethodContactAdmin'), 'warning');
+      return;
+    }
+
+    setMethod(item);
+    clearCaptcha();
+    setVerificationCode('');
+    setVerificationToken('');
+    setSendTimer(0);
+  };
 
   const clearCaptcha = () => {
     setNeedCaptcha(false);
@@ -427,13 +437,9 @@ export const RegisterView = () => {
                 <button
                   key={item}
                   type="button"
-                  disabled={!enabled}
+                  aria-disabled={!enabled}
                   onClick={() => {
-                    setMethod(item);
-                    clearCaptcha();
-                    setVerificationCode('');
-                    setVerificationToken('');
-                    setSendTimer(0);
+                    handleSelectMethod(item);
                   }}
                   className={cn(
                     'flex min-h-14 flex-col items-center justify-center rounded-2xl border px-3 py-3 text-sm font-black transition-all',
@@ -442,7 +448,10 @@ export const RegisterView = () => {
                       : isDark
                         ? 'border-white/10 bg-white/[0.03] text-slate-300'
                         : 'border-gray-200 bg-gray-50 text-gray-700',
-                    !enabled && 'cursor-not-allowed opacity-45',
+                    !enabled && (isDark
+                      ? 'border-white/8 bg-transparent text-slate-500 opacity-70'
+                      : 'border-gray-200 bg-transparent text-gray-400 opacity-90'),
+                    !enabled && 'min-h-12',
                   )}
                 >
                   <span className="mb-1">{icon}</span>
@@ -451,22 +460,6 @@ export const RegisterView = () => {
               );
             })}
           </div>
-
-          {disabledMethodHints.length > 0 && (
-            <div className={cn('mb-6 space-y-2 rounded-2xl border px-4 py-3 text-sm', isDark ? 'border-white/10 bg-white/[0.03] text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-600')}>
-              {disabledMethodHints.map(({ item, reason }) => (
-                <p key={item}>
-                  {item === 'username'
-                    ? t('auth.registerWithUsername')
-                    : item === 'email'
-                      ? t('auth.registerWithEmail')
-                      : t('auth.registerWithPhone')}
-                  {' · '}
-                  {reason}
-                </p>
-              ))}
-            </div>
-          )}
 
           <form onSubmit={handleRegister} className="space-y-5">
             {method === 'username' && (
@@ -619,10 +612,15 @@ export const RegisterView = () => {
           </form>
 
           <div className={cn('mt-10 border-t pt-10 text-center', isDark ? 'border-white/5' : 'border-gray-100')}>
-            <p className="text-sm font-bold opacity-50">
-              {t('auth.alreadyHaveAccount')}{' '}
-              <a href="#mod=public&page=login" className="font-black text-primary hover:underline">{t('common.login')}</a>
+            <p className="mb-4 text-sm font-bold opacity-50">
+              {t('auth.alreadyHaveAccount')}
             </p>
+            <a
+              href="#mod=public&page=login"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-primary px-6 py-3 text-sm font-black tracking-wide text-primary transition-all hover:bg-primary hover:text-white sm:px-8 sm:tracking-widest"
+            >
+              {t('common.login')} <ArrowRight size={18} className="ml-2" />
+            </a>
           </div>
         </>
       )}
