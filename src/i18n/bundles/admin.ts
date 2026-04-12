@@ -424,7 +424,6 @@ const adminBundle = defineLocaleBundle({
             "subtitle": "Storage stats and maintenance",
             "statusRecovering": "RECOVERING",
             "cluster_storage": "Cluster Used Storage",
-            "usage_efficiency": "Quota Utilization",
             "total_users": "Total Users",
             "global_ops": "Global Operations",
             "global_ops_desc": "Caution: These actions affect the entire cluster and should only be performed during maintenance windows.",
@@ -707,12 +706,12 @@ const adminBundle = defineLocaleBundle({
                     "timeoutSecs": "Timeout Seconds"
                 },
                 "drivers": {
-                    "fs": "Local Filesystem (fs)",
-                    "s3": "S3 Compatible (s3)",
-                    "webdav": "WebDAV (webdav)",
+                    "fs": "Local Filesystem",
+                    "s3": "S3 Compatible",
+                    "webdav": "WebDAV",
                     "memory": "Memory",
-                    "android_saf": "Android SAF (android_saf)",
-                    "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+                    "android_saf": "Android SAF",
+                    "ios_scoped_fs": "iOS Scoped FS"
                 },
                 "connectors": {
                     "title": "Connector List",
@@ -842,7 +841,7 @@ const adminBundle = defineLocaleBundle({
                 },
                 "options": {
                     "postgres": "Use existing PostgreSQL",
-                    "sqlite": "Save on this device (recommended)",
+                    "sqlite": "Save on this device ",
                     "enabled": "Enabled",
                     "disabled": "Disabled",
                     "cacheValkey": "VALKEY",
@@ -1462,7 +1461,6 @@ const adminBundle = defineLocaleBundle({
             "subtitle": "存储统计与维护",
             "statusRecovering": "恢复中",
             "cluster_storage": "集群已用存储",
-            "usage_efficiency": "配额使用率",
             "total_users": "用户总数",
             "global_ops": "全局操作",
             "global_ops_desc": "注意：这些操作影响整个集群，仅应在维护窗口执行。",
@@ -1745,12 +1743,12 @@ const adminBundle = defineLocaleBundle({
                     "timeoutSecs": "超时 秒"
                 },
                 "drivers": {
-                    "fs": "本地文件系统 (fs)",
-                    "s3": "S3 兼容 (s3)",
-                    "webdav": "WebDAV (webdav)",
+                    "fs": "本地文件系统",
+                    "s3": "S3 兼容",
+                    "webdav": "WebDAV",
                     "memory": "内存",
-                    "android_saf": "Android SAF (android_saf)",
-                    "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+                    "android_saf": "Android SAF",
+                    "ios_scoped_fs": "iOS Scoped FS"
                 },
                 "connectors": {
                     "title": "连接器列表",
@@ -2500,7 +2498,6 @@ const adminBundle = defineLocaleBundle({
             "subtitle": "Estadísticas de almacenamiento y mantenimiento",
             "statusRecovering": "RECUPERANDO",
             "cluster_storage": "Almacenamiento usado del clúster",
-            "usage_efficiency": "Utilización de cuota",
             "total_users": "Usuarios totales",
             "global_ops": "Operaciones globales",
             "global_ops_desc": "Precaución: estas acciones afectan a todo el clúster y solo deben ejecutarse en ventanas de mantenimiento.",
@@ -2631,7 +2628,7 @@ const adminBundle = defineLocaleBundle({
                 "identifierPlaceholder": "p. ej. 192.168.1.1 o user-uuid",
                 "reason": "Motivo / Nota",
                 "reasonPlaceholder": "¿Por qué se bloquea esto?",
-                "expiration": "Caducidad (opcional)",
+                "expiration": "Caducidad ",
                 "permanentHint": "Deje vacío para restricción permanente"
             },
             "table": {
@@ -2783,12 +2780,12 @@ const adminBundle = defineLocaleBundle({
                     "timeoutSecs": "Timeout Seconds"
                 },
                 "drivers": {
-                    "fs": "Local Filesystem (fs)",
-                    "s3": "S3 Compatible (s3)",
-                    "webdav": "WebDAV (webdav)",
+                    "fs": "Local Filesystem",
+                    "s3": "S3 Compatible",
+                    "webdav": "WebDAV",
                     "memory": "Memory",
-                    "android_saf": "Android SAF (android_saf)",
-                    "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+                    "android_saf": "Android SAF",
+                    "ios_scoped_fs": "iOS Scoped FS"
                 },
                 "connectors": {
                     "title": "Connector List",
@@ -2918,7 +2915,7 @@ const adminBundle = defineLocaleBundle({
                 },
                 "options": {
                     "postgres": "Use existing PostgreSQL",
-                    "sqlite": "Save on this device (recommended)",
+                    "sqlite": "Save on this device ",
                     "enabled": "Enabled",
                     "disabled": "Disabled",
                     "cacheValkey": "VALKEY",
@@ -3538,7 +3535,6 @@ const adminBundle = defineLocaleBundle({
             "subtitle": "Storage stats and maintenance",
             "statusRecovering": "WIRD WIEDERHERGESTELLT",
             "cluster_storage": "Cluster Used Storage",
-            "usage_efficiency": "Quota Utilization",
             "total_users": "Total Users",
             "global_ops": "Global Operations",
             "global_ops_desc": "Caution: These actions affect the entire cluster and should only be performed during maintenance windows.",
@@ -3821,12 +3817,12 @@ const adminBundle = defineLocaleBundle({
                     "timeoutSecs": "Timeout Seconds"
                 },
                 "drivers": {
-                    "fs": "Local Filesystem (fs)",
-                    "s3": "S3 Compatible (s3)",
-                    "webdav": "WebDAV (webdav)",
+                    "fs": "Local Filesystem",
+                    "s3": "S3 Compatible",
+                    "webdav": "WebDAV",
                     "memory": "Memory",
-                    "android_saf": "Android SAF (android_saf)",
-                    "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+                    "android_saf": "Android SAF",
+                    "ios_scoped_fs": "iOS Scoped FS"
                 },
                 "connectors": {
                     "title": "Connector List",
@@ -3956,7 +3952,7 @@ const adminBundle = defineLocaleBundle({
                 },
                 "options": {
                     "postgres": "Use existing PostgreSQL",
-                    "sqlite": "Save on this device (recommended)",
+                    "sqlite": "Save on this device ",
                     "enabled": "Enabled",
                     "disabled": "Disabled",
                     "cacheValkey": "VALKEY",
@@ -4576,7 +4572,6 @@ const adminBundle = defineLocaleBundle({
             "subtitle": "Statistiques de stockage et maintenance",
             "statusRecovering": "RÉCUPÉRATION",
             "cluster_storage": "Stockage utilisé du cluster",
-            "usage_efficiency": "Utilisation du quota",
             "total_users": "Utilisateurs totaux",
             "global_ops": "Opérations globales",
             "global_ops_desc": "Attention : ces actions affectent l'ensemble du cluster et ne doivent être exécutées que pendant des fenêtres de maintenance.",
@@ -4707,7 +4702,7 @@ const adminBundle = defineLocaleBundle({
                 "identifierPlaceholder": "ex. 192.168.1.1 ou user-uuid",
                 "reason": "Raison / Note",
                 "reasonPlaceholder": "Pourquoi est-ce bloqué ?",
-                "expiration": "Expiration (optionnel)",
+                "expiration": "Expiration ",
                 "permanentHint": "Laisser vide pour une contrainte permanente"
             },
             "table": {
@@ -4859,12 +4854,12 @@ const adminBundle = defineLocaleBundle({
                     "timeoutSecs": "Timeout Seconds"
                 },
                 "drivers": {
-                    "fs": "Local Filesystem (fs)",
-                    "s3": "S3 Compatible (s3)",
-                    "webdav": "WebDAV (webdav)",
+                    "fs": "Local Filesystem",
+                    "s3": "S3 Compatible",
+                    "webdav": "WebDAV",
                     "memory": "Memory",
-                    "android_saf": "Android SAF (android_saf)",
-                    "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+                    "android_saf": "Android SAF",
+                    "ios_scoped_fs": "iOS Scoped FS"
                 },
                 "connectors": {
                     "title": "Connector List",
@@ -4994,7 +4989,7 @@ const adminBundle = defineLocaleBundle({
                 },
                 "options": {
                     "postgres": "Use existing PostgreSQL",
-                    "sqlite": "Save on this device (recommended)",
+                    "sqlite": "Save on this device ",
                     "enabled": "Enabled",
                     "disabled": "Disabled",
                     "cacheValkey": "VALKEY",
@@ -5614,7 +5609,6 @@ const adminBundle = defineLocaleBundle({
             "subtitle": "Статистика хранилища и обслуживание",
             "statusRecovering": "ВОССТАНОВЛЕНИЕ",
             "cluster_storage": "Использованное хранилище кластера",
-            "usage_efficiency": "Использование квоты",
             "total_users": "Всего пользователей",
             "global_ops": "Глобальные операции",
             "global_ops_desc": "Осторожно: эти действия затрагивают весь кластер и должны выполняться только в окна обслуживания.",
@@ -5897,12 +5891,12 @@ const adminBundle = defineLocaleBundle({
                     "timeoutSecs": "Timeout Seconds"
                 },
                 "drivers": {
-                    "fs": "Local Filesystem (fs)",
-                    "s3": "S3 Compatible (s3)",
-                    "webdav": "WebDAV (webdav)",
+                    "fs": "Local Filesystem",
+                    "s3": "S3 Compatible",
+                    "webdav": "WebDAV",
                     "memory": "Memory",
-                    "android_saf": "Android SAF (android_saf)",
-                    "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+                    "android_saf": "Android SAF",
+                    "ios_scoped_fs": "iOS Scoped FS"
                 },
                 "connectors": {
                     "title": "Connector List",
@@ -6032,7 +6026,7 @@ const adminBundle = defineLocaleBundle({
                 },
                 "options": {
                     "postgres": "Use existing PostgreSQL",
-                    "sqlite": "Save on this device (recommended)",
+                    "sqlite": "Save on this device ",
                     "enabled": "Enabled",
                     "disabled": "Disabled",
                     "cacheValkey": "VALKEY",
@@ -6652,7 +6646,6 @@ const adminBundle = defineLocaleBundle({
             "subtitle": "ストレージ統計とメンテナンス",
             "statusRecovering": "復旧中",
             "cluster_storage": "クラスター使用ストレージ",
-            "usage_efficiency": "クォータ使用率",
             "total_users": "総ユーザー数",
             "global_ops": "グローバル操作",
             "global_ops_desc": "注意: これらの操作はクラスター全体に影響します。メンテナンス時間帯のみ実行してください。",
@@ -6935,12 +6928,12 @@ const adminBundle = defineLocaleBundle({
                     "timeoutSecs": "Timeout Seconds"
                 },
                 "drivers": {
-                    "fs": "Local Filesystem (fs)",
-                    "s3": "S3 Compatible (s3)",
-                    "webdav": "WebDAV (webdav)",
+                    "fs": "Local Filesystem",
+                    "s3": "S3 Compatible",
+                    "webdav": "WebDAV",
                     "memory": "Memory",
-                    "android_saf": "Android SAF (android_saf)",
-                    "ios_scoped_fs": "iOS Scoped FS (ios_scoped_fs)"
+                    "android_saf": "Android SAF",
+                    "ios_scoped_fs": "iOS Scoped FS"
                 },
                 "connectors": {
                     "title": "Connector List",
@@ -7070,7 +7063,7 @@ const adminBundle = defineLocaleBundle({
                 },
                 "options": {
                     "postgres": "Use existing PostgreSQL",
-                    "sqlite": "Save on this device (recommended)",
+                    "sqlite": "Save on this device ",
                     "enabled": "Enabled",
                     "disabled": "Disabled",
                     "cacheValkey": "VALKEY",
