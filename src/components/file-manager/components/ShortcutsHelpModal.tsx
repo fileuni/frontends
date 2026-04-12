@@ -63,6 +63,9 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
             <div>
               <h3 className="text-xl font-black text-white tracking-tight">{t('filemanager.help.title')}</h3>
               <p className="text-sm font-bold opacity-40 tracking-widest mt-1">{t('filemanager.help.subtitle')}</p>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/60">
+                {t('filemanager.help.modalOpenNotice')}
+              </p>
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5">
