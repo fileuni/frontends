@@ -68,8 +68,8 @@ export const PublicCenteredCard: React.FC<Props> = ({
       className={cn(
         'relative flex min-h-[calc(100dvh-var(--public-header-offset,0px))] flex-col items-center justify-start bg-background px-3 overflow-x-hidden overflow-y-auto sm:px-6',
         topPadding
-          ? 'pt-[calc(4rem+var(--safe-area-top,0px))] pb-[calc(1.5rem+var(--safe-area-bottom,0px))] sm:pt-[calc(5rem+var(--safe-area-top,0px))] sm:pb-[calc(2rem+var(--safe-area-bottom,0px))] md:pt-[calc(6rem+var(--safe-area-top,0px))]'
-          : 'pt-[calc(1.5rem+var(--safe-area-top,0px))] pb-[calc(1rem+var(--safe-area-bottom,0px))] sm:pt-[calc(2rem+var(--safe-area-top,0px))] sm:pb-[calc(1.5rem+var(--safe-area-bottom,0px))]',
+          ? 'pt-[calc(clamp(1rem,6dvh,4rem)+var(--safe-area-top,0px))] pb-[calc(1rem+var(--safe-area-bottom,0px))] sm:pt-[calc(clamp(1.5rem,8dvh,5rem)+var(--safe-area-top,0px))] sm:pb-[calc(1.5rem+var(--safe-area-bottom,0px))] md:pt-[calc(clamp(2rem,10dvh,6rem)+var(--safe-area-top,0px))] md:pb-[calc(2rem+var(--safe-area-bottom,0px))]'
+          : 'pt-[calc(clamp(0.75rem,3dvh,1.5rem)+var(--safe-area-top,0px))] pb-[calc(0.75rem+var(--safe-area-bottom,0px))] sm:pt-[calc(clamp(1rem,4dvh,2rem)+var(--safe-area-top,0px))] sm:pb-[calc(1rem+var(--safe-area-bottom,0px))] md:pt-[calc(clamp(1.25rem,5dvh,2rem)+var(--safe-area-top,0px))] md:pb-[calc(1.5rem+var(--safe-area-bottom,0px))]',
         outerClassName,
       )}
     >
