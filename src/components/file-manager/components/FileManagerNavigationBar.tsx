@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { HardDrive, ArrowRight, AlertTriangle, Globe, RefreshCw } from "lucide-react";
+import { HardDrive, ArrowRight, AlertTriangle, Globe, RefreshCw, PencilLine, X } from "lucide-react";
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
 import { cn } from "@/lib/utils.ts";
@@ -42,6 +42,16 @@ export const FileManagerNavigationBar = () => {
   const [pathInput, setPathInput] = useState(currentPath);
   const [mountContext, setMountContext] = useState<RemoteMountSummary | null>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
+
+  const startEditMode = () => {
+    setPathInput(currentPath);
+    setIsEditMode(true);
+  };
+
+  const cancelEditMode = () => {
+    setPathInput(currentPath);
+    setIsEditMode(false);
+  };
 
   useEffect(() => {
     setPathInput(currentPath);
@@ -95,25 +105,40 @@ export const FileManagerNavigationBar = () => {
     setCurrentPath(newPath);
   };
 
+  const normalizePathInput = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return "/";
+    return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  };
+
   const handleAddressSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let targetPath = pathInput.trim();
-    if (!targetPath && !targetPath.startsWith("/")) targetPath = "/" + targetPath;
-    if (targetPath === "") targetPath = "/";
-    setCurrentPath(targetPath);
+    setCurrentPath(normalizePathInput(pathInput));
     setIsEditMode(false);
   };
 
   return (
     <div className="px-6 py-2 bg-white/[0.02] border-b border-white/5 shrink-0">
       <div className="flex items-center gap-3">
+        {!isEditMode && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 shrink-0 rounded-lg text-primary/60 hover:text-primary"
+            onClick={startEditMode}
+            aria-label={t('filemanager.editPath') || 'Edit path'}
+            title={t('filemanager.editPath') || 'Edit path'}
+          >
+            <PencilLine size={16} />
+          </Button>
+        )}
         <div className={cn(
           "flex-1 h-9 rounded-xl flex items-center px-3 transition-all relative overflow-hidden",
           isEditMode ? "bg-white/10 border border-primary/30" : "hover:bg-white/5 border border-transparent cursor-text"
         )}>
           {!isEditMode ? (
             <>
-              <button type="button" className="absolute inset-0" onClick={() => setIsEditMode(true)} />
+              <button type="button" className="absolute inset-0" onClick={startEditMode} aria-label={t('filemanager.editPath') || 'Edit path'} />
               <div className="relative z-10 flex items-center gap-1 overflow-x-auto no-scrollbar font-bold text-sm w-full h-full">
               <Button variant="ghost" className="p-1.5 h-9 rounded-lg text-primary/60 hover:text-primary shrink-0" onClick={(e) => { e.stopPropagation(); setCurrentPath("/"); }}>
                 <HardDrive size={18} />
@@ -137,8 +162,37 @@ export const FileManagerNavigationBar = () => {
             </>
           ) : (
             <form onSubmit={handleAddressSubmit} className="flex items-center w-full gap-2">
-              <Input ref={addressInputRef} className="bg-transparent border-none p-0 h-full text-sm font-mono focus-visible:ring-0 focus-visible:ring-offset-0" value={pathInput} onChange={(e) => setPathInput(e.target.value)} onBlur={() => setTimeout(() => setIsEditMode(false), 200)} />
-              <button type="submit" className="p-1 rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors">
+              <Input
+                ref={addressInputRef}
+                className="bg-transparent border-none p-0 h-full text-sm font-mono focus-visible:ring-0 focus-visible:ring-offset-0"
+                value={pathInput}
+                onChange={(e) => setPathInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelEditMode();
+                  }
+                }}
+                placeholder={t('filemanager.pathPlaceholder') || '/folder/subfolder'}
+                aria-label={t('filemanager.editPath') || 'Edit path'}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0 rounded-lg text-primary/60 hover:text-primary"
+                onClick={cancelEditMode}
+                aria-label={t('filemanager.cancelEditPath') || 'Cancel path edit'}
+                title={t('filemanager.cancelEditPath') || 'Cancel path edit'}
+              >
+                <X size={16} />
+              </Button>
+              <button
+                type="submit"
+                className="p-1 rounded-lg bg-primary text-white hover:bg-primary/80 transition-colors"
+                aria-label={t('filemanager.goToPath') || 'Go to path'}
+                title={t('filemanager.goToPath') || 'Go to path'}
+              >
                 <ArrowRight size={18} />
               </button>
             </form>

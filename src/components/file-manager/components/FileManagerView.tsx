@@ -194,17 +194,29 @@ export const FileManagerView = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const target = e.target;
+      if (
+        target instanceof HTMLInputElement
+        || target instanceof HTMLTextAreaElement
+        || target instanceof HTMLSelectElement
+        || (target instanceof HTMLElement && target.isContentEditable)
+      ) return;
 
-      // If a top-layer modal or overlay is open, let it handle Escape and related keys.
-      if (isAnyEscLayerOpen()) return;
-
-      const isAnyModalOpen = actionModal.isOpen || activeShareFile || propertiesFile || browsingArchivePath || archiveOpModal.isOpen;
+      const isAnyModalOpen = (
+        isAnyEscLayerOpen()
+        || actionModal.isOpen
+        || !!activeShareFile
+        || !!propertiesFile
+        || !!browsingArchivePath
+        || archiveOpModal.isOpen
+        || contextMenu !== null
+      );
       const isMod = e.ctrlKey || e.metaKey;
       const paths = Array.from(selectedIds);
 
-      if (e.key === 'Escape') { deselectAll(); setContextMenu(null); return; }
       if (isAnyModalOpen) return;
+
+      if (e.key === 'Escape') { deselectAll(); setContextMenu(null); return; }
 
       if (isMod && e.key.toLowerCase() === 'a') { e.preventDefault(); selectAll(files.map(f => f.path)); }
       if (isMod && e.key.toLowerCase() === 'c' && paths.length > 0) {
@@ -243,7 +255,7 @@ export const FileManagerView = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     selectedIds, files, clipboard, fmMode,
-    actionModal, activeShareFile, propertiesFile, browsingArchivePath, archiveOpModal,
+    actionModal, activeShareFile, propertiesFile, browsingArchivePath, archiveOpModal, contextMenu,
     selectAll, deselectAll, addToast, t, addToClipboard, buildClipboardItem
   ]);
 
