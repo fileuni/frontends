@@ -300,6 +300,28 @@ const filemanagerBundle = defineLocaleBundle({
                 "4": "Mount -> peer, mirror with delete",
                 "5": "Bidirectional, newest wins, no delete"
             },
+            "ui": {
+                "provider": "Cloud provider",
+                "activeConnection": "Active connection",
+                "activeHint": "System will monitor and sync this drive",
+                "basicSection": "Basic identity",
+                "credentialsSection": "Authentication credentials",
+                "advancedSection": "Sync policy & advanced options",
+                "status": "Connection status",
+                "lastActivity": "Last sync activity",
+                "establishConnection": "Establish connection",
+                "applyChanges": "Apply changes",
+                "back": "Back",
+                "editor": "Editor",
+                "usage": "Storage usage",
+                "syncDetails": "Sync details",
+                "online": "Active & connected",
+                "error": "Error detected",
+                "syncing": "Synchronizing...",
+                "noMountsTitle": "No mounts yet",
+                "noMountsDesc": "Connect your external storage to expand your workspace.",
+                "getStarted": "Get started"
+            },
             "messages": {
                 "saved": "Remote mount saved",
                 "deleted": "Remote mount deleted",
@@ -307,7 +329,7 @@ const filemanagerBundle = defineLocaleBundle({
                 "confirmDelete": "Delete this remote mount?"
             },
             "rootBlockedNotice": "This directory is a remote mount mapping. Rename, move, or delete it from Mounts instead of handling it like a normal folder here.",
-            "remoteDeleteNotice": "Deleting here removes remote objects immediately and does not use the recycle bin."
+            "remoteDeleteNotice": "Deleting files here will bypass the trash and permanently remove them from the remote server."
         },
         "thumbnail": {
             "clearDir": "Clear Folder Thumbnails",
@@ -871,6 +893,28 @@ const filemanagerBundle = defineLocaleBundle({
                 "4": "挂载 -> 对端，镜像并删除多余文件",
                 "5": "双向同步，较新文件覆盖较旧文件，不删除多余文件"
             },
+            "ui": {
+                "provider": "云服务商",
+                "activeConnection": "启用连接",
+                "activeHint": "系统将自动监控并同步此驱动器",
+                "basicSection": "基本信息",
+                "credentialsSection": "认证凭据",
+                "advancedSection": "同步策略与高级选项",
+                "status": "连接状态",
+                "lastActivity": "最近同步活动",
+                "establishConnection": "建立连接",
+                "applyChanges": "应用更改",
+                "back": "返回",
+                "editor": "编辑器",
+                "usage": "存储配额",
+                "syncDetails": "同步详情",
+                "online": "已连接",
+                "error": "检测到错误",
+                "syncing": "同步中...",
+                "noMountsTitle": "暂无挂载点",
+                "noMountsDesc": "连接外部存储以扩展您的工作空间。",
+                "getStarted": "立即开始"
+            },
             "messages": {
                 "saved": "远程挂载已保存",
                 "deleted": "远程挂载已删除",
@@ -878,7 +922,7 @@ const filemanagerBundle = defineLocaleBundle({
                 "confirmDelete": "确认删除这个远程挂载吗？"
             },
             "rootBlockedNotice": "这是一个远程挂载映射目录；重命名、移动或删除都应在挂载管理中处理，而不是按普通文件夹操作。",
-            "remoteDeleteNotice": "在这里删除会直接作用于远端对象，不会进入回收站。"
+            "remoteDeleteNotice": "在此处删除文件将绕过回收站，并永久从远程服务器中移除。"
         },
         "thumbnail": {
             "clearDir": "清理本目录缩略图",
@@ -1442,6 +1486,28 @@ const filemanagerBundle = defineLocaleBundle({
                 "4": "Mount -> peer, mirror with delete",
                 "5": "Bidirectional, newest wins, no delete"
             },
+            "ui": {
+                "provider": "Cloud provider",
+                "activeConnection": "Active connection",
+                "activeHint": "System will monitor and sync this drive",
+                "basicSection": "Basic identity",
+                "credentialsSection": "Authentication credentials",
+                "advancedSection": "Sync policy & advanced options",
+                "status": "Connection status",
+                "lastActivity": "Last sync activity",
+                "establishConnection": "Establish connection",
+                "applyChanges": "Apply changes",
+                "back": "Back",
+                "editor": "Editor",
+                "usage": "Storage usage",
+                "syncDetails": "Sync details",
+                "online": "Active & connected",
+                "error": "Error detected",
+                "syncing": "Synchronizing...",
+                "noMountsTitle": "No mounts yet",
+                "noMountsDesc": "Connect your external storage to expand your workspace.",
+                "getStarted": "Get started"
+            },
             "messages": {
                 "saved": "Remote mount saved",
                 "deleted": "Remote mount deleted",
@@ -1449,7 +1515,7 @@ const filemanagerBundle = defineLocaleBundle({
                 "confirmDelete": "Delete this remote mount?"
             },
             "rootBlockedNotice": "This directory is a remote mount mapping. Rename, move, or delete it from Mounts instead of handling it like a normal folder here.",
-            "remoteDeleteNotice": "Deleting here removes remote objects immediately and does not use the recycle bin."
+            "remoteDeleteNotice": "Deleting files here will bypass the trash and permanently remove them from the remote server."
         },
         "thumbnail": {
             "clearDir": "Borrar miniaturas de la carpeta",
@@ -2013,6 +2079,28 @@ const filemanagerBundle = defineLocaleBundle({
                 "4": "Mount -> peer, mirror with delete",
                 "5": "Bidirectional, newest wins, no delete"
             },
+            "ui": {
+                "provider": "Cloud provider",
+                "activeConnection": "Active connection",
+                "activeHint": "System will monitor and sync this drive",
+                "basicSection": "Basic identity",
+                "credentialsSection": "Authentication credentials",
+                "advancedSection": "Sync policy & advanced options",
+                "status": "Connection status",
+                "lastActivity": "Last sync activity",
+                "establishConnection": "Establish connection",
+                "applyChanges": "Apply changes",
+                "back": "Back",
+                "editor": "Editor",
+                "usage": "Storage usage",
+                "syncDetails": "Sync details",
+                "online": "Active & connected",
+                "error": "Error detected",
+                "syncing": "Synchronizing...",
+                "noMountsTitle": "No mounts yet",
+                "noMountsDesc": "Connect your external storage to expand your workspace.",
+                "getStarted": "Get started"
+            },
             "messages": {
                 "saved": "Remote mount saved",
                 "deleted": "Remote mount deleted",
@@ -2020,7 +2108,7 @@ const filemanagerBundle = defineLocaleBundle({
                 "confirmDelete": "Delete this remote mount?"
             },
             "rootBlockedNotice": "This directory is a remote mount mapping. Rename, move, or delete it from Mounts instead of handling it like a normal folder here.",
-            "remoteDeleteNotice": "Deleting here removes remote objects immediately and does not use the recycle bin."
+            "remoteDeleteNotice": "Deleting files here will bypass the trash and permanently remove them from the remote server."
         },
         "thumbnail": {
             "clearDir": "Clear Folder Thumbnails",
@@ -2584,6 +2672,28 @@ const filemanagerBundle = defineLocaleBundle({
                 "4": "Mount -> peer, mirror with delete",
                 "5": "Bidirectional, newest wins, no delete"
             },
+            "ui": {
+                "provider": "Cloud provider",
+                "activeConnection": "Active connection",
+                "activeHint": "System will monitor and sync this drive",
+                "basicSection": "Basic identity",
+                "credentialsSection": "Authentication credentials",
+                "advancedSection": "Sync policy & advanced options",
+                "status": "Connection status",
+                "lastActivity": "Last sync activity",
+                "establishConnection": "Establish connection",
+                "applyChanges": "Apply changes",
+                "back": "Back",
+                "editor": "Editor",
+                "usage": "Storage usage",
+                "syncDetails": "Sync details",
+                "online": "Active & connected",
+                "error": "Error detected",
+                "syncing": "Synchronizing...",
+                "noMountsTitle": "No mounts yet",
+                "noMountsDesc": "Connect your external storage to expand your workspace.",
+                "getStarted": "Get started"
+            },
             "messages": {
                 "saved": "Remote mount saved",
                 "deleted": "Remote mount deleted",
@@ -2591,7 +2701,7 @@ const filemanagerBundle = defineLocaleBundle({
                 "confirmDelete": "Delete this remote mount?"
             },
             "rootBlockedNotice": "This directory is a remote mount mapping. Rename, move, or delete it from Mounts instead of handling it like a normal folder here.",
-            "remoteDeleteNotice": "Deleting here removes remote objects immediately and does not use the recycle bin."
+            "remoteDeleteNotice": "Deleting files here will bypass the trash and permanently remove them from the remote server."
         },
         "thumbnail": {
             "clearDir": "Effacer les miniatures du dossier",
@@ -3155,6 +3265,28 @@ const filemanagerBundle = defineLocaleBundle({
                 "4": "Mount -> peer, mirror with delete",
                 "5": "Bidirectional, newest wins, no delete"
             },
+            "ui": {
+                "provider": "Cloud provider",
+                "activeConnection": "Active connection",
+                "activeHint": "System will monitor and sync this drive",
+                "basicSection": "Basic identity",
+                "credentialsSection": "Authentication credentials",
+                "advancedSection": "Sync policy & advanced options",
+                "status": "Connection status",
+                "lastActivity": "Last sync activity",
+                "establishConnection": "Establish connection",
+                "applyChanges": "Apply changes",
+                "back": "Back",
+                "editor": "Editor",
+                "usage": "Storage usage",
+                "syncDetails": "Sync details",
+                "online": "Active & connected",
+                "error": "Error detected",
+                "syncing": "Synchronizing...",
+                "noMountsTitle": "No mounts yet",
+                "noMountsDesc": "Connect your external storage to expand your workspace.",
+                "getStarted": "Get started"
+            },
             "messages": {
                 "saved": "Remote mount saved",
                 "deleted": "Remote mount deleted",
@@ -3162,7 +3294,7 @@ const filemanagerBundle = defineLocaleBundle({
                 "confirmDelete": "Delete this remote mount?"
             },
             "rootBlockedNotice": "This directory is a remote mount mapping. Rename, move, or delete it from Mounts instead of handling it like a normal folder here.",
-            "remoteDeleteNotice": "Deleting here removes remote objects immediately and does not use the recycle bin."
+            "remoteDeleteNotice": "Deleting files here will bypass the trash and permanently remove them from the remote server."
         },
         "thumbnail": {
             "clearDir": "Очистить миниатюры папки",
@@ -3726,6 +3858,28 @@ const filemanagerBundle = defineLocaleBundle({
                 "4": "Mount -> peer, mirror with delete",
                 "5": "Bidirectional, newest wins, no delete"
             },
+            "ui": {
+                "provider": "Cloud provider",
+                "activeConnection": "Active connection",
+                "activeHint": "System will monitor and sync this drive",
+                "basicSection": "Basic identity",
+                "credentialsSection": "Authentication credentials",
+                "advancedSection": "Sync policy & advanced options",
+                "status": "Connection status",
+                "lastActivity": "Last sync activity",
+                "establishConnection": "Establish connection",
+                "applyChanges": "Apply changes",
+                "back": "Back",
+                "editor": "Editor",
+                "usage": "Storage usage",
+                "syncDetails": "Sync details",
+                "online": "Active & connected",
+                "error": "Error detected",
+                "syncing": "Synchronizing...",
+                "noMountsTitle": "No mounts yet",
+                "noMountsDesc": "Connect your external storage to expand your workspace.",
+                "getStarted": "Get started"
+            },
             "messages": {
                 "saved": "Remote mount saved",
                 "deleted": "Remote mount deleted",
@@ -3733,7 +3887,7 @@ const filemanagerBundle = defineLocaleBundle({
                 "confirmDelete": "Delete this remote mount?"
             },
             "rootBlockedNotice": "This directory is a remote mount mapping. Rename, move, or delete it from Mounts instead of handling it like a normal folder here.",
-            "remoteDeleteNotice": "Deleting here removes remote objects immediately and does not use the recycle bin."
+            "remoteDeleteNotice": "Deleting files here will bypass the trash and permanently remove them from the remote server."
         },
         "thumbnail": {
             "clearDir": "このフォルダのサムネイルをクリア",
