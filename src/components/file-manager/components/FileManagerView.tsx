@@ -202,15 +202,7 @@ export const FileManagerView = () => {
         || (target instanceof HTMLElement && target.isContentEditable)
       ) return;
 
-      const isAnyModalOpen = (
-        isAnyEscLayerOpen()
-        || actionModal.isOpen
-        || !!activeShareFile
-        || !!propertiesFile
-        || !!browsingArchivePath
-        || archiveOpModal.isOpen
-        || contextMenu !== null
-      );
+      const isAnyModalOpen = isAnyEscLayerOpen() || contextMenu !== null;
       const isMod = e.ctrlKey || e.metaKey;
       const paths = Array.from(selectedIds);
 
@@ -255,7 +247,7 @@ export const FileManagerView = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     selectedIds, files, clipboard, fmMode,
-    actionModal, activeShareFile, propertiesFile, browsingArchivePath, archiveOpModal, contextMenu,
+    contextMenu,
     selectAll, deselectAll, addToast, t, addToClipboard, buildClipboardItem
   ]);
 

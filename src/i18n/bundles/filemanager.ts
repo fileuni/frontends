@@ -395,7 +395,6 @@ const filemanagerBundle = defineLocaleBundle({
         "help": {
             "title": "User Guide",
             "subtitle": "Shortcuts & Interactions",
-            "modalOpenNotice": "When a dialog, preview, or context menu is open, file list shortcuts are temporarily paused.",
             "gotIt": "Got it",
             "tip": "Tips: You can also use Drag & Drop to upload or move files.",
             "sections": {
@@ -967,7 +966,6 @@ const filemanagerBundle = defineLocaleBundle({
         "help": {
             "title": "用户操作指南",
             "subtitle": "快捷键与交互说明",
-            "modalOpenNotice": "当弹窗、预览层或右键菜单打开时，文件列表快捷键会暂时停用。",
             "gotIt": "知道了",
             "tip": "小贴士：您也可以直接拖拽文件到目录中进行移动或上传。",
             "sections": {
@@ -1539,7 +1537,6 @@ const filemanagerBundle = defineLocaleBundle({
         "help": {
             "title": "Guía de usuario",
             "subtitle": "Atajos e interacciones",
-            "modalOpenNotice": "Cuando haya un cuadro de diálogo, una vista previa o un menú contextual abierto, los atajos de la lista de archivos se pausarán temporalmente.",
             "gotIt": "Entendido",
             "tip": "Consejo: también puede usar arrastrar y soltar para subir o mover archivos.",
             "sections": {
@@ -2111,7 +2108,6 @@ const filemanagerBundle = defineLocaleBundle({
         "help": {
             "title": "Benutzerhandbuch",
             "subtitle": "Tastaturkürzel & Interaktionen",
-            "modalOpenNotice": "Wenn ein Dialog, eine Vorschau oder ein Kontextmenü geöffnet ist, werden die Dateilisten-Kurzbefehle vorübergehend pausiert.",
             "gotIt": "Verstanden",
             "tip": "Tipp: Sie können auch Drag & Drop zum Hochladen oder Verschieben von Dateien verwenden.",
             "sections": {
@@ -2683,7 +2679,6 @@ const filemanagerBundle = defineLocaleBundle({
         "help": {
             "title": "Guide utilisateur",
             "subtitle": "Raccourcis et interactions",
-            "modalOpenNotice": "Lorsqu'une boîte de dialogue, un aperçu ou un menu contextuel est ouvert, les raccourcis de la liste de fichiers sont temporairement suspendus.",
             "gotIt": "Compris",
             "tip": "Astuce : vous pouvez aussi glisser-déposer pour téléverser ou déplacer des fichiers.",
             "sections": {
@@ -3255,7 +3250,6 @@ const filemanagerBundle = defineLocaleBundle({
         "help": {
             "title": "Руководство",
             "subtitle": "Горячие клавиши и взаимодействия",
-            "modalOpenNotice": "Когда открыто диалоговое окно, предпросмотр или контекстное меню, горячие клавиши списка файлов временно отключаются.",
             "gotIt": "Понятно",
             "tip": "Совет: можно использовать Drag & Drop для загрузки и перемещения файлов.",
             "sections": {
@@ -3827,7 +3821,6 @@ const filemanagerBundle = defineLocaleBundle({
         "help": {
             "title": "ユーザーガイド",
             "subtitle": "ショートカットと操作",
-            "modalOpenNotice": "ダイアログ、プレビュー、またはコンテキストメニューが開いている間は、ファイル一覧のショートカットは一時的に無効になります。",
             "gotIt": "了解",
             "tip": "ヒント: ドラッグ&ドロップでアップロードや移動もできます。",
             "sections": {

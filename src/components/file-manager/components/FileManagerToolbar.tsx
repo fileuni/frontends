@@ -160,7 +160,7 @@ export const FileManagerToolbar = () => {
 
   return (
     <>
-      <div className="min-h-16 h-auto py-2 md:h-16 border-b border-white/5 bg-white/[0.01] flex flex-wrap items-center justify-between px-4 md:px-6 shrink-0 gap-y-2">
+      <div className="min-h-16 py-2 border-b border-white/5 bg-white/[0.01] flex flex-wrap items-center justify-between px-4 md:px-6 shrink-0 gap-y-2">
         <div className="flex items-center gap-2 md:gap-4 min-w-0">
           {fmMode === 'files' && (
             <>

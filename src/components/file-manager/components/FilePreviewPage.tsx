@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/Button.tsx';
 import { useToastStore } from '@/stores/toast';
 import { extractFileListItems } from '../utils/fileListResponse.ts';
 import { shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
+import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 
 // Lazy load PdfPreview to avoid SSR build errors
 const PdfPreview = React.lazy(() => import('./PdfPreview.tsx').then(m => ({ default: m.PdfPreview })));
@@ -68,6 +69,11 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const enableMarkdownVditor = capabilities?.enable_markdown_vditor !== false;
   const jsdelivrBase = capabilities?.jsdelivr_mirror_base || 'https://cdn.jsdelivr.net';
+
+  useEscapeToCloseTopLayer({
+    active: true,
+    onEscape: onClose,
+  });
 
   useEffect(() => {
     fetchSettings();

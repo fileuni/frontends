@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
+import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 
 interface Props {
   isOpen: boolean;
@@ -31,6 +32,11 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
     webkitdirectory: "",
     directory: "",
   } as React.InputHTMLAttributes<HTMLInputElement>;
+
+  useEscapeToCloseTopLayer({
+    active: isOpen,
+    onEscape: onClose,
+  });
 
   const handleFiles = (files: FileList | null) => {
     if (files && files.length > 0) {

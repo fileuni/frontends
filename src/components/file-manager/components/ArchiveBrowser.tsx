@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { cn } from '@/lib/utils.ts';
 import { toast } from '@/stores/toast';
+import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 
 interface ArchiveEntry {
   path: string;
@@ -30,6 +31,11 @@ export const ArchiveBrowser = ({ archivePath, password, onClose }: Props) => {
   const [entries, setEntries] = useState<ArchiveEntry[]>([]);
   const [currentSubPath, setCurrentSubPath] = useState(''); // Current path within archive
   const [searchKeyword, setSearchKeyword] = useState('');
+
+  useEscapeToCloseTopLayer({
+    active: true,
+    onEscape: onClose,
+  });
 
   // Load archive contents
   useEffect(() => {
