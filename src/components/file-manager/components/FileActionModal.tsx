@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
@@ -37,7 +37,7 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const pendingSelectionRef = useRef(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (actionModal.isOpen) {
       pendingSelectionRef.current = true;
       setValue(actionModal.defaultValue);
@@ -47,21 +47,18 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
     pendingSelectionRef.current = false;
   }, [actionModal.isOpen, actionModal.defaultValue]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!actionModal.isOpen || !pendingSelectionRef.current) return;
+    if (value !== actionModal.defaultValue) return;
 
     const input = inputRef.current;
     if (!input) return;
 
-    const frameId = window.requestAnimationFrame(() => {
-      input.focus();
-      const [selectionStart, selectionEnd] = getDefaultSelectionRange(actionModal.type, input.value);
-      input.setSelectionRange(selectionStart, selectionEnd);
-      pendingSelectionRef.current = false;
-    });
-
-    return () => window.cancelAnimationFrame(frameId);
-  }, [actionModal.isOpen, actionModal.type, value]);
+    input.focus();
+    const [selectionStart, selectionEnd] = getDefaultSelectionRange(actionModal.type, value);
+    input.setSelectionRange(selectionStart, selectionEnd);
+    pendingSelectionRef.current = false;
+  }, [actionModal.isOpen, actionModal.type, actionModal.defaultValue, value]);
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
