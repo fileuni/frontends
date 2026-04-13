@@ -25,7 +25,7 @@ import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import {
   buildSettingCommonActions,
 } from "@/components/setting/SettingCommonActions";
-import { AUTO_LOCALE_PREFERENCE, buildLocaleUrl } from "@/i18n/core";
+import { AUTO_LANGUAGE_PREFERENCE, buildLocaleUrl } from "@/i18n/core";
 import { createTauriSettingCommonCapabilityHandlers } from "@/components/setting/settingCommonCapabilityAdapters";
 import {
   type ConfigWorkbenchLicenseStatus,
@@ -148,7 +148,7 @@ export function Launcher() {
     useState<ServiceInstallLevel>("system");
   const [serviceAutostart, setServiceAutostart] = useState(true);
   const updateGuideBaseUrl =
-    language === AUTO_LOCALE_PREFERENCE
+    language === AUTO_LANGUAGE_PREFERENCE
       ? "https://fileuni.com/update"
       : buildLocaleUrl("https://fileuni.com", language, "/update");
 

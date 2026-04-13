@@ -13,7 +13,7 @@ import {
   Users, MessageSquare, Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
-import { AUTO_LOCALE_PREFERENCE, buildLocaleUrl } from '@/i18n/core';
+import { AUTO_LANGUAGE_PREFERENCE, buildLocaleUrl } from '@/i18n/core';
 import { StatusIndicator } from './StatusIndicator.tsx';
 import { LanguageMenuButton } from './LanguageMenuButton.tsx';
 import { ThemeToggleButton } from './ThemeToggleButton.tsx';
@@ -69,7 +69,7 @@ export const Navbar = () => {
   const canUseChat = hasPermission("feature.chat.use") && capabilities?.enable_chat !== false;
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const updateGuideBaseUrl =
-    language === AUTO_LOCALE_PREFERENCE
+    language === AUTO_LANGUAGE_PREFERENCE
       ? 'https://fileuni.com/update'
       : buildLocaleUrl('https://fileuni.com', language, '/update');
 

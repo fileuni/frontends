@@ -2,7 +2,7 @@ import React from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { FILEUNI_THEME_TOGGLE_CLASSNAMES, getNextBinaryTheme } from '@/i18n/core';
+import { THEME_TOGGLE_CLASSNAMES, getNextBinaryTheme } from '@/i18n/core';
 import { useThemeStore } from '@/stores/theme';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { cn } from '@/lib/utils';
@@ -22,8 +22,8 @@ export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({ className 
       type="button"
       onClick={() => setTheme(getNextBinaryTheme(isDark ? 'dark' : 'light'))}
       className={cn(
-        FILEUNI_THEME_TOGGLE_CLASSNAMES.button,
-        isDark ? FILEUNI_THEME_TOGGLE_CLASSNAMES.dark : FILEUNI_THEME_TOGGLE_CLASSNAMES.light,
+        THEME_TOGGLE_CLASSNAMES.button,
+        isDark ? THEME_TOGGLE_CLASSNAMES.dark : THEME_TOGGLE_CLASSNAMES.light,
         className,
       )}
       aria-label={t('launcher.toggle_theme')}

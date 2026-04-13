@@ -1,5 +1,5 @@
 import i18next from '@/lib/i18n';
-import { LOCALE_PICKER_OPTIONS } from '@/i18n/core';
+import { LOCALE_MENU_OPTIONS } from '@/i18n/core';
 
 const DOCS_ORIGIN = 'https://docs.fileuni.com';
 
@@ -8,7 +8,7 @@ const resolveDocsLocalePrefix = (lang: string | undefined): string => {
   const base = raw.split('-')[0] || '';
 
   const map = Object.fromEntries(
-    LOCALE_PICKER_OPTIONS.map((option) => [option.code.split('-')[0] || option.code, option.pathPrefix]),
+    LOCALE_MENU_OPTIONS.map((option) => [option.code.split('-')[0] || option.code, option.pathPrefix]),
   ) as Record<string, string>;
   return map[base] ?? '';
 };
@@ -31,7 +31,7 @@ export function docsUrl(path: string = '/', lang?: string): string {
   const p = normalizePath(path);
 
   // If caller already provided a locale-prefixed path, keep it.
-  const knownPrefixes = LOCALE_PICKER_OPTIONS.map((option) => option.pathPrefix).filter(Boolean);
+  const knownPrefixes = LOCALE_MENU_OPTIONS.map((option) => option.pathPrefix).filter(Boolean);
   if (
     knownPrefixes.some((candidate) => p === candidate || p.startsWith(`${candidate}/`))
   ) {

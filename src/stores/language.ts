@@ -3,8 +3,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import i18next, { changeLanguage, type SupportedLang } from '@/lib/i18n';
 import { detectFrontendLocale, toHtmlLang, toI18nextLocale } from '@/i18n/locale-adapter';
 import {
-  AUTO_LOCALE_PREFERENCE,
-  FILEUNI_LANGUAGE_STORAGE_KEY,
+  AUTO_LANGUAGE_PREFERENCE,
+  LANGUAGE_STORAGE_KEY,
   parseLocalePreference,
   resolveLocalePreference,
   type LocalePreference,
@@ -14,7 +14,7 @@ import { storageHub } from '../lib/storageHub';
 export type Language = LocalePreference;
 
 function normalizeLanguagePreference(value: string | null | undefined): Language {
-  return parseLocalePreference(value) ?? AUTO_LOCALE_PREFERENCE;
+  return parseLocalePreference(value) ?? AUTO_LANGUAGE_PREFERENCE;
 }
 
 interface LanguageState {
@@ -28,7 +28,7 @@ interface LanguageState {
 export const useLanguageStore = create<LanguageState>()(
   persist(
     (set) => ({
-      language: AUTO_LOCALE_PREFERENCE,
+      language: AUTO_LANGUAGE_PREFERENCE,
       setLanguage: (lang) => {
         const normalized = normalizeLanguagePreference(lang);
         set({ language: normalized });
@@ -36,7 +36,7 @@ export const useLanguageStore = create<LanguageState>()(
       },
     }),
     {
-      name: FILEUNI_LANGUAGE_STORAGE_KEY,
+      name: LANGUAGE_STORAGE_KEY,
       storage: createJSONStorage(() => storageHub.createZustandStorage()),
       onRehydrateStorage: () => (state) => {
         if (!state) return;

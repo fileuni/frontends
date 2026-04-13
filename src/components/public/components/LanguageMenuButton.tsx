@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 
 import { normalizeFrontendStoredLocale } from '@/i18n/locale-adapter';
 import {
-  AUTO_LOCALE_PREFERENCE,
-  FILEUNI_LANGUAGE_MENU_CLASSNAMES,
-  LOCALE_PICKER_OPTIONS,
+  AUTO_LANGUAGE_PREFERENCE,
+  LOCALE_MENU_CLASSNAMES,
+  LOCALE_MENU_OPTIONS,
   createDisclosureState,
   getLocaleNativeLabel,
   reduceDisclosureState,
@@ -20,7 +20,7 @@ interface LanguageMenuButtonProps {
   className?: string | undefined;
 }
 
-const languageOptions: { id: Language; label: string }[] = LOCALE_PICKER_OPTIONS.map((option) => ({
+const languageOptions: { id: Language; label: string }[] = LOCALE_MENU_OPTIONS.map((option) => ({
   id: option.code,
   label: option.nativeLabel,
 }));
@@ -38,7 +38,7 @@ export const LanguageMenuButton: React.FC<LanguageMenuButtonProps> = ({ compact 
 
   const isDark = resolvedTheme === 'dark';
   const currentI18nLang = normalizeFrontendStoredLocale(i18n.language) ?? 'en';
-  const langValueForUi: Language = language === AUTO_LOCALE_PREFERENCE ? currentI18nLang : language;
+  const langValueForUi: Language = language === AUTO_LANGUAGE_PREFERENCE ? currentI18nLang : language;
   const currentLabel = getLocaleNativeLabel(langValueForUi);
 
   useEffect(() => {
@@ -59,21 +59,21 @@ export const LanguageMenuButton: React.FC<LanguageMenuButtonProps> = ({ compact 
         type="button"
         onClick={() => dispatchMenu({ type: 'toggle' })}
         className={cn(
-          FILEUNI_LANGUAGE_MENU_CLASSNAMES.trigger,
-          compact && FILEUNI_LANGUAGE_MENU_CLASSNAMES.triggerCompact,
-          isDark ? FILEUNI_LANGUAGE_MENU_CLASSNAMES.triggerDark : FILEUNI_LANGUAGE_MENU_CLASSNAMES.triggerLight,
+          LOCALE_MENU_CLASSNAMES.trigger,
+          compact && LOCALE_MENU_CLASSNAMES.triggerCompact,
+          isDark ? LOCALE_MENU_CLASSNAMES.triggerDark : LOCALE_MENU_CLASSNAMES.triggerLight,
         )}
         aria-label={t('launcher.switch_language')}
         title={t('launcher.switch_language')}
       >
-        <Languages size={16} className={FILEUNI_LANGUAGE_MENU_CLASSNAMES.triggerGlyph} aria-hidden />
-        <span className={FILEUNI_LANGUAGE_MENU_CLASSNAMES.triggerLabel}>{currentLabel}</span>
+        <Languages size={16} className={LOCALE_MENU_CLASSNAMES.triggerGlyph} aria-hidden />
+        <span className={LOCALE_MENU_CLASSNAMES.triggerLabel}>{currentLabel}</span>
       </button>
       {menuState.open && (
         <div
           className={cn(
-            FILEUNI_LANGUAGE_MENU_CLASSNAMES.menu,
-            isDark ? FILEUNI_LANGUAGE_MENU_CLASSNAMES.menuDark : FILEUNI_LANGUAGE_MENU_CLASSNAMES.menuLight,
+            LOCALE_MENU_CLASSNAMES.menu,
+            isDark ? LOCALE_MENU_CLASSNAMES.menuDark : LOCALE_MENU_CLASSNAMES.menuLight,
           )}
         >
           {languageOptions.map((option) => (
@@ -85,14 +85,14 @@ export const LanguageMenuButton: React.FC<LanguageMenuButtonProps> = ({ compact 
                 dispatchMenu({ type: 'close' });
               }}
               className={cn(
-                FILEUNI_LANGUAGE_MENU_CLASSNAMES.item,
+                LOCALE_MENU_CLASSNAMES.item,
                 langValueForUi === option.id
                   ? (isDark
-                    ? FILEUNI_LANGUAGE_MENU_CLASSNAMES.itemActiveDark
-                    : FILEUNI_LANGUAGE_MENU_CLASSNAMES.itemActiveLight)
+                    ? LOCALE_MENU_CLASSNAMES.itemActiveDark
+                    : LOCALE_MENU_CLASSNAMES.itemActiveLight)
                   : (isDark
-                    ? FILEUNI_LANGUAGE_MENU_CLASSNAMES.itemIdleDark
-                    : FILEUNI_LANGUAGE_MENU_CLASSNAMES.itemIdleLight),
+                    ? LOCALE_MENU_CLASSNAMES.itemIdleDark
+                    : LOCALE_MENU_CLASSNAMES.itemIdleLight),
               )}
             >
               <span className="block truncate">{option.label}</span>

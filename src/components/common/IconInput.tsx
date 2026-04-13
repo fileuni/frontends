@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IconInput as SharedIconInput, type IconInputProps } from '@fileuni/ts-shared/react-ui';
+import { IconInput as SharedIconInput, type IconInputProps } from '@fileuni/ts-shared/form-fields';
 
 import { cn } from '@/lib/utils.ts';
 

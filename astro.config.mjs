@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
-import { createReadStream } from 'node:fs';
+import { createReadStream, existsSync } from 'node:fs';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,8 @@ const nodeEnv = process.env.NODE_ENV ?? (process.argv.includes('build') ? 'produ
 const vditorDistDir = fileURLToPath(new URL('./node_modules/vditor/dist', import.meta.url));
 const vditorPublicBase = 'vendor/vditor';
 const vditorPublicPrefix = `/${vditorPublicBase}/dist/`;
+const localTsSharedRoot = fileURLToPath(new URL('../ts_shared', import.meta.url));
+const localTsSharedAlias = existsSync(localTsSharedRoot) ? { '@fileuni/ts-shared': localTsSharedRoot } : {};
 
 const getContentType = (filePath) => {
   switch (path.extname(filePath).toLowerCase()) {
@@ -151,7 +153,7 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
-        '@fileuni/ts-shared/react-ui': fileURLToPath(new URL('../ts_shared/react-ui/index.ts', import.meta.url)),
+        ...localTsSharedAlias,
         'react/jsx-dev-runtime': fileURLToPath(
           new URL('./node_modules/react/cjs/react-jsx-dev-runtime.development.js', import.meta.url),
         ),

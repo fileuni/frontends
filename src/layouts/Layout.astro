@@ -1,7 +1,7 @@
 ---
 import '../styles/globals.css';
 import '@/lib/i18n.ts'; // Init i18n
-import { buildThemeHeadBootstrap, FILEUNI_LANGUAGE_STORAGE_KEY } from '@/i18n/core';
+import { buildThemeHeadBootstrap, LANGUAGE_STORAGE_KEY } from '@/i18n/core';
 
 interface Props {
 	title: string;
@@ -37,7 +37,7 @@ const themeHeadBootstrap = buildThemeHeadBootstrap({
 		<meta name="theme-color" content="#0082c9" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<script is:inline define:vars={{ fileuniLanguageStorageKey: FILEUNI_LANGUAGE_STORAGE_KEY }}>
+		<script is:inline define:vars={{ fileuniLanguageStorageKey: LANGUAGE_STORAGE_KEY }}>
 			const detectFileUniLocale = (value) => {
 				if (typeof value !== 'string') return null;
 				const normalized = value.trim().toLowerCase().replace(/_/g, '-');

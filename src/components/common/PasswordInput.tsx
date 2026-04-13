@@ -4,7 +4,7 @@ import {
   PasswordInput as SharedPasswordInput,
   type PasswordInputProps,
   type PasswordToggleLabels,
-} from '@fileuni/ts-shared/react-ui';
+} from '@fileuni/ts-shared/password-fields';
 
 import { cn } from '@/lib/utils.ts';
 

@@ -1,7 +1,7 @@
 export {
-  AUTO_LOCALE_PREFERENCE,
+  AUTO_LANGUAGE_PREFERENCE,
   DEFAULT_LOCALE,
-  FILEUNI_LANGUAGE_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
   LOCALE_METADATA,
   SUPPORTED_LOCALES,
   buildLocaleUrl,
@@ -16,23 +16,21 @@ export {
   type LocalePreference,
   type LocaleShape,
   type SupportedLocale,
-} from '@fileuni/ts-shared/locale';
+} from '@fileuni/ts-shared/localization';
 
 export {
-  FILEUNI_CONTROL_METRICS,
-  FILEUNI_ICON_BUTTON_CLASSNAMES,
-  FILEUNI_LANGUAGE_MENU_CLASSNAMES,
-  FILEUNI_THEME_TOGGLE_CLASSNAMES,
-  LOCALE_PICKER_OPTIONS,
+  LOCALE_MENU_CLASSNAMES,
+  LOCALE_MENU_METRICS,
+  LOCALE_MENU_OPTIONS,
   createDisclosureState,
-  getLocaleFlag,
   getLocaleNativeLabel,
-  mountPathLocaleDropdown,
   reduceDisclosureState,
   type DisclosureAction,
   type DisclosureState,
-  type LocalePickerOption,
-} from '@fileuni/ts-shared/controls';
+  type LocaleMenuOption,
+} from '@fileuni/ts-shared/language-menu';
+
+export { THEME_TOGGLE_CLASSNAMES } from '@fileuni/ts-shared/theme-toggle';
 
 export {
   buildThemeHeadBootstrap,
@@ -41,4 +39,4 @@ export {
   parseBrowserThemePreference,
   type ThemeHeadBootstrap,
   type ThemeHeadBootstrapOptions,
-} from '@fileuni/ts-shared/theme';
+} from '@fileuni/ts-shared/theme-system';
