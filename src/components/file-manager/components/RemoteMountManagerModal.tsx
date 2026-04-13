@@ -3,9 +3,7 @@ import {
   AlertCircle,
   Cloud,
   Database,
-  FolderOpen,
   FolderSync,
-  HardDrive,
   Server,
   Trash2,
 } from 'lucide-react';
@@ -17,7 +15,6 @@ import { useToastStore } from '@/stores/toast';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Switch } from '@/components/ui/Switch';
 import { PasswordInput } from '@/components/common/PasswordInput';
 import { cn } from '@/lib/utils';
 
@@ -205,8 +202,116 @@ const formatMountPlacement = (t: TFunction, path: string): string => {
 
 const DRIVER_ORDER: RemoteDriver[] = ['s3', 'webdav', 'dropbox', 'onedrive', 'gdrive'];
 
+// Unified Switch Component - uses theme-aware colors
+const UnifiedSwitch = ({
+  checked,
+  onChange,
+  disabled = false,
+  labels,
+}: {
+  checked: boolean;
+  onChange: (val: boolean) => void;
+  disabled?: boolean;
+  labels?: [string, string];
+}) => {
+  if (labels) {
+    return (
+      <div
+        className={cn(
+          'inline-flex items-center rounded-full p-1 transition-all',
+          'bg-muted'
+        )}
+      >
+        <button
+          type="button"
+          onClick={() => !disabled && onChange(false)}
+          disabled={disabled}
+          className={cn(
+            'relative px-4 py-2 text-sm font-bold rounded-full transition-all duration-200',
+            !checked
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground',
+            disabled && 'opacity-50 cursor-not-allowed'
+          )}
+        >
+          {labels[0]}
+        </button>
+        <button
+          type="button"
+          onClick={() => !disabled && onChange(true)}
+          disabled={disabled}
+          className={cn(
+            'relative px-4 py-2 text-sm font-bold rounded-full transition-all duration-200',
+            checked
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground',
+            disabled && 'opacity-50 cursor-not-allowed'
+          )}
+        >
+          {labels[1]}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={cn(
+        'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+        'disabled:cursor-not-allowed disabled:opacity-50',
+        checked
+          ? 'bg-primary'
+          : 'bg-muted-foreground/40 hover:bg-muted-foreground/60'
+      )}
+    >
+      <span
+        className={cn(
+          'pointer-events-none block h-5 w-5 rounded-full bg-background shadow-md transition-transform',
+          checked ? 'translate-x-5' : 'translate-x-0.5'
+        )}
+      />
+    </button>
+  );
+};
+
+// Driver Type Tab Button - uses theme-aware colors
+const DriverTabButton = ({
+  driver,
+  isActive,
+  onClick,
+  t,
+}: {
+  driver: RemoteDriver;
+  isActive: boolean;
+  onClick: () => void;
+  t: TFunction;
+}) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'group relative inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2',
+        'text-sm font-bold transition-all duration-200 sm:flex-none',
+        isActive
+          ? 'bg-primary text-primary-foreground shadow-md'
+          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+      )}
+    >
+      {driverIcon(driver, cn('h-4 w-4 transition-colors', isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'))}
+      <span>{translateDriverLabel(t, driver)}</span>
+    </button>
+  );
+};
+
 const FieldRow = ({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) => (
-  <div className="flex items-start justify-between gap-4 border-b border-border/60 py-3 last:border-b-0 last:pb-0 first:pt-0">
+  <div className="flex items-start justify-between gap-4 py-3 border-b border-border/60 last:border-b-0 last:pb-0 first:pt-0">
     <span className="text-sm text-muted-foreground">{label}</span>
     <span className={cn('max-w-[60%] text-right text-sm font-semibold', mono && 'font-mono text-[13px]')}>{value}</span>
   </div>
@@ -227,10 +332,10 @@ const SummaryCard = ({
   selectedSyncMode: { id: number; label: string; description: string };
   editingMount: MountDto | null;
 }) => (
-  <section className="overflow-hidden rounded-[1.5rem] border border-border bg-card/60 shadow-sm">
+  <section className="overflow-hidden rounded-2xl bg-card/60 shadow-sm border border-border">
     <div className="border-b border-border/70 bg-primary/5 px-4 py-4 sm:px-5">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
           {driverIcon(draft.driver, 'h-5 w-5')}
         </div>
         <div className="min-w-0">
@@ -247,14 +352,14 @@ const SummaryCard = ({
       <FieldRow label={t('filemanager.mounts.status')} value={draft.enable ? t('common.enabled') : t('common.disabled')} />
 
       {editingMount && (
-        <div className="mt-4 rounded-2xl border border-border/70 bg-background/70 p-4">
+        <div className="mt-4 rounded-xl bg-muted/50 p-4">
           <FieldRow label={t('filemanager.mounts.lastSyncAt')} value={formatDateTime(editingMount.last_sync_at)} />
           <FieldRow label={t('filemanager.mounts.nextSyncAt')} value={editingMount.sync_peer_dir ? formatDateTime(editingMount.next_sync_at) : t('filemanager.mounts.ui.notScheduled')} />
         </div>
       )}
 
       {editingMount?.last_error && (
-        <div className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm leading-6 text-red-500">
+        <div className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-sm leading-6 text-destructive">
           {editingMount.last_error}
         </div>
       )}
@@ -279,6 +384,7 @@ export const RemoteMountManagerModal: React.FC<{
   const [policy, setPolicy] = useState<MountPolicyDto | null>(null);
   const [draft, setDraft] = useState<Draft>(() => createDraft(currentPath));
   const [editingId, setEditingId] = useState<string | null>(null);
+
   const refreshMounts = useCallback(async () => {
     setLoading(true);
     try {
@@ -444,119 +550,97 @@ export const RemoteMountManagerModal: React.FC<{
     }
   };
 
-  const mutedSegmentText = 'text-slate-800 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-white/12';
-
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={title || t('filemanager.mounts.title')}
       maxWidth="max-w-5xl"
-      className="rounded-[1.75rem] border border-border bg-background text-foreground shadow-2xl"
+      className="rounded-2xl border border-border bg-background text-foreground shadow-2xl"
       bodyClassName="overflow-hidden bg-background p-0"
     >
       <div className="flex min-h-[560px] max-h-[calc(100dvh-1rem)] flex-col bg-background text-foreground sm:max-h-[calc(100dvh-2rem)]">
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-4 py-4 sm:px-6 sm:py-5">
           {loading ? (
-            <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-[1.5rem] bg-card/25 text-muted-foreground">
+            <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-2xl bg-card/50 text-muted-foreground">
               <p className="text-sm">{t('common.loading')}</p>
             </div>
           ) : (
             <div className="grid min-h-0 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-              <div className="min-h-0 space-y-4">
-                <section className="rounded-[1.5rem] bg-card/70 p-4 shadow-sm sm:p-5">
-                  <div className="mb-4 inline-flex w-full flex-wrap items-center justify-center rounded-full bg-slate-100/90 p-1 dark:bg-white/[0.05] sm:justify-start">
-                    {DRIVER_ORDER.map((driver) => {
-                      const active = draft.driver === driver;
-                      return (
-                        <button
-                          key={driver}
-                          type="button"
-                          aria-pressed={active}
-                          onClick={() => setDraft((prev) => ({ ...prev, driver, options: {} }))}
-                          className={cn(
-                            'inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-bold transition-colors sm:flex-none',
-                            active
-                              ? 'bg-primary text-white shadow-sm dark:text-white'
-                              : mutedSegmentText,
-                          )}
-                        >
-                          {driverIcon(driver, 'h-4 w-4')}
-                          <span>{translateDriverLabel(t, driver)}</span>
-                        </button>
-                      );
-                    })}
+              <div className="min-h-0 space-y-5">
+                {/* Storage Type Section */}
+                <section className="rounded-2xl bg-card/50 p-4 sm:p-5 border border-border/60">
+                  <div className="mb-4 flex flex-wrap items-center gap-2">
+                    {DRIVER_ORDER.map((driver) => (
+                      <DriverTabButton
+                        key={driver}
+                        driver={driver}
+                        isActive={draft.driver === driver}
+                        onClick={() => setDraft((prev) => ({ ...prev, driver, options: {} }))}
+                        t={t}
+                      />
+                    ))}
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2 md:col-span-2">
-                      <div className="text-sm font-black">{t('common.name')}</div>
-                      <Input value={draft.name} onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))} />
+                      <label htmlFor="mount-name" className="text-sm font-bold">{t('common.name')}</label>
+                      <Input
+                        id="mount-name"
+                        value={draft.name}
+                        onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))}
+                      />
                     </div>
 
-                    {DRIVER_FIELDS[draft.driver].map((field) => (
+                    {DRIVER_FIELDS[draft.driver].map((field, idx) => (
                       <div key={field.key} className={cn('space-y-2', field.wide && 'md:col-span-2')}>
-                        <div className="text-sm font-black">{translateFieldLabel(t, draft.driver, field.key)}</div>
+                        <label htmlFor={`field-${draft.driver}-${field.key}-${idx}`} className="text-sm font-bold">{translateFieldLabel(t, draft.driver, field.key)}</label>
                         {field.secret ? (
                           <PasswordInput
+                            id={`field-${draft.driver}-${field.key}-${idx}`}
                             value={draft.options[field.key] ?? ''}
                             onChange={(event) => setDraft((prev) => ({ ...prev, options: { ...prev.options, [field.key]: event.target.value } }))}
                           />
                         ) : (
                           <Input
+                            id={`field-${draft.driver}-${field.key}-${idx}`}
                             value={draft.options[field.key] ?? ''}
                             onChange={(event) => setDraft((prev) => ({ ...prev, options: { ...prev.options, [field.key]: event.target.value } }))}
-                            className={field.key === 'endpoint' ? 'font-mono' : undefined}
+                            className={cn(field.key === 'endpoint' ? 'font-mono' : undefined)}
                           />
                         )}
                       </div>
                     ))}
 
                     <div className="space-y-2 md:col-span-2">
-                      <div className="text-sm font-black">{t('filemanager.mounts.root')}</div>
-                      <Input value={draft.root} onChange={(event) => setDraft((prev) => ({ ...prev, root: event.target.value }))} className="font-mono" placeholder="/" />
+                      <label htmlFor="mount-root" className="text-sm font-bold">{t('filemanager.mounts.root')}</label>
+                      <Input
+                        id="mount-root"
+                        value={draft.root}
+                        onChange={(event) => setDraft((prev) => ({ ...prev, root: event.target.value }))}
+                        className="font-mono"
+                        placeholder="/"
+                      />
                     </div>
                   </div>
                 </section>
 
-                <section className="rounded-[1.5rem] bg-card/70 p-4 shadow-sm sm:p-5">
-                  <div className="mb-4 text-sm font-black tracking-tight">{t('filemanager.mounts.ui.locationTitle')}</div>
-                  <div className="inline-flex w-full items-center rounded-full bg-slate-100/90 p-1 dark:bg-white/[0.05]">
-                    <button
-                      type="button"
-                      aria-pressed={mountTargetMode === 'home'}
-                      onClick={() => changeMountTargetMode('home')}
-                      className={cn(
-                        'flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition-colors',
-                        mountTargetMode === 'home'
-                          ? 'bg-primary text-white shadow-sm dark:text-white'
-                          : mutedSegmentText,
-                      )}
-                    >
-                      <HardDrive size={16} />
-                      <span>{t('filemanager.mounts.ui.mainFolder')}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      aria-pressed={mountTargetMode === 'subdir'}
-                      onClick={() => changeMountTargetMode('subdir')}
-                      className={cn(
-                        'flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition-colors',
-                        mountTargetMode === 'subdir'
-                          ? 'bg-primary text-white shadow-sm dark:text-white'
-                          : mutedSegmentText,
-                      )}
-                    >
-                      <FolderOpen size={16} />
-                      <span>{t('filemanager.mounts.ui.separateFolder')}</span>
-                    </button>
+                {/* Mount Location Section */}
+                <section className="rounded-2xl bg-card/50 p-4 sm:p-5 border border-border/60">
+                  <div className="mb-4 flex items-center justify-between gap-4">
+                    <h3 className="text-sm font-black tracking-tight">{t('filemanager.mounts.ui.locationTitle')}</h3>
+                    <UnifiedSwitch
+                      checked={mountTargetMode === 'subdir'}
+                      onChange={(checked) => changeMountTargetMode(checked ? 'subdir' : 'home')}
+                      labels={[t('filemanager.mounts.ui.mainFolder'), t('filemanager.mounts.ui.separateFolder')]}
+                    />
                   </div>
 
                   {mountTargetMode === 'subdir' && (
                     <div className="mt-4 space-y-2">
-                      <div className="text-sm font-black">{t('filemanager.mounts.mountDir')}</div>
+                      <label htmlFor="mount-dir" className="text-sm font-bold">{t('filemanager.mounts.mountDir')}</label>
                       <Input
+                        id="mount-dir"
                         value={draft.mount_dir}
                         onChange={(event) => setDraft((prev) => ({ ...prev, mount_dir: event.target.value }))}
                         placeholder={defaultSubdirMountPath(currentPath)}
@@ -566,24 +650,33 @@ export const RemoteMountManagerModal: React.FC<{
                   )}
                 </section>
 
-                <section className="rounded-[1.5rem] bg-gradient-to-br from-primary/[0.05] via-card to-card p-4 shadow-sm sm:p-5">
+                {/* Sync Section */}
+                <section className="rounded-2xl bg-gradient-to-br from-primary/[0.03] via-card/50 to-card/50 p-4 sm:p-5 border border-border/60">
                   <div className="mb-4 flex items-center justify-between gap-4">
-                    <div className="text-sm font-black tracking-tight">{t('filemanager.mounts.ui.syncTitle')}</div>
+                    <h3 className="text-sm font-black tracking-tight">{t('filemanager.mounts.ui.syncTitle')}</h3>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold text-muted-foreground">{t('filemanager.mounts.ui.enableSync')}</span>
-                      <Switch checked={effectiveSyncEnabled} onChange={(value) => setDraft((prev) => ({ ...prev, sync_enabled: value }))} disabled={mountTargetMode === 'home'} />
+                      <span className={cn(
+                        'text-sm font-bold transition-colors',
+                        effectiveSyncEnabled ? 'text-primary' : 'text-muted-foreground'
+                      )}>{t('filemanager.mounts.ui.enableSync')}</span>
+                      <UnifiedSwitch
+                        checked={effectiveSyncEnabled}
+                        onChange={(value) => setDraft((prev) => ({ ...prev, sync_enabled: value }))}
+                        disabled={mountTargetMode === 'home'}
+                      />
                     </div>
                   </div>
 
                   {mountTargetMode === 'home' ? (
-                    <div className="rounded-2xl bg-background/70 p-4 text-sm text-muted-foreground">
+                    <div className="rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground">
                       {t('filemanager.mounts.ui.homeNoSyncHint')}
                     </div>
                   ) : effectiveSyncEnabled ? (
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <div className="text-sm font-black">{t('filemanager.mounts.ui.localFolder')}</div>
+                        <label htmlFor="sync-peer-dir" className="text-sm font-bold">{t('filemanager.mounts.ui.localFolder')}</label>
                         <Input
+                          id="sync-peer-dir"
                           value={draft.sync_peer_dir}
                           onChange={(event) => setDraft((prev) => ({ ...prev, sync_peer_dir: event.target.value }))}
                           placeholder={currentPath === '/' ? '/work-folder' : currentPath}
@@ -596,24 +689,28 @@ export const RemoteMountManagerModal: React.FC<{
                           <button
                             key={mode.id}
                             type="button"
-                            aria-pressed={draft.sync_mode === mode.id}
                             onClick={() => setDraft((prev) => ({ ...prev, sync_mode: mode.id }))}
                             className={cn(
-                              'rounded-2xl px-4 py-3 text-left transition-all',
-                              draft.sync_mode === mode.id ? 'bg-primary/10 shadow-sm outline outline-1 outline-primary/25' : 'bg-background/70 hover:bg-accent',
+                              'rounded-xl px-4 py-3 text-left transition-all border',
+                              draft.sync_mode === mode.id
+                                ? 'bg-primary/10 border-primary/30 shadow-sm'
+                                : 'bg-background border-border hover:border-primary/20'
                             )}
                           >
-                            <div className="text-sm font-black">{mode.label}</div>
+                            <div className={cn(
+                              'text-sm font-black',
+                              draft.sync_mode === mode.id ? 'text-primary' : 'text-foreground'
+                            )}>{mode.label}</div>
                           </button>
                         ))}
                       </div>
 
-                      <div className="rounded-2xl bg-background/80 p-4 text-sm leading-6 text-muted-foreground">
+                      <div className="rounded-xl bg-muted/50 p-4 text-sm leading-6 text-muted-foreground">
                         {selectedSyncMode.description}
                       </div>
 
                       {(draft.sync_mode === 2 || draft.sync_mode === 4) && (
-                        <div className="flex items-start gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-500">
+                        <div className="flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-destructive">
                           <AlertCircle size={18} className="mt-0.5 shrink-0" />
                           <p className="text-sm leading-6">{t('filemanager.mounts.ui.syncDeleteWarning')}</p>
                         </div>
@@ -621,8 +718,9 @@ export const RemoteMountManagerModal: React.FC<{
 
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                          <div className="text-sm font-black">{t('filemanager.mounts.syncInterval')}</div>
+                          <label htmlFor="sync-interval" className="text-sm font-bold">{t('filemanager.mounts.syncInterval')}</label>
                           <Input
+                            id="sync-interval"
                             type="number"
                             inputMode="numeric"
                             min={policy?.min_sync_interval_minutes ?? 1}
@@ -631,8 +729,9 @@ export const RemoteMountManagerModal: React.FC<{
                           />
                         </div>
                         <div className="space-y-2">
-                          <div className="text-sm font-black">{t('filemanager.mounts.syncTimeout')}</div>
+                          <label htmlFor="sync-timeout" className="text-sm font-bold">{t('filemanager.mounts.syncTimeout')}</label>
                           <Input
+                            id="sync-timeout"
                             type="number"
                             inputMode="numeric"
                             min={1}
@@ -644,7 +743,7 @@ export const RemoteMountManagerModal: React.FC<{
                       </div>
                     </div>
                   ) : (
-                    <div className="rounded-2xl bg-background/70 p-4 text-sm text-muted-foreground">
+                    <div className="rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground">
                       {t('filemanager.mounts.ui.syncOff')}
                     </div>
                   )}
@@ -665,7 +764,7 @@ export const RemoteMountManagerModal: React.FC<{
           )}
         </div>
 
-        <div className="border-t border-border bg-background/95 px-4 py-4 backdrop-blur-md sm:px-6">
+        <div className="border-t border-border/70 bg-muted/30 px-4 py-4 backdrop-blur-md sm:px-6">
           <div className="space-y-3 xl:hidden">
             <SummaryCard
               t={t}
