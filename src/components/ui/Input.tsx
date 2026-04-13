@@ -13,9 +13,9 @@ export const Input = React.forwardRef<
       className={cn(
         'w-full h-12 rounded-xl border px-4 outline-none',
         'text-base font-semibold placeholder:font-normal',
-        'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 shadow-sm',
-        'hover:border-slate-400 hover:bg-slate-50/80',
-        'focus:border-primary focus:ring-2 focus:ring-primary/20',
+        'border-slate-200 bg-white text-slate-900 placeholder:text-slate-400',
+        'hover:border-slate-300 hover:bg-white',
+        'focus:border-primary/80 focus:ring-2 focus:ring-primary/12',
         'dark:border-white/10 dark:bg-black/30 dark:text-white dark:placeholder:text-slate-500 dark:shadow-none',
         'dark:hover:border-white/20 dark:hover:bg-black/40',
         'dark:focus:border-primary/70 dark:focus:ring-primary/25',
