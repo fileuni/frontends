@@ -18,7 +18,7 @@ const supportedI18nextLangs: FrontendI18nextLocale[] = supportedLangs.map((lang)
 );
 
 const loaders: Record<SupportedLang, () => Promise<{ default: Record<string, unknown> }>> = {
-  en: () => import('@/i18n/en/index.ts'),
+  en: async () => ({ default: enTranslation }),
   'zh-CN': () => import('@/i18n/zh-CN/index.ts'),
   'zh-Hant': () => import('@/i18n/zh-Hant/index.ts'),
   es: () => import('@/i18n/es/index.ts'),
