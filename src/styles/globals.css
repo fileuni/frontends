@@ -11,15 +11,6 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --border: 214.3 31.8% 91.4%;
-    --input-background: 0 0% 100%;
-    --input-background-hover: 210 50% 99%;
-    --input-background-focus: 0 0% 100%;
-    --input-border: 214 30% 88%;
-    --input-border-hover: 207 36% 80%;
-    --input-border-focus: 201 100% 39%;
-    --input-placeholder: 215 18% 55%;
-    --input-shadow: 215 30% 20%;
-    --input-highlight: 0 0% 100%;
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-right: env(safe-area-inset-right, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -51,15 +42,6 @@
     --muted: 217.2 32.6% 12.5%; /* Deep navy muted */
     --muted-foreground: 215 20.2% 65.1%;
     --border: 217.2 32.6% 17.5%;
-    --input-background: 219 32% 11%;
-    --input-background-hover: 219 32% 13%;
-    --input-background-focus: 220 34% 14%;
-    --input-border: 217 27% 22%;
-    --input-border-hover: 214 27% 30%;
-    --input-border-focus: 199 89% 56%;
-    --input-placeholder: 215 18% 62%;
-    --input-shadow: 222 55% 2%;
-    --input-highlight: 210 40% 98%;
   }
 
   select {
@@ -79,46 +61,6 @@
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
-}
-
-@layer components {
-  .ui-input {
-    background-color: hsl(var(--input-background));
-    color: hsl(var(--foreground));
-    border-color: hsl(var(--input-border));
-    caret-color: hsl(var(--primary));
-    box-shadow:
-      0 1px 2px hsl(var(--input-shadow) / 0.08),
-      inset 0 1px 0 hsl(var(--input-highlight) / 0.55);
-  }
-
-  .ui-input::placeholder {
-    color: hsl(var(--input-placeholder));
-  }
-
-  .ui-input:hover:not(:disabled) {
-    background-color: hsl(var(--input-background-hover));
-    border-color: hsl(var(--input-border-hover));
-    box-shadow:
-      0 8px 18px hsl(var(--input-shadow) / 0.08),
-      inset 0 1px 0 hsl(var(--input-highlight) / 0.36);
-  }
-
-  .ui-input:focus {
-    background-color: hsl(var(--input-background-focus));
-    border-color: hsl(var(--input-border-focus));
-    box-shadow:
-      0 0 0 4px hsl(var(--input-border-focus) / 0.14),
-      0 10px 24px hsl(var(--input-shadow) / 0.16),
-      inset 0 1px 0 hsl(var(--input-highlight) / 0.24);
-  }
-
-  .ui-input:disabled {
-    cursor: not-allowed;
-    background-color: hsl(var(--muted) / 0.9);
-    border-color: hsl(var(--border));
-    box-shadow: none;
-  }
 }
 
 @utility no-scrollbar {

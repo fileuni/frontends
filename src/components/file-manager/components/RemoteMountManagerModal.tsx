@@ -186,19 +186,9 @@ const mountToDraft = (mount: MountDto): Draft => ({
   options: mount.options,
 });
 
-const formatDateTime = (value?: string | null): string => {
-  if (!value) return '-';
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleString();
-};
-
 const parseInteger = (value: string): number | null => {
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) ? parsed : null;
-};
-
-const formatMountPlacement = (t: TFunction, path: string): string => {
-  return path === '/' ? t('filemanager.mounts.ui.homeTarget') : path;
 };
 
 const DRIVER_ORDER: RemoteDriver[] = ['s3', 'webdav', 'dropbox', 'onedrive', 'gdrive'];
@@ -325,77 +315,6 @@ const LocationSegmentedControl = ({
   );
 };
 
-const FieldRow = ({ label, value, mono = false, isDark }: { label: string; value: string; mono?: boolean; isDark: boolean }) => (
-  <div className={cn(
-    'flex items-start justify-between gap-4 py-3 border-b last:border-b-0 last:pb-0 first:pt-0',
-    isDark ? 'border-white/5' : 'border-gray-100'
-  )}>
-    <span className={cn('text-sm', isDark ? 'text-white/50' : 'text-gray-500')}>{label}</span>
-    <span className={cn('max-w-[60%] text-right text-sm font-bold', mono && 'font-mono text-[13px]')}>{value}</span>
-  </div>
-);
-
-const SummaryCard = ({
-  t,
-  draft,
-  mountTargetMode,
-  hasSync,
-  selectedSyncMode,
-  editingMount,
-  isDark,
-}: {
-  t: TFunction;
-  draft: Draft;
-  mountTargetMode: 'home' | 'subdir';
-  hasSync: boolean;
-  selectedSyncMode: { id: number; label: string; description: string };
-  editingMount: MountDto | null;
-  isDark: boolean;
-}) => (
-  <section className={cn(
-    'overflow-hidden rounded-2xl border shadow-sm',
-    isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-gray-200'
-  )}>
-    <div className={cn(
-      'border-b px-4 py-4 sm:px-5',
-      isDark ? 'border-white/10 bg-white/[0.05]' : 'border-gray-100 bg-gray-50/50'
-    )}>
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-inner">
-          {driverIcon(draft.driver, 'h-5 w-5')}
-        </div>
-        <div className="min-w-0">
-          <div className="truncate text-base font-black tracking-tight">{draft.name.trim() || translateDriverLabel(t, draft.driver)}</div>
-          <div className={cn('mt-0.5 text-sm', isDark ? 'text-white/50' : 'text-gray-500')}>{translateDriverLabel(t, draft.driver)}</div>
-        </div>
-      </div>
-    </div>
-
-    <div className="px-4 py-4 sm:px-5">
-      <FieldRow label={t('filemanager.mounts.ui.showAt')} value={formatMountPlacement(t, mountTargetMode === 'home' ? '/' : normalizePathInput(draft.mount_dir) || draft.mount_dir)} mono isDark={isDark} />
-      <FieldRow label={t('filemanager.mounts.ui.localFolder')} value={hasSync ? normalizePathInput(draft.sync_peer_dir) || draft.sync_peer_dir : t('filemanager.mounts.ui.syncOff')} mono={hasSync} isDark={isDark} />
-      <FieldRow label={t('filemanager.mounts.syncMode')} value={hasSync ? selectedSyncMode.label : t('filemanager.mounts.ui.syncOff')} isDark={isDark} />
-      <FieldRow label={t('filemanager.mounts.status')} value={draft.enable ? t('common.enabled') : t('common.disabled')} isDark={isDark} />
-
-      {editingMount && (
-        <div className={cn(
-          'mt-4 rounded-xl p-4 border',
-          isDark ? 'bg-white/[0.05] border-white/10' : 'bg-gray-50 border-gray-200'
-        )}>
-          <FieldRow label={t('filemanager.mounts.lastSyncAt')} value={formatDateTime(editingMount.last_sync_at)} isDark={isDark} />
-          <FieldRow label={t('filemanager.mounts.nextSyncAt')} value={editingMount.sync_peer_dir ? formatDateTime(editingMount.next_sync_at) : t('filemanager.mounts.ui.notScheduled')} isDark={isDark} />
-        </div>
-      )}
-
-      {editingMount?.last_error && (
-        <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm leading-6 text-red-500">
-          {editingMount.last_error}
-        </div>
-      )}
-    </div>
-  </section>
-);
-
 export const RemoteMountManagerModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
@@ -478,7 +397,6 @@ export const RemoteMountManagerModal: React.FC<{
 
   const mountTargetMode = draft.mount_dir === '/' ? 'home' : 'subdir';
   const effectiveSyncEnabled = mountTargetMode === 'subdir' && draft.sync_enabled;
-  const hasSync = effectiveSyncEnabled && draft.sync_peer_dir.trim().length > 0;
   const selectedSyncMode = syncModes.find((item) => item.id === draft.sync_mode) ?? {
     id: 5,
     label: t('filemanager.mounts.syncModes.5'),
@@ -594,7 +512,7 @@ export const RemoteMountManagerModal: React.FC<{
       title={title || t('filemanager.mounts.title')}
       maxWidth="max-w-5xl"
       className={cn(
-        'rounded-2xl border shadow-2xl overflow-hidden',
+        'h-[calc(100dvh-1rem)] overflow-hidden rounded-[1.5rem] border shadow-2xl sm:h-auto sm:rounded-2xl',
         isDark
           ? 'bg-zinc-900 border-white/10 text-white'
           : 'bg-white border-gray-200 text-gray-900'
@@ -602,10 +520,10 @@ export const RemoteMountManagerModal: React.FC<{
       bodyClassName="overflow-hidden p-0"
     >
       <div className={cn(
-        'flex min-h-[560px] max-h-[calc(100dvh-1rem)] flex-col sm:max-h-[calc(100dvh-2rem)]',
+        'flex h-full min-h-0 flex-col sm:min-h-[560px]',
         isDark ? 'bg-zinc-900' : 'bg-gray-50'
       )}>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-4 py-4 sm:px-6 sm:py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-3 py-3 sm:px-6 sm:py-5">
           {loading ? (
             <div className={cn(
               'flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-2xl',
@@ -614,8 +532,7 @@ export const RemoteMountManagerModal: React.FC<{
               <p className="text-sm">{t('common.loading')}</p>
             </div>
           ) : (
-            <div className="grid min-h-0 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-              <div className="min-h-0 space-y-4">
+            <div className="min-h-0 space-y-4">
                 {/* Storage Type Section */}
                 <section className={cn(
                   'rounded-2xl border p-4 sm:p-5',
@@ -852,50 +769,29 @@ export const RemoteMountManagerModal: React.FC<{
                     </div>
                   )}
                 </section>
-              </div>
-
-              <div className="hidden xl:block xl:self-start">
-                <SummaryCard
-                  t={t}
-                  draft={draft}
-                  mountTargetMode={mountTargetMode}
-                  hasSync={hasSync}
-                  selectedSyncMode={selectedSyncMode}
-                  editingMount={editingMount}
-                  isDark={isDark}
-                />
-              </div>
             </div>
           )}
         </div>
 
         <div className={cn(
-          'border-t px-4 py-4 sm:px-6',
+          'shrink-0 border-t px-3 pt-3 pb-[calc(0.75rem+var(--safe-area-bottom))] sm:px-6 sm:py-4 backdrop-blur-xl',
           isDark
-            ? 'border-white/10 bg-zinc-900'
-            : 'border-gray-200 bg-white'
+            ? 'border-white/10 bg-zinc-900/95'
+            : 'border-gray-200 bg-white/95'
         )}>
-          <div className="space-y-3 xl:hidden">
-            <SummaryCard
-              t={t}
-              draft={draft}
-              mountTargetMode={mountTargetMode}
-              hasSync={hasSync}
-              selectedSyncMode={selectedSyncMode}
-              editingMount={editingMount}
-              isDark={isDark}
-            />
+          <div className={cn('text-sm leading-6 sm:hidden', isDark ? 'text-white/50' : 'text-gray-500')}>
+            {t('filemanager.mounts.remoteDeleteNotice')}
           </div>
 
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <div className={cn('text-sm sm:mr-auto sm:self-center', isDark ? 'text-white/50' : 'text-gray-500')}>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+            <div className={cn('hidden text-sm sm:mr-auto sm:block sm:self-center', isDark ? 'text-white/50' : 'text-gray-500')}>
               {t('filemanager.mounts.remoteDeleteNotice')}
             </div>
 
             {editingMount?.sync_peer_dir && (
               <Button
                 variant="outline"
-                className="h-11 rounded-xl text-sm sm:w-auto"
+                className="h-11 w-full rounded-xl text-sm sm:w-auto"
                 onClick={() => void handleSyncNow(editingMount.id)}
                 disabled={syncingId === editingMount.id}
               >
@@ -905,13 +801,13 @@ export const RemoteMountManagerModal: React.FC<{
             )}
 
             {editingId && (
-              <Button variant="destructive" className="h-11 rounded-xl text-sm sm:w-auto" onClick={() => void handleDelete(editingId)}>
+              <Button variant="destructive" className="h-11 w-full rounded-xl text-sm sm:w-auto" onClick={() => void handleDelete(editingId)}>
                 <Trash2 size={16} className="mr-2" />
                 {t('filemanager.mounts.ui.deleteMount')}
               </Button>
             )}
 
-            <Button className="h-11 rounded-xl text-sm font-bold sm:w-auto" onClick={() => void handleSave()} disabled={saving}>
+            <Button className="h-11 w-full rounded-xl text-sm font-bold sm:w-auto" onClick={() => void handleSave()} disabled={saving}>
               {saving ? t('common.processing') : editingId ? t('filemanager.mounts.ui.applyChanges') : t('filemanager.mounts.ui.establishConnection')}
             </Button>
           </div>
