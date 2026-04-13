@@ -106,8 +106,10 @@ export const PptxLitePreview: React.FC<Props> = ({ path, onClose }) => {
   const isLargeFile = fileSize > officeLimitBytes;
   const ext = getFileExtension(path);
   const isComplex = isComplexOfficeFile(ext, fileSize);
-  const jsdelivrBase = capabilities?.jsdelivr_mirror_base || 'https://cdn.jsdelivr.net';
-  const pptxCdnBase = buildJsdelivrGhUrl(jsdelivrBase, 'meshesha/PPTXjs', 'master');
+  const jsdelivrBase = capabilities?.jsdelivr_mirror_base;
+  const pptxCdnBase = jsdelivrBase
+    ? buildJsdelivrGhUrl(jsdelivrBase, 'meshesha/PPTXjs', 'master')
+    : null;
 
   const loadPreview = useCallback(async () => {
     setLoading(true);
@@ -118,6 +120,9 @@ export const PptxLitePreview: React.FC<Props> = ({ path, onClose }) => {
       if (size > officeLimitBytes && !forceOpen) {
         setLoading(false);
         return;
+      }
+      if (!pptxCdnBase) {
+        throw new Error('Preview unavailable');
       }
       await ensurePptxAssets(pptxCdnBase);
       const data = await extractData<{ token: string }>(

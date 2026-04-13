@@ -13,14 +13,14 @@ interface Props {
  */
 export const MarkdownVditorPreview = ({ path, isDark, headerExtra }: Props) => {
   const { capabilities } = useConfigStore();
-  const jsdelivrBase = capabilities?.jsdelivr_mirror_base || 'https://cdn.jsdelivr.net';
+  const jsdelivrBase = capabilities?.jsdelivr_mirror_base;
 
   return (
     <MarkdownVditorEditor
       path={path}
       {...(typeof isDark === 'boolean' ? { isDark } : {})}
       {...(headerExtra ? { headerExtra } : {})}
-      cdnBase={jsdelivrBase}
+      {...(jsdelivrBase ? { cdnBase: jsdelivrBase } : {})}
     />
   );
 };

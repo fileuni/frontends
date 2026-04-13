@@ -133,15 +133,17 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     : (availableModes[0] ?? 'codemirror');
   const [previewMode, setPreviewMode] = useState<LatexPreviewMode>(initialMode);
   const [modeOpen, setModeOpen] = useState(false);
-  const canRender = previewMode === 'latexmk' || previewMode === 'latexjs';
+  const canRender = previewMode === 'latexmk' || (previewMode === 'latexjs' && Boolean(capabilities?.jsdelivr_mirror_base));
 
   const useCodeEditor = !forcePlainTextarea;
 
   const fileName = path.split('/').pop() || 'LaTeX';
-  const jsdelivrBase = capabilities?.jsdelivr_mirror_base || 'https://cdn.jsdelivr.net';
-  const latexCdnBase = buildJsdelivrNpmUrl(jsdelivrBase, `latex.js@${LATEXJS_VERSION}`);
-  const latexScriptUrl = `${latexCdnBase}/dist/latex.js`;
-  const latexAssetsBase = `${latexCdnBase}/dist/`;
+  const jsdelivrBase = capabilities?.jsdelivr_mirror_base;
+  const latexCdnBase = jsdelivrBase
+    ? buildJsdelivrNpmUrl(jsdelivrBase, `latex.js@${LATEXJS_VERSION}`)
+    : null;
+  const latexScriptUrl = latexCdnBase ? `${latexCdnBase}/dist/latex.js` : null;
+  const latexAssetsBase = latexCdnBase ? `${latexCdnBase}/dist/` : null;
 
   useEffect(() => {
     let canceled = false;
@@ -291,6 +293,10 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   };
 
   const renderWithLatexjs = async () => {
+    if (!latexScriptUrl || !latexAssetsBase) {
+      addToast(t('filemanager.preview.unavailable') || 'Preview unavailable', 'error');
+      return;
+    }
     setRendering(true);
     try {
       const latexjs = await ensureLatexJs(latexScriptUrl);

@@ -378,7 +378,8 @@ const filemanagerBundle = defineLocaleBundle({
             "textPlaceholder": "Write plain text here",
             "largeFileDetected": "Large File Detected",
             "largeFileWarningDesc": "The file is large. Opening large files directly may cause browser performance issues.",
-            "previewAnyway": "Preview Anyway"
+            "previewAnyway": "Preview Anyway",
+            "unavailable": "Preview unavailable"
         },
         "editor": {
             "opening": "Opening Document...",
@@ -975,7 +976,8 @@ const filemanagerBundle = defineLocaleBundle({
             "textPlaceholder": "在此输入纯文本内容",
             "largeFileDetected": "检测到大文件",
             "largeFileWarningDesc": "文件较大，直接打开大文件可能导致浏览器性能问题。",
-            "previewAnyway": "仍然预览"
+            "previewAnyway": "仍然预览",
+            "unavailable": "预览不可用"
         },
         "editor": {
             "opening": "正在打开文档...",
@@ -1572,7 +1574,8 @@ const filemanagerBundle = defineLocaleBundle({
             "textPlaceholder": "Escriba texto plano aquí",
             "largeFileDetected": "Archivo grande detectado",
             "largeFileWarningDesc": "El archivo es grande. Abrir archivos grandes directamente puede causar problemas de rendimiento en el navegador.",
-            "previewAnyway": "Previsualizar de todos modos"
+            "previewAnyway": "Previsualizar de todos modos",
+            "unavailable": "Vista previa no disponible"
         },
         "editor": {
             "opening": "Abriendo documento...",
@@ -2169,7 +2172,8 @@ const filemanagerBundle = defineLocaleBundle({
             "textPlaceholder": "Hier Klartext schreiben",
             "largeFileDetected": "Große Datei erkannt",
             "largeFileWarningDesc": "Die Datei ist groß. Das direkte Öffnen großer Dateien kann Browser-Leistungsprobleme verursachen.",
-            "previewAnyway": "Trotzdem in Vorschau anzeigen"
+            "previewAnyway": "Trotzdem in Vorschau anzeigen",
+            "unavailable": "Vorschau nicht verfügbar"
         },
         "editor": {
             "opening": "Dokument wird geöffnet...",
@@ -2766,7 +2770,8 @@ const filemanagerBundle = defineLocaleBundle({
             "textPlaceholder": "Écrivez du texte brut ici",
             "largeFileDetected": "Fichier volumineux détecté",
             "largeFileWarningDesc": "Le fichier est volumineux. Ouvrir de grands fichiers peut dégrader les performances du navigateur.",
-            "previewAnyway": "Prévisualiser quand même"
+            "previewAnyway": "Prévisualiser quand même",
+            "unavailable": "Aperçu indisponible"
         },
         "editor": {
             "opening": "Ouverture du document...",
@@ -3363,7 +3368,8 @@ const filemanagerBundle = defineLocaleBundle({
             "textPlaceholder": "Введите обычный текст здесь",
             "largeFileDetected": "Обнаружен большой файл",
             "largeFileWarningDesc": "Файл большой. Открытие больших файлов может вызвать проблемы с производительностью браузера.",
-            "previewAnyway": "Открыть всё равно"
+            "previewAnyway": "Открыть всё равно",
+            "unavailable": "Предпросмотр недоступен"
         },
         "editor": {
             "opening": "Открываем документ...",
@@ -3960,7 +3966,8 @@ const filemanagerBundle = defineLocaleBundle({
             "textPlaceholder": "ここにプレーンテキストを入力",
             "largeFileDetected": "大きなファイルです",
             "largeFileWarningDesc": "ファイルが大きいため、直接開くとブラウザの性能問題が発生する可能性があります。",
-            "previewAnyway": "それでもプレビュー"
+            "previewAnyway": "それでもプレビュー",
+            "unavailable": "プレビューを利用できません"
         },
         "editor": {
             "opening": "ドキュメントを開いています...",

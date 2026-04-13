@@ -50,15 +50,7 @@ const getVditorLang = (lang: string): "zh_CN" | "en_US" | "ja_JP" | "ko_KR" => {
 };
 
 const MOBILE_SPLIT_BREAKPOINT = '(max-width: 960px)';
-const LOCAL_VDITOR_BASE = `${import.meta.env.BASE_URL}vendor/vditor`.replace(/\/$/, '');
-
-const getPreferredVditorBase = () => {
-  if (typeof window === 'undefined') {
-    return LOCAL_VDITOR_BASE;
-  }
-
-  return new URL(LOCAL_VDITOR_BASE, window.location.origin).toString().replace(/\/+$/, '');
-};
+const normalizeVditorBase = (base: string) => base.replace(/\/+$/, '');
 
 /**
  * Markdown Editor and Previewer (Vditor powered)
@@ -78,6 +70,7 @@ export const MarkdownVditorEditor = ({
   onEditorReady,
   previewTransform,
   uploadOptions,
+  cdnBase,
   contentMode = 'markdown',
 }: Props) => {
   const { t, i18n } = useTranslation();
@@ -153,13 +146,13 @@ export const MarkdownVditorEditor = ({
     };
   }, [addToast, loadContent, path, t]);
 
-  const resolvedCdnBase = getPreferredVditorBase();
+  const resolvedCdnBase = cdnBase ? normalizeVditorBase(cdnBase) : null;
   const previewMode = contentMode === 'plain'
     ? 'editor'
     : (!isEditing ? 'both' : isCompactLayout ? 'editor' : 'both');
 
   useEffect(() => {
-    if (!vditorRef.current || loading) return undefined;
+    if (!vditorRef.current || loading || !resolvedCdnBase) return undefined;
 
     const linkId = 'vditor-css-link';
     const cssHref = `${resolvedCdnBase}/dist/index.css`;
@@ -219,11 +212,11 @@ export const MarkdownVditorEditor = ({
   }, [i18n.language, isDark, isEditing, loading, placeholderText, previewMode, previewTransform, resolvedCdnBase, uploadOptions]);
 
   useEffect(() => {
-    if (!loading && !isInitializing && !readyNotifiedRef.current) {
+    if (!loading && (!resolvedCdnBase || !isInitializing) && !readyNotifiedRef.current) {
       readyNotifiedRef.current = true;
       onEditorReady?.();
     }
-  }, [loading, isInitializing, onEditorReady]);
+  }, [loading, isInitializing, onEditorReady, resolvedCdnBase]);
 
   const saveContent = async (reason: 'manual' | 'auto') => {
     if (savingRef.current) return;
@@ -355,7 +348,7 @@ export const MarkdownVditorEditor = ({
       />
 
       <main className="flex-1 min-h-0 relative">
-        {(loading || isInitializing) && (
+        {(loading || (resolvedCdnBase && isInitializing)) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-inherit z-50 text-center backdrop-blur-sm">
             <Loader2 className="animate-spin text-primary" size={40} />
             <p className="text-sm font-black tracking-widest opacity-40">{t('filemanager.editor.connectingCdn')}</p>
@@ -363,6 +356,10 @@ export const MarkdownVditorEditor = ({
         )}
         {contentMode === 'plain' && !isEditing ? (
           <PlainTextPreviewSurface content={content} isDark={isDark} />
+        ) : !resolvedCdnBase ? (
+          <div className="flex h-full items-center justify-center px-6 text-center text-sm opacity-60">
+            {t('filemanager.preview.unavailable') || 'Preview unavailable'}
+          </div>
         ) : (
           <div ref={vditorRef} className={cn("w-full h-full overflow-hidden", !isEditing && "vditor-pure-preview")} />
         )}

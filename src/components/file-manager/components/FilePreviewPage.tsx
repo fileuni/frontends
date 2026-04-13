@@ -68,7 +68,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
 
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const enableMarkdownVditor = capabilities?.enable_markdown_vditor !== false;
-  const jsdelivrBase = capabilities?.jsdelivr_mirror_base || 'https://cdn.jsdelivr.net';
+  const jsdelivrBase = capabilities?.jsdelivr_mirror_base;
 
   useEscapeToCloseTopLayer({
     active: true,
@@ -300,7 +300,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
       {data.type === 'markdown' && (
         <div className="flex-1 flex flex-col overflow-hidden">
           {enableMarkdownVditor ? (
-            <MarkdownEditorSwitcher path={activeFile.path} cdnBase={jsdelivrBase} contentMode="markdown" {...commonProps} />
+            <MarkdownEditorSwitcher path={activeFile.path} {...(jsdelivrBase ? { cdnBase: jsdelivrBase } : {})} contentMode="markdown" {...commonProps} />
           ) : (
             <TextPreviewAndEditor path={activeFile.path} {...commonProps} />
           )}
@@ -309,7 +309,7 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
       
       {data.type === 'text' && (
         <div className="flex-1 flex flex-col overflow-hidden">
-          <MarkdownEditorSwitcher path={activeFile.path} cdnBase={jsdelivrBase} defaultEditing={true} contentMode="plain" {...commonProps} />
+          <MarkdownEditorSwitcher path={activeFile.path} {...(jsdelivrBase ? { cdnBase: jsdelivrBase } : {})} defaultEditing={true} contentMode="plain" {...commonProps} />
         </div>
       )}
 
