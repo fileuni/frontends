@@ -10,7 +10,7 @@ export const Switch = ({ checked, onChange, disabled = false }: { checked: boole
       onClick={() => onChange(!checked)}
       className={cn(
         "relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        checked ? "bg-primary" : "bg-slate-300 dark:bg-white/10"
+        checked ? "bg-primary" : "bg-slate-400 hover:bg-slate-500 dark:bg-white/20 dark:hover:bg-white/30"
       )}
     >
       <span

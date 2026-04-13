@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
-  ChevronLeft,
   Cloud,
   Database,
   FolderOpen,
   FolderSync,
   HardDrive,
-  RefreshCw,
   Server,
   Trash2,
 } from 'lucide-react';
@@ -20,13 +18,11 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Switch } from '@/components/ui/Switch';
-import { Badge } from '@/components/ui/Badge';
 import { PasswordInput } from '@/components/common/PasswordInput';
 import { cn } from '@/lib/utils';
 
 type Driver = 'fs' | 's3' | 'webdav' | 'dropbox' | 'onedrive' | 'gdrive' | 'android_saf' | 'ios_scoped_fs' | 'memory';
 type RemoteDriver = 's3' | 'webdav' | 'dropbox' | 'onedrive' | 'gdrive';
-type Step = 'list' | 'form';
 type MountDto = components['schemas']['RemoteMountDto'];
 type MountListDto = components['schemas']['RemoteMountListDto'];
 type MountPolicyDto = components['schemas']['RemoteMountPolicyDto'];
@@ -99,13 +95,13 @@ const defaultSubdirMountPath = (path: string): string => {
   return normalized === '/' ? '/remote-storage' : `${normalized}/remote-storage`;
 };
 
-const translateDriverLabel = (t: TFunction, driver: Driver): string => {
+const translateDriverLabel = (_t: TFunction, driver: Driver): string => {
   switch (driver) {
-    case 's3': return t('admin.config.storage.drivers.s3');
-    case 'webdav': return t('admin.config.storage.drivers.webdav');
-    case 'dropbox': return t('admin.config.storage.drivers.dropbox');
-    case 'onedrive': return t('admin.config.storage.drivers.onedrive');
-    case 'gdrive': return t('admin.config.storage.drivers.gdrive');
+    case 's3': return 'S3';
+    case 'webdav': return 'WebDAV';
+    case 'dropbox': return 'Dropbox';
+    case 'onedrive': return 'OneDrive';
+    case 'gdrive': return 'Google Drive';
     default: return driver;
   }
 };
@@ -207,20 +203,6 @@ const formatMountPlacement = (t: TFunction, path: string): string => {
   return path === '/' ? t('filemanager.mounts.ui.homeTarget') : path;
 };
 
-const getStatusVariant = (status?: string | null): 'success' | 'error' | 'warning' | 'secondary' => {
-  if (status === 'success') return 'success';
-  if (status === 'failed') return 'error';
-  if (status === 'running') return 'warning';
-  return 'secondary';
-};
-
-const getStatusLabel = (t: TFunction, enabled: boolean, status?: string | null): string => {
-  if (!enabled) return t('common.disabled');
-  if (status === 'running') return t('filemanager.mounts.ui.syncing');
-  if (status === 'failed') return t('filemanager.mounts.ui.syncFailed');
-  return t('filemanager.mounts.ui.online');
-};
-
 const DRIVER_ORDER: RemoteDriver[] = ['s3', 'webdav', 'dropbox', 'onedrive', 'gdrive'];
 
 const FieldRow = ({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) => (
@@ -297,8 +279,6 @@ export const RemoteMountManagerModal: React.FC<{
   const [policy, setPolicy] = useState<MountPolicyDto | null>(null);
   const [draft, setDraft] = useState<Draft>(() => createDraft(currentPath));
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [step, setStep] = useState<Step>('list');
-
   const refreshMounts = useCallback(async () => {
     setLoading(true);
     try {
@@ -325,9 +305,20 @@ export const RemoteMountManagerModal: React.FC<{
   }, [isOpen, refreshMounts]);
 
   useEffect(() => {
+    if (!isOpen || loading) return;
+    const firstMount = mounts[0] ?? null;
+    if (firstMount) {
+      setEditingId(firstMount.id);
+      setDraft(mountToDraft(firstMount));
+    } else {
+      setEditingId(null);
+      setDraft(createDraft(currentPath));
+    }
+  }, [currentPath, isOpen, loading, mounts]);
+
+  useEffect(() => {
     if (isOpen) return;
     setEditingId(null);
-    setStep('list');
     setDraft(createDraft(currentPath));
   }, [currentPath, isOpen]);
 
@@ -350,25 +341,7 @@ export const RemoteMountManagerModal: React.FC<{
     label: t('filemanager.mounts.syncModes.5'),
     description: t('filemanager.mounts.syncModeDescriptions.5'),
   };
-  const editingMount = mounts.find((mount) => mount.id === editingId) ?? null;
-
-  const openCreate = () => {
-    setEditingId(null);
-    setDraft(createDraft(currentPath));
-    setStep('form');
-  };
-
-  const editMount = (mount: MountDto) => {
-    setDraft(mountToDraft(mount));
-    setEditingId(mount.id);
-    setStep('form');
-  };
-
-  const goBack = () => {
-    if (step === 'form') {
-      setStep('list');
-    }
-  };
+  const editingMount = mounts.find((mount) => mount.id === editingId) ?? mounts[0] ?? null;
 
   const changeMountTargetMode = (mode: 'home' | 'subdir') => {
     setDraft((prev) => ({
@@ -428,8 +401,6 @@ export const RemoteMountManagerModal: React.FC<{
 
       await extractData(request);
       addToast(t('filemanager.mounts.messages.saved'), 'success');
-      setEditingId(null);
-      setStep('list');
       await refreshMounts();
       onChanged?.();
     } catch (error) {
@@ -449,7 +420,6 @@ export const RemoteMountManagerModal: React.FC<{
       }
       addToast(t('filemanager.mounts.messages.deleted'), 'success');
       setEditingId(null);
-      setStep('list');
       await refreshMounts();
       onChanged?.();
     } catch (error) {
@@ -474,6 +444,8 @@ export const RemoteMountManagerModal: React.FC<{
     }
   };
 
+  const mutedSegmentText = 'text-slate-800 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-white/12';
+
   return (
     <Modal
       isOpen={isOpen}
@@ -484,132 +456,16 @@ export const RemoteMountManagerModal: React.FC<{
       bodyClassName="overflow-hidden bg-background p-0"
     >
       <div className="flex min-h-[560px] max-h-[calc(100dvh-1rem)] flex-col bg-background text-foreground sm:max-h-[calc(100dvh-2rem)]">
-        <div className="border-b border-border bg-background/95 px-4 py-3.5 backdrop-blur-md sm:px-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              {step !== 'list' && (
-                <Button variant="ghost" className="h-10 rounded-xl px-3 text-sm" onClick={goBack}>
-                  <ChevronLeft size={16} className="mr-1.5" />
-                  {t('common.back')}
-                </Button>
-              )}
-            </div>
-
-            {step === 'list' && (
-              <div className="flex items-center gap-2">
-                <Button variant="outline" className="h-10 rounded-xl px-4 text-sm" onClick={() => void refreshMounts()}>
-                  <RefreshCw size={16} className={cn('mr-2', loading && 'animate-spin')} />
-                  {t('filemanager.mounts.ui.refresh')}
-                </Button>
-                <Button className="h-10 rounded-xl px-5 text-sm font-bold" onClick={openCreate}>
-                  {t('filemanager.mounts.add')}
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-4 py-4 sm:px-6 sm:py-5">
-          {step === 'list' && (
-            <div>
-              {loading ? (
-                <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-[1.5rem] border border-dashed border-border bg-card/20 text-muted-foreground">
-                  <RefreshCw size={28} className="animate-spin" />
-                  <p className="text-sm">{t('common.loading')}</p>
-                </div>
-              ) : mounts.length === 0 ? (
-                <div className="flex min-h-[280px] flex-col items-center justify-center gap-5 rounded-[1.5rem] border border-dashed border-border bg-card/20 px-6 text-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-primary/10 text-primary">
-                    <FolderSync size={34} />
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="text-xl font-black tracking-tight">{t('filemanager.mounts.ui.noMountsTitle')}</h4>
-                    <p className="mx-auto max-w-md text-sm leading-7 text-muted-foreground">{t('filemanager.mounts.ui.noMountsDesc')}</p>
-                  </div>
-                  <Button className="h-10 rounded-xl px-5 text-sm font-bold" onClick={openCreate}>
-                    {t('filemanager.mounts.ui.getStarted')}
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid gap-4 lg:grid-cols-2">
-                  {mounts.map((mount) => {
-                    const syncEnabled = Boolean(mount.sync_peer_dir);
-                    return (
-                      <div key={mount.id} className="rounded-[1.5rem] border border-border bg-card/60 p-4 shadow-sm transition-colors hover:border-primary/20 hover:bg-card">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex min-w-0 items-start gap-4">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                              {driverIcon(mount.driver as Driver, 'h-6 w-6')}
-                            </div>
-                            <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h4 className="truncate text-lg font-black tracking-tight">{mount.name || translateDriverLabel(t, mount.driver as Driver)}</h4>
-                                <Badge variant={mount.enable ? getStatusVariant(mount.last_sync_status) : 'outline'} className="h-7 px-3 text-sm font-bold">
-                                  {getStatusLabel(t, mount.enable, mount.last_sync_status)}
-                                </Badge>
-                              </div>
-                              <p className="mt-1 text-sm text-muted-foreground">{translateDriverLabel(t, mount.driver as Driver)}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                          <div className="rounded-2xl border border-border/70 bg-background/70 p-3.5">
-                            <div className="mb-1 text-sm font-black">{t('filemanager.mounts.ui.showAt')}</div>
-                            <div className="font-mono text-sm text-muted-foreground">{formatMountPlacement(t, mount.mount_dir)}</div>
-                          </div>
-                          <div className="rounded-2xl border border-border/70 bg-background/70 p-3.5">
-                            <div className="mb-1 text-sm font-black">{t('filemanager.mounts.ui.localFolder')}</div>
-                            <div className="font-mono text-sm text-muted-foreground">{syncEnabled ? mount.sync_peer_dir || '-' : t('filemanager.mounts.ui.syncOff')}</div>
-                          </div>
-                          <div className="rounded-2xl border border-border/70 bg-background/70 p-3.5">
-                            <div className="mb-1 text-sm font-black">{t('filemanager.mounts.lastSyncAt')}</div>
-                            <div className="text-sm text-muted-foreground">{formatDateTime(mount.last_sync_at)}</div>
-                          </div>
-                          <div className="rounded-2xl border border-border/70 bg-background/70 p-3.5">
-                            <div className="mb-1 text-sm font-black">{t('filemanager.mounts.nextSyncAt')}</div>
-                            <div className="text-sm text-muted-foreground">{syncEnabled ? formatDateTime(mount.next_sync_at) : t('filemanager.mounts.ui.notScheduled')}</div>
-                          </div>
-                        </div>
-
-                        {mount.last_error && (
-                          <div className="mt-4 flex items-start gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-500">
-                            <AlertCircle size={18} className="mt-0.5 shrink-0" />
-                            <div className="text-sm leading-6">{mount.last_error}</div>
-                          </div>
-                        )}
-
-                        <div className="mt-4 flex items-center justify-between gap-3">
-                          <div>
-                            {syncEnabled && (
-                              <Button
-                                variant="outline"
-                                className="h-10 rounded-xl px-4 text-sm"
-                                onClick={() => void handleSyncNow(mount.id)}
-                                disabled={syncingId === mount.id}
-                              >
-                                <RefreshCw size={16} className={cn('mr-2', syncingId === mount.id && 'animate-spin')} />
-                                {syncingId === mount.id ? t('filemanager.mounts.ui.syncing') : t('filemanager.mounts.syncNow')}
-                              </Button>
-                            )}
-                          </div>
-                          <Button variant="ghost" className="h-10 rounded-xl px-4 text-sm" onClick={() => editMount(mount)}>
-                            {t('common.edit')}
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+          {loading ? (
+            <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-[1.5rem] bg-card/25 text-muted-foreground">
+              <p className="text-sm">{t('common.loading')}</p>
             </div>
-          )}
-
-          {step === 'form' && (
+          ) : (
             <div className="grid min-h-0 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
               <div className="min-h-0 space-y-4">
-                <section className="rounded-[1.5rem] border border-border bg-card/60 p-4 shadow-sm sm:p-5">
-                  <div className="mb-4 flex flex-wrap gap-2">
+                <section className="rounded-[1.5rem] bg-card/70 p-4 shadow-sm sm:p-5">
+                  <div className="mb-4 inline-flex w-full flex-wrap items-center justify-center rounded-full bg-slate-100/90 p-1 dark:bg-white/[0.05] sm:justify-start">
                     {DRIVER_ORDER.map((driver) => {
                       const active = draft.driver === driver;
                       return (
@@ -619,8 +475,10 @@ export const RemoteMountManagerModal: React.FC<{
                           aria-pressed={active}
                           onClick={() => setDraft((prev) => ({ ...prev, driver, options: {} }))}
                           className={cn(
-                            'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-bold transition-all',
-                            active ? 'border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'border-border bg-background text-foreground hover:bg-accent',
+                            'inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-bold transition-colors sm:flex-none',
+                            active
+                              ? 'bg-primary text-white shadow-sm dark:text-white'
+                              : mutedSegmentText,
                           )}
                         >
                           {driverIcon(driver, 'h-4 w-4')}
@@ -661,22 +519,22 @@ export const RemoteMountManagerModal: React.FC<{
                   </div>
                 </section>
 
-                <section className="rounded-[1.5rem] border border-border bg-card/60 p-4 shadow-sm sm:p-5">
+                <section className="rounded-[1.5rem] bg-card/70 p-4 shadow-sm sm:p-5">
                   <div className="mb-4 text-sm font-black tracking-tight">{t('filemanager.mounts.ui.locationTitle')}</div>
-                  <div className="grid gap-3 md:grid-cols-2">
+                  <div className="inline-flex w-full items-center rounded-full bg-slate-100/90 p-1 dark:bg-white/[0.05]">
                     <button
                       type="button"
                       aria-pressed={mountTargetMode === 'home'}
                       onClick={() => changeMountTargetMode('home')}
                       className={cn(
-                        'rounded-2xl border p-4 text-left transition-all',
-                        mountTargetMode === 'home' ? 'border-primary bg-primary/8 shadow-sm' : 'border-border bg-background/70 hover:bg-accent',
+                        'flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition-colors',
+                        mountTargetMode === 'home'
+                          ? 'bg-primary text-white shadow-sm dark:text-white'
+                          : mutedSegmentText,
                       )}
                     >
-                      <div className="flex items-center gap-3">
-                        <HardDrive size={18} className="text-primary" />
-                        <span className="text-sm font-black">{t('filemanager.mounts.ui.mainFolder')}</span>
-                      </div>
+                      <HardDrive size={16} />
+                      <span>{t('filemanager.mounts.ui.mainFolder')}</span>
                     </button>
 
                     <button
@@ -684,14 +542,14 @@ export const RemoteMountManagerModal: React.FC<{
                       aria-pressed={mountTargetMode === 'subdir'}
                       onClick={() => changeMountTargetMode('subdir')}
                       className={cn(
-                        'rounded-2xl border p-4 text-left transition-all',
-                        mountTargetMode === 'subdir' ? 'border-primary bg-primary/8 shadow-sm' : 'border-border bg-background/70 hover:bg-accent',
+                        'flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition-colors',
+                        mountTargetMode === 'subdir'
+                          ? 'bg-primary text-white shadow-sm dark:text-white'
+                          : mutedSegmentText,
                       )}
                     >
-                      <div className="flex items-center gap-3">
-                        <FolderOpen size={18} className="text-primary" />
-                        <span className="text-sm font-black">{t('filemanager.mounts.ui.separateFolder')}</span>
-                      </div>
+                      <FolderOpen size={16} />
+                      <span>{t('filemanager.mounts.ui.separateFolder')}</span>
                     </button>
                   </div>
 
@@ -702,13 +560,13 @@ export const RemoteMountManagerModal: React.FC<{
                         value={draft.mount_dir}
                         onChange={(event) => setDraft((prev) => ({ ...prev, mount_dir: event.target.value }))}
                         placeholder={defaultSubdirMountPath(currentPath)}
-                        className="h-12 rounded-xl border-white/10 bg-black/25 font-mono text-white placeholder:text-white/25"
+                        className="font-mono"
                       />
                     </div>
                   )}
                 </section>
 
-                <section className="rounded-[1.5rem] border border-primary/20 bg-primary/[0.03] p-4 shadow-sm sm:p-5">
+                <section className="rounded-[1.5rem] bg-gradient-to-br from-primary/[0.05] via-card to-card p-4 shadow-sm sm:p-5">
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <div className="text-sm font-black tracking-tight">{t('filemanager.mounts.ui.syncTitle')}</div>
                     <div className="flex items-center gap-3">
@@ -718,7 +576,7 @@ export const RemoteMountManagerModal: React.FC<{
                   </div>
 
                   {mountTargetMode === 'home' ? (
-                    <div className="rounded-2xl border border-border/70 bg-background/70 p-4 text-sm text-muted-foreground">
+                    <div className="rounded-2xl bg-background/70 p-4 text-sm text-muted-foreground">
                       {t('filemanager.mounts.ui.homeNoSyncHint')}
                     </div>
                   ) : effectiveSyncEnabled ? (
@@ -729,7 +587,7 @@ export const RemoteMountManagerModal: React.FC<{
                           value={draft.sync_peer_dir}
                           onChange={(event) => setDraft((prev) => ({ ...prev, sync_peer_dir: event.target.value }))}
                           placeholder={currentPath === '/' ? '/work-folder' : currentPath}
-                          className="h-12 rounded-xl border-white/10 bg-black/25 font-mono text-white placeholder:text-white/25"
+                          className="font-mono"
                         />
                       </div>
 
@@ -741,8 +599,8 @@ export const RemoteMountManagerModal: React.FC<{
                             aria-pressed={draft.sync_mode === mode.id}
                             onClick={() => setDraft((prev) => ({ ...prev, sync_mode: mode.id }))}
                             className={cn(
-                              'rounded-2xl border px-4 py-3 text-left transition-all',
-                              draft.sync_mode === mode.id ? 'border-primary bg-primary/8 shadow-sm' : 'border-border bg-background/70 hover:bg-accent',
+                              'rounded-2xl px-4 py-3 text-left transition-all',
+                              draft.sync_mode === mode.id ? 'bg-primary/10 shadow-sm outline outline-1 outline-primary/25' : 'bg-background/70 hover:bg-accent',
                             )}
                           >
                             <div className="text-sm font-black">{mode.label}</div>
@@ -750,7 +608,7 @@ export const RemoteMountManagerModal: React.FC<{
                         ))}
                       </div>
 
-                      <div className="rounded-2xl border border-primary/15 bg-background/80 p-4 text-sm leading-6 text-muted-foreground">
+                      <div className="rounded-2xl bg-background/80 p-4 text-sm leading-6 text-muted-foreground">
                         {selectedSyncMode.description}
                       </div>
 
@@ -770,7 +628,6 @@ export const RemoteMountManagerModal: React.FC<{
                             min={policy?.min_sync_interval_minutes ?? 1}
                             value={draft.sync_interval_minutes}
                             onChange={(event) => setDraft((prev) => ({ ...prev, sync_interval_minutes: event.target.value }))}
-                            className="h-12 rounded-xl border-white/10 bg-black/25 text-white placeholder:text-white/25"
                           />
                         </div>
                         <div className="space-y-2">
@@ -782,13 +639,12 @@ export const RemoteMountManagerModal: React.FC<{
                             max={policy?.max_sync_timeout_secs ?? undefined}
                             value={draft.sync_timeout_secs}
                             onChange={(event) => setDraft((prev) => ({ ...prev, sync_timeout_secs: event.target.value }))}
-                            className="h-12 rounded-xl border-white/10 bg-black/25 text-white placeholder:text-white/25"
                           />
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="rounded-2xl border border-border/70 bg-background/70 p-4 text-sm text-muted-foreground">
+                    <div className="rounded-2xl bg-background/70 p-4 text-sm text-muted-foreground">
                       {t('filemanager.mounts.ui.syncOff')}
                     </div>
                   )}
@@ -809,49 +665,47 @@ export const RemoteMountManagerModal: React.FC<{
           )}
         </div>
 
-        {step === 'form' && (
-          <div className="border-t border-border bg-background/95 px-4 py-4 backdrop-blur-md sm:px-6">
-            <div className="space-y-3 xl:hidden">
-              <SummaryCard
-                t={t}
-                draft={draft}
-                mountTargetMode={mountTargetMode}
-                hasSync={hasSync}
-                selectedSyncMode={selectedSyncMode}
-                editingMount={editingMount}
-              />
-            </div>
-
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <div className="text-sm text-muted-foreground sm:mr-auto sm:self-center">
-                {t('filemanager.mounts.remoteDeleteNotice')}
-              </div>
-
-              {editingMount?.sync_peer_dir && (
-                <Button
-                  variant="outline"
-                  className="h-11 rounded-xl text-sm sm:w-auto"
-                  onClick={() => void handleSyncNow(editingMount.id)}
-                  disabled={syncingId === editingMount.id}
-                >
-                  <RefreshCw size={16} className={cn('mr-2', syncingId === editingMount.id && 'animate-spin')} />
-                  {syncingId === editingMount.id ? t('filemanager.mounts.ui.syncing') : t('filemanager.mounts.syncNow')}
-                </Button>
-              )}
-
-              {editingId && (
-                <Button variant="destructive" className="h-11 rounded-xl text-sm sm:w-auto" onClick={() => void handleDelete(editingId)}>
-                  <Trash2 size={16} className="mr-2" />
-                  {t('filemanager.mounts.ui.deleteMount')}
-                </Button>
-              )}
-
-              <Button className="h-11 rounded-xl text-sm font-bold sm:w-auto" onClick={() => void handleSave()} disabled={saving}>
-                {saving ? t('common.processing') : editingId ? t('filemanager.mounts.ui.applyChanges') : t('filemanager.mounts.ui.establishConnection')}
-              </Button>
-            </div>
+        <div className="border-t border-border bg-background/95 px-4 py-4 backdrop-blur-md sm:px-6">
+          <div className="space-y-3 xl:hidden">
+            <SummaryCard
+              t={t}
+              draft={draft}
+              mountTargetMode={mountTargetMode}
+              hasSync={hasSync}
+              selectedSyncMode={selectedSyncMode}
+              editingMount={editingMount}
+            />
           </div>
-        )}
+
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <div className="text-sm text-muted-foreground sm:mr-auto sm:self-center">
+              {t('filemanager.mounts.remoteDeleteNotice')}
+            </div>
+
+            {editingMount?.sync_peer_dir && (
+              <Button
+                variant="outline"
+                className="h-11 rounded-xl text-sm sm:w-auto"
+                onClick={() => void handleSyncNow(editingMount.id)}
+                disabled={syncingId === editingMount.id}
+              >
+                <FolderSync size={16} className={cn('mr-2', syncingId === editingMount.id && 'animate-spin')} />
+                {syncingId === editingMount.id ? t('filemanager.mounts.ui.syncing') : t('filemanager.mounts.syncNow')}
+              </Button>
+            )}
+
+            {editingId && (
+              <Button variant="destructive" className="h-11 rounded-xl text-sm sm:w-auto" onClick={() => void handleDelete(editingId)}>
+                <Trash2 size={16} className="mr-2" />
+                {t('filemanager.mounts.ui.deleteMount')}
+              </Button>
+            )}
+
+            <Button className="h-11 rounded-xl text-sm font-bold sm:w-auto" onClick={() => void handleSave()} disabled={saving}>
+              {saving ? t('common.processing') : editingId ? t('filemanager.mounts.ui.applyChanges') : t('filemanager.mounts.ui.establishConnection')}
+            </Button>
+          </div>
+        </div>
       </div>
     </Modal>
   );
