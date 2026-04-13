@@ -87,7 +87,12 @@ export const SortMenu = ({ className }: SortMenuProps) => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-3 py-2 opacity-40 transition-all hover:opacity-100"
+        className={cn(
+          "flex h-10 shrink-0 items-center gap-2 rounded-xl border px-3 py-2 transition-colors",
+          isOpen
+            ? "border-primary/20 bg-primary/10 text-primary"
+            : "border-border bg-background/70 text-foreground/60 hover:bg-accent hover:text-accent-foreground"
+        )}
       >
         <ArrowUpDown size={18} />
         <span className="whitespace-nowrap text-sm font-black tracking-wider">
@@ -97,14 +102,14 @@ export const SortMenu = ({ className }: SortMenuProps) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-12 w-48 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 top-12 z-50 w-48 overflow-hidden rounded-2xl border border-border bg-popover py-1 text-popover-foreground shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
           {sortOptions.map((option) => (
             <button
               key={option.field}
               type="button"
               onClick={() => handleSelectSort(option.field)}
               className={cn(
-                "w-full flex items-center justify-between px-4 py-2 text-sm font-bold hover:bg-white/5 text-left transition-colors",
+                "flex w-full items-center justify-between px-4 py-2 text-left text-sm font-bold transition-colors hover:bg-accent hover:text-accent-foreground",
                 sortConfig.field === option.field && "bg-primary/20 text-primary"
               )}
             >

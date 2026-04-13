@@ -551,7 +551,7 @@ export const FileManagerView = () => {
       {!isMinimal && <FileManagerTabs />}
       <div className="flex flex-col flex-1 overflow-hidden bg-background px-4">
         <div className={cn(
-          "shrink-0 overflow-hidden rounded-[1.25rem] border",
+          "shrink-0 rounded-[1.25rem] border",
           isDark
             ? "border-white/5 bg-white/[0.015]"
             : "border-zinc-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]"

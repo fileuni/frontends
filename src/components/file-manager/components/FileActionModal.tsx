@@ -10,6 +10,22 @@ interface FileActionModalProps {
   onSubmit: (value: string) => void;
 }
 
+const getDefaultSelectionRange = (
+  type: 'create_file' | 'create_dir' | 'rename' | 'delete_confirm' | 'mode_delete_confirm',
+  text: string,
+) => {
+  if (type !== 'rename') {
+    return [0, text.length] as const;
+  }
+
+  const lastDotIndex = text.lastIndexOf('.');
+  if (lastDotIndex <= 0 || lastDotIndex === text.length - 1) {
+    return [0, text.length] as const;
+  }
+
+  return [0, lastDotIndex] as const;
+};
+
 /**
  * 通用的文件名输入/重命名模态框
  * General purpose modal for filename input/renaming
@@ -19,17 +35,33 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
   const { actionModal, closeActionModal } = useFileStore();
   const [value, setValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const pendingSelectionRef = useRef(false);
 
   useEffect(() => {
     if (actionModal.isOpen) {
+      pendingSelectionRef.current = true;
       setValue(actionModal.defaultValue);
+      return;
     }
+
+    pendingSelectionRef.current = false;
   }, [actionModal.isOpen, actionModal.defaultValue]);
 
   useEffect(() => {
-    if (!actionModal.isOpen) return;
-    inputRef.current?.focus();
-  }, [actionModal.isOpen]);
+    if (!actionModal.isOpen || !pendingSelectionRef.current) return;
+
+    const input = inputRef.current;
+    if (!input) return;
+
+    const frameId = window.requestAnimationFrame(() => {
+      input.focus();
+      const [selectionStart, selectionEnd] = getDefaultSelectionRange(actionModal.type, input.value);
+      input.setSelectionRange(selectionStart, selectionEnd);
+      pendingSelectionRef.current = false;
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [actionModal.isOpen, actionModal.type, value]);
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
