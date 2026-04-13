@@ -151,6 +151,7 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@fileuni/ts-shared/react-ui': fileURLToPath(new URL('../ts_shared/react-ui/index.ts', import.meta.url)),
         'react/jsx-dev-runtime': fileURLToPath(
           new URL('./node_modules/react/cjs/react-jsx-dev-runtime.development.js', import.meta.url),
         ),

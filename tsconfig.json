@@ -8,7 +8,8 @@
     "jsxImportSource": "react",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@fileuni/ts-shared/react-ui": ["../ts_shared/react-ui/index.ts"]
     },
     "types": ["astro/client", "react", "react-dom"],
     "strict": true,
