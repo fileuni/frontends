@@ -1,67 +1,29 @@
-import React, { useMemo, useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import React from 'react';
+
+import {
+  PasswordInput as SharedPasswordInput,
+  type PasswordInputProps,
+  type PasswordToggleLabels,
+} from '@fileuni/ts-shared/react-ui';
+
 import { cn } from '@/lib/utils.ts';
-import { IconInput } from '@/components/common/IconInput.tsx';
-import { PasswordStrengthMeter } from '@/components/common/PasswordStrengthMeter.tsx';
 
-type Props = Omit<React.ComponentProps<typeof IconInput>, 'type' | 'right'> & {
-  defaultVisible?: boolean | undefined;
-  rightExtra?: React.ReactNode | undefined;
-  showStrength?: boolean | undefined;
-  strengthClassName?: string | undefined;
-  toggleButtonTabIndex?: number | undefined;
-};
+export type Props = PasswordInputProps;
 
-export const PasswordInput: React.FC<Props> = ({
-  defaultVisible = false,
-  rightExtra,
-  showStrength = false,
-  strengthClassName,
-  toggleButtonTabIndex,
-  wrapperClassName,
-  inputClassName,
-  value,
-  disabled,
-  ...rest
-}) => {
-  const [visible, setVisible] = useState(defaultVisible);
+const FRONTEND_INPUT_CLASSNAME = [
+  'h-12 rounded-xl border px-4 outline-none',
+  'text-base font-semibold placeholder:font-normal',
+  'border-[hsl(var(--input-border))] bg-[hsl(var(--input-background))] text-[hsl(var(--foreground))]',
+  'placeholder:text-[hsl(var(--input-placeholder))]',
+  'hover:border-[hsl(var(--input-border-hover))] hover:bg-[hsl(var(--input-background-hover))]',
+  'focus:border-[hsl(var(--input-border-focus))] focus:ring-2 focus:ring-[hsl(var(--input-border-focus)/0.16)]',
+  'disabled:cursor-not-allowed disabled:border-[hsl(var(--input-border))] disabled:bg-[hsl(var(--input-background-disabled))]',
+  'disabled:text-[hsl(var(--input-disabled-foreground))]',
+  'transition-[background-color,border-color,box-shadow,color] duration-200 ease-out',
+].join(' ');
 
-  const pwd = useMemo(() => {
-    if (typeof value === 'string') return value;
-    return value == null ? '' : String(value);
-  }, [value]);
+export const PasswordInput: React.FC<Props> = ({ inputClassName, ...props }) => (
+  <SharedPasswordInput {...props} inputClassName={cn(FRONTEND_INPUT_CLASSNAME, inputClassName)} />
+);
 
-  return (
-    <>
-      <IconInput
-        {...rest}
-        value={value}
-        disabled={disabled}
-        type={visible ? 'text' : 'password'}
-        wrapperClassName={wrapperClassName}
-        inputClassName={cn(inputClassName)}
-        right={(
-          <div className="flex items-center gap-2">
-            {rightExtra}
-            <button
-              type="button"
-              onClick={() => setVisible((v) => !v)}
-              disabled={disabled}
-              tabIndex={toggleButtonTabIndex}
-              className={cn(
-                'opacity-30 hover:opacity-100 transition-opacity',
-                disabled && 'pointer-events-none',
-              )}
-              aria-label={visible ? 'Hide' : 'Show'}
-              title={visible ? 'Hide' : 'Show'}
-            >
-              {visible ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-        )}
-      />
-
-      {showStrength ? <PasswordStrengthMeter password={pwd} className={strengthClassName} /> : null}
-    </>
-  );
-};
+export type { PasswordToggleLabels };

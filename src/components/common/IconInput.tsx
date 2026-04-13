@@ -1,38 +1,29 @@
 import React from 'react';
+
+import { IconInput as SharedIconInput, type IconInputProps } from '@fileuni/ts-shared/react-ui';
+
 import { cn } from '@/lib/utils.ts';
-import { Input } from '@/components/ui/Input.tsx';
 
-type Props = Omit<React.ComponentProps<typeof Input>, 'className'> & {
-  icon?: React.ReactNode;
-  right?: React.ReactNode;
+export type Props = IconInputProps;
 
-  wrapperClassName?: string | undefined;
-  inputClassName?: string | undefined;
-};
+const FRONTEND_INPUT_CLASSNAME = [
+  'h-12 rounded-xl border px-4 outline-none',
+  'text-base font-semibold placeholder:font-normal',
+  'border-[hsl(var(--input-border))] bg-[hsl(var(--input-background))] text-[hsl(var(--foreground))]',
+  'placeholder:text-[hsl(var(--input-placeholder))]',
+  'hover:border-[hsl(var(--input-border-hover))] hover:bg-[hsl(var(--input-background-hover))]',
+  'focus:border-[hsl(var(--input-border-focus))] focus:ring-2 focus:ring-[hsl(var(--input-border-focus)/0.16)]',
+  'disabled:cursor-not-allowed disabled:border-[hsl(var(--input-border))] disabled:bg-[hsl(var(--input-background-disabled))]',
+  'disabled:text-[hsl(var(--input-disabled-foreground))]',
+  'transition-[background-color,border-color,box-shadow,color] duration-200 ease-out',
+].join(' ');
 
-export const IconInput = React.forwardRef<HTMLInputElement, Props>(
-  ({ icon, right, wrapperClassName, inputClassName, ...props }, ref) => {
-    const hasIcon = Boolean(icon);
-    const hasRight = Boolean(right);
-
-    return (
-      <div className={cn('relative group', wrapperClassName)}>
-        {hasIcon ? (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:text-primary group-focus-within:opacity-100 transition-all">
-            {icon}
-          </div>
-        ) : null}
-        <Input
-          ref={ref}
-          {...props}
-          className={cn(hasIcon && 'pl-12', hasRight && 'pr-12', inputClassName)}
-        />
-        {hasRight ? (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2">{right}</div>
-        ) : null}
-      </div>
-    );
-  },
-);
+export const IconInput = React.forwardRef<HTMLInputElement, Props>(({ inputClassName, ...props }, ref) => (
+  <SharedIconInput
+    ref={ref}
+    {...props}
+    inputClassName={cn(FRONTEND_INPUT_CLASSNAME, inputClassName)}
+  />
+));
 
 IconInput.displayName = 'IconInput';
