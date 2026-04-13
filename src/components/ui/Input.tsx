@@ -13,14 +13,12 @@ export const Input = React.forwardRef<
       className={cn(
         'w-full h-12 rounded-xl border px-4 outline-none',
         'text-base font-semibold placeholder:font-normal',
-        'border-slate-200 bg-white text-slate-900 placeholder:text-slate-400',
-        'hover:border-slate-300 hover:bg-white',
-        'focus:border-primary/80 focus:ring-2 focus:ring-primary/12',
-        'dark:border-white/10 dark:bg-black/30 dark:text-white dark:placeholder:text-slate-500 dark:shadow-none',
-        'dark:hover:border-white/20 dark:hover:bg-black/40',
-        'dark:focus:border-primary/70 dark:focus:ring-primary/25',
-        'disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500',
-        'dark:disabled:border-white/10 dark:disabled:bg-white/5 dark:disabled:text-slate-500',
+        'border-[hsl(var(--input-border))] bg-[hsl(var(--input-background))] text-[hsl(var(--foreground))]',
+        'placeholder:text-[hsl(var(--input-placeholder))]',
+        'hover:border-[hsl(var(--input-border-hover))] hover:bg-[hsl(var(--input-background-hover))]',
+        'focus:border-[hsl(var(--input-border-focus))] focus:ring-2 focus:ring-[hsl(var(--input-border-focus)/0.16)]',
+        'disabled:cursor-not-allowed disabled:border-[hsl(var(--input-border))] disabled:bg-[hsl(var(--input-background-disabled))]',
+        'disabled:text-[hsl(var(--input-disabled-foreground))]',
         'transition-[background-color,border-color,box-shadow,color] duration-200 ease-out',
         className
       )}

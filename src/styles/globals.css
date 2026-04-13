@@ -11,6 +11,14 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --border: 214.3 31.8% 91.4%;
+    --input-background: 210 35% 99.2%;
+    --input-background-hover: 0 0% 100%;
+    --input-background-disabled: 210 24% 96.5%;
+    --input-border: 214 28% 86%;
+    --input-border-hover: 214 24% 78%;
+    --input-border-focus: 201 100% 39%;
+    --input-placeholder: 215 16% 58%;
+    --input-disabled-foreground: 215 14% 57%;
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-right: env(safe-area-inset-right, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -42,6 +50,14 @@
     --muted: 217.2 32.6% 12.5%; /* Deep navy muted */
     --muted-foreground: 215 20.2% 65.1%;
     --border: 217.2 32.6% 17.5%;
+    --input-background: 221 28% 11%;
+    --input-background-hover: 221 28% 12.5%;
+    --input-background-disabled: 221 18% 15%;
+    --input-border: 217 19% 22%;
+    --input-border-hover: 217 17% 29%;
+    --input-border-focus: 199 89% 48%;
+    --input-placeholder: 215 15% 54%;
+    --input-disabled-foreground: 215 12% 44%;
   }
 
   select {
