@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { HardDrive, ArrowRight, AlertTriangle, Cloud, RefreshCw, PencilLine, X } from "lucide-react";
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
@@ -43,7 +43,15 @@ export const FileManagerNavigationBar = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [pathInput, setPathInput] = useState(currentPath);
   const [mountContext, setMountContext] = useState<RemoteMountSummary | null>(null);
+  const [visibleStartIndex, setVisibleStartIndex] = useState(0);
+  const [showCollapsedMenu, setShowCollapsedMenu] = useState(false);
   const addressInputRef = useRef<HTMLInputElement>(null);
+  const layoutRowRef = useRef<HTMLDivElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
+  const rootMeasureRef = useRef<HTMLButtonElement>(null);
+  const slashMeasureRef = useRef<HTMLSpanElement>(null);
+  const ellipsisMeasureRef = useRef<HTMLButtonElement>(null);
+  const segmentMeasureRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const startEditMode = () => {
     setPathInput(currentPath);
@@ -102,11 +110,78 @@ export const FileManagerNavigationBar = () => {
   const pathSegments = currentPath.split("/").filter(Boolean);
   const protectedMode = protectedStatus?.protected_mode || protectedStatus?.global_mode;
   const isDark = resolvedTheme === 'dark';
+
+  useLayoutEffect(() => {
+    if (isEditMode) return undefined;
+
+    const recalculateVisibleSegments = () => {
+      const rowWidth = layoutRowRef.current?.clientWidth ?? 0;
+      const editButtonWidth = editButtonRef.current?.offsetWidth ?? 0;
+      const rootWidth = rootMeasureRef.current?.offsetWidth ?? 0;
+      const slashWidth = slashMeasureRef.current?.offsetWidth ?? 0;
+      const ellipsisWidth = ellipsisMeasureRef.current?.offsetWidth ?? 0;
+      const segmentWidths = pathSegments.map((_, index) => segmentMeasureRefs.current[index]?.offsetWidth ?? 0);
+
+      if (pathSegments.length === 0 || rowWidth <= 0 || rootWidth <= 0) {
+        setVisibleStartIndex(0);
+        return;
+      }
+
+      const availableWidth = Math.max(0, rowWidth - editButtonWidth - 16);
+
+      const calculateRequiredWidth = (startIndex: number) => {
+        let width = rootWidth;
+
+        if (startIndex > 0) {
+          width += slashWidth + ellipsisWidth;
+        }
+
+        for (let index = startIndex; index < segmentWidths.length; index += 1) {
+          width += slashWidth + (segmentWidths[index] ?? 0);
+        }
+
+        return width;
+      };
+
+      let nextVisibleStartIndex = 0;
+      for (let startIndex = 0; startIndex < pathSegments.length; startIndex += 1) {
+        if (calculateRequiredWidth(startIndex) <= availableWidth) {
+          nextVisibleStartIndex = startIndex;
+          break;
+        }
+        nextVisibleStartIndex = Math.min(pathSegments.length - 1, startIndex + 1);
+      }
+
+      setVisibleStartIndex((prev) => (prev === nextVisibleStartIndex ? prev : nextVisibleStartIndex));
+    };
+
+    recalculateVisibleSegments();
+
+    const observer = new ResizeObserver(recalculateVisibleSegments);
+    if (layoutRowRef.current) observer.observe(layoutRowRef.current);
+    if (editButtonRef.current) observer.observe(editButtonRef.current);
+    if (rootMeasureRef.current) observer.observe(rootMeasureRef.current);
+    if (ellipsisMeasureRef.current) observer.observe(ellipsisMeasureRef.current);
+    if (slashMeasureRef.current) observer.observe(slashMeasureRef.current);
+    for (const ref of segmentMeasureRefs.current) {
+      if (ref) observer.observe(ref);
+    }
+
+    return () => observer.disconnect();
+  }, [isEditMode, pathSegments]);
   
   const navigateTo = (index: number) => {
     const newPath = "/" + pathSegments.slice(0, index + 1).join("/");
     setCurrentPath(newPath);
   };
+
+  const hiddenSegments = pathSegments.slice(0, visibleStartIndex).map((segment, index) => ({
+    index,
+    segment,
+    path: `/${pathSegments.slice(0, index + 1).join('/')}`,
+  }));
+
+  const visibleSegments = pathSegments.slice(visibleStartIndex);
 
   const normalizePathInput = (value: string) => {
     const trimmed = value.trim();
@@ -136,12 +211,12 @@ export const FileManagerNavigationBar = () => {
             : "rounded-xl bg-zinc-50/70")
       )}>
         {!isEditMode ? (
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2">
+          <div ref={layoutRowRef} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2">
             <div
               className="min-w-0 cursor-text rounded-lg px-0.5 py-0.5 outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <div className={cn(
-                "flex min-w-0 flex-wrap items-start gap-x-0.5 gap-y-0.5 text-sm font-bold leading-5",
+                "flex min-w-0 items-start gap-x-0.5 gap-y-0.5 overflow-hidden text-sm font-bold leading-5",
                 isDark ? "text-white" : "text-zinc-800"
               )}>
                 <Button
@@ -168,27 +243,74 @@ export const FileManagerNavigationBar = () => {
                     /
                   </span>
                 )}
+                {hiddenSegments.length > 0 && (
+                  <div className="relative flex shrink-0 items-start gap-0.5">
+                    <span className={cn("shrink-0 pt-[7px]", isDark ? "text-primary/20" : "text-zinc-400")}>/</span>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "h-auto min-h-8 shrink-0 rounded-lg border border-transparent px-1.25 py-1 text-left",
+                        isDark
+                          ? "text-white/55 hover:bg-accent hover:text-white"
+                          : "text-zinc-600 hover:border-zinc-200 hover:bg-zinc-100 hover:text-zinc-950"
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowCollapsedMenu((prev) => !prev);
+                      }}
+                      aria-label={t('filemanager.editPath') || 'Show parent paths'}
+                      title={hiddenSegments.map((item) => item.path).join('\n')}
+                    >
+                      <span className="block leading-4.5">...</span>
+                    </Button>
 
-                {pathSegments
-                  .filter((_, i) => pathSegments.length <= 2 || i >= pathSegments.length - 2)
-                  .map((segment, filteredIndex) => {
-                    const i = pathSegments.length <= 2 ? filteredIndex : pathSegments.length - 2 + filteredIndex;
+                    {showCollapsedMenu && (
+                      <>
+                        <button
+                          type="button"
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowCollapsedMenu(false)}
+                          aria-label={t('common.close') || 'Close'}
+                        />
+                        <div className={cn(
+                          "absolute left-0 top-9 z-50 min-w-48 max-w-[min(28rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border py-1.5 shadow-2xl backdrop-blur-xl",
+                          isDark ? "border-white/10 bg-zinc-900/95" : "border-zinc-200 bg-white"
+                        )}>
+                          {hiddenSegments.map((item) => (
+                            <button
+                              key={item.path}
+                              type="button"
+                              className={cn(
+                                "block w-full truncate px-4 py-2 text-left text-sm font-bold transition-colors",
+                                isDark ? "text-white/80 hover:bg-white/5" : "text-zinc-700 hover:bg-zinc-100"
+                              )}
+                              onClick={() => {
+                                setCurrentPath(item.path);
+                                setShowCollapsedMenu(false);
+                              }}
+                              title={item.path}
+                            >
+                              {item.path}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {visibleSegments.map((segment, visibleIndex) => {
+                    const i = visibleStartIndex + visibleIndex;
                     return (
                   <div
                     key={`/${pathSegments.slice(0, i + 1).join('/')}`}
                     className="flex min-w-0 max-w-full items-start gap-0.5"
                   >
-                    {pathSegments.length > 2 && filteredIndex === 0 && (
-                      <>
-                        <span className={cn("shrink-0 pt-[7px]", isDark ? "text-primary/20" : "text-zinc-400")}>/</span>
-                        <span className={cn("shrink-0 pt-[5px] px-0.5", isDark ? "text-primary/30" : "text-zinc-400")}>...</span>
-                      </>
-                    )}
                     <span className={cn("shrink-0 pt-[7px]", isDark ? "text-primary/20" : "text-zinc-400")}>/</span>
                     <Button
                       variant="ghost"
                       className={cn(
-                        "h-auto min-h-8 min-w-0 max-w-[9rem] items-start justify-start rounded-lg border border-transparent px-1.25 py-1 text-left sm:max-w-full",
+                        "h-auto min-h-8 min-w-0 max-w-[12rem] items-start justify-start rounded-lg border border-transparent px-1.25 py-1 text-left xl:max-w-[16rem]",
                         isDark
                           ? "text-white/70 hover:bg-accent hover:text-white"
                           : "text-zinc-700 hover:border-zinc-200 hover:bg-zinc-100 hover:text-zinc-950"
@@ -207,6 +329,7 @@ export const FileManagerNavigationBar = () => {
             </div>
 
             <Button
+              ref={editButtonRef}
               variant="ghost"
               className={cn(
                 "mt-0.5 h-8 shrink-0 rounded-full px-2.5",
@@ -274,6 +397,43 @@ export const FileManagerNavigationBar = () => {
             </div>
           </form>
         )}
+
+        <div className="pointer-events-none absolute -left-[9999px] -top-[9999px] opacity-0" aria-hidden="true">
+          <div className="flex items-start gap-x-0.5 text-sm font-bold leading-5">
+            <Button
+              ref={rootMeasureRef}
+              type="button"
+              variant="ghost"
+              className="h-8 shrink-0 rounded-lg border border-transparent p-1.5"
+            >
+              <HardDrive size={18} />
+            </Button>
+            <span ref={slashMeasureRef}>/</span>
+            <Button
+              ref={ellipsisMeasureRef}
+              type="button"
+              variant="ghost"
+              className="h-auto min-h-8 shrink-0 rounded-lg border border-transparent px-1.25 py-1 text-left"
+            >
+              <span className="block whitespace-nowrap leading-4.5">...</span>
+            </Button>
+            {pathSegments.map((segment, index) => (
+              <React.Fragment key={`measure-/${pathSegments.slice(0, index + 1).join('/')}`}>
+                <span>/</span>
+                <Button
+                  type="button"
+                  ref={(element) => {
+                    segmentMeasureRefs.current[index] = element;
+                  }}
+                  variant="ghost"
+                  className="h-auto min-h-8 shrink-0 rounded-lg border border-transparent px-1.25 py-1 text-left"
+                >
+                  <span className="block whitespace-nowrap leading-4.5">{segment}</span>
+                </Button>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
       </div>
 
       {mountContext && (
