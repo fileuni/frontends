@@ -90,7 +90,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
   useEffect(() => {
     const cred = parseJsonObjectToStringMap(credentialJson);
     const conf = parseJsonObjectToStringMap(configJson);
-    setFields({ ...cred, ...conf });
+    setFields({ ...conf, ...cred });
   }, [credentialJson, configJson]);
 
   const handleFieldChange = (key: string, value: string) => {
@@ -98,19 +98,32 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
     setFields(newFields);
 
     const fieldDefs = buildFieldDefsFromProfile(providerProfile) || [];
-    const credObj: Record<string, string> = {};
-    const confObj: Record<string, string> = {};
+    const changedDef = fieldDefs.find((def) => def.key === key);
+    if (!changedDef) return;
 
-    fieldDefs.forEach(def => {
-      const fieldValue = newFields[def.key];
-      if (fieldValue) {
-        if (def.isConfig) {
-          confObj[def.key] = fieldValue;
-        } else {
-          credObj[def.key] = fieldValue;
-        }
-      }
-    });
+    const credentialKeys = new Set(
+      fieldDefs.filter((def) => !def.isConfig).map((def) => def.key),
+    );
+    const configKeys = new Set(
+      fieldDefs.filter((def) => def.isConfig).map((def) => def.key),
+    );
+
+    const credObj = parseJsonObjectToStringMap(credentialJson);
+    const confObj = parseJsonObjectToStringMap(configJson);
+    const target = changedDef.isConfig ? confObj : credObj;
+
+    if (value.trim()) {
+      target[key] = value;
+    } else {
+      delete target[key];
+    }
+
+    for (const credentialKey of credentialKeys) {
+      delete confObj[credentialKey];
+    }
+    for (const configKey of configKeys) {
+      delete credObj[configKey];
+    }
 
     // Update semantics:
     // - create: always send a full json object string (possibly {})
@@ -121,6 +134,37 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
   };
 
   const currentDefs = buildFieldDefsFromProfile(providerProfile);
+  const renderField = (def: FieldDef) => (
+    <div key={def.key} className="space-y-1.5">
+      <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+        {def.label}
+        {def.required && !isEdit && <span className="text-red-500 ml-1">*</span>}
+      </div>
+      {(def.type === 'password' || isSensitiveKeyName(def.key)) ? (
+        <PasswordInput
+          value={fields[def.key] || ''}
+          onChange={(e) => handleFieldChange(def.key, e.target.value)}
+          placeholder={def.placeholder}
+          required={def.required && !isEdit}
+          inputClassName={controlBase}
+        />
+      ) : (
+        <Input
+          type="text"
+          placeholder={def.placeholder}
+          value={fields[def.key] || ''}
+          onChange={(e) => handleFieldChange(def.key, e.target.value)}
+          className={controlBase}
+        />
+      )}
+      {def.helper && <div className="text-[14px] opacity-50 dark:opacity-30 italic text-foreground/60">{def.helper}</div>}
+      {isEdit && (def.type === 'password' || isSensitiveKeyName(def.key)) && (
+        <div className="text-[14px] opacity-50 dark:opacity-30 italic text-foreground/60">
+          {t('admin.domain.providerCredentialEditPlaceholder') || 'Leave secret fields blank to keep current value.'}
+        </div>
+      )}
+    </div>
+  );
 
   const fallbackCred = useMemo(() => parseJsonObjectToStringMap(credentialJson), [credentialJson]);
   const fallbackConf = useMemo(() => parseJsonObjectToStringMap(configJson), [configJson]);
@@ -152,41 +196,70 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
     );
   }
 
+  const credentialDefs = currentDefs.filter((def) => !def.isConfig);
+  const configDefs = currentDefs.filter((def) => def.isConfig);
+  const primaryCredentialDefs = credentialDefs.some((def) => def.required)
+    ? credentialDefs.filter((def) => def.required)
+    : credentialDefs;
+  const secondaryCredentialDefs = credentialDefs.filter((def) => !primaryCredentialDefs.includes(def));
+  const primaryConfigDefs = configDefs.filter((def) => def.required);
+  const secondaryConfigDefs = configDefs.filter((def) => !def.required);
+  const advancedDefs = [...secondaryCredentialDefs, ...secondaryConfigDefs];
+  const advancedOpen = advancedDefs.some((def) => (fields[def.key] || '').trim().length > 0);
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4">
-        {currentDefs.map((def) => (
-          <div key={def.key} className="space-y-1.5">
-            <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
-              {def.label}
-              {def.required && !isEdit && <span className="text-red-500 ml-1">*</span>}
-            </div>
-            {(def.type === 'password' || isSensitiveKeyName(def.key)) ? (
-              <PasswordInput
-                value={fields[def.key] || ''}
-                onChange={(e) => handleFieldChange(def.key, e.target.value)}
-                placeholder={def.placeholder}
-                required={def.required && !isEdit}
-                inputClassName={controlBase}
-              />
-            ) : (
-              <Input
-                type="text"
-                placeholder={def.placeholder}
-                value={fields[def.key] || ''}
-                onChange={(e) => handleFieldChange(def.key, e.target.value)}
-                className={controlBase}
-              />
+    <div className="space-y-6">
+      {primaryCredentialDefs.length > 0 && (
+        <div className="space-y-4">
+          <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">
+            {t('admin.domain.authConfig')}
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            {primaryCredentialDefs.map(renderField)}
+          </div>
+        </div>
+      )}
+
+      {primaryConfigDefs.length > 0 && (
+        <div className="space-y-4">
+          <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">
+            {t('admin.domain.configJson')}
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            {primaryConfigDefs.map(renderField)}
+          </div>
+        </div>
+      )}
+
+      {advancedDefs.length > 0 && (
+        <details open={advancedOpen} className="rounded-2xl border border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-white/[0.02] px-4 py-3">
+          <summary className="cursor-pointer list-none text-[14px] font-black tracking-widest text-foreground/70">
+            {t('admin.domain.advAutomation')}
+          </summary>
+          <div className="mt-4 space-y-6">
+            {secondaryCredentialDefs.length > 0 && (
+              <div className="space-y-4">
+                <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">
+                  {t('admin.domain.credentialJson')}
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  {secondaryCredentialDefs.map(renderField)}
+                </div>
+              </div>
             )}
-            {def.helper && <div className="text-[14px] opacity-50 dark:opacity-30 italic text-foreground/60">{def.helper}</div>}
-            {isEdit && (def.type === 'password' || isSensitiveKeyName(def.key)) && (
-              <div className="text-[14px] opacity-50 dark:opacity-30 italic text-foreground/60">
-                Leave blank to keep current value.
+            {secondaryConfigDefs.length > 0 && (
+              <div className="space-y-4">
+                <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">
+                  {t('admin.domain.configJson')}
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  {secondaryConfigDefs.map(renderField)}
+                </div>
               </div>
             )}
           </div>
-        ))}
-      </div>
+        </details>
+      )}
     </div>
   );
 };

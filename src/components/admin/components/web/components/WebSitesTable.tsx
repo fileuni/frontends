@@ -29,6 +29,12 @@ export const WebSitesTable = ({
             {sites.map((site) => {
               const hostnames = site.bindings.flatMap((item) => item.hostnames).slice(0, 4);
               const ports = site.bindings.map((item) => item.listen_port).join(', ');
+              const routeTarget = site.route_mode === 'proxy'
+                ? (site.proxy_upstream || '-')
+                : (site.static_root || '-');
+              const tlsTarget = site.tls_enabled
+                ? (site.tls_acme_cert_id || site.tls_cert_path || '-')
+                : '-';
               return (
                 <article key={site.id} className="space-y-4 px-4 py-4 text-sm">
                   <div className="space-y-1">
@@ -60,6 +66,15 @@ export const WebSitesTable = ({
                         <Server size={16} className="shrink-0" />
                         <span>{ports || '-'}</span>
                       </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-border/70 bg-background/60 px-3 py-3">
+                      <div className="text-xs font-black tracking-wide opacity-50">
+                        {site.route_mode === 'proxy' ? t('admin.web.form.proxyUpstream') : t('admin.web.form.staticRoot')}
+                      </div>
+                      <div className="mt-2 text-sm opacity-80 break-all">{routeTarget}</div>
+                      <div className="mt-2 text-xs font-black tracking-wide opacity-50">{t('admin.web.form.tlsAcmeCert')}</div>
+                      <div className="mt-1 text-sm opacity-70 break-all">{tlsTarget}</div>
                     </div>
 
                     <div className="rounded-2xl border border-border/70 bg-background/60 px-3 py-3">
@@ -98,11 +113,19 @@ export const WebSitesTable = ({
               </div>
 
               <div className="divide-y divide-border">
-                {sites.map((site) => (
+                {sites.map((site) => {
+                  const routeTarget = site.route_mode === 'proxy'
+                    ? (site.proxy_upstream || '-')
+                    : (site.static_root || '-');
+                  const tlsTarget = site.tls_enabled
+                    ? (site.tls_acme_cert_id || site.tls_cert_path || '-')
+                    : '-';
+                  return (
                   <div key={site.id} className="grid grid-cols-12 gap-2 px-4 py-4 items-center text-sm">
                     <div className="col-span-3 min-w-0">
                       <div className="font-bold truncate">{site.name}</div>
                       <div className="text-sm opacity-60 truncate">{site.id}</div>
+                      <div className="text-sm opacity-60 truncate mt-1">{routeTarget}</div>
                     </div>
                     <div className="col-span-2">
                       <div className="flex items-center gap-1 text-sm opacity-70">
@@ -122,10 +145,13 @@ export const WebSitesTable = ({
                     </div>
                     <div className="col-span-1">
                       {site.tls_enabled ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600 text-sm font-bold">
-                          <ShieldCheck size={18} />
-                          {t('common.on')}
-                        </span>
+                        <div className="space-y-1">
+                          <span className="inline-flex items-center gap-1 text-emerald-600 text-sm font-bold">
+                            <ShieldCheck size={18} />
+                            {t('common.on')}
+                          </span>
+                          <div className="text-xs opacity-60 truncate">{tlsTarget}</div>
+                        </div>
                       ) : (
                         <span className="text-sm opacity-50">{t('common.off')}</span>
                       )}
@@ -148,7 +174,7 @@ export const WebSitesTable = ({
                       </Button>
                     </div>
                   </div>
-                ))}
+                );})}
               </div>
             </div>
           </div>

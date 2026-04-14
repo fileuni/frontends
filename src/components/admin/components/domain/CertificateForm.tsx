@@ -99,6 +99,10 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
     return typeof value === 'string' ? value : '';
   };
 
+  const advancedOpen = caProvider === 'zerossl'
+    || Boolean((exportPath || '').trim())
+    || Boolean(getConfigValue('zerossl_account_id'));
+
   const parseChallengeType = (value: string): 'dns01' | 'http01' => {
     return value === 'http01' ? 'http01' : 'dns01';
   };
@@ -320,34 +324,39 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({
           )}
         </div>
 
-        <div className="space-y-6">
-          <SectionHeader icon={Cpu} title={t('admin.domain.advAutomation')} desc={t('admin.domain.advAutomationDesc')} />
-          
-          {caProvider === 'zerossl' && (
-            <div className="space-y-2 p-4 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/5 border border-cyan-500/20 dark:border-cyan-500/10 animate-in fade-in zoom-in-95 shadow-sm">
-              <div className="text-[14px] font-black tracking-widest text-cyan-700 dark:text-cyan-400 opacity-80 flex items-center gap-2">
-                <LinkIcon size={18}/> {t('admin.domain.zerosslEab')}
-              </div>
-              <div className="flex gap-2">
-                <select className={cn(selectBase, "border-cyan-500/30 dark:border-cyan-500/20")} style={selectStyle} value={getConfigValue('zerossl_account_id')} onChange={(e) => updateDnsConfig('zerossl_account_id', e.target.value)}>
-                  <option value="">{t('admin.acme.form.providerSelectPlaceholder')}</option>
-                  {zeroSslAccounts.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
-                </select>
-                <Button type="button" variant="outline" onClick={onOpenZeroSslModal} className="h-11 w-11 p-0 border-cyan-500/30 dark:border-cyan-500/20 bg-white dark:bg-cyan-500/5 hover:bg-cyan-100 dark:hover:bg-cyan-500/10 text-cyan-700 dark:text-cyan-500 shrink-0 shadow-sm">
-                  <Plus size={16} />
-                </Button>
-              </div>
-            </div>
-          )}
+        <details open={advancedOpen} className="rounded-2xl border border-zinc-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] px-4 py-3">
+          <summary className="cursor-pointer list-none text-sm font-black tracking-widest text-foreground/80">
+            {t('admin.domain.advAutomation')}
+          </summary>
+          <div className="mt-5 space-y-6">
+            <SectionHeader icon={Cpu} title={t('admin.domain.advAutomation')} desc={t('admin.domain.advAutomationDesc')} />
 
-          <div className="space-y-2">
-            <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.exportPath')}</div>
-            <div className="relative">
-              <Input value={exportPath || ''} onChange={(e) => onChangeExportPath(e.target.value)} placeholder={t('admin.domain.certExportPlaceholder')} className={controlBase} />
-              <ExternalLink size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/20 dark:text-white/20" />
+            {caProvider === 'zerossl' && (
+              <div className="space-y-2 p-4 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/5 border border-cyan-500/20 dark:border-cyan-500/10 animate-in fade-in zoom-in-95 shadow-sm">
+                <div className="text-[14px] font-black tracking-widest text-cyan-700 dark:text-cyan-400 opacity-80 flex items-center gap-2">
+                  <LinkIcon size={18}/> {t('admin.domain.zerosslEab')}
+                </div>
+                <div className="flex gap-2">
+                  <select className={cn(selectBase, "border-cyan-500/30 dark:border-cyan-500/20")} style={selectStyle} value={getConfigValue('zerossl_account_id')} onChange={(e) => updateDnsConfig('zerossl_account_id', e.target.value)}>
+                    <option value="">{t('admin.acme.form.providerSelectPlaceholder')}</option>
+                    {zeroSslAccounts.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
+                  </select>
+                  <Button type="button" variant="outline" onClick={onOpenZeroSslModal} className="h-11 w-11 p-0 border-cyan-500/30 dark:border-cyan-500/20 bg-white dark:bg-cyan-500/5 hover:bg-cyan-100 dark:hover:bg-cyan-500/10 text-cyan-700 dark:text-cyan-500 shrink-0 shadow-sm">
+                    <Plus size={16} />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.exportPath')}</div>
+              <div className="relative">
+                <Input value={exportPath || ''} onChange={(e) => onChangeExportPath(e.target.value)} placeholder={t('admin.domain.certExportPlaceholder')} className={controlBase} />
+                <ExternalLink size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/20 dark:text-white/20" />
+              </div>
             </div>
           </div>
-        </div>
+        </details>
       </div>
     </div>
   );

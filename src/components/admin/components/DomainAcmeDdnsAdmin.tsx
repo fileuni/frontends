@@ -1108,6 +1108,11 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     return providers.find((p) => p.id === ddnsDraft.provider_account_id) || null;
   }, [providers, ddnsDraft.provider_account_id]);
 
+  const ddnsAdvancedOpen = bulkCreateOpen
+    || ddnsDraft.force_update
+    || ((ddnsDraft.webhook_json || '').trim() !== '{}' && (ddnsDraft.webhook_json || '').trim() !== '')
+    || selectedDdnsProviderKey?.toLowerCase() === 'callback';
+
   const cardsData = isDdns ? ddnsEntries : certificates;
 
   const renderCards = () => {
@@ -1865,35 +1870,6 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
            </div>
           </div>
 
-          {!ddnsDraft.id && (
-            <div className={sectionCardBase}>
-              <div className="space-y-6">
-                <div className="flex items-center justify-between gap-4">
-                  <SectionHeader icon={Network} title={t('admin.domain.bulkCreateTitle') || 'Bulk Create'} desc={t('admin.domain.bulkCreateDesc') || 'Optional: create multiple hosts under the same zone'} colorClass="bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 border-indigo-500/20" />
-                  <Button type="button" variant="outline" onClick={() => setBulkCreateOpen((v) => !v)} className="h-11 px-4 rounded-xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 shadow-sm font-bold">
-                    {bulkCreateOpen ? (t('admin.domain.hideBulkCreate') || 'Hide') : (t('admin.domain.showBulkCreate') || 'Show')}
-                  </Button>
-                </div>
-
-                {bulkCreateOpen && (
-                  <div className="space-y-2">
-                    <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
-                      {t('admin.domain.hostsListLabel') || 'Hosts list'}
-                    </div>
-                    <textarea
-                      placeholder={t('admin.domain.hostsListPlaceholder') || '@\nwww\napi,120'}
-                      value={ddnsDraft.fqdns}
-                      onChange={(e) => setDdnsDraft({ ...ddnsDraft, fqdns: e.target.value })}
-                      className="w-full min-h-[120px] rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm text-foreground placeholder:opacity-30"
-                      spellCheck={false}
-                    />
-                    <p className="text-[14px] opacity-50 italic">{t('admin.domain.hostsListHint') || 'One host per line. Optional per-line TTL: host,ttl. Zone is taken from the Zone field.'}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
           <div className="space-y-4">
             <DdnsSourceForm
               label={t('admin.domain.ipv4Config')}
@@ -1913,48 +1889,80 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             />
           </div>
 
-          <div className={sectionCardBase}>
-            <div className="space-y-6">
-              <SectionHeader icon={LinkIcon} title={t('admin.domain.webhookTitle') || 'Webhook'} desc={t('admin.domain.webhookTitle') || 'Webhook'} colorClass="bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20" />
+          <details open={ddnsAdvancedOpen} className={sectionCardBase}>
+            <summary className="cursor-pointer list-none text-sm font-black tracking-widest text-foreground/80">
+              {t('admin.domain.advAutomation')}
+            </summary>
+            <div className="mt-6 space-y-6">
+              {!ddnsDraft.id && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between gap-4">
+                    <SectionHeader icon={Network} title={t('admin.domain.bulkCreateTitle') || 'Bulk Create'} desc={t('admin.domain.bulkCreateDesc') || 'Optional: create multiple hosts under the same zone'} colorClass="bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 border-indigo-500/20" />
+                    <Button type="button" variant="outline" onClick={() => setBulkCreateOpen((v) => !v)} className="h-11 px-4 rounded-xl border-zinc-300 dark:border-white/10 bg-white dark:bg-white/5 shadow-sm font-bold">
+                      {bulkCreateOpen ? (t('admin.domain.hideBulkCreate') || 'Hide') : (t('admin.domain.showBulkCreate') || 'Show')}
+                    </Button>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.forceUpdate') || 'Force Update'}</div>
-                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
-                    <div className="text-sm font-bold opacity-70">
-                      {ddnsDraft.force_update ? (t('admin.domain.automaticUpdates') || 'Enabled') : (t('admin.domain.statusIdle') || 'Idle')}
+                  {bulkCreateOpen && (
+                    <div className="space-y-2">
+                      <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                        {t('admin.domain.hostsListLabel') || 'Hosts list'}
+                      </div>
+                      <textarea
+                        placeholder={t('admin.domain.hostsListPlaceholder') || '@\nwww\napi,120'}
+                        value={ddnsDraft.fqdns}
+                        onChange={(e) => setDdnsDraft({ ...ddnsDraft, fqdns: e.target.value })}
+                        className="w-full min-h-[120px] rounded-xl border border-zinc-400/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm text-foreground placeholder:opacity-30"
+                        spellCheck={false}
+                      />
+                      <p className="text-[14px] opacity-50 italic">{t('admin.domain.hostsListHint') || 'One host per line. Optional per-line TTL: host,ttl. Zone is taken from the Zone field.'}</p>
                     </div>
-                    <Switch checked={ddnsDraft.force_update} onChange={(v: boolean) => setDdnsDraft({ ...ddnsDraft, force_update: v })} />
-                  </div>
-                  <p className="text-[14px] opacity-50 italic">
-                    {t('admin.domain.forceUpdateHint') || 'When enabled, the next run will upsert records even if IP has not changed.'}
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
-                    {t('admin.domain.webhookJson') || 'Webhook Fields'}
-                  </div>
-                  <KeyValueForm
-                    value={parseJsonObjectToStringMap(ddnsDraft.webhook_json)}
-                    onChange={(obj) => setDdnsDraft({ ...ddnsDraft, webhook_json: JSON.stringify(obj) })}
-                    addLabel={t('admin.domain.addWebhookField') || 'Add field'}
-                    keyPlaceholder="key"
-                    valuePlaceholder="value"
-                  />
-                  <p className="text-[14px] opacity-50 italic">
-                    {t('admin.domain.webhookJsonHint') || 'Primarily used by callback provider and merged as extra fields in callback payload.'}
-                  </p>
-                </div>
-              </div>
-
-              {selectedDdnsProviderKey?.toLowerCase() === 'callback' && (
-                <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 text-sm font-bold opacity-80">
-                  {t('admin.domain.callbackProviderHint') || 'Callback provider reads endpoint config from provider credential/config JSON. webhook_json here will be merged into callback payload.'}
+                  )}
                 </div>
               )}
+
+              <div className="space-y-6">
+                <SectionHeader icon={LinkIcon} title={t('admin.domain.webhookTitle') || 'Webhook'} desc={t('admin.domain.webhookTitle') || 'Webhook'} colorClass="bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20" />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">{t('admin.domain.forceUpdate') || 'Force Update'}</div>
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5">
+                      <div className="text-sm font-bold opacity-70">
+                        {ddnsDraft.force_update ? (t('admin.domain.automaticUpdates') || 'Enabled') : (t('admin.domain.statusIdle') || 'Idle')}
+                      </div>
+                      <Switch checked={ddnsDraft.force_update} onChange={(v: boolean) => setDdnsDraft({ ...ddnsDraft, force_update: v })} />
+                    </div>
+                    <p className="text-[14px] opacity-50 italic">
+                      {t('admin.domain.forceUpdateHint') || 'When enabled, the next run will upsert records even if IP has not changed.'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-[14px] font-black tracking-widest text-foreground/50 dark:text-foreground/40 ml-1">
+                      {t('admin.domain.webhookJson') || 'Webhook Fields'}
+                    </div>
+                    <KeyValueForm
+                      value={parseJsonObjectToStringMap(ddnsDraft.webhook_json)}
+                      onChange={(obj) => setDdnsDraft({ ...ddnsDraft, webhook_json: JSON.stringify(obj) })}
+                      addLabel={t('admin.domain.addWebhookField') || 'Add field'}
+                      keyPlaceholder="key"
+                      valuePlaceholder="value"
+                    />
+                    <p className="text-[14px] opacity-50 italic">
+                      {t('admin.domain.webhookJsonHint') || 'Primarily used by callback provider and merged as extra fields in callback payload.'}
+                    </p>
+                  </div>
+                </div>
+
+                {selectedDdnsProviderKey?.toLowerCase() === 'callback' && (
+                  <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 text-sm font-bold opacity-80">
+                    {t('admin.domain.callbackProviderHint') || 'Callback provider reads endpoint config from provider credential/config JSON. webhook_json here will be merged into callback payload.'}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          </details>
 
           <div className={sectionCardBase}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
