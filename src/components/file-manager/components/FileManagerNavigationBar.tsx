@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils.ts";
 import { useFileStore } from "../store/useFileStore.ts";
 import { client, extractData } from "@/lib/api.ts";
 import { useTranslation } from "react-i18next";
+import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
 import { currentPathMountContextFromFiles, findMountByPath, type RemoteMountSummary } from "../utils/mounts.ts";
@@ -44,7 +45,7 @@ export const FileManagerNavigationBar = () => {
   const [pathInput, setPathInput] = useState(currentPath);
   const [mountContext, setMountContext] = useState<RemoteMountSummary | null>(null);
   const [visibleStartIndex, setVisibleStartIndex] = useState(0);
-  const [showCollapsedMenu, setShowCollapsedMenu] = useState(false);
+  const [showFullPath, setShowFullPath] = useState(false);
   const addressInputRef = useRef<HTMLInputElement>(null);
   const layoutRowRef = useRef<HTMLDivElement>(null);
   const editButtonRef = useRef<HTMLButtonElement>(null);
@@ -65,6 +66,7 @@ export const FileManagerNavigationBar = () => {
 
   useEffect(() => {
     setPathInput(currentPath);
+    setShowFullPath(false);
   }, [currentPath]);
 
   useEffect(() => {
@@ -110,6 +112,12 @@ export const FileManagerNavigationBar = () => {
   const pathSegments = currentPath.split("/").filter(Boolean);
   const protectedMode = protectedStatus?.protected_mode || protectedStatus?.global_mode;
   const isDark = resolvedTheme === 'dark';
+  const canExpandFullPath = visibleStartIndex > 0;
+
+  useEscapeToCloseTopLayer({
+    active: showFullPath && canExpandFullPath && !isEditMode,
+    onEscape: () => setShowFullPath(false),
+  });
 
   useLayoutEffect(() => {
     if (isEditMode) return undefined;
@@ -175,13 +183,15 @@ export const FileManagerNavigationBar = () => {
     setCurrentPath(newPath);
   };
 
-  const hiddenSegments = pathSegments.slice(0, visibleStartIndex).map((segment, index) => ({
+  const displayStartIndex = showFullPath ? 0 : visibleStartIndex;
+
+  const hiddenSegments = pathSegments.slice(0, displayStartIndex).map((segment, index) => ({
     index,
     segment,
     path: `/${pathSegments.slice(0, index + 1).join('/')}`,
   }));
 
-  const visibleSegments = pathSegments.slice(visibleStartIndex);
+  const visibleSegments = pathSegments.slice(displayStartIndex);
 
   const normalizePathInput = (value: string) => {
     const trimmed = value.trim();
@@ -211,12 +221,21 @@ export const FileManagerNavigationBar = () => {
             : "rounded-xl bg-zinc-50/70")
       )}>
         {!isEditMode ? (
-          <div ref={layoutRowRef} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2">
+          <div
+            ref={layoutRowRef}
+            className={cn(
+              "grid items-start gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2",
+              showFullPath && canExpandFullPath
+                ? "grid-cols-1"
+                : "grid-cols-[minmax(0,1fr)_auto]"
+            )}
+          >
             <div
               className="min-w-0 cursor-text rounded-lg px-0.5 py-0.5 outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <div className={cn(
-                "flex min-w-0 items-start gap-x-0.5 gap-y-0.5 overflow-hidden text-sm font-bold leading-5",
+                "flex min-w-0 items-start gap-x-0.5 gap-y-0.5 text-sm font-bold leading-5",
+                showFullPath && canExpandFullPath ? "flex-wrap" : "overflow-hidden",
                 isDark ? "text-white" : "text-zinc-800"
               )}>
                 <Button
@@ -244,7 +263,7 @@ export const FileManagerNavigationBar = () => {
                   </span>
                 )}
                 {hiddenSegments.length > 0 && (
-                  <div className="relative flex shrink-0 items-start gap-0.5">
+                  <div className="flex shrink-0 items-start gap-0.5">
                     <span className={cn("shrink-0 pt-[7px]", isDark ? "text-primary/20" : "text-zinc-400")}>/</span>
                     <Button
                       variant="ghost"
@@ -256,51 +275,18 @@ export const FileManagerNavigationBar = () => {
                       )}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setShowCollapsedMenu((prev) => !prev);
+                        setShowFullPath(true);
                       }}
-                      aria-label={t('filemanager.editPath') || 'Show parent paths'}
-                      title={hiddenSegments.map((item) => item.path).join('\n')}
+                      aria-label={t('filemanager.showFullPath') || 'Show full path'}
+                      title={t('filemanager.showFullPath') || 'Show full path'}
                     >
                       <span className="block leading-4.5">...</span>
                     </Button>
-
-                    {showCollapsedMenu && (
-                      <>
-                        <button
-                          type="button"
-                          className="fixed inset-0 z-40"
-                          onClick={() => setShowCollapsedMenu(false)}
-                          aria-label={t('common.close') || 'Close'}
-                        />
-                        <div className={cn(
-                          "absolute left-0 top-9 z-50 min-w-48 max-w-[min(28rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border py-1.5 shadow-2xl backdrop-blur-xl",
-                          isDark ? "border-white/10 bg-zinc-900/95" : "border-zinc-200 bg-white"
-                        )}>
-                          {hiddenSegments.map((item) => (
-                            <button
-                              key={item.path}
-                              type="button"
-                              className={cn(
-                                "block w-full truncate px-4 py-2 text-left text-sm font-bold transition-colors",
-                                isDark ? "text-white/80 hover:bg-white/5" : "text-zinc-700 hover:bg-zinc-100"
-                              )}
-                              onClick={() => {
-                                setCurrentPath(item.path);
-                                setShowCollapsedMenu(false);
-                              }}
-                              title={item.path}
-                            >
-                              {item.path}
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
                   </div>
                 )}
 
                 {visibleSegments.map((segment, visibleIndex) => {
-                    const i = visibleStartIndex + visibleIndex;
+                    const i = displayStartIndex + visibleIndex;
                     return (
                   <div
                     key={`/${pathSegments.slice(0, i + 1).join('/')}`}
@@ -310,7 +296,8 @@ export const FileManagerNavigationBar = () => {
                     <Button
                       variant="ghost"
                       className={cn(
-                        "h-auto min-h-8 min-w-0 max-w-[12rem] items-start justify-start rounded-lg border border-transparent px-1.25 py-1 text-left xl:max-w-[16rem]",
+                        "h-auto min-h-8 min-w-0 items-start justify-start rounded-lg border border-transparent px-1.25 py-1 text-left",
+                        showFullPath && canExpandFullPath ? "max-w-full" : "max-w-[12rem] xl:max-w-[16rem]",
                         isDark
                           ? "text-white/70 hover:bg-accent hover:text-white"
                           : "text-zinc-700 hover:border-zinc-200 hover:bg-zinc-100 hover:text-zinc-950"
@@ -319,8 +306,9 @@ export const FileManagerNavigationBar = () => {
                         e.stopPropagation();
                         navigateTo(i);
                       }}
+                      title={`/${pathSegments.slice(0, i + 1).join('/')}`}
                     >
-                      <span className="block break-words leading-4.5">{segment}</span>
+                      <span className={cn("block leading-4.5", showFullPath && canExpandFullPath ? "break-all" : "break-words")}>{segment}</span>
                     </Button>
                   </div>
                     );
@@ -328,21 +316,40 @@ export const FileManagerNavigationBar = () => {
               </div>
             </div>
 
-            <Button
-              ref={editButtonRef}
-              variant="ghost"
-              className={cn(
-                "mt-0.5 h-8 shrink-0 rounded-full px-2.5",
-                isDark
-                  ? "border border-white/8 bg-white/[0.04] text-primary/60 hover:bg-white/[0.07] hover:text-primary"
-                  : "border border-zinc-300 bg-zinc-50 text-zinc-700 shadow-sm hover:bg-white hover:text-primary"
+            <div className="flex items-center justify-self-end gap-1">
+              {showFullPath && canExpandFullPath && (
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "mt-0.5 h-8 shrink-0 rounded-full px-2.5",
+                    isDark
+                      ? "border border-white/8 bg-white/[0.04] text-primary/60 hover:bg-white/[0.07] hover:text-primary"
+                      : "border border-zinc-300 bg-zinc-50 text-zinc-700 shadow-sm hover:bg-white hover:text-primary"
+                  )}
+                  onClick={() => setShowFullPath(false)}
+                  aria-label={t('filemanager.hideFullPath') || 'Collapse full path'}
+                  title={t('filemanager.hideFullPath') || 'Collapse full path'}
+                >
+                  <X size={16} />
+                </Button>
               )}
-              onClick={startEditMode}
-              aria-label={t('filemanager.editPath') || 'Edit path'}
-              title={t('filemanager.editPath') || 'Edit path'}
-            >
-              <PencilLine size={16} />
-            </Button>
+
+              <Button
+                ref={editButtonRef}
+                variant="ghost"
+                className={cn(
+                  "mt-0.5 h-8 shrink-0 rounded-full px-2.5",
+                  isDark
+                    ? "border border-white/8 bg-white/[0.04] text-primary/60 hover:bg-white/[0.07] hover:text-primary"
+                    : "border border-zinc-300 bg-zinc-50 text-zinc-700 shadow-sm hover:bg-white hover:text-primary"
+                )}
+                onClick={startEditMode}
+                aria-label={t('filemanager.editPath') || 'Edit path'}
+                title={t('filemanager.editPath') || 'Edit path'}
+              >
+                <PencilLine size={16} />
+              </Button>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleAddressSubmit} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2">
