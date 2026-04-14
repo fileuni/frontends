@@ -200,7 +200,7 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
   const configDefs = currentDefs.filter((def) => def.isConfig);
   const primaryCredentialDefs = credentialDefs.some((def) => def.required)
     ? credentialDefs.filter((def) => def.required)
-    : credentialDefs;
+    : credentialDefs.slice(0, Math.min(1, credentialDefs.length));
   const secondaryCredentialDefs = credentialDefs.filter((def) => !primaryCredentialDefs.includes(def));
   const primaryConfigDefs = configDefs.filter((def) => def.required);
   const secondaryConfigDefs = configDefs.filter((def) => !def.required);

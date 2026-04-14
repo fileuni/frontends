@@ -50,6 +50,19 @@ export const WebSiteModal = ({
   onUpdateBinding: (index: number, patch: Partial<SiteBinding>) => void;
   setDraft: (next: SiteDraft) => void;
 }) => {
+  const bindingAddresses = draft.bindings
+    .map((binding) => `${binding.listen_ip}:${binding.listen_port}`)
+    .filter((item, index, items) => item.length > 0 && items.indexOf(item) === index);
+  const bindingHostnames = Array.from(
+    new Set(
+      draft.bindings.flatMap((binding) => binding.hostnames).filter((item) => item.trim().length > 0),
+    ),
+  );
+  const routeTarget = draft.route_mode === 'proxy' ? draft.proxy_upstream.trim() : draft.static_root.trim();
+  const tlsSummary = !draft.tls_enabled
+    ? t('common.off')
+    : draft.tls_acme_cert_id.trim() || draft.tls_cert_path.trim() || t('common.on');
+
   return (
     <Modal
       isOpen={isOpen}
@@ -58,6 +71,26 @@ export const WebSiteModal = ({
       maxWidth="max-w-5xl"
     >
       <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="rounded-2xl border border-border bg-background/60 px-4 py-3">
+            <div className="text-sm font-black tracking-wider opacity-50">{t('admin.web.form.routeMode')}</div>
+            <div className="mt-2 text-sm font-bold">{draft.route_mode === 'proxy' ? t('admin.web.form.proxy') : t('admin.web.form.static')}</div>
+            <div className="mt-1 text-sm opacity-60 break-all">{routeTarget || '-'}</div>
+          </div>
+          <div className="rounded-2xl border border-border bg-background/60 px-4 py-3">
+            <div className="text-sm font-black tracking-wider opacity-50">{t('admin.web.form.bindings')}</div>
+            <div className="mt-2 text-sm font-bold break-words">{bindingAddresses.join(', ') || '-'}</div>
+          </div>
+          <div className="rounded-2xl border border-border bg-background/60 px-4 py-3">
+            <div className="text-sm font-black tracking-wider opacity-50">{t('admin.web.form.hostnames')}</div>
+            <div className="mt-2 text-sm font-bold break-words">{bindingHostnames.join(', ') || '-'}</div>
+          </div>
+          <div className="rounded-2xl border border-border bg-background/60 px-4 py-3">
+            <div className="text-sm font-black tracking-wider opacity-50">{t('admin.web.form.tlsAcmeCert')}</div>
+            <div className="mt-2 text-sm font-bold break-all">{tlsSummary || '-'}</div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.siteName')}</div>
@@ -126,6 +159,9 @@ export const WebSiteModal = ({
                     {testing ? <RefreshCw size={18} className="animate-spin" /> : <Network size={18} />}
                   </Button>
                 </div>
+                <div className="rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm font-bold opacity-70 break-all">
+                  {draft.proxy_upstream.trim() || '-'}
+                </div>
                 <div className="rounded-xl border border-border p-3 mt-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.proxyTlsInsecure')}</span>
@@ -154,7 +190,19 @@ export const WebSiteModal = ({
 
           <div className="space-y-3">
             {draft.bindings.map((binding, index) => (
-              <div key={`${binding.listen_ip}:${binding.listen_port}:${binding.hostnames.join('|')}:${binding.is_default ? 'default' : 'normal'}`} className="grid grid-cols-12 gap-2 rounded-xl border border-border p-3">
+              <div key={`${binding.listen_ip}:${binding.listen_port}:${binding.hostnames.join('|')}:${binding.is_default ? 'default' : 'normal'}`} className="space-y-3 rounded-2xl border border-border bg-background/60 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-sm font-black tracking-wider">{t('admin.web.form.bindings')} {index + 1}</div>
+                    <div className="mt-1 text-sm opacity-60 break-words">
+                      {`${binding.listen_ip}:${binding.listen_port}`} {binding.hostnames.length > 0 ? `| ${binding.hostnames.join(', ')}` : ''}
+                    </div>
+                  </div>
+                  <Button type="button" variant="destructive" size="sm" onClick={() => onRemoveBinding(index)}>
+                    <Trash2 size={18} />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-12 gap-2">
                 <div className="col-span-12 md:col-span-3 space-y-1">
                   <div className="text-sm font-bold tracking-wider opacity-60">{t('admin.web.form.ip')}</div>
                   <Input
@@ -190,10 +238,6 @@ export const WebSiteModal = ({
                     <Switch checked={binding.is_default} onChange={(v) => onUpdateBinding(index, { is_default: v })} />
                   </div>
                 </div>
-                <div className="col-span-4 md:col-span-1 flex items-end justify-end">
-                  <Button type="button" variant="destructive" size="sm" onClick={() => onRemoveBinding(index)}>
-                    <Trash2 size={18} />
-                  </Button>
                 </div>
               </div>
             ))}
