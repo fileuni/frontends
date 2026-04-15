@@ -32,6 +32,7 @@ bun run typecheck
 bun run check
 bun run build
 bun run verify
+bun run test:tauri-mock
 bun run gen-api
 ```
 
@@ -48,6 +49,8 @@ bun run gen-api
   - Builds the production static bundle
 - `bun run verify`
   - Runs `lint`, `typecheck`, `check`, and `build` in sequence
+- `bun run test:tauri-mock`
+  - Runs Vitest-based Tauri mock tests for launcher bridge and key desktop-only UI flows
 
 ## Recommended Workflow
 
