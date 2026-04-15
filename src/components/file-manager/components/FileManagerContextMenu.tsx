@@ -302,15 +302,17 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                         <MenuButton
                           icon={target.favorite_color > 0 ? Star : StarOff}
                           label={t('filemanager.actions.favorite')}
+                          testId="file-action-favorite"
                           hasSub={true}
                           active={target.favorite_color > 0}
                           className="text-orange-400"
                           disabled={mountedTarget || selectionSummary.hasMountedEntries}
                         />
                         {showFavoriteSub && (
-                          <div className={cn("py-1 animate-in slide-in-from-top-1 rounded-xl mx-1 my-1", isDark ? "bg-white/5" : "bg-gray-50")}>
+                          <div data-testid="favorite-submenu" className={cn("py-1 animate-in slide-in-from-top-1 rounded-xl mx-1 my-1", isDark ? "bg-white/5" : "bg-gray-50")}>
                             <button
                               type="button"
+                              data-testid="favorite-color-none"
                               onClick={() => onAction('favorite_0', target)}
                               className={cn(
                                 "w-full flex items-center gap-3 px-8 py-1.5 text-sm font-bold transition-colors",
@@ -326,6 +328,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                               <button
                                 type="button"
                                 key={color.id}
+                                data-testid={`favorite-color-${color.name.toLowerCase()}`}
                                 onClick={() => onAction(`favorite_${color.id}`, target)}
                                 className={cn(
                                   "w-full flex items-center gap-3 px-8 py-1.5 text-sm font-bold transition-colors",
