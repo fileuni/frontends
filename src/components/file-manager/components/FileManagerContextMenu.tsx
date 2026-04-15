@@ -263,8 +263,8 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
               )}
               {fmMode === 'trash' ? (
                 <>
-                  <MenuButton icon={Undo2} label={t('filemanager.actions.restore')} action="restore" className="text-green-500" />
-                  <MenuButton icon={Trash2} label={t('filemanager.actions.deletePermanent')} action="delete_permanent" danger />
+                  <MenuButton icon={Undo2} label={t('filemanager.actions.restore')} action="restore" testId="file-action-restore" className="text-green-500" />
+                  <MenuButton icon={Trash2} label={t('filemanager.actions.deletePermanent')} action="delete_permanent" testId="file-action-delete-permanent" danger />
                 </>
               ) : (
                 <>
@@ -340,7 +340,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                           </div>
                         )}
                       </div>
-                      <MenuButton icon={Share2} label={t('filemanager.actions.share')} action="share" />
+                      <MenuButton icon={Share2} label={t('filemanager.actions.share')} action="share" testId="file-action-share" />
                     </>
                   )}
 
@@ -352,7 +352,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                   
                   <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
                   
-                  <MenuButton icon={Trash2} label={deleteLabel} action="delete" danger disabled={mountRootTarget || selectionSummary.hasMountRoot} />
+                  <MenuButton icon={Trash2} label={deleteLabel} action="delete" testId="file-action-delete" danger disabled={mountRootTarget || selectionSummary.hasMountRoot} />
                   <MenuButton icon={PlusSquare} label={t('filemanager.actions.properties')} action="properties" />
                 </>
               )}

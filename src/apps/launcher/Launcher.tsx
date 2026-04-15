@@ -1138,7 +1138,10 @@ export function Launcher() {
   if (initialSettingsRequired) {
     return (
       <>
-        <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col overflow-y-auto overscroll-contain touch-pan-y">
+        <div
+          className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col overflow-y-auto overscroll-contain touch-pan-y"
+          data-testid="launcher-root"
+        >
           <div className="flex-1 min-h-0 p-3 pt-[calc(1rem+var(--safe-area-top))] pb-[calc(1rem+var(--safe-area-bottom))] sm:p-6 sm:pt-[calc(1.25rem+var(--safe-area-top))] lg:p-8 lg:pt-[calc(1.5rem+var(--safe-area-top))]">
             <div className="max-w-6xl mx-auto space-y-4">
               {showInitialSettingsCustomize ? (
@@ -1349,7 +1352,10 @@ export function Launcher() {
 
   return (
     <>
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col items-stretch justify-start font-sans transition-colors duration-500 overflow-hidden">
+        <div
+          className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col items-stretch justify-start font-sans transition-colors duration-500 overflow-hidden"
+          data-testid="launcher-root"
+        >
         {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-1/2 -right-1/2 w-[800px] h-[800px] bg-gradient-to-br from-blue-500/10 via-cyan-500/5 to-transparent rounded-full blur-3xl animate-pulse" />
@@ -1378,7 +1384,10 @@ export function Launcher() {
                 />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight truncate bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
+                <h1
+                  className="text-xl sm:text-2xl font-black tracking-tight truncate bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent"
+                  data-testid="launcher-title"
+                >
                   {t("launcher.title")}
                 </h1>
                 <p className="hidden sm:block text-slate-500 dark:text-slate-400 font-bold text-sm tracking-widest mt-1 opacity-80">
@@ -1465,7 +1474,10 @@ export function Launcher() {
                   </div>
 
                   {isTauriRuntime() && (
-                    <div className="bg-white/40 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 backdrop-blur-sm group hover:border-blue-500/40 transition-all duration-300">
+                    <div
+                      className="bg-white/40 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 backdrop-blur-sm group hover:border-blue-500/40 transition-all duration-300"
+                      data-testid="launcher-runtime-paths"
+                    >
                       <div className="flex items-start gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 group-hover:bg-blue-500/10 transition-colors">
                           <FileText
@@ -1477,12 +1489,16 @@ export function Launcher() {
                           <div className="text-sm font-black tracking-wider text-slate-400 dark:text-slate-500">
                             {t("launcher.runtime_paths")}
                           </div>
-                          <div className="text-sm font-mono text-slate-600 dark:text-slate-300 break-all">
+                          <div
+                            className="text-sm font-mono text-slate-600 dark:text-slate-300 break-all"
+                            data-testid="launcher-runtime-dir"
+                          >
                             {displayedRuntimeDir}
                           </div>
                         </div>
                       </div>
                       <button
+                        data-testid="launcher-modify-runtime-dir"
                         type="button"
                         onClick={() => {
                           if (isServiceRunning) {

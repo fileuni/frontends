@@ -112,6 +112,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
       </h3>
       <div className="flex flex-col gap-2.5">
         <button
+          data-testid="launcher-open-webui"
           type="button"
           onClick={onOpenWebUi}
           className={cn(
@@ -141,6 +142,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
 
         <div className="relative" ref={configMenuRef}>
           <button
+            data-testid="launcher-config-menu"
             type="button"
             onClick={() => {
               if (isConfigDisabled) {
@@ -189,6 +191,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
               )}
             >
               <button
+                data-testid="launcher-open-runtime-dir"
                 type="button"
                 onClick={() => {
                   onOpenRuntimeDir();
@@ -209,6 +212,7 @@ export const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
                 </span>
               </button>
               <button
+                data-testid="launcher-edit-config"
                 type="button"
                 onClick={() => {
                   onEditConfig();

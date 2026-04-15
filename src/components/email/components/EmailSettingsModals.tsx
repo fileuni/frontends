@@ -114,17 +114,18 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
       <Modal isOpen={showImportModal} onClose={() => setShowImportModal(false)} title={t("email.importAccounts")} maxWidth="max-w-lg">
         <div className="space-y-4 py-2 text-foreground">
           <div className="flex gap-2 p-1 bg-muted/20 rounded-xl">
-            <button type="button" onClick={() => setImportMode("text")} className={cn("flex-1 py-2 text-sm font-black rounded-lg transition-all", importMode === "text" ? "bg-background shadow-sm text-primary" : "text-muted-foreground opacity-60")}>{t("email.importModeText")}</button>
-            <button type="button" onClick={() => setImportMode("file")} className={cn("flex-1 py-2 text-sm font-black rounded-lg transition-all", importMode === "file" ? "bg-background shadow-sm text-primary" : "text-muted-foreground opacity-60")}>{t("email.importModeFile")}</button>
+            <button type="button" data-testid="email-import-mode-text" onClick={() => setImportMode("text")} className={cn("flex-1 py-2 text-sm font-black rounded-lg transition-all", importMode === "text" ? "bg-background shadow-sm text-primary" : "text-muted-foreground opacity-60")}>{t("email.importModeText")}</button>
+            <button type="button" data-testid="email-import-mode-file" onClick={() => setImportMode("file")} className={cn("flex-1 py-2 text-sm font-black rounded-lg transition-all", importMode === "file" ? "bg-background shadow-sm text-primary" : "text-muted-foreground opacity-60")}>{t("email.importModeFile")}</button>
           </div>
           {importMode === "text" ? (
-            <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.encryptedData")}</span><textarea value={importData} onChange={e => setImportData(e.target.value)} className="w-full h-32 p-3 rounded-xl border border-input bg-background font-mono text-sm resize-none custom-scrollbar text-foreground" placeholder={t("email.pasteEncryptedData")} /></div>
+            <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.encryptedData")}</span><textarea value={importData} onChange={e => setImportData(e.target.value)} data-testid="email-import-data" className="w-full h-32 p-3 rounded-xl border border-input bg-background font-mono text-sm resize-none custom-scrollbar text-foreground" placeholder={t("email.pasteEncryptedData")} /></div>
           ) : (
             <div className="h-32 border-2 border-dashed border-border/60 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-muted/10 transition-all">
               <input
                 ref={importFileInputRef}
                 type="file"
                 accept=".rsce,.txt,.json,.enc,text/plain,application/json"
+                data-testid="email-import-file-input"
                 className="hidden"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
@@ -136,6 +137,7 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
               />
               <button
                 type="button"
+                data-testid="email-import-file-trigger"
                 className="w-full h-full flex flex-col items-center justify-center gap-2 cursor-pointer"
                 onClick={() => importFileInputRef.current?.click()}
               >
@@ -145,8 +147,8 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
               </button>
             </div>
           )}
-          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.importPassword")}</span><PasswordInput value={importPassword} onChange={e => setImportPassword(e.target.value)} placeholder={t("email.passwordPlaceholder")} /></div>
-          <Button className="w-full h-11 rounded-2xl shadow-lg shadow-primary/20 font-black text-sm" onClick={handleImport} disabled={isImporting}>{isImporting ? <RefreshCw className="animate-spin mr-2" size={16} /> : <Share className="mr-2" size={16} />}{t("email.importNow")}</Button>
+          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.importPassword")}</span><PasswordInput value={importPassword} onChange={e => setImportPassword(e.target.value)} data-testid="email-import-password" placeholder={t("email.passwordPlaceholder")} /></div>
+          <Button className="w-full h-11 rounded-2xl shadow-lg shadow-primary/20 font-black text-sm" data-testid="email-import-now" onClick={handleImport} disabled={isImporting}>{isImporting ? <RefreshCw className="animate-spin mr-2" size={16} /> : <Share className="mr-2" size={16} />}{t("email.importNow")}</Button>
         </div>
       </Modal>
     </>

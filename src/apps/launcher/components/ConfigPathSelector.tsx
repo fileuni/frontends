@@ -151,6 +151,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
       )}
       role="dialog"
       aria-modal="true"
+      data-testid="launcher-config-selector"
     >
       <div
         className={cn(
@@ -221,6 +222,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
 
           {error && (
             <div
+              data-testid="launcher-runtime-dir-error"
               className={cn(
                 "p-3 border rounded-xl text-sm font-semibold flex items-center gap-2",
                 isDark
@@ -253,6 +255,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             </p>
             <div className="flex gap-2">
               <input
+                data-testid="launcher-runtime-dir-input"
                 id="runtime-dir-input"
                 type="text"
                 value={runtimeDir}
@@ -266,6 +269,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
                 )}
               />
               <button
+                data-testid="launcher-runtime-dir-browse"
                 type="button"
                 onClick={() => void handleBrowse()}
                 className={cn(
@@ -305,6 +309,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <button
+              data-testid="launcher-runtime-dir-current"
               type="button"
               onClick={() => {
                 setRuntimeDir(pickPrimaryRuntimeDir(currentPreset));
@@ -345,6 +350,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
               ))}
             </button>
             <button
+              data-testid="launcher-runtime-dir-default"
               type="button"
               onClick={() => {
                 setRuntimeDir(pickPrimaryRuntimeDir(defaultPreset));
@@ -396,6 +402,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
           )}
         >
           <button
+            data-testid="launcher-runtime-dir-cancel"
             type="button"
             onClick={onClose}
             disabled={!canClose || isSubmitting}
@@ -409,6 +416,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             {t("common.cancel")}
           </button>
           <button
+            data-testid="launcher-runtime-dir-confirm"
             type="button"
             onClick={handleConfirm}
             disabled={isSubmitting}

@@ -80,6 +80,7 @@ export const ConfirmDestructiveModal = ({
           <Button 
             variant="destructive" 
             onClick={() => handleAction('physical_delete')}
+            data-testid="file-destructive-confirm"
             className="rounded-xl w-full"
           >
             {confirmLabel || t('filemanager.actions.deletePhysical')}

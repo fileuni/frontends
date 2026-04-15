@@ -85,6 +85,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
 
   return (
     <div
+      data-testid="launcher-service-panel"
       className={cn(
         "relative z-20 border rounded-[2rem] p-8 shadow-xl group transition-all duration-500",
         isDark
@@ -112,6 +113,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
               )}
             />
             <span
+              data-testid="launcher-service-status"
               className={cn(
                 "text-2xl font-black tracking-tight",
                 isDark ? "text-slate-100" : "text-slate-900",
@@ -133,6 +135,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
         {supportService && (
           <div className="relative z-30" ref={serviceMenuRef}>
             <button
+              data-testid="launcher-service-menu"
               type="button"
               onClick={() => setShowServiceMenu((prev) => !prev)}
               disabled={isLoading}
@@ -283,6 +286,7 @@ export const ServiceControlPanel: React.FC<ServiceControlPanelProps> = ({
 
       <div className="flex items-center gap-4">
         <button
+          data-testid="launcher-service-toggle"
           type="button"
           onClick={onToggleService}
           disabled={isLoading || disableToggle}
