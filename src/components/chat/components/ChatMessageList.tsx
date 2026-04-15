@@ -89,6 +89,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   return (
     <div
       ref={scrollRef}
+      data-testid="chat-message-list"
       className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar"
     >
       {filteredMessages.length === 0 && (
@@ -172,6 +173,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
             )}
             <div
               id={`msg_${msg.id}`}
+              data-testid="chat-message-item"
+              data-message-id={msg.id}
+              data-message-from={msg.from}
               className={cn(
                 "flex gap-3 max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300",
                 isSelf ? "self-end flex-row-reverse ml-auto" : "self-start",

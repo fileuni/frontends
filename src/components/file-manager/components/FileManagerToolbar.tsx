@@ -189,6 +189,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
               <Button 
                 onClick={() => setShowUploadModal(true)}
                 aria-label="Open upload dialog"
+                data-testid="fm-open-upload"
                 className="bg-primary hover:bg-primary/90 text-white h-10 px-3 md:px-4 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
               >
                 <Upload size={16} />
@@ -199,6 +200,8 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
                 <Button 
                   variant="ghost" 
                   onClick={() => setShowNewMenu(!showNewMenu)}
+                  aria-label="Open new menu"
+                  data-testid="fm-open-new-menu"
                   className="bg-white/5 border border-white/5 hover:bg-white/10 h-10 px-2 md:px-3 rounded-xl flex items-center gap-2 whitespace-nowrap transition-all shrink-0"
                 >
                   <Plus size={16} className="text-primary" />
@@ -213,6 +216,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
                       <button 
                         type="button"
                         onClick={() => { openActionModal("create_file", t("filemanager.newFile"), "NewFile.md"); setShowNewMenu(false); }}
+                        data-testid="fm-create-file"
                         className={menuItemClasses}
                       >
                         <FilePlus size={16} className="text-blue-400" />
@@ -221,6 +225,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
                       <button 
                         type="button"
                         onClick={() => { openActionModal("create_dir", t("filemanager.newFolder"), "NewFolder"); setShowNewMenu(false); }}
+                        data-testid="fm-create-folder"
                         className={menuItemClasses}
                       >
                         <FolderPlusIcon size={16} className="text-yellow-400" />
@@ -276,6 +281,8 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
           <Button 
             variant="ghost" 
             onClick={() => setShowSearchModal(true)}
+            aria-label="Open search dialog"
+            data-testid="fm-open-search"
             title={t('filemanager.search')}
             className={cn(
               "p-2 h-10 w-10 rounded-xl border transition-all shrink-0",
@@ -291,6 +298,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
             <Button
               variant="ghost"
               onClick={() => setShowProtectedStorage(true)}
+              aria-label="Open protected storage"
               title={t('filemanager.protectedStorage.title') || 'Protected Storage'}
               className={cn(
                 "p-2 h-10 w-10 rounded-xl border transition-all shrink-0",
@@ -311,6 +319,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
             <Button
               variant="ghost"
               onClick={() => { setShowThumbnailSettings(true); fetchSettings(); }}
+              aria-label="Open thumbnail settings"
               title={t('filemanager.thumbnail.settingsTitle') || 'Thumbnail Settings'}
               className="p-2 h-10 w-10 rounded-xl border border-white/5 transition-all opacity-40 hover:opacity-100 shrink-0"
             >
@@ -325,6 +334,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
               <Button 
                 variant="ghost" 
                 onClick={togglePasswordFilter}
+                aria-label="Toggle password filter"
                 title={t('filemanager.shares.filterPassword')}
                 className={cn(
                   "p-2 h-10 w-10 rounded-lg transition-all",
@@ -337,6 +347,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
               <Button 
                 variant="ghost" 
                 onClick={toggleDirectFilter}
+                aria-label="Toggle direct filter"
                 title={t('filemanager.shares.filterDirect')}
                 className={cn(
                   "p-2 h-10 w-10 rounded-lg transition-all",
@@ -353,6 +364,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
             <Button 
               variant="ghost" 
               onClick={toggleShareStatus}
+              aria-label="Toggle share status"
               title={t('filemanager.showShareStatus')}
               className={cn(
                 "p-2 h-10 w-10 rounded-xl border border-white/5 transition-all shrink-0",
@@ -367,6 +379,8 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
             <Button 
               variant="ghost" 
               onClick={() => setViewMode('grid')}
+              aria-label="Switch to grid view"
+              data-testid="fm-grid-view"
               className={cn("p-2 h-10 w-10 rounded-lg", viewMode === 'grid' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
               title={t('filemanager.gridView')}
             >
@@ -375,6 +389,8 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
             <Button 
               variant="ghost" 
               onClick={() => setViewMode('list')}
+              aria-label="Switch to list view"
+              data-testid="fm-list-view"
               className={cn("p-2 h-10 w-10 rounded-lg", viewMode === 'list' ? 'bg-primary text-white shadow-lg' : 'opacity-40 hover:opacity-100')}
               title={t('filemanager.listView')}
             >
@@ -389,6 +405,8 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
                   variant="ghost" 
                   className="p-2 h-10 w-10 rounded-none border-r border-white/5" 
                   onClick={handleRefresh}
+                  aria-label="Refresh files"
+                  data-testid="fm-refresh"
                   title={t('filemanager.refresh')}
                 >
                   <RefreshCw size={18} className={loading ? 'animate-spin text-primary' : 'opacity-50'} />
@@ -397,6 +415,8 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
                   variant="ghost" 
                   className="p-1 h-10 w-10 rounded-none opacity-30 hover:opacity-100"
                   onClick={() => setShowRefreshMenu(!showRefreshMenu)}
+                  aria-label="Open refresh menu"
+                  data-testid="fm-open-refresh-menu"
                 >
                   <ChevronDown size={18} />
                 </Button>
@@ -409,16 +429,18 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
                      <button 
                        type="button"
                        onClick={handleRefresh}
-                      className={menuItemClasses}
-                    >
+                       data-testid="fm-refresh-current"
+                       className={menuItemClasses}
+                     >
                       <RefreshCw size={16} className="opacity-50" />
                       <span>{t('filemanager.refresh')}</span>
                     </button>
                      <button 
                        type="button"
                        onClick={handleForceRefresh}
-                      className={cn(menuItemClasses, "text-primary hover:bg-primary/10")}
-                    >
+                       data-testid="fm-force-refresh"
+                       className={cn(menuItemClasses, "text-primary hover:bg-primary/10")}
+                     >
                       <RefreshCcw size={16} />
                       <span>{t('filemanager.forceRefresh')}</span>
                     </button>

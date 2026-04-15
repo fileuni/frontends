@@ -40,7 +40,7 @@ export const EmailDetailPanel: React.FC<EmailDetailPanelProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className={cn("w-full lg:w-[450px] xl:w-[600px] flex flex-col bg-background/40", activeView !== "detail" && "hidden lg:flex")}>
+    <div className={cn("w-full lg:w-[450px] xl:w-[600px] flex flex-col bg-background/40", activeView !== "detail" && "hidden lg:flex")} data-testid="email-detail-panel">
       {selectedMessage ? (
         <div className="flex-1 flex flex-col overflow-hidden text-foreground">
           <div className="h-14 border-b border-border/40 px-4 flex items-center justify-between bg-muted/10">
@@ -84,10 +84,10 @@ export const EmailDetailPanel: React.FC<EmailDetailPanelProps> = ({
                             <div className="truncate text-sm font-bold">{attachment.filename}</div>
                             <div className="text-sm opacity-50">{formatSize(attachment.size)}</div>
                           </div>
-                          <Button variant="outline" size="sm" className="h-9 text-sm rounded-lg" onClick={() => onSaveAttachment(attachment.id, attachment.filename)}>
+                          <Button variant="outline" size="sm" className="h-9 text-sm rounded-lg" data-testid="email-save-attachment" onClick={() => onSaveAttachment(attachment.id, attachment.filename)}>
                             {t("email.saveToVfs")}
                           </Button>
-                          <Button variant="ghost" size="sm" className="h-9 text-sm rounded-lg" onClick={() => onDownloadAttachment(attachment.id, attachment.filename)}>
+                          <Button variant="ghost" size="sm" className="h-9 text-sm rounded-lg" data-testid="email-download-attachment" onClick={() => onDownloadAttachment(attachment.id, attachment.filename)}>
                             {t("common.download")}
                           </Button>
                         </div>

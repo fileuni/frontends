@@ -43,16 +43,16 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className={cn("w-64 border-r border-border/40 flex flex-col transition-all", activeView !== "accounts" && "hidden md:flex")}>
+    <div className={cn("w-64 border-r border-border/40 flex flex-col transition-all", activeView !== "accounts" && "hidden md:flex")} data-testid="email-accounts-sidebar">
       <div className="p-4 border-b border-border/40 bg-muted/10 flex items-center justify-between">
         <h2 className="font-black text-base flex items-center gap-2 tracking-tight"><Mail className="text-primary" size={20} />{t("email.title")}</h2>
         <div className="flex gap-1.5">
-          <button type="button" onClick={onOpenExport} className="p-1.5 hover:bg-primary/10 hover:text-primary rounded-lg text-muted-foreground transition-all" title={t("email.export")}><DownloadCloud size={15} /></button>
-          <button type="button" onClick={onOpenImport} className="p-1.5 hover:bg-primary/10 hover:text-primary rounded-lg text-muted-foreground transition-all" title={t("email.import")}><UploadCloud size={15} /></button>
+          <button type="button" onClick={onOpenExport} data-testid="email-open-export" className="p-1.5 hover:bg-primary/10 hover:text-primary rounded-lg text-muted-foreground transition-all" title={t("email.export")}><DownloadCloud size={15} /></button>
+          <button type="button" onClick={onOpenImport} data-testid="email-open-import" className="p-1.5 hover:bg-primary/10 hover:text-primary rounded-lg text-muted-foreground transition-all" title={t("email.import")}><UploadCloud size={15} /></button>
         </div>
       </div>
       <div className="p-3 border-b border-border/40">
-        <Button onClick={onOpenCompose} className="w-full gap-2 h-11 rounded-2xl shadow-lg shadow-primary/20 font-black text-sm"><Edit3 size={16} />{t("email.compose")}</Button>
+        <Button onClick={onOpenCompose} className="w-full gap-2 h-11 rounded-2xl shadow-lg shadow-primary/20 font-black text-sm" data-testid="email-open-compose"><Edit3 size={16} />{t("email.compose")}</Button>
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-1.5 custom-scrollbar text-foreground">
         <button
@@ -71,6 +71,8 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
           <button
             type="button"
             key={acc.id}
+            data-testid="email-account-item"
+            data-account-id={acc.id}
             onClick={() => onSelectAccount(acc.id)}
             className={cn("group relative w-full p-2.5 rounded-2xl border text-left cursor-pointer transition-all", selectedAccount === acc.id && !isDraftsView ? "bg-primary/10 border-primary/20 shadow-sm" : "bg-background/40 border-transparent hover:border-border/60 hover:bg-muted/30")}
           >
@@ -80,7 +82,7 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
                 {(acc.unread_count ?? 0) > 0 && <span className="px-1.5 py-0.5 rounded-full bg-primary text-[14px] font-black text-white shrink-0 shadow-sm">{acc.unread_count}</span>}
               </div>
               <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
-                <button type="button" onClick={(e) => { e.stopPropagation(); onSyncAccount(acc.id); }} className={cn("p-1 rounded-lg hover:bg-primary/20 text-primary", syncingAccountId === acc.id && "animate-spin")}><RefreshCw size={18} /></button>
+                <button type="button" onClick={(e) => { e.stopPropagation(); onSyncAccount(acc.id); }} data-testid="email-sync-account" className={cn("p-1 rounded-lg hover:bg-primary/20 text-primary", syncingAccountId === acc.id && "animate-spin")}><RefreshCw size={18} /></button>
                 <button type="button" onClick={(e) => { e.stopPropagation(); onEditAccount(acc); }} className="p-1 rounded-lg hover:bg-muted text-muted-foreground"><Edit3 size={18} /></button>
                 <button type="button" onClick={(e) => { e.stopPropagation(); onDeleteAccount(acc.id); }} className="p-1 rounded-lg hover:bg-destructive/10 text-destructive opacity-60 hover:opacity-100"><Trash2 size={18} /></button>
               </div>
@@ -91,6 +93,7 @@ export const EmailAccountsSidebar: React.FC<EmailAccountsSidebarProps> = ({
         <button
           type="button"
           onClick={onOpenAddAccount}
+          data-testid="email-open-add-account"
           className="w-full py-2 px-3 flex items-center justify-center gap-2 rounded-xl text-sm font-black text-muted-foreground/60 hover:text-primary hover:bg-primary/5 transition-all mt-4 border border-transparent hover:border-primary/10"
         >
           <Plus size={18} />

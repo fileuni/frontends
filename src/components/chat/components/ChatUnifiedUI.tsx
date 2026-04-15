@@ -484,7 +484,7 @@ export const ChatUnifiedUI: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-2 md:p-4 lg:p-6">
-      <div className="bg-background border-0 sm:border-2 border-border rounded-none sm:rounded-2xl lg:rounded-3xl shadow-2xl w-full sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-6xl xl:max-w-7xl h-[100dvh] sm:h-[90vh] lg:h-[92vh] flex overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+      <div className="bg-background border-0 sm:border-2 border-border rounded-none sm:rounded-2xl lg:rounded-3xl shadow-2xl w-full sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-6xl xl:max-w-7xl h-[100dvh] sm:h-[90vh] lg:h-[92vh] flex overflow-hidden animate-in fade-in zoom-in-95 duration-300" role="dialog" aria-modal="true" aria-label={t("chat.title", { defaultValue: "Chat" })} data-testid="chat-unified-ui">
         <div className="hidden lg:flex w-20 flex-col items-center py-6 gap-3 bg-slate-900 dark:bg-slate-950 border-r border-slate-800 shrink-0">
           <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-2 ring-2 ring-primary/20">
             <MessageSquare size={22} />
@@ -1223,9 +1223,11 @@ export const ChatUnifiedUI: React.FC = () => {
               value={userSearchKeyword}
               onChange={(e) => setUserSearchKeyword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearchUsers()}
+              aria-label="Search users"
+              data-testid="chat-user-search-input"
               className="h-11 flex-1"
             />
-            <Button onClick={handleSearchUsers} className="h-11 w-11 p-0">
+            <Button onClick={handleSearchUsers} className="h-11 w-11 p-0" data-testid="chat-user-search-submit">
               <Search size={18} />
             </Button>
           </div>
@@ -1234,6 +1236,8 @@ export const ChatUnifiedUI: React.FC = () => {
               <button
                 type="button"
                 key={u.user_id}
+                data-testid="chat-user-search-result"
+                data-user-id={u.user_id}
                 onClick={() => {
                   setActiveTarget(u.user_id);
                   updateNickname(u.user_id, u.nickname || u.username);
@@ -1277,6 +1281,8 @@ export const ChatUnifiedUI: React.FC = () => {
             <Input
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
+              aria-label="Group name"
+              data-testid="chat-group-name-input"
               placeholder={t("chat.groupNamePlaceholder")}
               className="h-11"
             />
@@ -1288,6 +1294,8 @@ export const ChatUnifiedUI: React.FC = () => {
             <Input
               value={groupMembers}
               onChange={(e) => setGroupMembers(e.target.value)}
+              aria-label="Group members"
+              data-testid="chat-group-members-input"
               placeholder={t("chat.groupMembersPlaceholder")}
               className="h-11"
             />
@@ -1295,7 +1303,7 @@ export const ChatUnifiedUI: React.FC = () => {
               {t("chat.groupMembersDesc")}
             </p>
           </div>
-          <Button onClick={handleCreateGroup} className="w-full h-11">
+          <Button onClick={handleCreateGroup} className="w-full h-11" data-testid="chat-create-group-submit">
             <UserPlus size={18} className="mr-2" />
             {t("chat.createGroup")}
           </Button>

@@ -232,7 +232,11 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
         onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
         onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); onContextMenu(e, file); }}
         role="option"
+        aria-label={displayName || file.name}
         aria-selected={selected}
+        data-testid="file-item"
+        data-file-name={displayName || file.name}
+        data-file-path={file.path}
         tabIndex={0}
         className={cn(
           "flex flex-col items-center p-3 rounded-3xl min-h-[140px] justify-start text-center",
@@ -284,7 +288,11 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
       onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
       onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); onContextMenu(e, file); }}
       role="option"
+      aria-label={displayName || file.name}
       aria-selected={selected}
+      data-testid="file-item"
+      data-file-name={displayName || file.name}
+      data-file-path={file.path}
       tabIndex={0}
       className={cn(
         "flex items-center gap-3 md:gap-4 px-3 md:px-4 py-3 border-b border-white/5",

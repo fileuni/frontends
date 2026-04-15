@@ -192,6 +192,8 @@ export function ArchiveOperationModal({
                 ref={targetPathRef}
                 value={targetPath}
                 onChange={(e) => setTargetPath(e.target.value)}
+                aria-label="Archive target path"
+                data-testid="archive-target-path"
                 placeholder={t('filemanager.archive.targetPathPlaceholder')}
                 className="font-mono"
               />
@@ -248,6 +250,8 @@ export function ArchiveOperationModal({
                 ref={targetNameRef}
                 value={targetName}
                 onChange={(e) => setTargetName(e.target.value)}
+                aria-label="Archive target name"
+                data-testid="archive-target-name"
                 placeholder={t('filemanager.archive.archiveNamePlaceholder')}
                 className="font-mono"
               />
@@ -264,6 +268,8 @@ export function ArchiveOperationModal({
                   {t('filemanager.archive.format')}
                 </div>
                 <select
+                  aria-label="Archive format"
+                  data-testid="archive-format"
                   className="h-10 w-full rounded-xl bg-background border border-border px-3 text-sm font-bold text-foreground"
                   value={format}
                   onChange={(e) => setFormat(e.target.value as ArchiveFormat)}
@@ -283,6 +289,8 @@ export function ArchiveOperationModal({
                   min={1}
                   max={maxLevel}
                   value={level}
+                  aria-label="Archive compression level"
+                  data-testid="archive-level"
                   onChange={(e) => {
                     const val = Number(e.target.value);
                     if (val > maxLevel) setLevel(maxLevel);
@@ -329,6 +337,8 @@ export function ArchiveOperationModal({
               <PasswordInput
                 value={compressPassword}
                 onChange={(e) => setCompressPassword(e.target.value)}
+                aria-label="Archive password"
+                data-testid="archive-password"
                 placeholder={t('filemanager.archive.passwordPlaceholder')}
                 inputClassName="font-mono"
               />
@@ -340,7 +350,7 @@ export function ArchiveOperationModal({
           <Button type="button" variant="ghost" onClick={onClose} className="rounded-xl">
             {t('common.cancel')}
           </Button>
-          <Button type="submit" variant="primary" className="rounded-xl" disabled={submitting || needs7zForDecompress}>
+          <Button type="submit" variant="primary" className="rounded-xl" data-testid="archive-submit" disabled={submitting || needs7zForDecompress}>
             {submitting ? t('common.loading') : t('common.confirm')}
           </Button>
         </div>

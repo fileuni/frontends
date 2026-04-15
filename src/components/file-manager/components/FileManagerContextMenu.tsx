@@ -61,6 +61,7 @@ interface MenuButtonProps {
   icon?: LucideIcon;
   label: string;
   action?: string;
+  testId?: string;
   className?: string;
   hasSub?: boolean;
   active?: boolean;
@@ -185,9 +186,11 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
     return archives.some(ext => lowerName.endsWith(ext));
   };
 
-  const MenuButton = ({ icon: Icon, label, action, className, hasSub, active, danger, disabled }: MenuButtonProps) => (
+  const MenuButton = ({ icon: Icon, label, action, testId, className, hasSub, active, danger, disabled }: MenuButtonProps) => (
     <button 
       type="button"
+      role="menuitem"
+      data-testid={testId ?? (action ? `file-action-${action}` : undefined)}
       onClick={(e) => {
         if (disabled) {
           e.preventDefault();
@@ -220,6 +223,9 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
   return (
     <div
       ref={menuRef}
+      role="menu"
+      aria-label={target ? 'File actions' : 'File browser actions'}
+      data-testid="file-context-menu"
       className={cn(
         "fixed z-[200] w-52 border rounded-2xl shadow-2xl overflow-hidden py-1.5 animate-in fade-in zoom-in-95 duration-200 backdrop-blur-xl",
         isDark ? "bg-zinc-900/95 border-white/10" : "bg-white/95 border-gray-200"
@@ -264,7 +270,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                 <>
                   {!isBatch && target.is_dir && <MenuButton icon={FolderOpen} label={t('filemanager.actions.open')} action="open" />}
                   {!target.is_dir && <MenuButton icon={Eye} label={t('filemanager.actions.preview')} action="preview" />}
-                  <MenuButton icon={Download} label={t('filemanager.actions.download')} action="download" />
+                  <MenuButton icon={Download} label={t('filemanager.actions.download')} action="download" testId="file-action-download" />
 
                   <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
                   
@@ -277,11 +283,11 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                     <MenuButton icon={X} label={t('filemanager.actions.removeFromHistory')} action="remove_from_history" danger />
                   ) : (
                     <>
-                      <MenuButton icon={Archive} label={t('filemanager.actions.compress')} action="compress" />
+                      <MenuButton icon={Archive} label={t('filemanager.actions.compress')} action="compress" testId="file-action-compress" />
                       {isArchive(target) && (
                         <>
                           <MenuButton icon={FolderSearch} label={t('filemanager.archive.browseTitle') || 'Browse Content'} action="browse_archive" className="text-primary" />
-                          <MenuButton icon={Zap} label={t('filemanager.actions.extract')} action="extract" className="text-yellow-500" />
+                          <MenuButton icon={Zap} label={t('filemanager.actions.extract')} action="extract" testId="file-action-extract" className="text-yellow-500" />
                         </>
                       )}
                       {target.is_dir && capabilities?.thumbnail?.enabled && fmMode === 'files' && !disableThumbnailOps && (
@@ -340,9 +346,9 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
 
                   <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
                   
-                  <MenuButton icon={Copy} label={t('filemanager.actions.copy')} action="copy" disabled={mountRootTarget || selectionSummary.hasMountRoot} />
-                  <MenuButton icon={Scissors} label={t('filemanager.actions.cut')} action="cut" disabled={mountRootTarget || selectionSummary.hasMountRoot} />
-                  {!isBatch && <MenuButton icon={Pencil} label={t('filemanager.actions.rename')} action="rename" disabled={mountRootTarget || selectionSummary.hasMountRoot} />}
+                  <MenuButton icon={Copy} label={t('filemanager.actions.copy')} action="copy" testId="file-action-copy" disabled={mountRootTarget || selectionSummary.hasMountRoot} />
+                  <MenuButton icon={Scissors} label={t('filemanager.actions.cut')} action="cut" testId="file-action-cut" disabled={mountRootTarget || selectionSummary.hasMountRoot} />
+                  {!isBatch && <MenuButton icon={Pencil} label={t('filemanager.actions.rename')} action="rename" testId="file-action-rename" disabled={mountRootTarget || selectionSummary.hasMountRoot} />}
                   
                   <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
                   
@@ -353,17 +359,18 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
             </>
           ) : (
             <>
-              <MenuButton icon={RotateCw} label={t('filemanager.refresh')} action="refresh" />
-              <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
-              <MenuButton icon={PlusSquare} label={t('filemanager.newFile')} action="new_file" />
-              <MenuButton icon={FolderPlus} label={t('filemanager.newFolder')} action="new_folder" />
-              <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
-              <MenuButton
-                icon={Clipboard}
-                label={`${t('filemanager.actions.paste')} (${clipboard.length})`}
-                action="paste"
-                className={cn(clipboard.length === 0 && "opacity-30 pointer-events-none")}
-              />
+               <MenuButton icon={RotateCw} label={t('filemanager.refresh')} action="refresh" testId="file-action-refresh" />
+               <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
+               <MenuButton icon={PlusSquare} label={t('filemanager.newFile')} action="new_file" testId="file-action-new-file" />
+               <MenuButton icon={FolderPlus} label={t('filemanager.newFolder')} action="new_folder" testId="file-action-new-folder" />
+               <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
+               <MenuButton
+                 icon={Clipboard}
+                 label={`${t('filemanager.actions.paste')} (${clipboard.length})`}
+                 action="paste"
+                 testId="file-action-paste"
+                 className={cn(clipboard.length === 0 && "opacity-30 pointer-events-none")}
+               />
             </>
           )}
         </div>

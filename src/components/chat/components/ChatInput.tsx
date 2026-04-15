@@ -72,20 +72,20 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   const isP2P = transport === "webrtc";
 
-  useEffect(() => {
-    if (externalValue !== undefined && externalValue !== null) {
-      setInputText(externalValue);
-      adjustHeight();
-    }
-  }, [externalValue]);
-
-  const adjustHeight = () => {
+  const adjustHeight = React.useCallback(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       const newHeight = Math.min(textareaRef.current.scrollHeight, 120);
       textareaRef.current.style.height = `${newHeight}px`;
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (externalValue !== undefined && externalValue !== null) {
+      setInputText(externalValue);
+      adjustHeight();
+    }
+  }, [adjustHeight, externalValue]);
 
   const handleSend = () => {
     if (!inputText.trim() || disabled) return;
@@ -156,7 +156,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           type: "audio/webm",
         });
         if (activeTarget) await sendFile(activeTarget, file);
-        stream.getTracks().forEach((t) => t.stop());
+        stream.getTracks().forEach((t) => {
+          t.stop();
+        });
       };
 
       recorder.start();
@@ -220,6 +222,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
+          aria-label="Select chat file"
+          data-testid="chat-file-input"
           className="hidden"
         />
 
@@ -235,6 +239,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             )}
             disabled={disabled}
             onClick={handleFileClick}
+            aria-label="Send file"
+            data-testid="chat-send-file"
             title={isP2P ? t("chat.sendFile") : t("chat.p2pRequired")}
           >
             <Paperclip size={20} />
@@ -253,6 +259,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             )}
             disabled={disabled}
             onClick={handleMicClick}
+            aria-label="Record voice"
             title={isP2P ? t("chat.voiceMessage") : t("chat.p2pRequired")}
           >
             {isRecording ? (
@@ -268,6 +275,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           value={inputText}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
+          aria-label="Chat message input"
+          data-testid="chat-message-input"
           placeholder={
             disabled ? t("chat.offline") : t("chat.inputPlaceholder")
           }
@@ -288,6 +297,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             )}
             onClick={() => setShowEmoji(!showEmoji)}
             disabled={disabled}
+            aria-label="Open emoji picker"
           >
             <Smile size={20} />
           </Button>
@@ -302,6 +312,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             )}
             onClick={handleSend}
             disabled={!canSend}
+            aria-label="Send message"
+            data-testid="chat-send-message"
           >
             <Send size={20} />
           </Button>

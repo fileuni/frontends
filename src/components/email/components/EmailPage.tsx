@@ -11,8 +11,108 @@ import { EmailMessagesPanel } from "./EmailMessagesPanel.tsx";
 import { EmailAccountModal, EmailExportImportModals } from "./EmailSettingsModals.tsx";
 import { useEmailPageController } from "./useEmailPageController.ts";
 
-export const EmailPage: React.FC<EmailPageProps> = (_props) => {
+export const EmailPage: React.FC<EmailPageProps> = ({
+  initialView,
+  initialAccountId,
+  initialFolderName,
+}) => {
   const c = useEmailPageController();
+  const {
+    accounts,
+    folders,
+    selectedAccount,
+    selectedFolder,
+    setActiveView,
+    setComposeFromAccount,
+    setIsDraftsView,
+    setSelectedAccount,
+    setSelectedFolder,
+    setShowComposeModal,
+  } = c;
+  const initialRouteKey = `${initialView ?? "inbox"}|${initialAccountId ?? ""}|${initialFolderName ?? ""}`;
+  const appliedRouteKeyRef = React.useRef<string | null>(null);
+
+  const normalizedInitialFolderName = initialFolderName?.trim().toLowerCase() ?? "";
+
+  const initialFolder = React.useMemo(() => {
+    if (!normalizedInitialFolderName) {
+      return null;
+    }
+
+    return folders.find((item) => {
+      const displayName = (item.display_name || item.name).trim().toLowerCase();
+      return displayName === normalizedInitialFolderName || item.name.trim().toLowerCase() === normalizedInitialFolderName;
+    }) ?? null;
+  }, [folders, normalizedInitialFolderName]);
+
+  React.useEffect(() => {
+    if (!initialView || appliedRouteKeyRef.current === initialRouteKey) {
+      return;
+    }
+
+    if (initialView === "compose") {
+      const preferredAccountId = initialAccountId || selectedAccount || accounts[0]?.id || "";
+      if (!preferredAccountId && accounts.length === 0) {
+        setShowComposeModal(true);
+        return;
+      }
+      if (preferredAccountId) {
+        setComposeFromAccount(preferredAccountId);
+      }
+      setShowComposeModal(true);
+      appliedRouteKeyRef.current = initialRouteKey;
+      return;
+    }
+
+    if (initialView === "account") {
+      if (initialAccountId && selectedAccount !== initialAccountId) {
+        setSelectedAccount(initialAccountId);
+        setIsDraftsView(false);
+        return;
+      }
+
+      if (!initialFolderName) {
+        setActiveView(initialAccountId ? "folders" : "accounts");
+        appliedRouteKeyRef.current = initialRouteKey;
+        return;
+      }
+
+      if (!initialFolder && folders.length === 0) {
+        setActiveView(initialAccountId ? "folders" : "accounts");
+        return;
+      }
+
+      if (initialFolder) {
+        setSelectedFolder(initialFolder.id);
+        setActiveView("messages");
+        appliedRouteKeyRef.current = initialRouteKey;
+        return;
+      }
+
+      setActiveView(initialAccountId ? "folders" : "accounts");
+      appliedRouteKeyRef.current = initialRouteKey;
+      return;
+    }
+
+    setActiveView(selectedFolder ? "messages" : selectedAccount ? "folders" : "accounts");
+    appliedRouteKeyRef.current = initialRouteKey;
+  }, [
+    accounts,
+    folders.length,
+    initialFolder,
+    initialAccountId,
+    initialFolderName,
+    initialRouteKey,
+    initialView,
+    selectedAccount,
+    selectedFolder,
+    setActiveView,
+    setComposeFromAccount,
+    setIsDraftsView,
+    setSelectedAccount,
+    setSelectedFolder,
+    setShowComposeModal,
+  ]);
 
   const resetComposeState = () => {
     c.setCurrentDraftId(null);
@@ -220,7 +320,7 @@ export const EmailPage: React.FC<EmailPageProps> = (_props) => {
             <Button variant="outline" onClick={() => c.setShowSendSuccessModal(false)}>
               {c.t("common.close")}
             </Button>
-            <Button onClick={() => void c.openLastSentMailbox()}>
+            <Button onClick={() => void c.openLastSentMailbox()} data-testid="email-view-sent-mailbox">
               {c.t("email.viewSentMailbox")}
             </Button>
           </div>

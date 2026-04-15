@@ -71,6 +71,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
           <Input
             placeholder={t("chat.searchPlaceholder")}
             className="pl-9 h-9 text-sm"
+            aria-label="Search conversations"
+            data-testid="chat-search-input"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
@@ -82,6 +84,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             size="sm"
             className="flex-1 h-8 text-sm gap-1"
             onClick={onOpenUserSearch}
+            data-testid="chat-open-user-search"
           >
             <UserPlus size={18} /> {t("chat.newChat")}
           </Button>
@@ -91,6 +94,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               size="sm"
               className="flex-1 h-8 text-sm gap-1"
               onClick={onOpenGroupModal}
+              data-testid="chat-open-group-modal"
             >
               <Users size={18} /> {t("chat.groups")}
             </Button>
@@ -107,6 +111,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               <button
                 key={room.id}
                 type="button"
+                data-testid="chat-room-item"
+                data-room-id={room.id}
+                data-room-name={room.name}
                 onClick={() => {
                   setActiveTarget(room.id);
                   markConversationRead(room.id);

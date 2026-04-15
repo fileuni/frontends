@@ -106,8 +106,8 @@ export const EmailExportImportModals: React.FC<ExportImportModalProps> = ({
       <Modal isOpen={showExportModal} onClose={() => setShowExportModal(false)} title={t("email.exportAccounts")} maxWidth="max-w-md">
         <div className="space-y-4 py-2 text-foreground">
           <p className="text-sm text-muted-foreground leading-relaxed">{t("email.exportDescription")}</p>
-          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.exportPassword")}</span><PasswordInput value={exportPassword} onChange={e => setExportPassword(e.target.value)} placeholder={t("email.passwordPlaceholder")} /></div>
-          <Button className="w-full h-11 rounded-2xl shadow-lg shadow-primary/20 font-black text-sm" onClick={handleExport} disabled={isExporting}>{isExporting ? <RefreshCw className="animate-spin mr-2" size={16} /> : <Share className="mr-2" size={16} />}{t("email.exportNow")}</Button>
+          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.exportPassword")}</span><PasswordInput value={exportPassword} onChange={e => setExportPassword(e.target.value)} aria-label="Export password" data-testid="email-export-password" placeholder={t("email.passwordPlaceholder")} /></div>
+          <Button className="w-full h-11 rounded-2xl shadow-lg shadow-primary/20 font-black text-sm" data-testid="email-export-now" onClick={handleExport} disabled={isExporting}>{isExporting ? <RefreshCw className="animate-spin mr-2" size={16} /> : <Share className="mr-2" size={16} />}{t("email.exportNow")}</Button>
         </div>
       </Modal>
 
@@ -208,26 +208,26 @@ export const EmailAccountModal: React.FC<EmailAccountModalProps> = ({
 
   return (
     <Modal isOpen={showAccountModal} onClose={() => { setShowAccountModal(false); setEditingAccount(null); }} title={editingAccount ? t("email.editAccount") : t("email.addAccount")}>
-      <div className="space-y-4 py-2 text-foreground">
+      <div className="space-y-4 py-2 text-foreground" data-testid="email-account-modal">
         <div className="grid grid-cols-2 gap-3">
-          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.emailAddress")}</span><Input value={formEmail} onChange={e => setFormEmail(e.target.value)} placeholder={t("email.emailPlaceholder")} /></div>
-          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.displayName")}</span><Input value={formDisplayName} onChange={e => setFormDisplayName(e.target.value)} placeholder={t("email.displayNamePlaceholderForm")} /></div>
+          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.emailAddress")}</span><Input value={formEmail} onChange={e => setFormEmail(e.target.value)} aria-label="Email account address" data-testid="email-account-address" placeholder={t("email.emailPlaceholder")} /></div>
+          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.displayName")}</span><Input value={formDisplayName} onChange={e => setFormDisplayName(e.target.value)} aria-label="Email account display name" data-testid="email-account-display-name" placeholder={t("email.displayNamePlaceholderForm")} /></div>
         </div>
-        <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.password")}</span><PasswordInput value={formPassword} onChange={e => setFormPassword(e.target.value)} placeholder={editingAccount ? t("email.keepEmptyToNotChange") : t("email.passwordPlaceholder")} /></div>
+        <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.password")}</span><PasswordInput value={formPassword} onChange={e => setFormPassword(e.target.value)} aria-label="Email account password" data-testid="email-account-password" placeholder={editingAccount ? t("email.keepEmptyToNotChange") : t("email.passwordPlaceholder")} /></div>
         <div className="h-px bg-border/40 my-2" />
         <div className="grid grid-cols-2 gap-3">
-          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.imapHost")}</span><Input value={formImapHost} onChange={e => setFormImapHost(e.target.value)} placeholder={t("email.imapHostPlaceholder")} /></div>
-          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.imapPort")}</span><Input type="number" value={formImapPort} onChange={e => setFormImapPort(Number(e.target.value))} /></div>
+          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.imapHost")}</span><Input value={formImapHost} onChange={e => setFormImapHost(e.target.value)} aria-label="IMAP host" data-testid="email-account-imap-host" placeholder={t("email.imapHostPlaceholder")} /></div>
+          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.imapPort")}</span><Input type="number" value={formImapPort} onChange={e => setFormImapPort(Number(e.target.value))} aria-label="IMAP port" data-testid="email-account-imap-port" /></div>
         </div>
-        <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.imapSecurity")}</span><select value={formImapSecurity} onChange={e => setFormImapSecurity(e.target.value as "None" | "SslTls" | "StartTls")} className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-bold text-foreground outline-none"><option value="SslTls" className="bg-background text-foreground">{t("email.securitySslTls")}</option><option value="StartTls" className="bg-background text-foreground">{t("email.securityStartTls")}</option><option value="None" className="bg-background text-foreground">{t("email.securityNone")}</option></select></div>
+        <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.imapSecurity")}</span><select value={formImapSecurity} onChange={e => setFormImapSecurity(e.target.value as "None" | "SslTls" | "StartTls")} aria-label="IMAP security" data-testid="email-account-imap-security" className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-bold text-foreground outline-none"><option value="SslTls" className="bg-background text-foreground">{t("email.securitySslTls")}</option><option value="StartTls" className="bg-background text-foreground">{t("email.securityStartTls")}</option><option value="None" className="bg-background text-foreground">{t("email.securityNone")}</option></select></div>
         <div className="grid grid-cols-2 gap-3">
-          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.smtpHost")}</span><Input value={formSmtpHost} onChange={e => setFormSmtpHost(e.target.value)} placeholder={t("email.smtpHostPlaceholder")} /></div>
-          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.smtpPort")}</span><Input type="number" value={formSmtpPort} onChange={e => setFormSmtpPort(Number(e.target.value))} /></div>
+          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.smtpHost")}</span><Input value={formSmtpHost} onChange={e => setFormSmtpHost(e.target.value)} aria-label="SMTP host" data-testid="email-account-smtp-host" placeholder={t("email.smtpHostPlaceholder")} /></div>
+          <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.smtpPort")}</span><Input type="number" value={formSmtpPort} onChange={e => setFormSmtpPort(Number(e.target.value))} aria-label="SMTP port" data-testid="email-account-smtp-port" /></div>
         </div>
-        <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.smtpSecurity")}</span><select value={formSmtpSecurity} onChange={e => setFormSmtpSecurity(e.target.value as "None" | "SslTls" | "StartTls")} className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-bold text-foreground outline-none"><option value="SslTls" className="bg-background text-foreground">{t("email.securitySslTls")}</option><option value="StartTls" className="bg-background text-foreground">{t("email.securityStartTls")}</option><option value="None" className="bg-background text-foreground">{t("email.securityNone")}</option></select></div>
+        <div><span className="text-sm font-black opacity-40 mb-1 block">{t("email.smtpSecurity")}</span><select value={formSmtpSecurity} onChange={e => setFormSmtpSecurity(e.target.value as "None" | "SslTls" | "StartTls")} aria-label="SMTP security" data-testid="email-account-smtp-security" className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-bold text-foreground outline-none"><option value="SslTls" className="bg-background text-foreground">{t("email.securitySslTls")}</option><option value="StartTls" className="bg-background text-foreground">{t("email.securityStartTls")}</option><option value="None" className="bg-background text-foreground">{t("email.securityNone")}</option></select></div>
         <div className="flex gap-2 pt-4">
           <Button variant="outline" className="flex-1 rounded-2xl h-11 font-black text-sm" onClick={() => setShowAccountModal(false)}>{t("common.cancel")}</Button>
-	          <Button className="flex-1 rounded-2xl h-11 shadow-lg font-black text-sm" onClick={async () => {
+	          <Button className="flex-1 rounded-2xl h-11 shadow-lg font-black text-sm" data-testid="email-account-save" onClick={async () => {
 	            try {
 	              if(editingAccount) {
 	                await extractData(client.PUT("/api/v1/email/accounts/{id}", {

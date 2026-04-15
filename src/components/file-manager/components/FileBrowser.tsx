@@ -49,7 +49,7 @@ export const FileBrowser = ({ onContextMenu, onAction }: Props) => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto custom-scrollbar px-2 md:px-4 pb-4">
+    <div className="flex-1 flex flex-col overflow-y-auto custom-scrollbar px-2 md:px-4 pb-4" role="listbox" aria-label="File list" data-testid="file-list">
       {viewMode === 'grid' ? (
         <div className={cn(
           "grid gap-3 md:gap-4 py-4 transition-all duration-500",

@@ -64,6 +64,9 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
     <div 
       ref={setNodeRef} 
       style={style}
+      data-testid="clipboard-item"
+      data-file-name={item.name}
+      data-file-path={item.path}
       className={cn(
         "relative pl-2 pr-2 py-2 rounded-xl border transition-all group flex items-center justify-between gap-2",
         isDark ? "bg-white/[0.01] border-white/5 hover:bg-white/[0.03]" : "bg-gray-50/30 border-gray-100 hover:bg-gray-100/50"
@@ -111,6 +114,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
         <button 
           type="button"
           onClick={() => pasteSingleItem(item, currentPath, 'copy')}
+          data-testid="clipboard-copy-here"
           className={cn(
             "p-1.5 rounded-lg transition-all",
             isDark ? "hover:bg-blue-500/20 text-white/30 hover:text-blue-400" : "hover:bg-blue-100 text-zinc-400 hover:text-blue-600"
@@ -122,6 +126,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
         <button 
           type="button"
           onClick={() => pasteSingleItem(item, currentPath, 'cut')}
+          data-testid="clipboard-move-here"
           className={cn(
             "p-1.5 rounded-lg transition-all",
             isDark ? "hover:bg-orange-500/20 text-white/30 hover:text-orange-400" : "hover:bg-orange-100 text-zinc-400 hover:text-orange-600"
@@ -134,6 +139,7 @@ const SortableClipboardItem = ({ item, id, isDark, currentPath, onRemove, pasteS
         <button 
           type="button"
           onClick={() => onRemove(item.path)}
+          data-testid="clipboard-remove-item"
           className={cn(
             "p-1.5 rounded-lg transition-all",
             isDark ? "hover:bg-red-500/20 text-white/20 hover:text-red-500" : "hover:bg-red-100 text-zinc-300 hover:text-red-600"
@@ -191,7 +197,7 @@ export const ClipboardBar = () => {
       "fixed bottom-6 right-6 z-[140] w-[340px] shadow-[0_20px_70px_rgba(0,0,0,0.5)] transition-all duration-500 flex flex-col border backdrop-blur-xl",
       isDark ? "bg-zinc-900/95 border-white/10 text-white" : "bg-white/95 border-gray-200 text-gray-900",
       isExpanded ? "h-[450px] rounded-[2rem]" : "h-14 rounded-full overflow-hidden"
-    )}>
+    )} data-testid="clipboard-bar">
       {/* Header / Summary Bar */}
       <button
         type="button"
@@ -228,6 +234,7 @@ export const ClipboardBar = () => {
               size="sm" 
               className="h-7 px-3 rounded-full bg-primary text-white font-bold text-[14px] shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
               onClick={(e) => { e.stopPropagation(); pasteItems(clipboard, currentPath); }}
+              data-testid="clipboard-paste-here"
               title="Ctrl+V"
             >
               {t('filemanager.actions.pasteHere')}
@@ -268,6 +275,7 @@ export const ClipboardBar = () => {
             <button 
               type="button"
               onClick={clearClipboard}
+              data-testid="clipboard-clear"
               className="text-sm font-black text-red-400/60 hover:text-red-500 hover:underline tracking-tighter flex items-center gap-1.5 transition-all"
             >
               <Trash2 size={18} />
@@ -285,6 +293,7 @@ export const ClipboardBar = () => {
               <Button 
                 size="sm" 
                 disabled={!canPaste}
+                data-testid="clipboard-paste-all"
                 className={cn(
                   "h-9 px-5 rounded-xl bg-primary text-white font-bold text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2",
                   !canPaste && "opacity-20 cursor-not-allowed grayscale"

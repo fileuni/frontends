@@ -345,6 +345,8 @@ export const LoginView = () => {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   onBlur={() => setIdentifier(normalizeLoginIdentifierInput(identifier))}
+                  aria-label="Login identifier"
+                  data-testid="login-identifier"
                   placeholder={
                     capabilities?.enable_mobile_auth && capabilities?.enable_email_auth
                       ? t("auth.usernameEmailPhone")
@@ -384,6 +386,8 @@ export const LoginView = () => {
                   icon={<Lock size={18} />}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  aria-label="Login password"
+                  data-testid="login-password"
                   placeholder=""
                   required
                 />
@@ -410,6 +414,8 @@ export const LoginView = () => {
                       type="checkbox"
                       checked={agreement}
                       onChange={(e) => setAgreement(e.target.checked)}
+                      aria-label="Accept terms"
+                      data-testid="login-agreement"
                       className={cn(
                         "mt-1 w-4 h-4 rounded transition-all cursor-pointer",
                         isDark ? "border-white/10 bg-white/5 checked:bg-primary" : "border-gray-300 bg-white checked:bg-primary"
@@ -434,7 +440,7 @@ export const LoginView = () => {
                 </label>
               </div>
 
-              <Button type="submit" className="h-12 w-full text-base sm:h-14 sm:text-lg" disabled={loading}>
+              <Button type="submit" className="h-12 w-full text-base sm:h-14 sm:text-lg" disabled={loading} data-testid="login-submit">
                 {loading ? (
                   <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (

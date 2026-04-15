@@ -76,6 +76,8 @@ export const EmailRichEditor: React.FC<Props> = ({ content, onChange, isDark }) 
     editorProps: {
       attributes: {
         class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[300px] p-4 custom-scrollbar',
+        'aria-label': 'Email body',
+        'data-testid': 'email-compose-body',
       },
     },
   });

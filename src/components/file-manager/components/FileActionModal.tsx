@@ -92,6 +92,8 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
           <Input
             ref={inputRef}
             className="flex-1 bg-transparent border-none text-lg p-0 focus-visible:ring-0"
+            aria-label={actionModal.title || 'File action name'}
+            data-testid="file-action-input"
             placeholder={t('filemanager.messages.enterNewName')}
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -106,6 +108,7 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
             variant="primary" 
             type="submit" 
             className="rounded-xl px-6"
+            data-testid="file-action-confirm"
             disabled={!value.trim()}
           >
             {t('common.confirm')}
