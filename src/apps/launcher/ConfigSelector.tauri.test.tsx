@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -10,7 +9,8 @@ describe('ConfigSelector tauri mock', () => {
     mockWindows('main');
     mockIPC((cmd, args) => {
       if (cmd === 'validate_runtime_dir') {
-        if (args?.runtimeDir === '/tmp/invalid-runtime') {
+        const typedArgs = args as { runtimeDir?: string };
+        if (typedArgs?.runtimeDir === '/tmp/invalid-runtime') {
           throw new Error('Runtime directory must be an existing directory.');
         }
         return true;
