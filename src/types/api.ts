@@ -5384,6 +5384,7 @@ export interface components {
             config_set_reason?: string | null;
             decompression_formats?: string[] | null;
             default_compression_format?: string | null;
+            default_login_route: string;
             enable_api: boolean;
             enable_archive_browser?: boolean | null;
             enable_captcha: boolean;

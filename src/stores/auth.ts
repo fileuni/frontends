@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthState>()(
           currentUserData: updatedAuthData,
           isLoggedIn: true,
           mustChangePassword: mustChange,
-          mustChangePasswordDismissed: false // Reset dismissal state
+          mustChangePasswordDismissed: false,
         });
       },
 
@@ -122,7 +122,7 @@ export const useAuthStore = create<AuthState>()(
           currentUserData: nextData,
           isLoggedIn: !!nextId,
           mustChangePassword: false,
-          mustChangePasswordDismissed: false
+          mustChangePasswordDismissed: false,
         });
       },
     }),

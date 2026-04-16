@@ -2,6 +2,8 @@ import { ChevronRight, Users } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { normalizeEmailInput, normalizePhoneInput } from '@/lib/contactNormalize';
+import type { RouteParams } from '@/stores/navigation';
+import type { SystemCapabilities } from '@/stores/config';
 
 export const normalizeLoginIdentifierInput = (identifier: string) => {
   const trimmed = identifier.trim();
@@ -19,6 +21,129 @@ export const normalizeLoginIdentifierInput = (identifier: string) => {
     return normalized;
   }
   return trimmed;
+};
+
+const parseRouteParams = (route: string): Partial<RouteParams> => {
+  const normalized = route.startsWith('#') ? route.slice(1) : route;
+  const searchParams = new URLSearchParams(normalized);
+  const params: Partial<RouteParams> = {};
+  searchParams.forEach((value, key) => {
+    params[key] = value;
+  });
+  return params;
+};
+
+const isAddressLikeTarget = (target: string): boolean =>
+  target.startsWith('http://')
+  || target.startsWith('https://')
+  || target.startsWith('/')
+  || target.startsWith('./')
+  || target.startsWith('../')
+  || target.startsWith('#');
+
+const isSupportedLoginRoute = (params: Partial<RouteParams>): boolean => {
+  if (params.mod === 'file-manager') {
+    return ['files', 'recent', 'trash', 'favorites', 'shares'].includes(params.page ?? '');
+  }
+  if (params.mod === 'user') {
+    return ['welcome', 'profile', 'security', 'sessions', 'cache'].includes(params.page ?? '');
+  }
+  if (params.mod === 'admin') {
+    return [
+      'users',
+      'user-create',
+      'user-edit',
+      'config',
+      'permissions',
+      'blacklist',
+      'about',
+      'AdminAboutPage',
+      'files',
+      'fs',
+      'mounts',
+      'backup',
+      'domain-ddns',
+      'domain-ssl',
+      'web',
+      'audit',
+      'tasks',
+    ].includes(params.page ?? '');
+  }
+  if (params.mod === 'public') {
+    return ['index', 'login', 'register', 'forgot-password', 'accounts'].includes(params.page ?? '');
+  }
+  return false;
+};
+
+const resolveInternalTarget = (
+  route: string,
+): { type: 'internal'; params: Partial<RouteParams> } | null => {
+  const parsed = parseRouteParams(route);
+  if (!isSupportedLoginRoute(parsed)) {
+    return null;
+  }
+  return { type: 'internal', params: parsed };
+};
+
+const resolveAddressTarget = (
+  target: string,
+):
+  | { type: 'external'; href: string }
+  | { type: 'internal'; params: Partial<RouteParams> }
+  | null => {
+  const trimmed = target.trim();
+  if (!trimmed) return null;
+
+  if (isAddressLikeTarget(trimmed)) {
+    try {
+      const url = new URL(trimmed, window.location.href);
+      if (url.origin === window.location.origin && url.pathname === window.location.pathname && url.hash) {
+        return resolveInternalTarget(url.hash);
+      }
+      return { type: 'external', href: url.toString() };
+    } catch (error) {
+      console.error('Invalid login target URL', error);
+      return null;
+    }
+  }
+
+  if (trimmed.includes('mod=') || trimmed.startsWith('mod=')) {
+    return resolveInternalTarget(trimmed);
+  }
+
+  return null;
+};
+
+export const getDefaultLoginDestination = (
+  capabilities: SystemCapabilities | null,
+): { type: 'external'; href: string } | { type: 'internal'; params: Partial<RouteParams> } => {
+  const configured = capabilities?.default_login_route?.trim();
+  if (configured) {
+    const resolved = resolveAddressTarget(configured);
+    if (resolved) {
+      return resolved;
+    }
+  }
+  return { type: 'internal', params: { mod: 'file-manager', page: 'files' } };
+};
+
+export const resolveLoginSuccessRoute = ({
+  redirect,
+  capabilities,
+}: {
+  redirect?: string;
+  capabilities: SystemCapabilities | null;
+}):
+  | { type: 'external'; href: string }
+  | { type: 'internal'; params: Partial<RouteParams> } => {
+  if (redirect) {
+    const resolved = resolveAddressTarget(redirect);
+    if (resolved) {
+      return resolved;
+    }
+  }
+
+  return getDefaultLoginDestination(capabilities);
 };
 
 type SavedAccountsShortcutProps = {
