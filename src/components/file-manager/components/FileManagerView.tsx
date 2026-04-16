@@ -41,6 +41,11 @@ import { getFileExtension, isOfficeExtension } from "../utils/officeLite.ts";
 import { isMountRootEntry, isMountedEntry, summarizeMountedSelection } from "../utils/mounts.ts";
 import { shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
 
+const FILE_MANAGER_MODES: readonly FileManagerMode[] = ['files', 'recent', 'trash', 'favorites', 'shares'];
+
+const isFileManagerMode = (value: string | undefined): value is FileManagerMode =>
+  value !== undefined && FILE_MANAGER_MODES.includes(value as FileManagerMode);
+
 export const FileManagerView = () => {
   const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
@@ -105,15 +110,13 @@ export const FileManagerView = () => {
 
   useEffect(() => {
     isSyncingRef.current = true;
-    const page = params['page'] as FileManagerMode;
+    const page = isFileManagerMode(params['page']) ? params['page'] : 'files';
     const path = params['path'];
     const keyword = params['keyword']?.trim() || '';
     const isSearchFromHash = params['search'] === '1' && keyword.length > 0;
     
-    if (page && page !== useFileStore.getState().fmMode) {
+    if (page !== useFileStore.getState().fmMode) {
       useFileStore.getState().setFmMode(page);
-    } else if (!page) {
-      useFileStore.getState().setFmMode('files');
     }
     
     if (path && path !== useFileStore.getState().getCurrentPath()) {
@@ -499,12 +502,12 @@ export const FileManagerView = () => {
 
   const isMinimal = ["favorites", "trash", "recent", "shares"].includes(fmMode);
   const isOfficePreview = previewPath ? isOfficeExtension(getFileExtension(previewPath)) : false;
-  const routePage = params.page;
+  const routePage = isFileManagerMode(params.page) ? params.page : undefined;
   const routePath = params["path"];
   const isDark = resolvedTheme === 'dark';
 
   const closePreview = useCallback(() => {
-    const nextPage = routePage || fmMode || 'files';
+    const nextPage = routePage ?? fmMode;
     navigate({
       preview_path: undefined,
       page: nextPage,

@@ -9,6 +9,18 @@ export interface RouteParams {
   [key: string]: string | undefined;
 }
 
+const DEFAULT_PAGE_BY_MODULE: Record<string, string> = {
+  public: 'index',
+  user: 'welcome',
+  admin: 'users',
+  'file-manager': 'files',
+};
+
+function getDefaultPageForModule(mod?: string): string | undefined {
+  if (!mod) return undefined;
+  return DEFAULT_PAGE_BY_MODULE[mod];
+}
+
 interface NavigationState {
   params: RouteParams;
   /**
@@ -54,7 +66,26 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
 
   navigate: (newParams) => {
     const currentParams = get().params;
-    const mergedParams = { ...currentParams, ...newParams };
+    const isModuleChange = typeof newParams.mod === 'string' && newParams.mod !== currentParams.mod;
+
+    const mergedParams: RouteParams = isModuleChange
+      ? (typeof newParams.mod === 'string' ? { mod: newParams.mod } : {})
+      : { ...currentParams };
+
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        delete mergedParams[key];
+        return;
+      }
+      mergedParams[key] = value;
+    });
+
+    if (isModuleChange && mergedParams.page === undefined) {
+      const defaultPage = getDefaultPageForModule(mergedParams.mod);
+      if (defaultPage) {
+        mergedParams.page = defaultPage;
+      }
+    }
     
     const searchParams = new URLSearchParams();
     Object.entries(mergedParams).forEach(([key, value]) => {
