@@ -9,8 +9,6 @@ import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
 import { client, extractData } from "@/lib/api";
 
-import { MustChangePasswordModal } from "@/components/public/components/MustChangePasswordModal.tsx";
-
 type LucideIconComponent = React.ComponentType<{ size?: number; className?: string }>;
 
 /**
@@ -171,7 +169,7 @@ export const DashboardLayout: React.FC<{
           <button
             type="button"
             onClick={() => {
-              navigateToHash('#mod=file-manager');
+              navigateToHash('#mod=file-manager&page=files');
               if (isMobile) setIsMobileMenuOpen(false);
             }}
             className={cn(
@@ -283,7 +281,6 @@ export const DashboardLayout: React.FC<{
           </div>
         </main>
       </div>
-      <MustChangePasswordModal />
     </div>
   );
 };

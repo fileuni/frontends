@@ -88,7 +88,7 @@ export const Navbar = () => {
       items.push({ name: t('nav.dashboard'), icon: LayoutDashboard, path: `${base}mod=user&page=welcome`, active: mod === 'user' });
       // Check if file manager API is enabled
       if (capabilities?.enable_api !== false) {
-        items.push({ name: t('nav.filemanager'), icon: FolderOpen, path: `${base}mod=file-manager`, active: mod === 'file-manager' });
+        items.push({ name: t('nav.filemanager'), icon: FolderOpen, path: `${base}mod=file-manager&page=files`, active: mod === 'file-manager' });
       }
       if (canAccessAdmin) {
         items.push({

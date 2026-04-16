@@ -74,7 +74,7 @@ export const UserHomeView = () => {
               {
                 name: t("nav.filemanager"),
                 icon: FolderOpen,
-                path: "#mod=file-manager",
+                path: "#mod=file-manager&page=files",
                 desc: t("welcome.fileManager"),
                 primary: true,
               },

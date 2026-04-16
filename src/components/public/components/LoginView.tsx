@@ -189,7 +189,7 @@ export const LoginView = () => {
         if (redirect.includes('mod=') || redirect.startsWith('mod=')) {
           window.location.hash = redirect.startsWith('#') ? redirect : `#${redirect}`;
         } else {
-          navigate({ mod: "file-manager" });
+          navigate({ mod: "file-manager", page: "files", redirect: undefined });
         }
       } else {
         // 如果没有显式重定向参数，检查当前 Hash 是否已经指向了非公开模块 / If no explicit redirect param, check if current hash already points to a non-public module
@@ -197,7 +197,7 @@ export const LoginView = () => {
           // 保持在当前页面，Router 会因为 isLoggedIn 变为 true 而渲染正确的内容 / Stay on current page, Router will render correct content as isLoggedIn becomes true
           return;
         }
-        navigate({ mod: "file-manager" });
+        navigate({ mod: "file-manager", page: "files", redirect: undefined });
       }
     } catch (e: unknown) {
       if (isApiError(e)) {
