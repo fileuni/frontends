@@ -25,7 +25,20 @@ const LoadingScreen: React.FC = () => {
  * Single entry for both WebUI (/) and Tauri launcher.
  */
 export const RootApp: React.FC = () => {
-  const [runtime] = React.useState<UiRuntime>(() => detectUiRuntime());
+  const [runtime, setRuntime] = React.useState<UiRuntime>(() => detectUiRuntime());
+
+  React.useEffect(() => {
+    const syncRuntime = () => {
+      setRuntime(detectUiRuntime());
+    };
+
+    syncRuntime();
+    window.addEventListener('hashchange', syncRuntime);
+
+    return () => {
+      window.removeEventListener('hashchange', syncRuntime);
+    };
+  }, []);
 
   return (
     <React.Suspense fallback={<LoadingScreen />}>
