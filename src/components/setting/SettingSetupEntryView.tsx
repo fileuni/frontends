@@ -60,6 +60,7 @@ export const SettingSetupEntryView: React.FC<SettingSetupEntryViewProps> = ({
 
   const heroCard = (
     <div
+      data-testid="launcher-setup-entry"
       className={cn(
         "rounded-3xl border p-6 sm:p-8",
         isDark
@@ -102,6 +103,7 @@ export const SettingSetupEntryView: React.FC<SettingSetupEntryViewProps> = ({
         )}
       >
         <button
+          data-testid="launcher-setup-primary"
           type="button"
           onClick={onPrimary}
           disabled={busy}
@@ -110,6 +112,7 @@ export const SettingSetupEntryView: React.FC<SettingSetupEntryViewProps> = ({
           {busy ? t("common.processing") : primaryLabel}
         </button>
         <button
+          data-testid="launcher-setup-customize"
           type="button"
           onClick={onCustomize}
           className={cn(
