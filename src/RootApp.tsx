@@ -33,10 +33,17 @@ export const RootApp: React.FC = () => {
     };
 
     syncRuntime();
-    window.addEventListener('hashchange', syncRuntime);
+    const interval = window.setInterval(() => {
+      setRuntime((current) => {
+        if (current === 'tauri') {
+          return current;
+        }
+        return detectUiRuntime();
+      });
+    }, 100);
 
     return () => {
-      window.removeEventListener('hashchange', syncRuntime);
+      window.clearInterval(interval);
     };
   }, []);
 
