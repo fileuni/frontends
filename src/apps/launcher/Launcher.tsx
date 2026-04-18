@@ -850,12 +850,12 @@ export function Launcher() {
     const trimmedUsername = pendingAdminUsername.trim();
     const trimmedPassword = pendingAdminPassword.trim();
     if (!trimmedUsername) {
-      toast.error(t("adminSetting.form.username"));
+      toast.error(t("common.usernameRegister"));
       return;
     }
     const passwordError = validatePendingAdminPassword();
     if (passwordError || !trimmedPassword) {
-      toast.error(passwordError || t("adminSetting.form.password"));
+      toast.error(passwordError || t("common.password"));
       return;
     }
 
@@ -1208,7 +1208,7 @@ export function Launcher() {
           <div className="space-y-4">
             <label className="block space-y-2">
               <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                {t("adminSetting.form.username")}
+                {t("common.usernameRegister")}
               </span>
               <input
                 value={pendingAdminUsername}
@@ -1218,7 +1218,7 @@ export function Launcher() {
             </label>
             <label className="block space-y-2">
               <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                {t("adminSetting.form.password")}
+                {t("common.password")}
               </span>
               <PasswordInput
                 value={pendingAdminPassword}

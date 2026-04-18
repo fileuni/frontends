@@ -22,7 +22,6 @@ const systemConfigEn = {
             "existingConfigCustomize": "Customize settings"
         },
         "editor": {
-            "title": "Settings Center",
             "check": "Check Settings",
             "quickSettings": "Continue Quick Settings",
             "visualMode": "Visual Editor",
@@ -135,59 +134,23 @@ const systemConfigEn = {
             "resetRuleHint": "If no administrator exists yet, apply will create an admin user named admin. If an administrator already exists, apply will reset the first administrator password to the password entered here.",
             "passwordTooShort": "Password must be at least 8 characters",
             "finalConfirmDesc": "Confirm to save your settings and finish the initial settings. You can adjust more options later.",
-            "finish": "Finish Settings",
             "changePassword": "Admin Settings",
         },
-        "final": {
-            "title": "Settings complete",
-            "subtitle": "Administrator account {{user}} is ready.",
-            "adminCreatedDefault": "Created administrator {{user}} with the temporary password {{password}}. Please change it after your first sign-in.",
-            "adminCreatedWithPassword": "Created administrator {{user}} with the password {{password}}.",
-            "adminReset": "Updated the sign-in password for administrator {{user}} to {{password}}.",
-            "adminExisting": "Administrator {{user}} already exists, so the password was left unchanged.",
-            "nextSteps": "What to do next:",
-            "step1": "Return to the launcher and start FileUni.",
-            "step2": "Open the Web UI and sign in with the administrator account.",
-            "step3": "Use the admin console later if you want to adjust more settings.",
-            "startNow": "Start FileUni",
-            "started": "FileUni is running",
-            "openWebUi": "Open Web UI",
-            "finishLater": "Maybe later",
-            "openHint": "Start FileUni, then open the Web UI to sign in.",
-            "runningHint": "FileUni is already running, so you can open the Web UI right away."
-        },
-        "logs": {
-            "setupSuccess": "Settings complete. Confirm to continue."
-        }
+        "final": {},
+        "logs": {}
     },
     "configGuard": {
         "featureDisabledTitle": "Feature Disabled",
         "featureDisabledDesc": "This feature has been disabled by the administrator. Please contact your system administrator for more information."
     },
     "configSet": {
-        "locked": {
-            "title": "Settings Center Unavailable"
-        },
+        "locked": {},
         "config": {
             "versionWarning": {},
             "advanced": {}
         },
-        "final": {
-            "title": "System settings complete",
-            "subtitle": "Administrator {{user}} has been granted full access.",
-            "adminCreatedDefault": "Created administrator {{user}}. Default password: {{password}}.",
-            "adminCreatedWithPassword": "Created administrator {{user}}. Password: {{password}}.",
-            "adminReset": "Updated password for administrator {{user}}: {{password}}.",
-            "adminExisting": "Existing administrator {{user}} detected. Password unchanged.",
-            "nextSteps": "What to do next:",
-            "step1": "Sign in with your administrator account.",
-            "step2": "Edit and save configuration online in the Admin Console.",
-            "step3": "Confirm to return to the home page."
-        },
-        "logs": {
-            "failed": "Failed",
-            "success": "Success"
-        }
+        "final": {},
+        "logs": {}
     },
     "configSelector": {
         "title": "Choose Install Location",
@@ -227,7 +190,6 @@ const systemConfigBundle = defineLocaleBundle({
                 "existingConfigCustomize": "调整配置"
             },
             "editor": {
-                "title": "设置中心",
                 "check": "检查设置",
                 "quickSettings": "继续快速设置",
                 "visualMode": "可视化编辑",
@@ -336,59 +298,23 @@ const systemConfigBundle = defineLocaleBundle({
                 "resetRuleHint": "如果当前还没有管理员账号，应用时会创建用户名为 admin 的管理员；如果已经存在管理员账号，应用时会重置第一个管理员的密码为这里填写的密码。",
                 "passwordTooShort": "密码长度至少为 8 位",
                 "finalConfirmDesc": "确认后将保存当前设置并完成首次设置。更多设置可稍后调整。",
-                "finish": "完成设置",
                 "changePassword": "管理员配置",
             },
-            "final": {
-                "title": "设置完成",
-                "subtitle": "管理员账号 {{user}} 已准备就绪。",
-                "adminCreatedDefault": "已为您创建管理员账号 {{user}}，临时密码为 {{password}}。首次登录后建议尽快修改。",
-                "adminCreatedWithPassword": "已为您创建管理员账号 {{user}}，登录密码为 {{password}}。",
-                "adminReset": "管理员 {{user}} 的登录密码已更新为 {{password}}。",
-                "adminExisting": "已检测到管理员 {{user}}，这次没有修改密码。",
-                "nextSteps": "后续操作步骤：",
-                "step1": "返回启动器后启动 FileUni。",
-                "step2": "打开 Web 界面，并使用管理员账号登录。",
-                "step3": "进入管理后台后，再按需要完善更多设置。",
-                "startNow": "启动 FileUni",
-                "started": "FileUni 已启动",
-                "openWebUi": "打开 Web 界面",
-                "finishLater": "稍后再说",
-                "openHint": "启动后打开 Web 界面即可登录。",
-                "runningHint": "FileUni 已在运行，现在可以直接打开 Web 界面开始使用。"
-            },
-            "logs": {
-                "setupSuccess": "设置已完成，请确认后继续。"
-            }
+            "final": {},
+            "logs": {}
         },
         "configGuard": {
             "featureDisabledTitle": "功能已禁用",
             "featureDisabledDesc": "该功能已被管理员禁用，请联系系统管理员获取更多信息。"
         },
         "configSet": {
-            "locked": {
-                "title": "设置中心暂不可用"
-            },
+            "locked": {},
             "config": {
                 "versionWarning": {},
                 "advanced": {}
             },
-            "final": {
-                "title": "系统设置完成",
-                "subtitle": "管理员账号 {{user}} 已成功授权。",
-                "adminCreatedDefault": "已新建管理员 {{user}}，初始密码为 {{password}}。",
-                "adminCreatedWithPassword": "已新建管理员 {{user}}，密码为 {{password}}。",
-                "adminReset": "管理员 {{user}} 的密码已修改为 {{password}}。",
-                "adminExisting": "检测到已有管理员 {{user}}，未修改密码。",
-                "nextSteps": "后续操作步骤：",
-                "step1": "使用管理员账号登录系统。",
-                "step2": "在管理后台的配置页面在线编辑并保存配置。",
-                "step3": "确认后返回首页。"
-            },
-            "logs": {
-                "failed": "失败",
-                "success": "成功"
-            }
+            "final": {},
+            "logs": {}
         },
         "configSelector": {
             "title": "选择安装位置",
@@ -444,24 +370,11 @@ const systemConfigBundle = defineLocaleBundle({
                 "password": "Contraseña segura",
                 "resetRuleHint": "Esta contraseña se usará para la cuenta de administrador después de la configuración.",
                 "finalConfirmDesc": "Confirme para guardar la configuración y terminar la instalación. Podrá ajustar más opciones después.",
-                "finish": "Aplicar configuración",
                 "changePassword": "Establecer contraseña de admin",
             },
-            "final": {
-                "title": "¡Todo está listo!",
-                "subtitle": "El administrador {{user}} tiene acceso total.",
-                "adminCreatedDefault": "Se creó el administrador {{user}}. Contraseña predeterminada: {{password}}.",
-                "adminCreatedWithPassword": "Se creó el administrador {{user}}. Contraseña: {{password}}.",
-                "adminReset": "Se actualizó la contraseña del administrador {{user}}: {{password}}.",
-                "adminExisting": "Se detectó un administrador existente {{user}}. Contraseña sin cambios.",
-                "nextSteps": "Siguientes pasos:",
-                "step1": "Inicie sesión con su cuenta de administrador.",
-                "step2": "Edite y guarde la configuración en línea en la consola de administración.",
-                "step3": "Haga clic en confirmar para volver al lanzador y continuar el flujo normal."
-            },
+            "final": {},
             "logs": {},
             "editor": {
-                "title": "Centro de configuracion",
                 "check": "Comprobar configuracion",
                 "quickSettings": "Continuar configuracion rapida",
                 "moreActionsTitle": "Otras opciones avanzadas",
@@ -472,20 +385,9 @@ const systemConfigBundle = defineLocaleBundle({
         },
         "configSet": {
             "config": { "advanced": {} },
-            "logs": { "success": "Éxito", "failed": "Fallo" },
-            "locked": { "title": "Centro de configuracion no disponible" },
-            "final": {
-                "title": "¡Todo está listo!",
-                "subtitle": "El administrador {{user}} tiene acceso total.",
-                "adminCreatedDefault": "Se creó el administrador {{user}}. Contraseña predeterminada: {{password}}.",
-                "adminCreatedWithPassword": "Se creó el administrador {{user}}. Contraseña: {{password}}.",
-                "adminReset": "Se actualizó la contraseña del administrador {{user}}: {{password}}.",
-                "adminExisting": "Se detectó un administrador existente {{user}}. Contraseña sin cambios.",
-                "nextSteps": "Siguientes pasos:",
-                "step1": "Inicie sesión con su cuenta de administrador.",
-                "step2": "Edite y guarde la configuración en línea en la consola de administración.",
-                "step3": "Haga clic en confirmar para volver al lanzador y continuar el flujo normal."
-            }
+            "logs": {},
+            "locked": {},
+            "final": {}
         },
         "configSelector": { "confirm": "Confirmar" }
     }),
@@ -515,7 +417,6 @@ const systemConfigBundle = defineLocaleBundle({
             },
             "center": { "title": "Willkommen im FileUni-Einstellungscenter", "subtitle": "Schließen Sie die Ersteinrichtung ab, um zu beginnen" },
             "editor": {
-                "title": "Einstellungscenter",
                 "check": "Einstellungen prüfen",
                 "quickSettings": "Schnelleinrichtung fortsetzen",
                 "moreActionsTitle": "Weitere erweiterte Einträge",
@@ -523,36 +424,14 @@ const systemConfigBundle = defineLocaleBundle({
                 "showMoreActions": "Weitere erweiterte Einträge anzeigen",
                 "hideMoreActions": "Erweiterte Einträge ausblenden"
             },
-            "final": {
-                "title": "Alles ist bereit!",
-                "subtitle": "Der Administrator {{user}} hat jetzt vollen Zugriff.",
-                "adminCreatedDefault": "Administrator {{user}} wurde erstellt. Standardpasswort: {{password}}.",
-                "adminCreatedWithPassword": "Administrator {{user}} wurde erstellt. Passwort: {{password}}.",
-                "adminReset": "Das Passwort für Administrator {{user}} wurde aktualisiert: {{password}}.",
-                "adminExisting": "Vorhandener Administrator {{user}} erkannt. Das Passwort blieb unverändert.",
-                "nextSteps": "Nächste Schritte:",
-                "step1": "Melden Sie sich mit dem Administratorkonto an.",
-                "step2": "Bearbeiten und speichern Sie die Konfiguration in der Admin-Konsole.",
-                "step3": "Klicken Sie auf Bestätigen, um zum Launcher zurückzukehren und normal fortzufahren."
-            },
+            "final": {},
             "locked": {}
         },
         "configSet": {
             "config": { "advanced": {} },
-            "logs": { "failed": "Fehlgeschlagen", "success": "Erfolg" },
-            "locked": { "title": "Einstellungscenter nicht verfügbar" },
-            "final": {
-                "title": "Alles ist bereit!",
-                "subtitle": "Der Administrator {{user}} hat jetzt vollen Zugriff.",
-                "adminCreatedDefault": "Administrator {{user}} wurde erstellt. Standardpasswort: {{password}}.",
-                "adminCreatedWithPassword": "Administrator {{user}} wurde erstellt. Passwort: {{password}}.",
-                "adminReset": "Das Passwort für Administrator {{user}} wurde aktualisiert: {{password}}.",
-                "adminExisting": "Vorhandener Administrator {{user}} erkannt. Das Passwort blieb unverändert.",
-                "nextSteps": "Nächste Schritte:",
-                "step1": "Melden Sie sich mit dem Administratorkonto an.",
-                "step2": "Bearbeiten und speichern Sie die Konfiguration in der Admin-Konsole.",
-                "step3": "Klicken Sie auf Bestätigen, um zum Launcher zurückzukehren und normal fortzufahren."
-            }
+            "logs": {},
+            "locked": {},
+            "final": {}
         },
         "configSelector": { "confirm": "Bestätigen" }
     }),
@@ -589,24 +468,11 @@ const systemConfigBundle = defineLocaleBundle({
                 "password": "Mot de passe sécurisé",
                 "resetRuleHint": "Ce mot de passe sera utilisé pour le compte administrateur après l'installation.",
                 "finalConfirmDesc": "Confirmez pour enregistrer vos réglages et terminer l'installation. Vous pourrez ajuster d'autres options plus tard.",
-                "finish": "Appliquer la configuration",
                 "changePassword": "Définir le mot de passe admin",
             },
-            "final": {
-                "title": "Tout est prêt !",
-                "subtitle": "L'administrateur {{user}} a reçu un accès complet.",
-                "adminCreatedDefault": "Administrateur {{user}} créé. Mot de passe par défaut : {{password}}.",
-                "adminCreatedWithPassword": "Administrateur {{user}} créé. Mot de passe : {{password}}.",
-                "adminReset": "Mot de passe mis à jour pour l'administrateur {{user}} : {{password}}.",
-                "adminExisting": "Administrateur existant détecté : {{user}}. Mot de passe inchangé.",
-                "nextSteps": "Que faire ensuite :",
-                "step1": "Connectez-vous avec votre compte administrateur.",
-                "step2": "Éditez et enregistrez la configuration en ligne dans la console admin.",
-                "step3": "Cliquez sur confirmer pour retourner au lanceur et continuer le flux normal."
-            },
+            "final": {},
             "logs": {},
             "editor": {
-                "title": "Centre de parametres",
                 "check": "Verifier les parametres",
                 "quickSettings": "Continuer la configuration rapide",
                 "moreActionsTitle": "Autres entrees avancees",
@@ -617,20 +483,9 @@ const systemConfigBundle = defineLocaleBundle({
         },
         "configSet": {
             "config": { "advanced": {} },
-            "logs": { "success": "Succès", "failed": "Echec" },
-            "locked": { "title": "Centre de parametres indisponible" },
-            "final": {
-                "title": "Tout est prêt !",
-                "subtitle": "L'administrateur {{user}} a reçu un accès complet.",
-                "adminCreatedDefault": "Administrateur {{user}} créé. Mot de passe par défaut : {{password}}.",
-                "adminCreatedWithPassword": "Administrateur {{user}} créé. Mot de passe : {{password}}.",
-                "adminReset": "Mot de passe mis à jour pour l'administrateur {{user}} : {{password}}.",
-                "adminExisting": "Administrateur existant détecté : {{user}}. Mot de passe inchangé.",
-                "nextSteps": "Que faire ensuite :",
-                "step1": "Connectez-vous avec votre compte administrateur.",
-                "step2": "Éditez et enregistrez la configuration en ligne dans la console admin.",
-                "step3": "Cliquez sur confirmer pour retourner au lanceur et continuer le flux normal."
-            }
+            "logs": {},
+            "locked": {},
+            "final": {}
         },
         "configSelector": { "confirm": "Confirmer" }
     }),
@@ -669,24 +524,11 @@ const systemConfigBundle = defineLocaleBundle({
                 "password": "Надежный пароль",
                 "resetRuleHint": "После настройки этот пароль будет использоваться для учетной записи администратора.",
                 "finalConfirmDesc": "Подтвердите, чтобы сохранить настройки и завершить установку. Остальные параметры можно изменить позже.",
-                "finish": "Применить конфигурацию",
                 "changePassword": "Задать пароль администратора",
             },
-            "final": {
-                "title": "Все готово!",
-                "subtitle": "Администратор {{user}} получил полный доступ.",
-                "adminCreatedDefault": "Создан администратор {{user}}. Пароль по умолчанию: {{password}}.",
-                "adminCreatedWithPassword": "Создан администратор {{user}}. Пароль: {{password}}.",
-                "adminReset": "Пароль администратора {{user}} обновлен: {{password}}.",
-                "adminExisting": "Обнаружен существующий администратор {{user}}. Пароль не изменен.",
-                "nextSteps": "Что делать дальше:",
-                "step1": "Войдите под учетной записью администратора.",
-                "step2": "Отредактируйте и сохраните конфигурацию онлайн в админ-консоли.",
-                "step3": "Нажмите подтвердить, чтобы вернуться в лаунчер и продолжить обычный сценарий."
-            },
+            "final": {},
             "logs": {},
             "editor": {
-                "title": "Центр настроек",
                 "check": "Проверить настройки",
                 "quickSettings": "Продолжить быструю настройку",
                 "moreActionsTitle": "Другие расширенные разделы",
@@ -697,20 +539,9 @@ const systemConfigBundle = defineLocaleBundle({
         },
         "configSet": {
             "config": { "advanced": {} },
-            "logs": { "success": "Успех", "failed": "Ошибка" },
-            "locked": { "title": "Центр настроек недоступен" },
-            "final": {
-                "title": "Все готово!",
-                "subtitle": "Администратор {{user}} получил полный доступ.",
-                "adminCreatedDefault": "Создан администратор {{user}}. Пароль по умолчанию: {{password}}.",
-                "adminCreatedWithPassword": "Создан администратор {{user}}. Пароль: {{password}}.",
-                "adminReset": "Пароль администратора {{user}} обновлен: {{password}}.",
-                "adminExisting": "Обнаружен существующий администратор {{user}}. Пароль не изменен.",
-                "nextSteps": "Что делать дальше:",
-                "step1": "Войдите под учетной записью администратора.",
-                "step2": "Отредактируйте и сохраните конфигурацию онлайн в админ-консоли.",
-                "step3": "Нажмите подтвердить, чтобы вернуться в лаунчер и продолжить обычный сценарий."
-            }
+            "logs": {},
+            "locked": {},
+            "final": {}
         },
         "configSelector": { "confirm": "Подтвердить" }
     }),
@@ -747,24 +578,11 @@ const systemConfigBundle = defineLocaleBundle({
                 "password": "安全なパスワード",
                 "resetRuleHint": "セットアップ完了後、このパスワードで管理者アカウントにログインします。",
                 "finalConfirmDesc": "確認すると現在の設定を保存してセットアップを完了します。追加設定は後から調整できます。",
-                "finish": "設定を適用",
                 "changePassword": "管理者パスワードを設定",
             },
-            "final": {
-                "title": "準備完了です！",
-                "subtitle": "管理者 {{user}} にフルアクセスを付与しました。",
-                "adminCreatedDefault": "管理者 {{user}} を作成しました。既定パスワード: {{password}}。",
-                "adminCreatedWithPassword": "管理者 {{user}} を作成しました。パスワード: {{password}}。",
-                "adminReset": "管理者 {{user}} のパスワードを更新しました: {{password}}。",
-                "adminExisting": "既存の管理者 {{user}} を検出しました。パスワードは変更されません。",
-                "nextSteps": "次に行うこと:",
-                "step1": "管理者アカウントでサインインします。",
-                "step2": "管理コンソールで設定を編集して保存します。",
-                "step3": "確認をクリックしてランチャーに戻り、通常フローを続行します。"
-            },
+            "final": {},
             "logs": {},
             "editor": {
-                "title": "設定センター",
                 "check": "設定を確認",
                 "quickSettings": "クイック設定を続ける",
                 "moreActionsTitle": "その他の詳細項目",
@@ -775,20 +593,9 @@ const systemConfigBundle = defineLocaleBundle({
         },
         "configSet": {
             "config": { "advanced": {} },
-            "logs": { "success": "成功", "failed": "失敗" },
-            "locked": { "title": "設定センターを開けません" },
-            "final": {
-                "title": "準備完了です！",
-                "subtitle": "管理者 {{user}} にフルアクセスを付与しました。",
-                "adminCreatedDefault": "管理者 {{user}} を作成しました。既定パスワード: {{password}}。",
-                "adminCreatedWithPassword": "管理者 {{user}} を作成しました。パスワード: {{password}}。",
-                "adminReset": "管理者 {{user}} のパスワードを更新しました: {{password}}。",
-                "adminExisting": "既存の管理者 {{user}} を検出しました。パスワードは変更されません。",
-                "nextSteps": "次に行うこと:",
-                "step1": "管理者アカウントでサインインします。",
-                "step2": "管理コンソールで設定を編集して保存します。",
-                "step3": "確認をクリックしてランチャーに戻り、通常フローを続行します。"
-            }
+            "logs": {},
+            "locked": {},
+            "final": {}
         },
         "configSelector": { "confirm": "確認" }
     })
