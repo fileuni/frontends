@@ -26,7 +26,12 @@ export function RootAppEntry() {
     };
   }, []);
 
-  return runtime === 'tauri' ? <TauriLauncher /> : <WebApp />;
+  return (
+    <>
+      <div data-testid="root-app-runtime" data-runtime={runtime} data-entry="RootAppEntry" hidden />
+      {runtime === 'tauri' ? <TauriLauncher /> : <WebApp />}
+    </>
+  );
 }
 
 export default RootAppEntry;
