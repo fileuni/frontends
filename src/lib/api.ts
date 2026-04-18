@@ -1,6 +1,5 @@
 import createClient from "openapi-fetch";
 import type { paths as MainPaths, components } from "../types/api.ts";
-import type { paths as ConfigSetPaths } from "../types/config_set_api.ts";
 export type { components };
 import { useAuthStore } from "@/stores/auth.ts";
 import { useToastStore } from '@/stores/toast';
@@ -88,7 +87,7 @@ type LocalPathOverrides = {
   "/api/v1/admin/system/config/save": MainPaths["/api/v1/admin/system/config/save"];
 };
 
-export type paths = Omit<MainPaths, keyof LocalPathOverrides> & ConfigSetPaths & LocalPathOverrides;
+export type paths = Omit<MainPaths, keyof LocalPathOverrides> & LocalPathOverrides;
 
 export const client = createClient<paths>({
   baseUrl: BASE_URL,

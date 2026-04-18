@@ -69,8 +69,8 @@ const adminSettingBundle = defineLocaleBundle({
             },
             "locked": {
                 "title": "Settings Center Unavailable",
-                "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
-                "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
+                "howToUnlockFile": "Use `reset-admin --user <USER> --password <PASSWORD>` to recover administrator access:",
+                "howToUnlockArg": "The GUI launcher also provides a change-admin-password action."
             },
             "profile": {
                 "title": "Select Performance Profile",
@@ -1079,8 +1079,8 @@ const adminSettingBundle = defineLocaleBundle({
             },
             "locked": {
                 "title": "设置中心暂不可用",
-                "howToUnlockFile": "删除 `{runtime-dir}/install.lock` 后重启 FileUni：",
-                "howToUnlockArg": "缺少 `install.lock` 时会自动打开设置中心。"
+                "howToUnlockFile": "使用 `reset-admin --user <USER> --password <PASSWORD>` 恢复管理员访问：",
+                "howToUnlockArg": "GUI 启动器里也提供管理员密码修改入口。"
             },
             "profile": {
                 "title": "选择性能画像",
@@ -2089,8 +2089,8 @@ const adminSettingBundle = defineLocaleBundle({
             },
             "locked": {
                 "title": "Settings Center Unavailable",
-                "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
-                "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
+                "howToUnlockFile": "Use `reset-admin --user <USER> --password <PASSWORD>` to recover administrator access:",
+                "howToUnlockArg": "The GUI launcher also provides a change-admin-password action."
             },
             "profile": {
                 "title": "Select Performance Profile",
@@ -3099,8 +3099,8 @@ const adminSettingBundle = defineLocaleBundle({
             },
             "locked": {
                 "title": "Settings Center Unavailable",
-                "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
-                "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
+                "howToUnlockFile": "Use `reset-admin --user <USER> --password <PASSWORD>` to recover administrator access:",
+                "howToUnlockArg": "The GUI launcher also provides a change-admin-password action."
             },
             "profile": {
                 "title": "Select Performance Profile",
@@ -4109,8 +4109,8 @@ const adminSettingBundle = defineLocaleBundle({
             },
             "locked": {
                 "title": "Settings Center Unavailable",
-                "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
-                "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
+                "howToUnlockFile": "Use `reset-admin --user <USER> --password <PASSWORD>` to recover administrator access:",
+                "howToUnlockArg": "The GUI launcher also provides a change-admin-password action."
             },
             "profile": {
                 "title": "Select Performance Profile",
@@ -5119,8 +5119,8 @@ const adminSettingBundle = defineLocaleBundle({
             },
             "locked": {
                 "title": "Settings Center Unavailable",
-                "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
-                "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
+                "howToUnlockFile": "Use `reset-admin --user <USER> --password <PASSWORD>` to recover administrator access:",
+                "howToUnlockArg": "The GUI launcher also provides a change-admin-password action."
             },
             "profile": {
                 "title": "Select Performance Profile",
@@ -6129,8 +6129,8 @@ const adminSettingBundle = defineLocaleBundle({
             },
             "locked": {
                 "title": "Settings Center Unavailable",
-                "howToUnlockFile": "Delete `{runtime-dir}/install.lock`, then restart FileUni:",
-                "howToUnlockArg": "Settings Center opens automatically when `install.lock` is missing."
+                "howToUnlockFile": "Use `reset-admin --user <USER> --password <PASSWORD>` to recover administrator access:",
+                "howToUnlockArg": "The GUI launcher also provides a change-admin-password action."
             },
             "profile": {
                 "title": "Select Performance Profile",

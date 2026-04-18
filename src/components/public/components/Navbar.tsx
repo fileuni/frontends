@@ -74,8 +74,6 @@ export const Navbar = () => {
       : buildLocaleUrl('https://fileuni.com', language, '/update');
 
   const navItems = useMemo(() => {
-    if (capabilities?.is_config_set_mode) return []; // Config-set mode: hide nav links
-
     const items = [];
     items.push({ name: t('nav.backToPublic'), icon: Home, path: `${base}mod=public&page=index`, active: mod === 'public' && page === 'index' });
 

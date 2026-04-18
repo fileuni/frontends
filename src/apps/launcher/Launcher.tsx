@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as toml from "smol-toml";
-import { Zap, FileText, Info, X } from "lucide-react";
+import { Zap, FileText, Info } from "lucide-react";
 import {
   AboutModal,
   buildAboutUpdateGuideUrl,
@@ -15,11 +15,11 @@ import type {
   ConfigError,
   ConfigNoteEntry,
 } from "@/components/setting/ConfigRawEditor";
-import { ConfigWorkbenchShell } from "@/components/setting/ConfigWorkbenchShell";
-import { SettingSetupEntryView } from "@/components/setting/SettingSetupEntryView";
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { SettingSurfaceControls } from "@/components/setting/SettingSurfaceControls";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
+import { Modal } from "@/components/ui/Modal";
+import { PasswordInput } from "@/components/common/PasswordInput";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import {
@@ -85,25 +85,28 @@ type PickedDirectory = {
   display?: string | null;
 };
 
-type MissingConfigPromptState =
-  | {
-      kind: "setup-required";
-      configPath: string;
-    }
-  | {
-      kind: "config-missing-with-install-lock";
-      configPath: string;
-      installLockPath: string;
-    };
-
 interface InstallationStatus {
   runtime_dir: string;
   config_path: string;
   config_exists: boolean;
-  install_lock_path: string;
-  install_lock_exists: boolean;
-  config_missing_with_install_lock: boolean;
-  is_setup_required: boolean;
+}
+
+interface RuntimeInitializationResult {
+  runtime_dir: string;
+  config_path: string;
+  config_created: boolean;
+  admin_username?: string | null;
+  admin_password?: string | null;
+  users_table_preexisting: boolean;
+}
+
+interface FirstAdminInfo {
+  username?: string | null;
+}
+
+interface ResetAdminPasswordResult {
+  username: string;
+  action: string;
 }
 
 const extractErrorMessage = (error: unknown): string => {
@@ -214,32 +217,12 @@ export function Launcher() {
 
   const [runtimeDirPresets, setRuntimeDirPresets] =
     useState<RuntimeDirPresets | null>(null);
-  const [missingConfigPrompt, setMissingConfigPrompt] =
-    useState<MissingConfigPromptState | null>(null);
-  const [initialSettingsStatus, setInitialSettingsStatus] =
-    useState<InstallationStatus | null>(null);
-  const [initialSettingsRequired, setInitialSettingsRequired] = useState(false);
-  const [initialSettingsHadExistingConfig, setInitialSettingsHadExistingConfig] =
-    useState(false);
-  const [showInitialSettingsCustomize, setShowInitialSettingsCustomize] =
-    useState(false);
-  const [settingsCenterAdminUsername, setSettingsCenterAdminUsername] =
-    useState("admin");
-  const [settingsCenterAdminAction, setSettingsCenterAdminAction] =
-    useState("existing_admin");
-  const [settingsCenterPasswordHint, setSettingsCenterPasswordHint] = useState<
-    string | null
-  >(null);
   const [pendingAdminPassword, setPendingAdminPassword] = useState("");
-  const [settingsCenterApplying, setSettingsCenterApplying] = useState(false);
-  const [
-    isSettingsCenterRequiredPromptOpen,
-    setIsSettingsCenterRequiredPromptOpen,
-  ] = useState(false);
-  const [
-    isSettingsCenterCompletedPromptOpen,
-    setIsSettingsCenterCompletedPromptOpen,
-  ] = useState(false);
+  const [pendingAdminUsername, setPendingAdminUsername] = useState("admin");
+  const [isAdminResetOpen, setIsAdminResetOpen] = useState(false);
+  const [isAdminResetting, setIsAdminResetting] = useState(false);
+  const [initializationResult, setInitializationResult] =
+    useState<RuntimeInitializationResult | null>(null);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [aboutUpdateInfo, setAboutUpdateInfo] =
     useState<AboutUpdateInfo | null>(null);
@@ -248,9 +231,6 @@ export function Launcher() {
   const isServiceRunning = status === "Running";
   const displayedRuntimeDir =
     runtimeDir ?? runtimeDirPresets?.default_runtime_dir ?? "...";
-  const missingConfigPromptResolver = useRef<
-    ((accepted: boolean) => void) | null
-  >(null);
   const suspendLogUpdatesRef = useRef(false);
   const handleStartRef = useRef<(() => Promise<boolean>) | null>(null);
   const handleStopRef = useRef<(() => Promise<void>) | null>(null);
@@ -284,38 +264,34 @@ export function Launcher() {
         return inspected;
       }
 
-      const status = await safeInvoke<InstallationStatus>(
-        "inspect_installation_status",
+      const accepted = window.confirm(
+        t("launcher.runtime_config_missing_prompt", {
+          path: inspected.config_path,
+        }),
+      );
+      if (!accepted) {
+        return null;
+      }
+
+      const initialized = await safeInvoke<RuntimeInitializationResult>(
+        "ensure_runtime_config",
         {
           runtimeDir: inspected.runtime_dir,
         },
       );
-
-      if (status.config_missing_with_install_lock) {
-        setMissingConfigPrompt({
-          kind: "config-missing-with-install-lock",
-          configPath: status.config_path,
-          installLockPath: status.install_lock_path,
-        });
-        return null;
-      }
-
-      const accepted = await new Promise<boolean>((resolve) => {
-        missingConfigPromptResolver.current = resolve;
-        setMissingConfigPrompt({
-          kind: "setup-required",
-          configPath: inspected.config_path,
-        });
+      await safeInvoke<void>("set_runtime_dir", {
+        runtimeDir: initialized.runtime_dir,
       });
-
-      if (!accepted) {
-        toast.warning(t("launcher.runtime_config_missing_cancelled"));
-        return null;
-      }
-
-      // Config file must be created by the settings center apply flow.
-      await inspectInstallationState(inspected.runtime_dir);
-      return null;
+      setRuntimeDir(initialized.runtime_dir);
+      setConfigFilePath(initialized.config_path);
+      setInitializationResult(initialized);
+      setPendingAdminUsername(initialized.admin_username?.trim() || "admin");
+      return {
+        runtime_dir: initialized.runtime_dir,
+        config_path: initialized.config_path,
+        config_exists: true,
+        runtime_dir_exists: true,
+      };
     } catch (error) {
       toast.error(extractErrorMessage(error));
       return null;
@@ -354,89 +330,36 @@ export function Launcher() {
     [configFilePath, osInfo],
   );
 
-  const loadSettingsCenterWorkbench = useCallback(async () => {
-    setConfigFetching(true);
-    try {
-      applyWorkbenchData(await readWorkbenchData("get_config_template_content"));
-      await refreshLicenseStatus();
-    } catch (error) {
-      toast.error(extractErrorMessage(error));
-    } finally {
-      setConfigFetching(false);
-    }
-  }, [applyWorkbenchData, readWorkbenchData, refreshLicenseStatus, setConfigFetching]);
-
-  const inspectInstallationState = useCallback(
+  const inspectRuntimeState = useCallback(
     async (nextRuntimeDir?: string | null) => {
       const inspected = await inspectRuntimeDir(nextRuntimeDir);
-      let status = await safeInvoke<InstallationStatus>(
+      const status = await safeInvoke<InstallationStatus>(
         "inspect_installation_status",
         {
           runtimeDir: inspected.runtime_dir,
         },
       );
-      const hadExistingConfig = status.config_exists;
+      setConfigFilePath(status.config_path);
 
-      if (!status.config_exists && !status.config_missing_with_install_lock) {
-        const ensured = await safeInvoke<RuntimeDirInspection>(
-          "ensure_runtime_config",
-          {
-            runtimeDir: inspected.runtime_dir,
-          },
-        );
-        await safeInvoke<void>("set_runtime_dir", {
-          runtimeDir: ensured.runtime_dir,
-        });
-        setRuntimeDir(ensured.runtime_dir);
-        setConfigFilePath(ensured.config_path);
-        status = await safeInvoke<InstallationStatus>(
-          "inspect_installation_status",
-          {
-            runtimeDir: ensured.runtime_dir,
-          },
-        );
-      } else {
-        setConfigFilePath(status.config_path);
-      }
-
-      setInitialSettingsStatus(status);
-      setInitialSettingsHadExistingConfig(hadExistingConfig);
-      if (status.config_missing_with_install_lock) {
-        setInitialSettingsRequired(false);
-        setShowInitialSettingsCustomize(false);
-      } else if (status.is_setup_required) {
-        await loadSettingsCenterWorkbench();
-        setShowInitialSettingsCustomize(false);
-        setInitialSettingsRequired(true);
-      } else {
-        setInitialSettingsRequired(false);
-        setShowInitialSettingsCustomize(false);
+      if (status.config_exists) {
+        const adminInfo = await safeInvoke<FirstAdminInfo>("get_first_admin_info");
+        setPendingAdminUsername(adminInfo.username?.trim() || "admin");
       }
       return status;
     },
-    [inspectRuntimeDir, loadSettingsCenterWorkbench, setConfigFilePath, setRuntimeDir],
+    [inspectRuntimeDir, setConfigFilePath],
   );
 
   const bindRuntimeDirRef = useRef(bindRuntimeDir);
-  const inspectInstallationStateRef = useRef(inspectInstallationState);
+  const inspectRuntimeStateRef = useRef(inspectRuntimeState);
 
   useEffect(() => {
     bindRuntimeDirRef.current = bindRuntimeDir;
   }, [bindRuntimeDir]);
 
   useEffect(() => {
-    inspectInstallationStateRef.current = inspectInstallationState;
-  }, [inspectInstallationState]);
-
-  const closeMissingConfigPrompt = (accepted: boolean) => {
-    setMissingConfigPrompt(null);
-    missingConfigPromptResolver.current?.(accepted);
-    missingConfigPromptResolver.current = null;
-  };
-
-  const closeSettingsCenterRequiredPrompt = () => {
-    setIsSettingsCenterRequiredPromptOpen(false);
-  };
+    inspectRuntimeStateRef.current = inspectRuntimeState;
+  }, [inspectRuntimeState]);
 
   useEffect(() => {
     applyTheme(theme);
@@ -476,7 +399,7 @@ export function Launcher() {
     const loadRuntimeDir = async (attempt: number) => {
       try {
         const inspected = await bindRuntimeDirRef.current(runtimeDir);
-        await inspectInstallationStateRef.current(inspected.runtime_dir);
+        await inspectRuntimeStateRef.current(inspected.runtime_dir);
       } catch (error) {
         if (!cancelled && attempt < 5) {
           window.setTimeout(() => {
@@ -489,7 +412,7 @@ export function Launcher() {
             "get_default_runtime_dir",
           );
           const inspected = await bindRuntimeDirRef.current(defaults.runtime_dir);
-          await inspectInstallationStateRef.current(inspected.runtime_dir);
+          await inspectRuntimeStateRef.current(inspected.runtime_dir);
           return;
         } catch (fallbackError) {
           console.error(fallbackError);
@@ -518,34 +441,14 @@ export function Launcher() {
   }, []);
 
   useEffect(() => {
-    return () => {
-      missingConfigPromptResolver.current?.(false);
-      missingConfigPromptResolver.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
     suspendLogUpdatesRef.current =
-      initialSettingsRequired ||
-      isEditingConfig ||
-      showConfigSelector ||
-      Boolean(missingConfigPrompt);
-  }, [isEditingConfig, missingConfigPrompt, initialSettingsRequired, showConfigSelector]);
-
-  useEscapeToCloseTopLayer({
-    active: Boolean(missingConfigPrompt),
-    onEscape: () => closeMissingConfigPrompt(false),
-  });
-
-  useEscapeToCloseTopLayer({
-    active: isSettingsCenterRequiredPromptOpen,
-    onEscape: closeSettingsCenterRequiredPrompt,
-  });
+      isEditingConfig || showConfigSelector || isAdminResetOpen;
+  }, [isAdminResetOpen, isEditingConfig, showConfigSelector]);
 
   const handleRuntimeDirSelected = async (nextRuntimeDir: string) => {
     try {
       const inspected = await bindRuntimeDir(nextRuntimeDir);
-      await inspectInstallationState(inspected.runtime_dir);
+      await inspectRuntimeState(inspected.runtime_dir);
       setIsEditingConfig(false);
       setShowConfigSelector(false);
       toast.success(t("launcher.messages.config_set_success"));
@@ -648,9 +551,9 @@ export function Launcher() {
     ...(settingLicenseBinding ? { license: settingLicenseBinding } : {}),
     storage: {
       onPrimaryAction: () => {
-        void handleFinalizeSettingsCenter();
+        void handleSaveConfig();
       },
-      primaryActionLabel: t("systemConfig.setup.guide.card3Action"),
+      primaryActionLabel: t("launcher.save_config"),
     },
   });
 
@@ -811,12 +714,7 @@ export function Launcher() {
       await refreshStatus();
       return true;
     } catch (e: unknown) {
-      const message = extractErrorMessage(e);
-      if (message.includes("Initial settings are incomplete")) {
-        setIsSettingsCenterRequiredPromptOpen(true);
-      } else {
-        toast.error(message);
-      }
+      toast.error(extractErrorMessage(e));
       return false;
     } finally {
       setLoading(false);
@@ -871,12 +769,7 @@ export function Launcher() {
       });
       toast.success(t("launcher.messages.install_requested"));
     } catch (e: unknown) {
-      const message = extractErrorMessage(e);
-      if (message.includes("Initial settings are incomplete")) {
-        setIsSettingsCenterRequiredPromptOpen(true);
-      } else {
-        toast.error(message);
-      }
+      toast.error(extractErrorMessage(e));
     }
     setLoading(false);
   };
@@ -913,20 +806,6 @@ export function Launcher() {
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
       return false;
-    }
-  };
-
-  const handleOpenWebUiFromSettingsCenterCompleted = async () => {
-    let running = status === "Running";
-    if (!running) {
-      running = await handleStart();
-    }
-    if (!running) {
-      return;
-    }
-    const opened = await handleOpenWebUI();
-    if (opened) {
-      await finishSettingsCenterAndReturnToLauncher();
     }
   };
 
@@ -967,101 +846,36 @@ export function Launcher() {
     }
   };
 
-  type SettingsCenterResult = {
-    admin_username: string;
-    admin_action: string;
-    password_hint?: string | null;
-  };
+  const handleResetAdminPassword = async () => {
+    const trimmedUsername = pendingAdminUsername.trim();
+    const trimmedPassword = pendingAdminPassword.trim();
+    if (!trimmedUsername) {
+      toast.error(t("adminSetting.form.username"));
+      return;
+    }
+    const passwordError = validatePendingAdminPassword();
+    if (passwordError || !trimmedPassword) {
+      toast.error(passwordError || t("adminSetting.form.password"));
+      return;
+    }
 
-  const handleApplySettingsCenter = async (
-    password: string,
-  ): Promise<string> => {
-    setSettingsCenterApplying(true);
+    setIsAdminResetting(true);
     try {
-      const res = await safeInvoke<SettingsCenterResult>(
-        "apply_settings_center",
+      const result = await safeInvoke<ResetAdminPasswordResult>(
+        "reset_admin_password",
         {
-          content: configContent,
-          password,
+          username: trimmedUsername,
+          newPassword: trimmedPassword,
         },
       );
-      const username = res?.admin_username?.trim() || "admin";
-      setSettingsCenterAdminUsername(username);
-      if (res?.admin_action) {
-        setSettingsCenterAdminAction(res.admin_action);
-      }
-      setSettingsCenterPasswordHint(res?.password_hint ?? null);
-      setSavedConfigContent(configContent);
-      setConfigSummary(t("systemConfig.setup.logs.setupSuccess"), "success");
-      clearConfigErrors();
-      toast.success(t("systemConfig.setup.logs.setupSuccess"));
-      setIsSettingsCenterCompletedPromptOpen(true);
       setPendingAdminPassword("");
-      return username;
+      setIsAdminResetOpen(false);
+      setPendingAdminUsername(result.username);
+      toast.success(t("launcher.reset_admin_password_success"));
     } catch (e: unknown) {
       toast.error(extractErrorMessage(e));
-      throw e;
     } finally {
-      setSettingsCenterApplying(false);
-    }
-  };
-
-  const enterSettingsCenterFromPrompt = async () => {
-    setIsSettingsCenterRequiredPromptOpen(false);
-    try {
-      await inspectInstallationState(runtimeDir);
-    } catch (e: unknown) {
-      toast.error(extractErrorMessage(e));
-    }
-  };
-
-  const finishSettingsCenterAndReturnToLauncher = async () => {
-    setIsSettingsCenterCompletedPromptOpen(false);
-    setInitialSettingsRequired(false);
-    try {
-      await inspectInstallationState(runtimeDir);
-      await refreshStatus();
-    } catch (e: unknown) {
-      toast.error(extractErrorMessage(e));
-    }
-  };
-
-  useEscapeToCloseTopLayer({
-    active: isSettingsCenterCompletedPromptOpen,
-    onEscape: () => {
-      void finishSettingsCenterAndReturnToLauncher();
-    },
-  });
-
-  const handleFinalizeSettingsCenter = async () => {
-    setConfigBusy(true);
-    try {
-      const passwordError = validatePendingAdminPassword();
-      if (passwordError) {
-        toast.error(passwordError);
-        setConfigSummary(passwordError, "error");
-        return;
-      }
-
-      // Enforce the same structured validation model used by "Test".
-      const errors = await safeInvoke<ConfigError[]>("test_config", {
-        content: configContent,
-      });
-      if (errors.length > 0) {
-        toast.error(t("launcher.messages.config_test_failed"));
-        setConfigErrors(errors);
-        setConfigSummary(t("launcher.messages.config_test_failed"), "error");
-        return;
-      }
-
-      clearConfigErrors();
-
-      await handleApplySettingsCenter(pendingAdminPassword);
-    } catch (e: unknown) {
-      toast.error(extractErrorMessage(e));
-      setConfigSummary(extractErrorMessage(e), "error");
-    } finally {
-      setConfigBusy(false);
+      setIsAdminResetting(false);
     }
   };
 
@@ -1078,49 +892,6 @@ export function Launcher() {
     }
   };
 
-  const settingsCenterFinalMessage =
-    settingsCenterAdminAction === "created_default"
-      ? t("systemConfig.setup.final.adminCreatedDefault", {
-          user: settingsCenterAdminUsername,
-          password: settingsCenterPasswordHint || "admin888",
-        })
-      : settingsCenterAdminAction === "created_with_password"
-        ? t("systemConfig.setup.final.adminCreatedWithPassword", {
-            user: settingsCenterAdminUsername,
-            password: settingsCenterPasswordHint || "",
-          })
-        : settingsCenterAdminAction === "reset_password"
-          ? t("systemConfig.setup.final.adminReset", {
-              user: settingsCenterAdminUsername,
-              password: settingsCenterPasswordHint || "",
-            })
-          : settingsCenterAdminAction === "existing_admin"
-            ? t("systemConfig.setup.final.adminExisting", {
-                user: settingsCenterAdminUsername,
-              })
-            : "";
-
-  const settingsCenterTitle = t([
-    "systemConfig.setup.editor.title",
-    "systemConfig.setup.center.title",
-    "admin.config.title",
-  ]);
-
-  const settingsCenterFinalSteps = [
-    {
-      key: 'systemConfig.setup.final.step1',
-      text: t('systemConfig.setup.final.step1'),
-    },
-    {
-      key: 'systemConfig.setup.final.step2',
-      text: t('systemConfig.setup.final.step2'),
-    },
-    {
-      key: 'systemConfig.setup.final.step3',
-      text: t('systemConfig.setup.final.step3'),
-    },
-  ] as const;
-
   // Format uptime
   const formatUptime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -1128,227 +899,6 @@ export function Launcher() {
     const secs = seconds % 60;
     return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
-
-  const blockedMissingConfigPrompt =
-    missingConfigPrompt?.kind === "config-missing-with-install-lock"
-      ? missingConfigPrompt
-      : null;
-  const isBlockedMissingConfigPrompt = blockedMissingConfigPrompt !== null;
-
-  if (initialSettingsRequired) {
-    return (
-      <>
-        <div
-          className="fixed inset-0 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-[#020817] dark:via-[#0a0f1d] dark:to-[#0f172a] text-slate-900 dark:text-[#f8fafc] flex flex-col overflow-y-auto overscroll-contain touch-pan-y"
-          data-testid="launcher-root"
-        >
-          <div className="flex-1 min-h-0 p-3 pt-[calc(1rem+var(--safe-area-top))] pb-[calc(1rem+var(--safe-area-bottom))] sm:p-6 sm:pt-[calc(1.25rem+var(--safe-area-top))] lg:p-8 lg:pt-[calc(1.5rem+var(--safe-area-top))]">
-            <div className="max-w-6xl mx-auto space-y-4">
-              {showInitialSettingsCustomize ? (
-                <SettingWorkbenchSurface
-                  title={settingsCenterTitle}
-                  configPath={configFilePath}
-                  configPathAction={
-                    <ConfigPathActionButton
-                      onClick={() => {
-                        void handleSettingsCenterRuntimeAction();
-                      }}
-                      label={t([
-                        "systemConfig.setup.guide.card1Action",
-                        "launcher.modify_runtime_dirs",
-                      ])}
-                    />
-                  }
-                  headerExtras={<SettingSurfaceControls compact={true} />}
-                  settingActions={settingActions}
-                  testAction={{
-                    label: t("systemConfig.setup.editor.check"),
-                    onClick: () => {
-                      void handleTestConfig();
-                    },
-                    disabled: configBusy || settingsCenterApplying,
-                  }}
-                  primaryAction={{
-                    label: t("systemConfig.setup.guide.card3Action"),
-                    onClick: () => {
-                      void handleFinalizeSettingsCenter();
-                    },
-                    disabled: configBusy || settingsCenterApplying,
-                  }}
-                  workbenchProps={{
-                    tomlAdapter: toml,
-                    loading: configFetching,
-                    configPath: configFilePath,
-                    content: configContent,
-                    savedContent: savedConfigContent,
-                    notes: configNotes,
-                    validationErrors: configErrors,
-                    busy: configBusy,
-                    onChange: setConfigContent,
-                    onTest: handleTestConfig,
-                    onSave: handleFinalizeSettingsCenter,
-                    saveLabel: t("systemConfig.setup.admin.finish"),
-                    onCancel: handleResetToSavedConfig,
-                    allowSaveWithoutChanges: true,
-                    forceEnableSave: true,
-                    editorTitle: t("systemConfig.setup.editor.title"),
-                    testLabel: t("systemConfig.setup.editor.check"),
-                    onClearValidationErrors: clearConfigErrors,
-                    showCancel: false,
-                    saveSummary: configSummary,
-                    saveSummaryLevel: configSummaryLevel,
-                    runtimeOs: osInfo?.os_type,
-                    systemHardware: osInfo,
-                    onDiagnoseExternalTools: sharedCapabilities.onDiagnoseExternalTools,
-                    onProbeExternalTool: sharedCapabilities.onProbeExternalTool,
-                    onProbeMediaBackend: sharedCapabilities.onProbeMediaBackend,
-                    ...(osInfo?.is_mobile
-                      ? { onPickStorageDirectory: pickExternalStorageDirectory }
-                      : {}),
-                  }}
-                />
-              ) : (
-                <ConfigWorkbenchShell
-                  title={settingsCenterTitle}
-                  configPath={configFilePath}
-                  configPathAction={
-                    <ConfigPathActionButton
-                      onClick={() => {
-                        void handleSettingsCenterRuntimeAction();
-                      }}
-                      label={t([
-                        "systemConfig.setup.guide.card1Action",
-                        "launcher.modify_runtime_dirs",
-                      ])}
-                    />
-                  }
-                  headerActions={<SettingSurfaceControls compact={true} />}
-                >
-                  <SettingSetupEntryView
-                    mode={
-                      initialSettingsHadExistingConfig
-                        ? "existing-config"
-                        : "first-start"
-                    }
-                    busy={configBusy || settingsCenterApplying}
-                    onPrimary={() => {
-                      void handleFinalizeSettingsCenter();
-                    }}
-                    onCustomize={() => setShowInitialSettingsCustomize(true)}
-                    pendingAdminPassword={pendingAdminPassword}
-                    onPendingAdminPasswordChange={setPendingAdminPassword}
-                    passwordHint={t("systemConfig.setup.admin.resetRuleHint")}
-                  />
-                </ConfigWorkbenchShell>
-              )}
-            </div>
-          </div>
-
-          {isSettingsCenterCompletedPromptOpen && (
-            <div
-              className="fixed inset-0 z-[160] bg-black/70 flex items-center justify-center p-2 sm:p-4"
-              role="dialog"
-              aria-modal="true"
-            >
-              <div className="w-full max-w-md rounded-3xl border border-emerald-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
-                <div className="relative px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void finishSettingsCenterAndReturnToLauncher();
-                    }}
-                    className="absolute right-4 top-4 rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-200/70 hover:text-slate-900 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-                    aria-label={t("common.close")}
-                    title={t("common.close")}
-                  >
-                    <X size={18} />
-                  </button>
-                  <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
-                    {t("systemConfig.setup.final.title")}
-                  </h2>
-                </div>
-                <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5">
-                  <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    {settingsCenterFinalMessage ||
-                      t("systemConfig.setup.final.subtitle", {
-                        user: settingsCenterAdminUsername,
-                      })}
-                  </p>
-                  <div className="mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-slate-700/60 dark:bg-slate-950/40">
-                    <p className="text-xs font-black tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                      {t("systemConfig.setup.final.nextSteps")}
-                    </p>
-                    <div className="mt-3 space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
-                      {settingsCenterFinalSteps.map((step, index) => (
-                        <p key={step.key}>
-                          {index + 1}. {step.text}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex flex-col gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void handleStart();
-                      }}
-                      disabled={loading || status === "Running"}
-                      className="px-5 py-2.5 rounded-xl text-sm font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 transition-all"
-                    >
-                      {status === "Running"
-                        ? t("systemConfig.setup.final.started")
-                        : t("systemConfig.setup.final.startNow")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void handleOpenWebUiFromSettingsCenterCompleted();
-                      }}
-                      disabled={loading}
-                      className="px-5 py-2.5 rounded-xl text-sm font-bold border border-cyan-300 text-cyan-700 hover:bg-cyan-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-cyan-500/30 dark:text-cyan-200 dark:hover:bg-cyan-500/10 transition-all"
-                    >
-                      {t("systemConfig.setup.final.openWebUi")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void finishSettingsCenterAndReturnToLauncher();
-                      }}
-                      className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all"
-                    >
-                      {t("systemConfig.setup.final.finishLater")}
-                    </button>
-                  </div>
-                  <p className="text-xs leading-5 text-slate-500 dark:text-slate-400 sm:text-right">
-                    {status === "Running"
-                      ? t("systemConfig.setup.final.runningHint")
-                      : t("systemConfig.setup.final.openHint")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <ConfigSelector
-            isOpen={showConfigSelector}
-            onRuntimeDirSelected={handleRuntimeDirSelected}
-            canClose={true}
-            currentValue={{
-              runtimeDir:
-                displayedRuntimeDir === "..." ? "" : displayedRuntimeDir,
-            }}
-            presets={runtimeDirPresets}
-            onClose={() => setShowConfigSelector(false)}
-          />
-        </div>
-        <ToastI18nContext.Provider value={toastI18n}>
-          <ToastContainer />
-        </ToastI18nContext.Provider>
-      </>
-    );
-  }
 
   return (
     <>
@@ -1548,6 +1098,8 @@ export function Launcher() {
                     onOpenWebUi={handleOpenWebUI}
                     onOpenRuntimeDir={handleOpenRuntimeDir}
                     onEditConfig={handleEditConfig}
+                    onResetAdminPassword={() => setIsAdminResetOpen(true)}
+                    resetAdminPasswordLabel={t("systemConfig.setup.admin.changePassword")}
                     onOpenAbout={() => setIsAboutOpen(true)}
                     showSettingsCenterAction={false}
                   />
@@ -1598,164 +1150,105 @@ export function Launcher() {
           onClose={() => setShowConfigSelector(false)}
         />
 
-        {missingConfigPrompt && (
-          <div
-            className="fixed inset-0 z-[130] bg-black/70 flex items-center justify-center p-2 sm:p-4"
-            role="dialog"
-            aria-modal="true"
-          >
-            <div
-              className={`w-full max-w-lg rounded-3xl border bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] ${
-                isBlockedMissingConfigPrompt
-                  ? "border-amber-300/40 dark:border-amber-500/30"
-                  : "border-slate-200/70 dark:border-slate-700/60"
-              }`}
-            >
-              <div className="px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
-                <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
-                  {isBlockedMissingConfigPrompt
-                    ? t("launcher.runtime_config_blocked_title")
-                    : t("launcher.runtime_config_missing_title")}
-                </h2>
+        <Modal
+          isOpen={initializationResult !== null}
+          onClose={() => setInitializationResult(null)}
+          title={t("launcher.runtime_config_missing_title")}
+          maxWidth="max-w-lg"
+        >
+          {initializationResult && (
+            <div className="space-y-4">
+              <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+                {t("launcher.runtime_config_missing_accept")}
+              </p>
+              <div className="rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
+                {initializationResult.config_path}
               </div>
-              <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5 space-y-4">
-                <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  {isBlockedMissingConfigPrompt
-                    ? t("launcher.runtime_config_blocked_prompt")
-                    : t("launcher.runtime_config_missing_prompt", {
-                        path: missingConfigPrompt.configPath,
-                      })}
-                </p>
-                {isBlockedMissingConfigPrompt ? (
-                  <>
-                    <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      {t("launcher.runtime_config_blocked_recovery")}
-                    </p>
-                    <div className="space-y-3 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
-                      <div className="space-y-1.5">
-                        <p className="text-xs font-black tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                          {t("launcher.runtime_config_blocked_missing_file")}
-                        </p>
-                        <div className="font-mono break-all">
-                          {missingConfigPrompt.configPath}
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <p className="text-xs font-black tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                          {t("launcher.runtime_config_blocked_lock_file")}
-                        </p>
-                        <div className="font-mono break-all">
-                          {blockedMissingConfigPrompt.installLockPath}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
-                    {missingConfigPrompt.configPath}
-                  </div>
-                )}
-              </div>
-              <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
-                {isBlockedMissingConfigPrompt ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void (async () => {
-                        await handleOpenRuntimeDir();
-                        closeMissingConfigPrompt(false);
-                      })();
-                    }}
-                    className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    {t("launcher.open_runtime_dir")}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => closeMissingConfigPrompt(false)}
-                    className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    {t("launcher.runtime_config_missing_reject")}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() =>
-                    closeMissingConfigPrompt(!isBlockedMissingConfigPrompt)
-                  }
-                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg shadow-blue-500/25 transition-all"
-                >
-                  {isBlockedMissingConfigPrompt
-                    ? t("launcher.runtime_config_blocked_confirm")
-                    : t("launcher.runtime_config_missing_accept")}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {isSettingsCenterRequiredPromptOpen && (
-          <div
-            className="fixed inset-0 z-[140] bg-black/70 flex items-center justify-center p-2 sm:p-4"
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="w-full max-w-lg rounded-3xl border border-amber-300/40 bg-white/95 dark:bg-slate-900/95 shadow-2xl overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
-              <div className="relative px-6 py-5 border-b border-slate-200/70 dark:border-slate-700/60 shrink-0">
-                <button
-                  type="button"
-                  onClick={closeSettingsCenterRequiredPrompt}
-                  className="absolute right-4 top-4 rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-200/70 hover:text-slate-900 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-                  aria-label={t("common.close")}
-                  title={t("common.close")}
-                >
-                  <X size={18} />
-                </button>
-                <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
-                  {t([
-                    "systemConfig.setup.guide.title",
-                    "systemConfig.setup.center.title",
-                  ])}
-                </h2>
-              </div>
-              <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5 space-y-4">
-                <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  {t([
-                    "systemConfig.setup.guide.desc",
-                    "systemConfig.setup.guide.requiredPrompt",
-                    "systemConfig.setup.center.subtitle",
-                  ])}
-                </p>
-                {initialSettingsStatus && (
-                  <div className="space-y-3">
-                    <div className="mt-1 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
-                      {initialSettingsStatus.runtime_dir}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/40 shrink-0">
-                <button
-                  type="button"
-                  onClick={closeSettingsCenterRequiredPrompt}
-                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
-                >
-                  {t("common.cancel")}
-                </button>
+              {initializationResult.admin_username && (
+                <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 p-4 space-y-2 text-sm text-slate-700 dark:text-slate-200">
+                  <p>
+                    {initializationResult.users_table_preexisting
+                      ? `First admin: ${initializationResult.admin_username}`
+                      : `Admin username: ${initializationResult.admin_username}`}
+                  </p>
+                  {initializationResult.admin_password && (
+                    <p>{`Admin password: ${initializationResult.admin_password}`}</p>
+                  )}
+                </div>
+              )}
+              <div className="flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => {
-                    void enterSettingsCenterFromPrompt();
+                    void handleStart();
+                    setInitializationResult(null);
                   }}
-                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/25 transition-all"
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 transition-all"
                 >
-                  {t("launcher.settings_center")}
+                  {t("launcher.start_service")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInitializationResult(null)}
+                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg shadow-blue-500/25 transition-all"
+                >
+                  {t("common.confirm")}
                 </button>
               </div>
             </div>
+          )}
+        </Modal>
+
+        <Modal
+          isOpen={isAdminResetOpen}
+          onClose={() => setIsAdminResetOpen(false)}
+          title={t("systemConfig.setup.admin.changePassword")}
+          maxWidth="max-w-md"
+        >
+          <div className="space-y-4">
+            <label className="block space-y-2">
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                {t("adminSetting.form.username")}
+              </span>
+              <input
+                value={pendingAdminUsername}
+                onChange={(event) => setPendingAdminUsername(event.target.value)}
+                className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-semibold text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              />
+            </label>
+            <label className="block space-y-2">
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                {t("adminSetting.form.password")}
+              </span>
+              <PasswordInput
+                value={pendingAdminPassword}
+                onChange={(event) => setPendingAdminPassword(event.target.value)}
+              />
+            </label>
+            <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+              {t("systemConfig.setup.admin.resetRuleHint")}
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsAdminResetOpen(false)}
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  void handleResetAdminPassword();
+                }}
+                disabled={isAdminResetting}
+                className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg shadow-blue-500/25 transition-all disabled:opacity-50"
+              >
+                {isAdminResetting ? t("common.processing") : t("common.confirm")}
+              </button>
+            </div>
           </div>
-        )}
+        </Modal>
 
         <AboutModal
           isOpen={isAboutOpen}

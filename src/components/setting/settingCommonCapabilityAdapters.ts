@@ -11,33 +11,22 @@ type ToastHandler = (
   type: "success" | "error",
 ) => void | Promise<void>;
 
-type CheckDbPath =
-  | "/api/v1/admin/system/config/check-db"
-  | "/api/v1/config-set/check-db";
+type CheckDbPath = "/api/v1/admin/system/config/check-db";
 
-type CheckKvPath =
-  | "/api/v1/admin/system/config/check-kv"
-  | "/api/v1/config-set/check-kv";
+type CheckKvPath = "/api/v1/admin/system/config/check-kv";
 
 type DiagnoseExternalToolsPath =
-  | "/api/v1/admin/system/config/external-tools/diagnose"
-  | "/api/v1/config-set/external-tools/diagnose";
+  "/api/v1/admin/system/config/external-tools/diagnose";
 
 type ProbeExternalToolPath =
-  | "/api/v1/admin/system/config/external-tools/probe"
-  | "/api/v1/config-set/external-tools/probe";
+  "/api/v1/admin/system/config/external-tools/probe";
 
 type ProbeMediaBackendPath =
-  | "/api/v1/admin/system/config/media-backend/probe"
-  | "/api/v1/config-set/media-backend/probe";
+  "/api/v1/admin/system/config/media-backend/probe";
 
-type TestPreStartupPath =
-  | "/api/v1/admin/startup-commands/test-pre-startup"
-  | "/api/v1/config-set/startup-commands/test-pre-startup";
+type TestPreStartupPath = "/api/v1/admin/startup-commands/test-pre-startup";
 
-type TestPostStartupPath =
-  | "/api/v1/admin/startup-commands/test-post-startup"
-  | "/api/v1/config-set/startup-commands/test-post-startup";
+type TestPostStartupPath = "/api/v1/admin/startup-commands/test-post-startup";
 
 type HttpCapabilityPaths = {
   checkDb: CheckDbPath;
@@ -88,16 +77,6 @@ const ADMIN_HTTP_PATHS: HttpCapabilityPaths = {
   probeMediaBackend: "/api/v1/admin/system/config/media-backend/probe",
   testPreStartup: "/api/v1/admin/startup-commands/test-pre-startup",
   testPostStartup: "/api/v1/admin/startup-commands/test-post-startup",
-};
-
-const CONFIG_SET_HTTP_PATHS: HttpCapabilityPaths = {
-  checkDb: "/api/v1/config-set/check-db",
-  checkKv: "/api/v1/config-set/check-kv",
-  diagnoseExternalTools: "/api/v1/config-set/external-tools/diagnose",
-  probeExternalTool: "/api/v1/config-set/external-tools/probe",
-  probeMediaBackend: "/api/v1/config-set/media-backend/probe",
-  testPreStartup: "/api/v1/config-set/startup-commands/test-pre-startup",
-  testPostStartup: "/api/v1/config-set/startup-commands/test-post-startup",
 };
 
 const TAURI_COMMANDS: TauriCapabilityCommands = {
@@ -205,15 +184,6 @@ export const createAdminSettingCommonCapabilityHandlers = (
     ...params,
     paths: ADMIN_HTTP_PATHS,
     headers: NO_TOAST_HEADERS,
-  });
-};
-
-export const createConfigSetSettingCommonCapabilityHandlers = (
-  params: Omit<CreateHttpSettingCommonCapabilityHandlersParams, "paths">,
-): SettingCommonCapabilityHandlers => {
-  return createHttpSettingCommonCapabilityHandlers({
-    ...params,
-    paths: CONFIG_SET_HTTP_PATHS,
   });
 };
 

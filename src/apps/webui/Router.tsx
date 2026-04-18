@@ -3,7 +3,6 @@ import type { TFunction } from "i18next";
 import { useNavigationStore, type RouteParams } from "@/stores/navigation";
 import { useAuthStore } from "@/stores/auth";
 import { useAuthzStore } from "@/stores/authz";
-import { useConfigStore } from "@/stores/config";
 import { useTranslation } from "react-i18next";
 import { renderNextcloudPublicPage } from "./nextcloud-routes";
 import { DashboardLayout } from "@/components/user-center/components/DashboardLayout";
@@ -182,8 +181,6 @@ export const AppRouter: React.FC = () => {
   const { isLoggedIn } = useAuthStore();
   const { t } = useTranslation();
   const { hasPermission } = useAuthzStore();
-  const { capabilities } = useConfigStore();
-  const isSettingsCenterMode = capabilities?.is_config_set_mode === true;
 
   const mod = params.mod || "public";
   const page = params.page || "index";
@@ -194,14 +191,6 @@ export const AppRouter: React.FC = () => {
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
   );
-
-  if (isSettingsCenterMode) {
-    return (
-      <Suspense fallback={fallback}>
-        <WelcomeView />
-      </Suspense>
-    );
-  }
 
   // Auth check
   const isPublicPage =

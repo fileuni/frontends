@@ -15,7 +15,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix --max-warnings=0",
     "verify": "bun run lint && bun run check:i18n && bun run typecheck && bun run check && bun run build",
-    "gen-api": "bunx openapi-typescript openapi.json -o src/types/api.ts && bunx openapi-typescript openapi-config-set.json -o src/types/config_set_api.ts"
+    "gen-api": "bunx openapi-typescript openapi.json -o src/types/api.ts"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",

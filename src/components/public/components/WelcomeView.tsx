@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
 import {
@@ -10,12 +10,9 @@ import {
   LayoutDashboard,
   Users,
 } from "lucide-react";
-import { client, extractData } from "@/lib/api";
-import { ConfigSetEditor } from "@/components/setting/ConfigSetEditor";
 import { useAuthStore } from "@/stores/auth.ts";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { cn } from "@/lib/utils.ts";
-import type { SystemCapabilities } from "@/stores/config.ts";
 
 import { useConfigStore } from "@/stores/config.ts";
 
@@ -25,45 +22,21 @@ export const WelcomeView = () => {
   const { isLoggedIn, usersMap, _hasHydrated } = useAuthStore();
   const capabilities = useConfigStore((state) => state.capabilities);
   const [mounted, setMounted] = useState(false);
-  const [settingsCenterMode, setSettingsCenterMode] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   const savedUsers = Object.values(usersMap);
 
   const isDark = resolvedTheme === "dark";
 
-  const checkCapabilities = useCallback(async () => {
-    try {
-      const caps = await extractData<SystemCapabilities>(
-        client.GET("/api/v1/system/backend-capabilities-handshake"),
-      );
-      setSettingsCenterMode(caps.is_config_set_mode === true);
-    } catch (e) {
-      console.error("Failed to fetch capabilities", e);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     setMounted(true);
-    void checkCapabilities();
-  }, [checkCapabilities]);
+  }, []);
 
-  if (!mounted || loading || !_hasHydrated)
+  if (!mounted || !_hasHydrated)
     return (
       <div className="h-screen flex items-center justify-center bg-background">
         <RefreshCw className="animate-spin text-primary opacity-20" size={48} />
       </div>
     );
-
-  if (settingsCenterMode) {
-    return (
-      <div className="min-h-screen bg-background px-2 py-2 sm:px-4 sm:py-4">
-        <ConfigSetEditor />
-      </div>
-    );
-  }
 
   return (
     <div className="relative flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-start pt-16 overflow-hidden sm:justify-center">
