@@ -89,7 +89,9 @@ export const DashboardLayout: React.FC<{
 
         // Some backends return only a subset of config fields.
         // If the domain module flag is not present, keep domain entries visible.
-        const moduleEnabled = getBool(configData, ['domain_acme_ddns', 'enabled']) ?? true;
+        const moduleEnabled =
+          (getBool(configData, ['externalize_net', 'enabled']) ?? true) &&
+          (getBool(configData, ['externalize_net', 'automation_enabled']) ?? true);
 
         if (!cancelled) {
           setDomainNavFlags({ moduleEnabled });
@@ -197,7 +199,12 @@ export const DashboardLayout: React.FC<{
               Plugins
             </p>
             {pluginNavItems
-              .filter((item) => item.visibility !== 'admin-only' || isAdmin)
+              .filter((item) => {
+                if (item.position && item.position !== 'sidebar') return false;
+                if (item.visibility === 'admin-only' && !isAdmin) return false;
+                if (item.required_permission && !hasPermission(item.required_permission)) return false;
+                return true;
+              })
               .sort((a, b) => a.sort_order - b.sort_order)
               .map((item) => {
                 const target = normalizePluginRoute(`mod=plugin&page=view&plugin_id=${encodeURIComponent(item.plugin_id)}&plugin_route=${encodeURIComponent(item.route)}`);

@@ -5,6 +5,9 @@ export interface PluginNavItem {
   route: string;
   icon: string;
   visibility: string;
+  group_key?: string | null;
+  position?: string | null;
+  required_permission?: string | null;
   sort_order: number;
 }
 

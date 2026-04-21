@@ -5,6 +5,6 @@ export * from './SystemConfigAdmin.tsx';
 export * from './AdminUserEditView.tsx';
 export * from './AdminUserCreateView.tsx';
 export * from './BlacklistAdmin.tsx';
-export * from './DomainAcmeDdnsAdmin.tsx';
+export * from './ExternalizeNetAutomationAdmin.tsx';
 export * from './WebAdmin.tsx';
 export * from './TaskAdmin.tsx';

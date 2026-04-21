@@ -20,7 +20,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/assets/certs": {
+    "/api/v1/admin/externalize-net/assets/certs": {
         parameters: {
             query?: never;
             header?: never;
@@ -36,7 +36,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/assets/domains": {
+    "/api/v1/admin/externalize-net/assets/domains": {
         parameters: {
             query?: never;
             header?: never;
@@ -52,7 +52,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs": {
+    "/api/v1/admin/externalize-net/certs": {
         parameters: {
             query?: never;
             header?: never;
@@ -68,7 +68,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs/plan": {
+    "/api/v1/admin/externalize-net/certs/plan": {
         parameters: {
             query?: never;
             header?: never;
@@ -84,7 +84,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs/run-all-check": {
+    "/api/v1/admin/externalize-net/certs/run-all-check": {
         parameters: {
             query?: never;
             header?: never;
@@ -100,7 +100,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs/{id}": {
+    "/api/v1/admin/externalize-net/certs/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -116,7 +116,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs/{id}/check": {
+    "/api/v1/admin/externalize-net/certs/{id}/check": {
         parameters: {
             query?: never;
             header?: never;
@@ -132,7 +132,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs/{id}/download": {
+    "/api/v1/admin/externalize-net/certs/{id}/download": {
         parameters: {
             query?: never;
             header?: never;
@@ -148,7 +148,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs/{id}/export": {
+    "/api/v1/admin/externalize-net/certs/{id}/export": {
         parameters: {
             query?: never;
             header?: never;
@@ -164,7 +164,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs/{id}/logs": {
+    "/api/v1/admin/externalize-net/certs/{id}/logs": {
         parameters: {
             query?: never;
             header?: never;
@@ -180,7 +180,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs/{id}/run": {
+    "/api/v1/admin/externalize-net/certs/{id}/run": {
         parameters: {
             query?: never;
             header?: never;
@@ -196,7 +196,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/certs/{id}/test-dns01": {
+    "/api/v1/admin/externalize-net/certs/{id}/test-dns01": {
         parameters: {
             query?: never;
             header?: never;
@@ -212,7 +212,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/ddns/entries": {
+    "/api/v1/admin/externalize-net/ddns/entries": {
         parameters: {
             query?: never;
             header?: never;
@@ -228,7 +228,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}": {
+    "/api/v1/admin/externalize-net/ddns/entries/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -244,7 +244,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/check": {
+    "/api/v1/admin/externalize-net/ddns/entries/{id}/check": {
         parameters: {
             query?: never;
             header?: never;
@@ -260,7 +260,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/inspect": {
+    "/api/v1/admin/externalize-net/ddns/entries/{id}/inspect": {
         parameters: {
             query?: never;
             header?: never;
@@ -276,7 +276,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/logs": {
+    "/api/v1/admin/externalize-net/ddns/entries/{id}/logs": {
         parameters: {
             query?: never;
             header?: never;
@@ -292,7 +292,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run": {
+    "/api/v1/admin/externalize-net/ddns/entries/{id}/run": {
         parameters: {
             query?: never;
             header?: never;
@@ -308,7 +308,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/ddns/plan": {
+    "/api/v1/admin/externalize-net/ddns/plan": {
         parameters: {
             query?: never;
             header?: never;
@@ -324,7 +324,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/ddns/run-all": {
+    "/api/v1/admin/externalize-net/ddns/run-all": {
         parameters: {
             query?: never;
             header?: never;
@@ -340,7 +340,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/providers/accounts": {
+    "/api/v1/admin/externalize-net/providers/accounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -356,7 +356,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/providers/accounts/{id}": {
+    "/api/v1/admin/externalize-net/providers/accounts/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -372,7 +372,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-auth": {
+    "/api/v1/admin/externalize-net/providers/accounts/{id}/test-auth": {
         parameters: {
             query?: never;
             header?: never;
@@ -388,7 +388,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-dns": {
+    "/api/v1/admin/externalize-net/providers/accounts/{id}/test-dns": {
         parameters: {
             query?: never;
             header?: never;
@@ -404,7 +404,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/providers/profiles": {
+    "/api/v1/admin/externalize-net/providers/profiles": {
         parameters: {
             query?: never;
             header?: never;
@@ -420,7 +420,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/zerossl/accounts": {
+    "/api/v1/admin/externalize-net/zerossl/accounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -436,7 +436,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/domain-acme-ddns/zerossl/accounts/{id}": {
+    "/api/v1/admin/externalize-net/zerossl/accounts/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -841,7 +841,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/website-manage/reload": {
+    "/api/v1/admin/externalize-net/reload": {
         parameters: {
             query?: never;
             header?: never;
@@ -857,7 +857,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/website-manage/sites": {
+    "/api/v1/admin/externalize-net/sites": {
         parameters: {
             query?: never;
             header?: never;
@@ -873,7 +873,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/website-manage/sites/{id}": {
+    "/api/v1/admin/externalize-net/sites/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -889,7 +889,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/website-manage/test-upstream": {
+    "/api/v1/admin/externalize-net/test-upstream": {
         parameters: {
             query?: never;
             header?: never;

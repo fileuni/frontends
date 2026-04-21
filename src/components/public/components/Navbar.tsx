@@ -108,7 +108,12 @@ export const Navbar = () => {
         });
       }
 
-      for (const pluginItem of pluginNavItems.filter((item) => item.visibility !== 'admin-only')) {
+      for (const pluginItem of pluginNavItems.filter((item) => {
+        if (item.visibility === 'admin-only') return false;
+        if (item.position && item.position !== 'top-nav') return false;
+        if (item.required_permission && !hasPermission(item.required_permission)) return false;
+        return true;
+      })) {
         items.push({
           name: pluginItem.label,
           icon: FolderOpen,
@@ -119,7 +124,7 @@ export const Navbar = () => {
 
     }
     return items;
-  }, [isLoggedIn, canAccessAdmin, mod, page, t, capabilities, pluginNavItems, params]);
+  }, [isLoggedIn, canAccessAdmin, mod, page, t, capabilities, pluginNavItems, params, hasPermission]);
 
   if (!mounted) return null;
 

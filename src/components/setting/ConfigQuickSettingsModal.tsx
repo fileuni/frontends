@@ -498,7 +498,7 @@ const getPreviewGroupLabel = (
     case "internal_notify":
     case "system_backup":
     case "task_registry":
-    case "domain_acme_ddns":
+    case "externalize_net":
       return t("admin.config.quickSettings.performance.preview.groups.scheduler");
     case "middleware":
       return t("admin.config.quickSettings.performance.preview.groups.middleware");
@@ -2033,17 +2033,16 @@ export const applyDraftToConfig = (
     chatManager["max_guest_invites_per_user"] =
       tuningPlan.chatMaxGuestInvitesPerUser;
 
-    const domainAcmeDdns = ensureRecord(next, "domain_acme_ddns");
-    domainAcmeDdns["request_timeout_sec"] = tuningPlan.domainRequestTimeoutSec;
-    domainAcmeDdns["webhook_timeout_sec"] = tuningPlan.domainWebhookTimeoutSec;
-    domainAcmeDdns["dns_propagation_wait_sec"] =
+    const externalizeNet = ensureRecord(next, "externalize_net");
+    externalizeNet["request_timeout_sec"] = tuningPlan.domainRequestTimeoutSec;
+    externalizeNet["webhook_timeout_sec"] = tuningPlan.domainWebhookTimeoutSec;
+    externalizeNet["dns_propagation_wait_sec"] =
       tuningPlan.domainDnsPropagationWaitSec;
-    domainAcmeDdns["challenge_poll_interval_sec"] =
+    externalizeNet["challenge_poll_interval_sec"] =
       tuningPlan.domainChallengePollIntervalSec;
-    domainAcmeDdns["challenge_max_poll_count"] =
+    externalizeNet["challenge_max_poll_count"] =
       tuningPlan.domainChallengeMaxPollCount;
-    const web = ensureRecord(next, "web");
-    web["refresh_interval_sec"] = tuningPlan.webRefreshIntervalSec;
+    externalizeNet["refresh_interval_sec"] = tuningPlan.webRefreshIntervalSec;
 
     const emailManager = ensureRecord(next, "email_manager");
     emailManager["enabled"] = effectiveFeatures.email;
@@ -2729,23 +2728,23 @@ export const ConfigQuickSettingsModal: React.FC<
       previewTuningPlan.chatMaxGuestInvitesPerUser,
     );
     pushItem(
-      "domain_acme_ddns.request_timeout_sec",
+      "externalize_net.request_timeout_sec",
       previewTuningPlan.domainRequestTimeoutSec,
     );
     pushItem(
-      "domain_acme_ddns.webhook_timeout_sec",
+      "externalize_net.webhook_timeout_sec",
       previewTuningPlan.domainWebhookTimeoutSec,
     );
     pushItem(
-      "domain_acme_ddns.dns_propagation_wait_sec",
+      "externalize_net.dns_propagation_wait_sec",
       previewTuningPlan.domainDnsPropagationWaitSec,
     );
     pushItem(
-      "domain_acme_ddns.challenge_poll_interval_sec",
+      "externalize_net.challenge_poll_interval_sec",
       previewTuningPlan.domainChallengePollIntervalSec,
     );
     pushItem(
-      "domain_acme_ddns.challenge_max_poll_count",
+      "externalize_net.challenge_max_poll_count",
       previewTuningPlan.domainChallengeMaxPollCount,
     );
     pushItem("email_manager.enabled", currentPreset.features.email);

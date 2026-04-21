@@ -141,9 +141,9 @@ const AdminAboutPage = lazy(() =>
     default: m.AdminAboutPage,
   })),
 );
-const DomainAcmeDdnsAdmin = lazy(() =>
-  import("@/components/admin/components/DomainAcmeDdnsAdmin").then((m) => ({
-    default: m.DomainAcmeDdnsAdmin,
+const ExternalizeNetAutomationAdmin = lazy(() =>
+  import("@/components/admin/components/ExternalizeNetAutomationAdmin").then((m) => ({
+    default: m.ExternalizeNetAutomationAdmin,
   })),
 );
 const WebAdmin = lazy(() =>
@@ -361,13 +361,13 @@ const PageRenderer: React.FC<{
       case "domain-ddns":
         return (
           <DashboardLayout title={t("nav.domainDdns")}>
-            <DomainAcmeDdnsAdmin view="ddns" />
+            <ExternalizeNetAutomationAdmin view="ddns" />
           </DashboardLayout>
         );
       case "domain-ssl":
         return (
           <DashboardLayout title={t("nav.domainSsl")}>
-            <DomainAcmeDdnsAdmin view="ssl" />
+            <ExternalizeNetAutomationAdmin view="ssl" />
           </DashboardLayout>
         );
       case "web":

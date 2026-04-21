@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
-  type DomainAcmeDdnsView,
+  type ExternalizeNetAutomationView,
   type ProviderProfileItem,
   type ProviderAccountItem,
   type DdnsEntryItem,
@@ -75,24 +75,24 @@ import { CertPlanModal } from './domain/modals/CertPlanModal';
 import { RowActionsModal } from './domain/modals/RowActionsModal';
 import { AdminPage, AdminPageHeader } from './admin-ui';
 
-interface DomainAcmeDdnsAdminProps {
-  view: DomainAcmeDdnsView;
+interface ExternalizeNetAutomationAdminProps {
+  view: ExternalizeNetAutomationView;
 }
 
 
 
 
 const fetchZeroSslAccounts = async (): Promise<ZeroSslAccountItem[]> => {
-  return extractData<ZeroSslAccountItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/zerossl/accounts'));
+  return extractData<ZeroSslAccountItem[]>(client.GET('/api/v1/admin/externalize-net/zerossl/accounts'));
 };
 
 const createZeroSslAccount = async (payload: ZeroSslDraft): Promise<ZeroSslAccountItem> => {
-  return extractData<ZeroSslAccountItem>(client.POST('/api/v1/admin/domain-acme-ddns/zerossl/accounts', { 
+  return extractData<ZeroSslAccountItem>(client.POST('/api/v1/admin/externalize-net/zerossl/accounts', { 
     body: payload 
   }));
 };
 
-export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }) => {
+export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdminProps> = ({ view }) => {
   const { t, i18n } = useTranslation();
   const { addToast } = useToastStore();
 
@@ -238,15 +238,15 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       const isDdnsView = view === 'ddns';
       const isSslView = view === 'ssl';
       const [profileData, providerData, ddnsDataRaw, certDataRaw, zerosslData, configData] = await Promise.all([
-        extractData<ProviderProfileItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/providers/profiles')),
-        extractData<ProviderAccountItem[]>(client.GET('/api/v1/admin/domain-acme-ddns/providers/accounts')),
+        extractData<ProviderProfileItem[]>(client.GET('/api/v1/admin/externalize-net/providers/profiles')),
+        extractData<ProviderAccountItem[]>(client.GET('/api/v1/admin/externalize-net/providers/accounts')),
         isDdnsView
-          ? extractData<unknown>(client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries', {
+          ? extractData<unknown>(client.GET('/api/v1/admin/externalize-net/ddns/entries', {
               params: { query: { page: ddnsPage, page_size: ddnsPageSize } },
             }))
           : Promise.resolve(null),
         isSslView
-          ? extractData<unknown>(client.GET('/api/v1/admin/domain-acme-ddns/certs', {
+          ? extractData<unknown>(client.GET('/api/v1/admin/externalize-net/certs', {
               params: { query: { page: certPage, page_size: certPageSize } },
             }))
           : Promise.resolve(null),
@@ -278,7 +278,9 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       };
        // The admin system config endpoint may return a subset of config fields.
        // If a flag is missing, treat it as "unknown" and keep the UI visible.
-       const moduleEnabled = getBool(configData, ['domain_acme_ddns', 'enabled']) ?? true;
+       const moduleEnabled =
+         (getBool(configData, ['externalize_net', 'enabled']) ?? true) &&
+         (getBool(configData, ['externalize_net', 'automation_enabled']) ?? true);
        const ddnsJobEnabled = getBool(configData, ['task_registry', 'domain_ddns_sync_check', 'enabled']) ?? true;
        const sslJobEnabled = getBool(configData, ['task_registry', 'domain_acme_renewal_check', 'enabled']) ?? true;
        setFeatureFlags({
@@ -302,7 +304,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setRunningDdnsById((prev) => ({ ...prev, [id]: true }));
     try {
       addToast(t('common.loading'), 'info');
-      await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/run', { params: { path: { id } } }));
+      await extractData(client.POST('/api/v1/admin/externalize-net/ddns/entries/{id}/run', { params: { path: { id } } }));
       addToast(t('admin.domain.ddnsRunCompleted'), 'success');
       await loadAll();
     } catch (error) {
@@ -321,7 +323,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setRunningDdnsAll(true);
     try {
       addToast(t('common.loading'), 'info');
-      await extractData(client.POST('/api/v1/admin/domain-acme-ddns/ddns/run-all'));
+      await extractData(client.POST('/api/v1/admin/externalize-net/ddns/run-all'));
       addToast(t('admin.domain.ddnsRunAllCompleted'), 'success');
       await loadAll();
     } catch (error) {
@@ -336,7 +338,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setDdnsCheckLoading(true);
     try {
       const data = await extractData<DdnsCheckResult>(
-        client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/check', { params: { path: { id } } }),
+        client.POST('/api/v1/admin/externalize-net/ddns/entries/{id}/check', { params: { path: { id } } }),
       );
       setDdnsCheckResult(data);
       setDdnsCheckOpen(true);
@@ -352,7 +354,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setDdnsInspectLoading(true);
     try {
       const data = await extractData<DdnsEntryInspectResult>(
-        client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/inspect', {
+        client.POST('/api/v1/admin/externalize-net/ddns/entries/{id}/inspect', {
           params: { path: { id } },
         }),
       );
@@ -371,7 +373,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     try {
       const req: DdnsPlanRequest = { limit: 200 };
       const data = await extractData<DdnsPlanResponse>(
-        client.POST('/api/v1/admin/domain-acme-ddns/ddns/plan', {
+        client.POST('/api/v1/admin/externalize-net/ddns/plan', {
           body: req,
         }),
       );
@@ -389,7 +391,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setCertCheckLoading(true);
     try {
       const data = await extractData<CertPreflightResult>(
-        client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/check', { params: { path: { id } } }),
+        client.POST('/api/v1/admin/externalize-net/certs/{id}/check', { params: { path: { id } } }),
       );
       setCertCheckResult(data);
       setCertCheckOpen(true);
@@ -406,7 +408,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     try {
       const req: CertPlanPayload = { force_update: false };
       const data = await extractData<CertPlanResponse>(
-        client.POST('/api/v1/admin/domain-acme-ddns/certs/plan', {
+        client.POST('/api/v1/admin/externalize-net/certs/plan', {
           body: req,
         }),
       );
@@ -428,7 +430,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setCertDns01TestRunning(true);
     try {
       const res = await extractData<CertTestDns01Result>(
-        client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/test-dns01', {
+        client.POST('/api/v1/admin/externalize-net/certs/{id}/test-dns01', {
           params: { path: { id: sslDraft.id } },
         }),
       );
@@ -459,7 +461,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       setLogLoading(true);
       try {
         const data = await extractData<unknown>(
-          client.GET('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}/logs', {
+          client.GET('/api/v1/admin/externalize-net/ddns/entries/{id}/logs', {
             params: {
               path: { id: logEntry.id },
               query: {
@@ -491,7 +493,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       setCertLogLoading(true);
       try {
         const data = await extractData<unknown>(
-          client.GET('/api/v1/admin/domain-acme-ddns/certs/{id}/logs', {
+          client.GET('/api/v1/admin/externalize-net/certs/{id}/logs', {
             params: {
               path: { id: certLogCert.id },
               query: {
@@ -612,7 +614,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           webhook_json: webhookJson,
           force_update: ddnsDraft.force_update,
         };
-        await extractData(client.PUT('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}', { params: { path: { id: ddnsDraft.id } }, body: payload }));
+        await extractData(client.PUT('/api/v1/admin/externalize-net/ddns/entries/{id}', { params: { path: { id: ddnsDraft.id } }, body: payload }));
         addToast(t('admin.domain.ddnsUpdated'), 'success');
       } else {
         const createdIds: string[] = [];
@@ -668,7 +670,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
             force_update: ddnsDraft.force_update,
           };
           const created = await extractData<DdnsEntryItem>(
-            client.POST('/api/v1/admin/domain-acme-ddns/ddns/entries', { body: payload }),
+            client.POST('/api/v1/admin/externalize-net/ddns/entries', { body: payload }),
           );
           createdIds.push(created.id);
         }
@@ -706,7 +708,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const deleteDdns = async (id: string) => {
     if (!window.confirm(t('common.confirmDelete'))) return;
     try {
-      await extractData(client.DELETE('/api/v1/admin/domain-acme-ddns/ddns/entries/{id}', { params: { path: { id } } }));
+      await extractData(client.DELETE('/api/v1/admin/externalize-net/ddns/entries/{id}', { params: { path: { id } } }));
       addToast(t('admin.domain.ddnsDeleted'), 'success');
       await loadAll();
     } catch (error) {
@@ -811,13 +813,13 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       let savedId = sslDraft.id || '';
       if (sslDraft.id) {
         const updated = await extractData<CertificateItem>(
-          client.PUT('/api/v1/admin/domain-acme-ddns/certs/{id}', { params: { path: { id: sslDraft.id } }, body: payload }),
+          client.PUT('/api/v1/admin/externalize-net/certs/{id}', { params: { path: { id: sslDraft.id } }, body: payload }),
         );
         savedId = updated.id;
         addToast(t('admin.domain.certUpdated'), 'success');
       } else {
         const created = await extractData<CertificateItem>(
-          client.POST('/api/v1/admin/domain-acme-ddns/certs', { body: payload }),
+          client.POST('/api/v1/admin/externalize-net/certs', { body: payload }),
         );
         savedId = created.id;
         addToast(t('admin.domain.certCreated'), 'success');
@@ -830,7 +832,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
       const shouldGate = payload.enabled || payload.auto_renew;
       if (shouldGate && savedId) {
         const preflight = await extractData<CertPreflightResult>(
-          client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/check', { params: { path: { id: savedId } } }),
+          client.POST('/api/v1/admin/externalize-net/certs/{id}/check', { params: { path: { id: savedId } } }),
         );
         setCertCheckResult(preflight);
         setCertCheckOpen(true);
@@ -839,7 +841,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
           addToast(preflight.items?.find((x) => x.status === 'fail')?.message || 'preflight failed', 'error');
           if (window.confirm(t('admin.domain.preflightFailDisableConfirm') || 'Preflight failed. Disable this certificate now?')) {
             await extractData(
-              client.PUT('/api/v1/admin/domain-acme-ddns/certs/{id}', {
+              client.PUT('/api/v1/admin/externalize-net/certs/{id}', {
                 params: { path: { id: savedId } },
                 body: { ...payload, enabled: false, auto_renew: false },
               }),
@@ -852,7 +854,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
         if (payload.challenge_type === 'dns01') {
           const res = await extractData<CertTestDns01Result>(
-            client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/test-dns01', { params: { path: { id: savedId } } }),
+            client.POST('/api/v1/admin/externalize-net/certs/{id}/test-dns01', { params: { path: { id: savedId } } }),
           );
           addToast(res.message, res.observed ? 'success' : 'info');
         }
@@ -865,7 +867,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const deleteSsl = async (id: string) => {
     if (!window.confirm(t('common.confirmDelete'))) return;
     try {
-      await extractData(client.DELETE('/api/v1/admin/domain-acme-ddns/certs/{id}', { params: { path: { id } } }));
+      await extractData(client.DELETE('/api/v1/admin/externalize-net/certs/{id}', { params: { path: { id } } }));
       addToast(t('admin.domain.certDeleted'), 'success');
       await loadAll();
     } catch (error) {
@@ -878,7 +880,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setRunningSslById((prev) => ({ ...prev, [id]: true }));
     try {
       addToast(t('common.loading'), 'info');
-      await extractData(client.POST('/api/v1/admin/domain-acme-ddns/certs/{id}/run', { params: { path: { id } } }));
+      await extractData(client.POST('/api/v1/admin/externalize-net/certs/{id}/run', { params: { path: { id } } }));
       addToast(t('admin.domain.certRunCompleted'), 'success');
       await loadAll();
     } catch (error) {
@@ -898,7 +900,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     try {
       addToast(t('common.loading'), 'info');
       const resp = await extractData<CertRunAllCheckResponse>(
-        client.POST('/api/v1/admin/domain-acme-ddns/certs/run-all-check', { body: { force_update: forceUpdate } }),
+        client.POST('/api/v1/admin/externalize-net/certs/run-all-check', { body: { force_update: forceUpdate } }),
       );
       const renewed = Array.isArray(resp.results)
         ? resp.results.filter((r) => (r.status || '').toLowerCase() === 'success').length
@@ -931,7 +933,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   const deleteProvider = async (id: string) => {
     if (!window.confirm(t('common.confirmDelete'))) return;
     try {
-      await extractData(client.DELETE('/api/v1/admin/domain-acme-ddns/providers/accounts/{id}', { params: { path: { id } } }));
+      await extractData(client.DELETE('/api/v1/admin/externalize-net/providers/accounts/{id}', { params: { path: { id } } }));
       addToast(t('admin.domain.providerDeleted'), 'success');
       await loadAll();
     } catch (error) {
@@ -983,13 +985,13 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
 
       let result: ProviderAccountItem;
       if (providerDraft.id) {
-        result = await extractData<ProviderAccountItem>(client.PUT('/api/v1/admin/domain-acme-ddns/providers/accounts/{id}', { 
+        result = await extractData<ProviderAccountItem>(client.PUT('/api/v1/admin/externalize-net/providers/accounts/{id}', { 
           params: { path: { id: providerDraft.id } },
           body
         }));
         addToast(t('admin.domain.providerUpdated'), 'success');
       } else {
-        result = await extractData<ProviderAccountItem>(client.POST('/api/v1/admin/domain-acme-ddns/providers/accounts', { 
+        result = await extractData<ProviderAccountItem>(client.POST('/api/v1/admin/externalize-net/providers/accounts', { 
           body
         }));
         addToast(t('admin.domain.providerCreated'), 'success');
@@ -1021,7 +1023,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setProviderTestRunning(true);
     try {
       const res = await extractData<ProviderTestDnsResult>(
-        client.POST('/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-dns', {
+        client.POST('/api/v1/admin/externalize-net/providers/accounts/{id}/test-dns', {
           params: { path: { id: providerDraft.id } },
           body: {
             zone: providerTestZone.trim(),
@@ -1047,7 +1049,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
     setProviderAuthTestRunning(true);
     try {
       const res = await extractData<ProviderTestAuthResult>(
-        client.POST('/api/v1/admin/domain-acme-ddns/providers/accounts/{id}/test-auth', {
+        client.POST('/api/v1/admin/externalize-net/providers/accounts/{id}/test-auth', {
           params: { path: { id: providerDraft.id } },
         }),
       );
@@ -1389,7 +1391,7 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
          <div className={cn(sectionCardBase, "border-red-500/20 bg-red-500/5")}> 
            <SectionHeader icon={XCircle} title={t('common.disabled') || 'Disabled'} desc={isDdns ? (t('admin.domain.ddnsDisabledByConfig') || 'DDNS is disabled by config') : (t('admin.domain.sslDisabledByConfig') || 'SSL/TLS is disabled by config')} colorClass="bg-red-500/10 text-red-600 border-red-500/20" />
            <div className="text-sm font-bold opacity-70">
-             {(featureFlags && !featureFlags.moduleEnabled) ? (t('admin.domain.domainModuleDisabled') || 'Enable [domain_acme_ddns] in config to use this module.') : (t('admin.domain.enableSchedulerHint') || 'Also ensure the related scheduled job is enabled in [task_registry].')}
+             {(featureFlags && !featureFlags.moduleEnabled) ? (t('admin.domain.domainModuleDisabled') || 'Enable [externalize_net] with automation_enabled=true in config to use this module.') : (t('admin.domain.enableSchedulerHint') || 'Also ensure the related scheduled job is enabled in [task_registry].')}
            </div>
          </div>
        )}
@@ -2399,4 +2401,4 @@ export const DomainAcmeDdnsAdmin: React.FC<DomainAcmeDdnsAdminProps> = ({ view }
   );
 };
 
-export default DomainAcmeDdnsAdmin;
+export default ExternalizeNetAutomationAdmin;

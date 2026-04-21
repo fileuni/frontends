@@ -1,4 +1,4 @@
-export type DomainAcmeDdnsView = 'ddns' | 'ssl';
+export type ExternalizeNetAutomationView = 'ddns' | 'ssl';
 
 export interface ProviderProfileItem {
   key: string;
