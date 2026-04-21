@@ -3,7 +3,6 @@ import { adminSettingByResourceLocale } from '../bundles/adminSetting';
 import { aboutByResourceLocale } from '../bundles/about';
 import { authByResourceLocale } from '../bundles/auth';
 import { commonByResourceLocale } from '../bundles/common';
-import { emailByResourceLocale } from '../bundles/email';
 import { errorsByResourceLocale } from '../bundles/errors';
 import { forgotPasswordByResourceLocale } from '../bundles/forgotPassword';
 import { launcherByResourceLocale } from '../bundles/launcher';
@@ -14,7 +13,6 @@ import { securityByResourceLocale } from '../bundles/security';
 import { sessionsByResourceLocale } from '../bundles/sessions';
 import { tosByResourceLocale } from '../bundles/tos';
 import { cacheManagerByResourceLocale } from '../bundles/cacheManager';
-import { chatByResourceLocale } from '../bundles/chat';
 import { filemanagerByResourceLocale } from '../bundles/filemanager';
 import { pagesByResourceLocale } from '../bundles/pages';
 import { systemConfigByResourceLocale } from '../bundles/systemConfig';
@@ -35,9 +33,7 @@ const translation = {
   "auth": authByResourceLocale['zh-CN'],
   "blacklist": blacklistByResourceLocale['zh-CN'],
   "cacheManager": cacheManagerByResourceLocale['zh-CN'],
-  "chat": chatByResourceLocale['zh-CN'],
   "common": commonByResourceLocale['zh-CN'],
-  "email": emailByResourceLocale['zh-CN'],
   "errors": errorsByResourceLocale['zh-CN'],
   "filemanager": filemanagerByResourceLocale['zh-CN'],
   "forgotPassword": forgotPasswordByResourceLocale['zh-CN'],

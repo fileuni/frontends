@@ -1,7 +1,6 @@
 import type { TFunction } from "i18next";
 import { client, extractData, handleApiError } from "@/lib/api";
 import type { ExternalToolDiagnosisResponse } from "./ExternalDependencyConfigModal";
-import type { FlowStartupExecutionResult } from "./FlowStartupInlinePanel";
 import type { MediaBackendProbeResponse } from "./MediaTranscodingConfigPanel";
 import type { ProbeExternalTool } from "./SharedFfmpegField";
 import type { SettingCommonCapabilityHandlers } from "./SettingCommonActions";
@@ -24,18 +23,12 @@ type ProbeExternalToolPath =
 type ProbeMediaBackendPath =
   "/api/v1/admin/system/config/media-backend/probe";
 
-type TestPreStartupPath = "/api/v1/admin/startup-commands/test-pre-startup";
-
-type TestPostStartupPath = "/api/v1/admin/startup-commands/test-post-startup";
-
 type HttpCapabilityPaths = {
   checkDb: CheckDbPath;
   checkKv: CheckKvPath;
   diagnoseExternalTools: DiagnoseExternalToolsPath;
   probeExternalTool: ProbeExternalToolPath;
   probeMediaBackend: ProbeMediaBackendPath;
-  testPreStartup: TestPreStartupPath;
-  testPostStartup: TestPostStartupPath;
 };
 
 type CreateHttpSettingCommonCapabilityHandlersParams = {
@@ -56,8 +49,6 @@ type TauriCapabilityCommands = {
   diagnoseExternalTools: string;
   probeExternalTool: string;
   probeMediaBackend: string;
-  testPreStartup: string;
-  testPostStartup: string;
 };
 
 type CreateTauriSettingCommonCapabilityHandlersParams = {
@@ -75,8 +66,6 @@ const ADMIN_HTTP_PATHS: HttpCapabilityPaths = {
   diagnoseExternalTools: "/api/v1/admin/system/config/external-tools/diagnose",
   probeExternalTool: "/api/v1/admin/system/config/external-tools/probe",
   probeMediaBackend: "/api/v1/admin/system/config/media-backend/probe",
-  testPreStartup: "/api/v1/admin/startup-commands/test-pre-startup",
-  testPostStartup: "/api/v1/admin/startup-commands/test-post-startup",
 };
 
 const TAURI_COMMANDS: TauriCapabilityCommands = {
@@ -85,8 +74,6 @@ const TAURI_COMMANDS: TauriCapabilityCommands = {
   diagnoseExternalTools: "diagnose_external_tools",
   probeExternalTool: "probe_external_tool",
   probeMediaBackend: "probe_media_backend",
-  testPreStartup: "test_pre_startup_commands",
-  testPostStartup: "test_post_startup_commands",
 };
 
 const NO_TOAST_HEADERS = { "X-No-Toast": "true" };
@@ -161,20 +148,6 @@ export const createHttpSettingCommonCapabilityHandlers = ({
         ),
       ),
     ),
-  onTestPreStartup: ({ tomlContent }) =>
-    extractData<FlowStartupExecutionResult>(
-      client.POST(
-        paths.testPreStartup,
-        withHeaders({ toml_content: tomlContent }, headers),
-      ),
-    ),
-  onTestPostStartup: ({ tomlContent }) =>
-    extractData<FlowStartupExecutionResult>(
-      client.POST(
-        paths.testPostStartup,
-        withHeaders({ toml_content: tomlContent }, headers),
-      ),
-    ),
 });
 
 export const createAdminSettingCommonCapabilityHandlers = (
@@ -238,9 +211,5 @@ export const createTauriSettingCommonCapabilityHandlers = ({
           ...(device ? { device } : {}),
         },
       }),
-    onTestPreStartup: ({ tomlContent }) =>
-      invoke<FlowStartupExecutionResult>(resolved.testPreStartup, { tomlContent }),
-    onTestPostStartup: ({ tomlContent }) =>
-      invoke<FlowStartupExecutionResult>(resolved.testPostStartup, { tomlContent }),
   };
 };

@@ -20,10 +20,6 @@ import {
   PerformanceInlinePanel,
 } from "./SettingInlineQuickPanels";
 import { StoragePoolInlinePanel } from "./StoragePoolInlinePanel";
-import {
-  FlowStartupInlinePanel,
-  type FlowStartupTestRunner,
-} from "./FlowStartupInlinePanel";
 import type {
   ExternalToolDiagnosisResponse,
   TomlAdapter,
@@ -50,8 +46,6 @@ export interface SettingCommonCapabilityHandlers {
   ) => Promise<ExternalToolDiagnosisResponse>;
   onProbeExternalTool: ProbeExternalTool;
   onProbeMediaBackend: ProbeMediaBackend;
-  onTestPreStartup: FlowStartupTestRunner;
-  onTestPostStartup: FlowStartupTestRunner;
 }
 
 export interface SettingLicenseStatusLike {
@@ -364,8 +358,6 @@ export const buildSettingCommonActions = ({
     onDiagnoseExternalTools,
     onProbeExternalTool,
     onProbeMediaBackend,
-    onTestPreStartup,
-    onTestPostStartup,
   } = sharedCapabilities;
 
   const actions: SettingActionItem[] = [
@@ -572,24 +564,6 @@ export const buildSettingCommonActions = ({
           content={content}
           onContentChange={onContentChange}
           onProbeExternalTool={onProbeExternalTool}
-        />
-      ),
-    },
-    {
-      id: "flow-startup",
-      routeKey: "flow_startup",
-      routeAliases: ["flow_startup", "flow-startup", "跟随启动", "启动流程"],
-      label: t("admin.config.flowStartup.title"),
-      description: "",
-      icon: settingCommonIcons.performance,
-      renderPanel: () => (
-        <FlowStartupInlinePanel
-          tomlAdapter={tomlAdapter}
-          content={content}
-          onContentChange={onContentChange}
-          runtimeOs={runtimeOs}
-          onTestPreStartup={onTestPreStartup}
-          onTestPostStartup={onTestPostStartup}
         />
       ),
     },

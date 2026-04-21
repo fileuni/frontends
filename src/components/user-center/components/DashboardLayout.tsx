@@ -8,6 +8,7 @@ import { useThemeStore } from '@/stores/theme';
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
 import { client, extractData } from "@/lib/api";
+import { fetchPluginNavItems, normalizePluginRoute, type PluginNavItem } from '@/lib/plugin-nav';
 
 type LucideIconComponent = React.ComponentType<{ size?: number; className?: string }>;
 
@@ -45,9 +46,15 @@ export const DashboardLayout: React.FC<{
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [domainNavFlags, setDomainNavFlags] = useState<{ moduleEnabled: boolean } | null>(null);
+  const [pluginNavItems, setPluginNavItems] = useState<PluginNavItem[]>([]);
 
   useEffect(() => {
     setMounted(true);
+    void fetchPluginNavItems()
+      .then((items) => setPluginNavItems(items))
+      .catch((error) => {
+        console.error('Failed to fetch plugin nav items', error);
+      });
   }, []);
 
   const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -182,6 +189,39 @@ export const DashboardLayout: React.FC<{
             <IconRenderer name="FolderOpen" size={18} />
             <span className={isDark ? "text-white" : "text-gray-900"}>{t("nav.filemanager")}</span>
           </button>
+        )}
+
+        {pluginNavItems.length > 0 && (
+          <div className={cn("mt-8 pt-4 border-t", isDark ? "border-white/5" : "border-gray-200")}>
+            <p className={cn("px-4 text-sm font-black tracking-widest opacity-30 mb-4", isDark ? "text-white" : "text-gray-900")}>
+              Plugins
+            </p>
+            {pluginNavItems
+              .filter((item) => item.visibility !== 'admin-only' || isAdmin)
+              .sort((a, b) => a.sort_order - b.sort_order)
+              .map((item) => {
+                const target = normalizePluginRoute(`mod=plugin&page=view&plugin_id=${encodeURIComponent(item.plugin_id)}&plugin_route=${encodeURIComponent(item.route)}`);
+                return (
+                  <button
+                    key={`${item.plugin_id}:${item.item_key}`}
+                    type="button"
+                    onClick={() => {
+                      navigateToHash(target);
+                      if (isMobile) setIsMobileMenuOpen(false);
+                    }}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all",
+                      mod === 'plugin' && params['plugin_id'] === item.plugin_id
+                        ? "bg-primary text-white shadow-lg shadow-primary/20"
+                        : cn("opacity-50 hover:opacity-100", isDark ? "hover:bg-white/5" : "hover:bg-gray-100"),
+                    )}
+                  >
+                    <IconRenderer name={item.icon || 'PanelLeft'} size={18} />
+                    <span className={isDark ? "text-white" : "text-gray-900"}>{item.label}</span>
+                  </button>
+                );
+              })}
+          </div>
         )}
 
         {isAdmin && (

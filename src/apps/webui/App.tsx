@@ -4,12 +4,6 @@ import { AppRouter } from "./Router";
 import { Navbar } from "@/components/public/components/Navbar.tsx";
 import { ToastContainer, ToastI18nContext } from "@/components/ui/Toast";
 import { GlobalAudioPlayer } from "@/components/file-manager/components";
-import {
-  ChatProvider,
-  ChatErrorBoundary,
-} from "@/components/chat/context/ChatContext";
-import { ChatUnifiedUI } from "@/components/chat/components/ChatUnifiedUI";
-import { EmailUnifiedUI } from "@/components/email/components/EmailUnifiedUI";
 import { useAuthStore } from "@/stores/auth";
 import { useAuthzStore } from "@/stores/authz";
 import { useConfigStore } from "@/stores/config";
@@ -42,23 +36,17 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
  * SPA Main Application Entry
  */
 export const App: React.FC = () => {
-  const { currentUserId, isLoggedIn } = useAuthStore();
+  const { isLoggedIn } = useAuthStore();
   const { capabilities, fetchCapabilities } = useConfigStore();
   const {
     fetchEntitlements,
     clear: clearEntitlements,
-    hasPermission,
   } = useAuthzStore();
   const canInitFeatures = Boolean(capabilities);
 
   React.useEffect(() => {
     void fetchCapabilities();
   }, [fetchCapabilities]);
-
-  const chatAuth = React.useMemo(() => {
-    if (!currentUserId) return null;
-    return { type: "system" as const, userId: currentUserId };
-  }, [currentUserId]);
 
   const content = (
     <>
@@ -84,46 +72,10 @@ export const App: React.FC = () => {
     canInitFeatures,
   ]);
 
-  const canUseChat =
-    canInitFeatures &&
-    capabilities?.enable_chat !== false &&
-    hasPermission("feature.chat.use");
-  const canUseEmail =
-    canInitFeatures &&
-    capabilities?.enable_email_manager !== false &&
-    hasPermission("feature.email_manager.use");
-
-  if (!canInitFeatures || !chatAuth) {
-    return (
-      <ToastProvider>
-        {content}
-        <ToastContainer />
-      </ToastProvider>
-    );
-  }
-
-  if (!canUseChat) {
-    return (
-      <ToastProvider>
-        {content}
-        {canUseEmail && <EmailUnifiedUI />}
-        <ToastContainer />
-      </ToastProvider>
-    );
-  }
-
   return (
     <ToastProvider>
-      <ChatErrorBoundary fallback={content}>
-        <ChatProvider auth={chatAuth}>
-          {content}
-          <ChatErrorBoundary>
-            <ChatUnifiedUI />
-          </ChatErrorBoundary>
-          {canUseEmail && <EmailUnifiedUI />}
-          <ToastContainer />
-        </ChatProvider>
-      </ChatErrorBoundary>
+      {content}
+      <ToastContainer />
     </ToastProvider>
   );
 };

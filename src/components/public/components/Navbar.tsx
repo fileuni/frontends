@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useContext } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { AboutModal, buildAboutUpdateGuideUrl, type AboutUpdateInfo } from '@/components/modals/AboutModal';
 import { useThemeStore } from '@/stores/theme';
 import { useLanguageStore } from '@/stores/language';
@@ -10,15 +10,24 @@ import { useTranslation } from 'react-i18next';
 import { 
   LayoutDashboard, FolderOpen, 
   ShieldAlert, LogIn, UserPlus, Home, Menu, X, LogOut,
-  Users, MessageSquare, Info
+  Users, Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import { AUTO_LANGUAGE_PREFERENCE, buildLocaleUrl } from '@/i18n/core';
 import { StatusIndicator } from './StatusIndicator.tsx';
 import { LanguageMenuButton } from './LanguageMenuButton.tsx';
 import { ThemeToggleButton } from './ThemeToggleButton.tsx';
-import { ChatContext } from '@/components/chat/context/ChatContext';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
+import { fetchPluginNavItems, normalizePluginRoute, type PluginNavItem } from '@/lib/plugin-nav';
+
+type NavItem = {
+  name: string;
+  icon: typeof Home;
+  active: boolean;
+  path?: string;
+  onClick?: () => void;
+  className?: string;
+};
 
 export const Navbar = () => {
   const { theme } = useThemeStore();
@@ -28,13 +37,10 @@ export const Navbar = () => {
   const { capabilities, fetchCapabilities } = useConfigStore();
   const { t } = useTranslation();
   
-  const chat = useContext(ChatContext);
-  const setChatOpen = chat?.setIsOpen ?? null;
-  const isChatActive = chat?.isOpen ?? false;
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [pluginNavItems, setPluginNavItems] = useState<PluginNavItem[]>([]);
   const [aboutVersion, setAboutVersion] = useState('');
   const [aboutUpdateInfo, setAboutUpdateInfo] = useState<AboutUpdateInfo | null>(null);
   const [aboutUpdateError, setAboutUpdateError] = useState<string | null>(null);
@@ -51,6 +57,11 @@ export const Navbar = () => {
       .catch((error) => {
         console.error('Failed to fetch runtime version', error);
       });
+    void fetchPluginNavItems()
+      .then((items) => setPluginNavItems(items))
+      .catch((error) => {
+        console.error('Failed to fetch plugin nav items', error);
+      });
   }, [fetchCapabilities]);
 
   useEffect(() => {
@@ -66,7 +77,6 @@ export const Navbar = () => {
   const mod = params.mod || 'public';
   const page = params.page || 'index';
   const canAccessAdmin = hasPermission("admin.access");
-  const canUseChat = hasPermission("feature.chat.use") && capabilities?.enable_chat !== false;
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const updateGuideBaseUrl =
     language === AUTO_LANGUAGE_PREFERENCE
@@ -74,7 +84,7 @@ export const Navbar = () => {
       : buildLocaleUrl('https://fileuni.com', language, '/update');
 
   const navItems = useMemo(() => {
-    const items = [];
+    const items: NavItem[] = [];
     items.push({ name: t('nav.backToPublic'), icon: Home, path: `${base}mod=public&page=index`, active: mod === 'public' && page === 'index' });
 
     if (!isLoggedIn) {
@@ -98,18 +108,18 @@ export const Navbar = () => {
         });
       }
 
-      // Add unified chat entry
-      if (setChatOpen && canUseChat) {
+      for (const pluginItem of pluginNavItems.filter((item) => item.visibility !== 'admin-only')) {
         items.push({
-          name: t('chat.title', { defaultValue: 'Chat' }),
-          icon: MessageSquare,
-          onClick: () => { setChatOpen(true); setIsMenuOpen(false); },
-          active: isChatActive
+          name: pluginItem.label,
+          icon: FolderOpen,
+          path: normalizePluginRoute(`mod=plugin&page=view&plugin_id=${encodeURIComponent(pluginItem.plugin_id)}&plugin_route=${encodeURIComponent(pluginItem.route)}`),
+          active: mod === 'plugin' && params['plugin_id'] === pluginItem.plugin_id,
         });
       }
+
     }
     return items;
-  }, [isLoggedIn, canAccessAdmin, canUseChat, mod, page, t, capabilities, setChatOpen, isChatActive]);
+  }, [isLoggedIn, canAccessAdmin, mod, page, t, capabilities, pluginNavItems, params]);
 
   if (!mounted) return null;
 

@@ -4,9 +4,7 @@ import { aboutByResourceLocale } from '../bundles/about';
 import { authByResourceLocale } from '../bundles/auth';
 import { blacklistByResourceLocale } from '../bundles/blacklist';
 import { cacheManagerByResourceLocale } from '../bundles/cacheManager';
-import { chatByResourceLocale } from '../bundles/chat';
 import { commonByResourceLocale } from '../bundles/common';
-import { emailByResourceLocale } from '../bundles/email';
 import { errorsByResourceLocale } from '../bundles/errors';
 import { forgotPasswordByResourceLocale } from '../bundles/forgotPassword';
 import { launcherByResourceLocale } from '../bundles/launcher';
@@ -35,9 +33,7 @@ const translation = {
   "auth": authByResourceLocale.ru,
   "blacklist": blacklistByResourceLocale.ru,
   "cacheManager": cacheManagerByResourceLocale.ru,
-  "chat": chatByResourceLocale.ru,
   "common": commonByResourceLocale.ru,
-  "email": emailByResourceLocale.ru,
   "errors": errorsByResourceLocale.ru,
   "filemanager": filemanagerByResourceLocale.ru,
   "forgotPassword": forgotPasswordByResourceLocale.ru,

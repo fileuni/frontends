@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { renderNextcloudPublicPage } from "./nextcloud-routes";
 import { DashboardLayout } from "@/components/user-center/components/DashboardLayout";
 import { FileSidebar } from "@/components/file-manager/components/FileSidebar";
+import { PluginEmbeddedView } from '@/components/plugin/PluginEmbeddedView';
 
 // Dynamic import public components
 const WelcomeView = lazy(() =>
@@ -86,18 +87,6 @@ const PublicShareView = lazy(() =>
 const MySharesView = lazy(() =>
   import("@/components/file-manager/components/MySharesView").then((m) => ({
     default: m.MySharesView,
-  })),
-);
-
-// Dynamic import chat components
-const ChatPage = lazy(() =>
-  import("@/components/chat/components/ChatPage").then((m) => ({
-    default: m.ChatPage,
-  })),
-);
-const ChatGuestView = lazy(() =>
-  import("@/components/chat/components/ChatGuestView").then((m) => ({
-    default: m.ChatGuestView,
   })),
 );
 
@@ -195,8 +184,7 @@ export const AppRouter: React.FC = () => {
   // Auth check
   const isPublicPage =
     mod === "public" ||
-    (mod === "file-manager" && page === "share") ||
-    (mod === "chat" && page === "guest");
+    (mod === "file-manager" && page === "share");
   if (!isLoggedIn && !isPublicPage) {
     return (
       <Suspense fallback={fallback}>
@@ -430,23 +418,10 @@ const PageRenderer: React.FC<{
     );
   }
 
-  // Chat module
-  if (mod === "chat") {
-    if (page === "guest") {
-      return <ChatGuestView {...(params['invite'] ? { inviteCode: params['invite'] } : {})} />;
-    }
-    if (!hasPermission("feature.chat.use")) {
-      return (
-        <DashboardLayout title={t("chat.pageTitle")}>
-          <div className="text-center py-20 text-red-500 font-bold">
-            {t("errors.PERMISSION_DENIED")}
-          </div>
-        </DashboardLayout>
-      );
-    }
+  if (mod === 'plugin') {
     return (
-      <DashboardLayout title={t("chat.pageTitle")}>
-        <ChatPage />
+      <DashboardLayout title={t('common.manage')}>
+        <PluginEmbeddedView />
       </DashboardLayout>
     );
   }
