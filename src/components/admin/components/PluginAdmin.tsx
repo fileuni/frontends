@@ -55,6 +55,11 @@ type PluginConfig = {
   content: string;
 };
 
+type PluginPermissionGrant = {
+  permission_key: string;
+  granted: boolean;
+};
+
 const authHeaders = (token: string | undefined) => {
   const headers = new Headers();
   if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -75,6 +80,16 @@ export const PluginAdmin: React.FC = () => {
   const [configText, setConfigText] = useState('');
   const [configMeta, setConfigMeta] = useState<PluginConfig | null>(null);
   const [configModalOpen, setConfigModalOpen] = useState(false);
+  const [permissionsModalOpen, setPermissionsModalOpen] = useState(false);
+  const [permissions, setPermissions] = useState<PluginPermissionGrant[]>([]);
+  const [permissionsLoading, setPermissionsLoading] = useState(false);
+  const [tasksModalOpen, setTasksModalOpen] = useState(false);
+  const [tasks, setTasks] = useState<unknown[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+  const [navigationModalOpen, setNavigationModalOpen] = useState(false);
+  const [navigationItems, setNavigationItems] = useState<unknown[]>([]);
+  const [navigationLoading, setNavigationLoading] = useState(false);
+  const [uninstallConfirmOpen, setUninstallConfirmOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [marketInstalling, setMarketInstalling] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -200,6 +215,48 @@ export const PluginAdmin: React.FC = () => {
       await reload();
     } catch (error) {
       addToast(error instanceof Error ? error.message : `Failed to ${action} plugin`, 'error');
+    }
+  };
+
+  const openPermissionsModal = async (pluginId: string) => {
+    setPermissionsModalOpen(true);
+    setPermissionsLoading(true);
+    try {
+      const data = await fetchJson<PluginPermissionGrant[]>(`/api/v1/admin/plugins/${encodeURIComponent(pluginId)}/permissions`);
+      setPermissions(data);
+    } catch (error) {
+      setPermissions([]);
+      addToast(error instanceof Error ? error.message : 'Failed to load plugin permissions', 'error');
+    } finally {
+      setPermissionsLoading(false);
+    }
+  };
+
+  const openTasksModal = async (pluginId: string) => {
+    setTasksModalOpen(true);
+    setTasksLoading(true);
+    try {
+      const data = await fetchJson<{ tasks?: unknown[] }>(`/api/v1/admin/plugins/${encodeURIComponent(pluginId)}/tasks`);
+      setTasks(data.tasks ?? []);
+    } catch (error) {
+      setTasks([]);
+      addToast(error instanceof Error ? error.message : 'Failed to load plugin tasks', 'error');
+    } finally {
+      setTasksLoading(false);
+    }
+  };
+
+  const openNavigationModal = async (pluginId: string) => {
+    setNavigationModalOpen(true);
+    setNavigationLoading(true);
+    try {
+      const data = await fetchJson<{ items?: unknown[] }>(`/api/v1/admin/plugins/${encodeURIComponent(pluginId)}/nav-items`);
+      setNavigationItems(data.items ?? []);
+    } catch (error) {
+      setNavigationItems([]);
+      addToast(error instanceof Error ? error.message : 'Failed to load plugin navigation', 'error');
+    } finally {
+      setNavigationLoading(false);
     }
   };
 
@@ -356,14 +413,22 @@ export const PluginAdmin: React.FC = () => {
                     <Button size="sm" variant="outline" onClick={() => void mutatePlugin(selectedPluginId, 'stop')} disabled={!selectedRuntime}>
                       <Square size={16} className="mr-2" /> Stop
                     </Button>
+                    <Button size="sm" variant="outline" onClick={() => void openPermissionsModal(selectedPluginId)} disabled={!selectedPlugin}>
+                      <PlugZap size={16} className="mr-2" /> Permissions
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => void openTasksModal(selectedPluginId)} disabled={!selectedPlugin}>
+                      <Play size={16} className="mr-2" /> Tasks
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => void openNavigationModal(selectedPluginId)} disabled={!selectedPlugin}>
+                      <RefreshCw size={16} className="mr-2" /> Navigation
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => setConfigModalOpen(true)} disabled={!selectedPlugin}>
                       <Settings2 size={16} className="mr-2" /> Settings
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => void mutatePlugin(selectedPluginId, 'uninstall')} disabled={!selectedPlugin || !!selectedRuntime}>
+                    <Button size="sm" variant="destructive" onClick={() => setUninstallConfirmOpen(true)} disabled={!selectedPlugin}>
                       <Trash2 size={16} className="mr-2" /> Uninstall
                     </Button>
                   </div>
-                  <PluginInspector pluginId={selectedPluginId} {...(token ? { token } : {})} />
                 </>
               ) : (
                 <div className="text-sm opacity-60">Select an installed plugin to inspect it.</div>
@@ -406,49 +471,146 @@ export const PluginAdmin: React.FC = () => {
           </div>
         </div>
       ) : null}
+
+      {permissionsModalOpen && selectedPluginId ? (
+        <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl rounded-[2rem] border border-border bg-background shadow-2xl p-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-black">Plugin Permissions</h2>
+                <div className="text-xs opacity-60">{selectedPluginId}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPermissionsModalOpen(false)}
+                className="rounded-xl border border-border p-2 hover:bg-muted"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="space-y-2 max-h-[26rem] overflow-auto pr-1">
+              {permissionsLoading ? (
+                <div className="text-sm opacity-60">Loading permissions…</div>
+              ) : permissions.length === 0 ? (
+                <div className="text-sm opacity-60">No permissions recorded.</div>
+              ) : permissions.map((permission) => (
+                <div key={permission.permission_key} className="rounded-2xl border border-border bg-background/60 p-4 flex items-center justify-between gap-3">
+                  <div className="font-mono text-sm">{permission.permission_key}</div>
+                  <div className={`text-xs font-bold ${permission.granted ? 'text-emerald-500' : 'opacity-50'}`}>
+                    {permission.granted ? 'Granted' : 'Not granted'}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setPermissionsModalOpen(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {uninstallConfirmOpen && selectedPlugin ? (
+        <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-xl rounded-[2rem] border border-border bg-background shadow-2xl p-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-black">Confirm Uninstall</h2>
+                <div className="text-xs opacity-60">{selectedPlugin.id}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUninstallConfirmOpen(false)}
+                className="rounded-xl border border-border p-2 hover:bg-muted"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm leading-6">
+              Uninstalling this plugin will permanently remove its package, plugin data, SQLite broker data, shared records, and plugin settings.
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setUninstallConfirmOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  void mutatePlugin(selectedPlugin.id, 'uninstall');
+                  setUninstallConfirmOpen(false);
+                }}
+              >
+                <Trash2 size={16} className="mr-2" /> Uninstall Plugin
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {tasksModalOpen && selectedPluginId ? (
+        <JsonViewerModal
+          title="Plugin Tasks"
+          subtitle={selectedPluginId}
+          loading={tasksLoading}
+          emptyText="No tasks recorded."
+          value={tasks}
+          onClose={() => setTasksModalOpen(false)}
+        />
+      ) : null}
+
+      {navigationModalOpen && selectedPluginId ? (
+        <JsonViewerModal
+          title="Plugin Navigation"
+          subtitle={selectedPluginId}
+          loading={navigationLoading}
+          emptyText="No navigation items recorded."
+          value={navigationItems}
+          onClose={() => setNavigationModalOpen(false)}
+        />
+      ) : null}
     </AdminPage>
   );
 };
 
-const PluginInspector: React.FC<{ pluginId: string; token?: string }> = ({ pluginId, token }) => {
-  const [permissions, setPermissions] = useState<unknown[]>([]);
-  const [tasks, setTasks] = useState<unknown[]>([]);
-  const [navItems, setNavItems] = useState<unknown[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const headers = authHeaders(token);
-    void Promise.all([
-      fetch(`/api/v1/admin/plugins/${encodeURIComponent(pluginId)}/permissions`, { headers }).then((r) => r.json()),
-      fetch(`/api/v1/admin/plugins/${encodeURIComponent(pluginId)}/tasks`, { headers }).then((r) => r.json()),
-      fetch(`/api/v1/admin/plugins/${encodeURIComponent(pluginId)}/nav-items`, { headers }).then((r) => r.json()),
-    ]).then(([permissionsJson, tasksJson, navJson]) => {
-      if (cancelled) return;
-      setPermissions(permissionsJson.data ?? []);
-      setTasks(tasksJson.data?.tasks ?? []);
-      setNavItems(navJson.data?.items ?? []);
-    }).catch(() => {
-      if (cancelled) return;
-      setPermissions([]);
-      setTasks([]);
-      setNavItems([]);
-    });
-    return () => { cancelled = true; };
-  }, [pluginId, token]);
+const JsonViewerModal: React.FC<{
+  title: string;
+  subtitle: string;
+  loading: boolean;
+  emptyText: string;
+  value: unknown;
+  onClose: () => void;
+}> = ({ title, subtitle, loading, emptyText, value, onClose }) => {
+  const isEmpty = Array.isArray(value) ? value.length === 0 : !value;
 
   return (
-    <div className="space-y-4 text-sm">
-      <div>
-        <div className="font-black mb-2">Permissions</div>
-        <pre className="rounded-xl bg-muted p-3 overflow-auto text-xs">{JSON.stringify(permissions, null, 2)}</pre>
-      </div>
-      <div>
-        <div className="font-black mb-2">Tasks</div>
-        <pre className="rounded-xl bg-muted p-3 overflow-auto text-xs">{JSON.stringify(tasks, null, 2)}</pre>
-      </div>
-      <div>
-        <div className="font-black mb-2">Navigation</div>
-        <pre className="rounded-xl bg-muted p-3 overflow-auto text-xs">{JSON.stringify(navItems, null, 2)}</pre>
+    <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl rounded-[2rem] border border-border bg-background shadow-2xl p-6 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-black">{title}</h2>
+            <div className="text-xs opacity-60">{subtitle}</div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-border p-2 hover:bg-muted"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        {loading ? (
+          <div className="text-sm opacity-60">Loading…</div>
+        ) : isEmpty ? (
+          <div className="text-sm opacity-60">{emptyText}</div>
+        ) : (
+          <pre className="rounded-2xl bg-muted p-4 overflow-auto text-xs max-h-[28rem]">{JSON.stringify(value, null, 2)}</pre>
+        )}
+        <div className="flex justify-end">
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
+        </div>
       </div>
     </div>
   );
