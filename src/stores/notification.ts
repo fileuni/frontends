@@ -1,6 +1,20 @@
 import { create } from 'zustand';
 import { client, extractData } from '@/lib/api.ts';
 
+interface NotificationActionTarget {
+  kind?: string;
+  plugin_id?: string;
+  plugin_route?: string;
+  params?: Record<string, string | number | boolean>;
+}
+
+interface NotificationActionPayload {
+  type?: string;
+  href?: string;
+  hash?: string;
+  target?: NotificationActionTarget;
+}
+
 export interface Notification {
   id: string;
   title: string;
@@ -8,7 +22,7 @@ export interface Notification {
   msg_type: string;
   level: 'info' | 'warning' | 'error' | 'success';
   sender_id?: string;
-  extra_data?: ({ task_id?: string } & Record<string, unknown>) | undefined;
+  extra_data?: ({ task_id?: string; action?: NotificationActionPayload } & Record<string, unknown>) | undefined;
   created_at: string;
   is_read: boolean;
   read_at?: string;

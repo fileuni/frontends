@@ -18,7 +18,7 @@ import { StatusIndicator } from './StatusIndicator.tsx';
 import { LanguageMenuButton } from './LanguageMenuButton.tsx';
 import { ThemeToggleButton } from './ThemeToggleButton.tsx';
 import { checkLatestReleaseApi, fetchRuntimeVersionApi } from './about/api.ts';
-import { fetchPluginNavItems, normalizePluginRoute, type PluginNavItem } from '@/lib/plugin-nav';
+import { fetchPluginNavItems, isChatPluginNavItem, normalizePluginRoute, type PluginNavItem } from '@/lib/plugin-nav';
 
 type NavItem = {
   name: string;
@@ -32,7 +32,7 @@ type NavItem = {
 export const Navbar = () => {
   const { theme } = useThemeStore();
   const { language } = useLanguageStore();
-  const { currentUserData, isLoggedIn, logout } = useAuthStore();
+  const { currentUserData, isLoggedIn, logout, _hasHydrated } = useAuthStore();
   const { hasPermission } = useAuthzStore();
   const { capabilities, fetchCapabilities } = useConfigStore();
   const { t } = useTranslation();
@@ -57,12 +57,19 @@ export const Navbar = () => {
       .catch((error) => {
         console.error('Failed to fetch runtime version', error);
       });
+  }, [fetchCapabilities]);
+
+  useEffect(() => {
+    if (!_hasHydrated || !isLoggedIn) {
+      setPluginNavItems([]);
+      return;
+    }
     void fetchPluginNavItems()
       .then((items) => setPluginNavItems(items))
       .catch((error) => {
         console.error('Failed to fetch plugin nav items', error);
       });
-  }, [fetchCapabilities]);
+  }, [_hasHydrated, isLoggedIn, currentUserData?.access_token]);
 
   useEffect(() => {
     const handleOpenAboutEvent = () => {
@@ -109,6 +116,7 @@ export const Navbar = () => {
       }
 
       for (const pluginItem of pluginNavItems.filter((item) => {
+        if (isChatPluginNavItem(item)) return false;
         if (item.visibility === 'admin-only') return false;
         if (item.position && item.position !== 'top-nav') return false;
         if (item.required_permission && !hasPermission(item.required_permission)) return false;

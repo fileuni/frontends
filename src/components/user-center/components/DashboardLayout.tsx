@@ -3,12 +3,14 @@ import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
 import * as LucideIcons from "lucide-react";
 import { useAuthzStore } from "@/stores/authz.ts";
+import { useAuthStore } from '@/stores/auth.ts';
 import { useConfigStore } from "@/stores/config.ts";
 import { useThemeStore } from '@/stores/theme';
 import { useNavigationStore } from "@/stores/navigation.ts";
+import { isChatPluginInstalled } from '@/lib/chat-plugin.ts';
 import { cn } from "@/lib/utils.ts";
 import { client, extractData } from "@/lib/api";
-import { fetchPluginNavItems, normalizePluginRoute, type PluginNavItem } from '@/lib/plugin-nav';
+import { fetchPluginNavItems, isChatPluginNavItem, normalizePluginRoute, type PluginNavItem } from '@/lib/plugin-nav';
 
 type LucideIconComponent = React.ComponentType<{ size?: number; className?: string }>;
 
@@ -40,6 +42,7 @@ export const DashboardLayout: React.FC<{
 }) => {
   const { t } = useTranslation();
   const { params } = useNavigationStore();
+  const { isLoggedIn, _hasHydrated, currentUserData } = useAuthStore();
   const { hasPermission } = useAuthzStore();
   const { capabilities } = useConfigStore();
   const { theme } = useThemeStore();
@@ -50,12 +53,40 @@ export const DashboardLayout: React.FC<{
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!_hasHydrated || !isLoggedIn) {
+      setPluginNavItems([]);
+      return;
+    }
     void fetchPluginNavItems()
+      .then(async (items) => {
+        if (items.some((item) => isChatPluginNavItem(item))) {
+          return items;
+        }
+        const installed = await isChatPluginInstalled();
+        if (!installed) {
+          return items;
+        }
+        return [
+          ...items,
+          {
+            plugin_id: 'com.fileuni.chat',
+            item_key: 'chat-sidebar-entry',
+            label: t('common.chat', { defaultValue: 'Chat' }),
+            route: '/chat',
+            icon: 'MessageSquare',
+            visibility: 'user',
+            sort_order: 100,
+          } satisfies PluginNavItem,
+        ];
+      })
       .then((items) => setPluginNavItems(items))
       .catch((error) => {
         console.error('Failed to fetch plugin nav items', error);
       });
-  }, []);
+  }, [_hasHydrated, isLoggedIn, currentUserData?.access_token, t]);
 
   const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const mod = params.mod || 'public';
@@ -124,6 +155,7 @@ export const DashboardLayout: React.FC<{
       { name: t("nav.domainDdns"), icon: "Globe", m: "admin", p: "domain-ddns", path: "#mod=admin&page=domain-ddns" },
       { name: t("nav.domainSsl"), icon: "ShieldCheck", m: "admin", p: "domain-ssl", path: "#mod=admin&page=domain-ssl" },
       { name: t("admin.web.title"), icon: "Server", m: "admin", p: "web", path: "#mod=admin&page=web" },
+      { name: t('common.plugins', { defaultValue: 'Plugins' }), icon: 'PlugZap', m: 'admin', p: 'plugins', path: '#mod=admin&page=plugins' },
       { name: t("admin.tasks.title") || "Background Tasks", icon: "Activity", m: "admin", p: "tasks", path: "#mod=admin&page=tasks" },
       { name: t("admin.audit.title") || "Audit Logs", icon: "ClipboardList", m: "admin", p: "audit", path: "#mod=admin&page=audit" },
       { name: t("nav.settings"), icon: "Settings", m: "admin", p: "config", path: "#mod=admin&page=config" },
@@ -200,7 +232,7 @@ export const DashboardLayout: React.FC<{
             </p>
             {pluginNavItems
               .filter((item) => {
-                if (item.position && item.position !== 'sidebar') return false;
+                if (!isChatPluginNavItem(item) && item.position && item.position !== 'sidebar') return false;
                 if (item.visibility === 'admin-only' && !isAdmin) return false;
                 if (item.required_permission && !hasPermission(item.required_permission)) return false;
                 return true;

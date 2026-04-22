@@ -156,6 +156,11 @@ const AuditLogAdmin = lazy(() =>
     default: m.AuditLogAdmin,
   })),
 );
+const PluginAdmin = lazy(() =>
+  import("@/components/admin/components/PluginAdmin").then((m) => ({
+    default: m.PluginAdmin,
+  })),
+);
 const TaskAdmin = lazy(() =>
   import("@/components/admin/components/TaskAdmin").then((m) => ({
     default: m.TaskAdmin,
@@ -386,6 +391,12 @@ const PageRenderer: React.FC<{
         return (
           <DashboardLayout title={t("admin.tasks.title") || "Background Tasks"}>
             <TaskAdmin />
+          </DashboardLayout>
+        );
+      case "plugins":
+        return (
+          <DashboardLayout title={t('common.plugins', { defaultValue: 'Plugins' })}>
+            <PluginAdmin />
           </DashboardLayout>
         );
 
