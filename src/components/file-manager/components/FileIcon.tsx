@@ -3,10 +3,14 @@ import {
   BadgeInfo,
   Binary,
   Blocks,
+  Box,
   BookMarked,
   BookText,
   Braces,
   BrainCircuit,
+  ChartBar,
+  Component,
+  Container,
   Cpu,
   Database,
   Disc3,
@@ -14,8 +18,10 @@ import {
   FileAudio2,
   FileArchive,
   FileCode2,
+  FileCog,
   FileImage,
   FileJson,
+  FileLock2,
   FileQuestion,
   FileSpreadsheet,
   FileText,
@@ -29,17 +35,26 @@ import {
   HardDrive,
   Image,
   Layers,
+  Microchip,
   Music,
   Moon,
+  Network,
   PenTool,
   Package,
+  PackageOpen,
   Presentation,
   ScrollText,
+  Settings,
+  Shapes,
   Smartphone,
+  Spline,
   SquareFunction,
+  TableProperties,
   Terminal,
+  Waypoints,
   Workflow,
   CodeXml,
+  Zap,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -148,7 +163,9 @@ const renderIcon = (
 export const FileIcon = ({ name, isDir, size = 20 }: { name: string, isDir: boolean, size?: number }) => {
   if (isDir) return <Folder size={size} className="text-yellow-500 fill-yellow-500/20" />;
 
+  const lowerName = name.toLowerCase();
   const ext = name.split('.').pop()?.toLowerCase() || '';
+  const hasExtension = name.includes('.') && !name.endsWith('.');
 
   switch (ext) {
     case 'svg':
@@ -196,7 +213,7 @@ export const FileIcon = ({ name, isDir, size = 20 }: { name: string, isDir: bool
     case 'cfg':
     case 'env':
     case 'properties':
-      return renderIcon(FileText, size, 'text-slate-500');
+      return renderIcon(FileCog, size, 'text-slate-500');
     case 'tex':
     case 'latex':
       return renderIcon(FileType, size, 'text-blue-600');
@@ -250,10 +267,19 @@ export const FileIcon = ({ name, isDir, size = 20 }: { name: string, isDir: bool
       return renderIcon(Globe, size, 'text-violet-500');
     case 'py':
       return renderIcon(BrainCircuit, size, 'text-yellow-600');
+    case 'dart':
+      return renderIcon(Braces, size, 'text-sky-600');
     case 'rb':
       return renderIcon(Gem, size, 'text-red-500');
     case 'lua':
       return renderIcon(Moon, size, 'text-indigo-500');
+    case 'r':
+      return renderIcon(ChartBar, size, 'text-blue-600');
+    case 'pl':
+      return renderIcon(ScrollText, size, 'text-cyan-700');
+    case 'vb':
+    case 'vbs':
+      return renderIcon(FileCode2, size, 'text-indigo-700');
     case 'go':
       return renderIcon(Workflow, size, 'text-cyan-600');
     case 'rs':
@@ -263,6 +289,10 @@ export const FileIcon = ({ name, isDir, size = 20 }: { name: string, isDir: bool
     case 'kt':
     case 'kts':
       return renderIcon(SquareFunction, size, 'text-purple-500');
+    case 'scala':
+      return renderIcon(SquareFunction, size, 'text-rose-600');
+    case 'groovy':
+      return renderIcon(SquareFunction, size, 'text-cyan-700');
     case 'c':
     case 'h':
       return renderIcon(Cpu, size, 'text-slate-600');
@@ -276,6 +306,18 @@ export const FileIcon = ({ name, isDir, size = 20 }: { name: string, isDir: bool
       return renderIcon(Cpu, size, 'text-violet-600');
     case 'swift':
       return renderIcon(Cpu, size, 'text-orange-500');
+    case 'asm':
+    case 's':
+      return renderIcon(Microchip, size, 'text-zinc-700');
+    case 'zig':
+      return renderIcon(Zap, size, 'text-amber-600');
+    case 'nim':
+      return renderIcon(BadgeInfo, size, 'text-yellow-700');
+    case 'erl':
+      return renderIcon(Network, size, 'text-red-600');
+    case 'ex':
+    case 'exs':
+      return renderIcon(BrainCircuit, size, 'text-purple-600');
     case 'sh':
     case 'bash':
     case 'zsh':
@@ -290,6 +332,55 @@ export const FileIcon = ({ name, isDir, size = 20 }: { name: string, isDir: bool
     case 'db':
     case 'db3':
       return renderIcon(HardDrive, size, 'text-teal-600');
+    case 'fig':
+      return renderIcon(PenTool, size, 'text-purple-500');
+    case 'ai':
+      return renderIcon(DraftingCompass, size, 'text-orange-600');
+    case 'sketch':
+      return renderIcon(PenTool, size, 'text-amber-500');
+    case 'blend':
+      return renderIcon(Box, size, 'text-orange-500');
+    case '3ds':
+      return renderIcon(Shapes, size, 'text-violet-600');
+    case 'max':
+      return renderIcon(Box, size, 'text-emerald-600');
+    case 'obj':
+      return renderIcon(Component, size, 'text-slate-600');
+    case 'fbx':
+      return renderIcon(Spline, size, 'text-amber-600');
+    case 'glb':
+      return renderIcon(Container, size, 'text-sky-700');
+    case 'gltf':
+      return renderIcon(Waypoints, size, 'text-cyan-700');
+    case 'stl':
+      return renderIcon(Box, size, 'text-sky-600');
+    case 'step':
+    case 'stp':
+      return renderIcon(Box, size, 'text-teal-600');
+    case 'dwg':
+      return renderIcon(TableProperties, size, 'text-red-600');
+    case 'lock':
+      return renderIcon(FileLock2, size, 'text-amber-700');
+    case 'proto':
+      return renderIcon(Waypoints, size, 'text-blue-600');
+    case 'graphql':
+    case 'gql':
+      return renderIcon(Network, size, 'text-pink-600');
+    case 'prisma':
+      return renderIcon(PackageOpen, size, 'text-indigo-600');
+  }
+
+  if (!hasExtension) {
+    switch (lowerName) {
+      case 'dockerfile':
+        return renderIcon(Box, size, 'text-sky-500');
+      case 'caddyfile':
+        return renderIcon(Settings, size, 'text-emerald-600');
+      case 'makefile':
+        return renderIcon(Component, size, 'text-orange-600');
+      case 'justfile':
+        return renderIcon(Component, size, 'text-purple-600');
+    }
   }
 
   if (IMAGE_EXTENSIONS.has(ext)) return <Image size={size} className="text-blue-500" />;
