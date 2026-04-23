@@ -1,15 +1,24 @@
 import React from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import {
+  createReactBinaryThemeToggleComponent,
+  type ReactBinaryThemeToggleProps,
+} from '@fileuni/ts-shared/theme-toggle';
 
-import { THEME_TOGGLE_CLASSNAMES, getNextBinaryTheme } from '@/i18n/core';
+import { getNextBinaryTheme } from '@/i18n/core';
 import { useThemeStore } from '@/stores/theme';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
-import { cn } from '@/lib/utils';
 
 interface ThemeToggleButtonProps {
   className?: string | undefined;
 }
+
+const SharedThemeToggleButton = createReactBinaryThemeToggleComponent({
+  createElement: React.createElement as (...args: unknown[]) => unknown,
+  darkIconComponent: Sun,
+  lightIconComponent: Moon,
+}) as (props: ReactBinaryThemeToggleProps) => React.JSX.Element;
 
 export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({ className }) => {
   const { t } = useTranslation();
@@ -18,22 +27,11 @@ export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({ className 
   const isDark = resolvedTheme === 'dark';
 
   return (
-    <button
-      type="button"
-      onClick={() => setTheme(getNextBinaryTheme(isDark ? 'dark' : 'light'))}
-      className={cn(
-        THEME_TOGGLE_CLASSNAMES.button,
-        isDark ? THEME_TOGGLE_CLASSNAMES.dark : THEME_TOGGLE_CLASSNAMES.light,
-        className,
-      )}
-      aria-label={t('launcher.toggle_theme')}
-      title={t('launcher.toggle_theme')}
-    >
-      {isDark ? (
-        <Sun size={18} className="opacity-80 text-slate-200" />
-      ) : (
-        <Moon size={18} className="opacity-80 text-slate-900" />
-      )}
-    </button>
+    <SharedThemeToggleButton
+      isDark={isDark}
+      onToggle={() => setTheme(getNextBinaryTheme(isDark ? 'dark' : 'light'))}
+      buttonLabel={t('launcher.toggle_theme')}
+      className={className}
+    />
   );
 };
