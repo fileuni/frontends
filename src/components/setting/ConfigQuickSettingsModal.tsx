@@ -508,12 +508,14 @@ const getPreviewGroupLabel = (
       return t("admin.config.quickSettings.performance.preview.groups.allocator");
     case "vfs_storage_hub":
       return t("admin.config.quickSettings.performance.preview.groups.vfs");
-    case "file_manager_serv_sftp":
+    case "file_manager_sftp":
       return t("admin.config.quickSettings.performance.preview.groups.sftp");
-    case "file_manager_serv_ftp":
+    case "file_manager_ftp":
       return t("admin.config.quickSettings.performance.preview.groups.ftp");
-    case "file_manager_serv_s3":
+    case "file_manager_s3":
       return t("admin.config.quickSettings.performance.preview.groups.s3");
+    case "file_manager_webdav":
+      return t("admin.config.quickSettings.performance.features.webdav");
     case "chat_manager":
       return t("admin.config.quickSettings.performance.preview.groups.chat");
     case "email_manager":
@@ -1868,10 +1870,14 @@ export const applyDraftToConfig = (
     }
 
     const vfsHub = ensureRecord(next, "vfs_storage_hub");
-    vfsHub["enable_webdav"] = effectiveFeatures.webdav;
-    vfsHub["enable_sftp"] = effectiveFeatures.sftp;
-    vfsHub["enable_ftp"] = effectiveFeatures.ftp;
-    vfsHub["enable_s3"] = effectiveFeatures.s3;
+    const webdavConfig = ensureRecord(next, "file_manager_webdav");
+    webdavConfig["enabled"] = effectiveFeatures.webdav;
+    const sftpConfig = ensureRecord(next, "file_manager_sftp");
+    sftpConfig["enabled"] = effectiveFeatures.sftp;
+    const ftpConfig = ensureRecord(next, "file_manager_ftp");
+    ftpConfig["enabled"] = effectiveFeatures.ftp;
+    const s3Config = ensureRecord(next, "file_manager_s3");
+    s3Config["enabled"] = effectiveFeatures.s3;
     ensureVfsLocalStorageDefaults(vfsHub);
     const readCache = ensureRecord(vfsHub, "read_cache");
     readCache["enable"] = false;
@@ -1993,27 +1999,24 @@ export const applyDraftToConfig = (
     databaseHealthCheck["enabled"] = true;
     databaseHealthCheck["cron_expression"] = tuningPlan.scheduler.healthCheckCron;
 
-    const sftpServ = ensureRecord(next, "file_manager_serv_sftp");
-    sftpServ["max_connections"] = effectiveFeatures.sftp
+    sftpConfig["max_connections"] = effectiveFeatures.sftp
       ? draft.performanceTier === "performance"
         ? 100
         : 20
       : 1;
-    sftpServ["worker_threads"] = effectiveFeatures.sftp
+    sftpConfig["worker_threads"] = effectiveFeatures.sftp
       ? draft.performanceTier === "performance"
         ? 4
         : 2
       : 1;
 
-    const ftpServ = ensureRecord(next, "file_manager_serv_ftp");
-    ftpServ["max_connections"] = effectiveFeatures.ftp
+    ftpConfig["max_connections"] = effectiveFeatures.ftp
       ? draft.performanceTier === "performance"
         ? 100
         : 20
       : 1;
 
-    const s3Serv = ensureRecord(next, "file_manager_serv_s3");
-    s3Serv["max_connections"] = effectiveFeatures.s3
+    s3Config["max_connections"] = effectiveFeatures.s3
       ? draft.performanceTier === "performance"
         ? 100
         : 20
@@ -2460,10 +2463,10 @@ export const ConfigQuickSettingsModal: React.FC<
         : 2,
     );
 
-    pushItem("vfs_storage_hub.enable_webdav", currentPreset.features.webdav);
-    pushItem("vfs_storage_hub.enable_sftp", currentPreset.features.sftp);
-    pushItem("vfs_storage_hub.enable_ftp", currentPreset.features.ftp);
-    pushItem("vfs_storage_hub.enable_s3", currentPreset.features.s3);
+    pushItem("file_manager_webdav.enabled", currentPreset.features.webdav);
+    pushItem("file_manager_sftp.enabled", currentPreset.features.sftp);
+    pushItem("file_manager_ftp.enabled", currentPreset.features.ftp);
+    pushItem("file_manager_s3.enabled", currentPreset.features.s3);
     pushItem(
       "vfs_storage_hub.max_concurrent_tasks",
       previewTuningPlan.vfsBatchMaxConcurrentTasks,
@@ -2663,7 +2666,7 @@ export const ConfigQuickSettingsModal: React.FC<
     );
 
     pushItem(
-      "file_manager_serv_sftp.max_connections",
+      "file_manager_sftp.max_connections",
       currentPreset.features.sftp
         ? previewDraft.performanceTier === "performance"
           ? 100
@@ -2671,7 +2674,7 @@ export const ConfigQuickSettingsModal: React.FC<
         : 1,
     );
     pushItem(
-      "file_manager_serv_sftp.worker_threads",
+      "file_manager_sftp.worker_threads",
       currentPreset.features.sftp
         ? previewDraft.performanceTier === "performance"
           ? 4
@@ -2679,7 +2682,7 @@ export const ConfigQuickSettingsModal: React.FC<
         : 1,
     );
     pushItem(
-      "file_manager_serv_ftp.max_connections",
+      "file_manager_ftp.max_connections",
       currentPreset.features.ftp
         ? previewDraft.performanceTier === "performance"
           ? 100
@@ -2687,7 +2690,7 @@ export const ConfigQuickSettingsModal: React.FC<
         : 1,
     );
     pushItem(
-      "file_manager_serv_s3.max_connections",
+      "file_manager_s3.max_connections",
       currentPreset.features.s3
         ? previewDraft.performanceTier === "performance"
           ? 100

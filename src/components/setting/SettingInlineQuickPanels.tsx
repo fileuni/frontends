@@ -289,6 +289,10 @@ const readFeatureToggleStateFromConfig = (
   const bloomFilterWarmup = asRecord(taskRegistry["bloom_filter_warmup"]);
   const chatManager = asRecord(source["chat_manager"]);
   const emailManager = asRecord(source["email_manager"]);
+  const webdavConfig = asRecord(source["file_manager_webdav"]);
+  const sftpConfig = asRecord(source["file_manager_sftp"]);
+  const ftpConfig = asRecord(source["file_manager_ftp"]);
+  const s3Config = asRecord(source["file_manager_s3"]);
 
   return {
     compression:
@@ -296,9 +300,17 @@ const readFeatureToggleStateFromConfig = (
         ? fileCompress["enable"]
         : fallback.compression,
     sftp:
-      typeof vfs["enable_sftp"] === "boolean" ? vfs["enable_sftp"] : fallback.sftp,
-    ftp: typeof vfs["enable_ftp"] === "boolean" ? vfs["enable_ftp"] : fallback.ftp,
-    s3: typeof vfs["enable_s3"] === "boolean" ? vfs["enable_s3"] : fallback.s3,
+      typeof sftpConfig["enabled"] === "boolean"
+        ? sftpConfig["enabled"]
+        : fallback.sftp,
+    ftp:
+      typeof ftpConfig["enabled"] === "boolean"
+        ? ftpConfig["enabled"]
+        : fallback.ftp,
+    s3:
+      typeof s3Config["enabled"] === "boolean"
+        ? s3Config["enabled"]
+        : fallback.s3,
     chat:
       typeof chatManager["enabled"] === "boolean"
         ? chatManager["enabled"]
@@ -308,8 +320,8 @@ const readFeatureToggleStateFromConfig = (
         ? emailManager["enabled"]
         : fallback.email,
     webdav:
-      typeof vfs["enable_webdav"] === "boolean"
-        ? vfs["enable_webdav"]
+      typeof webdavConfig["enabled"] === "boolean"
+        ? webdavConfig["enabled"]
         : fallback.webdav,
     bloomWarmup:
       typeof bloomFilterWarmup["enabled"] === "boolean"
@@ -330,48 +342,51 @@ const applyFeatureToggleStateToConfig = (
   const bloomFilterWarmup = ensureRecord(taskRegistry, "bloom_filter_warmup");
   const chatManager = ensureRecord(next, "chat_manager");
   const emailManager = ensureRecord(next, "email_manager");
-  const sftpServ = ensureRecord(next, "file_manager_serv_sftp");
-  const ftpServ = ensureRecord(next, "file_manager_serv_ftp");
-  const s3Serv = ensureRecord(next, "file_manager_serv_s3");
+  const webdavConfig = ensureRecord(next, "file_manager_webdav");
+  const sftpConfig = ensureRecord(next, "file_manager_sftp");
+  const ftpConfig = ensureRecord(next, "file_manager_ftp");
+  const s3Config = ensureRecord(next, "file_manager_s3");
 
-  vfs["enable_webdav"] = toggles.webdav;
-  vfs["enable_sftp"] = toggles.sftp;
-  vfs["enable_ftp"] = toggles.ftp;
-  vfs["enable_s3"] = toggles.s3;
+  webdavConfig["enabled"] = toggles.webdav;
+  sftpConfig["enabled"] = toggles.sftp;
+  ftpConfig["enabled"] = toggles.ftp;
+  s3Config["enabled"] = toggles.s3;
   fileCompress["enable"] = toggles.compression;
   bloomFilterWarmup["enabled"] = toggles.bloomWarmup;
   chatManager["enabled"] = toggles.chat;
   emailManager["enabled"] = toggles.email;
 
   if (!toggles.sftp) {
-    sftpServ["max_connections"] = 1;
-    sftpServ["worker_threads"] = 1;
+    sftpConfig["max_connections"] = 1;
+    sftpConfig["worker_threads"] = 1;
   } else if (
-    typeof sftpServ["max_connections"] !== "number" ||
-    sftpServ["max_connections"] <= 1
+    typeof sftpConfig["max_connections"] !== "number" ||
+    sftpConfig["max_connections"] <= 1
   ) {
-    sftpServ["max_connections"] =
+    sftpConfig["max_connections"] =
       draft.performanceTier === "performance" ? 100 : 20;
-    sftpServ["worker_threads"] = draft.performanceTier === "performance" ? 4 : 2;
+    sftpConfig["worker_threads"] =
+      draft.performanceTier === "performance" ? 4 : 2;
   }
 
   if (!toggles.ftp) {
-    ftpServ["max_connections"] = 1;
+    ftpConfig["max_connections"] = 1;
   } else if (
-    typeof ftpServ["max_connections"] !== "number" ||
-    ftpServ["max_connections"] <= 1
+    typeof ftpConfig["max_connections"] !== "number" ||
+    ftpConfig["max_connections"] <= 1
   ) {
-    ftpServ["max_connections"] =
+    ftpConfig["max_connections"] =
       draft.performanceTier === "performance" ? 100 : 20;
   }
 
   if (!toggles.s3) {
-    s3Serv["max_connections"] = 1;
+    s3Config["max_connections"] = 1;
   } else if (
-    typeof s3Serv["max_connections"] !== "number" ||
-    s3Serv["max_connections"] <= 1
+    typeof s3Config["max_connections"] !== "number" ||
+    s3Config["max_connections"] <= 1
   ) {
-    s3Serv["max_connections"] = draft.performanceTier === "performance" ? 100 : 20;
+    s3Config["max_connections"] =
+      draft.performanceTier === "performance" ? 100 : 20;
   }
 
   return next;
@@ -526,9 +541,9 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
         const middleware = asRecord(source["middleware"]);
         const bruteForce = asRecord(middleware["brute_force"]);
         const captcha = asRecord(source["captcha_code"]);
-        const sftpServ = asRecord(source["file_manager_serv_sftp"]);
-        const ftpServ = asRecord(source["file_manager_serv_ftp"]);
-        const s3Serv = asRecord(source["file_manager_serv_s3"]);
+        const sftpConfig = asRecord(source["file_manager_sftp"]);
+        const ftpConfig = asRecord(source["file_manager_ftp"]);
+        const s3Config = asRecord(source["file_manager_s3"]);
         return [
           {
             label: t("admin.config.quickSettings.performance.preview.dbPool"),
@@ -567,22 +582,22 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
             label: t(
               "admin.config.quickSettings.performance.preview.sftpMaxConnections",
             ),
-            path: "file_manager_serv_sftp.max_connections",
-            value: displayValue(sftpServ["max_connections"]),
+            path: "file_manager_sftp.max_connections",
+            value: displayValue(sftpConfig["max_connections"]),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.ftpMaxConnections",
             ),
-            path: "file_manager_serv_ftp.max_connections",
-            value: displayValue(ftpServ["max_connections"]),
+            path: "file_manager_ftp.max_connections",
+            value: displayValue(ftpConfig["max_connections"]),
           },
           {
             label: t(
               "admin.config.quickSettings.performance.preview.s3MaxConnections",
             ),
-            path: "file_manager_serv_s3.max_connections",
-            value: displayValue(s3Serv["max_connections"]),
+            path: "file_manager_s3.max_connections",
+            value: displayValue(s3Config["max_connections"]),
           },
         ];
       },
@@ -813,9 +828,22 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
         path: "middleware.user_id_rate_limit.max_userid",
         value: userRate["max_userid"],
       },
-      { path: "vfs_storage_hub.enable_s3", value: vfs["enable_s3"] },
-      { path: "vfs_storage_hub.enable_sftp", value: vfs["enable_sftp"] },
-      { path: "vfs_storage_hub.enable_ftp", value: vfs["enable_ftp"] },
+      {
+        path: "file_manager_webdav.enabled",
+        value: asRecord(cfg["file_manager_webdav"])["enabled"],
+      },
+      {
+        path: "file_manager_s3.enabled",
+        value: asRecord(cfg["file_manager_s3"])["enabled"],
+      },
+      {
+        path: "file_manager_sftp.enabled",
+        value: asRecord(cfg["file_manager_sftp"])["enabled"],
+      },
+      {
+        path: "file_manager_ftp.enabled",
+        value: asRecord(cfg["file_manager_ftp"])["enabled"],
+      },
       { path: "extension_manager.plus.enabled", value: plus["enabled"] },
       { path: "extension_manager.plus.capture_logs", value: plus["capture_logs"] },
       {
@@ -856,16 +884,16 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
         value: asRecord(cfg["safeaccess_guard"])["bloom_filter_capacity"],
       },
       {
-        path: "file_manager_serv_sftp.max_connections",
-        value: asRecord(cfg["file_manager_serv_sftp"])["max_connections"],
+        path: "file_manager_sftp.max_connections",
+        value: asRecord(cfg["file_manager_sftp"])["max_connections"],
       },
       {
-        path: "file_manager_serv_ftp.max_connections",
-        value: asRecord(cfg["file_manager_serv_ftp"])["max_connections"],
+        path: "file_manager_ftp.max_connections",
+        value: asRecord(cfg["file_manager_ftp"])["max_connections"],
       },
       {
-        path: "file_manager_serv_s3.max_connections",
-        value: asRecord(cfg["file_manager_serv_s3"])["max_connections"],
+        path: "file_manager_s3.max_connections",
+        value: asRecord(cfg["file_manager_s3"])["max_connections"],
       },
     ].filter((item): item is ConfigItem => item.value !== undefined);
   }, [parsed.value]);
@@ -899,14 +927,17 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
       task_registry: t(
         "admin.config.quickSettings.performance.preview.groups.scheduler",
       ),
-      file_manager_serv_sftp: t(
+      file_manager_sftp: t(
         "admin.config.quickSettings.performance.preview.groups.sftp",
       ),
-      file_manager_serv_ftp: t(
+      file_manager_ftp: t(
         "admin.config.quickSettings.performance.preview.groups.ftp",
       ),
-      file_manager_serv_s3: t(
+      file_manager_s3: t(
         "admin.config.quickSettings.performance.preview.groups.s3",
+      ),
+      file_manager_webdav: t(
+        "admin.config.quickSettings.performance.features.webdav",
       ),
       chat_manager: t(
         "admin.config.quickSettings.performance.preview.groups.chat",
@@ -982,12 +1013,12 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
 
   const featureKeyToConfigPath: Record<FeatureToggleKey, string> = {
     compression: "vfs_storage_hub.file_compress.enable",
-    sftp: "vfs_storage_hub.enable_sftp",
-    ftp: "vfs_storage_hub.enable_ftp",
-    s3: "vfs_storage_hub.enable_s3",
+    sftp: "file_manager_sftp.enabled",
+    ftp: "file_manager_ftp.enabled",
+    s3: "file_manager_s3.enabled",
     chat: "chat_manager.enabled",
     email: "email_manager.enabled",
-    webdav: "vfs_storage_hub.enable_webdav",
+    webdav: "file_manager_webdav.enabled",
     bloomWarmup: "task_registry.bloom_filter_warmup.enabled",
   };
 
