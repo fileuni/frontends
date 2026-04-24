@@ -713,7 +713,6 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
     const cfg: ConfigObject = parsed.value ?? {};
     const database = asRecord(cfg["database"]);
     const kv = asRecord(cfg["fast_kv_storage_hub"]);
-    const vfs = asRecord(cfg["vfs_storage_hub"]);
     const extensionManager = asRecord(cfg["extension_manager"]);
     const plus = asRecord(extensionManager["plus"]);
     const captcha = asRecord(cfg["captcha_code"]);
