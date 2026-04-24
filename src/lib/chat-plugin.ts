@@ -1,6 +1,9 @@
 import { useAuthStore } from '@/stores/auth.ts';
 import { buildPluginViewHash, CHAT_PLUGIN_ID } from '@/lib/plugin-nav.ts';
 
+const CHAT_PLUGIN_CHECK_TTL_MS = 60_000;
+const chatPluginInstallCache = new Map<string, { installed: boolean; expiresAt: number }>();
+
 export interface ChatRoomSummary {
   id: string;
   name: string;
@@ -33,6 +36,13 @@ export async function fetchChatPluginRooms(pluginId = CHAT_PLUGIN_ID): Promise<C
   });
 
   if (!response.ok) {
+    if (response.status === 404) {
+      chatPluginInstallCache.set(pluginId, {
+        installed: false,
+        expiresAt: Date.now() + CHAT_PLUGIN_CHECK_TTL_MS,
+      });
+      return [];
+    }
     throw new Error(`chat room request failed with status ${response.status}`);
   }
 
@@ -46,13 +56,26 @@ export async function isChatPluginInstalled(pluginId = CHAT_PLUGIN_ID): Promise<
     return false;
   }
 
+  const now = Date.now();
+  const cached = chatPluginInstallCache.get(pluginId);
+  if (cached && cached.expiresAt > now) {
+    return cached.installed;
+  }
+
   const response = await fetch(`/api/v1/plugins/${encodeURIComponent(pluginId)}/ui`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
     credentials: 'same-origin',
   });
-  return response.ok;
+  const installed = response.ok;
+  if (installed || response.status === 404) {
+    chatPluginInstallCache.set(pluginId, {
+      installed,
+      expiresAt: now + CHAT_PLUGIN_CHECK_TTL_MS,
+    });
+  }
+  return installed;
 }
 
 export function buildChatViewHash(

@@ -14,6 +14,11 @@ const TOKEN_TTL_MS = 55 * 60 * 1000;
 const tokenCache = new Map<string, { token: string; expiresAt: number }>();
 const tokenPromiseCache = new Map<string, Promise<string>>();
 
+export const invalidateFileDownloadToken = (path: string): void => {
+  tokenCache.delete(path);
+  tokenPromiseCache.delete(path);
+};
+
 const normalizeBaseUrl = (baseUrl: string): string => {
   return baseUrl.length === 0 ? '' : baseUrl.replace(/\/+$/, '');
 };
