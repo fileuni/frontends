@@ -5394,6 +5394,13 @@ export interface components {
             enable_email_manager: boolean;
             enable_embedded_websocket: boolean;
             enable_ftp: boolean;
+            /** Format: int32 */
+            ftp_passive_ports_end?: number | null;
+            /** Format: int32 */
+            ftp_passive_ports_start?: number | null;
+            ftp_passive_host?: string | null;
+            /** Format: int32 */
+            ftp_port?: number | null;
             enable_google_viewer: boolean;
             enable_latexjs: boolean;
             enable_latexmk: boolean;
@@ -5406,6 +5413,8 @@ export interface components {
             enable_registration: boolean;
             enable_s3: boolean;
             enable_sftp: boolean;
+            /** Format: int32 */
+            sftp_port?: number | null;
             enable_video_transcoding: boolean;
             enable_webdav: boolean;
             enable_wopi: boolean;
@@ -5425,6 +5434,7 @@ export interface components {
             s3_port?: number | null;
             s3_use_https?: boolean | null;
             thumbnail: components["schemas"]["ThumbnailCapabilities"];
+            webdav_path?: string | null;
         };
         /** @enum {string} */
         TargetType: "Phone" | "Email" | "Graphic";
