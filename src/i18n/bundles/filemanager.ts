@@ -337,14 +337,19 @@ const filemanagerBundle = defineLocaleBundle({
             "rootBlockedNotice": "Este directorio es una asignacion de montaje remoto. Renombrelo, muevalo o elimínelo desde Montajes en lugar de tratarlo aqui como una carpeta normal.",
             "remoteDeleteNotice": "Eliminar archivos aqui omitira la papelera y los borrara permanentemente del servidor remoto."
         },
+        "settings": {
+            "thumbnailTitle": "Thumbnail Settings",
+            "protocolsTitle": "File Protocol Access",
+            "protocolsDesc": "Review each enabled protocol, its access address, and the sign-in method for your account."
+        },
         "thumbnail": {
             "clearDir": "Clear Folder Thumbnails",
             "clearAll": "Clear All Thumbnails",
             "clearAllUsers": "Clear All Users Thumbnails",
             "disable": "Disable Folder Thumbnails",
             "enable": "Enable Folder Thumbnails",
-            "settingsTitle": "Thumbnail Settings",
-            "settingsDesc": "Enable or disable thumbnails by file type.",
+            "settingsTitle": "File Management Settings",
+            "settingsDesc": "Adjust thumbnail behavior and review the file protocol access methods available for this account.",
             "noTypes": "No thumbnail types available.",
             "types": {
                 "image": "Images",
@@ -937,14 +942,19 @@ const filemanagerBundle = defineLocaleBundle({
             "rootBlockedNotice": "这是一个远程挂载映射目录；重命名、移动或删除都应在挂载管理中处理，而不是按普通文件夹操作。",
             "remoteDeleteNotice": "在此处删除文件将绕过回收站，并永久从远程服务器中移除。"
         },
+        "settings": {
+            "thumbnailTitle": "缩略图设置",
+            "protocolsTitle": "文件协议访问",
+            "protocolsDesc": "查看已启用协议的访问地址与当前账号可用的登录方式。"
+        },
         "thumbnail": {
             "clearDir": "清理本目录缩略图",
             "clearAll": "清理全部缩略图",
             "clearAllUsers": "清理所有用户缩略图",
             "disable": "禁用本目录缩略图",
             "enable": "启用本目录缩略图",
-            "settingsTitle": "缩略图设置",
-            "settingsDesc": "按文件类型启用或关闭缩略图。",
+            "settingsTitle": "文件管理设置",
+            "settingsDesc": "管理缩略图开关，并查看当前账号可用的文件协议访问方式。",
             "noTypes": "暂无可用的缩略图类型。",
             "types": {
                 "image": "图片",
@@ -1537,14 +1547,19 @@ const filemanagerBundle = defineLocaleBundle({
             "rootBlockedNotice": "Este directorio corresponde a un montaje remoto. Renómbrelo, muévalo o elimínelo desde Montajes en lugar de tratarlo aquí como una carpeta normal.",
             "remoteDeleteNotice": "Eliminar archivos aquí omitirá la papelera y los borrará permanentemente del servidor remoto."
         },
+        "settings": {
+            "thumbnailTitle": "Ajustes de miniaturas",
+            "protocolsTitle": "Acceso a protocolos de archivos",
+            "protocolsDesc": "Revise cada protocolo habilitado, su dirección de acceso y el método de inicio de sesión disponible para su cuenta."
+        },
         "thumbnail": {
             "clearDir": "Borrar miniaturas de la carpeta",
             "clearAll": "Borrar todas las miniaturas",
             "clearAllUsers": "Borrar miniaturas de todos los usuarios",
             "disable": "Deshabilitar miniaturas de la carpeta",
             "enable": "Habilitar miniaturas de la carpeta",
-            "settingsTitle": "Ajustes de miniaturas",
-            "settingsDesc": "Habilite o deshabilite miniaturas por tipo de archivo.",
+            "settingsTitle": "Configuración del gestor de archivos",
+            "settingsDesc": "Ajuste las miniaturas y revise los métodos de acceso de protocolos de archivos disponibles para esta cuenta.",
             "noTypes": "No hay tipos de miniaturas disponibles.",
             "types": {
                 "image": "Imágenes",
@@ -2137,14 +2152,19 @@ const filemanagerBundle = defineLocaleBundle({
             "rootBlockedNotice": "Dieses Verzeichnis gehört zu einer Remote-Bereitstellung. Benennen, verschieben oder löschen Sie es unter Bereitstellungen, statt es hier wie einen normalen Ordner zu behandeln.",
             "remoteDeleteNotice": "Wenn Sie Dateien hier löschen, wird der Papierkorb übersprungen und die Dateien dauerhaft vom entfernten Server entfernt."
         },
+        "settings": {
+            "thumbnailTitle": "Thumbnail Settings",
+            "protocolsTitle": "Dateiprotokollzugang",
+            "protocolsDesc": "Prüfen Sie jedes aktivierte Protokoll, seine Zugriffsadresse und die für Ihr Konto verfügbare Anmeldemethode."
+        },
         "thumbnail": {
             "clearDir": "Clear Folder Thumbnails",
             "clearAll": "Clear All Thumbnails",
             "clearAllUsers": "Clear All Users Thumbnails",
             "disable": "Disable Folder Thumbnails",
             "enable": "Enable Folder Thumbnails",
-            "settingsTitle": "Thumbnail Settings",
-            "settingsDesc": "Enable or disable thumbnails by file type.",
+            "settingsTitle": "Dateiverwaltungseinstellungen",
+            "settingsDesc": "Passen Sie das Thumbnail-Verhalten an und prüfen Sie die für dieses Konto verfügbaren Dateiprotokoll-Zugänge.",
             "noTypes": "No thumbnail types available.",
             "types": {
                 "image": "Images",
@@ -2737,14 +2757,19 @@ const filemanagerBundle = defineLocaleBundle({
             "rootBlockedNotice": "Ce dossier correspond à un montage distant. Renommez-le, déplacez-le ou supprimez-le depuis Montages au lieu de le traiter ici comme un dossier normal.",
             "remoteDeleteNotice": "Supprimer des fichiers ici contournera la corbeille et les supprimera définitivement du serveur distant."
         },
+        "settings": {
+            "thumbnailTitle": "Paramètres des miniatures",
+            "protocolsTitle": "Accès aux protocoles de fichiers",
+            "protocolsDesc": "Consultez chaque protocole activé, son adresse d'accès et la méthode de connexion disponible pour ce compte."
+        },
         "thumbnail": {
             "clearDir": "Effacer les miniatures du dossier",
             "clearAll": "Effacer toutes les miniatures",
             "clearAllUsers": "Effacer les miniatures de tous les utilisateurs",
             "disable": "Désactiver les miniatures du dossier",
             "enable": "Activer les miniatures du dossier",
-            "settingsTitle": "Paramètres des miniatures",
-            "settingsDesc": "Activer ou désactiver les miniatures par type de fichier.",
+            "settingsTitle": "Paramètres du gestionnaire de fichiers",
+            "settingsDesc": "Ajustez les miniatures et consultez les méthodes d'accès aux protocoles de fichiers disponibles pour ce compte.",
             "noTypes": "Aucun type de miniature disponible.",
             "types": {
                 "image": "Fichiers image",
@@ -3337,14 +3362,19 @@ const filemanagerBundle = defineLocaleBundle({
             "rootBlockedNotice": "Этот каталог соответствует удаленному подключению. Переименуйте, переместите или удалите его через Подключения, а не работайте с ним здесь как с обычной папкой.",
             "remoteDeleteNotice": "Удаление файлов здесь обойдет корзину и окончательно удалит их с удаленного сервера."
         },
+        "settings": {
+            "thumbnailTitle": "Настройки миниатюр",
+            "protocolsTitle": "Доступ по файловым протоколам",
+            "protocolsDesc": "Просмотрите каждый включенный протокол, его адрес доступа и способ входа, доступный для этой учетной записи."
+        },
         "thumbnail": {
             "clearDir": "Очистить миниатюры папки",
             "clearAll": "Очистить все миниатюры",
             "clearAllUsers": "Очистить миниатюры всех пользователей",
             "disable": "Отключить миниатюры папки",
             "enable": "Включить миниатюры папки",
-            "settingsTitle": "Настройки миниатюр",
-            "settingsDesc": "Включайте или отключайте миниатюры по типу файла.",
+            "settingsTitle": "Настройки файлового менеджера",
+            "settingsDesc": "Настройте миниатюры и просмотрите доступные для этой учетной записи способы доступа по файловым протоколам.",
             "noTypes": "Нет доступных типов миниатюр.",
             "types": {
                 "image": "Изображения",
@@ -3937,14 +3967,19 @@ const filemanagerBundle = defineLocaleBundle({
             "rootBlockedNotice": "このディレクトリはリモートマウントの割り当て先です。ここで通常のフォルダとして扱わず、マウントから名前変更、移動、削除を行ってください。",
             "remoteDeleteNotice": "ここでファイルを削除するとゴミ箱を経由せず、リモートサーバーから完全に削除されます。"
         },
+        "settings": {
+            "thumbnailTitle": "サムネイル設定",
+            "protocolsTitle": "ファイルプロトコルアクセス",
+            "protocolsDesc": "有効な各プロトコル、そのアクセス先アドレス、このアカウントで使えるサインイン方法を確認します。"
+        },
         "thumbnail": {
             "clearDir": "このフォルダのサムネイルをクリア",
             "clearAll": "すべてのサムネイルをクリア",
             "clearAllUsers": "全ユーザーのサムネイルをクリア",
             "disable": "フォルダサムネイルを無効化",
             "enable": "フォルダサムネイルを有効化",
-            "settingsTitle": "サムネイル設定",
-            "settingsDesc": "ファイル種類ごとにサムネイルを有効/無効にします。",
+            "settingsTitle": "ファイル管理設定",
+            "settingsDesc": "サムネイル設定を調整し、このアカウントで利用できるファイルプロトコルのアクセス方法を確認します。",
             "noTypes": "利用可能なサムネイル種別がありません。",
             "types": {
                 "image": "画像",

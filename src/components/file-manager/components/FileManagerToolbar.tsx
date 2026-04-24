@@ -4,7 +4,6 @@ import '@/lib/i18n';
 import { useFileStore } from '../store/useFileStore.ts';
 import { useThemeStore } from '@/stores/theme';
 import { useConfigStore } from '@/stores/config.ts';
-import { useUserFileSettingsStore, type UserFileSettingsUpdate } from '@/stores/userFileSettings.ts';
 import { useAuthzStore } from '@/stores/authz.ts';
 import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { 
@@ -14,13 +13,12 @@ import {
   HelpCircle, Image, Trash2, Settings, Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
-import { Modal } from '@/components/ui/Modal.tsx';
-import { Switch } from '@/components/ui/Switch.tsx';
 import { RemoteMountManagerModal } from './RemoteMountManagerModal.tsx';
 import { SearchModal } from './SearchModal.tsx';
 import { UploadModal } from './UploadModal.tsx';
 import { ShortcutsHelpModal } from './ShortcutsHelpModal.tsx';
 import { ProtectedStorageModal } from './ProtectedStorageModal.tsx';
+import { FileManagerSettingsModal } from './FileManagerSettingsModal.tsx';
 import { SortMenu } from './SortMenu.tsx';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import { cn } from '@/lib/utils.ts';
@@ -33,7 +31,6 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
   const store = useFileStore();
   const { capabilities } = useConfigStore();
   const { syncFromCapabilities, fetchStatus, status: protectedStatus } = useProtectedStorageStore();
-  const { settings, fetchSettings, updateSettings, isLoading: settingsLoading } = useUserFileSettingsStore();
   const { hasPermission } = useAuthzStore();
   const { 
     setViewMode, loading,
@@ -57,7 +54,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
   const [showMountModal, setShowMountModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showNewMenu, setShowNewMenu] = useState(false);
-  const [showThumbnailSettings, setShowThumbnailSettings] = useState(false);
+  const [showFileManagerSettings, setShowFileManagerSettings] = useState(false);
   const [showProtectedStorage, setShowProtectedStorage] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -79,9 +76,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
   const canModify = fmMode === 'files';
   const enableThumbnails = capabilities?.thumbnail?.enabled === true;
   const isAdmin = hasPermission("admin.access");
-  const thumbCaps = capabilities?.thumbnail;
   const protectedMode = capabilities?.protected_storage?.global_mode || 'disabled';
-  const toggleDisabled = settingsLoading || !settings;
   const mountContext = currentPathMountContextFromFiles(currentPath, store.files);
   const disableThumbnailForCurrentPath = shouldDisableThumbnailForPath(currentPath, protectedStatus);
   const currentPathProtected = pathMatchesProtectedRoot(currentPath, protectedStatus?.protected_root);
@@ -145,18 +140,6 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
     "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-colors text-left",
     isDark ? "text-white/80 hover:bg-white/5" : "text-gray-700 hover:bg-gray-100"
   );
-
-  const toggleItems: { key: keyof UserFileSettingsUpdate; label: string; enabled: boolean }[] = [
-    { key: 'thumbnail_disable_image', label: t('filemanager.thumbnail.types.image') || 'Images', enabled: thumbCaps?.image === true },
-    { key: 'thumbnail_disable_video', label: t('filemanager.thumbnail.types.video') || 'Videos', enabled: thumbCaps?.video === true },
-    { key: 'thumbnail_disable_pdf', label: t('filemanager.thumbnail.types.pdf') || 'PDF', enabled: thumbCaps?.pdf === true },
-    { key: 'thumbnail_disable_office', label: t('filemanager.thumbnail.types.office') || 'Office', enabled: thumbCaps?.office === true },
-    { key: 'thumbnail_disable_text', label: t('filemanager.thumbnail.types.text') || 'Text', enabled: thumbCaps?.text === true },
-    { key: 'thumbnail_disable_markdown', label: t('filemanager.thumbnail.types.markdown') || 'Markdown', enabled: thumbCaps?.text === true },
-    { key: 'thumbnail_disable_tex', label: t('filemanager.thumbnail.types.tex') || 'LaTeX', enabled: thumbCaps?.tex === true },
-  ];
-
-  const visibleToggleItems = toggleItems.filter((item) => item.enabled);
 
   return (
     <>
@@ -315,12 +298,12 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
             </Button>
           )}
 
-          {enableThumbnails && (
+          {fmMode === 'files' && (
             <Button
               variant="ghost"
-              onClick={() => { setShowThumbnailSettings(true); fetchSettings(); }}
-              aria-label="Open thumbnail settings"
-              title={t('filemanager.thumbnail.settingsTitle') || 'Thumbnail Settings'}
+              onClick={() => setShowFileManagerSettings(true)}
+              aria-label="Open file manager settings"
+              title={t('filemanager.thumbnail.settingsTitle') || 'File Management Settings'}
               className="p-2 h-10 w-10 rounded-xl border border-white/5 transition-all opacity-40 hover:opacity-100 shrink-0"
             >
               <Settings size={18} />
@@ -506,40 +489,10 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
         onClose={() => setShowHelpModal(false)}
       />
 
-      <Modal
-        isOpen={showThumbnailSettings}
-        onClose={() => setShowThumbnailSettings(false)}
-        title={t('filemanager.thumbnail.settingsTitle') || 'Thumbnail Settings'}
-        maxWidth="max-w-lg"
-      >
-        <div className="space-y-4">
-          <p className="text-sm opacity-60">
-            {t('filemanager.thumbnail.settingsDesc') || 'Enable or disable thumbnails by file type.'}
-          </p>
-          <div className="space-y-3">
-            {visibleToggleItems.map((item) => {
-              const rawValue = settings?.[item.key];
-              const disabledValue = typeof rawValue === 'boolean' ? rawValue : false;
-              const checked = !disabledValue;
-              return (
-                <div key={item.key as string} className="flex items-center justify-between gap-4 rounded-xl border border-white/5 px-3 py-2">
-                  <div className="text-sm font-bold tracking-widest opacity-70">
-                    {item.label}
-                  </div>
-                  <Switch
-                    checked={checked}
-                    disabled={toggleDisabled}
-                    onChange={(val) => updateSettings({ [item.key]: !val } as UserFileSettingsUpdate)}
-                  />
-                </div>
-              );
-            })}
-            {visibleToggleItems.length === 0 && (
-              <div className="text-sm opacity-50">{t('filemanager.thumbnail.noTypes') || 'No thumbnail types available.'}</div>
-            )}
-          </div>
-        </div>
-      </Modal>
+      <FileManagerSettingsModal
+        isOpen={showFileManagerSettings}
+        onClose={() => setShowFileManagerSettings(false)}
+      />
 
       <ProtectedStorageModal
         isOpen={showProtectedStorage}

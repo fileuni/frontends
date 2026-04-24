@@ -4,9 +4,15 @@ import { client, extractData } from "@/lib/api";
 let userSettingsPromise: Promise<UserFileSettings | null> | null = null;
 
 export interface UserFileSettings {
+  user_id?: string;
   pool_name?: string;
+  base_dir?: string;
+  storage_type?: string;
   storage_quota?: number;
   storage_used?: number;
+  sftp_enable_password?: boolean;
+  s3_access_key?: string | null;
+  s3_secret_key?: string | null;
   thumbnail_disable_text: boolean;
   thumbnail_disable_markdown: boolean;
   thumbnail_disable_pdf: boolean;
