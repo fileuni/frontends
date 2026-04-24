@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import {
+  ChevronDown,
   Cloud,
   Copy,
   Eye,
   EyeOff,
   HardDrive,
+  Info,
   KeyRound,
   RefreshCw,
   Server,
@@ -12,8 +14,8 @@ import {
   Trash2,
   Upload,
 } from 'lucide-react';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { useTranslation } from 'react-i18next';
-import { Modal } from '@/components/ui/Modal.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
 import { client, extractData } from '@/lib/api.ts';
@@ -106,6 +108,7 @@ export const FileManagerSettingsModal = ({
   const [removingKeyId, setRemovingKeyId] = useState<string | null>(null);
   const [regeneratingS3, setRegeneratingS3] = useState(false);
   const [sshKeyDraft, setSshKeyDraft] = useState('');
+  const [openProtocolKey, setOpenProtocolKey] = useState<'webdav' | 'ftp' | 'sftp' | 's3'>('webdav');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const modalTitle = resolveText(
@@ -113,15 +116,15 @@ export const FileManagerSettingsModal = ({
     'filemanager.thumbnail.settingsTitle',
     'File Management Settings',
   );
-  const modalDesc = resolveText(
-    t,
-    'filemanager.thumbnail.settingsDesc',
-    'Manage thumbnail behavior and review the available file protocol access methods for this account.',
-  );
   const thumbnailSectionTitle = resolveText(
     t,
     'filemanager.settings.thumbnailTitle',
     'Thumbnail Settings',
+  );
+  const s3AccessKeyLabel = resolveText(
+    t,
+    'security.accessKey',
+    'Access Key/Access ID',
   );
   const protocolSectionTitle = resolveText(
     t,
@@ -133,6 +136,83 @@ export const FileManagerSettingsModal = ({
     'filemanager.settings.protocolsDesc',
     'Review each enabled protocol, its access address, and the sign-in method for your account.',
   );
+  const refreshHint = resolveText(
+    t,
+    'filemanager.settings.refreshHint',
+    'Changes to thumbnail switches take effect after you refresh the file list.',
+  );
+  const endpointLabel = resolveText(t, 'filemanager.settings.endpointLabel', 'Endpoint');
+  const accessLabel = resolveText(t, 'filemanager.settings.accessLabel', 'Access');
+  const detailsLabel = resolveText(t, 'filemanager.settings.detailsLabel', 'Details');
+  const disabledProtocolText = resolveText(
+    t,
+    'filemanager.settings.protocolDisabled',
+    'This protocol is currently disabled.',
+  );
+  const sshKeyActionLabel = resolveText(t, 'filemanager.settings.sshKeyAction', 'SSH Key');
+  const s3AccessActionLabel = resolveText(
+    t,
+    'filemanager.settings.s3AccessAction',
+    'Access Key/Access ID',
+  );
+  const sftpModalTitle = resolveText(t, 'filemanager.settings.sftpModalTitle', 'SFTP SSH Keys');
+  const sftpModalDesc = resolveText(
+    t,
+    'filemanager.settings.sftpModalDesc',
+    'Upload or paste an SSH public key so this account can sign in to SFTP with the matched private key.',
+  );
+  const configuredKeysLabel = resolveText(
+    t,
+    'filemanager.settings.configuredKeys',
+    'Configured Keys',
+  );
+  const pastePublicKeyLabel = resolveText(
+    t,
+    'filemanager.settings.pastePublicKey',
+    'Paste Public Key',
+  );
+  const currentAccessModeLabel = resolveText(
+    t,
+    'filemanager.settings.currentAccessMode',
+    'Current access mode',
+  );
+  const noSshKeyText = resolveText(
+    t,
+    'filemanager.settings.noSshKey',
+    'No SSH public key is configured yet.',
+  );
+  const saveSshKeySuccess = resolveText(
+    t,
+    'filemanager.settings.saveSshKeySuccess',
+    'SSH public key saved.',
+  );
+  const removeSshKeySuccess = resolveText(
+    t,
+    'filemanager.settings.removeSshKeySuccess',
+    'SSH public key removed.',
+  );
+  const importSshKeySuccess = resolveText(
+    t,
+    'filemanager.settings.importSshKeySuccess',
+    'SSH public key loaded from file.',
+  );
+  const missingSshKeyText = resolveText(
+    t,
+    'filemanager.settings.missingSshKey',
+    'Paste an SSH public key first.',
+  );
+  const s3KeyCopiedText = resolveText(
+    t,
+    'filemanager.settings.s3KeyCopied',
+    'Access key copied.',
+  );
+  const s3SecretCopiedText = resolveText(
+    t,
+    'filemanager.settings.s3SecretCopied',
+    'Secret key copied.',
+  );
+  const createdAtLabel = resolveText(t, 'filemanager.settings.createdAt', 'Created');
+  const lastUsedLabel = resolveText(t, 'filemanager.settings.lastUsed', 'Last used');
 
   useEffect(() => {
     if (!isOpen) {
@@ -260,7 +340,7 @@ export const FileManagerSettingsModal = ({
   const handleSaveSshKey = async () => {
     const nextKey = sshKeyDraft.trim();
     if (!nextKey) {
-      await addToast('Paste an SSH public key first.', 'error');
+      await addToast(missingSshKeyText, 'error');
       return;
     }
     setSavingSshKey(true);
@@ -276,7 +356,7 @@ export const FileManagerSettingsModal = ({
       const keys = await extractData<SshKeyInfo[]>(client.GET('/api/v1/file/ssh-key'));
       setSshKeys(Array.isArray(keys) ? keys : []);
       setSshKeyDraft('');
-      await addToast('SSH public key saved.', 'success');
+      await addToast(saveSshKeySuccess, 'success');
     } catch (error) {
       showApiErrorToast(addToast, t, error);
     } finally {
@@ -290,7 +370,7 @@ export const FileManagerSettingsModal = ({
       await extractData(client.DELETE('/api/v1/file/ssh-key', { body: { id: keyId } }));
       const keys = await extractData<SshKeyInfo[]>(client.GET('/api/v1/file/ssh-key'));
       setSshKeys(Array.isArray(keys) ? keys : []);
-      await addToast('SSH public key removed.', 'success');
+      await addToast(removeSshKeySuccess, 'success');
     } catch (error) {
       showApiErrorToast(addToast, t, error);
     } finally {
@@ -306,7 +386,7 @@ export const FileManagerSettingsModal = ({
     try {
       const content = await file.text();
       setSshKeyDraft(content.trim());
-      await addToast('SSH public key loaded from file.', 'success');
+      await addToast(importSshKeySuccess, 'success');
     } catch (error) {
       showApiErrorToast(addToast, t, error);
     } finally {
@@ -314,16 +394,29 @@ export const FileManagerSettingsModal = ({
     }
   };
 
-  const protocolCards = [
+  const protocolCards: Array<{
+    key: 'webdav' | 'ftp' | 'sftp' | 's3';
+    icon: typeof HardDrive;
+    title: string;
+    enabled: boolean;
+    endpoint: string | null;
+    accessNote: string;
+    extra: string | null;
+    action: React.ReactNode;
+  }> = [
     {
       key: 'webdav',
       icon: HardDrive,
       title: 'WebDAV',
       enabled: capabilities?.enable_webdav === true,
       endpoint: webdavUrl,
-      accessNote: 'Sign in with your account username and password.',
+      accessNote: resolveText(
+        t,
+        'filemanager.settings.webdavAccess',
+        'Sign in with your account username and password.',
+      ),
       extra: protocolCaps?.webdav_path
-        ? `Path suffix: ${protocolCaps.webdav_path}`
+        ? `${resolveText(t, 'filemanager.settings.pathSuffix', 'Path suffix')}: ${protocolCaps.webdav_path}`
         : null,
       action: null,
     },
@@ -333,10 +426,22 @@ export const FileManagerSettingsModal = ({
       title: 'FTP',
       enabled: capabilities?.enable_ftp === true,
       endpoint: ftpEndpoint,
-      accessNote: 'Sign in with your account username and password.',
+      accessNote: resolveText(
+        t,
+        'filemanager.settings.ftpAccess',
+        'Sign in with your account username and password.',
+      ),
       extra: ftpPassiveSummary
-        ? `Active mode is available. Passive mode uses ${ftpPassiveSummary}.`
-        : 'Active and passive mode are available.',
+        ? resolveText(
+            t,
+            'filemanager.settings.ftpPassiveWithRange',
+            'Active mode is available. Passive mode uses {{value}}.',
+          ).replace('{{value}}', ftpPassiveSummary)
+        : resolveText(
+            t,
+            'filemanager.settings.ftpPassiveDefault',
+            'Active and passive mode are available.',
+          ),
       action: null,
     },
     {
@@ -347,19 +452,43 @@ export const FileManagerSettingsModal = ({
       endpoint: sftpEndpoint,
       accessNote: hasSshKey
         ? sftpPasswordEnabled
-          ? 'Use your password or a matched private key.'
-          : 'Password login is disabled. Use a matched private key.'
+          ? resolveText(
+              t,
+              'filemanager.settings.sftpPasswordOrKey',
+              'Use your password or a matched private key.',
+            )
+          : resolveText(
+              t,
+              'filemanager.settings.sftpKeyOnly',
+              'Password login is disabled. Use a matched private key.',
+            )
         : sftpPasswordEnabled
-          ? 'No public key is configured yet. Use your password for now.'
-          : 'No public key is configured yet. Add a public key before using SFTP.',
+          ? resolveText(
+              t,
+              'filemanager.settings.sftpPasswordOnlyForNow',
+              'No public key is configured yet. Use your password for now.',
+            )
+          : resolveText(
+              t,
+              'filemanager.settings.sftpNeedPublicKey',
+              'No public key is configured yet. Add a public key before using SFTP.',
+            ),
       extra: hasSshKey
-        ? `${sshKeys.length} public key${sshKeys.length > 1 ? 's' : ''} configured.`
-        : 'No public key configured.',
+        ? resolveText(
+            t,
+            'filemanager.settings.sshKeyConfiguredCount',
+            '{{count}} public key configured.',
+          ).replace('{{count}}', String(sshKeys.length))
+        : resolveText(
+            t,
+            'filemanager.settings.noPublicKeyConfigured',
+            'No public key configured.',
+          ),
       action: (
-        <Button variant="outline" size="sm" onClick={() => setShowSftpModal(true)}>
-          <KeyRound size={16} className="mr-2" />
-          SSH Key
-        </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowSftpModal(true)} className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white">
+            <KeyRound size={16} className="mr-2" />
+            {sshKeyActionLabel}
+          </Button>
       ),
     },
     {
@@ -368,136 +497,208 @@ export const FileManagerSettingsModal = ({
       title: 'S3',
       enabled: capabilities?.enable_s3 === true,
       endpoint: s3Endpoint,
-      accessNote: 'Use your access key ID and secret key to sign in.',
-      extra: s3Keys.access_key ? `Access key: ${s3Keys.access_key}` : 'No access key generated yet.',
+      accessNote: resolveText(
+        t,
+        'filemanager.settings.s3Access',
+        'Use your access key ID and secret key to sign in.',
+      ),
+      extra: s3Keys.access_key
+        ? `${s3AccessActionLabel}: ${s3Keys.access_key}`
+        : resolveText(
+            t,
+            'filemanager.settings.noS3KeyYet',
+            'No access key generated yet.',
+          ),
       action: (
-        <Button variant="outline" size="sm" onClick={() => setShowS3Modal(true)}>
-          <KeyRound size={16} className="mr-2" />
-          Access Key
-        </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowS3Modal(true)} className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white">
+            <KeyRound size={16} className="mr-2" />
+            {s3AccessActionLabel}
+          </Button>
       ),
     },
   ];
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <>
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
+      <GlassModalShell
         title={modalTitle}
-        maxWidth="max-w-5xl"
+        subtitle={protocolSectionDesc}
+        icon={<HardDrive size={24} />}
+        onClose={onClose}
+        maxWidthClassName="max-w-5xl"
+        bodyClassName="space-y-6 lg:space-y-8"
+        closeButton={(
+          <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+            <span className="text-2xl opacity-40 leading-none">×</span>
+          </Button>
+        )}
+        footer={(
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-2 opacity-30 italic sm:max-w-[70%]">
+              <Info size={18} className="shrink-0" />
+              <span className="text-sm font-medium leading-tight">{refreshHint}</span>
+            </div>
+            <Button onClick={onClose} className="rounded-2xl w-full sm:w-auto px-8 h-12 font-black text-sm shadow-xl shadow-primary/20 shrink-0">
+              {t('common.close')}
+            </Button>
+          </div>
+        )}
       >
-        <div className="space-y-6">
-          <p className="text-sm opacity-70">{modalDesc}</p>
-
-          <section className="space-y-3">
-            <div>
-              <h4 className="text-base font-black tracking-tight">{thumbnailSectionTitle}</h4>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {visibleToggleItems.map((item) => {
-                const rawValue = settings?.[item.key];
-                const disabledValue = typeof rawValue === 'boolean' ? rawValue : false;
-                const checked = !disabledValue;
-                return (
-                  <div
-                    key={item.key as string}
-                    className="flex items-center justify-between gap-4 rounded-2xl border px-4 py-3"
-                  >
-                    <div className="text-sm font-bold">{item.label}</div>
-                    <Switch
-                      checked={checked}
-                      disabled={settingsLoading}
-                      onChange={(value) =>
-                        void updateSettings({
-                          [item.key]: !value,
-                        } as UserFileSettingsUpdate)
-                      }
-                    />
-                  </div>
-                );
-              })}
-              {visibleToggleItems.length === 0 && (
-                <div className="rounded-2xl border px-4 py-3 text-sm opacity-70">
-                  {resolveText(
-                    t,
-                    'filemanager.thumbnail.noTypes',
-                    'No thumbnail types are available for this server.',
-                  )}
+            <section className="space-y-5">
+              <div className="space-y-3">
+                <h4 className="text-sm font-black tracking-[0.2em] text-primary/60 border-b border-white/5 pb-2">
+                  {thumbnailSectionTitle}
+                </h4>
+                <div className="flex items-start gap-3 rounded-3xl border border-primary/15 bg-primary/10 px-4 py-4 text-sm text-white/75">
+                  <Info size={18} className="mt-0.5 shrink-0 text-primary" />
+                  <p className="leading-relaxed">{refreshHint}</p>
                 </div>
-              )}
-            </div>
-          </section>
+              </div>
 
-          <section className="space-y-3">
-            <div className="space-y-1">
-              <h4 className="text-base font-black tracking-tight">{protocolSectionTitle}</h4>
-              <p className="text-sm opacity-70">{protocolSectionDesc}</p>
-            </div>
-            <div className="grid gap-4 xl:grid-cols-2">
-              {protocolCards.map(({ key, icon: Icon, title, enabled, endpoint, accessNote, extra, action }) => (
-                <div
-                  key={key}
-                  className={cn(
-                    'rounded-2xl border p-4 space-y-4',
-                    enabled ? 'border-primary/20 bg-primary/5' : 'bg-muted/20',
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-2xl bg-background border flex items-center justify-center">
-                        <Icon size={18} />
-                      </div>
-                      <div>
-                        <div className="text-base font-black">{title}</div>
-                        <div className="text-xs font-bold uppercase tracking-[0.16em] opacity-60">
-                          {enabled ? t('common.enabled') : t('common.disabled')}
+              <div className="grid gap-3 sm:grid-cols-2">
+                {visibleToggleItems.map((item) => {
+                  const rawValue = settings?.[item.key];
+                  const disabledValue = typeof rawValue === 'boolean' ? rawValue : false;
+                  const checked = !disabledValue;
+                  return (
+                    <div
+                      key={item.key as string}
+                      className="flex items-center justify-between gap-4 rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-4 shadow-inner"
+                    >
+                      <div className="min-w-0">
+                        <div className="text-sm font-black text-white tracking-wide">{item.label}</div>
+                        <div className="text-xs font-bold uppercase tracking-[0.16em] text-white/35 mt-1">
+                          {checked ? t('common.enabled') : t('common.disabled')}
                         </div>
                       </div>
+                      <Switch
+                        checked={checked}
+                        disabled={settingsLoading}
+                        onChange={(value) =>
+                          void updateSettings({
+                            [item.key]: !value,
+                          } as UserFileSettingsUpdate)
+                        }
+                      />
                     </div>
-                    {enabled ? action : null}
+                  );
+                })}
+                {visibleToggleItems.length === 0 && (
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-4 text-sm text-white/60 sm:col-span-2">
+                    {resolveText(
+                      t,
+                      'filemanager.thumbnail.noTypes',
+                      'No thumbnail types are available for this server.',
+                    )}
                   </div>
-                  <div className="space-y-3 text-sm">
-                    <div>
-                      <div className="opacity-50 font-bold uppercase tracking-[0.16em]">Endpoint</div>
-                      <div className="font-mono break-all mt-1">{endpoint || '-'}</div>
-                    </div>
-                    <div>
-                      <div className="opacity-50 font-bold uppercase tracking-[0.16em]">Access</div>
-                      <div className="mt-1">{enabled ? accessNote : 'This protocol is currently disabled.'}</div>
-                    </div>
-                    {extra ? (
-                      <div>
-                        <div className="opacity-50 font-bold uppercase tracking-[0.16em]">Details</div>
-                        <div className="mt-1 break-all">{extra}</div>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      </Modal>
+                )}
+              </div>
+            </section>
 
-      <Modal
-        isOpen={showS3Modal}
-        onClose={() => setShowS3Modal(false)}
-        title={resolveText(t, 'security.s3Title', 'S3 Access Keys')}
-        maxWidth="max-w-2xl"
-      >
+            <section className="space-y-5">
+              <div className="space-y-3">
+                <h4 className="text-sm font-black tracking-[0.2em] text-primary/60 border-b border-white/5 pb-2">
+                  {protocolSectionTitle}
+                </h4>
+              </div>
+              <div className="space-y-3">
+                {protocolCards.map(({ key, icon: Icon, title, enabled, endpoint, accessNote, extra, action }) => {
+                  const expanded = openProtocolKey === key;
+                  return (
+                    <div
+                      key={key}
+                      className={cn(
+                        'rounded-3xl border transition-colors overflow-hidden',
+                        enabled
+                          ? 'border-primary/20 bg-primary/10 shadow-[0_20px_60px_rgba(0,0,0,0.22)]'
+                          : 'border-white/10 bg-white/[0.03] opacity-90',
+                      )}
+                    >
+                      <button
+                        type="button"
+                        className="w-full px-4 py-4 sm:px-5 sm:py-5 text-left flex items-start gap-3"
+                        onClick={() => setOpenProtocolKey((prev) => (prev === key ? key : key))}
+                      >
+                        <div className="h-11 w-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner shrink-0">
+                          <Icon size={18} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="text-base font-black text-white tracking-tight">{title}</div>
+                              <div className="text-xs font-bold uppercase tracking-[0.16em] text-white/35 mt-1">
+                                {enabled ? t('common.enabled') : t('common.disabled')}
+                              </div>
+                            </div>
+                            <ChevronDown
+                              size={18}
+                              className={cn(
+                                'mt-1 shrink-0 text-white/45 transition-transform duration-200',
+                                expanded && 'rotate-180',
+                              )}
+                            />
+                          </div>
+                          <div className="mt-3 text-sm font-mono break-all text-white/72 pr-4 line-clamp-2 sm:line-clamp-1">
+                            {endpoint || '-'}
+                          </div>
+                        </div>
+                      </button>
+
+                      {expanded && (
+                        <div className="px-4 pb-4 sm:px-5 sm:pb-5 border-t border-white/5">
+                          <div className="pt-4 space-y-4 text-sm">
+                            <div>
+                              <div className="opacity-40 font-black uppercase tracking-[0.16em]">{endpointLabel}</div>
+                              <div className="font-mono break-all mt-1 text-white/85">{endpoint || '-'}</div>
+                            </div>
+                            <div>
+                              <div className="opacity-40 font-black uppercase tracking-[0.16em]">{accessLabel}</div>
+                              <div className="mt-1 text-white/75 leading-relaxed">{enabled ? accessNote : disabledProtocolText}</div>
+                            </div>
+                            {extra ? (
+                              <div>
+                                <div className="opacity-40 font-black uppercase tracking-[0.16em]">{detailsLabel}</div>
+                                <div className="mt-1 break-all text-white/75 leading-relaxed">{extra}</div>
+                              </div>
+                            ) : null}
+                            {enabled && action ? <div className="pt-1">{action}</div> : null}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+      </GlassModalShell>
+
+      {showS3Modal ? (
+        <GlassModalShell
+          title={resolveText(t, 'security.s3Title', 'S3 Access Keys')}
+          subtitle={resolveText(
+            t,
+            'security.s3Desc',
+            'Use this access key ID and secret key with the S3 endpoint shown in the main settings panel.',
+          )}
+          icon={<Cloud size={24} />}
+          onClose={() => setShowS3Modal(false)}
+          maxWidthClassName="max-w-2xl"
+          bodyClassName="space-y-5"
+          closeButton={(
+            <Button variant="ghost" size="sm" onClick={() => setShowS3Modal(false)} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+              <span className="text-2xl opacity-40 leading-none">×</span>
+            </Button>
+          )}
+        >
         <div className="space-y-5">
-          <p className="text-sm opacity-70">
-            {resolveText(
-              t,
-              'security.s3Desc',
-              'Use this access key ID and secret key with the S3 endpoint shown in the main settings panel.',
-            )}
-          </p>
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="text-sm font-bold uppercase tracking-[0.16em] opacity-60">
-                {resolveText(t, 'security.accessKey', 'Access Key')}
+                {s3AccessKeyLabel}
               </div>
               <div className="rounded-2xl border bg-muted/20 px-4 py-3 font-mono break-all">
                 {s3Keys.access_key || resolveText(t, 'security.notGenerated', 'Not generated')}
@@ -511,7 +712,7 @@ export const FileManagerSettingsModal = ({
                       text: s3Keys.access_key || '',
                       addToast,
                       t,
-                      successMessage: 'Access key copied.',
+                      successMessage: s3KeyCopiedText,
                     })
                   }
                   disabled={!s3Keys.access_key}
@@ -552,7 +753,7 @@ export const FileManagerSettingsModal = ({
                       text: s3Keys.secret_key || '',
                       addToast,
                       t,
-                      successMessage: 'Secret key copied.',
+                      successMessage: s3SecretCopiedText,
                     })
                   }
                   disabled={!s3Keys.secret_key}
@@ -573,22 +774,28 @@ export const FileManagerSettingsModal = ({
             </div>
           </div>
         </div>
-      </Modal>
+        </GlassModalShell>
+      ) : null}
 
-      <Modal
-        isOpen={showSftpModal}
-        onClose={() => setShowSftpModal(false)}
-        title="SFTP SSH Keys"
-        maxWidth="max-w-3xl"
-      >
+      {showSftpModal ? (
+        <GlassModalShell
+          title={sftpModalTitle}
+          subtitle={sftpModalDesc}
+          icon={<Shield size={24} />}
+          onClose={() => setShowSftpModal(false)}
+          maxWidthClassName="max-w-3xl"
+          bodyClassName="space-y-5"
+          closeButton={(
+            <Button variant="ghost" size="sm" onClick={() => setShowSftpModal(false)} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+              <span className="text-2xl opacity-40 leading-none">×</span>
+            </Button>
+          )}
+        >
         <div className="space-y-5">
-          <p className="text-sm opacity-70">
-            Upload or paste an SSH public key so this account can sign in to SFTP with the matched private key.
-          </p>
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div className="text-sm font-bold uppercase tracking-[0.16em] opacity-60">
-                Configured Keys
+                {configuredKeysLabel}
               </div>
               <Button
                 variant="outline"
@@ -613,7 +820,7 @@ export const FileManagerSettingsModal = ({
                 </div>
               ) : sshKeys.length === 0 ? (
                 <div className="rounded-2xl border px-4 py-3 text-sm opacity-70">
-                  No SSH public key is configured yet.
+                  {noSshKeyText}
                 </div>
               ) : (
                 sshKeys.map((item) => (
@@ -636,18 +843,18 @@ export const FileManagerSettingsModal = ({
                     </div>
                     <div className="text-xs font-mono opacity-70 break-all">{item.fingerprint}</div>
                     <div className="text-xs opacity-60">
-                      Created: {formatTimestamp(item.created_at)}
-                      {item.last_used_at ? ` | Last used: ${formatTimestamp(item.last_used_at)}` : ''}
+                      {createdAtLabel}: {formatTimestamp(item.created_at)}
+                      {item.last_used_at ? ` | ${lastUsedLabel}: ${formatTimestamp(item.last_used_at)}` : ''}
                     </div>
                   </div>
                 ))
               )}
             </div>
           </div>
-          <div className="space-y-3">
-            <div className="text-sm font-bold uppercase tracking-[0.16em] opacity-60">
-              Paste Public Key
-            </div>
+            <div className="space-y-3">
+              <div className="text-sm font-bold uppercase tracking-[0.16em] opacity-60">
+                {pastePublicKeyLabel}
+              </div>
             <textarea
               value={sshKeyDraft}
               onChange={(event) => setSshKeyDraft(event.target.value)}
@@ -664,19 +871,36 @@ export const FileManagerSettingsModal = ({
             </div>
           </div>
           <div className="rounded-2xl border bg-muted/20 px-4 py-3 text-sm opacity-80">
-            <div className="font-bold">Current access mode</div>
+            <div className="font-bold">{currentAccessModeLabel}</div>
             <div className="mt-1">
               {hasSshKey
                 ? sftpPasswordEnabled
-                  ? 'Password login and matched private key login are both available.'
-                  : 'Only matched private key login is available.'
+                  ? resolveText(
+                      t,
+                      'filemanager.settings.sftpPasswordAndKeyMode',
+                      'Password login and matched private key login are both available.',
+                    )
+                  : resolveText(
+                      t,
+                      'filemanager.settings.sftpOnlyKeyMode',
+                      'Only matched private key login is available.',
+                    )
                 : sftpPasswordEnabled
-                  ? 'Only password login is available right now.'
-                  : 'Password login is disabled. Add a public key to use SFTP.'}
+                  ? resolveText(
+                      t,
+                      'filemanager.settings.sftpOnlyPasswordMode',
+                      'Only password login is available right now.',
+                    )
+                  : resolveText(
+                      t,
+                      'filemanager.settings.sftpPasswordDisabledNeedKey',
+                      'Password login is disabled. Add a public key to use SFTP.',
+                    )}
             </div>
           </div>
         </div>
-      </Modal>
+        </GlassModalShell>
+      ) : null}
     </>
   );
 };

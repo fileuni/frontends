@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { 
   X, Keyboard, Info
 } from 'lucide-react';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button.tsx';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 
@@ -56,28 +57,30 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-[250] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
-      <button type="button" className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
-      
-      <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-in zoom-in-95 duration-300 flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
-        {/* Header */}
-        <div className="p-5 sm:p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02] shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
-              <Keyboard size={24} />
-            </div>
-            <div>
-              <h3 className="text-xl font-black text-white tracking-tight">{t('filemanager.help.title')}</h3>
-              <p className="text-sm font-bold opacity-40 tracking-widest mt-1">{t('filemanager.help.subtitle')}</p>
-            </div>
+    <GlassModalShell
+      title={t('filemanager.help.title')}
+      subtitle={t('filemanager.help.subtitle')}
+      icon={<Keyboard size={24} />}
+      onClose={onClose}
+      maxWidthClassName="max-w-2xl"
+      bodyClassName="grid grid-cols-1 md:grid-cols-2 gap-8"
+      closeButton={(
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5">
+          <X size={24} className="opacity-40" />
+        </Button>
+      )}
+      footer={(
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 opacity-30 italic max-w-[70%]">
+            <Info size={18} className="shrink-0" />
+            <span className="text-sm font-medium leading-tight">{t('filemanager.help.tip')}</span>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5">
-            <X size={24} className="opacity-40" />
+          <Button onClick={onClose} className="rounded-2xl px-8 h-12 font-black text-sm shadow-xl shadow-primary/20">
+            {t('filemanager.help.gotIt')}
           </Button>
         </div>
-
-        {/* Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+      )}
+    >
           {sections.map((section) => (
             <div key={section.title} className="space-y-4">
               <h4 className="text-sm font-black tracking-[0.2em] text-primary/60 border-b border-white/5 pb-2">
@@ -104,19 +107,6 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Footer */}
-        <div className="p-5 sm:p-8 bg-white/[0.02] border-t border-white/5 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2 opacity-30 italic max-w-[70%]">
-            <Info size={18} className="shrink-0" />
-            <span className="text-sm font-medium leading-tight">{t('filemanager.help.tip')}</span>
-          </div>
-          <Button onClick={onClose} className="rounded-2xl px-8 h-12 font-black text-sm shadow-xl shadow-primary/20">
-            {t('filemanager.help.gotIt')}
-          </Button>
-        </div>
-      </div>
-    </div>
+    </GlassModalShell>
   );
 };

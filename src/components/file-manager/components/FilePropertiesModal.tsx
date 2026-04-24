@@ -1,12 +1,13 @@
 import React from 'react';
-import { Modal } from '@/components/ui/Modal.tsx';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button.tsx';
 import { useTranslation } from 'react-i18next';
 import type { FileInfo } from '../types/index.ts';
 import { FileIcon } from './FileIcon.tsx';
-import { Calendar, HardDrive, Hash, Info, Type, Clock, Eye, Cloud, AlertTriangle, type LucideIcon } from 'lucide-react';
+import { Calendar, HardDrive, Hash, Info, Type, Clock, Eye, Cloud, AlertTriangle, X, type LucideIcon } from 'lucide-react';
 import { useFileActions } from '../hooks/useFileActions.ts';
 import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
+import { cn } from '@/lib/utils.ts';
 import {
   isProtectedPathUnavailable,
   pathMatchesProtectedRoot,
@@ -72,37 +73,69 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
   };
 
   const PropertyItem = ({ icon: Icon, label, value }: PropertyItemProps) => (
-    <div className="flex items-center gap-3 p-2 px-3 rounded-xl bg-white/[0.02] border border-white/5">
-      <div className="p-1.5 rounded-lg bg-primary/10 text-primary shrink-0">
+    <div className="flex items-start gap-3 p-4 rounded-3xl bg-white/[0.03] border border-white/10 shadow-inner">
+      <div className="p-2 rounded-2xl bg-primary/10 text-primary shrink-0 border border-primary/10">
         <Icon size={18} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[14px] font-black opacity-30 leading-none mb-1">{label}</p>
-        <p className="text-sm font-bold truncate break-all leading-tight">{value}</p>
+        <p className="text-xs font-black uppercase tracking-[0.16em] text-white/35 mb-2">{label}</p>
+        <div className="text-sm font-bold break-all leading-relaxed text-white/85">{value}</div>
       </div>
     </div>
   );
 
   return (
-    <Modal
-      isOpen={!!file}
-      onClose={onClose}
+    <GlassModalShell
       title={t('filemanager.actions.properties')}
-      maxWidth="max-w-md"
-      bodyClassName="p-4"
-    >
-      <div className="space-y-2">
-        <div className="flex items-center p-3 gap-4 bg-primary/5 rounded-2xl border border-primary/10 mb-3">
-          <FileIcon name={file.name} isDir={file.is_dir} size={40} />
-          <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-black truncate break-all leading-tight">{file.name}</h3>
-            <p className="text-[14px] font-black opacity-30 mt-0.5">
-              {file.is_dir ? t('filemanager.folder') : t('filemanager.file')}
-            </p>
-          </div>
+      subtitle={file.is_dir ? t('filemanager.folder') : t('filemanager.file')}
+      icon={<Info size={24} />}
+      onClose={onClose}
+      maxWidthClassName="max-w-2xl"
+      bodyClassName="space-y-6"
+      closeButton={(
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+          <X size={24} className="opacity-40" />
+        </Button>
+      )}
+      footer={(
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
+          <Button 
+            onClick={onClose} 
+            size="sm"
+            className="rounded-2xl w-full sm:w-auto px-6 h-12 font-black text-sm"
+          >
+            {t('common.close')}
+          </Button>
+          {!file.is_dir && (
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={handlePreview} 
+              className={cn(
+                'rounded-2xl w-full sm:w-auto px-5 h-12 font-black text-sm flex items-center gap-2',
+                'border-white/10 bg-white/5 hover:bg-white/10 text-white',
+              )}
+            >
+              <Eye size={18} />
+              {t('filemanager.actions.preview')}
+            </Button>
+          )}
         </div>
+      )}
+    >
+          <div className="flex items-center gap-4 rounded-[2rem] border border-primary/15 bg-primary/10 px-4 py-4 sm:px-5 sm:py-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+            <div className="shrink-0 rounded-2xl bg-white/5 border border-white/10 p-3">
+              <FileIcon name={file.name} isDir={file.is_dir} size={44} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-base sm:text-lg font-black text-white tracking-tight break-all leading-tight">{file.name}</h4>
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.16em] text-white/35 mt-2">
+                {file.is_dir ? t('filemanager.folder') : t('filemanager.file')}
+              </p>
+            </div>
+          </div>
 
-        <div className="grid gap-2">
+          <div className="grid gap-3">
           <PropertyItem icon={Type} label={t('filemanager.prop.name')} value={file.name} />
           <PropertyItem icon={HardDrive} label={t('filemanager.prop.path')} value={file.path} />
           {!file.is_dir && <PropertyItem icon={Hash} label={t('filemanager.prop.size')} value={formatSize(file.size)} />}
@@ -194,28 +227,6 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
             />
           )}
         </div>
-
-        <div className="flex justify-end gap-2 pt-4">
-          {!file.is_dir && (
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={handlePreview} 
-                className="px-4 font-black text-sm flex items-center gap-2"
-            >
-              <Eye size={18} />
-              {t('filemanager.actions.preview')}
-            </Button>
-          )}
-          <Button 
-            onClick={onClose} 
-            size="sm"
-            className="px-6 font-black text-sm"
-          >
-            {t('common.close')}
-          </Button>
-        </div>
-      </div>
-    </Modal>
+    </GlassModalShell>
   );
 };

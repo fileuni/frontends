@@ -1,7 +1,18 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Shield, Lock, FolderTree, AlertTriangle, CheckCircle2, Copy, FolderOpen, Lightbulb } from 'lucide-react';
-import { Modal } from '@/components/ui/Modal.tsx';
+import {
+  Shield,
+  Lock,
+  FolderTree,
+  AlertTriangle,
+  CheckCircle2,
+  Copy,
+  FolderOpen,
+  Lightbulb,
+  X,
+  Info,
+} from 'lucide-react';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
 import { copyTextWithToast } from '@/lib/feedback.ts';
@@ -90,7 +101,8 @@ export const ProtectedStorageModal = ({
   isMountPath,
 }: ProtectedStorageModalProps) => {
   const { t } = useTranslation();
-  const { status, isLoading, fetchStatus, enableRoot, focusRootHint } = useProtectedStorageStore();
+  const { status, isLoading, fetchStatus, enableRoot, focusRootHint } =
+    useProtectedStorageStore();
   const { addToast } = useToastStore();
   const setCurrentPath = useFileStore((state) => state.setCurrentPath);
 
@@ -105,16 +117,40 @@ export const ProtectedStorageModal = ({
   const isRootPath = currentPath === '/';
   const isAlreadyEnabled = Boolean(status?.enabled);
   const isCurrentRootProtected = status?.protected_root === currentPath;
-  const isProtectedElsewhere = Boolean(status?.enabled && status?.protected_root && status.protected_root !== currentPath);
-  const isReservedPath = currentPath === '/.thumbs' || currentPath === '/.recycle_bin' || currentPath === '/.virtual' || currentPath === '/.protected' || currentPath.startsWith('/.thumbs/') || currentPath.startsWith('/.recycle_bin/') || currentPath.startsWith('/.virtual/') || currentPath.startsWith('/.protected/');
+  const isProtectedElsewhere = Boolean(
+    status?.enabled && status?.protected_root && status.protected_root !== currentPath,
+  );
+  const isReservedPath =
+    currentPath === '/.thumbs' ||
+    currentPath === '/.recycle_bin' ||
+    currentPath === '/.virtual' ||
+    currentPath === '/.protected' ||
+    currentPath.startsWith('/.thumbs/') ||
+    currentPath.startsWith('/.recycle_bin/') ||
+    currentPath.startsWith('/.virtual/') ||
+    currentPath.startsWith('/.protected/');
   const isAdminDisabled = globalMode === 'disabled';
-  const canPrepare = !isAdminDisabled && !isMountPath && !isReservedPath && isEmptyDir && !isAlreadyEnabled;
-  const enabledAt = status?.protected_enabled_at ? new Date(status.protected_enabled_at).toLocaleString() : null;
-  const updatedAt = status?.protected_updated_at ? new Date(status.protected_updated_at).toLocaleString() : null;
+  const canPrepare =
+    !isAdminDisabled && !isMountPath && !isReservedPath && isEmptyDir && !isAlreadyEnabled;
+  const enabledAt = status?.protected_enabled_at
+    ? new Date(status.protected_enabled_at).toLocaleString()
+    : null;
+  const updatedAt = status?.protected_updated_at
+    ? new Date(status.protected_updated_at).toLocaleString()
+    : null;
+
   const currentDecisionMessage = (() => {
     if (isAdminDisabled) return t('filemanager.protectedStorage.constraints.adminDisabled');
-    if (isProtectedElsewhere) return t('filemanager.protectedStorage.constraints.alreadyEnabledElsewhere', { path: status?.protected_root || '/' });
-    if (isCurrentRootProtected) return t('filemanager.protectedStorage.constraints.currentRootActive', { path: currentPath });
+    if (isProtectedElsewhere) {
+      return t('filemanager.protectedStorage.constraints.alreadyEnabledElsewhere', {
+        path: status?.protected_root || '/',
+      });
+    }
+    if (isCurrentRootProtected) {
+      return t('filemanager.protectedStorage.constraints.currentRootActive', {
+        path: currentPath,
+      });
+    }
     if (isMountPath) return t('filemanager.protectedStorage.constraints.mountBlocked');
     if (isReservedPath) return t('filemanager.protectedStorage.constraints.systemPathBlocked');
     if (!isEmptyDir) return t('filemanager.protectedStorage.constraints.emptyDirOnly');
@@ -122,33 +158,48 @@ export const ProtectedStorageModal = ({
       ? t('filemanager.protectedStorage.constraints.rootReady')
       : t('filemanager.protectedStorage.constraints.subdirReady');
   })();
-  const currentDecisionTone = isAdminDisabled || isProtectedElsewhere || isMountPath || isReservedPath || !isEmptyDir
-    ? 'warn'
-    : 'ok';
+
+  const currentDecisionTone =
+    isAdminDisabled ||
+    isProtectedElsewhere ||
+    isMountPath ||
+    isReservedPath ||
+    !isEmptyDir
+      ? 'warn'
+      : 'ok';
+
   const modeDetailMessage = getProtectedStorageModeDetail(t, globalMode);
   const currentAdviceMessage = (() => {
     if (globalMode === 'disabled') return t('filemanager.protectedStorage.advice.adminDisabled');
-    if (isProtectedElsewhere) return t('filemanager.protectedStorage.advice.alreadyEnabledElsewhere');
-    if (isCurrentRootProtected) return t('filemanager.protectedStorage.advice.currentRootActive');
+    if (isProtectedElsewhere)
+      return t('filemanager.protectedStorage.advice.alreadyEnabledElsewhere');
+    if (isCurrentRootProtected)
+      return t('filemanager.protectedStorage.advice.currentRootActive');
     if (isMountPath) return t('filemanager.protectedStorage.advice.mountBlocked');
     if (isReservedPath) return t('filemanager.protectedStorage.advice.systemPathBlocked');
     if (!isEmptyDir) return t('filemanager.protectedStorage.advice.emptyDirOnly');
     return t('filemanager.protectedStorage.advice.ready');
   })();
+
   const handleEnable = async () => {
     try {
       await enableRoot(currentPath);
-      addToast(t('filemanager.protectedStorage.enableSuccess') || 'Protected storage enabled', 'success');
+      addToast(
+        t('filemanager.protectedStorage.enableSuccess') || 'Protected storage enabled',
+        'success',
+      );
     } catch (error) {
       addToast(handleApiError(error, t), 'error');
     }
   };
+
   const handleJumpToProtectedRoot = () => {
     if (!status?.protected_root) return;
     focusRootHint(status.protected_root);
     setCurrentPath(status.protected_root);
     onClose();
   };
+
   const handleCopyProtectedRoot = async () => {
     if (!status?.protected_root) return;
     await copyTextWithToast({
@@ -160,130 +211,175 @@ export const ProtectedStorageModal = ({
     });
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
+    <GlassModalShell
       title={t('filemanager.protectedStorage.title') || 'Protected Storage'}
-      maxWidth="max-w-xl"
+      subtitle={getProtectedStorageModeDetail(t, globalMode)}
+      icon={<Shield size={24} />}
+      onClose={onClose}
+      maxWidthClassName="max-w-xl"
+      bodyClassName="space-y-4"
+      closeButton={
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0"
+        >
+          <X size={24} className="opacity-40" />
+        </Button>
+      }
+      footer={
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-2 opacity-30 italic sm:max-w-[70%]">
+            <Info size={18} className="shrink-0" />
+            <span className="text-sm font-medium leading-tight">
+              {currentAdviceMessage || ''}
+            </span>
+          </div>
+          <Button
+            onClick={onClose}
+            className="rounded-2xl w-full sm:w-auto px-8 h-12 font-black text-sm shadow-xl shadow-primary/20 shrink-0"
+          >
+            {t('common.close')}
+          </Button>
+        </div>
+      }
     >
-      <div className="space-y-4">
-        <InfoCard
-          icon={Shield}
-          label={t('filemanager.protectedStorage.globalMode') || 'Global mode'}
-          value={currentModeLabel}
-          tone={globalMode === 'disabled' ? 'warn' : 'ok'}
-        />
+      <InfoCard
+        icon={Shield}
+        label={t('filemanager.protectedStorage.globalMode') || 'Global mode'}
+        value={currentModeLabel}
+        tone={globalMode === 'disabled' ? 'warn' : 'ok'}
+      />
 
-        <InfoCard
-          icon={Shield}
-          label={t('filemanager.protectedStorage.modeDetails.title') || 'Mode Detail'}
-          value={modeDetailMessage || ''}
-          tone={globalMode === 'disabled' ? 'warn' : 'neutral'}
-        />
+      <InfoCard
+        icon={Shield}
+        label={t('filemanager.protectedStorage.modeDetails.title') || 'Mode Detail'}
+        value={modeDetailMessage || ''}
+        tone={globalMode === 'disabled' ? 'warn' : 'neutral'}
+      />
 
+      <div className="grid gap-3 md:grid-cols-2">
+        <InfoCard
+          icon={FolderTree}
+          label={t('filemanager.protectedStorage.currentPath') || 'Current path'}
+          value={currentPath}
+        />
+        <InfoCard
+          icon={Lock}
+          label={t('filemanager.protectedStorage.currentStatus') || 'Current status'}
+          value={
+            status?.enabled
+              ? t('filemanager.protectedStorage.status.enabled') || 'Enabled'
+              : t('filemanager.protectedStorage.status.notEnabled') || 'Not enabled'
+          }
+        />
+      </div>
+
+      {status?.enabled && (
         <div className="grid gap-3 md:grid-cols-2">
           <InfoCard
             icon={FolderTree}
-            label={t('filemanager.protectedStorage.currentPath') || 'Current path'}
-            value={currentPath}
+            label={t('filemanager.protectedStorage.protectedRoot') || 'Protected root'}
+            value={status.protected_root || '/'}
+            tone="ok"
           />
           <InfoCard
             icon={Lock}
-            label={t('filemanager.protectedStorage.currentStatus') || 'Current status'}
-            value={status?.enabled
-              ? (t('filemanager.protectedStorage.status.enabled') || 'Enabled')
-              : (t('filemanager.protectedStorage.status.notEnabled') || 'Not enabled')}
+            label={t('filemanager.protectedStorage.protectedMode') || 'Protected mode'}
+            value={
+              status.protected_mode
+                ? getProtectedStorageModeLabel(t, status.protected_mode) || status.protected_mode
+                : currentModeLabel
+            }
+            tone="ok"
           />
+          {enabledAt && (
+            <InfoCard
+              icon={CheckCircle2}
+              label={t('filemanager.protectedStorage.enabledAt') || 'Enabled at'}
+              value={enabledAt}
+              tone="ok"
+            />
+          )}
+          {updatedAt && (
+            <InfoCard
+              icon={CheckCircle2}
+              label={t('filemanager.protectedStorage.updatedAt') || 'Updated at'}
+              value={updatedAt}
+              tone="ok"
+            />
+          )}
         </div>
+      )}
 
-        {status?.enabled && (
-          <div className="grid gap-3 md:grid-cols-2">
-            <InfoCard
-              icon={FolderTree}
-              label={t('filemanager.protectedStorage.protectedRoot') || 'Protected root'}
-              value={status.protected_root || '/'}
-              tone="ok"
-            />
-            <InfoCard
-              icon={Lock}
-              label={t('filemanager.protectedStorage.protectedMode') || 'Protected mode'}
-                value={status.protected_mode
-                  ? (getProtectedStorageModeLabel(t, status.protected_mode) || status.protected_mode)
-                  : currentModeLabel}
-              tone="ok"
-            />
-            {enabledAt && (
-              <InfoCard
-                icon={CheckCircle2}
-                label={t('filemanager.protectedStorage.enabledAt') || 'Enabled at'}
-                value={enabledAt}
-                tone="ok"
-              />
-            )}
-            {updatedAt && (
-              <InfoCard
-                icon={CheckCircle2}
-                label={t('filemanager.protectedStorage.updatedAt') || 'Updated at'}
-                value={updatedAt}
-                tone="ok"
-              />
-            )}
-          </div>
-        )}
+      {isLoading && (
+        <div className="text-sm text-white/60">
+          {t('filemanager.protectedStorage.loading') || 'Loading...'}
+        </div>
+      )}
 
-        {isLoading && (
-          <div className="text-sm opacity-60">
-            {t('filemanager.protectedStorage.loading') || 'Loading...'}
-          </div>
-        )}
+      <InfoCard
+        icon={currentDecisionTone === 'ok' ? CheckCircle2 : AlertTriangle}
+        label={t('filemanager.protectedStorage.constraints.title') || 'Restrictions'}
+        value={currentDecisionMessage || ''}
+        tone={currentDecisionTone}
+      />
 
+      <InfoCard
+        icon={Lightbulb}
+        label={t('filemanager.protectedStorage.advice.title') || 'Next Step'}
+        value={currentAdviceMessage || ''}
+        tone={currentDecisionTone === 'ok' ? 'ok' : 'neutral'}
+      />
+
+      {!isRootPath && globalMode !== 'disabled' && (
         <InfoCard
-          icon={currentDecisionTone === 'ok' ? CheckCircle2 : AlertTriangle}
-          label={t('filemanager.protectedStorage.constraints.title') || 'Restrictions'}
-          value={currentDecisionMessage || ''}
-          tone={currentDecisionTone}
+          icon={AlertTriangle}
+          label={t('filemanager.protectedStorage.subdirEffects.title') || 'Subdirectory effect'}
+          value={
+            t('filemanager.protectedStorage.subdirEffects.body') ||
+            'If this subdirectory is protected later, delete will bypass the recycle bin and thumbnail features will be disabled in this subtree.'
+          }
+          tone="warn"
         />
+      )}
 
-        <InfoCard
-          icon={Lightbulb}
-          label={t('filemanager.protectedStorage.advice.title') || 'Next Step'}
-          value={currentAdviceMessage || ''}
-          tone={currentDecisionTone === 'ok' ? 'ok' : 'neutral'}
-        />
+      {!status?.enabled && (
+        <div className="flex justify-end pt-2">
+          <Button onClick={handleEnable} disabled={!canPrepare || isLoading}>
+            {t('filemanager.protectedStorage.enableAction') || 'Enable for current directory'}
+          </Button>
+        </div>
+      )}
 
-        {!isRootPath && globalMode !== 'disabled' && (
-          <InfoCard
-            icon={AlertTriangle}
-            label={t('filemanager.protectedStorage.subdirEffects.title') || 'Subdirectory effect'}
-            value={t('filemanager.protectedStorage.subdirEffects.body') || 'If this subdirectory is protected later, delete will bypass the recycle bin and thumbnail features will be disabled in this subtree.'}
-            tone="warn"
-          />
-        )}
-
-        {!status?.enabled && (
-          <div className="flex justify-end pt-2">
-            <Button onClick={handleEnable} disabled={!canPrepare || isLoading}>
-              {t('filemanager.protectedStorage.enableAction') || 'Enable for current directory'}
+      {status?.enabled && status.protected_root && (
+        <div className="flex flex-wrap justify-end gap-2 pt-2">
+          {!isCurrentRootProtected && (
+            <Button
+              variant="outline"
+              onClick={handleJumpToProtectedRoot}
+              className="inline-flex items-center gap-2 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white"
+            >
+              <FolderOpen size={16} />
+              {t('filemanager.protectedStorage.openProtectedRoot') || 'Open protected root'}
             </Button>
-          </div>
-        )}
-
-        {status?.enabled && status.protected_root && (
-          <div className="flex flex-wrap justify-end gap-2 pt-2">
-            {!isCurrentRootProtected && (
-              <Button variant="outline" onClick={handleJumpToProtectedRoot} className="inline-flex items-center gap-2">
-                <FolderOpen size={16} />
-                {t('filemanager.protectedStorage.openProtectedRoot') || 'Open protected root'}
-              </Button>
-            )}
-            <Button variant="outline" onClick={() => void handleCopyProtectedRoot()} className="inline-flex items-center gap-2">
-              <Copy size={16} />
-              {t('filemanager.protectedStorage.copyProtectedRoot') || 'Copy protected root'}
-            </Button>
-          </div>
-        )}
-      </div>
-    </Modal>
+          )}
+          <Button
+            variant="outline"
+            onClick={() => void handleCopyProtectedRoot()}
+            className="inline-flex items-center gap-2 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white"
+          >
+            <Copy size={16} />
+            {t('filemanager.protectedStorage.copyProtectedRoot') || 'Copy protected root'}
+          </Button>
+        </div>
+      )}
+    </GlassModalShell>
   );
 };
