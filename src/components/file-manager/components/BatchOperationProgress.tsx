@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
-import { Modal } from '@/components/ui/Modal.tsx';
 import { toast } from '@/stores/toast';
 import { client, BASE_URL, extractData } from '@/lib/api.ts';
 import { useAuthStore } from '@/stores/auth.ts';
+import { Activity, FileJson, X } from 'lucide-react';
 
 // Batch task progress modal: poll task status by task_id.
 
@@ -534,11 +535,18 @@ export function BatchOperationProgress({
 
   return (
     <>
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
+      <GlassModalShell
         title={t('filemanager.batch.operationProgress')}
-        className="max-w-2xl"
+        subtitle={taskStatus ? getTaskStatusLabel(t, taskStatus.status) : t('common.loading')}
+        icon={<Activity size={24} />}
+        onClose={onClose}
+        compact="all"
+        maxWidthClassName="max-w-2xl"
+        closeButton={(
+          <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+            <X size={24} className="opacity-40" />
+          </Button>
+        )}
       >
         {loading ? (
           <div className="p-2">
@@ -666,14 +674,23 @@ export function BatchOperationProgress({
             </div>
           </div>
         )}
-      </Modal>
+      </GlassModalShell>
 
-      <Modal
-        isOpen={showJsonReport}
-        onClose={() => setShowJsonReport(false)}
-        title={t('filemanager.batch.jsonReport')}
-        className="max-w-3xl"
-      >
+      {showJsonReport ? (
+        <GlassModalShell
+          title={t('filemanager.batch.jsonReport')}
+          subtitle={taskId}
+          icon={<FileJson size={24} />}
+          onClose={() => setShowJsonReport(false)}
+          compact="all"
+          nested
+          maxWidthClassName="max-w-3xl"
+          closeButton={(
+            <Button variant="ghost" size="sm" onClick={() => setShowJsonReport(false)} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+              <X size={24} className="opacity-40" />
+            </Button>
+          )}
+        >
         <div className="space-y-4">
           <pre className="text-sm bg-black/10 rounded-xl p-4 overflow-auto max-h-[60vh]">
             {jsonReportData || ''}
@@ -687,7 +704,8 @@ export function BatchOperationProgress({
             </Button>
           </div>
         </div>
-      </Modal>
+        </GlassModalShell>
+      ) : null}
     </>
   );
 }

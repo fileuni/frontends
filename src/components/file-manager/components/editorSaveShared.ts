@@ -1,4 +1,5 @@
 import { client } from '@/lib/api.ts';
+import { invalidateFileDownloadToken } from '@/lib/fileTokens.ts';
 
 export const TEXT_EDITOR_AUTO_SAVE = {
   tickMs: 5_000,
@@ -115,4 +116,6 @@ export const saveTextFileContent = async ({
   if (!data?.['success']) {
     throw new Error(getRecordMessage(data) ?? fallbackMessage);
   }
+
+  invalidateFileDownloadToken(path);
 };

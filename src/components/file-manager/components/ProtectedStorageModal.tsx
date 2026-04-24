@@ -221,6 +221,7 @@ export const ProtectedStorageModal = ({
       subtitle={getProtectedStorageModeDetail(t, globalMode)}
       icon={<Shield size={24} />}
       onClose={onClose}
+      compact="all"
       maxWidthClassName="max-w-xl"
       bodyClassName="space-y-4"
       closeButton={

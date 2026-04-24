@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import {
   AlertCircle,
   Cloud,
@@ -6,6 +7,7 @@ import {
   FolderSync,
   Server,
   Trash2,
+  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -13,7 +15,6 @@ import { client, extractData, handleApiError } from '@/lib/api';
 import type { components } from '@/lib/api';
 import { useToastStore } from '@/stores/toast';
 import { useThemeStore } from '@/stores/theme';
-import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/common/PasswordInput';
@@ -505,19 +506,30 @@ export const RemoteMountManagerModal: React.FC<{
     }
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
+    <GlassModalShell
       title={title || t('filemanager.mounts.title')}
-      maxWidth="max-w-5xl"
-      className={cn(
-        'h-[calc(100dvh-1rem)] overflow-hidden rounded-[1.5rem] border shadow-2xl sm:h-auto sm:rounded-2xl',
+      subtitle={editingMount?.name || t('filemanager.mounts.button') || 'Mounts'}
+      icon={<Cloud size={24} />}
+      onClose={onClose}
+      compact="all"
+      maxWidthClassName="max-w-5xl"
+      panelClassName={cn(
+        'h-[calc(100dvh-1rem)] overflow-hidden sm:h-auto',
         isDark
           ? 'bg-zinc-900 border-white/10 text-white'
           : 'bg-white border-gray-200 text-gray-900'
       )}
       bodyClassName="overflow-hidden p-0"
+      closeButton={(
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+          <X size={24} className="opacity-40" />
+        </Button>
+      )}
     >
       <div className={cn(
         'flex h-full min-h-0 flex-col sm:min-h-[560px]',
@@ -813,6 +825,6 @@ export const RemoteMountManagerModal: React.FC<{
           </div>
         </div>
       </div>
-    </Modal>
+    </GlassModalShell>
   );
 };

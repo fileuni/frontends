@@ -16,6 +16,8 @@ import {
 import { useAutoSave } from '../hooks/useAutoSave.ts';
 import { PlainTextPreviewSurface } from './PlainTextPreviewSurface';
 
+const VDITOR_VERSION = '3.11.2';
+
 type VditorOptions = ConstructorParameters<typeof Vditor>[1];
 type VditorUploadOptions = NonNullable<VditorOptions>["upload"];
 
@@ -51,6 +53,13 @@ const getVditorLang = (lang: string): "zh_CN" | "en_US" | "ja_JP" | "ko_KR" => {
 
 const MOBILE_SPLIT_BREAKPOINT = '(max-width: 960px)';
 const normalizeVditorBase = (base: string) => base.replace(/\/+$/, '');
+const resolveVditorCdnBase = (base: string) => {
+  const normalizedBase = normalizeVditorBase(base);
+  if (/\/npm\/vditor@[^/]+$/.test(normalizedBase)) {
+    return normalizedBase;
+  }
+  return `${normalizedBase}/npm/vditor@${VDITOR_VERSION}`;
+};
 
 /**
  * Markdown Editor and Previewer (Vditor powered)
@@ -146,7 +155,7 @@ export const MarkdownVditorEditor = ({
     };
   }, [addToast, loadContent, path, t]);
 
-  const resolvedCdnBase = cdnBase ? normalizeVditorBase(cdnBase) : null;
+  const resolvedCdnBase = cdnBase ? resolveVditorCdnBase(cdnBase) : null;
   const previewMode = contentMode === 'plain'
     ? 'editor'
     : (!isEditing ? 'both' : isCompactLayout ? 'editor' : 'both');

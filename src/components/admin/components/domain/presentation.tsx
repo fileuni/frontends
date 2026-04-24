@@ -18,8 +18,21 @@ export const selectStyle = {
     'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\' /%3E%3C/svg%3E")',
 } as const;
 
+export const glassControlBase =
+  'h-11 rounded-2xl border border-white/10 bg-white/[0.03] px-3 text-sm font-bold text-white outline-none transition-all placeholder:text-white/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20';
+
+export const glassSelectBase = cn(
+  glassControlBase,
+  'appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1rem] pr-10',
+);
+
 export const sectionCardBase =
   'p-5 sm:p-8 rounded-3xl sm:rounded-[2.5rem] bg-zinc-50/50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 dark:shadow-2xl transition-all';
+
+export const glassSectionCardBase = cn(
+  sectionCardBase,
+  'bg-white/[0.03] border-white/10 text-white shadow-none',
+);
 
 export const normalizeStatus = (
   value?: string | null,

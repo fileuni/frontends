@@ -1,9 +1,9 @@
 import React, { useState, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal } from '@/components/ui/Modal.tsx';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
-import { FolderPlus, FilePlus, Pencil } from 'lucide-react';
+import { FolderPlus, FilePlus, Pencil, X } from 'lucide-react';
 import { useFileStore } from '../store/useFileStore.ts';
 
 interface FileActionModalProps {
@@ -79,12 +79,21 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
 
   // Destructive operations use dedicated modal
   if (actionModal.type === 'delete_confirm' || actionModal.type === 'mode_delete_confirm') return null;
+  if (!actionModal.isOpen) return null;
 
   return (
-    <Modal
-      isOpen={actionModal.isOpen}
-      onClose={closeActionModal}
+    <GlassModalShell
       title={actionModal.title}
+      subtitle={t('filemanager.messages.enterNewName')}
+      icon={getIcon()}
+      onClose={closeActionModal}
+      compact="all"
+      maxWidthClassName="max-w-md"
+      closeButton={(
+        <Button variant="ghost" size="sm" onClick={closeActionModal} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+          <X size={24} className="opacity-40" />
+        </Button>
+      )}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
@@ -115,6 +124,6 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
           </Button>
         </div>
       </form>
-    </Modal>
+    </GlassModalShell>
   );
 };

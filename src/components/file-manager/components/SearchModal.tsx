@@ -61,6 +61,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
       subtitle={t('filemanager.searchPlaceholder')}
       icon={<Search size={24} />}
       onClose={onClose}
+      compact="all"
       maxWidthClassName="max-w-xl"
       bodyClassName="space-y-5"
       closeButton={(

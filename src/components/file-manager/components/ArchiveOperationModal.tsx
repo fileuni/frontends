@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal } from '@/components/ui/Modal.tsx';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Input } from '@/components/ui/Input.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
 import { useConfigStore } from '@/stores/config.ts';
+import { Archive, X } from 'lucide-react';
 
 type ArchiveOperationMode = 'compress' | 'decompress';
 
@@ -169,8 +170,24 @@ export function ArchiveOperationModal({
       ? t('filemanager.archive.decompressTitle')
       : t('filemanager.archive.compressTitle');
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} className="max-w-lg">
+    <GlassModalShell
+      title={title}
+      subtitle={mode === 'decompress' ? t('filemanager.archive.targetPath') : t('filemanager.archive.archiveName')}
+      icon={<Archive size={24} />}
+      onClose={onClose}
+      compact="all"
+      maxWidthClassName="max-w-lg"
+      closeButton={(
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+          <X size={24} className="opacity-40" />
+        </Button>
+      )}
+    >
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
             <div className="bg-red-500/10 p-3 rounded-xl text-red-500 text-sm font-bold border border-red-500/20">
@@ -355,6 +372,6 @@ export function ArchiveOperationModal({
           </Button>
         </div>
       </form>
-    </Modal>
+    </GlassModalShell>
   );
 }

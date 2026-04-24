@@ -108,7 +108,7 @@ export const FileManagerSettingsModal = ({
   const [removingKeyId, setRemovingKeyId] = useState<string | null>(null);
   const [regeneratingS3, setRegeneratingS3] = useState(false);
   const [sshKeyDraft, setSshKeyDraft] = useState('');
-  const [openProtocolKey, setOpenProtocolKey] = useState<'webdav' | 'ftp' | 'sftp' | 's3'>('webdav');
+  const [openProtocolKey, setOpenProtocolKey] = useState<'webdav' | 'ftp' | 'sftp' | 's3' | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const modalTitle = resolveText(
@@ -529,8 +529,10 @@ export const FileManagerSettingsModal = ({
         subtitle={protocolSectionDesc}
         icon={<HardDrive size={24} />}
         onClose={onClose}
+        compact="all"
         maxWidthClassName="max-w-5xl"
         bodyClassName="space-y-6 lg:space-y-8"
+        zIndexClassName="z-[250]"
         closeButton={(
           <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
             <span className="text-2xl opacity-40 leading-none">×</span>
@@ -605,14 +607,14 @@ export const FileManagerSettingsModal = ({
                   {protocolSectionTitle}
                 </h4>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {protocolCards.map(({ key, icon: Icon, title, enabled, endpoint, accessNote, extra, action }) => {
                   const expanded = openProtocolKey === key;
                   return (
                     <div
                       key={key}
                       className={cn(
-                        'rounded-3xl border transition-colors overflow-hidden',
+                        'rounded-[1.75rem] border transition-colors overflow-hidden',
                         enabled
                           ? 'border-primary/20 bg-primary/10 shadow-[0_20px_60px_rgba(0,0,0,0.22)]'
                           : 'border-white/10 bg-white/[0.03] opacity-90',
@@ -620,17 +622,17 @@ export const FileManagerSettingsModal = ({
                     >
                       <button
                         type="button"
-                        className="w-full px-4 py-4 sm:px-5 sm:py-5 text-left flex items-start gap-3"
-                        onClick={() => setOpenProtocolKey((prev) => (prev === key ? key : key))}
+                        className="w-full px-4 py-3 sm:px-4 sm:py-3.5 text-left flex items-start gap-3"
+                        onClick={() => setOpenProtocolKey((prev) => (prev === key ? null : key))}
                       >
-                        <div className="h-11 w-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner shrink-0">
-                          <Icon size={18} />
+                        <div className="h-10 w-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner shrink-0">
+                          <Icon size={17} />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <div className="text-base font-black text-white tracking-tight">{title}</div>
-                              <div className="text-xs font-bold uppercase tracking-[0.16em] text-white/35 mt-1">
+                              <div className="text-sm sm:text-[15px] font-black text-white tracking-tight">{title}</div>
+                              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/35 mt-1">
                                 {enabled ? t('common.enabled') : t('common.disabled')}
                               </div>
                             </div>
@@ -642,27 +644,27 @@ export const FileManagerSettingsModal = ({
                               )}
                             />
                           </div>
-                          <div className="mt-3 text-sm font-mono break-all text-white/72 pr-4 line-clamp-2 sm:line-clamp-1">
+                          <div className="mt-2 text-xs sm:text-sm font-mono break-all text-white/72 pr-2 line-clamp-2 sm:line-clamp-1 leading-snug">
                             {endpoint || '-'}
                           </div>
                         </div>
                       </button>
 
                       {expanded && (
-                        <div className="px-4 pb-4 sm:px-5 sm:pb-5 border-t border-white/5">
-                          <div className="pt-4 space-y-4 text-sm">
+                        <div className="px-4 pb-3 sm:px-4 sm:pb-4 border-t border-white/5">
+                          <div className="pt-3 space-y-3 text-sm">
                             <div>
-                              <div className="opacity-40 font-black uppercase tracking-[0.16em]">{endpointLabel}</div>
-                              <div className="font-mono break-all mt-1 text-white/85">{endpoint || '-'}</div>
+                              <div className="opacity-40 font-black uppercase tracking-[0.16em] text-[11px]">{endpointLabel}</div>
+                              <div className="font-mono break-all mt-1 text-white/85 text-xs sm:text-sm leading-snug">{endpoint || '-'}</div>
                             </div>
                             <div>
-                              <div className="opacity-40 font-black uppercase tracking-[0.16em]">{accessLabel}</div>
-                              <div className="mt-1 text-white/75 leading-relaxed">{enabled ? accessNote : disabledProtocolText}</div>
+                              <div className="opacity-40 font-black uppercase tracking-[0.16em] text-[11px]">{accessLabel}</div>
+                              <div className="mt-1 text-white/75 leading-relaxed text-xs sm:text-sm">{enabled ? accessNote : disabledProtocolText}</div>
                             </div>
                             {extra ? (
                               <div>
-                                <div className="opacity-40 font-black uppercase tracking-[0.16em]">{detailsLabel}</div>
-                                <div className="mt-1 break-all text-white/75 leading-relaxed">{extra}</div>
+                                <div className="opacity-40 font-black uppercase tracking-[0.16em] text-[11px]">{detailsLabel}</div>
+                                <div className="mt-1 break-all text-white/75 leading-relaxed text-xs sm:text-sm">{extra}</div>
                               </div>
                             ) : null}
                             {enabled && action ? <div className="pt-1">{action}</div> : null}
@@ -686,6 +688,8 @@ export const FileManagerSettingsModal = ({
           )}
           icon={<Cloud size={24} />}
           onClose={() => setShowS3Modal(false)}
+          compact="header"
+          nested
           maxWidthClassName="max-w-2xl"
           bodyClassName="space-y-5"
           closeButton={(
@@ -783,6 +787,8 @@ export const FileManagerSettingsModal = ({
           subtitle={sftpModalDesc}
           icon={<Shield size={24} />}
           onClose={() => setShowSftpModal(false)}
+          compact="header"
+          nested
           maxWidthClassName="max-w-3xl"
           bodyClassName="space-y-5"
           closeButton={(

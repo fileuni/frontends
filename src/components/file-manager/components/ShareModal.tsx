@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
 import { useToastStore } from '@/stores/toast';
-import { Modal } from '@/components/ui/Modal.tsx';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
@@ -213,13 +213,24 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     </button>
   );
 
+  if (!isOpen || !file) {
+    return null;
+  }
+
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={handleClose} 
+    <GlassModalShell 
       title={isEditing ? t('filemanager.shareModal.viewEditTitle') : t('filemanager.shareModal.title')} 
-      maxWidth="max-w-md"
+      subtitle={file.name || t('filemanager.file')}
+      icon={<LinkIcon size={24} />}
+      onClose={handleClose}
+      compact="all"
+      maxWidthClassName="max-w-md"
       bodyClassName="p-0"
+      closeButton={(
+        <Button variant="ghost" size="sm" onClick={handleClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+          <X size={24} className="opacity-40" />
+        </Button>
+      )}
     >
       <div className="flex flex-col h-full" data-testid="share-modal">
         {isEditing && (
@@ -498,6 +509,6 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
           </div>
         )}
       </div>
-    </Modal>
+    </GlassModalShell>
   );
 };

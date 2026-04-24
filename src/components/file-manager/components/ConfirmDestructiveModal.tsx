@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal } from '@/components/ui/Modal.tsx';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button.tsx';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 
 interface ConfirmDestructiveModalProps {
   isOpen: boolean;
@@ -55,12 +55,23 @@ export const ConfirmDestructiveModal = ({
     onClose();
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
+    <GlassModalShell
       title={title}
-      className="max-w-sm"
+      subtitle={message}
+      icon={<AlertTriangle size={24} />}
+      onClose={onClose}
+      compact="all"
+      maxWidthClassName="max-w-sm"
+      closeButton={(
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+          <X size={24} className="opacity-40" />
+        </Button>
+      )}
     >
       <div className="flex flex-col items-center text-center gap-4 py-2">
         <div className="relative">
@@ -121,6 +132,6 @@ export const ConfirmDestructiveModal = ({
           </Button>
         </div>
       </div>
-    </Modal>
+    </GlassModalShell>
   );
 };

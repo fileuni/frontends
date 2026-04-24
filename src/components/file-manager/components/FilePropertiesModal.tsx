@@ -90,6 +90,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
       subtitle={file.is_dir ? t('filemanager.folder') : t('filemanager.file')}
       icon={<Info size={24} />}
       onClose={onClose}
+      compact="all"
       maxWidthClassName="max-w-2xl"
       bodyClassName="space-y-6"
       closeButton={(
