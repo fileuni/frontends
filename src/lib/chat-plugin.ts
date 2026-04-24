@@ -1,5 +1,10 @@
 import { useAuthStore } from '@/stores/auth.ts';
-import { buildPluginViewHash, CHAT_PLUGIN_ID } from '@/lib/plugin-nav.ts';
+import {
+  buildPluginViewHash,
+  CHAT_PLUGIN_ID,
+  fetchPluginNavItems,
+  isChatPluginNavItem,
+} from '@/lib/plugin-nav.ts';
 
 const CHAT_PLUGIN_CHECK_TTL_MS = 60_000;
 const chatPluginInstallCache = new Map<string, { installed: boolean; expiresAt: number }>();
@@ -62,20 +67,26 @@ export async function isChatPluginInstalled(pluginId = CHAT_PLUGIN_ID): Promise<
     return cached.installed;
   }
 
-  const response = await fetch(`/api/v1/plugins/${encodeURIComponent(pluginId)}/ui`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: 'same-origin',
-  });
-  const installed = response.ok;
-  if (installed || response.status === 404) {
+  try {
+    const items = await fetchPluginNavItems();
+    const installed = items.some((item) => {
+      if (pluginId === CHAT_PLUGIN_ID) {
+        return isChatPluginNavItem(item);
+      }
+      return item.plugin_id === pluginId;
+    });
     chatPluginInstallCache.set(pluginId, {
       installed,
       expiresAt: now + CHAT_PLUGIN_CHECK_TTL_MS,
     });
+    return installed;
+  } catch {
+    chatPluginInstallCache.set(pluginId, {
+      installed: false,
+      expiresAt: now + CHAT_PLUGIN_CHECK_TTL_MS,
+    });
+    return false;
   }
-  return installed;
 }
 
 export function buildChatViewHash(
