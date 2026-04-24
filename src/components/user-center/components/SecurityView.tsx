@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { useAuthStore } from '@/stores/auth.ts';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
-import { Modal } from '@/components/ui/Modal.tsx';
 import { ShieldCheck, Mail, Phone, HelpCircle, AlertTriangle, Trash2, Send, ChevronRight, Cloud, RefreshCw, Key, Eye, EyeOff } from 'lucide-react';
 import {
   client,
@@ -458,12 +458,15 @@ export const SecurityView = () => {
       </div>
 
       {/* Verification Modals */}
-      <Modal 
-        isOpen={activeModal === 'email' || activeModal === 'phone'} 
-        onClose={handleModalClose} 
-        title={t('security.verifyModalTitle', { type: activeModal === 'email' ? 'Email' : 'Phone' })}
-      >
-        <div className="space-y-6">
+      {(activeModal === 'email' || activeModal === 'phone') && (
+        <GlassModalShell
+          title={t('security.verifyModalTitle', { type: activeModal === 'email' ? 'Email' : 'Phone' })}
+          onClose={handleModalClose}
+          closeLabel={t('common.close') || 'Close'}
+          maxWidthClassName="max-w-2xl"
+          panelClassName="dark text-white"
+        >
+          <div className="space-y-6">
           <FormField label={t('security.targetAddress')} htmlFor={verifyTargetInputId}>
             <Input
               id={verifyTargetInputId}
@@ -474,8 +477,9 @@ export const SecurityView = () => {
                 const normalized = activeModal === "email" ? normalizeEmailInput(bindForm.target) : normalizePhoneInput(bindForm.target);
                 setBindForm((f) => ({ ...f, target: normalized }));
               }}
-              placeholder={activeModal === 'email' ? t('security.enterEmail') : t('security.enterPhone')}
-            />
+                placeholder={activeModal === 'email' ? t('security.enterEmail') : t('security.enterPhone')}
+                className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/30"
+              />
           </FormField>
 
           {needCaptcha && (
@@ -496,10 +500,10 @@ export const SecurityView = () => {
           )}
 
           <div className="space-y-2">
-            <label htmlFor={verifyCodeInputId} className="text-sm font-black tracking-widest opacity-40 ml-1">{t('common.verificationCode')}</label>
+            <label htmlFor={verifyCodeInputId} className="ml-1 text-sm font-black tracking-widest opacity-40">{t('common.verificationCode')}</label>
             <div className="flex gap-2">
-              <Input id={verifyCodeInputId} value={bindForm.code} onChange={e => setBindForm({ ...bindForm, code: e.target.value })} placeholder={t('common.codePlaceholder')} className="flex-1 font-mono tracking-widest" />
-              <Button type="button" variant="outline" className="px-4 h-12 whitespace-nowrap" disabled={bindForm.timer > 0 || !bindForm.target || (needCaptcha && !captchaTokenForSubmit)} onClick={() => activeModal && handleSendCode(activeModal as 'email' | 'phone')}>
+              <Input id={verifyCodeInputId} value={bindForm.code} onChange={e => setBindForm({ ...bindForm, code: e.target.value })} placeholder={t('common.codePlaceholder')} className="flex-1 border-white/10 bg-white/[0.03] font-mono tracking-widest text-white placeholder:text-white/30" />
+              <Button type="button" variant="outline" className="h-12 whitespace-nowrap border-white/10 bg-white/[0.03] px-4 text-white hover:bg-white/10" disabled={bindForm.timer > 0 || !bindForm.target || (needCaptcha && !captchaTokenForSubmit)} onClick={() => activeModal && handleSendCode(activeModal as 'email' | 'phone')}>
                 {bindForm.timer > 0 ? `${bindForm.timer}s` : <><Send size={16} className="mr-2" /> {t('security.send')}</>}
               </Button>
             </div>
@@ -507,37 +511,50 @@ export const SecurityView = () => {
           <Button type="button" className="w-full h-14" disabled={!bindForm.code || !bindForm.token} onClick={() => activeModal && handleVerify(activeModal as 'email' | 'phone')}>
             {t('security.completeVerify')}
           </Button>
-        </div>
-      </Modal>
+          </div>
+        </GlassModalShell>
+      )}
 
       {/* Change Password Modal */}
-      <Modal
-        isOpen={activeModal === 'password'}
-        onClose={handleModalClose}
-        title={t('nav.changePassword')}
-      >
-        <PasswordChangeForm onSuccess={handleModalClose} />
-      </Modal>
+      {activeModal === 'password' && (
+        <GlassModalShell
+          title={t('nav.changePassword')}
+          onClose={handleModalClose}
+          closeLabel={t('common.close') || 'Close'}
+          maxWidthClassName="max-w-xl"
+          panelClassName="dark text-white"
+        >
+          <PasswordChangeForm onSuccess={handleModalClose} />
+        </GlassModalShell>
+      )}
 
       {/* Delete Account Modal */}
-      <Modal isOpen={activeModal === 'delete'} onClose={handleModalClose} title={t('security.finalConfirm')} className="border-red-500/30">
-        <div className="space-y-6 text-center">
+      {activeModal === 'delete' && (
+        <GlassModalShell
+          title={t('security.finalConfirm')}
+          onClose={handleModalClose}
+          closeLabel={t('common.close') || 'Close'}
+          maxWidthClassName="max-w-xl"
+          panelClassName="dark border-red-500/30 text-white"
+        >
+          <div className="space-y-6 text-center">
           <p className="text-sm font-bold opacity-60">{t('security.typePhrase')}</p>
-          <div className="bg-white/5 p-3 rounded-lg font-mono text-sm select-all border border-white/5 text-red-400 font-black">
+          <div className="rounded-lg border border-white/5 bg-white/5 p-3 text-sm font-black text-red-400 font-mono select-all">
             {t('auth.deleteConfirmPhrase')}
           </div>
-          <Input value={deleteConfirm.phrase} onChange={e => setDeleteConfirm({ ...deleteConfirm, phrase: e.target.value })} placeholder={t('security.phrasePlaceholder')} className="text-center font-bold border-red-500/20 focus:border-red-500" />
+          <Input value={deleteConfirm.phrase} onChange={e => setDeleteConfirm({ ...deleteConfirm, phrase: e.target.value })} placeholder={t('security.phrasePlaceholder')} className="border-red-500/20 bg-white/[0.03] text-center font-bold text-white placeholder:text-white/30 focus:border-red-500" />
           <PasswordInput
             value={deleteConfirm.password}
             onChange={e => setDeleteConfirm({ ...deleteConfirm, password: e.target.value })}
             placeholder={t('security.currentPassword')}
-            inputClassName="text-center border-red-500/20 focus:border-red-500"
+            inputClassName="border-red-500/20 bg-white/[0.03] text-center text-white placeholder:text-white/30 focus:border-red-500"
           />
           <Button className="w-full h-14 bg-red-500 hover:bg-red-600 text-white shadow-red-500/20" disabled={deleteConfirm.phrase !== t('auth.deleteConfirmPhrase') || !deleteConfirm.password}>
             {t('security.deleteEverything')}
           </Button>
-        </div>
-      </Modal>
+          </div>
+        </GlassModalShell>
+      )}
     </div>
   );
 };

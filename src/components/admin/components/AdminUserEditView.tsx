@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { useToastStore } from '@/stores/toast';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
-import { Modal } from '@/components/ui/Modal.tsx';
 import { 
   Database, Save, RefreshCw, 
   ShieldAlert, ArrowLeft, Key, Trash2, Lock, 
@@ -652,12 +652,15 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
       </div>
 
       {/* Reset Password Modal */}
-      <Modal
-        isOpen={resetPwdOpen}
-        onClose={() => setResetPwdOpen(false)}
-        title={t('admin.users.resetPassword')}
-      >
-        <div className="space-y-6">
+      {resetPwdOpen && (
+        <GlassModalShell
+          title={t('admin.users.resetPassword')}
+          onClose={() => setResetPwdOpen(false)}
+          closeLabel={t('common.close') || 'Close'}
+          maxWidthClassName="max-w-xl"
+          panelClassName="dark text-white"
+        >
+          <div className="space-y-6">
           <p className="text-sm opacity-60">
             {t('admin.users.resetPwdConfirm', { username: rawUser?.username })}
           </p>
@@ -668,6 +671,7 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder={t('admin.edit.passwordPlaceholder')}
+                inputClassName="bg-white/[0.03] text-white placeholder:text-white/30"
               />
             </div>
             <div className="space-y-2">
@@ -676,11 +680,12 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 placeholder={t('admin.edit.passwordPlaceholder')}
+                inputClassName="bg-white/[0.03] text-white placeholder:text-white/30"
               />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setResetPwdOpen(false)}>{t('common.cancel')}</Button>
+            <Button type="button" variant="outline" className="border-white/10 bg-white/[0.03] text-white hover:bg-white/10" onClick={() => setResetPwdOpen(false)}>{t('common.cancel')}</Button>
             <Button 
               type="button"
               disabled={isResetting || newPassword !== confirmPassword || newPassword.length < 6}
@@ -690,24 +695,28 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
               {t('admin.users.resetPassword')}
             </Button>
           </div>
-        </div>
-      </Modal>
+          </div>
+        </GlassModalShell>
+      )}
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        title={t('admin.users.deleteUser')}
-      >
-        <div className="space-y-6">
-          <div className="flex items-center gap-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500">
+      {deleteOpen && (
+        <GlassModalShell
+          title={t('admin.users.deleteUser')}
+          onClose={() => setDeleteOpen(false)}
+          closeLabel={t('common.close') || 'Close'}
+          maxWidthClassName="max-w-xl"
+          panelClassName="dark text-white"
+        >
+          <div className="space-y-6">
+          <div className="flex items-center gap-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-300">
             <ShieldAlert size={24} />
             <p className="text-sm font-bold">
               {t('admin.users.deleteConfirm', { username: rawUser?.username })}
             </p>
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button>
+            <Button type="button" variant="outline" className="border-white/10 bg-white/[0.03] text-white hover:bg-white/10" onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button>
             <Button 
               type="button"
               variant="destructive"
@@ -718,8 +727,9 @@ export const AdminUserEditView = ({ userId: initialUserId }: { userId?: string }
               {t('admin.users.confirmDelete')}
             </Button>
           </div>
-        </div>
-      </Modal>
+          </div>
+        </GlassModalShell>
+      )}
     </AdminPage>
   );
 };

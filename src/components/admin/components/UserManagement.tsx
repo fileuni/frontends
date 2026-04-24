@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { useToastStore } from '@/stores/toast';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
-import { Modal } from '@/components/ui/Modal.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
 import { Pagination } from '@/components/ui/Pagination';
@@ -443,16 +443,19 @@ export const UserManagement = () => {
       </AdminCard>
 
       {/* Reset Password Modal */}
-      <Modal
-        isOpen={!!resetPwdUser}
-        onClose={() => {
-          setResetPwdUser(null);
-          setNewPassword('');
-          setConfirmPassword('');
-        }}
-        title={t('admin.users.resetPassword')}
-      >
-        <div className="space-y-6">
+      {resetPwdUser && (
+        <GlassModalShell
+          title={t('admin.users.resetPassword')}
+          onClose={() => {
+            setResetPwdUser(null);
+            setNewPassword('');
+            setConfirmPassword('');
+          }}
+          closeLabel={t('common.close') || 'Close'}
+          maxWidthClassName="max-w-xl"
+          panelClassName="dark text-white"
+        >
+          <div className="space-y-6">
           <p className="text-sm opacity-60">
             {t('admin.users.resetPwdConfirm', { username: resetPwdUser?.username })}
           </p>
@@ -463,7 +466,7 @@ export const UserManagement = () => {
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder={t('common.passwordPlaceholder')}
-                inputClassName={cn(isPasswordMismatch && "border-red-500/50 focus:border-red-500")}
+                inputClassName={cn('bg-white/[0.03] text-white placeholder:text-white/30', isPasswordMismatch && 'border-red-500/50 focus:border-red-500')}
               />
             </div>
             <div className="space-y-2">
@@ -472,7 +475,7 @@ export const UserManagement = () => {
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 placeholder={t('common.passwordPlaceholder')}
-                inputClassName={cn(isPasswordMismatch && "border-red-500/50 focus:border-red-500")}
+                inputClassName={cn('bg-white/[0.03] text-white placeholder:text-white/30', isPasswordMismatch && 'border-red-500/50 focus:border-red-500')}
               />
               {isPasswordMismatch && (
                 <div className="flex items-center gap-2 text-red-500 mt-2 animate-in fade-in slide-in-from-top-1">
@@ -483,7 +486,7 @@ export const UserManagement = () => {
             </div>
           </div>
           <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
-            <Button variant="outline" onClick={() => setResetPwdUser(null)}>{t('common.cancel')}</Button>
+            <Button variant="outline" onClick={() => setResetPwdUser(null)} className="border-white/10 bg-white/[0.03] text-white hover:bg-white/10">{t('common.cancel')}</Button>
             <Button 
               disabled={isResetting || newPassword !== confirmPassword || newPassword.length < 6}
               onClick={handleResetPassword}
@@ -492,18 +495,22 @@ export const UserManagement = () => {
               {t('admin.users.resetPassword')}
             </Button>
           </div>
-        </div>
-      </Modal>
+          </div>
+        </GlassModalShell>
+      )}
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={!!deleteUser}
-        onClose={() => setDeleteUser(null)}
-        title={t('admin.users.deleteUser')}
-      >
-        <div className="space-y-6">
+      {deleteUser && (
+        <GlassModalShell
+          title={t('admin.users.deleteUser')}
+          onClose={() => setDeleteUser(null)}
+          closeLabel={t('common.close') || 'Close'}
+          maxWidthClassName="max-w-xl"
+          panelClassName="dark text-white"
+        >
+          <div className="space-y-6">
           {deleteUser?.role_id === 0 && (
-            <div className="p-4 rounded-2xl bg-red-600/20 border border-red-500/50 text-red-500 animate-pulse">
+            <div className="animate-pulse rounded-2xl border border-red-500/50 bg-red-600/20 p-4 text-red-300">
               <div className="flex items-center gap-3 mb-2">
                 <ShieldAlert size={20} />
                 <span className="font-black text-sm tracking-widest">{t('admin.users.roles.admin')}</span>
@@ -514,7 +521,7 @@ export const UserManagement = () => {
             </div>
           )}
 
-          <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+          <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
             <AlertCircle size={24} className="text-primary opacity-50" />
             <p className="text-sm font-bold">
               {t('admin.users.deleteConfirm', { username: deleteUser?.username })}
@@ -526,7 +533,7 @@ export const UserManagement = () => {
           </p>
 
           <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
-            <Button variant="outline" onClick={() => setDeleteUser(null)}>{t('common.cancel')}</Button>
+            <Button variant="outline" onClick={() => setDeleteUser(null)} className="border-white/10 bg-white/[0.03] text-white hover:bg-white/10">{t('common.cancel')}</Button>
             <Button 
               variant="destructive"
               disabled={isDeleting}
@@ -537,8 +544,9 @@ export const UserManagement = () => {
               {t('admin.users.confirmDelete')}
             </Button>
           </div>
-        </div>
-      </Modal>
+          </div>
+        </GlassModalShell>
+      )}
     </AdminPage>
   );
 };

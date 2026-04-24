@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { useToastStore } from '@/stores/toast';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
-import { Modal } from '@/components/ui/Modal.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { Pagination } from '@/components/ui/Pagination';
 import { 
@@ -317,19 +317,22 @@ export const BlacklistAdmin = () => {
       </AdminCard>
 
       {/* Add Modal */}
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        title={t('admin.blacklist.addTitle') || 'Add Security Constraint'}
-      >
-        <div className="space-y-6">
+      {isAddModalOpen && (
+        <GlassModalShell
+          title={t('admin.blacklist.addTitle') || 'Add Security Constraint'}
+          onClose={() => setIsAddModalOpen(false)}
+          closeLabel={t('common.close') || 'Close'}
+          maxWidthClassName="max-w-2xl"
+          panelClassName="dark text-white"
+        >
+          <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="text-sm font-black tracking-widest opacity-40">{t('admin.blacklist.form.guardLevel') || 'Guard Level'}</div>
               <select 
                 value={newGuardType}
                 onChange={e => setNewGuardType(e.target.value)}
-                className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-sm focus:ring-2 ring-primary/20 outline-none transition-all"
+                className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition-all focus:ring-2 ring-primary/20"
               >
                 <option value="blacklist">{t('admin.blacklist.guard.blacklist') || 'Blacklist (Deny Access)'}</option>
                 <option value="high_risk">{t('admin.blacklist.guard.highRisk') || 'High Risk (Extra Checks)'}</option>
@@ -340,7 +343,7 @@ export const BlacklistAdmin = () => {
               <select 
                 value={newBlacklistType}
                 onChange={e => setNewBlacklistType(e.target.value)}
-                className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-sm focus:ring-2 ring-primary/20 outline-none transition-all"
+                className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition-all focus:ring-2 ring-primary/20"
               >
                 <option value="ip">{t('admin.blacklist.subjectType.ip') || 'IP Address'}</option>
                 <option value="user_id">{t('admin.blacklist.subjectType.userId') || 'User ID (UUID)'}</option>
@@ -355,7 +358,7 @@ export const BlacklistAdmin = () => {
               value={newValue}
               onChange={e => setNewValue(e.target.value)}
               placeholder={t('admin.blacklist.form.identifierPlaceholder') || 'e.g. 192.168.1.1 or user-uuid'}
-              className="h-12"
+              className="h-12 border-white/10 bg-white/[0.03] text-white placeholder:text-white/30"
             />
           </div>
 
@@ -365,7 +368,7 @@ export const BlacklistAdmin = () => {
               value={newReason}
               onChange={e => setNewReason(e.target.value)}
               placeholder={t('admin.blacklist.form.reasonPlaceholder') || 'Why is this being blocked?'}
-              className="h-12"
+              className="h-12 border-white/10 bg-white/[0.03] text-white placeholder:text-white/30"
             />
           </div>
 
@@ -375,13 +378,13 @@ export const BlacklistAdmin = () => {
               type="datetime-local"
               value={newExpiresAt}
               onChange={e => setNewExpiresAt(e.target.value)}
-              className="h-12"
+              className="h-12 border-white/10 bg-white/[0.03] text-white"
             />
             <p className="text-[14px] opacity-30 italic">{t('admin.blacklist.form.permanentHint') || 'Leave empty for permanent constraint'}</p>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button variant="outline" className="border-white/10 bg-white/[0.03] text-white hover:bg-white/10" onClick={() => setIsAddModalOpen(false)}>{t('common.cancel')}</Button>
             <Button 
               disabled={isAdding || !newValue.trim()}
               onClick={handleAdd}
@@ -391,8 +394,9 @@ export const BlacklistAdmin = () => {
               {t('admin.blacklist.confirmAdd') || 'Apply Constraint'}
             </Button>
           </div>
-        </div>
-      </Modal>
+          </div>
+        </GlassModalShell>
+      )}
     </AdminPage>
   );
 };
