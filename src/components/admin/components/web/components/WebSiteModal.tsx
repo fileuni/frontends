@@ -1,4 +1,4 @@
-import { Modal } from '@/components/ui/Modal.tsx';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Input } from '@/components/ui/Input.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
@@ -50,6 +50,8 @@ export const WebSiteModal = ({
   onUpdateBinding: (index: number, patch: Partial<SiteBinding>) => void;
   setDraft: (next: SiteDraft) => void;
 }) => {
+  if (!isOpen) return null;
+
   const bindingAddresses = draft.bindings
     .map((binding) => `${binding.listen_ip}:${binding.listen_port}`)
     .filter((item, index, items) => item.length > 0 && items.indexOf(item) === index);
@@ -64,11 +66,12 @@ export const WebSiteModal = ({
     : draft.tls_acme_cert_id.trim() || draft.tls_cert_path.trim() || t('common.on');
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
+    <GlassModalShell
       title={draft.id ? t('admin.web.editSite') : t('admin.web.newSite')}
-      maxWidth="max-w-5xl"
+      onClose={onClose}
+      closeLabel={t('common.close') || 'Close'}
+      maxWidthClassName="max-w-5xl"
+      panelClassName="dark text-white"
     >
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -371,6 +374,6 @@ export const WebSiteModal = ({
           </Button>
         </div>
       </div>
-    </Modal>
+    </GlassModalShell>
   );
 };

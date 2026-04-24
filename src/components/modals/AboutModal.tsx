@@ -17,7 +17,6 @@ import type { TFunction } from 'i18next';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { useResolvedTheme } from '@/hooks/useResolvedTheme';
-import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { docsHomeUrl } from '@/lib/docs';
 
 const PROJECT_HOMEPAGE_URL = 'https://fileuni.com';
@@ -271,16 +270,11 @@ export const AboutModal: React.FC<AboutModalProps> = ({
   const { t } = useTranslation();
   const resolvedTheme = useResolvedTheme();
 
-  useEscapeToCloseTopLayer({
-    active: isOpen,
-    enabled: true,
-    onEscape: onClose,
-  });
-
   if (!isOpen) return null;
 
   const isDark = resolvedTheme === 'dark';
 
+  // Keep the custom modal shell here; GlassModalShell broke this modal's layout before.
   return (
     <div
       className="fixed inset-0 flex items-center justify-center p-2 sm:p-6"

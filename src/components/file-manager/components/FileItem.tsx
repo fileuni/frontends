@@ -24,6 +24,7 @@ interface FileItemProps {
   file: FileInfo;
   onContextMenu: (e: React.MouseEvent, file: FileInfo) => void;
   onAction?: ((action: string, target: FileInfo | null) => void) | undefined;
+  dragDisabled?: boolean;
 }
 
 /**
@@ -92,7 +93,7 @@ const StatusIcons = ({ file, mode, className, onAction, shareLabel }: { file: Fi
   );
 };
 
-export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
+export const FileItem = ({ file, onContextMenu, onAction, dragDisabled = false }: FileItemProps) => {
   const { t } = useTranslation();
   const store = useFileStore();
   const { files, highlightedPath, setHighlightedPath } = store;
@@ -113,7 +114,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
   const selectId = (store.fmMode === 'shares' && file.id) ? file.id : file.path;
   const selected = isSelected(selectId);
 
-  const { attributes, listeners, setNodeRef: setDraggableRef, transform, isDragging } = useDraggable({ id: selectId, data: { file } });
+  const { attributes, listeners, setNodeRef: setDraggableRef, transform, isDragging } = useDraggable({ id: selectId, data: { file }, disabled: dragDisabled });
   const { setNodeRef: setDroppableRef, isOver } = useDroppable({ id: selectId, data: { file }, disabled: !file.is_dir });
 
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 1000, opacity: 0.8 } : undefined;
@@ -237,6 +238,7 @@ export const FileItem = ({ file, onContextMenu, onAction }: FileItemProps) => {
         data-testid="file-item"
         data-file-name={displayName || file.name}
         data-file-path={file.path}
+        data-select-id={selectId}
         tabIndex={0}
         className={cn(
           "flex flex-col items-center p-3 rounded-3xl min-h-[140px] justify-start text-center",

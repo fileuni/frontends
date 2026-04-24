@@ -3,6 +3,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { HardDrive, Settings2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
@@ -494,34 +495,161 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
 
   const showAllSections = mode === "panel";
 
-  return (
-    <div
-      className={cn(
-        mode === "modal"
-          ? "fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4"
-          : "relative w-full",
+  return mode === "modal" ? (
+    <GlassModalShell
+      title={(
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={cn(
+            "p-2 rounded-lg",
+            isDark ? "bg-cyan-500/10" : "bg-cyan-50",
+          )}>
+            <HardDrive size={18} className="text-cyan-500 shrink-0" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-sm sm:text-base font-black tracking-widest truncate">
+              {t("admin.config.storage.title")}
+            </div>
+            <div className={cn(
+              "text-[10px] font-bold tracking-widest mt-0.5",
+              isDark ? "text-slate-500" : "text-slate-400",
+            )}>
+              {t("admin.config.storage.subtitle")}
+            </div>
+          </div>
+        </div>
       )}
-      {...(mode === "modal"
-        ? { role: "dialog", "aria-modal": "true" as const }
-        : {})}
-    >
-      {mode === "modal" && (
+      onClose={onClose}
+      maxWidthClassName="max-w-5xl"
+      panelClassName={cn(
+        "rounded-2xl shadow-lg overflow-hidden",
+        isDark
+          ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5"
+          : "bg-white border-gray-200 text-slate-900"
+      )}
+      bodyClassName="p-4 sm:p-6 space-y-4"
+      overlayClassName={cn(
+        "backdrop-blur-sm transition-colors",
+        isDark ? "bg-black/95" : "bg-slate-900/80"
+      )}
+      zIndexClassName="z-[150]"
+      containerClassName="p-2 sm:p-4"
+      closeButton={(
         <button
           type="button"
-          aria-label={t("common.cancel")}
-          className={cn(
-            "absolute inset-0 backdrop-blur-sm transition-colors",
-            isDark ? "bg-black/95" : "bg-slate-900/80",
-          )}
           onClick={onClose}
+          className={cn(
+            "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
+            isDark
+              ? "border-white/15 text-slate-300 hover:bg-white/10"
+              : "border-gray-200 text-slate-600 hover:bg-gray-100"
+          )}
+        >
+          <X size={16} />
+        </button>
+      )}
+      footer={(
+        <div className="w-full flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={resetToLocalDefaults}
+            className={cn(
+              "h-10 px-4 rounded-lg border text-sm font-black transition-colors",
+              isDark
+                ? "border-amber-500/40 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20"
+                : "border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100",
+            )}
+          >
+            {t("admin.config.storage.actions.resetLocal")}
+          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className={cn(
+                "h-10 px-4 rounded-lg border text-sm font-black transition-colors",
+                isDark
+                  ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+              )}
+            >
+              {t("common.cancel")}
+            </button>
+            <Button
+              onClick={applyToConfig}
+              className="h-10 px-6 rounded-lg shadow-sm"
+            >
+              {t("admin.config.storage.actions.apply")}
+            </Button>
+          </div>
+        </div>
+      )}
+    >
+      {contentView}
+
+      {view === "main" && !showAllSections && (
+        <VfsStorageMainSection
+          isDark={isDark}
+          mainPool={mainPool}
+          mainConnector={mainConnector}
+          connectors={connectors}
+          hasDirectoryPicker={hasDirectoryPicker}
+          pickingConnectorId={pickingConnectorId}
+          driverLabel={driverLabel}
+          onOpenAdvanced={() => {
+            setView("advanced");
+            setTab("connectors");
+          }}
+          onSelectPrimaryConnector={(connectorName) => {
+            if (!mainPool) return;
+            updatePool(mainPool.id, (prev) => ({
+              ...prev,
+              primary_connector: connectorName,
+            }));
+          }}
+          onRenameConnector={renameConnector}
+          onUpdateConnector={updateConnector}
+          onPickConnectorRoot={(id) => {
+            void pickConnectorRoot(id);
+          }}
         />
       )}
 
+      {(view === "advanced" || showAllSections) && (
+        <VfsStorageAdvancedSection
+          isDark={isDark}
+          showAllSections={showAllSections}
+          tab={tab}
+          connectors={connectors}
+          pools={pools}
+          policies={policies}
+          connectorNames={connectorNames}
+          poolNames={poolNames}
+          hasDirectoryPicker={hasDirectoryPicker}
+          pickingConnectorId={pickingConnectorId}
+          onTabChange={setTab}
+          onAddConnector={addConnector}
+          onRenameConnector={renameConnector}
+          onUpdateConnector={updateConnector}
+          onRemoveConnector={removeConnector}
+          onPickConnectorRoot={(id) => {
+            void pickConnectorRoot(id);
+          }}
+          onAddPool={addPool}
+          onRenamePool={renamePool}
+          onUpdatePool={updatePool}
+          onRemovePool={removePool}
+          onAddPolicy={addPolicy}
+          onUpdatePolicy={updatePolicy}
+          onRemovePolicy={removePolicy}
+        />
+      )}
+    </GlassModalShell>
+  ) : (
+    <div className="relative w-full">
       <div
         className={cn(
-          mode === "modal"
-            ? "relative w-full max-w-5xl rounded-2xl border shadow-lg overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]"
-            : "relative w-full rounded-2xl border shadow-md overflow-hidden flex flex-col min-h-0",
+          "relative w-full rounded-2xl border shadow-md overflow-hidden flex flex-col min-h-0",
           isDark
             ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5"
             : "bg-white border-gray-200 text-slate-900",
@@ -558,20 +686,6 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
               </p>
             </div>
           </div>
-          {mode === "modal" && (
-            <button
-              type="button"
-              onClick={onClose}
-              className={cn(
-                "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
-                isDark
-                  ? "border-white/15 text-slate-300 hover:bg-white/10"
-                  : "border-gray-200 text-slate-600 hover:bg-gray-100",
-              )}
-            >
-              <X size={16} />
-            </button>
-          )}
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-4">
@@ -657,20 +771,6 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
           </button>
 
           <div className="flex items-center gap-2">
-            {mode === "modal" && (
-              <button
-                type="button"
-                onClick={onClose}
-                className={cn(
-                  "h-10 px-4 rounded-lg border text-sm font-black transition-colors",
-                  isDark
-                    ? "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
-                )}
-              >
-                {t("common.cancel")}
-              </button>
-            )}
             <Button
               onClick={applyToConfig}
               className="h-10 px-6 rounded-lg shadow-sm"

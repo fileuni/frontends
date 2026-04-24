@@ -1,14 +1,14 @@
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { useUploadStore } from '../store/useUploadStore.ts';
 import { useFileStore } from '../store/useFileStore.ts';
-import { 
-  X, Upload, FileUp, FolderUp, 
+import {
+  X, Upload, FileUp, FolderUp,
   Info, AlertCircle, Database
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
 import { cn } from '@/lib/utils.ts';
-import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 
 interface Props {
   isOpen: boolean;
@@ -24,7 +24,7 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
   const { addTasks } = useUploadStore();
   const store = useFileStore();
   const currentPath = store.getCurrentPath();
-  
+
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dirInputRef = useRef<HTMLInputElement>(null);
@@ -32,11 +32,6 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
     webkitdirectory: "",
     directory: "",
   } as React.InputHTMLAttributes<HTMLInputElement>;
-
-  useEscapeToCloseTopLayer({
-    active: isOpen,
-    onEscape: onClose,
-  });
 
   const handleFiles = (files: FileList | null) => {
     if (files && files.length > 0) {
@@ -63,120 +58,114 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true" aria-label="File upload dialog" data-testid="upload-modal">
-      <button type="button" className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
-      
-      <div className="bg-zinc-900 border border-white/10 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden relative z-10 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]">
-        {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02] shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
-              <Upload size={20} />
-            </div>
-            <div>
-              <h3 className="text-white font-bold">{t('filemanager.upload')}</h3>
-              <div className="flex items-center gap-1.5 opacity-40 mt-0.5">
-                <Database size={10} />
-                <span className="text-sm font-mono truncate max-w-[300px]">{currentPath || '/'}</span>
-              </div>
-            </div>
+    <GlassModalShell
+      title={t('filemanager.upload')}
+      subtitle={(
+        <span className="flex items-center gap-1.5 text-[11px] font-mono normal-case">
+          <Database size={10} />
+          <span className="truncate">{currentPath || '/'}</span>
+        </span>
+      )}
+      icon={<Upload size={20} />}
+      onClose={onClose}
+      maxWidthClassName="max-w-xl"
+      compact="body"
+      closeButton={(
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0 hover:bg-accent text-muted-foreground">
+          <X size={20} />
+        </Button>
+      )}
+      footer={(
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-muted-foreground whitespace-nowrap">
+            {t('filemanager.messages.escCloseHint')}
+          </p>
+          <div className="flex justify-end">
+            <Button variant="ghost" onClick={onClose} className="rounded-xl px-6 h-11 font-bold">
+              {t('common.cancel')}
+            </Button>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0 hover:bg-white/5">
-            <X size={20} className="opacity-40" />
-          </Button>
         </div>
+      )}
+    >
+      <div data-testid="upload-modal" className="space-y-8">
+        <button
+          type="button"
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
+          className={cn(
+            "border-2 border-dashed rounded-3xl p-7 sm:p-12 flex flex-col items-center justify-center transition-all duration-300 relative group w-full",
+            isDragging
+              ? "border-primary bg-primary/5 scale-[1.02]"
+              : "border-border bg-background/60 hover:bg-accent/40 hover:border-primary/30"
+          )}
+        >
+          <div className={cn(
+            "mb-6 flex h-20 w-20 items-center justify-center rounded-full transition-all duration-500",
+            isDragging ? "bg-primary text-primary-foreground scale-110 shadow-lg shadow-primary/20" : "bg-muted text-muted-foreground group-hover:text-primary group-hover:bg-primary/10"
+          )}>
+            <FileUp size={40} />
+          </div>
+          <h4 className="mb-2 text-center font-bold text-foreground transition-colors group-hover:text-primary">
+            {isDragging ? t('filemanager.messages.dropToUpload') || "Release to Upload" : t('filemanager.messages.dragFilesHere') || "Drag files or folders here"}
+          </h4>
+          <p className="max-w-[280px] text-center text-sm text-muted-foreground">
+            {t('filemanager.messages.uploadInstruction') || "Support multiple files and directory structure preservation."}
+          </p>
 
-        {/* Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-8">
-          {/* Drag & Drop Area */}
+          <input
+            type="file"
+            aria-label="Select files to upload"
+            ref={fileInputRef}
+            multiple
+            className="hidden"
+            onChange={(e) => handleFiles(e.target.files)}
+          />
+          <input
+            type="file"
+            aria-label="Select folder to upload"
+            ref={dirInputRef}
+            {...directoryInputProps}
+            className="hidden"
+            onChange={(e) => handleFiles(e.target.files)}
+          />
+        </button>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
           <button
             type="button"
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            onDrop={onDrop}
-            className={cn(
-              "border-2 border-dashed rounded-3xl p-7 sm:p-12 flex flex-col items-center justify-center transition-all duration-300 relative group",
-              isDragging 
-                ? "border-primary bg-primary/5 scale-[1.02]" 
-                : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/20"
-            )}
+            onClick={() => fileInputRef.current?.click()}
+            className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-border bg-background/70 text-foreground transition-all active:scale-95 hover:bg-accent"
           >
-            <div className={cn(
-              "w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-all duration-500",
-              isDragging ? "bg-primary text-white scale-110 shadow-lg shadow-primary/20" : "bg-white/5 text-white/20 group-hover:text-primary/50 group-hover:bg-primary/5"
-            )}>
-              <FileUp size={40} />
-            </div>
-            <h4 className="text-white font-bold mb-2 text-center transition-colors group-hover:text-primary">
-              {isDragging ? t('filemanager.messages.dropToUpload') || "Release to Upload" : t('filemanager.messages.dragFilesHere') || "Drag files or folders here"}
-            </h4>
-            <p className="text-white/40 text-sm text-center max-w-[280px]">
-              {t('filemanager.messages.uploadInstruction') || "Support multiple files and directory structure preservation."}
-            </p>
-
-            {/* Hidden Inputs */}
-            <input 
-              type="file" 
-              aria-label="Select files to upload"
-              ref={fileInputRef} 
-              multiple 
-              className="hidden" 
-              onChange={(e) => handleFiles(e.target.files)} 
-            />
-            <input 
-              type="file" 
-              aria-label="Select folder to upload"
-              ref={dirInputRef} 
-              {...directoryInputProps}
-              className="hidden" 
-              onChange={(e) => handleFiles(e.target.files)} 
-            />
+            <FileUp size={18} className="text-blue-500 opacity-70 transition-all group-hover:opacity-100 group-hover:scale-110" />
+            <span className="text-sm font-bold text-foreground">{t('filemanager.actions.uploadFiles') || "Select Files"}</span>
           </button>
-
-          {/* Manual Selection Buttons */}
-          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-            <button 
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-white/5 bg-white/5 transition-all active:scale-95 hover:bg-white/10"
-            >
-              <FileUp size={18} className="text-blue-400 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all" />
-              <span className="text-sm font-bold text-white/80">{t('filemanager.actions.uploadFiles') || "Select Files"}</span>
-            </button>
-            <button 
-              type="button"
-              onClick={() => dirInputRef.current?.click()}
-              className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-white/5 bg-white/5 transition-all active:scale-95 hover:bg-white/10"
-            >
-              <FolderUp size={18} className="text-yellow-400 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all" />
-              <span className="text-sm font-bold text-white/80">{t('filemanager.actions.uploadDirectory') || "Select Folder"}</span>
-            </button>
-          </div>
-
-          {/* Status Tips */}
-          <div className="mt-8 space-y-3 bg-white/[0.02] p-4 rounded-2xl border border-white/5">
-            <div className="flex items-start gap-3">
-              <Info size={18} className="text-primary mt-0.5 shrink-0" />
-              <p className="text-sm text-white/40 leading-relaxed italic">
-                {t('filemanager.messages.uploadTip1') || "Directories will be uploaded recursively maintaining their original structure."}
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <AlertCircle size={18} className="text-orange-500/50 mt-0.5 shrink-0" />
-              <p className="text-sm text-white/40 leading-relaxed italic">
-                {t('filemanager.messages.uploadTip2') || "Existing files with same names will be automatically renamed to avoid data loss."}
-              </p>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => dirInputRef.current?.click()}
+            className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-border bg-background/70 text-foreground transition-all active:scale-95 hover:bg-accent"
+          >
+            <FolderUp size={18} className="text-amber-500 opacity-70 transition-all group-hover:opacity-100 group-hover:scale-110" />
+            <span className="text-sm font-bold text-foreground">{t('filemanager.actions.uploadDirectory') || "Select Folder"}</span>
+          </button>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 sm:p-6 bg-white/[0.02] border-t border-white/5 flex justify-end shrink-0">
-          <Button variant="ghost" onClick={onClose} className="rounded-xl px-6 h-11 font-bold">
-            {t('common.cancel')}
-          </Button>
+        <div className="space-y-3 rounded-2xl border border-border bg-background/60 p-4 backdrop-blur-sm">
+          <div className="flex items-start gap-3">
+            <Info size={18} className="text-primary mt-0.5 shrink-0" />
+            <p className="text-sm leading-relaxed italic text-muted-foreground">
+              {t('filemanager.messages.uploadTip1') || "Directories will be uploaded recursively maintaining their original structure."}
+            </p>
+          </div>
+          <div className="flex items-start gap-3">
+            <AlertCircle size={18} className="text-amber-500 mt-0.5 shrink-0" />
+            <p className="text-sm leading-relaxed italic text-muted-foreground">
+              {t('filemanager.messages.uploadTip2') || "Existing files with same names will be automatically renamed to avoid data loss."}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </GlassModalShell>
   );
 };

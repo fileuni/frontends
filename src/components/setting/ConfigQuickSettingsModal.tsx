@@ -6,7 +6,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
@@ -19,6 +18,7 @@ import {
   Wand2,
   X,
 } from "lucide-react";
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { cn } from "@/lib/utils";
 import {
   deepClone,
@@ -28,7 +28,6 @@ import {
 } from "@/lib/configObject";
 import { getNavigatorPlatformSource } from "@/lib/browserPlatform";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
-import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { PerformanceProfilePickerModal } from "./PerformanceProfilePickerModal";
 import { useConfigDraftBinding } from "./useConfigDraftBinding";
 
@@ -2117,12 +2116,6 @@ export const ConfigQuickSettingsModal: React.FC<
   const hasInitializedRef = useRef(false);
 
   const isDark = resolvedTheme === "dark";
-
-  useEscapeToCloseTopLayer({
-    active: isOpen && !embedded,
-    enabled: true,
-    onEscape: onClose,
-  });
 
   const friendlySteps = useMemo<FriendlyStep[]>(() => {
     return ["performance", "database", "cache", "other"];
@@ -5543,28 +5536,41 @@ export const ConfigQuickSettingsModal: React.FC<
     return panelContent;
   }
 
-  const modalContent = (
-    <div
-      className="fixed inset-0 z-[130] flex items-center justify-center p-2 sm:p-4"
-      role="dialog"
-      aria-modal="true"
+  return (
+    <GlassModalShell
+      title={t("admin.config.quickSettings.title")}
+      subtitle={t("admin.config.quickSettings.subtitle")}
+      onClose={onClose}
+      maxWidthClassName="max-w-6xl"
+      panelClassName={cn(
+        "rounded-2xl shadow-lg ring-1 overflow-hidden",
+        isDark
+          ? "bg-slate-950 border-white/10 text-slate-100 ring-white/5"
+          : "bg-white border-slate-300 text-slate-900"
+      )}
+      bodyClassName="p-0"
+      overlayClassName={cn(
+        "backdrop-blur-sm transition-colors",
+        isDark ? "bg-black/95" : "bg-slate-900/80"
+      )}
+      zIndexClassName="z-[130]"
+      containerClassName="p-2 sm:p-4"
+      closeButton={(
+        <button
+          type="button"
+          onClick={onClose}
+          className={cn(
+            "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
+            isDark
+              ? "border-white/15 text-slate-300 hover:bg-white/10"
+              : "border-slate-200 text-slate-600 hover:bg-slate-100"
+          )}
+        >
+          <X size={16} />
+        </button>
+      )}
     >
-      <button
-        type="button"
-        aria-label={t("common.close")}
-        className={cn(
-          "absolute inset-0 backdrop-blur-sm transition-colors",
-          isDark ? "bg-black/95" : "bg-slate-900/80",
-        )}
-        onClick={onClose}
-      />
       {panelContent}
-    </div>
+    </GlassModalShell>
   );
-
-  if (typeof document === "undefined") {
-    return null;
-  }
-
-  return createPortal(modalContent, document.body);
 };

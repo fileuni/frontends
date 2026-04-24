@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { useDroppable } from '@dnd-kit/core';
 import { HardDrive, ArrowRight, AlertTriangle, Cloud, RefreshCw, PencilLine, X } from "lucide-react";
 import { Button } from "@/components/ui/Button.tsx";
 import { Input } from "@/components/ui/Input.tsx";
@@ -28,6 +29,51 @@ const getProtectedStorageModeLabel = (
     case 'encrypt':
       return t('filemanager.protectedStorage.modes.encrypt');
   }
+};
+
+type NavigationDropTarget = {
+  kind: 'navigation';
+  path: string;
+};
+
+const NavigationDropButton = ({
+  target,
+  className,
+  children,
+  title,
+  onClick,
+  buttonRef,
+  ariaLabel,
+}: {
+  target: NavigationDropTarget;
+  className: string;
+  children: React.ReactNode;
+  title?: string;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  buttonRef?: React.Ref<HTMLButtonElement>;
+  ariaLabel?: string;
+}) => {
+  const { setNodeRef, isOver } = useDroppable({ id: `nav-drop:${target.path}`, data: target });
+
+  return (
+    <Button
+      ref={(node) => {
+        setNodeRef(node);
+        if (typeof buttonRef === 'function') {
+          buttonRef(node);
+        } else if (buttonRef && 'current' in buttonRef) {
+          buttonRef.current = node;
+        }
+      }}
+      variant="ghost"
+      className={cn(className, isOver && 'border-primary bg-primary/10 text-primary')}
+      onClick={onClick}
+      {...(title ? { title } : {})}
+      {...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
+    >
+      {children}
+    </Button>
+  );
 };
 
 export const FileManagerNavigationBar = () => {
@@ -238,8 +284,8 @@ export const FileManagerNavigationBar = () => {
                 showFullPath && canExpandFullPath ? "flex-wrap" : "overflow-hidden",
                 isDark ? "text-white" : "text-zinc-800"
               )}>
-                <Button
-                  variant="ghost"
+                <NavigationDropButton
+                  target={{ kind: 'navigation', path: '/' }}
                   className={cn(
                     "h-8 shrink-0 rounded-lg border border-transparent p-1.5",
                     isDark
@@ -248,11 +294,11 @@ export const FileManagerNavigationBar = () => {
                   )}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setCurrentPath("/");
+                    setCurrentPath('/');
                   }}
                 >
                   <HardDrive size={18} />
-                </Button>
+                </NavigationDropButton>
 
                 {pathSegments.length === 0 && (
                   <span className={cn(
@@ -293,8 +339,8 @@ export const FileManagerNavigationBar = () => {
                     className="flex min-w-0 max-w-full items-start gap-0.5"
                   >
                     <span className={cn("shrink-0 pt-[7px]", isDark ? "text-primary/20" : "text-zinc-400")}>/</span>
-                    <Button
-                      variant="ghost"
+                    <NavigationDropButton
+                      target={{ kind: 'navigation', path: `/${pathSegments.slice(0, i + 1).join('/')}` }}
                       className={cn(
                         "h-auto min-h-8 min-w-0 items-start justify-start rounded-lg border border-transparent px-1.25 py-1 text-left",
                         showFullPath && canExpandFullPath ? "max-w-full" : "max-w-[12rem] xl:max-w-[16rem]",
@@ -309,7 +355,7 @@ export const FileManagerNavigationBar = () => {
                       title={`/${pathSegments.slice(0, i + 1).join('/')}`}
                     >
                       <span className={cn("block leading-4.5", showFullPath && canExpandFullPath ? "break-all" : "break-words")}>{segment}</span>
-                    </Button>
+                    </NavigationDropButton>
                   </div>
                     );
                   })}

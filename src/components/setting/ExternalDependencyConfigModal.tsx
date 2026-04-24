@@ -5,9 +5,9 @@ import {
   CheckCircle2,
   X,
 } from "lucide-react";
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
-import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { deepClone, ensureRecord, isRecord } from "@/lib/configObject";
 import { getNavigatorPlatformSource } from "@/lib/browserPlatform";
 import { useToastStore } from "@/stores/toast";
@@ -465,89 +465,45 @@ const ModalShell: React.FC<ModalShellProps> = ({
   const resolvedTheme = useResolvedTheme();
   const isDark = resolvedTheme === "dark";
 
-  useEscapeToCloseTopLayer({
-    active: isOpen,
-    enabled: true,
-    onEscape: onClose,
-  });
-
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4"
-      role="dialog"
-      aria-modal="true"
+    <GlassModalShell
+      title={title}
+      subtitle={subtitle}
+      onClose={onClose}
+      maxWidthClassName="max-w-4xl"
+      panelClassName={cn(
+        "rounded-2xl shadow-lg ring-1 overflow-hidden",
+        isDark
+          ? "bg-slate-950 border-white/10 text-slate-100 ring-white/5"
+          : "bg-white border-gray-200 text-slate-900"
+      )}
+      bodyClassName="p-4 sm:p-6 space-y-6"
+      overlayClassName={cn(
+        "backdrop-blur-sm transition-colors",
+        isDark ? "bg-black/95" : "bg-slate-900/80"
+      )}
+      zIndexClassName="z-[150]"
+      containerClassName="p-2 sm:p-4"
+      closeButton={(
+        <button
+          type="button"
+          onClick={onClose}
+          className={cn(
+            "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors shrink-0",
+            isDark
+              ? "border-white/15 text-slate-300 hover:bg-white/10"
+              : "border-gray-200 text-slate-600 hover:bg-gray-100"
+          )}
+        >
+          <X size={16} />
+        </button>
+      )}
+      footer={footer}
     >
-      <button
-        type="button"
-        aria-label="Close"
-        className={cn(
-          "absolute inset-0 backdrop-blur-sm transition-colors",
-          isDark ? "bg-black/95" : "bg-slate-900/80",
-        )}
-        onClick={onClose}
-      />
-
-      <div
-        className={cn(
-          "relative w-full max-w-4xl rounded-2xl border shadow-lg overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
-          isDark
-            ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5"
-            : "bg-white border-gray-200 text-slate-900",
-        )}
-      >
-        <div
-          className={cn(
-            "flex items-center justify-between gap-3 border-b px-4 py-4 sm:px-6 shrink-0",
-            isDark
-              ? "border-white/10 bg-slate-900/50"
-              : "border-slate-100 bg-slate-50/50",
-          )}
-        >
-          <div className="min-w-0">
-            <h3 className="text-sm sm:text-base font-black tracking-widest truncate">
-              {title}
-            </h3>
-            <p
-              className={cn(
-                "text-xs font-bold mt-1",
-                isDark ? "text-slate-400" : "text-slate-500",
-              )}
-            >
-              {subtitle}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className={cn(
-              "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors shrink-0",
-              isDark
-                ? "border-white/15 text-slate-300 hover:bg-white/10"
-                : "border-gray-200 text-slate-600 hover:bg-gray-100",
-            )}
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-6">
-          {children}
-        </div>
-
-        <div
-          className={cn(
-            "shrink-0 border-t px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-end gap-2",
-            isDark
-              ? "border-white/10 bg-slate-900/60"
-              : "border-slate-100 bg-slate-50/70",
-          )}
-        >
-          {footer}
-        </div>
-      </div>
-    </div>
+      {children}
+    </GlassModalShell>
   );
 };
 

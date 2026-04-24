@@ -18,7 +18,7 @@ import type {
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { SettingSurfaceControls } from "@/components/setting/SettingSurfaceControls";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
-import { Modal } from "@/components/ui/Modal";
+import { GlassModalShell } from "@fileuni/ts-shared/modal-shell";
 import { PasswordInput } from "@/components/common/PasswordInput";
 import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
@@ -1150,22 +1150,23 @@ export function Launcher() {
           onClose={() => setShowConfigSelector(false)}
         />
 
-        <Modal
-          isOpen={initializationResult !== null}
-          onClose={() => setInitializationResult(null)}
-          title={t("launcher.runtime_config_missing_title")}
-          maxWidth="max-w-lg"
-        >
-          {initializationResult && (
+        {initializationResult && (
+          <GlassModalShell
+            title={t("launcher.runtime_config_missing_title")}
+            onClose={() => setInitializationResult(null)}
+            closeLabel={t("common.close") || "Close"}
+            maxWidthClassName="max-w-lg"
+            panelClassName="dark text-white"
+          >
             <div className="space-y-4">
-              <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+              <p className="text-sm leading-6 text-slate-300">
                 {t("launcher.runtime_config_missing_accept")}
               </p>
-              <div className="rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-700 dark:text-slate-200">
+              <div className="rounded-2xl bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-200">
                 {initializationResult.config_path}
               </div>
               {initializationResult.admin_username && (
-                <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 p-4 space-y-2 text-sm text-slate-700 dark:text-slate-200">
+                <div className="rounded-2xl border border-slate-700/60 p-4 space-y-2 text-sm text-slate-200">
                   <p>
                     {initializationResult.users_table_preexisting
                       ? `First admin: ${initializationResult.admin_username}`
@@ -1183,7 +1184,7 @@ export function Launcher() {
                     void handleStart();
                     setInitializationResult(null);
                   }}
-                  className="px-4 py-2.5 rounded-xl text-sm font-bold border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 transition-all"
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold border border-slate-700 text-slate-200 hover:bg-slate-800 transition-all"
                 >
                   {t("launcher.start_service")}
                 </button>
@@ -1196,43 +1197,46 @@ export function Launcher() {
                 </button>
               </div>
             </div>
-          )}
-        </Modal>
+          </GlassModalShell>
+        )}
 
-        <Modal
-          isOpen={isAdminResetOpen}
-          onClose={() => setIsAdminResetOpen(false)}
-          title={t("systemConfig.setup.admin.changePassword")}
-          maxWidth="max-w-md"
-        >
+        {isAdminResetOpen && (
+          <GlassModalShell
+            title={t("systemConfig.setup.admin.changePassword")}
+            onClose={() => setIsAdminResetOpen(false)}
+            closeLabel={t("common.close") || "Close"}
+            maxWidthClassName="max-w-md"
+            panelClassName="dark text-white"
+          >
           <div className="space-y-4">
             <label className="block space-y-2">
-              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+              <span className="text-sm font-bold text-slate-200">
                 {t("common.usernameRegister")}
               </span>
               <input
                 value={pendingAdminUsername}
                 onChange={(event) => setPendingAdminUsername(event.target.value)}
-                className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-semibold text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                className="h-12 w-full rounded-xl border border-slate-700 bg-slate-900 px-4 text-base font-semibold text-slate-100 outline-none"
               />
             </label>
             <label className="block space-y-2">
-              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+              <span className="text-sm font-bold text-slate-200">
                 {t("common.password")}
               </span>
               <PasswordInput
                 value={pendingAdminPassword}
                 onChange={(event) => setPendingAdminPassword(event.target.value)}
+                inputClassName="bg-white/[0.03] text-white placeholder:text-white/30"
               />
             </label>
-            <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <p className="text-sm leading-6 text-slate-300">
               {t("systemConfig.setup.admin.resetRuleHint")}
             </p>
             <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setIsAdminResetOpen(false)}
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:bg-slate-800 transition-colors"
               >
                 {t("common.cancel")}
               </button>
@@ -1248,7 +1252,8 @@ export function Launcher() {
               </button>
             </div>
           </div>
-        </Modal>
+          </GlassModalShell>
+        )}
 
         <AboutModal
           isOpen={isAboutOpen}

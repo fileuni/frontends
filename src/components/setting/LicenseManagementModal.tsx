@@ -3,10 +3,10 @@
 
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { X, Shield, Fingerprint, Key, Loader2, CheckCircle2, WandSparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
-import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { Button } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/common/PasswordInput";
 import type {
@@ -152,77 +152,62 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
     },
   });
 
-  useEscapeToCloseTopLayer({
-    active: isOpen,
-    enabled: true,
-    onEscape: onClose,
-  });
-
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300"
-      role="dialog"
-      aria-modal="true"
-    >
-      <button
-        type="button"
-        className={cn(
-          "absolute inset-0 backdrop-blur-2xl transition-all duration-300",
-          isDark ? "bg-black/95" : "bg-slate-900/80",
-        )}
-        onClick={onClose}
-        aria-label={t("common.close")}
-      />
-
-      <div
-        className={cn(
-          "relative w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
-          isDark
-            ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5"
-            : "bg-white border-gray-200 text-slate-900",
-        )}
-      >
-        {/* Header */}
-        <div
+    <GlassModalShell
+      title={(
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={cn("p-2 rounded-lg", isDark ? "bg-amber-500/10" : "bg-amber-50")}>
+            <Key size={18} className="text-amber-500 shrink-0" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-sm sm:text-base font-black tracking-widest">{t("admin.config.license.title")}</div>
+            <div className="text-[10px] font-bold tracking-widest mt-0.5 opacity-40">{t("admin.config.license.subtitle")}</div>
+          </div>
+        </div>
+      )}
+      onClose={onClose}
+      maxWidthClassName="max-w-2xl"
+      panelClassName={cn(
+        "rounded-2xl shadow-2xl animate-in zoom-in duration-300 overflow-hidden",
+        isDark
+          ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5"
+          : "bg-white border-gray-200 text-slate-900"
+      )}
+      bodyClassName="p-4 sm:p-6 space-y-6"
+      overlayClassName={cn(
+        "backdrop-blur-2xl transition-all duration-300",
+        isDark ? "bg-black/95" : "bg-slate-900/80"
+      )}
+      zIndexClassName="z-[150]"
+      containerClassName="p-2 sm:p-4"
+      closeButton={(
+        <button
+          type="button"
+          onClick={onClose}
           className={cn(
-            "flex items-center justify-between gap-2 border-b px-4 py-4 sm:px-6 shrink-0",
-            isDark ? "border-white/10 bg-slate-900/50" : "border-slate-100 bg-slate-50/50",
+            "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
+            isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-gray-200 text-slate-600 hover:bg-gray-100"
           )}
         >
-          <div className="flex items-center gap-3 min-w-0">
-            <div className={cn("p-2 rounded-lg", isDark ? "bg-amber-500/10" : "bg-amber-50")}>
-              <Key size={18} className="text-amber-500 shrink-0" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-sm sm:text-base font-black tracking-widest uppercase">
-                {t("admin.config.license.title")}
-              </h3>
-              <p className={cn("text-[10px] font-bold tracking-widest mt-0.5 uppercase opacity-40")}>
-                {t("admin.config.license.subtitle")}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className={cn(
-              "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
-              isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-gray-200 text-slate-600 hover:bg-gray-100",
-            )}
-          >
-            <X size={16} />
-          </button>
+          <X size={16} />
+        </button>
+      )}
+      footer={(
+        <div className={cn(
+          "w-full text-xs font-bold leading-relaxed italic",
+          isDark ? "text-slate-500" : "text-slate-400"
+        )}>
+          {t("admin.config.license.hint")}
         </div>
-
-        {/* Body */}
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-6">
-          {/* Hardware Fingerprint Section */}
-          <div className={cn(
-            "rounded-xl border p-4 transition-colors",
-            isDark ? "bg-black/40 border-white/5" : "bg-zinc-100 border-gray-200 shadow-inner",
-          )}>
+      )}
+    >
+      {/* Hardware Fingerprint Section */}
+      <div className={cn(
+        "rounded-xl border p-4 transition-colors",
+        isDark ? "bg-black/40 border-white/5" : "bg-zinc-100 border-gray-200 shadow-inner",
+      )}>
             <div className="flex items-center gap-2 mb-2">
               <Fingerprint size={18} className="text-purple-500 shrink-0" />
               <div className="text-[10px] font-black tracking-widest opacity-40 uppercase">
@@ -234,7 +219,7 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Registration License */}
             <LicenseItemCard
               title={t("admin.config.license.features.registration")}
@@ -350,17 +335,6 @@ export const LicenseManagementModal: React.FC<LicenseManagementModalProps> = ({
               </div>
             )}
           </div>
-        </div>
-
-        <div className={cn(
-          "border-t px-5 py-4 shrink-0",
-          isDark ? "border-white/5 bg-black/20 text-slate-500" : "border-gray-100 bg-gray-50 text-slate-400",
-        )}>
-          <p className="text-xs font-bold leading-relaxed italic">
-            {t("admin.config.license.hint")}
-          </p>
-        </div>
-      </div>
-    </div>
+    </GlassModalShell>
   );
 };

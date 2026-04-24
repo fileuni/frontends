@@ -624,7 +624,11 @@ export const useFileStore = create<FileState>()(
         const uid = get()._getUid();
         const userData = get()._getUserData(uid);
         const tasks = userData.activeTasks || [];
-        const updatedUser: UserFileData = { ...userData, activeTasks: [task, ...tasks] };
+        const existingIndex = tasks.findIndex((item) => item.id === task.id);
+        const nextTasks = existingIndex >= 0
+          ? tasks.map((item) => (item.id === task.id ? { ...item, ...task } : item))
+          : [task, ...tasks];
+        const updatedUser: UserFileData = { ...userData, activeTasks: nextTasks };
         set(state => ({
           userStates: {
             ...state.userStates,
@@ -683,7 +687,19 @@ export const useFileStore = create<FileState>()(
 
       getActiveTasks: () => {
         const uid = get()._getUid();
-        return get()._getUserData(uid).activeTasks;
+        const tasks = get()._getUserData(uid).activeTasks;
+        const now = Date.now();
+        return tasks.filter((task) => {
+          const createdAt = Date.parse(task.createdAt);
+          if (!Number.isFinite(createdAt)) {
+            return true;
+          }
+          const ageMs = now - createdAt;
+          if (task.status === 'success' || task.status === 'failed' || task.status === 'interrupted') {
+            return ageMs < 30 * 60 * 1000;
+          }
+          return ageMs < 6 * 60 * 60 * 1000;
+        });
       },
 
       loadFiles: async (path, page = 1, pageSize, mode) => {

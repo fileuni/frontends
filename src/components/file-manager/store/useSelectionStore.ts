@@ -3,9 +3,10 @@ import { create } from 'zustand';
 interface SelectionState {
   selectedIds: Set<string>;
   lastSelectedId: string | null;
-  
+
   toggleSelection: (id: string, isCtrl?: boolean, isShift?: boolean, allIds?: string[]) => void;
   selectAll: (ids: string[]) => void;
+  setSelection: (ids: string[], anchorId?: string | null) => void;
   deselectAll: () => void;
   isSelected: (id: string) => boolean;
 }
@@ -45,12 +46,17 @@ export const useSelectionStore = create<SelectionState>((set, get) => ({
     return { selectedIds: newSelection, lastSelectedId: id };
   }),
 
-  selectAll: (ids) => set({ 
+  selectAll: (ids) => set({
     selectedIds: new Set(ids),
     lastSelectedId: ids[ids.length - 1] || null
   }),
 
-  deselectAll: () => set({ 
+  setSelection: (ids, anchorId = ids[ids.length - 1] || null) => set({
+    selectedIds: new Set(ids),
+    lastSelectedId: anchorId,
+  }),
+
+  deselectAll: () => set({
     selectedIds: new Set(),
     lastSelectedId: null
   }),

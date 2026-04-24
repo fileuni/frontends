@@ -17,6 +17,16 @@ interface TaskData {
   task_id?: string;
 }
 
+interface WaitForTaskOptions {
+  expectedPaths?: string[];
+  successMessage?: string;
+}
+
+interface BatchMoveOptions {
+  optimistic?: boolean;
+  successMessage?: string;
+}
+
 export function useFileActions() {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
@@ -83,7 +93,7 @@ export function useFileActions() {
     }
   }, [store, fmMode, setFiles]);
 
-  const waitForTask = (taskId: string, expectedPaths?: string[]) => {
+  const waitForTask = (taskId: string, options?: WaitForTaskOptions) => {
     if (activeIntervalsRef.current.has(taskId)) return;
 
     const poll = async () => {
@@ -92,15 +102,28 @@ export function useFileActions() {
           params: { path: { id: taskId } }
         }));
 
+        store.updateTask(taskId, {
+          status: task.status,
+          progress: typeof task.progress === 'number' && Number.isFinite(task.progress)
+            ? task.progress
+            : task.status === 'success'
+              ? 100
+              : 0,
+          ...(task.message ? { message: task.message } : {}),
+        });
+
         if (task.status === 'success') {
           await loadFiles();
-          if (expectedPaths && expectedPaths.length > 0) {
-            const firstExpectedPath = expectedPaths[0];
+          if (options?.expectedPaths && options.expectedPaths.length > 0) {
+            const firstExpectedPath = options.expectedPaths[0];
             if (firstExpectedPath) {
               setTimeout(() => {
                 store.setHighlightedPath(firstExpectedPath);
               }, 100);
             }
+          }
+          if (options?.successMessage) {
+            addToast(options.successMessage, 'success');
           }
           return true;
         } else if (task.status === 'failed' || task.status === 'interrupted') {
@@ -211,12 +234,17 @@ export function useFileActions() {
     }
   };
 
-  const batchMove = async (paths: string[], targetDir: string) => {
+  const batchMove = async (paths: string[], targetDir: string, options?: BatchMoveOptions) => {
     try {
       const selectedFiles = resolveFilesByPaths(paths);
       if (selectedFiles.some((file) => isMountRootEntry(file))) {
         showMountRootBlockedToast();
         return;
+      }
+
+      const shouldOptimisticallyRemove = options?.optimistic === true;
+      if (shouldOptimisticallyRemove) {
+        removeFiles(paths);
       }
 
       const { data } = await client.POST("/api/v1/file/batch-move", {
@@ -233,17 +261,25 @@ export function useFileActions() {
             progress: 0,
             createdAt: new Date().toISOString()
           });
-          waitForTask(taskId, expectedPaths);
+          waitForTask(taskId, {
+            expectedPaths,
+            ...(options?.successMessage ? { successMessage: options.successMessage } : {}),
+          });
         } else {
-          removeFiles(paths);
-          // If target is current directory, refresh
+          if (!shouldOptimisticallyRemove) {
+            removeFiles(paths);
+          }
           if (targetDir === currentPath) await loadFiles();
           const firstExpectedPath = expectedPaths[0];
           if (firstExpectedPath) store.setHighlightedPath(firstExpectedPath);
+          if (options?.successMessage) {
+            addToast(options.successMessage, 'success');
+          }
         }
       }
     } catch (_error) {
       addToast(handleApiError(_error, t), 'error');
+      await loadFiles();
     }
   };
 
@@ -269,7 +305,7 @@ export function useFileActions() {
             progress: 0,
             createdAt: new Date().toISOString()
           });
-          waitForTask(taskId, expectedPaths);
+          waitForTask(taskId, { expectedPaths });
         } else {
           await loadFiles();
           const firstExpectedPath = expectedPaths[0];
@@ -297,7 +333,7 @@ export function useFileActions() {
             progress: 0,
             createdAt: new Date().toISOString()
           });
-          waitForTask(taskId, [expectedPath]);
+          waitForTask(taskId, { expectedPaths: [expectedPath] });
         } else {
           await loadFiles();
           store.setHighlightedPath(expectedPath);

@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import type { ReactNode } from "react";
 import {
   useFileStore,
   type TaskState,
@@ -15,7 +16,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Trash2,
-  Check,
   ExternalLink,
   Info,
   Inbox,
@@ -30,6 +30,7 @@ import { formatDistanceToNow } from "date-fns";
 import { zhCN, zhTW, enUS } from "date-fns/locale";
 import { useLanguageStore } from '@/stores/language';
 import { isRecord } from "@/lib/configObject.ts";
+import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer.ts';
 
 const getTaskTypeLabel = (
   t: ReturnType<typeof useTranslation>['t'],
@@ -75,11 +76,26 @@ const isTaskStatusUpdate = (
   return true;
 };
 
+const EMPTY_TASKS: TaskState[] = [];
+
 export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
   const { t } = useTranslation();
-  const { isLoggedIn, _hasHydrated } = useAuthStore();
-  const getActiveTasks = useFileStore((state) => state.getActiveTasks);
-  const tasks = getActiveTasks();
+  const { isLoggedIn, _hasHydrated, currentUserId } = useAuthStore();
+  const rawTasks = useFileStore((state) => state.userStates[currentUserId || 'guest']?.activeTasks ?? EMPTY_TASKS);
+  const tasks = useMemo(() => {
+    const now = Date.now();
+    return rawTasks.filter((task) => {
+      const createdAt = Date.parse(task.createdAt);
+      if (!Number.isFinite(createdAt)) {
+        return true;
+      }
+      const ageMs = now - createdAt;
+      if (task.status === 'success' || task.status === 'failed' || task.status === 'interrupted') {
+        return ageMs < 30 * 60 * 1000;
+      }
+      return ageMs < 6 * 60 * 60 * 1000;
+    });
+  }, [rawTasks]);
 
   const {
     notifications,
@@ -97,6 +113,8 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
   const [chatRooms, setChatRooms] = useState<ChatRoomSummary[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const desktopPanelRef = useRef<HTMLDivElement | null>(null);
 
   const runningCount = useMemo(
     () =>
@@ -104,13 +122,18 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
         .length,
     [tasks],
   );
+  const chatPluginAvailable = Boolean(chatNavItem);
   const chatNotifications = useMemo(
-    () => notifications.filter((notification) => isChatNotification(notification)),
-    [notifications],
+    () => (chatPluginAvailable
+      ? notifications.filter((notification) => isChatNotification(notification))
+      : []),
+    [chatPluginAvailable, notifications],
   );
   const generalNotifications = useMemo(
-    () => notifications.filter((notification) => !isChatNotification(notification)),
-    [notifications],
+    () => (chatPluginAvailable
+      ? notifications.filter((notification) => !isChatNotification(notification))
+      : notifications),
+    [chatPluginAvailable, notifications],
   );
   const chatUnreadCount = useMemo(
     () => chatNotifications.filter((notification) => !notification.is_read).length,
@@ -122,6 +145,10 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
   );
 
   const totalAlerts = runningCount + unreadCount;
+  const hasFinishedTasks = useMemo(
+    () => tasks.some((task) => task.status === 'success' || task.status === 'failed' || task.status === 'interrupted'),
+    [tasks],
+  );
 
   useEffect(() => {
     if (isOpen) {
@@ -263,18 +290,99 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
     window.location.hash = href;
   };
 
-  const handleOpenChat = (roomId?: string, messageId?: string) => {
+  const handleOpenChat = useCallback((roomId?: string, messageId?: string) => {
     if (!chatNavItem) {
       return;
     }
 
     setIsOpen(false);
     window.location.hash = buildChatViewHash(chatNavItem.route || '/chat', roomId, messageId);
-  };
+  }, [chatNavItem]);
+
+  const activeTabAction = useMemo(() => {
+    if (activeTab === 'tasks') {
+      return {
+        visible: hasFinishedTasks,
+        label: t('common.clear', { defaultValue: 'Clear' }),
+        onClick: () => useFileStore.getState().clearFinishedTasks(),
+      };
+    }
+    if (activeTab === 'notifications') {
+      return {
+        visible: generalUnreadCount > 0,
+        label: t('common.markAllRead', { defaultValue: 'Mark all as read' }),
+        onClick: () => {
+          void markAllAsRead();
+        },
+      };
+    }
+    if (activeTab === 'chat' && chatNavItem) {
+      return {
+        visible: true,
+        label: t('common.openChat', { defaultValue: 'Open Chat' }),
+        onClick: () => handleOpenChat(),
+      };
+    }
+    return null;
+  }, [activeTab, chatNavItem, generalUnreadCount, handleOpenChat, hasFinishedTasks, markAllAsRead, t]);
+
+  const visibleTabs = useMemo(
+    () => [
+      {
+        key: 'tasks' as const,
+        label: t('filemanager.task.center'),
+        count: tasks.length,
+      },
+      ...(chatNavItem ? [{
+        key: 'chat' as const,
+        label: t('common.chat', { defaultValue: 'Chat' }),
+        count: chatUnreadCount,
+      }] : []),
+      {
+        key: 'notifications' as const,
+        label: t('common.notifications', { defaultValue: 'Notifications' }),
+        count: generalUnreadCount,
+      },
+    ],
+    [chatNavItem, chatUnreadCount, generalUnreadCount, t, tasks.length],
+  );
+
+  useEscapeToCloseTopLayer({
+    active: isOpen,
+    onEscape: () => setIsOpen(false),
+  });
+
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+      if (triggerRef.current?.contains(target)) {
+        return;
+      }
+      if (desktopPanelRef.current?.contains(target)) {
+        return;
+      }
+      setIsOpen(false);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
+    };
+  }, [isOpen]);
 
   return (
     <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
@@ -302,83 +410,31 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
         <>
           <button
             type="button"
-            aria-label={t("common.close", { defaultValue: "Close" })}
-            className="fixed inset-0 z-[120]"
+            aria-label={t('common.close', { defaultValue: 'Close' })}
             onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-[120] hidden md:block"
           />
+
           <div
+            ref={desktopPanelRef}
             className={cn(
-              "absolute top-full right-0 mt-2 w-80 md:w-96 max-h-[80vh] flex flex-col z-[130] rounded-2xl border shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200",
+              'absolute right-0 top-full z-[130] mt-3 hidden w-[min(28rem,calc(100vw-2rem))] overflow-hidden rounded-[1.5rem] border shadow-[0_20px_50px_rgba(0,0,0,0.28)] md:flex md:max-h-[min(80vh,42rem)] md:flex-col',
               isDark
-                ? "bg-zinc-950 border-white/10"
-                : "bg-white border-gray-200",
+                ? 'border-white/10 bg-zinc-950 text-white'
+                : 'border-gray-200 bg-white text-gray-900',
             )}
           >
-            {/* Header / Tabs */}
-            <div className="flex border-b shrink-0">
-              <button
-                type="button"
-                onClick={() => setActiveTab("tasks")}
-                className={cn(
-                  "flex-1 py-3 text-sm font-black tracking-widest transition-all relative",
-                  activeTab === "tasks"
-                    ? "text-primary"
-                    : "opacity-40 hover:opacity-100",
-                )}
-              >
-                {t("filemanager.task.center")}
-                {tasks.length > 0 && (
-                  <span className="ml-1 opacity-60">({tasks.length})</span>
-                )}
-                {activeTab === "tasks" && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-                )}
-              </button>
-              {chatNavItem && (
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("chat")}
-                  className={cn(
-                    "flex-1 py-3 text-sm font-black tracking-widest transition-all relative",
-                    activeTab === "chat"
-                      ? "text-primary"
-                      : "opacity-40 hover:opacity-100",
-                  )}
-                >
-                  {t("common.chat", { defaultValue: "Chat" })}
-                  {chatUnreadCount > 0 && (
-                    <span className="ml-1 opacity-60">({chatUnreadCount})</span>
-                  )}
-                  {activeTab === "chat" && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-                  )}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setActiveTab("notifications")}
-                className={cn(
-                  "flex-1 py-3 text-sm font-black tracking-widest transition-all relative",
-                  activeTab === "notifications"
-                    ? "text-primary"
-                    : "opacity-40 hover:opacity-100",
-                )}
-                >
-                  {t("common.notifications", { defaultValue: "Notifications" })}
-                  {generalUnreadCount > 0 && (
-                    <span className="ml-1 opacity-60">({generalUnreadCount})</span>
-                  )}
-                  {activeTab === "notifications" && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-                  )}
-                </button>
-            </div>
-
-            {/* Content Area */}
-            <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar p-2">
-              {activeTab === "tasks" ? (
+            <BellPanelContent
+              isDark={isDark}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              visibleTabs={visibleTabs}
+              activeTabAction={activeTabAction}
+              onClose={() => setIsOpen(false)}
+            >
+              {activeTab === 'tasks' ? (
                 <TaskList tasks={tasks} isDark={isDark} />
-              ) : activeTab === "chat" ? (
+              ) : activeTab === 'chat' ? (
                 <ChatList
                   rooms={chatRooms}
                   loading={chatLoading}
@@ -386,48 +442,198 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                   isDark={isDark}
                   onOpen={handleOpenChat}
                 />
-              ) : activeTab === "notifications" ? (
+              ) : (
                 <NotificationList
                   notifications={generalNotifications}
                   isDark={isDark}
                   onDelete={deleteNotifications}
                   onOpen={handleOpenNotification}
+                  canOpenNotification={(notification) => !isChatNotification(notification) || chatPluginAvailable}
+                  pluginUnavailableLabel={t('common.chatUnavailable', { defaultValue: 'Chat is unavailable right now' })}
                 />
-              ) : (
-                <TaskList tasks={tasks} isDark={isDark} />
               )}
-            </div>
+            </BellPanelContent>
+          </div>
 
-            {/* Footer */}
-            {activeTab === "chat" && chatNavItem && (
-              <div className="p-2 border-t flex justify-end bg-muted/30">
-                <button
-                  type="button"
-                  onClick={() => handleOpenChat()}
-                  className="text-sm font-black opacity-40 hover:opacity-100 transition-all flex items-center gap-1"
-                >
-                  <ExternalLink size={18} />
-                  {t("common.openChat", { defaultValue: "Open Chat" })}
-                </button>
-              </div>
-            )}
-            {activeTab === "notifications" && generalNotifications.length > 0 && (
-              <div className="p-2 border-t flex justify-between bg-muted/30">
-                <button
-                  type="button"
-                  onClick={() => markAllAsRead()}
-                  className="text-sm font-black opacity-40 hover:opacity-100 transition-all flex items-center gap-1"
-                >
-                  <Check size={18} />
-                  {t("common.markAllRead", {
-                    defaultValue: "Mark all as read",
-                  })}
-                </button>
-              </div>
-            )}
+          <div className="fixed inset-x-0 bottom-0 top-16 z-[130] flex items-end overflow-hidden px-2 pb-2 md:hidden">
+            <button
+              type="button"
+              aria-label={t('common.close', { defaultValue: 'Close' })}
+              onClick={() => setIsOpen(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            />
+            <div
+              className={cn(
+                'relative flex h-auto max-h-[min(calc(100dvh-5rem),36rem)] w-full max-w-full flex-col overflow-hidden rounded-[1.25rem] border shadow-2xl',
+                isDark
+                  ? 'border-white/10 bg-zinc-950 text-white'
+                  : 'border-gray-200 bg-white text-gray-900',
+              )}
+            >
+              <BellPanelContent
+                isDark={isDark}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                visibleTabs={visibleTabs}
+                activeTabAction={activeTabAction}
+                onClose={() => setIsOpen(false)}
+              >
+                {activeTab === 'tasks' ? (
+                  <TaskList tasks={tasks} isDark={isDark} />
+                ) : activeTab === 'chat' ? (
+                  <ChatList
+                    rooms={chatRooms}
+                    loading={chatLoading}
+                    error={chatError}
+                    isDark={isDark}
+                    onOpen={handleOpenChat}
+                  />
+                ) : (
+                  <NotificationList
+                    notifications={generalNotifications}
+                    isDark={isDark}
+                    onDelete={deleteNotifications}
+                    onOpen={handleOpenNotification}
+                    canOpenNotification={(notification) => !isChatNotification(notification) || chatPluginAvailable}
+                    pluginUnavailableLabel={t('common.chatUnavailable', { defaultValue: 'Chat is unavailable right now' })}
+                  />
+                )}
+              </BellPanelContent>
+            </div>
           </div>
         </>
       )}
+    </div>
+  );
+};
+
+interface BellTabDefinition {
+  key: 'tasks' | 'notifications' | 'chat';
+  label: string;
+  count: number;
+}
+
+interface BellPanelAction {
+  visible: boolean;
+  label: string;
+  onClick: () => void;
+}
+
+interface BellPanelContentProps {
+  isDark: boolean;
+  activeTab: 'tasks' | 'notifications' | 'chat';
+  setActiveTab: (tab: 'tasks' | 'notifications' | 'chat') => void;
+  visibleTabs: BellTabDefinition[];
+  activeTabAction: BellPanelAction | null;
+  onClose: () => void;
+  children: ReactNode;
+}
+
+const BellPanelContent = ({
+  isDark,
+  activeTab,
+  setActiveTab,
+  visibleTabs,
+  activeTabAction,
+  onClose,
+  children,
+}: BellPanelContentProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className={cn(
+        'shrink-0 border-b px-3 pb-2.5 pt-2.5 md:px-4 md:pb-3 md:pt-3',
+        isDark ? 'border-white/10' : 'border-gray-200',
+      )}>
+        <div className="mb-2.5 flex items-start justify-between gap-3 md:mb-3">
+          <div className="min-w-0">
+            <p className="text-sm font-black tracking-wide md:text-[15px]">
+              {t('common.notifications', { defaultValue: 'Notifications' })}
+            </p>
+            <p className="mt-0.5 text-[13px] opacity-50 md:mt-1 md:text-[14px]">
+              {activeTab === 'tasks'
+                ? t('filemanager.task.center')
+                : activeTab === 'chat'
+                  ? t('common.chat', { defaultValue: 'Chat' })
+                  : t('common.notifications', { defaultValue: 'Notifications' })}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className={cn(
+              'flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border transition-colors md:h-10 md:w-10',
+              isDark
+                ? 'border-white/10 bg-white/5 hover:bg-white/10'
+                : 'border-gray-200 bg-gray-50 hover:bg-gray-100',
+            )}
+            aria-label={t('common.close', { defaultValue: 'Close' })}
+            title={t('common.close', { defaultValue: 'Close' })}
+          >
+            <span className="text-lg leading-none">×</span>
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-3">
+          <div
+            className={cn(
+              'grid min-w-0 items-end gap-1.5 border-b pb-0.5',
+              isDark ? 'border-white/10' : 'border-gray-200',
+            )}
+            style={{ gridTemplateColumns: `repeat(${visibleTabs.length}, minmax(0, 1fr))` }}
+          >
+            {visibleTabs.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'relative min-w-0 px-1 pb-2 pt-1 text-center text-[13px] font-black transition-all md:text-sm',
+                  activeTab === tab.key
+                    ? isDark
+                      ? 'text-white'
+                      : 'text-gray-900'
+                    : isDark
+                      ? 'text-white/55 hover:text-white/80'
+                      : 'text-gray-500 hover:text-gray-800',
+                )}
+              >
+                <span className="block truncate">{tab.label}</span>
+                {tab.count > 0 && (
+                  <span className="mt-0.5 block text-[11px] opacity-70">{tab.count}</span>
+                )}
+                <span
+                  className={cn(
+                    'absolute inset-x-1 bottom-0 h-0.5 rounded-full transition-opacity',
+                    activeTab === tab.key
+                      ? 'opacity-100 bg-primary'
+                      : 'opacity-0',
+                  )}
+                />
+              </button>
+            ))}
+          </div>
+          {activeTabAction?.visible && (
+            <button
+              type="button"
+              onClick={activeTabAction.onClick}
+              className={cn(
+                'min-h-10 w-full shrink-0 rounded-2xl border px-4 text-sm font-black transition-colors md:w-auto',
+                isDark
+                  ? 'border-white/10 bg-white/5 hover:bg-white/10'
+                  : 'border-gray-200 bg-gray-50 hover:bg-gray-100',
+              )}
+            >
+              {activeTabAction.label}
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar p-2 md:p-3">
+        {children}
+      </div>
     </div>
   );
 };
@@ -536,7 +742,6 @@ const TaskList = ({
   isDark: boolean;
 }) => {
   const { t } = useTranslation();
-  const clearFinishedTasks = useFileStore((state) => state.clearFinishedTasks);
 
   if (tasks.length === 0) {
     return (
@@ -550,19 +755,7 @@ const TaskList = ({
   }
 
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between items-center px-2 mb-2">
-        <span className="text-sm font-black opacity-30 tracking-widest">
-          Active Tasks
-        </span>
-        <button
-          type="button"
-          onClick={clearFinishedTasks}
-          className="text-sm text-destructive font-black opacity-40 hover:opacity-100"
-        >
-          Clear
-        </button>
-      </div>
+    <div className="space-y-2">
       {tasks.map((task) => (
         <TaskItem key={task.id} task={task} isDark={isDark} />
       ))}
@@ -666,6 +859,8 @@ interface NotificationListProps {
   isDark: boolean;
   onDelete: (ids: string[]) => Promise<void>;
   onOpen: (notification: Notification) => Promise<void>;
+  canOpenNotification: (notification: Notification) => boolean;
+  pluginUnavailableLabel: string;
 }
 
 const NotificationList = ({
@@ -673,6 +868,8 @@ const NotificationList = ({
   isDark,
   onDelete,
   onOpen,
+  canOpenNotification,
+  pluginUnavailableLabel,
 }: NotificationListProps) => {
   const { t } = useTranslation();
   const { language } = useLanguageStore();
@@ -719,6 +916,8 @@ const NotificationList = ({
     <div className="space-y-1">
       {notifications.map((n: Notification) => {
         const href = resolveNotificationHref(n);
+        const canOpen = canOpenNotification(n);
+        const canNavigate = Boolean(href) && canOpen;
 
         return (
           <div
@@ -749,18 +948,12 @@ const NotificationList = ({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex justify-between items-start gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void onOpen(n);
-                    }}
-                    className="min-w-0 flex-1 text-left"
-                  >
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-black truncate">{n.title}</p>
                     <p className="text-sm opacity-60 mt-1 leading-relaxed line-clamp-2">
                       {n.content}
                     </p>
-                  </button>
+                  </div>
                   <span className="text-[14px] font-black opacity-30 whitespace-nowrap">
                     {formatDistanceToNow(new Date(n.created_at), {
                       addSuffix: true,
@@ -769,33 +962,40 @@ const NotificationList = ({
                   </span>
                 </div>
 
-                <div className="mt-2 flex justify-end gap-2">
-                  {href && (
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  {!canNavigate && href ? (
+                    <span className="text-[14px] font-black opacity-40 truncate">
+                      {pluginUnavailableLabel}
+                    </span>
+                  ) : <span />}
+                  <div className="flex justify-end gap-2">
+                    {canNavigate && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void onOpen(n);
+                        }}
+                        title={t("common.viewDetails", { defaultValue: "View Details" })}
+                        aria-label={t("common.viewDetails", { defaultValue: "View Details" })}
+                        className="p-1 rounded hover:bg-primary/10 text-primary"
+                      >
+                        <ExternalLink size={18} />
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        void onOpen(n);
+                        void onDelete([n.id]);
                       }}
-                      title={t("common.viewDetails", { defaultValue: "View Details" })}
-                      aria-label={t("common.viewDetails", { defaultValue: "View Details" })}
-                      className="p-1 rounded hover:bg-primary/10 text-primary"
+                      className="p-1 rounded hover:bg-destructive/10 text-destructive"
+                      title={t("common.delete", { defaultValue: "Delete" })}
+                      aria-label={t("common.delete", { defaultValue: "Delete" })}
                     >
-                      <ExternalLink size={18} />
+                      <Trash2 size={18} />
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      void onDelete([n.id]);
-                    }}
-                    className="p-1 rounded hover:bg-destructive/10 text-destructive"
-                    title={t("common.delete", { defaultValue: "Delete" })}
-                    aria-label={t("common.delete", { defaultValue: "Delete" })}
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  </div>
                 </div>
               </div>
             </div>

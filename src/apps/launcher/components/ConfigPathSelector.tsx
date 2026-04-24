@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { AlertTriangle, Check, X } from "lucide-react";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { cn } from "@/lib/utils";
-import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 
 export interface ConfigPathValidationResult {
   valid: boolean;
@@ -101,12 +101,6 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
     }
   }, [defaultRuntimeDir, initialRuntimeDir, isOpen]);
 
-  useEscapeToCloseTopLayer({
-    active: isOpen && canClose,
-    enabled: canClose,
-    onEscape: onClose,
-  });
-
   const handleBrowse = async () => {
     try {
       const selected = await onBrowsePath();
@@ -143,262 +137,61 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
     return null;
   }
 
+  const noop = () => {};
+  const effectiveOnClose = canClose ? onClose : noop;
+
   return (
-    <div
-      className={cn(
-        "fixed inset-0 flex items-center justify-center z-[220] p-2 sm:p-4 animate-in fade-in duration-300",
+    <GlassModalShell
+      title={(
+        <div className="flex items-center gap-4 text-white min-w-0">
+          <div className="bg-white/10 p-2 rounded-xl backdrop-blur-md shadow-inner shrink-0">
+            <img
+              src="/favicon.svg"
+              alt="FileUni Logo"
+              width={48}
+              height={48}
+              className="drop-shadow-lg"
+            />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold tracking-tight truncate">
+              {t("systemConfig.configSelector.title")}
+            </h2>
+            <p className="text-sm text-blue-100/80 truncate">
+              {t("systemConfig.configSelector.subtitle")}
+            </p>
+          </div>
+        </div>
+      )}
+      onClose={effectiveOnClose}
+      maxWidthClassName="max-w-lg"
+      panelClassName={cn(
+        "rounded-2xl shadow-2xl animate-in zoom-in duration-300 overflow-hidden",
+        isDark
+          ? "bg-slate-950 border border-white/10 ring-1 ring-white/5"
+          : "bg-white border border-gray-200",
+      )}
+      bodyClassName="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-5"
+      overlayClassName={cn(
+        "animate-in fade-in duration-300",
         isDark ? "bg-black/95" : "bg-slate-900/80",
       )}
-      role="dialog"
-      aria-modal="true"
-      data-testid="launcher-config-selector"
-    >
-      <div
-        className={cn(
-          "rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in duration-300 flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
-          isDark
-            ? "bg-slate-950 border border-white/10 ring-1 ring-white/5"
-            : "bg-white border border-gray-200",
-        )}
-      >
-        <div className="bg-gradient-to-r from-blue-600 to-cyan-700 p-4 sm:p-6 text-white relative shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="bg-white/10 p-2 rounded-xl backdrop-blur-md shadow-inner">
-              <img
-                src="/favicon.svg"
-                alt="FileUni Logo"
-                width={48}
-                height={48}
-                className="drop-shadow-lg"
-              />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold tracking-tight">
-                {t("systemConfig.configSelector.title")}
-              </h2>
-              <p className="text-sm text-blue-100/80">
-                {t("systemConfig.configSelector.subtitle")}
-              </p>
-            </div>
-          </div>
-          {canClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-all"
-            >
-              <X size={20} />
-            </button>
-          )}
-        </div>
-
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-5">
-          <div
-            className={cn(
-              "p-4 border rounded-xl flex items-start gap-3",
-              isDark
-                ? "bg-amber-500/10 border-amber-500/20"
-                : "bg-amber-50 border-amber-200",
-            )}
-          >
-            <AlertTriangle
-              className="text-amber-500 shrink-0 mt-0.5"
-              size={18}
-            />
-            <div
-              className={cn(
-                "space-y-1",
-                isDark ? "text-amber-200" : "text-amber-800",
-              )}
-            >
-              <p className="text-sm font-semibold">
-                {t("systemConfig.configSelector.no_config_warning")}
-              </p>
-              <p className="text-sm leading-6 opacity-80">
-                {t("systemConfig.configSelector.default_hint")}
-              </p>
-            </div>
-          </div>
-
-          {error && (
-            <div
-              data-testid="launcher-runtime-dir-error"
-              className={cn(
-                "p-3 border rounded-xl text-sm font-semibold flex items-center gap-2",
-                isDark
-                  ? "bg-rose-500/10 border-rose-500/20 text-rose-400"
-                  : "bg-rose-50 border-rose-200 text-rose-600",
-              )}
-            >
-              <AlertTriangle size={16} className="shrink-0" />
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-2.5">
-            <label
-              htmlFor="runtime-dir-input"
-              className={cn(
-                "text-xs font-black tracking-[0.1em]",
-                isDark ? "text-slate-500" : "text-slate-400",
-              )}
-            >
-              {t("systemConfig.configSelector.config_path")}
-            </label>
-            <p
-              className={cn(
-                "text-sm leading-6",
-                isDark ? "text-slate-400" : "text-slate-500",
-              )}
-            >
-              {t("systemConfig.configSelector.config_path_desc")}
-            </p>
-            <div className="flex gap-2">
-              <input
-                data-testid="launcher-runtime-dir-input"
-                id="runtime-dir-input"
-                type="text"
-                value={runtimeDir}
-                onChange={(event) => setRuntimeDir(event.target.value)}
-                placeholder={t("systemConfig.configSelector.path_placeholder")}
-                className={cn(
-                  "flex-1 px-4 py-3 border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all",
-                  isDark
-                    ? "bg-white/5 border-white/10 text-white"
-                    : "bg-gray-50 border-gray-200 text-slate-900",
-                )}
-              />
-              <button
-                data-testid="launcher-runtime-dir-browse"
-                type="button"
-                onClick={() => void handleBrowse()}
-                className={cn(
-                  "px-4 py-3 rounded-xl text-sm font-bold transition-all",
-                  isDark
-                    ? "bg-slate-900 hover:bg-slate-800 text-slate-300"
-                    : "bg-gray-100 hover:bg-gray-200 text-slate-700",
-                )}
-              >
-                {t("systemConfig.configSelector.browse")}
-              </button>
-            </div>
-          </div>
-
-          <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center">
-              <div
-                className={cn(
-                  "w-full border-t",
-                  isDark ? "border-white/5" : "border-gray-100",
-                )}
-              />
-            </div>
-            <div className="relative flex justify-center text-[10px] font-black tracking-[0.2em]">
-              <span
-                className={cn(
-                  "px-4",
-                  isDark
-                    ? "bg-slate-950 text-slate-700"
-                    : "bg-white text-slate-400",
-                )}
-              >
-                {t("systemConfig.configSelector.or")}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              data-testid="launcher-runtime-dir-current"
-              type="button"
-              onClick={() => {
-                setRuntimeDir(pickPrimaryRuntimeDir(currentPreset));
-              }}
-              className={cn(
-                "p-4 text-xs border rounded-xl transition-all text-left group",
-                isDark
-                  ? "bg-white/[0.02] border-white/5 hover:border-white/10"
-                  : "bg-gray-50 border-gray-200 hover:bg-white hover:shadow-md",
-              )}
-            >
-              <span
-                className={cn(
-                  "font-black tracking-wider block mb-2",
-                  isDark ? "text-slate-400" : "text-slate-600",
-                )}
-              >
-                {t("systemConfig.configSelector.current_dir")}
-              </span>
-              <span
-                className={cn(
-                  "block mb-2 text-xs leading-5",
-                  isDark ? "text-slate-500" : "text-slate-500",
-                )}
-              >
-                {t("systemConfig.configSelector.current_dir_desc")}
-              </span>
-              {currentPresetLines.map((line) => (
-                <span
-                  key={`current:${line}`}
-                  className={cn(
-                    "block truncate mb-1 last:mb-0",
-                    isDark ? "text-slate-500" : "text-slate-400",
-                  )}
-                >
-                  {line}
-                </span>
-              ))}
-            </button>
-            <button
-              data-testid="launcher-runtime-dir-default"
-              type="button"
-              onClick={() => {
-                setRuntimeDir(pickPrimaryRuntimeDir(defaultPreset));
-              }}
-              className={cn(
-                "p-4 text-xs border rounded-xl transition-all text-left group",
-                isDark
-                  ? "bg-white/[0.02] border-white/5 hover:border-white/10"
-                  : "bg-gray-50 border-gray-200 hover:bg-white hover:shadow-md",
-              )}
-            >
-              <span
-                className={cn(
-                  "font-black tracking-wider block mb-2",
-                  isDark ? "text-slate-400" : "text-slate-600",
-                )}
-              >
-                {t("systemConfig.configSelector.default_dir")}
-              </span>
-              <span
-                className={cn(
-                  "block mb-2 text-xs leading-5",
-                  isDark ? "text-slate-500" : "text-slate-500",
-                )}
-              >
-                {t("systemConfig.configSelector.default_dir_desc")}
-              </span>
-              {defaultPresetLines.map((line) => (
-                <span
-                  key={`default:${line}`}
-                  className={cn(
-                    "block truncate mb-1 last:mb-0",
-                    isDark ? "text-slate-500" : "text-slate-400",
-                  )}
-                >
-                  {line}
-                </span>
-              ))}
-            </button>
-          </div>
-        </div>
-
+      zIndexClassName="z-[220]"
+      containerClassName="p-2 sm:p-4"
+      closeButton={canClose ? (
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-all"
+        >
+          <X size={20} />
+        </button>
+      ) : null}
+      footer={(
         <div
           className={cn(
-            "flex items-center justify-end gap-3 p-4 sm:p-6 border-t shrink-0",
-            isDark
-              ? "border-white/10 bg-black/40"
-              : "border-gray-100 bg-gray-50",
+            "w-full flex items-center justify-end gap-3",
+            isDark ? "text-slate-500" : "text-slate-500",
           )}
         >
           <button
@@ -430,7 +223,208 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             {t("systemConfig.configSelector.confirm")}
           </button>
         </div>
+      )}
+    >
+      <div data-testid="launcher-config-selector" className="space-y-5">
+        <div
+          className={cn(
+            "p-4 border rounded-xl flex items-start gap-3",
+            isDark
+              ? "bg-amber-500/10 border-amber-500/20"
+              : "bg-amber-50 border-amber-200",
+          )}
+        >
+          <AlertTriangle
+            className="text-amber-500 shrink-0 mt-0.5"
+            size={18}
+          />
+          <div
+            className={cn(
+              "space-y-1",
+              isDark ? "text-amber-200" : "text-amber-800",
+            )}
+          >
+            <p className="text-sm font-semibold">
+              {t("systemConfig.configSelector.no_config_warning")}
+            </p>
+            <p className="text-sm leading-6 opacity-80">
+              {t("systemConfig.configSelector.default_hint")}
+            </p>
+          </div>
+        </div>
+
+        {error && (
+          <div
+            data-testid="launcher-runtime-dir-error"
+            className={cn(
+              "p-3 border rounded-xl text-sm font-semibold flex items-center gap-2",
+              isDark
+                ? "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                : "bg-rose-50 border-rose-200 text-rose-600",
+            )}
+          >
+            <AlertTriangle size={16} className="shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-2.5">
+          <label
+            htmlFor="runtime-dir-input"
+            className={cn(
+              "text-xs font-black tracking-[0.1em]",
+              isDark ? "text-slate-500" : "text-slate-400",
+            )}
+          >
+            {t("systemConfig.configSelector.config_path")}
+          </label>
+          <p
+            className={cn(
+              "text-sm leading-6",
+              isDark ? "text-slate-400" : "text-slate-500",
+            )}
+          >
+            {t("systemConfig.configSelector.config_path_desc")}
+          </p>
+          <div className="flex gap-2">
+            <input
+              data-testid="launcher-runtime-dir-input"
+              id="runtime-dir-input"
+              type="text"
+              value={runtimeDir}
+              onChange={(event) => setRuntimeDir(event.target.value)}
+              placeholder={t("systemConfig.configSelector.path_placeholder")}
+              className={cn(
+                "flex-1 px-4 py-3 border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all",
+                isDark
+                  ? "bg-white/5 border-white/10 text-white"
+                  : "bg-gray-50 border-gray-200 text-slate-900",
+              )}
+            />
+            <button
+              data-testid="launcher-runtime-dir-browse"
+              type="button"
+              onClick={() => void handleBrowse()}
+              className={cn(
+                "px-4 py-3 rounded-xl text-sm font-bold transition-all",
+                isDark
+                  ? "bg-slate-900 hover:bg-slate-800 text-slate-300"
+                  : "bg-gray-100 hover:bg-gray-200 text-slate-700",
+              )}
+            >
+              {t("systemConfig.configSelector.browse")}
+            </button>
+          </div>
+        </div>
+
+        <div className="relative py-2">
+          <div className="absolute inset-0 flex items-center">
+            <div
+              className={cn(
+                "w-full border-t",
+                isDark ? "border-white/5" : "border-gray-100",
+              )}
+            />
+          </div>
+          <div className="relative flex justify-center text-[10px] font-black tracking-[0.2em]">
+            <span
+              className={cn(
+                "px-4",
+                isDark
+                  ? "bg-slate-950 text-slate-700"
+                  : "bg-white text-slate-400",
+              )}
+            >
+              {t("systemConfig.configSelector.or")}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            data-testid="launcher-runtime-dir-current"
+            type="button"
+            onClick={() => {
+              setRuntimeDir(pickPrimaryRuntimeDir(currentPreset));
+            }}
+            className={cn(
+              "p-4 text-xs border rounded-xl transition-all text-left group",
+              isDark
+                ? "bg-white/[0.02] border-white/5 hover:border-white/10"
+                : "bg-gray-50 border-gray-200 hover:bg-white hover:shadow-md",
+            )}
+          >
+            <span
+              className={cn(
+                "font-black tracking-wider block mb-2",
+                isDark ? "text-slate-400" : "text-slate-600",
+              )}
+            >
+              {t("systemConfig.configSelector.current_dir")}
+            </span>
+            <span
+              className={cn(
+                "block mb-2 text-xs leading-5",
+                isDark ? "text-slate-500" : "text-slate-500",
+              )}
+            >
+              {t("systemConfig.configSelector.current_dir_desc")}
+            </span>
+            {currentPresetLines.map((line) => (
+              <span
+                key={`current:${line}`}
+                className={cn(
+                  "block truncate mb-1 last:mb-0",
+                  isDark ? "text-slate-500" : "text-slate-400",
+                )}
+              >
+                {line}
+              </span>
+            ))}
+          </button>
+          <button
+            data-testid="launcher-runtime-dir-default"
+            type="button"
+            onClick={() => {
+              setRuntimeDir(pickPrimaryRuntimeDir(defaultPreset));
+            }}
+            className={cn(
+              "p-4 text-xs border rounded-xl transition-all text-left group",
+              isDark
+                ? "bg-white/[0.02] border-white/5 hover:border-white/10"
+                : "bg-gray-50 border-gray-200 hover:bg-white hover:shadow-md",
+            )}
+          >
+            <span
+              className={cn(
+                "font-black tracking-wider block mb-2",
+                isDark ? "text-slate-400" : "text-slate-600",
+              )}
+            >
+              {t("systemConfig.configSelector.default_dir")}
+            </span>
+            <span
+              className={cn(
+                "block mb-2 text-xs leading-5",
+                isDark ? "text-slate-500" : "text-slate-500",
+              )}
+            >
+              {t("systemConfig.configSelector.default_dir_desc")}
+            </span>
+            {defaultPresetLines.map((line) => (
+              <span
+                key={`default:${line}`}
+                className={cn(
+                  "block truncate mb-1 last:mb-0",
+                  isDark ? "text-slate-500" : "text-slate-400",
+                )}
+              >
+                {line}
+              </span>
+            ))}
+          </button>
+        </div>
       </div>
-    </div>
+    </GlassModalShell>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { Switch } from '@/components/ui/Switch';
@@ -1716,7 +1716,8 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
       />
 
       {/* DDNS Modal */}
-      <Modal isOpen={ddnsModalOpen} onClose={() => setDdnsModalOpen(false)} title={ddnsDraft.id ? t('admin.domain.ddnsEditTitle') : t('admin.domain.create') + ' DDNS'} maxWidth="max-w-3xl">
+      {ddnsModalOpen && (
+      <GlassModalShell onClose={() => setDdnsModalOpen(false)} title={ddnsDraft.id ? t('admin.domain.ddnsEditTitle') : t('admin.domain.create') + ' DDNS'} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-3xl" panelClassName="dark text-white">
         <div className="space-y-8 overflow-y-auto max-h-[80vh] p-1 scrollbar-hide">
           <div className={sectionCardBase}>
             <div className="space-y-8">
@@ -1992,10 +1993,12 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
             <Button onClick={saveDdns} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">{t('common.save')}</Button>
           </div>
         </div>
-      </Modal>
+      </GlassModalShell>
+      )}
 
       {/* SSL Modal */}
-      <Modal isOpen={sslModalOpen} onClose={() => setSslModalOpen(false)} title={sslDraft.id ? t('admin.domain.certEditTitle') : t('admin.domain.create') + ' SSL/TLS'} maxWidth="max-w-4xl">
+      {sslModalOpen && (
+      <GlassModalShell onClose={() => setSslModalOpen(false)} title={sslDraft.id ? t('admin.domain.certEditTitle') : t('admin.domain.create') + ' SSL/TLS'} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-4xl" panelClassName="dark text-white">
         <div className="overflow-y-auto max-h-[80vh] p-1 space-y-8 scrollbar-hide">
           <CertificateForm
             name={sslDraft.name}
@@ -2068,10 +2071,12 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
             <Button onClick={saveSsl} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">{t('common.save')}</Button>
           </div>
         </div>
-      </Modal>
+      </GlassModalShell>
+      )}
 
       {/* Provider Modal */}
-      <Modal isOpen={providerModalOpen} onClose={() => { setProviderModalOpen(false); setShowProviderList(true); }} title={t('admin.domain.providerTitle')} maxWidth="max-w-2xl">
+      {providerModalOpen && (
+      <GlassModalShell onClose={() => { setProviderModalOpen(false); setShowProviderList(true); }} title={t('admin.domain.providerTitle')} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-2xl" panelClassName="dark text-white">
         <div className="space-y-8 overflow-y-auto max-h-[80vh] p-1 scrollbar-hide text-foreground">
           {showProviderList ? (
             <div className="space-y-6">
@@ -2356,10 +2361,12 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
             </div>
           )}
         </div>
-      </Modal>
+      </GlassModalShell>
+      )}
 
       {/* ZeroSSL Modal */}
-      <Modal isOpen={zerosslModalOpen} onClose={() => setZeroSslModalOpen(false)} title={t('admin.domain.zerosslAccountManagement')} maxWidth="max-w-xl">
+      {zerosslModalOpen && (
+      <GlassModalShell onClose={() => setZeroSslModalOpen(false)} title={t('admin.domain.zerosslAccountManagement')} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-xl" panelClassName="dark text-white">
         <div className="space-y-8 overflow-y-auto max-h-[80vh] p-1 scrollbar-hide text-foreground">
           <div className={sectionCardBase}>
             <div className="space-y-8">
@@ -2396,7 +2403,8 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
             <Button onClick={saveZeroSslQuick} className="h-14 px-10 rounded-2xl bg-gradient-to-br from-primary to-primary/90 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 border-t border-white/20 font-bold tracking-wider text-primary-foreground">{t('admin.domain.create')}</Button>
           </div>
         </div>
-      </Modal>
+      </GlassModalShell>
+      )}
     </AdminPage>
   );
 };

@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { ExternalLink, FileText, Download, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
 import { downloadFileByPath } from '@/lib/fileTokens.ts';
 import { useConfigStore } from '@/stores/config.ts';
-import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
 import { useThemeStore } from '@/stores/theme';
 import { cn } from '@/lib/utils.ts';
 import { fetchFileDownloadUrl, fetchFileStatSize, getFileExtension, isComplexOfficeFile, OFFICE_PPTX_EXTS, resolveLimitBytes } from '../utils/officeLite.ts';
@@ -63,11 +63,6 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
     loadApps();
   }, [loadApps]);
 
-  useEscapeToCloseTopLayer({
-    active: true,
-    onEscape: onClose,
-  });
-
   const openOfficeLite = () => {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
@@ -111,78 +106,81 @@ export const OfficeOpenModal: React.FC<Props> = ({ path, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[190] flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <div className={cn(
-        "w-full max-w-lg rounded-[2rem] border shadow-2xl p-4 sm:p-6 space-y-4 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain custom-scrollbar",
-        isDark ? "bg-zinc-950 border-white/10 text-white" : "bg-white border-zinc-200 text-zinc-900"
-      )}>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h3 className="text-lg font-black tracking-tight">{t('filemanager.officeLite.openTitle')}</h3>
-            <p className="text-sm opacity-60 mt-1">{fileName}</p>
-          </div>
-          <Button variant="ghost" className="h-9 w-9 rounded-full" onClick={onClose}>
-            <XCircle size={18} />
+    <GlassModalShell
+      title={t('filemanager.officeLite.openTitle')}
+      subtitle={fileName}
+      onClose={onClose}
+      maxWidthClassName="max-w-lg"
+      panelClassName={cn(
+        'rounded-[2rem] shadow-2xl',
+        isDark ? 'bg-zinc-950 border-white/10 text-white' : 'bg-white border-zinc-200 text-zinc-900'
+      )}
+      bodyClassName="p-4 sm:p-6 space-y-4"
+      overlayClassName="bg-black/50 backdrop-blur-sm"
+      zIndexClassName="z-[190]"
+      containerClassName="p-2 sm:p-4"
+      closeButton={(
+        <Button variant="ghost" className="h-9 w-9 rounded-full" onClick={onClose}>
+          <XCircle size={18} />
+        </Button>
+      )}
+    >
+      <p className="text-sm opacity-70">{t('filemanager.officeLite.openHint')}</p>
+      <p className="text-sm opacity-50">{t('filemanager.officeLite.externalViewerHint')}</p>
+
+      {(isLargeFile || isComplex) && (
+        <div className={cn(
+          'rounded-2xl border px-4 py-3 text-sm leading-relaxed',
+          isDark ? 'border-white/10 bg-white/5 text-white/70' : 'border-zinc-200 bg-zinc-50 text-zinc-600'
+        )}>
+          {isLargeFile && (
+            <div>{t('filemanager.officeLite.largeFileWarning', { size: Math.ceil(officeLimitBytes / (1024 * 1024)) })}</div>
+          )}
+          {isComplex && (
+            <div className={cn(isLargeFile && 'mt-2')}>{t('filemanager.officeLite.complexHint')}</div>
+          )}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center gap-2 text-sm font-bold tracking-[0.2em] opacity-50">
+          <Loader2 size={18} className="animate-spin" />
+          {t('filemanager.officeLite.loadingApps')}
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {apps.some(app => app.id === 'office-lite') && (
+            <Button variant="primary" className="h-12 rounded-2xl justify-between px-4" onClick={openOfficeLite}>
+              <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openLite')}</span>
+              <FileText size={16} />
+            </Button>
+          )}
+          {apps.some(app => app.id === 'wopi-office') && enableWopi && (
+            <Button variant="outline" className="h-12 rounded-2xl justify-between px-4" onClick={openWopi}>
+              <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openWopi')}</span>
+              <ExternalLink size={16} />
+            </Button>
+          )}
+          {enableMicrosoftViewer && (
+            <Button variant="outline" className="h-12 rounded-2xl justify-between px-4" onClick={() => openExternalViewer('microsoft')}>
+              <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openMicrosoftViewer')}</span>
+              <ExternalLink size={16} />
+            </Button>
+          )}
+          {enableGoogleViewer && (
+            <Button variant="outline" className="h-12 rounded-2xl justify-between px-4" onClick={() => openExternalViewer('google')}>
+              <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openGoogleViewer')}</span>
+              <ExternalLink size={16} />
+            </Button>
+          )}
+          <Button variant="ghost" className="h-12 rounded-2xl justify-between px-4" onClick={downloadFile}>
+            <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openDownload')}</span>
+            <Download size={16} />
           </Button>
         </div>
+      )}
 
-        <p className="text-sm opacity-70">{t('filemanager.officeLite.openHint')}</p>
-        <p className="text-sm opacity-50">{t('filemanager.officeLite.externalViewerHint')}</p>
-
-        {(isLargeFile || isComplex) && (
-          <div className={cn(
-            "rounded-2xl border px-4 py-3 text-sm leading-relaxed",
-            isDark ? "border-white/10 bg-white/5 text-white/70" : "border-zinc-200 bg-zinc-50 text-zinc-600"
-          )}>
-            {isLargeFile && (
-              <div>{t('filemanager.officeLite.largeFileWarning', { size: Math.ceil(officeLimitBytes / (1024 * 1024)) })}</div>
-            )}
-            {isComplex && (
-              <div className={cn(isLargeFile && "mt-2")}>{t('filemanager.officeLite.complexHint')}</div>
-            )}
-          </div>
-        )}
-
-        {loading ? (
-          <div className="flex items-center gap-2 text-sm font-bold tracking-[0.2em] opacity-50">
-            <Loader2 size={18} className="animate-spin" />
-            {t('filemanager.officeLite.loadingApps')}
-          </div>
-        ) : (
-          <div className="grid gap-3">
-            {apps.some(app => app.id === 'office-lite') && (
-              <Button variant="primary" className="h-12 rounded-2xl justify-between px-4" onClick={openOfficeLite}>
-                <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openLite')}</span>
-                <FileText size={16} />
-              </Button>
-            )}
-            {apps.some(app => app.id === 'wopi-office') && enableWopi && (
-              <Button variant="outline" className="h-12 rounded-2xl justify-between px-4" onClick={openWopi}>
-                <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openWopi')}</span>
-                <ExternalLink size={16} />
-              </Button>
-            )}
-            {enableMicrosoftViewer && (
-              <Button variant="outline" className="h-12 rounded-2xl justify-between px-4" onClick={() => openExternalViewer('microsoft')}>
-                <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openMicrosoftViewer')}</span>
-                <ExternalLink size={16} />
-              </Button>
-            )}
-            {enableGoogleViewer && (
-              <Button variant="outline" className="h-12 rounded-2xl justify-between px-4" onClick={() => openExternalViewer('google')}>
-                <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openGoogleViewer')}</span>
-                <ExternalLink size={16} />
-              </Button>
-            )}
-            <Button variant="ghost" className="h-12 rounded-2xl justify-between px-4" onClick={downloadFile}>
-              <span className="text-sm font-black tracking-[0.2em]">{t('filemanager.officeLite.openDownload')}</span>
-              <Download size={16} />
-            </Button>
-          </div>
-        )}
-
-        {error && <p className="text-sm text-red-500">{error}</p>}
-      </div>
-    </div>
+      {error && <p className="text-sm text-red-500">{error}</p>}
+    </GlassModalShell>
   );
 };

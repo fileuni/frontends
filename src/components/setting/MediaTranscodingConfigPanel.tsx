@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Loader2, Video } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { deepClone, ensureRecord, isRecord } from "@/lib/configObject";
 import { useToastStore } from "@/stores/toast";
-import { useEscapeToCloseTopLayer } from "@/hooks/useEscapeToCloseTopLayer";
 import { useConfigDraftBinding } from "./useConfigDraftBinding";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
 import {
@@ -601,13 +601,6 @@ export const MediaTranscodingConfigModal: React.FC<MediaTranscodingConfigModalPr
   const { addToast } = useToastStore();
   const [draft, setDraft] = useState<MediaTranscodingDraft>(DEFAULT_MEDIA_TRANSCODING_DRAFT);
 
-  useEscapeToCloseTopLayer({ active: isOpen, enabled: true, onEscape: onClose });
-
-  useEffect(() => {
-    if (!isOpen) return;
-    setDraft(parseMediaTranscodingDraft(content, tomlAdapter));
-  }, [content, isOpen, tomlAdapter]);
-
   const handleApply = () => {
     try {
       onContentChange(applyMediaTranscodingDraft(content, tomlAdapter, draft));
@@ -621,41 +614,54 @@ export const MediaTranscodingConfigModal: React.FC<MediaTranscodingConfigModalPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4" role="dialog" aria-modal="true">
-      <button
-        type="button"
-        aria-label="Close"
-        className={cn("absolute inset-0 backdrop-blur-sm transition-colors", isDark ? "bg-black/95" : "bg-slate-900/80")}
-        onClick={onClose}
-      />
-      <div className={cn(
-        "relative w-full max-w-7xl rounded-2xl border shadow-lg overflow-hidden flex flex-col min-h-0 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]",
-        isDark ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5" : "bg-white border-gray-200 text-slate-900",
-      )}>
-        <div className={cn("flex items-center justify-between gap-3 border-b px-4 py-4 sm:px-6 shrink-0", isDark ? "border-white/10 bg-slate-900/50" : "border-slate-100 bg-slate-50/50") }>
-          <div>
-            <h3 className="text-sm sm:text-base font-black tracking-widest">{t("admin.config.mediaTranscoding.title")}</h3>
-            <p className={cn("text-xs font-bold mt-1", isDark ? "text-slate-400" : "text-slate-500")}>{t("admin.config.mediaTranscoding.subtitle")}</p>
-          </div>
-          <button type="button" onClick={onClose} className={cn("h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors shrink-0", isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-gray-200 text-slate-600 hover:bg-gray-100")}>×</button>
-        </div>
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6">
-          <MediaTranscodingForm
-            tomlAdapter={tomlAdapter}
-            content={content}
-            onContentChange={onContentChange}
-            draft={draft}
-            setDraft={setDraft}
-            onDiagnoseExternalTools={onDiagnoseExternalTools}
-            onProbeExternalTool={onProbeExternalTool}
-            onProbeMediaBackend={onProbeMediaBackend}
-          />
-        </div>
-        <div className={cn("shrink-0 border-t px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-end gap-2", isDark ? "border-white/10 bg-slate-900/60" : "border-slate-100 bg-slate-50/70")}>
+    <GlassModalShell
+      title={t("admin.config.mediaTranscoding.title")}
+      subtitle={t("admin.config.mediaTranscoding.subtitle")}
+      icon={<Video size={18} />}
+      onClose={onClose}
+      maxWidthClassName="max-w-7xl"
+      panelClassName={cn(
+        "rounded-2xl shadow-lg overflow-hidden",
+        isDark
+          ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5"
+          : "bg-white border-gray-200 text-slate-900"
+      )}
+      bodyClassName="p-4 sm:p-6"
+      overlayClassName={cn(
+        "backdrop-blur-sm transition-colors",
+        isDark ? "bg-black/95" : "bg-slate-900/80"
+      )}
+      zIndexClassName="z-[150]"
+      containerClassName="p-2 sm:p-4"
+      closeButton={(
+        <button
+          type="button"
+          onClick={onClose}
+          className={cn(
+            "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors shrink-0",
+            isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-gray-200 text-slate-600 hover:bg-gray-100"
+          )}
+        >
+          ×
+        </button>
+      )}
+      footer={(
+        <div className="flex items-center justify-end gap-2">
           <button type="button" onClick={onClose} className={cn("h-10 px-4 rounded-xl border text-sm font-black transition-colors", isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-slate-300 text-slate-700 hover:bg-slate-100")}>{t("common.cancel")}</button>
           <button type="button" onClick={handleApply} className="h-10 px-4 rounded-xl bg-primary text-white text-sm font-black hover:opacity-90">{t("common.confirm")}</button>
         </div>
-      </div>
-    </div>
+      )}
+    >
+      <MediaTranscodingForm
+        tomlAdapter={tomlAdapter}
+        content={content}
+        onContentChange={onContentChange}
+        draft={draft}
+        setDraft={setDraft}
+        onDiagnoseExternalTools={onDiagnoseExternalTools}
+        onProbeExternalTool={onProbeExternalTool}
+        onProbeMediaBackend={onProbeMediaBackend}
+      />
+    </GlassModalShell>
   );
 };

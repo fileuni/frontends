@@ -73,13 +73,13 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
   };
 
   const PropertyItem = ({ icon: Icon, label, value }: PropertyItemProps) => (
-    <div className="flex items-start gap-3 p-4 rounded-3xl bg-white/[0.03] border border-white/10 shadow-inner">
+    <div className="flex items-start gap-3 rounded-3xl border border-border bg-background/60 p-4 shadow-inner backdrop-blur-sm">
       <div className="p-2 rounded-2xl bg-primary/10 text-primary shrink-0 border border-primary/10">
         <Icon size={18} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-white/35 mb-2">{label}</p>
-        <div className="text-sm font-bold break-all leading-relaxed text-white/85">{value}</div>
+        <p className="mb-2 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
+        <div className="text-sm font-bold break-all leading-relaxed text-foreground">{value}</div>
       </div>
     </div>
   );
@@ -94,43 +94,49 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
       maxWidthClassName="max-w-2xl"
       bodyClassName="space-y-6"
       closeButton={(
-        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
-          <X size={24} className="opacity-40" />
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-accent text-muted-foreground shrink-0">
+          <X size={24} />
         </Button>
       )}
       footer={(
-        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
-          <Button 
-            onClick={onClose} 
-            size="sm"
-            className="rounded-2xl w-full sm:w-auto px-6 h-12 font-black text-sm"
-          >
-            {t('common.close')}
-          </Button>
-          {!file.is_dir && (
-            <Button 
-              variant="outline"
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-muted-foreground whitespace-nowrap">
+            {t('filemanager.messages.escCloseHint')}
+          </p>
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
+            <Button
+              onClick={onClose}
               size="sm"
-              onClick={handlePreview} 
-              className={cn(
-                'rounded-2xl w-full sm:w-auto px-5 h-12 font-black text-sm flex items-center gap-2',
-                'border-white/10 bg-white/5 hover:bg-white/10 text-white',
-              )}
+              className="rounded-2xl w-full sm:w-auto px-6 h-12 font-black text-sm"
             >
-              <Eye size={18} />
-              {t('filemanager.actions.preview')}
+              {t('common.close')}
             </Button>
-          )}
+            {!file.is_dir && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePreview}
+                className={cn(
+                  'rounded-2xl w-full sm:w-auto px-5 h-12 font-black text-sm flex items-center gap-2',
+                  'border-border bg-background hover:bg-accent text-foreground',
+                )}
+              >
+                <Eye size={18} />
+                {t('filemanager.actions.preview')}
+              </Button>
+            )}
+          </div>
         </div>
       )}
+
     >
-          <div className="flex items-center gap-4 rounded-[2rem] border border-primary/15 bg-primary/10 px-4 py-4 sm:px-5 sm:py-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
-            <div className="shrink-0 rounded-2xl bg-white/5 border border-white/10 p-3">
+          <div className="flex items-center gap-4 rounded-[2rem] border border-primary/15 bg-primary/10 px-4 py-4 sm:px-5 sm:py-5 shadow-[0_20px_60px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+            <div className="shrink-0 rounded-2xl border border-border bg-background/70 p-3 backdrop-blur-sm">
               <FileIcon name={file.name} isDir={file.is_dir} size={44} />
             </div>
             <div className="min-w-0 flex-1">
-              <h4 className="text-base sm:text-lg font-black text-white tracking-tight break-all leading-tight">{file.name}</h4>
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.16em] text-white/35 mt-2">
+              <h4 className="text-base sm:text-lg font-black text-foreground tracking-tight break-all leading-tight">{file.name}</h4>
+              <p className="mt-2 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] text-muted-foreground">
                 {file.is_dir ? t('filemanager.folder') : t('filemanager.file')}
               </p>
             </div>

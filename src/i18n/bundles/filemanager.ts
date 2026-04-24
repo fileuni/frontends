@@ -387,7 +387,6 @@ const filemanagerBundle = defineLocaleBundle({
             "disable": "Disable Folder Thumbnails",
             "enable": "Enable Folder Thumbnails",
             "settingsTitle": "File Management Settings",
-            "settingsDesc": "Adjust thumbnail behavior and review the file protocol access methods available for this account.",
             "noTypes": "No thumbnail types available.",
             "types": {
                 "image": "Images",
@@ -450,9 +449,11 @@ const filemanagerBundle = defineLocaleBundle({
             "mountFavoriteUnsupported": "Favorites are not available for remote mount entries yet.",
             "addedToClipboardCopy": "Added to clipboard (Ready to Copy)",
             "addedToClipboardCut": "Added to clipboard (Ready to Move)",
+            "movedSuccess": "Items moved successfully",
             "dropToUpload": "Release to start upload",
             "dragFilesHere": "Drag files or folders here",
             "uploadInstruction": "Support multiple files and original directory structure.",
+            "escCloseHint": "Press Esc to close",
             "uploadTip1": "Folders will be uploaded recursively, rebuilding the hierarchy on the server.",
             "uploadTip2": "Files with duplicate names will be automatically renamed to prevent overwriting."
         },
@@ -1029,9 +1030,7 @@ const filemanagerBundle = defineLocaleBundle({
             "clearAllUsers": "清理所有用户缩略图",
             "disable": "禁用本目录缩略图",
             "enable": "启用本目录缩略图",
-            "settingsTitle": "文件管理设置",
-            "settingsDesc": "管理缩略图开关，并查看当前账号可用的文件协议访问方式。",
-            "noTypes": "暂无可用的缩略图类型。",
+            "settingsTitle": "文件管理设置",            "noTypes": "暂无可用的缩略图类型。",
             "types": {
                 "image": "图片",
                 "video": "视频",
@@ -1091,11 +1090,13 @@ const filemanagerBundle = defineLocaleBundle({
             "confirmDeletePermanent": "确定要彻底删除这 {{count}} 个项目吗？",
             "mountRootDeleteBlocked": "这是一个远程挂载映射目录，请到挂载管理中移除，而不是在这里删除。",
             "mountFavoriteUnsupported": "远程挂载中的项目暂不支持收藏。",
-            "addedToClipboardCopy": "已添加到剪切板 (准备复制)",
-            "addedToClipboardCut": "已添加到剪切板 (准备移动)",
+            "addedToClipboardCopy": "已添加到剪贴板 (准备复制)",
+            "addedToClipboardCut": "已添加到剪贴板 (准备移动)",
+            "movedSuccess": "移动成功",
             "dropToUpload": "松开鼠标开始上传",
             "dragFilesHere": "拖拽文件或文件夹到此处",
             "uploadInstruction": "支持多文件上传，并能完美保持原有目录结构。",
+            "escCloseHint": "按 Esc 关闭",
             "uploadTip1": "文件夹将被递归上传，并在服务器端自动重建目录层级。",
             "uploadTip2": "如果目标目录已存在同名文件，系统将自动进行重命名以防止覆盖。"
         },
@@ -1673,7 +1674,6 @@ const filemanagerBundle = defineLocaleBundle({
             "disable": "Deshabilitar miniaturas de la carpeta",
             "enable": "Habilitar miniaturas de la carpeta",
             "settingsTitle": "Configuración del gestor de archivos",
-            "settingsDesc": "Ajuste las miniaturas y revise los métodos de acceso de protocolos de archivos disponibles para esta cuenta.",
             "noTypes": "No hay tipos de miniaturas disponibles.",
             "types": {
                 "image": "Imágenes",
@@ -1736,11 +1736,13 @@ const filemanagerBundle = defineLocaleBundle({
             "mountFavoriteUnsupported": "Favorites are not available for remote mount entries yet.",
             "addedToClipboardCopy": "Añadido al portapapeles (listo para copiar)",
             "addedToClipboardCut": "Añadido al portapapeles (listo para mover)",
+            "movedSuccess": "Elementos movidos correctamente",
             "dropToUpload": "Suelte para iniciar la subida",
             "dragFilesHere": "Arrastre archivos o carpetas aquí",
             "uploadInstruction": "Admite múltiples archivos y estructura original de directorios.",
+            "escCloseHint": "Presione Esc para cerrar",
             "uploadTip1": "Las carpetas se subirán de forma recursiva, reconstruyendo la jerarquía en el servidor.",
-            "uploadTip2": "Los archivos con nombres duplicados se renombrarán automáticamente para evitar sobrescrituras."
+            "uploadTip2": "Los archivos con nombres duplicados se renombrarán automáticamente para evitar sobrescrituras。"
         },
         "uploader": {
             "uploading": "Subiendo ({{count}})",
@@ -2316,7 +2318,6 @@ const filemanagerBundle = defineLocaleBundle({
             "disable": "Disable Folder Thumbnails",
             "enable": "Enable Folder Thumbnails",
             "settingsTitle": "Dateiverwaltungseinstellungen",
-            "settingsDesc": "Passen Sie das Thumbnail-Verhalten an und prüfen Sie die für dieses Konto verfügbaren Dateiprotokoll-Zugänge.",
             "noTypes": "No thumbnail types available.",
             "types": {
                 "image": "Images",
@@ -2379,9 +2380,11 @@ const filemanagerBundle = defineLocaleBundle({
             "mountFavoriteUnsupported": "Favorites are not available for remote mount entries yet.",
             "addedToClipboardCopy": "Zur Zwischenablage hinzugefügt (Bereit zum Kopieren)",
             "addedToClipboardCut": "Zur Zwischenablage hinzugefügt (Bereit zum Verschieben)",
+            "movedSuccess": "Elemente erfolgreich verschoben",
             "dropToUpload": "Loslassen zum Starten des Uploads",
             "dragFilesHere": "Dateien oder Ordner hierher ziehen",
             "uploadInstruction": "Unterstützt mehrere Dateien und ursprüngliche Verzeichnisstruktur.",
+            "escCloseHint": "Mit Esc schließen",
             "uploadTip1": "Ordner werden rekursiv hochgeladen und die Hierarchie auf dem Server wiederhergestellt.",
             "uploadTip2": "Dateien mit doppelten Namen werden automatisch umbenannt, um Überschreiben zu verhindern."
         },
@@ -2959,7 +2962,6 @@ const filemanagerBundle = defineLocaleBundle({
             "disable": "Désactiver les miniatures du dossier",
             "enable": "Activer les miniatures du dossier",
             "settingsTitle": "Paramètres du gestionnaire de fichiers",
-            "settingsDesc": "Ajustez les miniatures et consultez les méthodes d'accès aux protocoles de fichiers disponibles pour ce compte.",
             "noTypes": "Aucun type de miniature disponible.",
             "types": {
                 "image": "Fichiers image",
@@ -3022,9 +3024,11 @@ const filemanagerBundle = defineLocaleBundle({
             "mountFavoriteUnsupported": "Favorites are not available for remote mount entries yet.",
             "addedToClipboardCopy": "Ajouté au presse-papiers (prêt à copier)",
             "addedToClipboardCut": "Ajouté au presse-papiers (prêt à déplacer)",
+            "movedSuccess": "Éléments déplacés avec succès",
             "dropToUpload": "Relâchez pour démarrer le téléversement",
             "dragFilesHere": "Glissez des fichiers ou dossiers ici",
             "uploadInstruction": "Prend en charge plusieurs fichiers et la structure originale des dossiers.",
+            "escCloseHint": "Appuyez sur Échap pour fermer",
             "uploadTip1": "Les dossiers seront téléversés récursivement et la hiérarchie sera reconstruite sur le serveur.",
             "uploadTip2": "Les fichiers avec des noms en double seront renommés automatiquement pour éviter l'écrasement."
         },
@@ -3602,7 +3606,6 @@ const filemanagerBundle = defineLocaleBundle({
             "disable": "Отключить миниатюры папки",
             "enable": "Включить миниатюры папки",
             "settingsTitle": "Настройки файлового менеджера",
-            "settingsDesc": "Настройте миниатюры и просмотрите доступные для этой учетной записи способы доступа по файловым протоколам.",
             "noTypes": "Нет доступных типов миниатюр.",
             "types": {
                 "image": "Изображения",
@@ -3665,9 +3668,11 @@ const filemanagerBundle = defineLocaleBundle({
             "mountFavoriteUnsupported": "Favorites are not available for remote mount entries yet.",
             "addedToClipboardCopy": "Добавлено в буфер (готово к копированию)",
             "addedToClipboardCut": "Добавлено в буфер (готово к перемещению)",
+            "movedSuccess": "Элементы успешно перемещены",
             "dropToUpload": "Отпустите, чтобы начать загрузку",
             "dragFilesHere": "Перетащите файлы или папки сюда",
             "uploadInstruction": "Поддерживается несколько файлов и исходная структура каталогов.",
+            "escCloseHint": "Нажмите Esc, чтобы закрыть",
             "uploadTip1": "Папки будут загружены рекурсивно с восстановлением иерархии на сервере.",
             "uploadTip2": "Файлы с одинаковыми именами будут автоматически переименованы, чтобы избежать перезаписи."
         },
@@ -4245,7 +4250,6 @@ const filemanagerBundle = defineLocaleBundle({
             "disable": "フォルダサムネイルを無効化",
             "enable": "フォルダサムネイルを有効化",
             "settingsTitle": "ファイル管理設定",
-            "settingsDesc": "サムネイル設定を調整し、このアカウントで利用できるファイルプロトコルのアクセス方法を確認します。",
             "noTypes": "利用可能なサムネイル種別がありません。",
             "types": {
                 "image": "画像",
@@ -4308,9 +4312,11 @@ const filemanagerBundle = defineLocaleBundle({
             "mountFavoriteUnsupported": "Favorites are not available for remote mount entries yet.",
             "addedToClipboardCopy": "クリップボードに追加しました (コピー準備完了)",
             "addedToClipboardCut": "クリップボードに追加しました (移動準備完了)",
+            "movedSuccess": "移動しました",
             "dropToUpload": "離すとアップロード開始",
             "dragFilesHere": "ファイル/フォルダをここにドラッグ",
             "uploadInstruction": "複数ファイルと元のディレクトリ構造に対応します。",
+            "escCloseHint": "Esc で閉じる",
             "uploadTip1": "フォルダは再帰的にアップロードされ、サーバー側で階層が再構築されます。",
             "uploadTip2": "同名ファイルは上書き防止のため自動でリネームされます。"
         },

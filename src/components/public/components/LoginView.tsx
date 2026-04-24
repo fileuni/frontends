@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { useAuthStore } from "@/stores/auth.ts";
 import { useToastStore } from '@/stores/toast';
 import { useConfigStore } from "@/stores/config.ts";
 import { Button } from "@/components/ui/Button.tsx";
-import { Modal } from "@/components/ui/Modal.tsx";
 import { useNavigationStore } from "@/stores/navigation.ts";
 import { cn } from "@/lib/utils.ts";
 import { showApiErrorToast } from '@/lib/feedback.ts';
@@ -451,13 +451,15 @@ export const LoginView = () => {
           )}
 
           {/* Device Limit Management Modal */}
-          <Modal
-            isOpen={showDeviceLimit}
-            onClose={() => setShowDeviceLimit(false)}
-            title={t("auth.deviceLimitExceeded")}
-            className="max-w-lg"
-          >
-              <div className="space-y-5 sm:space-y-6">
+          {showDeviceLimit && (
+            <GlassModalShell
+              title={t("auth.deviceLimitExceeded")}
+              onClose={() => setShowDeviceLimit(false)}
+              closeLabel={t("common.close") || 'Close'}
+              maxWidthClassName="max-w-lg"
+              panelClassName="dark text-white"
+            >
+               <div className="space-y-5 sm:space-y-6">
               <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-start gap-4">
                 <AlertTriangle
                   className="text-orange-500 shrink-0 mt-1"
@@ -513,10 +515,10 @@ export const LoginView = () => {
                 ))}
               </div>
 
-              <div className={cn("pt-4 border-t", isDark ? "border-white/5" : "border-gray-100")}>
+              <div className="pt-4 border-t border-white/5">
                 <Button
                   variant="outline"
-                  className="w-full border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+                  className="w-full border-red-500/20 bg-white/[0.03] text-red-400 hover:bg-red-500 hover:text-white"
                   onClick={async () => {
                     if (!confirm(t("sessions.revokeConfirm"))) return;
                     const { data } = await client.POST(
@@ -538,7 +540,8 @@ export const LoginView = () => {
                 </Button>
               </div>
             </div>
-          </Modal>
+            </GlassModalShell>
+          )}
         </>
       )}
     </PublicCenteredCard>

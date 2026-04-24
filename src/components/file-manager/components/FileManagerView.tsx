@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
 import { FileManagerToolbar } from "./FileManagerToolbar.tsx";
 import { FileBrowser } from "./FileBrowser.tsx";
 import { FileManagerContextMenu } from "./FileManagerContextMenu.tsx";
@@ -56,7 +57,8 @@ export const FileManagerView = () => {
     loadFiles, deleteFiles, downloadFile, restoreFiles, deletePermanent,
     clearRecycleBin, toggleFavorite, createFile, createDirectory, renameFile,
     clearHistory, removeFromHistory, cancelShare, previewFile, pasteItems,
-    waitForTask, clearThumbnailCache, clearThumbnailCacheAllUsers, setThumbnailDisabled, clearSearch
+    waitForTask, clearThumbnailCache, clearThumbnailCacheAllUsers, setThumbnailDisabled, clearSearch,
+    batchMove,
   } = useFileActions();
 
   const store = useFileStore();
@@ -74,6 +76,11 @@ export const FileManagerView = () => {
   const previewPath = params['preview_path'];
   const { addToast } = useToastStore();
   const { selectedIds, deselectAll, selectAll } = useSelectionStore();
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+  );
   const { play: playAudio } = useAudioStore();
 
   const isArchive = (file: FileInfo | null) => {
@@ -104,6 +111,8 @@ export const FileManagerView = () => {
   const [pendingDeletePaths, setPendingDeletePaths] = useState<string[]>([]);
   const [propertiesFile, setPropertiesFile] = useState<FileInfo | null>(null);
   const isSyncingRef = useRef(false);
+  const draggingFileRef = useRef<FileInfo | null>(null);
+  const draggingPathsRef = useRef<string[]>([]);
   const handleActionRef = useRef<
     (action: string, target: FileInfo | null) => void
   >(() => undefined);
@@ -192,6 +201,74 @@ export const FileManagerView = () => {
         : {}),
     };
   }, [files]);
+
+  const normalizeDraggedPaths = useCallback((paths: string[]): string[] => {
+    const uniquePaths = Array.from(new Set(paths)).sort((left, right) => left.length - right.length);
+    return uniquePaths.filter((path, index) => {
+      return !uniquePaths.slice(0, index).some((candidate) => path.startsWith(`${candidate}/`));
+    });
+  }, []);
+
+  const resolveDraggedPaths = useCallback((draggedFile: FileInfo | null): string[] => {
+    if (!draggedFile || fmMode !== 'files') return [];
+    const draggedPath = draggedFile.path;
+    if (!draggedPath) return [];
+    const selectedPaths = Array.from(selectedIds).filter((path): path is string => typeof path === 'string' && path.length > 0);
+    const paths = selectedIds.has(draggedPath) ? selectedPaths : [draggedPath];
+    return normalizeDraggedPaths(paths);
+  }, [fmMode, normalizeDraggedPaths, selectedIds]);
+
+  const isNoOpDrop = useCallback((sourcePath: string, targetDir: string): boolean => {
+    if (sourcePath === targetDir) return true;
+    const segments = sourcePath.split('/').filter(Boolean);
+    segments.pop();
+    const parentDir = segments.length > 0 ? `/${segments.join('/')}` : '/';
+    return parentDir === targetDir;
+  }, []);
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const activeFile = event.active.data.current?.['file'];
+    const nextDraggingFile = activeFile && typeof activeFile === 'object' ? activeFile as FileInfo : null;
+    draggingFileRef.current = nextDraggingFile;
+    draggingPathsRef.current = resolveDraggedPaths(nextDraggingFile);
+  }, [resolveDraggedPaths]);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const draggedFile = draggingFileRef.current;
+    const draggedPaths = draggingPathsRef.current;
+    draggingFileRef.current = null;
+    draggingPathsRef.current = [];
+
+    if (fmMode !== 'files') return;
+
+    const dropData = event.over?.data.current;
+    const targetFile = dropData?.['file'];
+    const navigationPath = dropData?.['path'];
+    const targetDir = typeof navigationPath === 'string' && navigationPath.length > 0
+      ? navigationPath
+      : targetFile && typeof targetFile === 'object' && (targetFile as FileInfo).is_dir
+        ? (targetFile as FileInfo).path
+        : null;
+    if (!targetDir) return;
+
+    if (!draggedFile || draggedPaths.length === 0) return;
+
+    const selectionSummary = summarizeMountedSelection(draggedPaths, files);
+    if (selectionSummary.hasMountRoot) {
+      addToast(t('filemanager.messages.mountRootDeleteBlocked') || 'This mapped remote storage must be removed from Mounts.', 'error');
+      return;
+    }
+
+    const hasInvalidDrop = draggedPaths.some((path) => {
+      const sourceFile = files.find((file) => file.path === path);
+      if (!sourceFile) return true;
+      if (isNoOpDrop(path, targetDir)) return true;
+      return sourceFile.is_dir && (targetDir === path || targetDir.startsWith(`${path}/`));
+    });
+    if (hasInvalidDrop) return;
+
+    void batchMove(draggedPaths, targetDir, { optimistic: true, successMessage: t('filemanager.messages.movedSuccess') });
+  }, [addToast, batchMove, files, fmMode, isNoOpDrop, resolveDraggedPaths, t]);
 
   useEffect(() => {
     if (!isReady || officePath || previewPath) return;
@@ -490,7 +567,7 @@ export const FileManagerView = () => {
       const expectedPath = payload.mode === 'compress' 
         ? `${currentPath}/${payload.targetName}.${payload.format}`.replace(/\/+/g, '/')
         : payload.targetPath;
-      waitForTask(taskId, [expectedPath]);
+      waitForTask(taskId, { expectedPaths: [expectedPath] });
 
       setArchiveOpModal(s => ({ ...s, isOpen: false }));
       addToast(t('filemanager.task.started'), "success");
@@ -553,18 +630,19 @@ export const FileManagerView = () => {
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background">
       {!isMinimal && <FileManagerTabs />}
       <div className="flex flex-col flex-1 overflow-hidden bg-background px-4">
-        <div className={cn(
-          "shrink-0 rounded-[1.25rem] border",
-          isDark
-            ? "border-white/5 bg-white/[0.015]"
-            : "border-zinc-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]"
-        )}>
-          <FileManagerToolbar embedded />
-          {fmMode === "files" && !isMinimal && <FileManagerNavigationBar />}
-        </div>
-        {fmMode === "recent" && <FileManagerRecentStats onClear={() => handleAction("clear_history", null)} />}
-        {fmMode === "favorites" && <FileManagerFavoriteFilter />}
-        <div className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <div className={cn(
+            "shrink-0 rounded-[1.25rem] border",
+            isDark
+              ? "border-white/5 bg-white/[0.015]"
+              : "border-zinc-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]"
+          )}>
+            <FileManagerToolbar embedded />
+            {fmMode === "files" && !isMinimal && <FileManagerNavigationBar />}
+          </div>
+          {fmMode === "recent" && <FileManagerRecentStats onClear={() => handleAction("clear_history", null)} />}
+          {fmMode === "favorites" && <FileManagerFavoriteFilter />}
+          <div className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
           {fmMode === 'files' && isSearchMode && searchKeyword && (
             <div className="mx-2 mt-2 flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
               <div className="min-w-0">
@@ -584,20 +662,21 @@ export const FileManagerView = () => {
               </button>
             </div>
           )}
-          <FileBrowser 
-            onAction={handleAction}
-            onContextMenu={(e, file) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, target: file }); }} 
-          />
-          {fmMode !== 'recent' && (
-            <Pagination
-              current={pagination.currentPage} total={pagination.total} pageSize={pagination.pageSize}
-              onPageChange={(page) => loadFiles(undefined, page, pagination.pageSize)}
-              onPageSizeChange={(size) => { store.setPageSize(size); loadFiles(undefined, 1, size); }}
-              className="border-t bg-background/50 backdrop-blur-md"
+            <FileBrowser
+              onAction={handleAction}
+              onContextMenu={(e, file) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, target: file }); }}
             />
-          )}
-        </div>
-        {contextMenu && <FileManagerContextMenu x={contextMenu.x} y={contextMenu.y} target={contextMenu.target} onClose={() => setContextMenu(null)} onAction={handleAction} />}
+            {fmMode !== 'recent' && (
+              <Pagination
+                current={pagination.currentPage} total={pagination.total} pageSize={pagination.pageSize}
+                onPageChange={(page) => loadFiles(undefined, page, pagination.pageSize)}
+                onPageSizeChange={(size) => { store.setPageSize(size); loadFiles(undefined, 1, size); }}
+                className="border-t bg-background/50 backdrop-blur-md"
+              />
+            )}
+          </div>
+          {contextMenu && <FileManagerContextMenu x={contextMenu.x} y={contextMenu.y} target={contextMenu.target} onClose={() => setContextMenu(null)} onAction={handleAction} />}
+        </DndContext>
       </div>
       {contextMenu && (
         <button
