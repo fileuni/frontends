@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toast';
-import { Modal } from '@/components/ui/Modal.tsx';
+import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button.tsx';
 import { client, extractData } from '@/lib/api.ts';
 import { Archive, Download, Upload, AlertTriangle, RefreshCw, Database, Server } from 'lucide-react';
@@ -212,46 +212,54 @@ export const SystemBackupAdmin: React.FC = () => {
       </div>
 
       {/* Confirmation Modal */}
-      <Modal
-        isOpen={isImportModalOpen}
-        onClose={() => {
+      {isImportModalOpen && (
+        <GlassModalShell
+          title={t("admin.backup.confirmTitle")}
+          onClose={() => {
             setIsImportModalOpen(false);
             setPendingFile(null);
-        }}
-        title={t("admin.backup.confirmTitle")}
-      >
-        <div className="space-y-6">
-          <div className="p-4 rounded-2xl bg-red-600/20 border border-red-500/50 text-red-500">
-            <div className="flex items-center gap-3 mb-2">
-              <AlertTriangle size={20} />
-              <span className="font-black text-sm tracking-widest">Critical Action</span>
+          }}
+          closeLabel={t("common.close") || 'Close'}
+          maxWidthClassName="max-w-lg"
+          panelClassName="dark text-white"
+        >
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-red-500/50 bg-red-600/20 p-4 text-red-300">
+              <div className="mb-2 flex items-center gap-3">
+                <AlertTriangle size={20} />
+                <span className="text-sm font-black tracking-widest">Critical Action</span>
+              </div>
+              <p className="text-sm font-bold leading-relaxed">
+                {t("admin.backup.confirmMsg")}
+              </p>
             </div>
-            <p className="text-sm font-bold leading-relaxed">
-              {t("admin.backup.confirmMsg")}
-            </p>
-          </div>
 
-          <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 italic text-sm opacity-60">
-            <Archive size={16} />
-            <p className="truncate">File: {pendingFile?.name}</p>
-          </div>
+            <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm italic opacity-60">
+              <Archive size={16} />
+              <p className="truncate">File: {pendingFile?.name}</p>
+            </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setIsImportModalOpen(false)}>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsImportModalOpen(false)}
+                className="border-white/10 bg-white/[0.03] text-white hover:bg-white/10"
+              >
                 {t("common.cancel")}
-            </Button>
-            <Button 
-              variant="destructive"
-              disabled={loading}
-              onClick={handleImportConfirm}
-              className="shadow-lg shadow-red-500/20"
-            >
-              {loading ? <RefreshCw className="animate-spin mr-2" size={16} /> : <Upload className="mr-2" size={16} />}
-              {t("admin.backup.confirmBtn")}
-            </Button>
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={loading}
+                onClick={handleImportConfirm}
+                className="shadow-lg shadow-red-500/20"
+              >
+                {loading ? <RefreshCw className="animate-spin mr-2" size={16} /> : <Upload className="mr-2" size={16} />}
+                {t("admin.backup.confirmBtn")}
+              </Button>
+            </div>
           </div>
-        </div>
-      </Modal>
+        </GlassModalShell>
+      )}
     </AdminPage>
   );
 };
