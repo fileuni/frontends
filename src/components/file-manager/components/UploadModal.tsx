@@ -71,13 +71,13 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
       maxWidthClassName="max-w-xl"
       compact="body"
       closeButton={(
-        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0 hover:bg-accent text-muted-foreground">
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-xl h-10 w-10 p-0 hover:bg-zinc-100/80 dark:hover:bg-white/10 text-foreground/50 dark:text-white/40">
           <X size={20} />
         </Button>
       )}
       footer={(
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted-foreground whitespace-nowrap">
+          <p className="text-xs text-foreground/45 dark:text-white/35 whitespace-nowrap">
             {t('filemanager.messages.escCloseHint')}
           </p>
           <div className="flex justify-end">
@@ -95,22 +95,22 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
           onDragLeave={onDragLeave}
           onDrop={onDrop}
           className={cn(
-            "border-2 border-dashed rounded-3xl p-7 sm:p-12 flex flex-col items-center justify-center transition-all duration-300 relative group w-full",
+            "border-2 border-dashed rounded-3xl p-7 sm:p-12 flex flex-col items-center justify-center transition-all duration-300 relative group w-full backdrop-blur-md",
             isDragging
-              ? "border-primary bg-primary/5 scale-[1.02]"
-              : "border-border bg-background/60 hover:bg-accent/40 hover:border-primary/30"
+              ? "border-primary bg-primary/10 scale-[1.02] shadow-[0_20px_60px_rgba(59,130,246,0.16)]"
+              : "border-zinc-200 dark:border-white/10 bg-white/55 dark:bg-white/[0.03] hover:bg-white/70 dark:hover:bg-white/[0.05] hover:border-primary/30"
           )}
         >
           <div className={cn(
-            "mb-6 flex h-20 w-20 items-center justify-center rounded-full transition-all duration-500",
-            isDragging ? "bg-primary text-primary-foreground scale-110 shadow-lg shadow-primary/20" : "bg-muted text-muted-foreground group-hover:text-primary group-hover:bg-primary/10"
+            "mb-6 flex h-20 w-20 items-center justify-center rounded-full transition-all duration-500 backdrop-blur-md",
+            isDragging ? "bg-primary text-primary-foreground scale-110 shadow-lg shadow-primary/20" : "bg-white/70 dark:bg-white/[0.06] text-foreground/40 dark:text-white/30 group-hover:text-primary group-hover:bg-primary/10 border border-zinc-200/70 dark:border-white/10"
           )}>
             <FileUp size={40} />
           </div>
-          <h4 className="mb-2 text-center font-bold text-foreground transition-colors group-hover:text-primary">
+          <h4 className="mb-2 text-center font-bold text-foreground dark:text-white transition-colors group-hover:text-primary">
             {isDragging ? t('filemanager.messages.dropToUpload') || "Release to Upload" : t('filemanager.messages.dragFilesHere') || "Drag files or folders here"}
           </h4>
-          <p className="max-w-[280px] text-center text-sm text-muted-foreground">
+          <p className="max-w-[280px] text-center text-sm text-foreground/50 dark:text-white/40">
             {t('filemanager.messages.uploadInstruction') || "Support multiple files and directory structure preservation."}
           </p>
 
@@ -136,31 +136,31 @@ export const UploadModal = ({ isOpen, onClose }: Props) => {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-border bg-background/70 text-foreground transition-all active:scale-95 hover:bg-accent"
+            className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-zinc-200 dark:border-white/10 bg-white/65 dark:bg-white/[0.04] text-foreground dark:text-white transition-all active:scale-95 hover:bg-white/80 dark:hover:bg-white/[0.08] shadow-sm backdrop-blur-sm"
           >
             <FileUp size={18} className="text-blue-500 opacity-70 transition-all group-hover:opacity-100 group-hover:scale-110" />
-            <span className="text-sm font-bold text-foreground">{t('filemanager.actions.uploadFiles') || "Select Files"}</span>
+            <span className="text-sm font-bold text-foreground dark:text-white/90">{t('filemanager.actions.uploadFiles') || "Select Files"}</span>
           </button>
           <button
             type="button"
             onClick={() => dirInputRef.current?.click()}
-            className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-border bg-background/70 text-foreground transition-all active:scale-95 hover:bg-accent"
+            className="group flex h-14 items-center justify-center gap-3 rounded-2xl border border-zinc-200 dark:border-white/10 bg-white/65 dark:bg-white/[0.04] text-foreground dark:text-white transition-all active:scale-95 hover:bg-white/80 dark:hover:bg-white/[0.08] shadow-sm backdrop-blur-sm"
           >
             <FolderUp size={18} className="text-amber-500 opacity-70 transition-all group-hover:opacity-100 group-hover:scale-110" />
-            <span className="text-sm font-bold text-foreground">{t('filemanager.actions.uploadDirectory') || "Select Folder"}</span>
+            <span className="text-sm font-bold text-foreground dark:text-white/90">{t('filemanager.actions.uploadDirectory') || "Select Folder"}</span>
           </button>
         </div>
 
-        <div className="space-y-3 rounded-2xl border border-border bg-background/60 p-4 backdrop-blur-sm">
+        <div className="space-y-3 rounded-2xl border border-zinc-200 dark:border-white/10 bg-white/55 dark:bg-white/[0.03] p-4 backdrop-blur-md">
           <div className="flex items-start gap-3">
             <Info size={18} className="text-primary mt-0.5 shrink-0" />
-            <p className="text-sm leading-relaxed italic text-muted-foreground">
+            <p className="text-sm leading-relaxed italic text-foreground/50 dark:text-white/40">
               {t('filemanager.messages.uploadTip1') || "Directories will be uploaded recursively maintaining their original structure."}
             </p>
           </div>
           <div className="flex items-start gap-3">
             <AlertCircle size={18} className="text-amber-500 mt-0.5 shrink-0" />
-            <p className="text-sm leading-relaxed italic text-muted-foreground">
+            <p className="text-sm leading-relaxed italic text-foreground/50 dark:text-white/40">
               {t('filemanager.messages.uploadTip2') || "Existing files with same names will be automatically renamed to avoid data loss."}
             </p>
           </div>

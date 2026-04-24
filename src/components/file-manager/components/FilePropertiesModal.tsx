@@ -73,13 +73,13 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
   };
 
   const PropertyItem = ({ icon: Icon, label, value }: PropertyItemProps) => (
-    <div className="flex items-start gap-3 rounded-3xl border border-border bg-background/60 p-4 shadow-inner backdrop-blur-sm">
+    <div className="flex items-start gap-3 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/60 dark:bg-white/[0.03] p-4 shadow-inner backdrop-blur-sm">
       <div className="p-2 rounded-2xl bg-primary/10 text-primary shrink-0 border border-primary/10">
         <Icon size={18} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="mb-2 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
-        <div className="text-sm font-bold break-all leading-relaxed text-foreground">{value}</div>
+        <p className="mb-2 text-xs font-black uppercase tracking-[0.16em] text-foreground/45 dark:text-white/35">{label}</p>
+        <div className="text-sm font-bold break-all leading-relaxed text-foreground dark:text-white/90">{value}</div>
       </div>
     </div>
   );
@@ -94,13 +94,13 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
       maxWidthClassName="max-w-2xl"
       bodyClassName="space-y-6"
       closeButton={(
-        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-accent text-muted-foreground shrink-0">
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-zinc-100/80 dark:hover:bg-white/10 text-foreground/50 dark:text-white/40 shrink-0">
           <X size={24} />
         </Button>
       )}
       footer={(
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted-foreground whitespace-nowrap">
+          <p className="text-xs text-foreground/45 dark:text-white/35 whitespace-nowrap">
             {t('filemanager.messages.escCloseHint')}
           </p>
           <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
@@ -118,7 +118,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
                 onClick={handlePreview}
                 className={cn(
                   'rounded-2xl w-full sm:w-auto px-5 h-12 font-black text-sm flex items-center gap-2',
-                  'border-border bg-background hover:bg-accent text-foreground',
+                  'border-zinc-300 dark:border-white/10 bg-white dark:bg-white/[0.04] hover:bg-zinc-50 dark:hover:bg-white/10 text-foreground dark:text-white shadow-sm',
                 )}
               >
                 <Eye size={18} />
@@ -130,13 +130,13 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
       )}
 
     >
-          <div className="flex items-center gap-4 rounded-[2rem] border border-primary/15 bg-primary/10 px-4 py-4 sm:px-5 sm:py-5 shadow-[0_20px_60px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
-            <div className="shrink-0 rounded-2xl border border-border bg-background/70 p-3 backdrop-blur-sm">
+          <div className="flex items-center gap-4 rounded-[2rem] border border-primary/15 bg-primary/10 px-4 py-4 sm:px-5 sm:py-5 shadow-[0_20px_60px_rgba(59,130,246,0.12)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.22)] backdrop-blur-sm">
+            <div className="shrink-0 rounded-2xl border border-zinc-200/80 dark:border-white/10 bg-white/60 dark:bg-white/[0.05] p-3 backdrop-blur-md">
               <FileIcon name={file.name} isDir={file.is_dir} size={44} />
             </div>
             <div className="min-w-0 flex-1">
-              <h4 className="text-base sm:text-lg font-black text-foreground tracking-tight break-all leading-tight">{file.name}</h4>
-              <p className="mt-2 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] text-muted-foreground">
+              <h4 className="text-base sm:text-lg font-black text-foreground dark:text-white tracking-tight break-all leading-tight">{file.name}</h4>
+              <p className="mt-2 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] text-foreground/45 dark:text-white/35">
                 {file.is_dir ? t('filemanager.folder') : t('filemanager.file')}
               </p>
             </div>

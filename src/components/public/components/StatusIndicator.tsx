@@ -464,7 +464,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
             />
             <div
               className={cn(
-                'relative flex h-auto max-h-[min(calc(100dvh-5rem),36rem)] w-full max-w-full flex-col overflow-hidden rounded-[1.25rem] border shadow-2xl',
+                'relative flex h-[min(calc(100dvh-5rem),36rem)] w-full max-w-full flex-col overflow-hidden rounded-[1.25rem] border shadow-2xl',
                 isDark
                   ? 'border-white/10 bg-zinc-950 text-white'
                   : 'border-gray-200 bg-white text-gray-900',

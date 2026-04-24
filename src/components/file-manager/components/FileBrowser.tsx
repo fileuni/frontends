@@ -79,6 +79,7 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
   const handlePointerDown = React.useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
     if (event.target instanceof HTMLElement && event.target.closest('[data-testid="file-item"]')) return;
+    if (event.target !== event.currentTarget) return;
     marqueeOriginRef.current = {
       x: event.clientX,
       y: event.clientY,
