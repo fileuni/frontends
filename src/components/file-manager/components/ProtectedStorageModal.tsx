@@ -74,10 +74,10 @@ const InfoCard = ({
 }) => {
   const toneClass =
     tone === 'warn'
-      ? 'border-amber-500/20 bg-amber-500/10 text-amber-100'
+      ? 'border-amber-400/40 bg-amber-50 text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100'
       : tone === 'ok'
-        ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-100'
-        : 'border-white/10 bg-white/[0.03] text-slate-100';
+        ? 'border-emerald-400/40 bg-emerald-50 text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-100'
+        : 'border-zinc-200 bg-white text-slate-800 shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-100';
   return (
     <div className={cn('rounded-2xl border p-3', toneClass)}>
       <div className="flex items-start gap-3">
@@ -229,14 +229,14 @@ export const ProtectedStorageModal = ({
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0"
+          className="h-12 w-12 shrink-0 rounded-2xl p-0 text-foreground/50 hover:bg-zinc-100/80 hover:text-slate-900 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white"
         >
-          <X size={24} className="opacity-40" />
+          <X size={24} />
         </Button>
       }
       footer={
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-2 opacity-30 italic sm:max-w-[70%]">
+          <div className="flex items-center gap-2 text-slate-500 italic dark:text-white/35 sm:max-w-[70%]">
             <Info size={18} className="shrink-0" />
             <span className="text-sm font-medium leading-tight">
               {currentAdviceMessage || ''}
@@ -320,7 +320,7 @@ export const ProtectedStorageModal = ({
       )}
 
       {isLoading && (
-        <div className="text-sm text-white/60">
+        <div className="text-sm text-slate-600 dark:text-white/60">
           {t('filemanager.protectedStorage.loading') || 'Loading...'}
         </div>
       )}
@@ -365,7 +365,7 @@ export const ProtectedStorageModal = ({
             <Button
               variant="outline"
               onClick={handleJumpToProtectedRoot}
-              className="inline-flex items-center gap-2 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white"
+              className="inline-flex items-center gap-2 rounded-2xl border-zinc-300 bg-white text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
             >
               <FolderOpen size={16} />
               {t('filemanager.protectedStorage.openProtectedRoot') || 'Open protected root'}
@@ -374,7 +374,7 @@ export const ProtectedStorageModal = ({
           <Button
             variant="outline"
             onClick={() => void handleCopyProtectedRoot()}
-            className="inline-flex items-center gap-2 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white"
+            className="inline-flex items-center gap-2 rounded-2xl border-zinc-300 bg-white text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
           >
             <Copy size={16} />
             {t('filemanager.protectedStorage.copyProtectedRoot') || 'Copy protected root'}
