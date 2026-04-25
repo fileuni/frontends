@@ -14,6 +14,7 @@ import {
   shouldDisableThumbnailForPath,
   shouldUsePermanentDeleteForPath,
 } from '../utils/protectedStorage.ts';
+import { isPreviewSupported } from '../utils/previewKind.ts';
 
 interface Props {
   file: FileInfo | null;
@@ -111,7 +112,7 @@ export const FilePropertiesModal = ({ file, onClose }: Props) => {
             >
               {t('common.close')}
             </Button>
-            {!file.is_dir && (
+            {!file.is_dir && isPreviewSupported(file) && (
               <Button
                 variant="outline"
                 size="sm"

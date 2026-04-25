@@ -39,7 +39,7 @@ import { FilePreviewPage } from "./FilePreviewPage.tsx";
 import { OfficeLitePage } from "./officeLitePage.tsx";
 import { OfficeOpenModal } from "./officeOpenModal.tsx";
 import { FileIcon } from "./FileIcon.tsx";
-import { getFileExtension, isOfficeExtension } from "../utils/officeLite.ts";
+import { getPreviewKind, PREVIEW_KIND_NONE, PREVIEW_KIND_OFFICE, resolvePreviewKindFromName } from '../utils/previewKind.ts';
 import { isMountRootEntry, isMountedEntry, summarizeMountedSelection } from "../utils/mounts.ts";
 import { shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
 
@@ -78,6 +78,7 @@ export const FileManagerView = () => {
   const clipboard = store.getClipboard();
   const isSearchMode = store.getIsSearchMode();
   const searchKeyword = store.getSearchKeyword();
+  const searchPath = store.getSearchPath();
   const officePath = params['office_path'];
   const previewPath = params['preview_path'];
   const { addToast } = useToastStore();
@@ -136,6 +137,7 @@ export const FileManagerView = () => {
     const page = isFileManagerMode(params['page']) ? params['page'] : 'files';
     const path = params['path'];
     const keyword = params['keyword']?.trim() || '';
+    const searchPath = params['search_path'];
     const isSearchFromHash = params['search'] === '1' && keyword.length > 0;
     
     if (page !== useFileStore.getState().fmMode) {
@@ -147,6 +149,9 @@ export const FileManagerView = () => {
     }
     if (keyword !== useFileStore.getState().getSearchKeyword()) {
       useFileStore.getState().setSearchKeyword(keyword);
+    }
+    if ((searchPath || path || '/') !== useFileStore.getState().getSearchPath()) {
+      useFileStore.getState().setSearchPath(searchPath || path || '/');
     }
     if (isSearchFromHash !== useFileStore.getState().getIsSearchMode()) {
       useFileStore.getState().setIsSearchMode(isSearchFromHash);
@@ -166,6 +171,7 @@ export const FileManagerView = () => {
       path?: string;
       search?: string;
       keyword?: string;
+      search_path?: string;
     }
 
     const newParams: NavParams = { mod: 'file-manager', page: fmMode };
@@ -175,6 +181,7 @@ export const FileManagerView = () => {
     if (isSearchMode && searchKeyword.trim()) {
       newParams.search = '1';
       newParams.keyword = searchKeyword.trim();
+      newParams.search_path = searchPath;
     }
     
     if (
@@ -182,6 +189,7 @@ export const FileManagerView = () => {
       || params['path'] !== newParams.path
       || params['search'] !== newParams.search
       || params['keyword'] !== newParams.keyword
+      || params['search_path'] !== newParams.search_path
     ) {
       navigate(newParams as unknown as Parameters<typeof navigate>[0]);
     }
@@ -193,6 +201,7 @@ export const FileManagerView = () => {
     navigate,
     params,
     searchKeyword,
+    searchPath,
   ]);
 
   const buildClipboardItem = useCallback((
@@ -413,23 +422,23 @@ export const FileManagerView = () => {
       case "open":
       case "preview":
         if (target) {
-          const ext = target.name.split('.').pop()?.toLowerCase() || '';
-          const isAudio = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'].includes(ext);
-          if (target.is_dir) { 
-            setFmMode("files"); 
-            setCurrentPath(target.path); 
-          } 
-          else if (isArchive(target) && action === "open") { 
-            setBrowsingArchivePath(target.path); 
+          const previewKind = getPreviewKind(target);
+          const isAudio = previewKind === 'audio';
+          if (target.is_dir) {
+            setFmMode("files");
+            setCurrentPath(target.path);
+          }
+          else if (isArchive(target) && action === "open") {
+            setBrowsingArchivePath(target.path);
           }
           else if (isAudio && action === "open") {
             // Audio prioritizes floating player
             playAudio(target, files);
             addToast(t('filemanager.audio.addedToPlaylist'), 'success');
           }
-          else { 
-            addToRecentFiles(target); 
-            previewFile(target.path); 
+          else if (previewKind !== PREVIEW_KIND_NONE) {
+            addToRecentFiles(target);
+            previewFile(target.path);
           }
         }
         break;
@@ -646,7 +655,10 @@ export const FileManagerView = () => {
   };
 
   const isMinimal = ["favorites", "trash", "recent", "shares"].includes(fmMode);
-  const isOfficePreview = previewPath ? isOfficeExtension(getFileExtension(previewPath)) : false;
+  const previewTarget = previewPath ? files.find((file) => file.path === previewPath) ?? null : null;
+  const previewKind = previewTarget
+    ? getPreviewKind(previewTarget)
+    : (previewPath ? resolvePreviewKindFromName(previewPath.split('/').pop() || previewPath, false) : PREVIEW_KIND_NONE);
   const routePage = isFileManagerMode(params.page) ? params.page : undefined;
   const routePath = params["path"];
   const isDark = resolvedTheme === 'dark';
@@ -675,7 +687,7 @@ export const FileManagerView = () => {
     );
   }
 
-  if (previewPath && isOfficePreview) {
+  if (previewPath && previewKind === PREVIEW_KIND_OFFICE) {
     return (
       <OfficeOpenModal
         path={previewPath}
@@ -719,6 +731,7 @@ export const FileManagerView = () => {
                   <span>{t('filemanager.searchActive') || t('filemanager.search')}</span>
                 </div>
                 <div className="mt-1 truncate text-sm font-semibold text-foreground/80">{searchKeyword}</div>
+                <div className="mt-1 truncate text-xs text-foreground/60">{searchPath}</div>
               </div>
               <button
                 type="button"

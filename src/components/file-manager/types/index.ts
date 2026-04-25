@@ -21,6 +21,7 @@ export interface FileInfo {
   mount_next_sync_at?: string;
   mount_last_error?: string;
   delete_behavior?: 'trash' | 'remote_direct';
+  preview_kind?: 'none' | 'image' | 'video' | 'audio' | 'text' | 'markdown' | 'tex' | 'pdf' | 'office';
 
   // Share specific fields (optional)
   view_count?: number;

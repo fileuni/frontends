@@ -6,7 +6,8 @@ import type { FileInfo } from '../types/index.ts';
 import { BASE_URL } from '@/lib/api.ts';
 import { downloadFileByPath, getFileContentUrl } from '@/lib/fileTokens.ts';
 import { Button } from '@/components/ui/Button.tsx';
-import { OFFICE_DOCX_EXTS, OFFICE_PPTX_EXTS, OFFICE_XLSX_EXTS } from '../utils/officeLite.ts';
+import { OFFICE_PPTX_EXTS } from '../utils/officeLite.ts';
+import { isOfficePreviewKind } from '../utils/previewKind.ts';
 import {
   fetchFileIntegrationApps,
   fetchWopiOpenUrl,
@@ -30,7 +31,7 @@ export const OpenWithMenu = ({ file, onInternalPreview, className, variant = 'gh
   const menuRef = useRef<HTMLDivElement>(null);
   
   const ext = file.name.split('.').pop()?.toLowerCase() || '';
-  const isOffice = OFFICE_DOCX_EXTS.has(ext) || OFFICE_XLSX_EXTS.has(ext) || OFFICE_PPTX_EXTS.has(ext);
+  const isOffice = isOfficePreviewKind(file);
   const isOfficePreviewOnly = OFFICE_PPTX_EXTS.has(ext);
   const enableWopi = capabilities?.enable_wopi !== false;
 

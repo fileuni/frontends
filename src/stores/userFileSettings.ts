@@ -21,6 +21,8 @@ export interface UserFileSettings {
   thumbnail_disable_audio: boolean;
   thumbnail_disable_office: boolean;
   thumbnail_disable_tex: boolean;
+  thumbnail_directory_mode?: string | null;
+  show_thumbnail_directories: boolean;
 }
 
 export type UserFileSettingsUpdate = Partial<Pick<UserFileSettings,
@@ -34,6 +36,8 @@ export type UserFileSettingsUpdate = Partial<Pick<UserFileSettings,
   | "thumbnail_disable_audio"
   | "thumbnail_disable_office"
   | "thumbnail_disable_tex"
+  | "thumbnail_directory_mode"
+  | "show_thumbnail_directories"
 >>;
 
 interface UserFileSettingsState {

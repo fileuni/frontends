@@ -9,6 +9,10 @@ import {
   useNotificationStore,
   type Notification,
 } from "@/stores/notification.ts";
+import {
+  useMessageCenterStore,
+  type MessageCenterItem,
+} from "@/stores/messageCenter.ts";
 import { useAuthStore } from "@/stores/auth.ts";
 import { useTranslation } from "react-i18next";
 import {
@@ -79,6 +83,18 @@ const isTaskStatusUpdate = (
 
 const EMPTY_TASKS: TaskState[] = [];
 
+type MessageFeedItem = {
+  id: string;
+  title: string;
+  content: string;
+  level: 'info' | 'warning' | 'error' | 'success';
+  createdAt: string;
+  isRead: boolean;
+  kind: 'notification' | 'local-toast';
+  notification?: Notification;
+  localItem?: MessageCenterItem;
+};
+
 export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
   const { t } = useTranslation();
   const { isLoggedIn, _hasHydrated, currentUserId } = useAuthStore();
@@ -107,6 +123,11 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
     markAllAsRead,
     deleteNotifications,
   } = useNotificationStore();
+  const localMessageItems = useMessageCenterStore((state) => state.items);
+  const localUnreadCount = useMessageCenterStore((state) => state.unreadCount());
+  const markLocalAsRead = useMessageCenterStore((state) => state.markAsRead);
+  const markAllLocalAsRead = useMessageCenterStore((state) => state.markAllAsRead);
+  const deleteLocalItems = useMessageCenterStore((state) => state.deleteItems);
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"tasks" | "notifications" | "chat">("tasks");
@@ -146,7 +167,33 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
     [generalNotifications],
   );
 
-  const totalAlerts = runningCount + unreadCount;
+  const notificationFeed = useMemo<MessageFeedItem[]>(() => {
+    const remoteItems: MessageFeedItem[] = generalNotifications.map((notification) => ({
+      id: notification.id,
+      title: notification.title,
+      content: notification.content,
+      level: notification.level,
+      createdAt: notification.created_at,
+      isRead: notification.is_read,
+      kind: 'notification',
+      notification,
+    }));
+
+    const localItems: MessageFeedItem[] = localMessageItems.map((item) => ({
+      id: item.id,
+      title: item.title,
+      content: item.content,
+      level: item.level,
+      createdAt: item.createdAt,
+      isRead: item.isRead,
+      kind: 'local-toast',
+      localItem: item,
+    }));
+
+    return [...localItems, ...remoteItems].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  }, [generalNotifications, localMessageItems]);
+
+  const totalAlerts = runningCount + unreadCount + localUnreadCount;
   const hasFinishedTasks = useMemo(
     () => tasks.some((task) => task.status === 'success' || task.status === 'failed' || task.status === 'interrupted'),
     [tasks],
@@ -282,7 +329,25 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
     };
   }, [activeTab, chatNavItem, fetchUnreadCount, isOpen]);
 
-  const handleOpenNotification = async (notification: Notification) => {
+  const handleOpenNotification = async (item: MessageFeedItem) => {
+    if (item.kind === 'local-toast') {
+      if (item.localItem && !item.localItem.isRead) {
+        markLocalAsRead([item.localItem.id]);
+      }
+      const href = item.localItem?.action?.href ?? item.localItem?.action?.hash;
+      if (!href) {
+        return;
+      }
+      setIsOpen(false);
+      window.location.hash = href;
+      return;
+    }
+
+    const notification = item.notification;
+    if (!notification) {
+      return;
+    }
+
     if (!notification.is_read) {
       await markAsRead([notification.id]);
     }
@@ -315,10 +380,11 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
     }
     if (activeTab === 'notifications') {
       return {
-        visible: generalUnreadCount > 0,
+        visible: generalUnreadCount + localUnreadCount > 0,
         label: t('common.markAllRead', { defaultValue: 'Mark all as read' }),
         onClick: () => {
           void markAllAsRead();
+          markAllLocalAsRead();
         },
       };
     }
@@ -330,7 +396,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
       };
     }
     return null;
-  }, [activeTab, chatNavItem, generalUnreadCount, handleOpenChat, hasFinishedTasks, markAllAsRead, t]);
+  }, [activeTab, chatNavItem, generalUnreadCount, handleOpenChat, hasFinishedTasks, localUnreadCount, markAllAsRead, markAllLocalAsRead, t]);
 
   const visibleTabs = useMemo(
     () => [
@@ -347,10 +413,10 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
       {
         key: 'notifications' as const,
         label: t('common.notifications', { defaultValue: 'Notifications' }),
-        count: generalUnreadCount,
+        count: generalUnreadCount + localUnreadCount,
       },
     ],
-    [chatNavItem, chatUnreadCount, generalUnreadCount, t, tasks.length],
+    [chatNavItem, chatUnreadCount, generalUnreadCount, localUnreadCount, t, tasks.length],
   );
 
   useEscapeToCloseTopLayer({
@@ -450,11 +516,34 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                 />
               ) : (
                 <NotificationList
-                  notifications={generalNotifications}
+                  notifications={notificationFeed}
                   isDark={isDark}
-                  onDelete={deleteNotifications}
+                  onDelete={async (ids) => {
+                    const localIds = notificationFeed
+                      .filter((item) => ids.includes(item.id) && item.kind === 'local-toast')
+                      .map((item) => item.id);
+                    const remoteIds = notificationFeed
+                      .filter((item) => ids.includes(item.id) && item.kind === 'notification' && item.notification)
+                      .flatMap((item) => item.notification ? [item.notification.id] : []);
+
+                    if (localIds.length > 0) {
+                      deleteLocalItems(localIds);
+                    }
+                    if (remoteIds.length > 0) {
+                      await deleteNotifications(remoteIds);
+                    }
+                  }}
                   onOpen={handleOpenNotification}
-                  canOpenNotification={(notification) => !isChatNotification(notification) || chatPluginAvailable}
+                  canOpenNotification={(item) => {
+                    if (item.kind === 'local-toast') {
+                      return Boolean(item.localItem?.action?.href || item.localItem?.action?.hash);
+                    }
+                    const notification = item.notification;
+                    if (!notification) {
+                      return false;
+                    }
+                    return !isChatNotification(notification) || chatPluginAvailable;
+                  }}
                   pluginUnavailableLabel={t('common.chatUnavailable', { defaultValue: 'Chat is unavailable right now' })}
                 />
               )}
@@ -496,11 +585,34 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
                   />
                 ) : (
                   <NotificationList
-                    notifications={generalNotifications}
+                    notifications={notificationFeed}
                     isDark={isDark}
-                    onDelete={deleteNotifications}
+                    onDelete={async (ids) => {
+                      const localIds = notificationFeed
+                        .filter((item) => ids.includes(item.id) && item.kind === 'local-toast')
+                        .map((item) => item.id);
+                      const remoteIds = notificationFeed
+                        .filter((item) => ids.includes(item.id) && item.kind === 'notification' && item.notification)
+                        .flatMap((item) => item.notification ? [item.notification.id] : []);
+
+                      if (localIds.length > 0) {
+                        deleteLocalItems(localIds);
+                      }
+                      if (remoteIds.length > 0) {
+                        await deleteNotifications(remoteIds);
+                      }
+                    }}
                     onOpen={handleOpenNotification}
-                    canOpenNotification={(notification) => !isChatNotification(notification) || chatPluginAvailable}
+                    canOpenNotification={(item) => {
+                      if (item.kind === 'local-toast') {
+                        return Boolean(item.localItem?.action?.href || item.localItem?.action?.hash);
+                      }
+                      const notification = item.notification;
+                      if (!notification) {
+                        return false;
+                      }
+                      return !isChatNotification(notification) || chatPluginAvailable;
+                    }}
                     pluginUnavailableLabel={t('common.chatUnavailable', { defaultValue: 'Chat is unavailable right now' })}
                   />
                 )}
@@ -869,11 +981,11 @@ const ChatList = ({
 };
 
 interface NotificationListProps {
-  notifications: Notification[];
+  notifications: MessageFeedItem[];
   isDark: boolean;
   onDelete: (ids: string[]) => Promise<void>;
-  onOpen: (notification: Notification) => Promise<void>;
-  canOpenNotification: (notification: Notification) => boolean;
+  onOpen: (item: MessageFeedItem) => Promise<void>;
+  canOpenNotification: (item: MessageFeedItem) => boolean;
   pluginUnavailableLabel: string;
 }
 
@@ -928,26 +1040,29 @@ const NotificationList = ({
 
   return (
     <div className="space-y-1">
-      {notifications.map((n: Notification) => {
-        const href = resolveNotificationHref(n);
-        const canOpen = canOpenNotification(n);
+      {notifications.map((item) => {
+        const remoteNotification = item.notification;
+        const href = item.kind === 'notification' && remoteNotification
+          ? resolveNotificationHref(remoteNotification)
+          : (item.localItem?.action?.href ?? item.localItem?.action?.hash ?? null);
+        const canOpen = canOpenNotification(item);
         const canNavigate = Boolean(href) && canOpen;
 
         return (
           <div
-            key={n.id}
+            key={item.id}
             className={cn(
               "p-3 rounded-xl border transition-all relative overflow-hidden",
               isDark
                 ? "bg-white/5 border-white/5 hover:bg-white/10"
                 : "bg-gray-50 border-gray-100 hover:bg-gray-100",
-              !n.is_read &&
+              !item.isRead &&
                 (isDark
                   ? "ring-1 ring-primary/30 bg-primary/5"
                   : "ring-1 ring-primary/20 bg-primary/5"),
             )}
           >
-            {!n.is_read && (
+            {!item.isRead && (
               <div className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-bl-lg" />
             )}
 
@@ -955,21 +1070,21 @@ const NotificationList = ({
               <div
                 className={cn(
                   "mt-0.5 p-1.5 rounded-lg shrink-0",
-                  getLevelColor(n.level),
+                  getLevelColor(item.level),
                 )}
               >
-                {getLevelIcon(n.level)}
+                {getLevelIcon(item.level)}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex justify-between items-start gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-black truncate">{n.title}</p>
+                    <p className="text-sm font-black truncate">{item.title}</p>
                     <p className="text-sm opacity-60 mt-1 leading-relaxed line-clamp-2">
-                      {n.content}
+                      {item.content}
                     </p>
                   </div>
                   <span className="text-[14px] font-black opacity-30 whitespace-nowrap">
-                    {formatDistanceToNow(new Date(n.created_at), {
+                    {formatDistanceToNow(new Date(item.createdAt), {
                       addSuffix: true,
                       locale: dateLocale,
                     })}
@@ -988,7 +1103,7 @@ const NotificationList = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          void onOpen(n);
+                          void onOpen(item);
                         }}
                         title={t("common.viewDetails", { defaultValue: "View Details" })}
                         aria-label={t("common.viewDetails", { defaultValue: "View Details" })}
@@ -1001,7 +1116,7 @@ const NotificationList = ({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        void onDelete([n.id]);
+                        void onDelete([item.id]);
                       }}
                       className="p-1 rounded hover:bg-destructive/10 text-destructive"
                       title={t("common.delete", { defaultValue: "Delete" })}

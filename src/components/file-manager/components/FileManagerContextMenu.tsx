@@ -14,6 +14,7 @@ import type { FileInfo } from '../types/index.ts';
 import { useTranslation } from 'react-i18next';
 import { isMountRootEntry, isMountedEntry, isRemoteDirectDelete, summarizeMountedSelection } from '../utils/mounts.ts';
 import { shouldDisableThumbnailForPath, shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
+import { isPreviewSupported } from '../utils/previewKind.ts';
 
 const FAVORITE_COLORS = [
   { id: 1, name: 'Red', class: 'bg-red-500' },
@@ -272,7 +273,7 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
               ) : (
                 <>
                   {!isBatch && target.is_dir && <MenuButton icon={FolderOpen} label={t('filemanager.actions.open')} action="open" />}
-                  {!target.is_dir && <MenuButton icon={Eye} label={t('filemanager.actions.preview')} action="preview" />}
+                  {!target.is_dir && isPreviewSupported(target) && <MenuButton icon={Eye} label={t('filemanager.actions.preview')} action="preview" />}
                   <MenuButton icon={Download} label={t('filemanager.actions.download')} action="download" testId="file-action-download" />
 
                   <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />

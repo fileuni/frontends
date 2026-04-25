@@ -35,6 +35,7 @@ export function useFileActions() {
   const { t } = useTranslation();
   const { addToast } = useToastStore();
   const store = useFileStore();
+  const searchPath = store.getSearchPath();
   const activeIntervalsRef = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
   
   const currentPath = store.getCurrentPath();
@@ -72,15 +73,18 @@ export function useFileActions() {
     } catch (_error) { console.error(_error); }
   };
 
-  const searchFiles = useCallback(async (keyword: string) => {
+  const searchFiles = useCallback(async (keyword: string, path?: string) => {
     store.setSearchKeyword(keyword.trim());
+    store.setSearchPath(path ?? currentPath);
     store.setIsSearchMode(!!keyword.trim());
-  }, [store]);
+    await loadFiles(undefined, 1);
+  }, [currentPath, loadFiles, store]);
 
   const clearSearch = useCallback(async () => {
     store.setSearchKeyword('');
     store.setIsSearchMode(false);
-  }, [store]);
+    await loadFiles(undefined, 1);
+  }, [loadFiles, store]);
 
   const clearHistory = useCallback(() => {
     if (confirm(t('filemanager.messages.confirmClearHistory') || "Clear all browsing history?")) {
@@ -552,15 +556,23 @@ export function useFileActions() {
     }
   };
 
-  const forceSyncIndex = async (path: string = currentPath) => {
+  const forceSyncIndex = useCallback(async (path: string = currentPath) => {
     setLoading(true);
     try {
       const data = await extractData<FileInfo[]>(client.POST("/api/v1/file/sync-index", {
         body: { path }
       }));
       setFiles(data);
-    } catch (_error) { console.error(_error); } finally { setLoading(false); }
-  };
+      return data;
+    } catch (_error) { console.error(_error); return null; } finally { setLoading(false); }
+  }, [currentPath, setFiles, setLoading]);
+
+  const syncIndexAndRetrySearch = useCallback(async () => {
+    const keyword = store.getSearchKeyword().trim();
+    if (!keyword) return;
+    await forceSyncIndex(searchPath);
+    await loadFiles(undefined, 1);
+  }, [forceSyncIndex, loadFiles, searchPath, store]);
 
   const createDirectory = async (name: string) => {
     if (!name) return;
@@ -647,7 +659,7 @@ export function useFileActions() {
     restoreFiles, deletePermanent, clearRecycleBin, clearAllShares, clearAllFavorites,
     clearThumbnailCache, clearThumbnailCacheAllUsers, setThumbnailDisabled,
     decompressFile, toggleFavorite,
-    createDirectory, createFile, forceSyncIndex,
+    createDirectory, createFile, forceSyncIndex, syncIndexAndRetrySearch,
     clearHistory, removeFromHistory,
     cancelShare, pasteItems, pasteSingleItem, waitForTask
   };

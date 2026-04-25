@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { storageHub } from '../lib/storageHub';
+import { useMessageCenterStore, type MessageCenterActionTarget } from './messageCenter.ts';
 
 // Toast types
 export type ToastType = 'info' | 'success' | 'warning' | 'error';
@@ -15,6 +16,12 @@ export const DURATION_MAP: Record<ToastDuration, number> = {
 };
 
 // Toast configuration options
+export interface ToastCenterBridgeOptions {
+  title?: string;
+  content?: string;
+  action?: MessageCenterActionTarget;
+}
+
 export interface ToastOptions {
   type?: ToastType;
   duration?: ToastDuration;
@@ -22,6 +29,8 @@ export interface ToastOptions {
   showDoNotShowAgain?: boolean; // Show "do not show again" checkbox
   doNotShowAgainKey?: string; // Storage key for do not show again
   userId?: string | number; // User ID for isolated storage
+  channel?: 'toast-only' | 'toast-and-center';
+  center?: ToastCenterBridgeOptions;
 }
 
 // Toast object
@@ -37,6 +46,8 @@ export interface Toast {
   showDetails: boolean; // Whether to show details
   doNotShowAgainChecked: boolean; // Whether "do not show again" is checked
   createdAt: number;
+  channel: 'toast-only' | 'toast-and-center';
+  center?: ToastCenterBridgeOptions;
 }
 
 // Storage key prefix
@@ -106,7 +117,11 @@ interface ToastState {
 export const useToastStore = create<ToastState>((set, get) => ({
   toasts: [],
 
-  addToast: async (message: string, options?: ToastOptions) => {
+  addToast: async (message: string, options?: ToastOptions | ToastType) => {
+    const normalizedOptions: ToastOptions = typeof options === 'string'
+      ? { type: options }
+      : (options || {});
+
     const {
       type = 'info',
       duration = 'normal',
@@ -114,7 +129,9 @@ export const useToastStore = create<ToastState>((set, get) => ({
       showDoNotShowAgain = false,
       doNotShowAgainKey,
       userId,
-    } = options || {};
+      channel = 'toast-only',
+      center,
+    } = normalizedOptions;
 
     const id = Math.random().toString(36).substring(2, 15);
 
@@ -127,12 +144,23 @@ export const useToastStore = create<ToastState>((set, get) => ({
       showDetails: false,
       doNotShowAgainChecked: false,
       createdAt: Date.now(),
+      channel,
       ...(details ? { details } : {}),
       ...(doNotShowAgainKey ? { doNotShowAgainKey } : {}),
       ...(userId !== undefined ? { userId } : {}),
+      ...(center ? { center } : {}),
     };
 
-    set((state) => ({ toasts: [...state.toasts, toast] }));
+    if (channel === 'toast-and-center') {
+      useMessageCenterStore.getState().addItem({
+        title: center?.title ?? message.split('\n')[0] ?? message,
+        content: center?.content ?? details ?? message,
+        level: type,
+        ...(center?.action ? { action: center.action } : {}),
+      });
+    }
+
+    set((state) => ({ toasts: [toast, ...state.toasts] }));
 
     // If not persistent, set auto-close
     if (duration !== 'persistent') {

@@ -13,15 +13,24 @@ type PreviewCapabilities = {
   tex: boolean;
 };
 
+type ThumbnailCapabilities = ApiComponents["schemas"]["ThumbnailCapabilities"] & {
+  allowed_directory_modes?: string[];
+  default_directory_mode?: string;
+  allow_user_directory_mode_override?: boolean;
+  allow_user_show_hidden_thumbnail_dirs?: boolean;
+  default_show_thumbnail_directories?: boolean;
+};
+
 export type BrandingConfig = {
   logo_url?: string | null;
   logo_name?: string | null;
   footer_text?: string | null;
 };
 
-export type SystemCapabilities = ApiComponents["schemas"]["SystemCapabilities"] & {
+export type SystemCapabilities = Omit<ApiComponents["schemas"]["SystemCapabilities"], "thumbnail"> & {
   preview?: PreviewCapabilities;
   branding?: BrandingConfig;
+  thumbnail?: ThumbnailCapabilities;
 };
 
 interface ConfigState {

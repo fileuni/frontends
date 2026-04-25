@@ -24,6 +24,7 @@ import { useToastStore } from '@/stores/toast';
 import { extractFileListItems } from '../utils/fileListResponse.ts';
 import { shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
 import { useEscapeToCloseTopLayer } from '@/hooks/useEscapeToCloseTopLayer';
+import { getPreviewKind } from '../utils/previewKind.ts';
 
 // Lazy load PdfPreview to avoid SSR build errors
 const PdfPreview = React.lazy(() => import('./PdfPreview.tsx').then(m => ({ default: m.PdfPreview })));
@@ -89,27 +90,21 @@ export const FilePreviewPage: React.FC<Props> = ({ path: p, onClose }) => {
       try {
         const name = p.split('/').pop() || '';
         const parent = p.substring(0, p.lastIndexOf('/')) || '/';
-        const ext = name.split('.').pop()?.toLowerCase() || '';
-
-        // Determine type
-        let currentType = 'unknown';
-        if (TYPE_MAP.IMAGE.includes(ext)) currentType = 'image';
-        else if (TYPE_MAP.VIDEO.includes(ext)) currentType = 'video';
-        else if (TYPE_MAP.AUDIO.includes(ext)) currentType = 'audio';
-        else if (TYPE_MAP.MARKDOWN.includes(ext)) currentType = 'markdown';
-        else if (TYPE_MAP.TEX.includes(ext)) currentType = 'tex';
-        else if (TYPE_MAP.TEXT.includes(ext)) currentType = 'text';
-        else if (TYPE_MAP.PDF.includes(ext)) currentType = 'pdf';
 
         // Load current file metadata
         let size = 0;
+        let currentType = 'unknown';
         try {
-            const stat = await extractData<{ size: number }>(
+            const stat = await extractData<FileInfo>(
               client.GET('/api/v1/file/stat', { params: { query: { path: p } } }),
             );
             size = stat.size;
+            const previewKind = getPreviewKind(stat);
+            currentType = previewKind === 'none' || previewKind === 'office' ? 'unknown' : previewKind;
         } catch (_error) {
             console.warn("Failed to fetch stat", _error);
+            const fallbackType = getPreviewKind({ name, is_dir: false });
+            currentType = fallbackType === 'none' || fallbackType === 'office' ? 'unknown' : fallbackType;
         }
 
         // Media list loading for gallery mode

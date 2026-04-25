@@ -18,9 +18,12 @@ import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button.tsx';
 import { Switch } from '@/components/ui/Switch.tsx';
+import { useFileStore } from '../store/useFileStore.ts';
 import { client, extractData } from '@/lib/api.ts';
 import { copyTextWithToast, showApiErrorToast } from '@/lib/feedback.ts';
 import { useConfigStore } from '@/stores/config.ts';
+import { useAuthzStore } from '@/stores/authz.ts';
+import { useFileActions } from '../hooks/useFileActions.ts';
 import {
   useUserFileSettingsStore,
   type UserFileSettingsUpdate,
@@ -83,6 +86,7 @@ export const FileManagerSettingsModal = ({
   const { t } = useTranslation();
   const { addToast } = useToastStore();
   const { capabilities } = useConfigStore();
+  const hasPermission = useAuthzStore((state) => state.hasPermission);
   const {
     settings,
     fetchSettings,
@@ -91,6 +95,8 @@ export const FileManagerSettingsModal = ({
   } = useUserFileSettingsStore();
   const protocolCaps = capabilities as (typeof capabilities & ProtocolCapabilities) | null;
   const browserHost = typeof window === 'undefined' ? 'localhost' : window.location.hostname;
+  const currentPath = useFileStore((state) => state.getCurrentPath());
+  const { clearThumbnailCache, clearThumbnailCacheAllUsers } = useFileActions();
   const browserOrigin = typeof window === 'undefined' ? '' : window.location.origin;
   const [showS3Modal, setShowS3Modal] = useState(false);
   const [showSftpModal, setShowSftpModal] = useState(false);
@@ -246,6 +252,14 @@ export const FileManagerSettingsModal = ({
   }, [addToast, capabilities?.enable_sftp, isOpen, t]);
 
   const thumbCaps = capabilities?.thumbnail;
+  const isAdmin = hasPermission('admin.access');
+  const allowDirectoryModeOverride = thumbCaps?.allow_user_directory_mode_override === true;
+  const allowShowThumbnailDirs = thumbCaps?.allow_user_show_hidden_thumbnail_dirs === true;
+  const allowedDirectoryModes = thumbCaps?.allowed_directory_modes ?? ['user_root', 'per_directory'];
+  const effectiveDirectoryMode = settings?.thumbnail_directory_mode ?? thumbCaps?.default_directory_mode ?? 'user_root';
+  const effectiveShowThumbnailDirs = allowShowThumbnailDirs
+    ? settings?.show_thumbnail_directories === true
+    : thumbCaps?.default_show_thumbnail_directories === true;
   const visibleToggleItems: Array<{
     key: keyof UserFileSettingsUpdate;
     label: string;
@@ -562,6 +576,72 @@ export const FileManagerSettingsModal = ({
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-4 shadow-inner sm:col-span-2">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="text-sm font-black text-white tracking-wide">
+                        {resolveText(t, 'filemanager.thumbnail.directoryMode', 'Thumbnail Directory Mode')}
+                      </div>
+                      <div className="mt-1 text-xs text-white/50 leading-relaxed">
+                        {resolveText(t, 'filemanager.thumbnail.directoryModeHint', 'Choose one shared thumbnail directory in your root or one thumbnail directory inside each folder.')}
+                      </div>
+                    </div>
+                    <div className="text-xs font-bold uppercase tracking-[0.16em] text-white/35">
+                      {allowDirectoryModeOverride ? t('common.enabled') : t('common.disabled')}
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    {[
+                      {
+                        value: 'user_root',
+                        title: resolveText(t, 'filemanager.thumbnail.modeUserRoot', 'Unified Directory'),
+                        desc: resolveText(t, 'filemanager.thumbnail.modeUserRootHint', 'Store thumbnails in /.fileuni-thumbnail under your root directory.'),
+                      },
+                      {
+                        value: 'per_directory',
+                        title: resolveText(t, 'filemanager.thumbnail.modePerDirectory', 'Multi Directory'),
+                        desc: resolveText(t, 'filemanager.thumbnail.modePerDirectoryHint', 'Create a .fileuni-thumbnail directory inside each folder that generates thumbnails.'),
+                      },
+                    ]
+                      .filter((option) => allowedDirectoryModes.includes(option.value))
+                      .map((option) => {
+                      const active = effectiveDirectoryMode === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          disabled={settingsLoading || !allowDirectoryModeOverride || thumbCaps?.enabled !== true}
+                          onClick={() => void updateSettings({ thumbnail_directory_mode: option.value } as UserFileSettingsUpdate)}
+                          className={cn(
+                            'rounded-2xl border px-4 py-3 text-left transition-colors',
+                            active ? 'border-primary bg-primary/15 text-white' : 'border-white/10 bg-white/[0.02] text-white/75',
+                            (settingsLoading || !allowDirectoryModeOverride || thumbCaps?.enabled !== true) && 'opacity-50 cursor-not-allowed',
+                          )}
+                        >
+                          <div className="text-sm font-black tracking-wide">{option.title}</div>
+                          <div className="mt-1 text-xs leading-relaxed text-white/55">{option.desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-4 shadow-inner sm:col-span-2">
+                  <div className="min-w-0">
+                    <div className="text-sm font-black text-white tracking-wide">
+                      {resolveText(t, 'filemanager.thumbnail.showDirectory', 'Show Thumbnail Directories')}
+                    </div>
+                    <div className="mt-1 text-xs text-white/50 leading-relaxed">
+                      {resolveText(t, 'filemanager.thumbnail.showDirectoryHint', 'Show or hide internal thumbnail directories in the file list.')}
+                    </div>
+                  </div>
+                  <Switch
+                    checked={effectiveShowThumbnailDirs}
+                    disabled={settingsLoading || !allowShowThumbnailDirs}
+                    onChange={(value) => void updateSettings({ show_thumbnail_directories: value } as UserFileSettingsUpdate)}
+                  />
+                </div>
+
                 {visibleToggleItems.map((item) => {
                   const rawValue = settings?.[item.key];
                   const disabledValue = typeof rawValue === 'boolean' ? rawValue : false;
@@ -596,6 +676,49 @@ export const FileManagerSettingsModal = ({
                       'filemanager.thumbnail.noTypes',
                       'No thumbnail types are available for this server.',
                     )}
+                  </div>
+                )}
+
+                {thumbCaps?.enabled === true && (
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-4 shadow-inner sm:col-span-2">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="text-sm font-black text-white tracking-wide">
+                          {resolveText(t, 'filemanager.thumbnail.clearDir', 'Clear Folder Thumbnails')}
+                        </div>
+                        <div className="mt-1 text-xs text-white/50 leading-relaxed">
+                          {resolveText(t, 'filemanager.thumbnail.clearDirHint', 'Delete thumbnails for the current folder or remove all thumbnails. New thumbnails will be generated again when needed.')}
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-2xl"
+                          onClick={() => void clearThumbnailCache(currentPath)}
+                        >
+                          {resolveText(t, 'filemanager.thumbnail.clearDir', 'Clear Folder Thumbnails')}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-2xl"
+                          onClick={() => void clearThumbnailCache()}
+                        >
+                          {resolveText(t, 'filemanager.thumbnail.clearAll', 'Clear All Thumbnails')}
+                        </Button>
+                        {isAdmin && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="rounded-2xl text-red-400 border-red-400/20 hover:bg-red-500/10"
+                            onClick={() => void clearThumbnailCacheAllUsers()}
+                          >
+                            {resolveText(t, 'filemanager.thumbnail.clearAllUsers', 'Clear All Users Thumbnails')}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

@@ -32,7 +32,7 @@ const MARQUEE_ACTIVATION_DISTANCE = 8;
 export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: Props) => {
   const { t } = useTranslation();
   const store = useFileStore();
-  const { clearSearch } = useFileActions();
+  const { clearSearch, syncIndexAndRetrySearch } = useFileActions();
   const { files, loading, fmMode } = store;
   const viewMode = store.getViewMode();
   const isSearchMode = store.getIsSearchMode();
@@ -123,9 +123,14 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
             <p className="mt-2 text-sm font-bold tracking-[0.18em]">
               {searchKeyword}
             </p>
-            <Button variant="ghost" className="mt-4" onClick={() => void clearSearch()}>
-              {t('filemanager.clear')}
-            </Button>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <Button variant="ghost" onClick={() => void clearSearch()}>
+                {t('filemanager.clear')}
+              </Button>
+              <Button variant="outline" onClick={() => void syncIndexAndRetrySearch()}>
+                {t('filemanager.syncSearchIndex')}
+              </Button>
+            </div>
           </>
         )}
       </div>

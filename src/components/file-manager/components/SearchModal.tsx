@@ -13,25 +13,37 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
+const normalizeSearchPath = (value: string): string => {
+  const trimmed = value.trim();
+  if (!trimmed) return '/';
+  return trimmed.replace(/\/+/g, '/').replace(/(.+)\/$/, '$1').startsWith('/')
+    ? trimmed.replace(/\/+/g, '/').replace(/(.+)\/$/, '$1')
+    : `/${trimmed.replace(/\/+/g, '/').replace(/(.+)\/$/, '$1')}`;
+};
+
 export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const { t } = useTranslation();
   const store = useFileStore();
   const { searchFiles, clearSearch } = useFileActions();
   const [keyword, setKeyword] = useState('');
+  const [searchPath, setSearchPath] = useState('/');
   const inputRef = useRef<HTMLInputElement>(null);
   const currentSearchKeyword = store.getSearchKeyword();
+  const currentSearchPath = store.getSearchPath();
+  const currentPath = store.getCurrentPath();
   const isSearchMode = store.getIsSearchMode();
 
   const handleSearch = () => {
     if (keyword.trim()) {
-      searchFiles(keyword);
+      void searchFiles(keyword, normalizeSearchPath(searchPath));
       onClose();
     }
   };
 
   const handleClear = () => {
     setKeyword('');
-    clearSearch();
+    setSearchPath(currentPath);
+    void clearSearch();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -45,8 +57,9 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   useEffect(() => {
     if (isOpen) {
       setKeyword(currentSearchKeyword);
+      setSearchPath(currentSearchPath || currentPath);
     }
-  }, [currentSearchKeyword, isOpen]);
+  }, [currentPath, currentSearchKeyword, currentSearchPath, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -81,6 +94,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
         </div>
       )}
     >
+      <div className="space-y-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400" size={18} />
           <Input
@@ -101,26 +115,33 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
             </button>
           )}
         </div>
+        <Input
+          className="h-12 rounded-2xl border-zinc-300 bg-white px-4 text-slate-950 placeholder:text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-white/30"
+          placeholder={t('filemanager.searchPathPlaceholder') || '/folder/subfolder'}
+          value={searchPath}
+          onChange={(e) => setSearchPath(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+      </div>
 
-
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            onClick={handleSearch}
-            disabled={!keyword.trim()}
-            className="flex-1 rounded-2xl h-12 font-black text-sm shadow-xl shadow-primary/20"
-          >
-            <Search size={16} className="mr-2" />
-            {t('filemanager.search')}
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={handleClear}
-            disabled={!isSearchMode}
-            className="h-12 rounded-2xl bg-white px-6 text-sm font-black text-slate-700 shadow-sm hover:bg-zinc-50 hover:text-slate-900 dark:bg-white/[0.03] dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
-          >
-            {t('filemanager.clear')}
-          </Button>
-        </div>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Button
+          onClick={handleSearch}
+          disabled={!keyword.trim()}
+          className="flex-1 rounded-2xl h-12 font-black text-sm shadow-xl shadow-primary/20"
+        >
+          <Search size={16} className="mr-2" />
+          {t('filemanager.search')}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={handleClear}
+          disabled={!isSearchMode}
+          className="h-12 rounded-2xl bg-white px-6 text-sm font-black text-slate-700 shadow-sm hover:bg-zinc-50 hover:text-slate-900 dark:bg-white/[0.03] dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
+        >
+          {t('filemanager.clear')}
+        </Button>
+      </div>
     </GlassModalShell>
   );
 };

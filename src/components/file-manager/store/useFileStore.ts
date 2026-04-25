@@ -41,6 +41,7 @@ interface UserFileData {
   viewMode: ViewMode;
   sortConfig: { field: string; order: 'asc' | 'desc' }; // Sort configuration
   searchKeyword: string; // Search keyword
+  searchPath: string; // Search root path
   isSearchMode: boolean; // Whether in search mode
   shareFilter: { hasPassword: boolean | null; enableDirect: boolean | null }; // Share filter
   pageSize: number;
@@ -82,6 +83,7 @@ interface FileState {
   getViewMode: () => ViewMode;
   getSortConfig: () => { field: string; order: 'asc' | 'desc' };
   getSearchKeyword: () => string;
+  getSearchPath: () => string;
   getIsSearchMode: () => boolean;
   getShareFilter: () => { hasPassword: boolean | null; enableDirect: boolean | null };
   getPageSize: () => number;
@@ -105,6 +107,7 @@ interface FileState {
   // Sorting and searching related
   setSortConfig: (config: { field: string; order: 'asc' | 'desc' }) => void;
   setSearchKeyword: (keyword: string) => void;
+  setSearchPath: (path: string) => void;
   setIsSearchMode: (isSearchMode: boolean) => void;
   setShareFilter: (filter: Partial<{ hasPassword: boolean | null; enableDirect: boolean | null }>) => void;
   setPagination: (total: number, totalPages: number, currentPage: number, pageSize: number) => void;
@@ -165,6 +168,7 @@ const getInitialUserData = (): UserFileData => ({
   viewMode: 'grid',
   sortConfig: { field: 'name', order: 'asc' },
   searchKeyword: '',
+  searchPath: '/',
   isSearchMode: false,
   shareFilter: { hasPassword: null, enableDirect: null },
   pageSize: 20,
@@ -240,6 +244,11 @@ export const useFileStore = create<FileState>()(
       getSearchKeyword: () => {
         const uid = get()._getUid();
         return get()._getUserData(uid).searchKeyword;
+      },
+
+      getSearchPath: () => {
+        const uid = get()._getUid();
+        return get()._getUserData(uid).searchPath;
       },
 
       getIsSearchMode: () => {
@@ -409,6 +418,18 @@ export const useFileStore = create<FileState>()(
           userStates: {
             ...state.userStates,
             [uid]: { ...userData, searchKeyword: keyword } as UserFileData
+          }
+        }));
+      },
+
+      setSearchPath: (path) => {
+        const uid = get()._getUid();
+        const userData = get()._getUserData(uid);
+        const normalizedPath = path.replace(/\/+/g, '/').replace(/(.+)\/$/, '$1') || '/';
+        set(state => ({
+          userStates: {
+            ...state.userStates,
+            [uid]: { ...userData, searchPath: normalizedPath } as UserFileData
           }
         }));
       },
@@ -710,6 +731,7 @@ export const useFileStore = create<FileState>()(
         const sortConfig = state.getSortConfig();
         const isSearchMode = state.getIsSearchMode();
         const searchKeyword = state.getSearchKeyword();
+        const searchPath = state.getSearchPath();
         const showShareStatus = state.showShareStatus;
         const favoriteFilterColor = state.favoriteFilterColor;
 
@@ -741,7 +763,7 @@ export const useFileStore = create<FileState>()(
                   query: {
                     ...baseQuery,
                     keyword,
-                    path: effectivePath,
+                    path: searchPath,
                   },
                 },
               }),
