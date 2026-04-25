@@ -247,6 +247,14 @@ export const FileManagerView = () => {
     return parentDir === targetDir;
   }, []);
 
+  const buildTransferSuccessMessage = useCallback((operation: 'copy' | 'move', paths: string[], destination: string): string => {
+    const sourceLabel = paths.length === 1 ? paths[0] : `${paths[0]} (+${paths.length - 1})`;
+    const title = operation === 'move'
+      ? (t('filemanager.messages.movedSuccess') || 'Items moved successfully')
+      : (t('filemanager.actions.copy') || 'Copy');
+    return `${title}\n${sourceLabel} → ${destination}`;
+  }, [t]);
+
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const activeFile = event.active.data.current?.['file'];
     const nextDraggingFile = activeFile && typeof activeFile === 'object' ? activeFile as FileInfo : null;
@@ -311,12 +319,9 @@ export const FileManagerView = () => {
 
     void batchMove(draggedPaths, targetDir, {
       optimistic: true,
-      successMessageFactory: (paths, destination) => {
-        const sourceLabel = paths.length === 1 ? paths[0] : `${paths[0]} (+${paths.length - 1})`;
-        return `${t('filemanager.messages.movedSuccess')}\n${sourceLabel} → ${destination}`;
-      },
+      successMessageFactory: (paths, destination) => buildTransferSuccessMessage('move', paths, destination),
     });
-  }, [addToast, batchMove, files, fmMode, isNoOpDrop, resetDraggingState, t]);
+  }, [addToast, batchMove, buildTransferSuccessMessage, files, fmMode, isNoOpDrop, resetDraggingState, t]);
 
   const handleDragCancel = useCallback((_event: DragCancelEvent) => {
     resetDraggingState();

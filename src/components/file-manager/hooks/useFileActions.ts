@@ -22,8 +22,11 @@ interface WaitForTaskOptions {
   successMessage?: string;
 }
 
-interface BatchMoveOptions {
+export type TransferOperation = 'copy' | 'move';
+
+interface BatchTransferOptions {
   optimistic?: boolean;
+  optimisticItems?: ClipboardItem[];
   successMessage?: string;
   successMessageFactory?: (paths: string[], targetDir: string) => string;
 }
@@ -235,7 +238,85 @@ export function useFileActions() {
     }
   };
 
-  const batchMove = async (paths: string[], targetDir: string, options?: BatchMoveOptions) => {
+  const buildTransferSuccessMessage = useCallback((operation: TransferOperation, paths: string[], targetDir: string): string => {
+    const sourceLabel = paths.length === 1 ? paths[0] : `${paths[0]} (+${paths.length - 1})`;
+    const title = operation === 'move'
+      ? (t('filemanager.messages.movedSuccess') || 'Items moved successfully')
+      : (t('filemanager.messages.copiedSuccess') || 'Items copied successfully');
+    return `${title}\n${sourceLabel} → ${targetDir}`;
+  }, [t]);
+
+  const createOptimisticCopies = useCallback((items: ClipboardItem[], targetDir: string): FileInfo[] => {
+    const timestamp = new Date().toISOString();
+    return items.map((item) => ({
+      name: item.name,
+      path: `${targetDir}/${item.name}`.replace(/\/+/g, '/'),
+      is_dir: item.is_dir,
+      size: 0,
+      modified: timestamp,
+      favorite_color: 0,
+      ...(item.mount_id ? { mount_id: item.mount_id } : {}),
+      ...(item.mount_dir ? { mount_dir: item.mount_dir } : {}),
+      ...(typeof item.is_mount_root === 'boolean' ? { is_mount_root: item.is_mount_root } : {}),
+      ...(item.delete_behavior ? { delete_behavior: item.delete_behavior } : {}),
+    }));
+  }, []);
+
+  const applyOptimisticTransfer = useCallback((
+    operation: TransferOperation,
+    paths: string[],
+    targetDir: string,
+    optimisticItems?: ClipboardItem[],
+  ) => {
+    if (operation === 'move') {
+      removeFiles(paths);
+      const currentSelection = useSelectionStore.getState().selectedIds;
+      const remainingSelection = store.files
+        .filter((file) => !paths.includes(file.path) && currentSelection.has(file.path))
+        .map((file) => file.path);
+      setSelection(remainingSelection);
+      return;
+    }
+
+    if (targetDir !== currentPath || !optimisticItems || optimisticItems.length === 0) {
+      deselectAll();
+      return;
+    }
+
+    const optimisticCopies = createOptimisticCopies(optimisticItems, targetDir);
+    appendFiles(optimisticCopies);
+    deselectAll();
+    const firstExpectedPath = optimisticCopies[0]?.path;
+    if (firstExpectedPath) {
+      store.setHighlightedPath(firstExpectedPath);
+    }
+  }, [appendFiles, createOptimisticCopies, currentPath, deselectAll, removeFiles, setSelection, store]);
+
+  const finalizeTransferSuccess = useCallback(async (
+    operation: TransferOperation,
+    targetDir: string,
+    expectedPaths: string[],
+    successMessage?: string,
+    optimistic: boolean = false,
+  ) => {
+    if (!optimistic || operation === 'copy' || targetDir === currentPath) {
+      await loadFiles();
+    }
+    const firstExpectedPath = expectedPaths[0];
+    if (firstExpectedPath) {
+      store.setHighlightedPath(firstExpectedPath);
+    }
+    if (successMessage) {
+      addToast(successMessage, 'success');
+    }
+  }, [addToast, currentPath, loadFiles, store]);
+
+  const batchTransfer = async (
+    operation: TransferOperation,
+    paths: string[],
+    targetDir: string,
+    options?: BatchTransferOptions,
+  ) => {
     try {
       const selectedFiles = resolveFilesByPaths(paths);
       if (selectedFiles.some((file) => isMountRootEntry(file))) {
@@ -243,31 +324,29 @@ export function useFileActions() {
         return;
       }
 
-      const shouldOptimisticallyRemove = options?.optimistic === true;
       const successMessage = options?.successMessageFactory
         ? options.successMessageFactory(paths, targetDir)
-        : options?.successMessage;
-      if (shouldOptimisticallyRemove) {
-        removeFiles(paths);
-        const currentSelection = useSelectionStore.getState().selectedIds;
-        const remainingSelection = store.files
-          .filter((file) => !paths.includes(file.path) && currentSelection.has(file.path))
-          .map((file) => file.path);
-        setSelection(remainingSelection);
+        : options?.successMessage ?? buildTransferSuccessMessage(operation, paths, targetDir);
+      const expectedPaths = paths.map((path) => `${targetDir}/${path.split('/').pop()}`.replace(/\/+/g, '/'));
+      const shouldOptimisticallyApply = options?.optimistic === true;
+
+      if (shouldOptimisticallyApply) {
+        applyOptimisticTransfer(operation, paths, targetDir, options?.optimisticItems);
       } else {
         deselectAll();
       }
 
-      const { data } = await client.POST("/api/v1/file/batch-move", {
+      const endpoint = operation === 'move' ? '/api/v1/file/batch-move' : '/api/v1/file/batch-copy';
+      const taskType = operation === 'move' ? 'batch_move' : 'batch_copy';
+      const { data } = await client.POST(endpoint, {
         body: { paths, target_path: targetDir }
       });
-      const expectedPaths = paths.map(p => `${targetDir}/${p.split('/').pop()}`.replace(/\/+/g, '/'));
       if (data?.['success']) {
         const taskId = extractTaskId(data['data']);
         if (taskId) {
           store.addTask({
             id: taskId,
-            type: 'batch_move',
+            type: taskType,
             status: 'pending',
             progress: 0,
             createdAt: new Date().toISOString()
@@ -277,16 +356,7 @@ export function useFileActions() {
             ...(successMessage ? { successMessage } : {}),
           });
         } else {
-          if (!shouldOptimisticallyRemove) {
-            removeFiles(paths);
-            deselectAll();
-          }
-          if (targetDir === currentPath) await loadFiles();
-          const firstExpectedPath = expectedPaths[0];
-          if (firstExpectedPath) store.setHighlightedPath(firstExpectedPath);
-          if (successMessage) {
-            addToast(successMessage, 'success');
-          }
+          await finalizeTransferSuccess(operation, targetDir, expectedPaths, successMessage, shouldOptimisticallyApply);
         }
       }
     } catch (_error) {
@@ -295,38 +365,12 @@ export function useFileActions() {
     }
   };
 
-  const batchCopy = async (paths: string[], targetDir: string) => {
-    try {
-      const selectedFiles = resolveFilesByPaths(paths);
-      if (selectedFiles.some((file) => isMountRootEntry(file))) {
-        showMountRootBlockedToast();
-        return;
-      }
+  const batchMove = async (paths: string[], targetDir: string, options?: BatchTransferOptions) => {
+    await batchTransfer('move', paths, targetDir, options);
+  };
 
-      const { data } = await client.POST("/api/v1/file/batch-copy", {
-        body: { paths, target_path: targetDir }
-      });
-      const expectedPaths = paths.map(p => `${targetDir}/${p.split('/').pop()}`.replace(/\/+/g, '/'));
-      if (data?.['success']) {
-        const taskId = extractTaskId(data['data']);
-        if (taskId) {
-          store.addTask({
-            id: taskId,
-            type: 'batch_copy',
-            status: 'pending',
-            progress: 0,
-            createdAt: new Date().toISOString()
-          });
-          waitForTask(taskId, { expectedPaths });
-        } else {
-          await loadFiles();
-          const firstExpectedPath = expectedPaths[0];
-          if (firstExpectedPath) store.setHighlightedPath(firstExpectedPath);
-        }
-      }
-    } catch (_error) {
-      addToast(handleApiError(_error, t), 'error');
-    }
+  const batchCopy = async (paths: string[], targetDir: string, options?: BatchTransferOptions) => {
+    await batchTransfer('copy', paths, targetDir, options);
   };
 
   const batchCompress = async (paths: string[], targetName: string) => {
@@ -559,16 +603,23 @@ export function useFileActions() {
 
   const pasteItems = async (items: ClipboardItem[], targetPath: string) => {
     if (items.length === 0) return;
-    
-    const copyPaths = items.filter(i => i.type === 'copy').map(i => i.path);
-    const movePaths = items.filter(i => i.type === 'cut').map(i => i.path);
+
+    const copyItems = items.filter((item) => item.type === 'copy');
+    const moveItems = items.filter((item) => item.type === 'cut');
+    const copyPaths = copyItems.map((item) => item.path);
+    const movePaths = moveItems.map((item) => item.path);
 
     if (copyPaths.length > 0) {
-      await batchCopy(copyPaths, targetPath);
+      await batchCopy(copyPaths, targetPath, {
+        optimistic: true,
+        optimisticItems: copyItems,
+      });
     }
 
     if (movePaths.length > 0) {
-      await batchMove(movePaths, targetPath);
+      await batchMove(movePaths, targetPath, {
+        optimistic: true,
+      });
       for (const path of movePaths) {
         store.removeFromClipboard(path);
       }
@@ -578,9 +629,14 @@ export function useFileActions() {
   const pasteSingleItem = async (item: ClipboardItem, targetPath: string, overrideType?: 'copy' | 'cut') => {
     const actionType = overrideType || item.type;
     if (actionType === 'copy') {
-      await batchCopy([item.path], targetPath);
+      await batchCopy([item.path], targetPath, {
+        optimistic: true,
+        optimisticItems: [item],
+      });
     } else {
-      await batchMove([item.path], targetPath);
+      await batchMove([item.path], targetPath, {
+        optimistic: true,
+      });
       store.removeFromClipboard(item.path);
     }
   };
