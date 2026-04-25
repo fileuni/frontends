@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { DndContext, PointerSensor, pointerWithin, rectIntersection, useSensor, useSensors, type CollisionDetection, type DragCancelEvent, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
+import { DndContext, DragOverlay, PointerSensor, pointerWithin, rectIntersection, useSensor, useSensors, type CollisionDetection, type DragCancelEvent, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
 import { FileManagerToolbar } from "./FileManagerToolbar.tsx";
 import { FileBrowser } from "./FileBrowser.tsx";
 import { FileManagerContextMenu } from "./FileManagerContextMenu.tsx";
@@ -9,7 +9,7 @@ import { Pagination } from '@/components/ui/Pagination';
 
 import { useFileActions } from "../hooks/useFileActions.ts";
 import { useFileStore } from "../store/useFileStore.ts";
-import { useSelectionStore } from "../store/useSelectionStore.ts";
+import { getSelectionId, useSelectionStore } from "../store/useSelectionStore.ts";
 import { useAudioStore } from "@/stores/audio.ts";
 import type { FileInfo, ClipboardItem, FileManagerMode } from "../types/index.ts";
 import { FileActionModal } from "./FileActionModal.tsx";
@@ -38,11 +38,17 @@ import { FileManagerFavoriteFilter } from "./FileManagerFavoriteFilter.tsx";
 import { FilePreviewPage } from "./FilePreviewPage.tsx";
 import { OfficeLitePage } from "./officeLitePage.tsx";
 import { OfficeOpenModal } from "./officeOpenModal.tsx";
+import { FileIcon } from "./FileIcon.tsx";
 import { getFileExtension, isOfficeExtension } from "../utils/officeLite.ts";
 import { isMountRootEntry, isMountedEntry, summarizeMountedSelection } from "../utils/mounts.ts";
 import { shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
 
 const FILE_MANAGER_MODES: readonly FileManagerMode[] = ['files', 'recent', 'trash', 'favorites', 'shares'];
+
+interface DragPreviewState {
+  file: FileInfo;
+  count: number;
+}
 
 const isFileManagerMode = (value: string | undefined): value is FileManagerMode =>
   value !== undefined && FILE_MANAGER_MODES.includes(value as FileManagerMode);
@@ -117,6 +123,7 @@ export const FileManagerView = () => {
   const [activeShareFile, setActiveShareFile] = useState<FileInfo | null>(null);
   const [pendingDeletePaths, setPendingDeletePaths] = useState<string[]>([]);
   const [propertiesFile, setPropertiesFile] = useState<FileInfo | null>(null);
+  const [dragPreview, setDragPreview] = useState<DragPreviewState | null>(null);
   const isSyncingRef = useRef(false);
   const draggingFileRef = useRef<FileInfo | null>(null);
   const draggingPathsRef = useRef<string[]>([]);
@@ -216,14 +223,21 @@ export const FileManagerView = () => {
     });
   }, []);
 
+  const selectedFilePaths = useCallback((): string[] => {
+    if (selectedIds.size === 0) return [];
+    return files
+      .filter((file) => selectedIds.has(getSelectionId(file, fmMode)))
+      .map((file) => file.path);
+  }, [files, fmMode, selectedIds]);
+
   const resolveDraggedPaths = useCallback((draggedFile: FileInfo | null): string[] => {
     if (!draggedFile || fmMode !== 'files') return [];
     const draggedPath = draggedFile.path;
     if (!draggedPath) return [];
-    const selectedPaths = Array.from(selectedIds).filter((path): path is string => typeof path === 'string' && path.length > 0);
-    const paths = selectedIds.has(draggedPath) ? selectedPaths : [draggedPath];
+    const draggedSelectionId = getSelectionId(draggedFile, fmMode);
+    const paths = selectedIds.has(draggedSelectionId) ? selectedFilePaths() : [draggedPath];
     return normalizeDraggedPaths(paths);
-  }, [fmMode, normalizeDraggedPaths, selectedIds]);
+  }, [fmMode, normalizeDraggedPaths, selectedFilePaths, selectedIds]);
 
   const isNoOpDrop = useCallback((sourcePath: string, targetDir: string): boolean => {
     if (sourcePath === targetDir) return true;
@@ -238,20 +252,23 @@ export const FileManagerView = () => {
     const nextDraggingFile = activeFile && typeof activeFile === 'object' ? activeFile as FileInfo : null;
     draggingFileRef.current = nextDraggingFile;
     const currentSelection = useSelectionStore.getState().selectedIds;
-    const activePath = nextDraggingFile?.path;
-    const selectedPaths = activePath && currentSelection.has(activePath)
-      ? Array.from(currentSelection).filter((path): path is string => typeof path === 'string' && path.length > 0)
+    const activeSelectionId = nextDraggingFile ? getSelectionId(nextDraggingFile, fmMode) : null;
+    const selectedPaths = activeSelectionId && currentSelection.has(activeSelectionId)
+      ? files
+        .filter((file) => currentSelection.has(getSelectionId(file, fmMode)))
+        .map((file) => file.path)
       : [];
     draggingPathsRef.current = normalizeDraggedPaths(selectedPaths.length > 0 ? selectedPaths : resolveDraggedPaths(nextDraggingFile));
-
-    if (nextDraggingFile && draggingPathsRef.current.length > 1) {
-      useSelectionStore.getState().setSelection(draggingPathsRef.current, nextDraggingFile.path);
-    }
-  }, [resolveDraggedPaths]);
+    setDragPreview(nextDraggingFile ? {
+      file: nextDraggingFile,
+      count: Math.max(1, draggingPathsRef.current.length),
+    } : null);
+  }, [files, fmMode, normalizeDraggedPaths, resolveDraggedPaths]);
 
   const resetDraggingState = useCallback(() => {
     draggingFileRef.current = null;
     draggingPathsRef.current = [];
+    setDragPreview(null);
   }, []);
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
@@ -322,13 +339,13 @@ export const FileManagerView = () => {
 
       const isAnyModalOpen = isAnyEscLayerOpen() || contextMenu !== null;
       const isMod = e.ctrlKey || e.metaKey;
-      const paths = Array.from(selectedIds);
+      const paths = selectedFilePaths();
 
       if (isAnyModalOpen) return;
 
       if (e.key === 'Escape') { deselectAll(); setContextMenu(null); return; }
 
-      if (isMod && e.key.toLowerCase() === 'a') { e.preventDefault(); selectAll(files.map(f => f.path)); }
+      if (isMod && e.key.toLowerCase() === 'a') { e.preventDefault(); selectAll(files.map(f => getSelectionId(f, fmMode))); }
       if (isMod && e.key.toLowerCase() === 'c' && paths.length > 0) {
         e.preventDefault();
         const copyItems: ClipboardItem[] = paths.map((p) =>
@@ -352,8 +369,7 @@ export const FileManagerView = () => {
         handleActionRef.current("paste", null);
       }
       if (e.key === 'F2' && selectedIds.size === 1) {
-        const path = Array.from(selectedIds)[0];
-        const targetFile = files.find(f => f.path === path);
+        const targetFile = files.find((file) => selectedIds.has(getSelectionId(file, fmMode)));
         if (targetFile) handleActionRef.current("rename", targetFile);
       }
       if ((e.key === 'Delete' || (e.key === 'Backspace' && isMod)) && paths.length > 0) {
@@ -366,14 +382,12 @@ export const FileManagerView = () => {
   }, [
     selectedIds, files, clipboard, fmMode,
     contextMenu,
-    selectAll, deselectAll, addToast, t, addToClipboard, buildClipboardItem
+    selectAll, deselectAll, addToast, t, addToClipboard, buildClipboardItem, selectedFilePaths
   ]);
 
   const handleAction = (action: string, target: FileInfo | null) => {
     setContextMenu(null);
-    const isShares = fmMode === "shares";
-    const selectedList = selectedIds.size > 0 ? Array.from(selectedIds) : target ? [isShares && target.id ? target.id : target.path] : [];
-    const paths = isShares ? (selectedIds.size > 0 ? (Array.from(selectedIds).map(id => files.find(f => f.id === id)?.path).filter(Boolean) as string[]) : (target ? [target.path] : [])) : selectedList;
+    const paths = selectedIds.size > 0 ? selectedFilePaths() : target ? [target.path] : [];
     const selectionSummary = summarizeMountedSelection(paths, files);
     const mountedTarget = target && isMountedEntry(target);
     const mountRootTarget = target && isMountRootEntry(target);
@@ -430,7 +444,17 @@ export const FileManagerView = () => {
       case "remove_from_history": removeFromHistory(paths); deselectAll(); break;
       case "clear_history": clearHistory(); break;
       case "download": if (target) downloadFile(target.path); break;
-      case "cancel_share": if (selectedIds.size > 0) { for (const id of Array.from(selectedIds)) cancelShare(id); deselectAll(); } else if (target?.id) cancelShare(target.id); break;
+      case "cancel_share": {
+        if (selectedIds.size > 0) {
+          for (const file of files.filter((item) => selectedIds.has(getSelectionId(item, fmMode)) && item.id)) {
+            cancelShare(file.id as string);
+          }
+          deselectAll();
+        } else if (target?.id) {
+          cancelShare(target.id);
+        }
+        break;
+      }
       case "share": if (target) setActiveShareFile(target); break;
       case "copy": case "cut": {
         const items: ClipboardItem[] = paths.map((p) =>
@@ -509,9 +533,13 @@ export const FileManagerView = () => {
       if (actionModal.mode === 'favorites') toggleFavorite(paths, 0);
       else if (actionModal.mode === 'recent') removeFromHistory(paths);
       else if (actionModal.mode === 'shares') {
-        const selectedIdsArray = Array.from(selectedIds);
-        if (selectedIdsArray.length > 0) { for (const id of selectedIdsArray) cancelShare(id); } 
-        else { const file = files.find(f => paths.includes(f.path)); if (file?.id) cancelShare(file.id); }
+        const selectedShareFiles = files.filter((file) => selectedIds.has(getSelectionId(file, fmMode)) && file.id);
+        if (selectedShareFiles.length > 0) {
+          for (const file of selectedShareFiles) cancelShare(file.id as string);
+        } else {
+          const file = files.find(f => paths.includes(f.path));
+          if (file?.id) cancelShare(file.id);
+        }
       }
       deselectAll();
     } else {
@@ -711,6 +739,39 @@ export const FileManagerView = () => {
             )}
           </div>
           {contextMenu && <FileManagerContextMenu x={contextMenu.x} y={contextMenu.y} target={contextMenu.target} onClose={() => setContextMenu(null)} onAction={handleAction} />}
+          <DragOverlay dropAnimation={null}>
+            {dragPreview ? (
+              <div className={cn(
+                "pointer-events-none flex min-w-[220px] max-w-[280px] items-center gap-3 rounded-2xl border px-4 py-3 shadow-2xl backdrop-blur-xl",
+                isDark
+                  ? "border-white/10 bg-black/65 text-white"
+                  : "border-zinc-200 bg-white/95 text-zinc-900"
+              )}>
+                <div className={cn(
+                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border",
+                  isDark ? "border-white/10 bg-white/5" : "border-zinc-200 bg-zinc-50"
+                )}>
+                  <FileIcon name={dragPreview.file.name} isDir={dragPreview.file.is_dir} size={28} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-bold">{dragPreview.file.name}</div>
+                  <div className={cn(
+                    "mt-0.5 text-xs font-medium",
+                    isDark ? "text-white/60" : "text-zinc-500"
+                  )}>
+                    {dragPreview.count > 1
+                      ? `${dragPreview.count} ${t('common.items') || 'items'}`
+                      : dragPreview.file.path}
+                  </div>
+                </div>
+                {dragPreview.count > 1 && (
+                  <div className="shrink-0 rounded-full bg-primary px-2.5 py-1 text-xs font-black text-primary-foreground shadow-lg">
+                    {dragPreview.count}
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </DragOverlay>
         </DndContext>
       </div>
       {contextMenu && (

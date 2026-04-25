@@ -249,8 +249,11 @@ export function useFileActions() {
         : options?.successMessage;
       if (shouldOptimisticallyRemove) {
         removeFiles(paths);
-        const remainingSelection = Array.from(useSelectionStore.getState().selectedIds).filter((id) => !paths.includes(id));
-        setSelection(remainingSelection, remainingSelection[remainingSelection.length - 1] ?? null);
+        const currentSelection = useSelectionStore.getState().selectedIds;
+        const remainingSelection = store.files
+          .filter((file) => !paths.includes(file.path) && currentSelection.has(file.path))
+          .map((file) => file.path);
+        setSelection(remainingSelection);
       } else {
         deselectAll();
       }

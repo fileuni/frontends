@@ -27,6 +27,8 @@ type MarqueeRect = {
   height: number;
 };
 
+const MARQUEE_ACTIVATION_DISTANCE = 8;
+
 export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: Props) => {
   const { t } = useTranslation();
   const store = useFileStore();
@@ -39,6 +41,7 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
   const containerRef = React.useRef<HTMLDivElement>(null);
   const marqueeOriginRef = React.useRef<{ x: number; y: number; append: boolean } | null>(null);
   const [marqueeRect, setMarqueeRect] = React.useState<MarqueeRect | null>(null);
+  const [isMarqueeActive, setIsMarqueeActive] = React.useState(false);
 
   const updateMarqueeSelection = React.useCallback((clientX: number, clientY: number) => {
     const container = containerRef.current;
@@ -73,7 +76,7 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
     const merged = origin.append
       ? Array.from(new Set([...Array.from(selectedIds), ...hitIds]))
       : hitIds;
-    setSelection(merged, merged[merged.length - 1] ?? null);
+    setSelection(merged);
   }, [selectedIds, setSelection]);
 
   const handlePointerDown = React.useCallback((event: React.PointerEvent<HTMLDivElement>) => {
@@ -92,12 +95,19 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
   }, [deselectAll]);
 
   const handlePointerMove = React.useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    if (!marqueeOriginRef.current) return;
+    const origin = marqueeOriginRef.current;
+    if (!origin) return;
+    if (!isMarqueeActive) {
+      const distance = Math.hypot(event.clientX - origin.x, event.clientY - origin.y);
+      if (distance < MARQUEE_ACTIVATION_DISTANCE) return;
+      setIsMarqueeActive(true);
+    }
     updateMarqueeSelection(event.clientX, event.clientY);
-  }, [updateMarqueeSelection]);
+  }, [isMarqueeActive, updateMarqueeSelection]);
 
   const handlePointerUp = React.useCallback(() => {
     marqueeOriginRef.current = null;
+    setIsMarqueeActive(false);
     setTimeout(() => setMarqueeRect(null), 0);
   }, []);
 
@@ -156,7 +166,7 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
                 file={file}
                 onContextMenu={onContextMenu}
                 onAction={onAction}
-                dragDisabled={dragDisabled || marqueeRect !== null}
+                dragDisabled={dragDisabled || isMarqueeActive}
               />
             ))}
           </div>
@@ -168,7 +178,7 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
                 file={file}
                 onContextMenu={onContextMenu}
                 onAction={onAction}
-                dragDisabled={dragDisabled || marqueeRect !== null}
+                dragDisabled={dragDisabled || isMarqueeActive}
               />
             ))}
           </div>

@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { FileInfo, ViewMode, FileManagerMode, ClipboardItem } from '../types/index.ts';
 import { useAuthStore } from '@/stores/auth.ts';
-import { useSelectionStore } from './useSelectionStore.ts';
 import { storageHub } from '@/lib/storageHub';
 import { client, extractData, type components as ApiComponents } from '@/lib/api.ts';
 import { parseFileListResult } from '../utils/fileListResponse.ts';
@@ -716,7 +715,6 @@ export const useFileStore = create<FileState>()(
 
         if (activeMode === 'recent') {
           set({ files: [...fileStore.getRecentFiles()] });
-          useSelectionStore.getState().deselectAll();
           return;
         }
 
@@ -818,7 +816,6 @@ export const useFileStore = create<FileState>()(
           }
 
           set({ files: filesArray });
-          useSelectionStore.getState().deselectAll();
         } catch (_error) {
           console.error('Failed to load files:', _error);
         } finally {

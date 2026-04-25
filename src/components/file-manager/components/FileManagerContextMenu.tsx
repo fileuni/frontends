@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { useSelectionStore } from '../store/useSelectionStore.ts';
+import { getSelectionId, useSelectionStore } from '../store/useSelectionStore.ts';
 import { useFileStore } from '../store/useFileStore.ts';
 import { useConfigStore } from '@/stores/config.ts';
 import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
@@ -153,10 +153,13 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
   }, [x, y]);
 
   const isDark = theme === 'dark' || (theme === 'system' && mounted && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  const isBatch = selectedIds.size > 1;
+  const selectedPaths = files
+    .filter((file) => selectedIds.has(getSelectionId(file, fmMode)))
+    .map((file) => file.path);
   const selectionPaths = target
-    ? (isBatch ? Array.from(selectedIds) : [target.path])
+    ? (selectedPaths.length > 1 ? selectedPaths : [target.path])
     : [];
+  const isBatch = selectionPaths.length > 1;
   const selectionSummary = summarizeMountedSelection(selectionPaths, files);
   const mountedTarget = target ? isMountedEntry(target) : false;
   const mountRootTarget = target ? isMountRootEntry(target) : false;

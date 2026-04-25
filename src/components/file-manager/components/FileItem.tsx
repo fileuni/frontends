@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFileStore } from '../store/useFileStore.ts';
-import { useSelectionStore } from '../store/useSelectionStore.ts';
+import { getSelectionId, useSelectionStore } from '../store/useSelectionStore.ts';
 import { FileIcon } from './FileIcon.tsx';
 import { FileThumbnail } from './FileThumbnail.tsx';
 import { cn } from '@/lib/utils.ts';
@@ -111,13 +111,12 @@ export const FileItem = ({ file, onContextMenu, onAction, dragDisabled = false }
   const viewMode = store.getViewMode();
   const { isSelected, toggleSelection } = useSelectionStore();
 
-  const selectId = (store.fmMode === 'shares' && file.id) ? file.id : file.path;
+  const selectId = getSelectionId(file, store.fmMode);
   const selected = isSelected(selectId);
 
-  const { attributes, listeners, setNodeRef: setDraggableRef, transform, isDragging } = useDraggable({ id: selectId, data: { file }, disabled: dragDisabled });
+  const { attributes, listeners, setNodeRef: setDraggableRef, isDragging } = useDraggable({ id: selectId, data: { file }, disabled: dragDisabled });
   const { setNodeRef: setDroppableRef, isOver } = useDroppable({ id: selectId, data: { file }, disabled: !file.is_dir });
 
-  const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 1000, opacity: 0.8 } : undefined;
   const longPressTimer = React.useRef<NodeJS.Timeout | undefined>(undefined);
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -227,7 +226,7 @@ export const FileItem = ({ file, onContextMenu, onAction, dragDisabled = false }
   if (viewMode === 'grid') {
     return (
       <div
-        ref={setDropRefs} style={style} {...attributes} {...listeners}
+        ref={setDropRefs} {...attributes} {...listeners}
         onClick={handleClick} onDoubleClick={handleDoubleClick}
         onKeyDown={handleKeyDown}
         onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
@@ -236,6 +235,7 @@ export const FileItem = ({ file, onContextMenu, onAction, dragDisabled = false }
         aria-label={displayName || file.name}
         aria-selected={selected}
         data-testid="file-item"
+        data-file-content="true"
         data-file-name={displayName || file.name}
         data-file-path={file.path}
         data-select-id={selectId}
@@ -284,7 +284,7 @@ export const FileItem = ({ file, onContextMenu, onAction, dragDisabled = false }
   // List View
   return (
     <div
-      ref={setDropRefs} style={style}
+      ref={setDropRefs}
       onClick={handleClick} onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}

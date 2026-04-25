@@ -1,64 +1,75 @@
 import { create } from 'zustand';
+import type { FileInfo, FileManagerMode } from '../types/index.ts';
+
+export const getSelectionId = (
+  file: Pick<FileInfo, 'path' | 'id'>,
+  fmMode: FileManagerMode,
+): string => (fmMode === 'shares' && file.id ? file.id : file.path);
 
 interface SelectionState {
   selectedIds: Set<string>;
-  lastSelectedId: string | null;
+  rangeAnchorId: string | null;
 
   toggleSelection: (id: string, isCtrl?: boolean, isShift?: boolean, allIds?: string[]) => void;
   selectAll: (ids: string[]) => void;
-  setSelection: (ids: string[], anchorId?: string | null) => void;
+  setSelection: (ids: string[]) => void;
+  setRangeAnchor: (id: string | null) => void;
   deselectAll: () => void;
   isSelected: (id: string) => boolean;
 }
 
 export const useSelectionStore = create<SelectionState>((set, get) => ({
   selectedIds: new Set<string>(),
-  lastSelectedId: null,
+  rangeAnchorId: null,
 
-  toggleSelection: (id, isCtrl = false, isShift = false, allIds = []) => set(state => {
-    const newSelection = new Set(state.selectedIds);
-    
-    if (isShift && state.lastSelectedId && allIds.length > 0) {
-      // Shift range selection logic
-      const startIdx = allIds.indexOf(state.lastSelectedId);
+  toggleSelection: (id, isCtrl = false, isShift = false, allIds = []) => set((state) => {
+    if (isShift && state.rangeAnchorId && allIds.length > 0) {
+      const startIdx = allIds.indexOf(state.rangeAnchorId);
       const endIdx = allIds.indexOf(id);
       if (startIdx !== -1 && endIdx !== -1) {
         const [min, max] = [Math.min(startIdx, endIdx), Math.max(startIdx, endIdx)];
-        const slice = allIds.slice(min, max + 1);
-        slice.forEach(p => newSelection.add(p));
-        return { selectedIds: newSelection, lastSelectedId: id };
+        return {
+          selectedIds: new Set(allIds.slice(min, max + 1)),
+          rangeAnchorId: state.rangeAnchorId,
+        };
       }
     }
 
     if (isCtrl) {
-      // Ctrl toggle selection logic
-      if (newSelection.has(id)) {
-        newSelection.delete(id);
+      const nextSelection = new Set(state.selectedIds);
+      if (nextSelection.has(id)) {
+        nextSelection.delete(id);
       } else {
-        newSelection.add(id);
+        nextSelection.add(id);
       }
-    } else {
-      // Normal click: clear others and select current
-      newSelection.clear();
-      newSelection.add(id);
+      return {
+        selectedIds: nextSelection,
+        rangeAnchorId: state.rangeAnchorId,
+      };
     }
 
-    return { selectedIds: newSelection, lastSelectedId: id };
+    return {
+      selectedIds: new Set([id]),
+      rangeAnchorId: id,
+    };
   }),
 
-  selectAll: (ids) => set({
+  selectAll: (ids) => set((state) => ({
     selectedIds: new Set(ids),
-    lastSelectedId: ids[ids.length - 1] || null
+    rangeAnchorId: state.rangeAnchorId ?? ids[0] ?? null,
+  })),
+
+  setSelection: (ids) => set({
+    selectedIds: new Set(ids),
   }),
 
-  setSelection: (ids, anchorId = ids[ids.length - 1] || null) => set({
-    selectedIds: new Set(ids),
-    lastSelectedId: anchorId,
+  setRangeAnchor: (id) => set({
+    rangeAnchorId: id,
   }),
 
   deselectAll: () => set({
     selectedIds: new Set(),
-    lastSelectedId: null
+    rangeAnchorId: null,
   }),
 
   isSelected: (id) => get().selectedIds.has(id),
