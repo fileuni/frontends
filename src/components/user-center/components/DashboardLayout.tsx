@@ -202,7 +202,7 @@ export const DashboardLayout: React.FC<{
             )}
           >
             <IconRenderer name={item.icon} size={18} />
-            <span className={isDark ? "text-white" : "text-gray-900"}>{item.name}</span>
+            <span className={(mod === item.m && (item.p ? page === item.p : true)) ? "text-primary-foreground" : isDark ? "text-white" : "text-gray-900"}>{item.name}</span>
           </button>
         ))}
 
@@ -221,7 +221,7 @@ export const DashboardLayout: React.FC<{
             )}
           >
             <IconRenderer name="FolderOpen" size={18} />
-            <span className={isDark ? "text-white" : "text-gray-900"}>{t("nav.filemanager")}</span>
+            <span className={mod === "file-manager" ? "text-primary-foreground" : isDark ? "text-white" : "text-gray-900"}>{t("nav.filemanager")}</span>
           </button>
         )}
 
@@ -256,7 +256,7 @@ export const DashboardLayout: React.FC<{
                     )}
                   >
                     <IconRenderer name={item.icon || 'PanelLeft'} size={18} />
-                    <span className={isDark ? "text-white" : "text-gray-900"}>{item.label}</span>
+                    <span className={mod === 'plugin' && params['plugin_id'] === item.plugin_id ? "text-primary-foreground" : isDark ? "text-white" : "text-gray-900"}>{item.label}</span>
                   </button>
                 );
               })}
@@ -284,7 +284,7 @@ export const DashboardLayout: React.FC<{
                 )}
               >
                 <IconRenderer name={item.icon} size={18} />
-                <span className={isDark ? "text-white" : "text-gray-900"}>{item.name}</span>
+                <span className={(mod === item.m && (item.p ? page === item.p : true)) ? "text-white" : isDark ? "text-white" : "text-gray-900"}>{item.name}</span>
               </button>
             ))}
           </div>
