@@ -29,7 +29,6 @@ export const CertCheckModal = ({
       onClose={onClose}
       closeLabel={t('common.close') || 'Close'}
       maxWidthClassName="max-w-3xl"
-      panelClassName="dark text-white"
     >
       {!result ? (
         <div className="py-16 text-center opacity-40 font-bold tracking-widest">
@@ -69,7 +68,7 @@ export const CertCheckModal = ({
                     ? 'border-red-500/20 bg-red-500/5'
                     : it.status === 'warn'
                       ? 'border-orange-500/20 bg-orange-500/5'
-                      : 'border-white/10 bg-white/[0.03]',
+                      : 'border-zinc-200 bg-white dark:border-white/10 dark:bg-white/[0.03]',
                 )}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -98,7 +97,7 @@ export const CertCheckModal = ({
           <div className="mt-6 flex justify-end gap-3">
             <Button
               variant="outline"
-              className="h-12 rounded-2xl border-white/10 bg-white/[0.03] px-6 font-bold hover:bg-white/10"
+              className="h-12 rounded-2xl border-zinc-300 bg-white px-6 font-bold text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
               onClick={onClose}
             >
               {t('common.close') || 'Close'}

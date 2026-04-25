@@ -90,17 +90,22 @@ export const FileActionModal = ({ onSubmit }: FileActionModalProps) => {
       compact="all"
       maxWidthClassName="max-w-md"
       closeButton={(
-        <Button variant="ghost" size="sm" onClick={closeActionModal} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
-          <X size={24} className="opacity-40" />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={closeActionModal}
+          className="rounded-2xl h-12 w-12 p-0 hover:bg-zinc-100/80 dark:hover:bg-white/10 text-foreground/50 dark:text-white/40 shrink-0"
+        >
+          <X size={24} />
         </Button>
       )}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+        <div className="flex items-center gap-4 p-4 rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] shadow-inner dark:backdrop-blur-sm">
           {getIcon()}
           <Input
             ref={inputRef}
-            className="flex-1 bg-transparent border-none text-lg p-0 focus-visible:ring-0"
+            className="flex-1 border-none bg-transparent p-0 text-lg text-slate-900 dark:text-white focus-visible:ring-0"
             aria-label={actionModal.title || 'File action name'}
             data-testid="file-action-input"
             placeholder={t('filemanager.messages.enterNewName')}

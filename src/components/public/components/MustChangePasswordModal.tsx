@@ -17,16 +17,16 @@ export const MustChangePasswordModal = () => {
       onClose={() => setMustChangePasswordDismissed(true)}
       closeLabel={t('common.close') || 'Close'}
       maxWidthClassName="max-w-md"
-      panelClassName="dark border-orange-500/30 text-white"
+      panelClassName="border-orange-500/30"
     >
       <div className="space-y-6">
         <div className="flex items-start gap-4 rounded-2xl border border-orange-500/20 bg-orange-500/10 p-4">
           <AlertTriangle className="text-orange-500 shrink-0 mt-1" size={20} />
           <div>
-            <p className="mb-1 text-sm font-black leading-tight text-orange-200/90">
+            <p className="mb-1 text-sm font-black leading-tight text-orange-700 dark:text-orange-200/90">
               {t('auth.defaultPasswordWarning')}
             </p>
-            <p className="text-sm font-bold italic leading-relaxed text-orange-200/60">
+            <p className="text-sm font-bold italic leading-relaxed text-orange-800 dark:text-orange-200/60">
               {t('auth.defaultPasswordDesc')}
             </p>
           </div>
@@ -45,7 +45,7 @@ export const MustChangePasswordModal = () => {
           <Button
             variant="outline"
             type="button"
-            className="h-12 w-full border-white/10 bg-white/[0.03] text-white hover:bg-white/10"
+            className="h-12 w-full border-zinc-300 bg-white text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
             onClick={() => setMustChangePasswordDismissed(true)}
           >
             {t('common.doNotShowAgain') || 'Ignore for now'}
@@ -53,7 +53,7 @@ export const MustChangePasswordModal = () => {
           <Button
             variant="ghost"
             type="button"
-            className="w-full text-sm text-white/60 hover:bg-white/5 hover:text-white"
+            className="w-full text-sm text-slate-600 hover:bg-zinc-100/80 hover:text-slate-900 dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
             onClick={() => logout()}
           >
             {t('common.logout')}

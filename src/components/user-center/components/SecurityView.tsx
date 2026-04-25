@@ -464,7 +464,6 @@ export const SecurityView = () => {
           onClose={handleModalClose}
           closeLabel={t('common.close') || 'Close'}
           maxWidthClassName="max-w-2xl"
-          panelClassName="dark text-white"
         >
           <div className="space-y-6">
           <FormField label={t('security.targetAddress')} htmlFor={verifyTargetInputId}>
@@ -478,7 +477,7 @@ export const SecurityView = () => {
                 setBindForm((f) => ({ ...f, target: normalized }));
               }}
                 placeholder={activeModal === 'email' ? t('security.enterEmail') : t('security.enterPhone')}
-                className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/30"
+                className="border-zinc-300 bg-white text-slate-900 placeholder:text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-white/30"
               />
           </FormField>
 
@@ -500,10 +499,10 @@ export const SecurityView = () => {
           )}
 
           <div className="space-y-2">
-            <label htmlFor={verifyCodeInputId} className="ml-1 text-sm font-black tracking-widest opacity-40">{t('common.verificationCode')}</label>
+            <label htmlFor={verifyCodeInputId} className="ml-1 text-sm font-black tracking-widest text-slate-600 dark:text-white/45">{t('common.verificationCode')}</label>
             <div className="flex gap-2">
-              <Input id={verifyCodeInputId} value={bindForm.code} onChange={e => setBindForm({ ...bindForm, code: e.target.value })} placeholder={t('common.codePlaceholder')} className="flex-1 border-white/10 bg-white/[0.03] font-mono tracking-widest text-white placeholder:text-white/30" />
-              <Button type="button" variant="outline" className="h-12 whitespace-nowrap border-white/10 bg-white/[0.03] px-4 text-white hover:bg-white/10" disabled={bindForm.timer > 0 || !bindForm.target || (needCaptcha && !captchaTokenForSubmit)} onClick={() => activeModal && handleSendCode(activeModal as 'email' | 'phone')}>
+              <Input id={verifyCodeInputId} value={bindForm.code} onChange={e => setBindForm({ ...bindForm, code: e.target.value })} placeholder={t('common.codePlaceholder')} className="flex-1 border-zinc-300 bg-white font-mono tracking-widest text-slate-900 placeholder:text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-white/30" />
+              <Button type="button" variant="outline" className="h-12 whitespace-nowrap border-zinc-300 bg-white px-4 text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10" disabled={bindForm.timer > 0 || !bindForm.target || (needCaptcha && !captchaTokenForSubmit)} onClick={() => activeModal && handleSendCode(activeModal as 'email' | 'phone')}>
                 {bindForm.timer > 0 ? `${bindForm.timer}s` : <><Send size={16} className="mr-2" /> {t('security.send')}</>}
               </Button>
             </div>
@@ -522,7 +521,6 @@ export const SecurityView = () => {
           onClose={handleModalClose}
           closeLabel={t('common.close') || 'Close'}
           maxWidthClassName="max-w-xl"
-          panelClassName="dark text-white"
         >
           <PasswordChangeForm onSuccess={handleModalClose} />
         </GlassModalShell>
@@ -535,19 +533,19 @@ export const SecurityView = () => {
           onClose={handleModalClose}
           closeLabel={t('common.close') || 'Close'}
           maxWidthClassName="max-w-xl"
-          panelClassName="dark border-red-500/30 text-white"
+          panelClassName="border-red-500/30"
         >
           <div className="space-y-6 text-center">
-          <p className="text-sm font-bold opacity-60">{t('security.typePhrase')}</p>
-          <div className="rounded-lg border border-white/5 bg-white/5 p-3 text-sm font-black text-red-400 font-mono select-all">
+          <p className="text-sm font-bold text-slate-600 dark:text-white/60">{t('security.typePhrase')}</p>
+          <div className="rounded-lg border border-red-500/20 bg-red-50 p-3 text-sm font-black text-red-500 font-mono select-all dark:border-white/5 dark:bg-white/5 dark:text-red-400">
             {t('auth.deleteConfirmPhrase')}
           </div>
-          <Input value={deleteConfirm.phrase} onChange={e => setDeleteConfirm({ ...deleteConfirm, phrase: e.target.value })} placeholder={t('security.phrasePlaceholder')} className="border-red-500/20 bg-white/[0.03] text-center font-bold text-white placeholder:text-white/30 focus:border-red-500" />
+          <Input value={deleteConfirm.phrase} onChange={e => setDeleteConfirm({ ...deleteConfirm, phrase: e.target.value })} placeholder={t('security.phrasePlaceholder')} className="border-red-500/20 bg-white text-center font-bold text-slate-900 placeholder:text-slate-500 shadow-sm focus:border-red-500 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-white/30" />
           <PasswordInput
             value={deleteConfirm.password}
             onChange={e => setDeleteConfirm({ ...deleteConfirm, password: e.target.value })}
             placeholder={t('security.currentPassword')}
-            inputClassName="border-red-500/20 bg-white/[0.03] text-center text-white placeholder:text-white/30 focus:border-red-500"
+            inputClassName="border-red-500/20 bg-white text-center text-slate-900 placeholder:text-slate-500 shadow-sm focus:border-red-500 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-white/30"
           />
           <Button className="w-full h-14 bg-red-500 hover:bg-red-600 text-white shadow-red-500/20" disabled={deleteConfirm.phrase !== t('auth.deleteConfirmPhrase') || !deleteConfirm.password}>
             {t('security.deleteEverything')}

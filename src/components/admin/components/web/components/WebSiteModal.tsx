@@ -71,24 +71,23 @@ export const WebSiteModal = ({
       onClose={onClose}
       closeLabel={t('common.close') || 'Close'}
       maxWidthClassName="max-w-5xl"
-      panelClassName="dark text-white"
     >
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <div className="rounded-2xl border border-border bg-background/60 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <div className="text-sm font-black tracking-wider opacity-50">{t('admin.web.form.routeMode')}</div>
             <div className="mt-2 text-sm font-bold">{draft.route_mode === 'proxy' ? t('admin.web.form.proxy') : t('admin.web.form.static')}</div>
             <div className="mt-1 text-sm opacity-60 break-all">{routeTarget || '-'}</div>
           </div>
-          <div className="rounded-2xl border border-border bg-background/60 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <div className="text-sm font-black tracking-wider opacity-50">{t('admin.web.form.bindings')}</div>
             <div className="mt-2 text-sm font-bold break-words">{bindingAddresses.join(', ') || '-'}</div>
           </div>
-          <div className="rounded-2xl border border-border bg-background/60 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <div className="text-sm font-black tracking-wider opacity-50">{t('admin.web.form.hostnames')}</div>
             <div className="mt-2 text-sm font-bold break-words">{bindingHostnames.join(', ') || '-'}</div>
           </div>
-          <div className="rounded-2xl border border-border bg-background/60 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <div className="text-sm font-black tracking-wider opacity-50">{t('admin.web.form.tlsAcmeCert')}</div>
             <div className="mt-2 text-sm font-bold break-all">{tlsSummary || '-'}</div>
           </div>
@@ -127,7 +126,7 @@ export const WebSiteModal = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-border p-4 space-y-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-4 space-y-3 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.enabled')}</span>
               <Switch checked={draft.enabled} onChange={(v) => setDraft({ ...draft, enabled: v })} />
@@ -138,7 +137,7 @@ export const WebSiteModal = ({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border p-4 space-y-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-4 space-y-3 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             {draft.route_mode === 'static' ? (
               <>
                 <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.staticRoot')}</div>
@@ -162,10 +161,10 @@ export const WebSiteModal = ({
                     {testing ? <RefreshCw size={18} className="animate-spin" /> : <Network size={18} />}
                   </Button>
                 </div>
-                <div className="rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm font-bold opacity-70 break-all">
+                <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-bold text-slate-700 break-all dark:border-white/10 dark:bg-white/[0.03] dark:text-white/70">
                   {draft.proxy_upstream.trim() || '-'}
                 </div>
-                <div className="rounded-xl border border-border p-3 mt-2">
+                <div className="mt-2 rounded-xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.proxyTlsInsecure')}</span>
                     <Switch
@@ -183,7 +182,7 @@ export const WebSiteModal = ({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border p-4 space-y-3">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-4 space-y-3 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-black tracking-wider">{t('admin.web.form.bindings')}</h3>
             <Button type="button" variant="outline" size="sm" onClick={onAddBinding}>
@@ -193,7 +192,7 @@ export const WebSiteModal = ({
 
           <div className="space-y-3">
             {draft.bindings.map((binding, index) => (
-              <div key={`${binding.listen_ip}:${binding.listen_port}:${binding.hostnames.join('|')}:${binding.is_default ? 'default' : 'normal'}`} className="space-y-3 rounded-2xl border border-border bg-background/60 p-4">
+              <div key={`${binding.listen_ip}:${binding.listen_port}:${binding.hostnames.join('|')}:${binding.is_default ? 'default' : 'normal'}`} className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-sm font-black tracking-wider">{t('admin.web.form.bindings')} {index + 1}</div>
@@ -255,7 +254,7 @@ export const WebSiteModal = ({
           )}
         </div>
 
-        <div className="rounded-2xl border border-border p-4 space-y-3">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-4 space-y-3 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-black tracking-wider">{t('admin.web.diagnostics.title')}</h3>
             <span className="text-sm font-bold opacity-60">
@@ -329,7 +328,7 @@ export const WebSiteModal = ({
             <div className="space-y-2">
               <div className="text-sm font-bold tracking-wider opacity-70">{t('admin.web.form.tlsAcmeCert')}</div>
               <select
-                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm"
+                className="h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm text-slate-900 shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                 value={draft.tls_acme_cert_id}
                 onChange={(e) => setDraft({ ...draft, tls_acme_cert_id: e.target.value })}
               >

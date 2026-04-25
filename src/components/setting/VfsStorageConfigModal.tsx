@@ -521,28 +521,17 @@ export const VfsStorageConfigModal: React.FC<VfsStorageConfigModalProps> = ({
       onClose={onClose}
       maxWidthClassName="max-w-5xl"
       panelClassName={cn(
-        "rounded-2xl shadow-lg overflow-hidden",
-        isDark
-          ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5"
-          : "bg-white border-gray-200 text-slate-900"
+        "rounded-2xl shadow-lg overflow-hidden"
       )}
       bodyClassName="p-4 sm:p-6 space-y-4"
-      overlayClassName={cn(
-        "backdrop-blur-sm transition-colors",
-        isDark ? "bg-black/95" : "bg-slate-900/80"
-      )}
+      overlayClassName="backdrop-blur-sm transition-colors"
       zIndexClassName="z-[150]"
       containerClassName="p-2 sm:p-4"
       closeButton={(
         <button
           type="button"
           onClick={onClose}
-          className={cn(
-            "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors",
-            isDark
-              ? "border-white/15 text-slate-300 hover:bg-white/10"
-              : "border-gray-200 text-slate-600 hover:bg-gray-100"
-          )}
+          className="h-8 w-8 rounded-lg border border-[hsl(var(--modal-glass-border))] text-[hsl(var(--modal-glass-close-foreground))] inline-flex items-center justify-center transition-colors hover:bg-[hsl(var(--modal-glass-close-hover-bg))]"
         >
           <X size={16} />
         </button>

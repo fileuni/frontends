@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
+import { DndContext, PointerSensor, pointerWithin, rectIntersection, useSensor, useSensors, type CollisionDetection, type DragCancelEvent, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
 import { FileManagerToolbar } from "./FileManagerToolbar.tsx";
 import { FileBrowser } from "./FileBrowser.tsx";
 import { FileManagerContextMenu } from "./FileManagerContextMenu.tsx";
@@ -76,6 +76,13 @@ export const FileManagerView = () => {
   const previewPath = params['preview_path'];
   const { addToast } = useToastStore();
   const { selectedIds, deselectAll, selectAll } = useSelectionStore();
+  const collisionDetection = useCallback<CollisionDetection>((args) => {
+    const pointerCollisions = pointerWithin(args);
+    if (pointerCollisions.length > 0) {
+      return pointerCollisions;
+    }
+    return rectIntersection(args);
+  }, []);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -230,25 +237,43 @@ export const FileManagerView = () => {
     const activeFile = event.active.data.current?.['file'];
     const nextDraggingFile = activeFile && typeof activeFile === 'object' ? activeFile as FileInfo : null;
     draggingFileRef.current = nextDraggingFile;
-    draggingPathsRef.current = resolveDraggedPaths(nextDraggingFile);
+    const currentSelection = useSelectionStore.getState().selectedIds;
+    const activePath = nextDraggingFile?.path;
+    const selectedPaths = activePath && currentSelection.has(activePath)
+      ? Array.from(currentSelection).filter((path): path is string => typeof path === 'string' && path.length > 0)
+      : [];
+    draggingPathsRef.current = normalizeDraggedPaths(selectedPaths.length > 0 ? selectedPaths : resolveDraggedPaths(nextDraggingFile));
+
+    if (nextDraggingFile && draggingPathsRef.current.length > 1) {
+      useSelectionStore.getState().setSelection(draggingPathsRef.current, nextDraggingFile.path);
+    }
   }, [resolveDraggedPaths]);
+
+  const resetDraggingState = useCallback(() => {
+    draggingFileRef.current = null;
+    draggingPathsRef.current = [];
+  }, []);
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const draggedFile = draggingFileRef.current;
     const draggedPaths = draggingPathsRef.current;
-    draggingFileRef.current = null;
-    draggingPathsRef.current = [];
-
-    if (fmMode !== 'files') return;
-
     const dropData = event.over?.data.current;
     const targetFile = dropData?.['file'];
     const navigationPath = dropData?.['path'];
-    const targetDir = typeof navigationPath === 'string' && navigationPath.length > 0
-      ? navigationPath
-      : targetFile && typeof targetFile === 'object' && (targetFile as FileInfo).is_dir
-        ? (targetFile as FileInfo).path
-        : null;
+    const navDropPathFromDom = event.over?.rect && event.activatorEvent instanceof MouseEvent
+      ? document.elementFromPoint(event.activatorEvent.clientX, event.activatorEvent.clientY)?.closest<HTMLElement>('[data-nav-drop-path]')?.dataset['navDropPath']
+      : null;
+    resetDraggingState();
+
+    if (fmMode !== 'files') return;
+
+    const targetDir = typeof navDropPathFromDom === 'string' && navDropPathFromDom.length > 0
+      ? navDropPathFromDom
+      : typeof navigationPath === 'string' && navigationPath.length > 0
+        ? navigationPath
+        : targetFile && typeof targetFile === 'object' && (targetFile as FileInfo).is_dir
+          ? (targetFile as FileInfo).path
+          : null;
     if (!targetDir) return;
 
     if (!draggedFile || draggedPaths.length === 0) return;
@@ -267,8 +292,18 @@ export const FileManagerView = () => {
     });
     if (hasInvalidDrop) return;
 
-    void batchMove(draggedPaths, targetDir, { optimistic: true, successMessage: t('filemanager.messages.movedSuccess') });
-  }, [addToast, batchMove, files, fmMode, isNoOpDrop, resolveDraggedPaths, t]);
+    void batchMove(draggedPaths, targetDir, {
+      optimistic: true,
+      successMessageFactory: (paths, destination) => {
+        const sourceLabel = paths.length === 1 ? paths[0] : `${paths[0]} (+${paths.length - 1})`;
+        return `${t('filemanager.messages.movedSuccess')}\n${sourceLabel} → ${destination}`;
+      },
+    });
+  }, [addToast, batchMove, files, fmMode, isNoOpDrop, resetDraggingState, t]);
+
+  const handleDragCancel = useCallback((_event: DragCancelEvent) => {
+    resetDraggingState();
+  }, [resetDraggingState]);
 
   useEffect(() => {
     if (!isReady || officePath || previewPath) return;
@@ -630,7 +665,7 @@ export const FileManagerView = () => {
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background">
       {!isMinimal && <FileManagerTabs />}
       <div className="flex flex-col flex-1 overflow-hidden bg-background px-4">
-        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext collisionDetection={collisionDetection} sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
           <div className={cn(
             "shrink-0 rounded-[1.25rem] border",
             isDark

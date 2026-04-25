@@ -67,12 +67,11 @@ export const CertPlanModal = ({
       onClose={onClose}
       closeLabel={t('common.close') || 'Close'}
       maxWidthClassName="max-w-5xl"
-      panelClassName="dark text-white"
       footer={(
         <div className="flex justify-end">
           <Button
             variant="outline"
-            className="h-12 rounded-2xl border-white/10 bg-white/[0.03] px-6 font-bold hover:bg-white/10"
+            className="h-12 rounded-2xl border-zinc-300 bg-white px-6 font-bold text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
             onClick={onClose}
           >
             {t('common.close') || 'Close'}
@@ -115,7 +114,7 @@ export const CertPlanModal = ({
                 variant="outline"
                 onClick={onRefresh}
                 disabled={loading}
-                className="h-11 rounded-2xl border-white/10 bg-white/[0.03] px-5 font-bold hover:bg-white/10"
+                className="h-11 rounded-2xl border-zinc-300 bg-white px-5 font-bold text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
               >
                 <Activity size={16} className={cn('mr-2', loading && 'animate-spin')} />
                 {t('common.refresh') || 'Refresh'}
@@ -192,7 +191,7 @@ export const CertPlanModal = ({
                             <button
                               type="button"
                               onClick={() => onOpenLogs(it.id)}
-                              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] transition-all hover:bg-blue-500 hover:text-white"
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-300 bg-white text-slate-700 shadow-sm transition-all hover:bg-blue-500 hover:text-white dark:border-white/10 dark:bg-white/[0.03] dark:text-white/70"
                               title={t('admin.domain.certLogs') || 'Logs'}
                             >
                               <ScrollText size={16} className="opacity-70" />

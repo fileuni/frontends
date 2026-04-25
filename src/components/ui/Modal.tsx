@@ -35,21 +35,21 @@ export const Modal = ({
       onClose={effectiveOnClose}
       maxWidthClassName={maxWidth}
       panelClassName={cn(
-        "rounded-2xl border-2 bg-background text-foreground border-border shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300",
+        "rounded-2xl border-2 shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300",
         className
       )}
       bodyClassName={cn(
-        "p-4 px-4 sm:px-6 bg-background",
+        "p-4 px-4 sm:px-6",
         bodyClassName
       )}
-      overlayClassName="bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+      overlayClassName="backdrop-blur-sm animate-in fade-in duration-300"
       zIndexClassName="z-[110]"
       containerClassName="p-2 sm:p-4"
       closeButton={hideCloseButton ? null : (
         <button
           type="button"
           onClick={onClose}
-          className="p-2 rounded-full transition-all opacity-50 hover:opacity-100 hover:bg-muted"
+          className="p-2 rounded-full transition-all opacity-50 hover:opacity-100"
         >
           <X size={18} />
         </button>

@@ -65,9 +65,8 @@ export const RowActionsModal = ({
       onClose={onClose}
       closeLabel={t('common.close') || 'Close'}
       maxWidthClassName="max-w-md"
-      panelClassName="text-white"
     >
-      <div className={cn(glassSectionCardBase, 'p-5')}>
+      <div className={cn(glassSectionCardBase, 'p-5 text-slate-900 dark:text-white')}>
         <div className="text-sm font-black tracking-widest opacity-60">
           {target.kind === 'ddns' ? 'DDNS' : 'SSL/TLS'}
         </div>
@@ -80,7 +79,7 @@ export const RowActionsModal = ({
           {viewEnabled && target.kind === 'ddns' && (
             <Button
               variant="outline"
-              className="h-12 justify-start rounded-2xl border-white/10 bg-white/[0.03] font-bold hover:bg-white/10"
+              className="h-12 justify-start rounded-2xl border-zinc-300 bg-white font-bold text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
               onClick={async () => {
                 const id = target.item.id;
                 onClose();
@@ -96,7 +95,7 @@ export const RowActionsModal = ({
           {target.kind === 'ddns' && (
             <Button
               variant="outline"
-              className="h-12 justify-start rounded-2xl border-white/10 bg-white/[0.03] font-bold hover:bg-white/10"
+              className="h-12 justify-start rounded-2xl border-zinc-300 bg-white font-bold text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
               onClick={async () => {
                 const id = target.item.id;
                 onClose();
@@ -112,7 +111,7 @@ export const RowActionsModal = ({
           {target.kind === 'ddns' && (
             <Button
               variant="outline"
-              className="h-12 justify-start rounded-2xl border-white/10 bg-white/[0.03] font-bold hover:bg-white/10"
+              className="h-12 justify-start rounded-2xl border-zinc-300 bg-white font-bold text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
               onClick={async () => {
                 const id = target.item.id;
                 onClose();
@@ -128,7 +127,7 @@ export const RowActionsModal = ({
           {viewEnabled && target.kind === 'ssl' && (
             <Button
               variant="outline"
-              className="h-12 justify-start rounded-2xl border-white/10 bg-white/[0.03] font-bold hover:bg-white/10"
+              className="h-12 justify-start rounded-2xl border-zinc-300 bg-white font-bold text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
               onClick={async () => {
                 const id = target.item.id;
                 onClose();
@@ -144,7 +143,7 @@ export const RowActionsModal = ({
           {target.kind === 'ssl' && (
             <Button
               variant="outline"
-              className="h-12 justify-start rounded-2xl border-white/10 bg-white/[0.03] font-bold hover:bg-white/10"
+              className="h-12 justify-start rounded-2xl border-zinc-300 bg-white font-bold text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
               onClick={async () => {
                 const id = target.item.id;
                 onClose();
@@ -176,7 +175,7 @@ export const RowActionsModal = ({
           {viewEnabled && (
             <Button
               variant="outline"
-              className="h-12 justify-start rounded-2xl border-white/10 bg-white/[0.03] font-bold hover:bg-white/10"
+              className="h-12 justify-start rounded-2xl border-zinc-300 bg-white font-bold text-slate-800 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/10"
               onClick={() => {
                 const current = target;
                 onClose();
@@ -192,7 +191,7 @@ export const RowActionsModal = ({
           {viewEnabled && (
             <Button
               variant="outline"
-              className="h-12 justify-start rounded-2xl border-red-500/30 bg-white/[0.03] font-bold text-red-400 hover:bg-red-500 hover:text-white"
+              className="h-12 justify-start rounded-2xl border-red-500/30 bg-white font-bold text-red-500 shadow-sm hover:bg-red-500 hover:text-white dark:bg-white/[0.03] dark:text-red-400"
               onClick={async () => {
                 const current = target;
                 onClose();

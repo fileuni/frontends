@@ -19,7 +19,7 @@ export const selectStyle = {
 } as const;
 
 export const glassControlBase =
-  'h-11 rounded-2xl border border-white/10 bg-white/[0.03] px-3 text-sm font-bold text-white outline-none transition-all placeholder:text-white/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20';
+  'h-11 rounded-2xl border border-zinc-300 bg-white px-3 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-500 shadow-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/20 dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-white/30';
 
 export const glassSelectBase = cn(
   glassControlBase,
@@ -31,7 +31,7 @@ export const sectionCardBase =
 
 export const glassSectionCardBase = cn(
   sectionCardBase,
-  'bg-white/[0.03] border-white/10 text-white shadow-none',
+  'bg-white border-zinc-200 text-slate-900 shadow-sm dark:bg-white/[0.03] dark:border-white/10 dark:text-white dark:shadow-none',
 );
 
 export const normalizeStatus = (

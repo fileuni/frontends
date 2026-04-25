@@ -31,26 +31,16 @@ export const PerformanceProfilePickerModal: React.FC<
       subtitle={t("admin.config.quickSettings.performance.loadProfile.desc")}
       onClose={onClose}
       maxWidthClassName="max-w-xl"
-      panelClassName={cn(
-        "rounded-2xl shadow-lg",
-        isDark
-          ? "bg-slate-950 border-white/10 text-slate-100"
-          : "bg-white border-slate-200 text-slate-900"
-      )}
+      panelClassName="rounded-2xl shadow-lg"
       bodyClassName="p-4"
-      overlayClassName="bg-black/70"
+      overlayClassName="backdrop-blur-sm transition-colors"
       zIndexClassName={zIndexClassName}
       containerClassName="p-4"
       closeButton={(
         <button
           type="button"
           onClick={onClose}
-          className={cn(
-            "inline-flex h-10 w-10 items-center justify-center rounded-xl border",
-            isDark
-              ? "border-white/10 bg-white/[0.03] text-slate-100"
-              : "border-slate-200 bg-slate-50 text-slate-800"
-          )}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[hsl(var(--modal-glass-border))] text-[hsl(var(--modal-glass-close-foreground))] transition-colors hover:bg-[hsl(var(--modal-glass-close-hover-bg))]"
           aria-label={t("common.close")}
           title={t("common.close")}
         >
@@ -74,8 +64,8 @@ export const PerformanceProfilePickerModal: React.FC<
                 active
                   ? "border-primary bg-primary/10 text-primary shadow-sm shadow-primary/10"
                   : isDark
-                    ? "border-white/10 bg-slate-950/40 text-slate-200 hover:bg-white/[0.04]"
-                    : "border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100",
+                    ? "border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.06]"
+                    : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50 shadow-sm",
               )}
             >
               <div className="text-sm font-black">
@@ -90,7 +80,7 @@ export const PerformanceProfilePickerModal: React.FC<
                     ? "text-primary/90"
                     : isDark
                       ? "text-slate-300"
-                      : "text-slate-500",
+                      : "text-slate-600",
                 )}
               >
                 {profile === "low-concurrency"

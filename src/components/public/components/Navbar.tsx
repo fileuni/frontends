@@ -276,8 +276,8 @@ export const Navbar = () => {
                     );
                     const commonClass = cn(
                       "flex min-h-11 items-center gap-4 px-4 py-3 rounded-2xl text-sm font-black transition-all w-full text-left min-w-0",
-                      item.active 
-                        ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                      item.active
+                        ? "bg-primary !text-white shadow-lg shadow-primary/20"
                         : cn("opacity-60 hover:opacity-100", isDark ? "hover:bg-white/5" : "hover:bg-gray-100"),
                       item.className
                     );

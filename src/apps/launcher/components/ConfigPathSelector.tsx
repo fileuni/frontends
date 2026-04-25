@@ -143,8 +143,8 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
   return (
     <GlassModalShell
       title={(
-        <div className="flex items-center gap-4 text-white min-w-0">
-          <div className="bg-white/10 p-2 rounded-xl backdrop-blur-md shadow-inner shrink-0">
+        <div className="flex min-w-0 items-center gap-4 text-slate-950 dark:text-white">
+          <div className="rounded-xl bg-primary/10 p-2 shadow-inner shrink-0">
             <img
               src="/favicon.svg"
               alt="FileUni Logo"
@@ -157,7 +157,7 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
             <h2 className="text-lg font-bold tracking-tight truncate">
               {t("systemConfig.configSelector.title")}
             </h2>
-            <p className="text-sm text-blue-100/80 truncate">
+            <p className="truncate text-sm text-slate-600 dark:text-white/70">
               {t("systemConfig.configSelector.subtitle")}
             </p>
           </div>
@@ -165,24 +165,16 @@ export const ConfigPathSelector: React.FC<ConfigPathSelectorProps> = ({
       )}
       onClose={effectiveOnClose}
       maxWidthClassName="max-w-lg"
-      panelClassName={cn(
-        "rounded-2xl shadow-2xl animate-in zoom-in duration-300 overflow-hidden",
-        isDark
-          ? "bg-slate-950 border border-white/10 ring-1 ring-white/5"
-          : "bg-white border border-gray-200",
-      )}
+      panelClassName="rounded-2xl shadow-2xl animate-in zoom-in duration-300 overflow-hidden"
       bodyClassName="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-4 sm:p-6 space-y-5"
-      overlayClassName={cn(
-        "animate-in fade-in duration-300",
-        isDark ? "bg-black/95" : "bg-slate-900/80",
-      )}
+      overlayClassName="animate-in fade-in duration-300"
       zIndexClassName="z-[220]"
       containerClassName="p-2 sm:p-4"
       closeButton={canClose ? (
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-all"
+          className="absolute top-4 right-4 rounded-lg p-2 text-slate-500 transition-all hover:bg-zinc-100 hover:text-slate-900 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
         >
           <X size={20} />
         </button>

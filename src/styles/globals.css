@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @source "../**/*.{astro,html,js,jsx,ts,tsx}";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
@@ -19,6 +20,16 @@
     --input-border-focus: 201 100% 39%;
     --input-placeholder: 215 16% 58%;
     --input-disabled-foreground: 215 14% 57%;
+    --modal-glass-bg: 0 0% 100%;
+    --modal-glass-foreground: 222.2 84% 4.9%;
+    --modal-glass-muted-foreground: 215 22% 30%;
+    --modal-glass-border: 214 28% 88%;
+    --modal-glass-header-bg: 210 33% 99%;
+    --modal-glass-footer-bg: 210 33% 99%;
+    --modal-glass-overlay: 215 25% 10% / 0.38;
+    --modal-glass-close-foreground: 215 16% 42%;
+    --modal-glass-close-hover-bg: 210 40% 96%;
+    --modal-glass-shadow: 15 23 42;
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-right: env(safe-area-inset-right, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -58,6 +69,16 @@
     --input-border-focus: 199 89% 48%;
     --input-placeholder: 215 15% 54%;
     --input-disabled-foreground: 215 12% 44%;
+    --modal-glass-bg: 222 47% 8%;
+    --modal-glass-foreground: 210 40% 98%;
+    --modal-glass-muted-foreground: 215 20.2% 65.1%;
+    --modal-glass-border: 0 0% 100% / 0.1;
+    --modal-glass-header-bg: 0 0% 100% / 0.03;
+    --modal-glass-footer-bg: 0 0% 100% / 0.02;
+    --modal-glass-overlay: 0 0% 0% / 0.6;
+    --modal-glass-close-foreground: 215 20.2% 65.1%;
+    --modal-glass-close-hover-bg: 0 0% 100% / 0.1;
+    --modal-glass-shadow: 2 6 23;
   }
 
   select {

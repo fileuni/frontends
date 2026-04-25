@@ -1156,17 +1156,16 @@ export function Launcher() {
             onClose={() => setInitializationResult(null)}
             closeLabel={t("common.close") || "Close"}
             maxWidthClassName="max-w-lg"
-            panelClassName="dark text-white"
           >
             <div className="space-y-4">
-              <p className="text-sm leading-6 text-slate-300">
+              <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
                 {t("launcher.runtime_config_missing_accept")}
               </p>
-              <div className="rounded-2xl bg-slate-800/80 px-4 py-3 text-sm font-mono break-all text-slate-200">
+              <div className="rounded-2xl bg-zinc-50 px-4 py-3 text-sm font-mono break-all text-slate-800 shadow-sm dark:bg-slate-800/80 dark:text-slate-200">
                 {initializationResult.config_path}
               </div>
               {initializationResult.admin_username && (
-                <div className="rounded-2xl border border-slate-700/60 p-4 space-y-2 text-sm text-slate-200">
+                <div className="rounded-2xl border border-zinc-200 p-4 space-y-2 text-sm text-slate-800 shadow-sm dark:border-slate-700/60 dark:text-slate-200">
                   <p>
                     {initializationResult.users_table_preexisting
                       ? `First admin: ${initializationResult.admin_username}`
@@ -1184,7 +1183,7 @@ export function Launcher() {
                     void handleStart();
                     setInitializationResult(null);
                   }}
-                  className="px-4 py-2.5 rounded-xl text-sm font-bold border border-slate-700 text-slate-200 hover:bg-slate-800 transition-all"
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold border border-zinc-300 bg-white text-slate-800 shadow-sm transition-all hover:bg-zinc-50 dark:border-slate-700 dark:bg-transparent dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   {t("launcher.start_service")}
                 </button>
@@ -1206,7 +1205,6 @@ export function Launcher() {
             onClose={() => setIsAdminResetOpen(false)}
             closeLabel={t("common.close") || "Close"}
             maxWidthClassName="max-w-md"
-            panelClassName="dark text-white"
           >
           <div className="space-y-4">
             <label className="block space-y-2">
@@ -1216,7 +1214,7 @@ export function Launcher() {
               <input
                 value={pendingAdminUsername}
                 onChange={(event) => setPendingAdminUsername(event.target.value)}
-                className="h-12 w-full rounded-xl border border-slate-700 bg-slate-900 px-4 text-base font-semibold text-slate-100 outline-none"
+                className="h-12 w-full rounded-xl border border-zinc-300 bg-white px-4 text-base font-semibold text-slate-900 outline-none shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               />
             </label>
             <label className="block space-y-2">
@@ -1226,17 +1224,17 @@ export function Launcher() {
               <PasswordInput
                 value={pendingAdminPassword}
                 onChange={(event) => setPendingAdminPassword(event.target.value)}
-                inputClassName="bg-white/[0.03] text-white placeholder:text-white/30"
+                inputClassName="border-zinc-300 bg-white text-slate-900 placeholder:text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-white/30"
               />
             </label>
-            <p className="text-sm leading-6 text-slate-300">
+            <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
               {t("systemConfig.setup.admin.resetRuleHint")}
             </p>
             <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setIsAdminResetOpen(false)}
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:bg-slate-800 transition-colors"
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 transition-colors hover:bg-zinc-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 {t("common.cancel")}
               </button>

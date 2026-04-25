@@ -304,9 +304,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                           ? "flex w-full items-center justify-center rounded-xl px-2 py-3 text-left text-sm font-black transition-colors min-h-11"
                           : "flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left text-sm font-black transition-colors min-h-11",
                         active
-                          ? isDark
-                            ? "bg-cyan-500/15 text-cyan-100"
-                            : "bg-cyan-100 text-cyan-950"
+                          ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                           : isDark
                             ? "text-slate-200 hover:bg-white/5"
                             : "text-slate-700 hover:bg-white",
@@ -316,12 +314,10 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                           className={cn(
                             "flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl",
                             active
-                              ? isDark
-                                ? "bg-cyan-500/20 text-cyan-100"
-                              : "bg-cyan-100 text-cyan-800"
-                            : isDark
-                              ? "bg-white/10 text-slate-200"
-                              : "bg-slate-100 text-slate-700",
+                              ? "bg-primary/15 text-primary-foreground"
+                              : isDark
+                                ? "bg-white/10 text-slate-200"
+                                : "bg-slate-100 text-slate-700",
                         )}
                       >
                         <Icon size={15} />
@@ -353,9 +349,7 @@ export const SettingOverview: React.FC<SettingOverviewProps> = ({
                     <div
                       className={cn(
                         "flex h-10 w-10 items-center justify-center rounded-2xl",
-                        isDark
-                          ? "bg-cyan-500/20 text-cyan-100"
-                          : "bg-cyan-100 text-cyan-800",
+                        "bg-primary/15 text-primary",
                       )}
                     >
                       {ActiveIcon && <ActiveIcon size={18} />}

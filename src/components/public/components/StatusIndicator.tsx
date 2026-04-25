@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import {
   useFileStore,
   type TaskState,
@@ -113,6 +114,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
   const [chatRooms, setChatRooms] = useState<ChatRoomSummary[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const desktopPanelRef = useRef<HTMLDivElement | null>(null);
 
@@ -149,6 +151,10 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
     () => tasks.some((task) => task.status === 'success' || task.status === 'failed' || task.status === 'interrupted'),
     [tasks],
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -406,7 +412,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
         )}
       </button>
 
-      {isOpen && (
+      {isOpen && mounted && createPortal(
         <>
           <button
             type="button"
@@ -418,7 +424,7 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
           <div
             ref={desktopPanelRef}
             className={cn(
-              'absolute right-0 top-full z-[130] mt-3 hidden w-[min(28rem,calc(100vw-2rem))] overflow-hidden rounded-[1.5rem] border shadow-[0_20px_50px_rgba(0,0,0,0.28)] md:flex md:max-h-[min(80vh,42rem)] md:flex-col',
+              'fixed right-4 top-19 z-[130] hidden w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-[1.25rem] border shadow-[0_18px_42px_rgba(0,0,0,0.24)] md:flex md:max-h-[min(78vh,38rem)] md:flex-col',
               isDark
                 ? 'border-white/10 bg-zinc-950 text-white'
                 : 'border-gray-200 bg-white text-gray-900',
@@ -455,16 +461,16 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
             </BellPanelContent>
           </div>
 
-          <div className="fixed inset-x-0 bottom-0 top-16 z-[130] flex items-end overflow-hidden px-2 pb-2 md:hidden">
+          <div className="fixed inset-x-0 top-16 z-[130] overflow-hidden px-2 pt-2 md:hidden">
             <button
               type="button"
               aria-label={t('common.close', { defaultValue: 'Close' })}
               onClick={() => setIsOpen(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+              className="fixed inset-0 bg-black/40 backdrop-blur-[2px]"
             />
             <div
               className={cn(
-                'relative flex h-[min(calc(100dvh-5rem),36rem)] w-full max-w-full flex-col overflow-hidden rounded-[1.25rem] border shadow-2xl',
+                'relative ml-auto flex h-[min(calc(100dvh-6rem),32rem)] w-full max-w-full flex-col overflow-hidden rounded-[1.125rem] border shadow-[0_18px_42px_rgba(0,0,0,0.22)]',
                 isDark
                   ? 'border-white/10 bg-zinc-950 text-white'
                   : 'border-gray-200 bg-white text-gray-900',
@@ -501,7 +507,8 @@ export const StatusIndicator = ({ isDark }: { isDark: boolean }) => {
               </BellPanelContent>
             </div>
           </div>
-        </>
+        </>,
+        document.body,
       )}
     </div>
   );
@@ -512,6 +519,13 @@ interface BellTabDefinition {
   label: string;
   count: number;
 }
+
+const formatTabCount = (count: number): string => {
+  if (count > 99) {
+    return '99+';
+  }
+  return String(count);
+};
 
 interface BellPanelAction {
   visible: boolean;
@@ -543,15 +557,15 @@ const BellPanelContent = ({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className={cn(
-        'shrink-0 border-b px-3 pb-2.5 pt-2.5 md:px-4 md:pb-3 md:pt-3',
+        'shrink-0 border-b px-3 pb-2 pt-2 md:px-4 md:pb-2.5 md:pt-2.5',
         isDark ? 'border-white/10' : 'border-gray-200',
       )}>
-        <div className="mb-2.5 flex items-start justify-between gap-3 md:mb-3">
+        <div className="mb-2 flex items-start justify-between gap-3 md:mb-2.5">
           <div className="min-w-0">
-            <p className="text-sm font-black tracking-wide md:text-[15px]">
+            <p className="text-[13px] font-black tracking-wide md:text-sm">
               {t('common.notifications', { defaultValue: 'Notifications' })}
             </p>
-            <p className="mt-0.5 text-[13px] opacity-50 md:mt-1 md:text-[14px]">
+            <p className="mt-0.5 text-xs opacity-45 md:text-[13px]">
               {activeTab === 'tasks'
                 ? t('filemanager.task.center')
                 : activeTab === 'chat'
@@ -563,7 +577,7 @@ const BellPanelContent = ({
             type="button"
             onClick={onClose}
             className={cn(
-              'flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border transition-colors md:h-10 md:w-10',
+              'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border transition-colors md:h-9 md:w-9',
               isDark
                 ? 'border-white/10 bg-white/5 hover:bg-white/10'
                 : 'border-gray-200 bg-gray-50 hover:bg-gray-100',
@@ -599,10 +613,10 @@ const BellPanelContent = ({
                       : 'text-gray-500 hover:text-gray-800',
                 )}
               >
-                <span className="block truncate">{tab.label}</span>
-                {tab.count > 0 && (
-                  <span className="mt-0.5 block text-[11px] opacity-70">{tab.count}</span>
-                )}
+                <span className="inline-flex max-w-full items-center justify-center gap-1 truncate whitespace-nowrap">
+                  <span className="truncate">{tab.label}</span>
+                  <span className="shrink-0 text-[11px] opacity-70">{formatTabCount(tab.count)}</span>
+                </span>
                 <span
                   className={cn(
                     'absolute inset-x-1 bottom-0 h-0.5 rounded-full transition-opacity',

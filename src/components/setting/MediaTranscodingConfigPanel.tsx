@@ -597,7 +597,6 @@ export const MediaTranscodingConfigModal: React.FC<MediaTranscodingConfigModalPr
   onProbeMediaBackend,
 }) => {
   const { t } = useTranslation();
-  const isDark = useResolvedTheme() === "dark";
   const { addToast } = useToastStore();
   const [draft, setDraft] = useState<MediaTranscodingDraft>(DEFAULT_MEDIA_TRANSCODING_DRAFT);
 
@@ -620,34 +619,23 @@ export const MediaTranscodingConfigModal: React.FC<MediaTranscodingConfigModalPr
       icon={<Video size={18} />}
       onClose={onClose}
       maxWidthClassName="max-w-7xl"
-      panelClassName={cn(
-        "rounded-2xl shadow-lg overflow-hidden",
-        isDark
-          ? "bg-slate-950 border-white/10 text-slate-100 ring-1 ring-white/5"
-          : "bg-white border-gray-200 text-slate-900"
-      )}
+      panelClassName="rounded-2xl shadow-lg overflow-hidden"
       bodyClassName="p-4 sm:p-6"
-      overlayClassName={cn(
-        "backdrop-blur-sm transition-colors",
-        isDark ? "bg-black/95" : "bg-slate-900/80"
-      )}
+      overlayClassName="backdrop-blur-sm transition-colors"
       zIndexClassName="z-[150]"
       containerClassName="p-2 sm:p-4"
       closeButton={(
         <button
           type="button"
           onClick={onClose}
-          className={cn(
-            "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors shrink-0",
-            isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-gray-200 text-slate-600 hover:bg-gray-100"
-          )}
+          className="h-8 w-8 rounded-lg border border-[hsl(var(--modal-glass-border))] text-[hsl(var(--modal-glass-close-foreground))] inline-flex items-center justify-center transition-colors shrink-0 hover:bg-[hsl(var(--modal-glass-close-hover-bg))]"
         >
           ×
         </button>
       )}
       footer={(
         <div className="flex items-center justify-end gap-2">
-          <button type="button" onClick={onClose} className={cn("h-10 px-4 rounded-xl border text-sm font-black transition-colors", isDark ? "border-white/15 text-slate-300 hover:bg-white/10" : "border-slate-300 text-slate-700 hover:bg-slate-100")}>{t("common.cancel")}</button>
+          <button type="button" onClick={onClose} className="h-10 px-4 rounded-xl border border-zinc-300 dark:border-white/10 bg-white dark:bg-white/[0.04] text-slate-800 dark:text-white text-sm font-black transition-colors hover:bg-zinc-50 dark:hover:bg-white/[0.08] shadow-sm dark:backdrop-blur-sm">{t("common.cancel")}</button>
           <button type="button" onClick={handleApply} className="h-10 px-4 rounded-xl bg-primary text-white text-sm font-black hover:opacity-90">{t("common.confirm")}</button>
         </div>
       )}

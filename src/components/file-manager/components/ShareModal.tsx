@@ -70,6 +70,18 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
   }, [isOpen, isEditing, file]);
 
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const subtleCardClassName = isDark
+    ? 'border-white/10 bg-white/[0.03] text-slate-200'
+    : 'border-zinc-200 bg-white text-slate-800 shadow-sm';
+  const subtleInsetClassName = isDark
+    ? 'border-white/5 bg-black/30 text-primary/70'
+    : 'border-zinc-200 bg-zinc-50 text-primary';
+  const subtleMutedBlockClassName = isDark
+    ? 'border-white/5 bg-white/[0.03] text-slate-300'
+    : 'border-zinc-200 bg-zinc-50 text-slate-700';
+  const subtleTabBarClassName = isDark
+    ? 'border-white/5 bg-black/20'
+    : 'border-zinc-200 bg-zinc-50';
 
   const toggleDirect = () => {
     if (file && !file.is_dir && !isDirectSharePathAllowed(file.path)) {
@@ -207,7 +219,10 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
     <button
       type="button"
       onClick={() => setExpireByDays(days)}
-      className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[14px] font-black tracking-tighter opacity-60 hover:opacity-100 hover:bg-primary/20 hover:text-primary transition-all"
+      className={cn(
+        'px-2 py-0.5 rounded-md border text-[14px] font-black tracking-tighter opacity-70 transition-all hover:opacity-100 hover:bg-primary/20 hover:text-primary',
+        isDark ? 'bg-white/5 border-white/10' : 'bg-white border-zinc-200 text-slate-700 shadow-sm',
+      )}
     >
       {label}
     </button>
@@ -227,14 +242,14 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
       maxWidthClassName="max-w-md"
       bodyClassName="p-0"
       closeButton={(
-        <Button variant="ghost" size="sm" onClick={handleClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
-          <X size={24} className="opacity-40" />
+        <Button variant="ghost" size="sm" onClick={handleClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-zinc-100/80 dark:hover:bg-white/10 text-foreground/50 dark:text-white/40 shrink-0">
+          <X size={24} />
         </Button>
       )}
     >
       <div className="flex flex-col h-full" data-testid="share-modal">
         {isEditing && (
-          <div className="flex border-b border-white/5 bg-black/20 shrink-0">
+          <div className={cn('flex shrink-0 border-b', subtleTabBarClassName)}>
             <button 
               type="button"
               onClick={() => setMainTab('view')}
@@ -271,11 +286,11 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
 
             <div className="space-y-3">
               <div className={cn(
-                "rounded-2xl border overflow-hidden transition-all flex flex-col",
-                isDark ? "bg-black/20 border-white/5" : "bg-gray-50 border-gray-100"
+                'flex flex-col overflow-hidden rounded-2xl border transition-all',
+                subtleCardClassName,
               )}>
                 {/* Header with QR Toggle */}
-                <div className="p-3 flex items-center justify-between border-b border-white/5">
+                <div className={cn('flex items-center justify-between border-b p-3', isDark ? 'border-white/5' : 'border-zinc-200')}>
                   <div className="flex items-center gap-2">
                     <LinkIcon size={18} className="text-primary" />
                     <span className="text-[14px] font-black opacity-40 tracking-widest">{t('filemanager.shareModal.sharePackage')}</span>
@@ -285,8 +300,12 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                       data-testid="share-toggle-qr"
                       onClick={() => setShowQr(!showQr)}
                     className={cn(
-                      "p-1.5 rounded-lg transition-all",
-                      showQr ? "bg-red-500 text-white shadow-lg hover:bg-red-600" : "bg-white/5 opacity-40 hover:opacity-100"
+                      'rounded-lg p-1.5 transition-all',
+                      showQr
+                        ? 'bg-red-500 text-white shadow-lg hover:bg-red-600'
+                        : isDark
+                          ? 'bg-white/5 opacity-40 hover:opacity-100'
+                          : 'bg-white text-slate-600 shadow-sm opacity-70 hover:opacity-100',
                     )}
                     title={showQr ? t('filemanager.shareModal.hideQrCode') : t('filemanager.shareModal.showQrCode')}
                   >
@@ -314,7 +333,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                           </div>
                         )}
                       </div>
-                      <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 font-mono text-sm text-primary/80 break-all leading-relaxed shadow-inner">
+                      <div className={cn('rounded-xl border p-2.5 font-mono text-sm break-all leading-relaxed shadow-inner', subtleInsetClassName)}>
                         {shareUrl}
                       </div>
                     </div>
@@ -332,24 +351,24 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                     )}
 
                     {directEnabled && (
-                      <div className="p-3 bg-primary/5 border-t border-white/5 space-y-3">
+                      <div className={cn('space-y-3 border-t p-3 bg-primary/5', isDark ? 'border-white/5' : 'border-zinc-200')}>
                         <div className="flex items-center gap-2">
                           <Zap size={18} className="text-yellow-500" />
                           <span className="text-[14px] font-black opacity-40 tracking-[0.2em]">{t('filemanager.shareModal.directLinkTitle')}</span>
                         </div>
-                        <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 font-mono text-sm text-primary/60 break-all leading-relaxed shadow-inner">
+                        <div className={cn('rounded-xl border p-2.5 font-mono text-sm break-all leading-relaxed shadow-inner', subtleInsetClassName)}>
                           {directUrl}
                         </div>
                         <div className="space-y-2">
                           <div className="space-y-1">
                             <span className="flex items-center gap-1.5 text-[14px] font-black opacity-40"><User size={10} /> {t('filemanager.shareModal.directUser')}</span>
-                            <div className="bg-black/20 p-2 rounded-lg font-mono text-sm text-center border border-white/5 opacity-80 text-primary">fileuni</div>
+                            <div className={cn('rounded-lg border p-2 text-center font-mono text-sm text-primary', subtleMutedBlockClassName)}>fileuni</div>
                             <p className="text-[14px] opacity-50 font-medium">{t('filemanager.shareModal.directUserHint')}</p>
                           </div>
                           {hasCurrentPassword && (
                             <div className="space-y-1">
                               <span className="flex items-center gap-1.5 text-[14px] font-black opacity-40"><Lock size={10} /> {t('filemanager.shareModal.directPass')}</span>
-                              <div className="bg-black/20 p-2 rounded-lg font-mono text-sm text-center border border-white/5 truncate opacity-80 text-yellow-500">
+                              <div className={cn('truncate rounded-lg border p-2 text-center font-mono text-sm text-yellow-500', subtleMutedBlockClassName)}>
                                 {(form.passwordMode === 'change' || !isEditing) && form.password ? form.password : '********'}
                               </div>
                             </div>
@@ -371,13 +390,13 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
               </div>
             </div>
 
-            <Button variant="ghost" className="w-full h-10 rounded-xl text-sm font-black tracking-widest opacity-40 hover:opacity-100" onClick={handleClose}>
+            <Button variant="ghost" className="h-10 w-full rounded-xl text-sm font-black tracking-widest text-slate-600 hover:bg-zinc-100/80 hover:text-slate-900 dark:text-white/45 dark:hover:bg-white/10 dark:hover:text-white" onClick={handleClose}>
               {t('filemanager.shareModal.done')}
             </Button>
           </div>
         ) : (
           <div className="flex flex-col h-full">
-            <div className="flex border-b border-white/5 px-4">
+            <div className={cn('flex border-b px-4', isDark ? 'border-white/5' : 'border-zinc-200')}>
               <button type="button" onClick={() => setActiveTab('basic')} className={cn("px-4 py-2.5 text-[14px] font-black tracking-widest transition-all border-b-2", activeTab === 'basic' ? "border-primary text-primary" : "border-transparent opacity-40 hover:opacity-100")}>{t('filemanager.shareModal.basicTab')}</button>
               <button type="button" onClick={() => setActiveTab('advanced')} className={cn("px-4 py-2.5 text-[14px] font-black tracking-widest transition-all border-b-2", activeTab === 'advanced' ? "border-primary text-primary" : "border-transparent opacity-40 hover:opacity-100")}>{t('filemanager.shareModal.advancedTab')}</button>
             </div>
@@ -403,7 +422,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                     {isEditing && (
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {(['keep', 'remove', 'change'] as const).map((mode) => (
-                          <button key={mode} type="button" onClick={() => setForm({...form, passwordMode: mode})} className={cn("min-h-10 rounded-xl text-sm font-black transition-all border px-3 text-center", form.passwordMode === mode ? (mode === 'remove' ? "bg-red-500/20 border-red-500/50 text-red-500" : mode === 'change' ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" : "bg-primary/15 border-primary/40 text-primary") : "bg-white/5 border-white/10 opacity-70 hover:opacity-100")}>{mode === 'keep' ? t('filemanager.shareModal.keepOldPassword') : mode === 'remove' ? t('filemanager.shareModal.removePassword') : t('filemanager.shareModal.changePassword')}</button>
+                          <button key={mode} type="button" onClick={() => setForm({...form, passwordMode: mode})} className={cn("min-h-10 rounded-xl border px-3 text-center text-sm font-black transition-all", form.passwordMode === mode ? (mode === 'remove' ? "bg-red-500/20 border-red-500/50 text-red-500" : mode === 'change' ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" : "bg-primary/15 border-primary/40 text-primary") : isDark ? "bg-white/5 border-white/10 opacity-70 hover:opacity-100" : "bg-white border-zinc-200 text-slate-700 shadow-sm opacity-80 hover:opacity-100")}>{mode === 'keep' ? t('filemanager.shareModal.keepOldPassword') : mode === 'remove' ? t('filemanager.shareModal.removePassword') : t('filemanager.shareModal.changePassword')}</button>
                         ))}
                       </div>
                     )}
@@ -419,8 +438,8 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                           inputClassName="h-9 text-sm"
                         />
                         <div className="flex flex-wrap items-center gap-1">
-                          <button type="button" onClick={generateRandomPassword} className="flex items-center gap-1 px-2 py-1 rounded-lg text-[14px] font-black bg-white/5 hover:bg-white/10 text-white/60 border border-white/5 transition-all"><Dices size={10} className="text-primary" /> {t('filemanager.shareModal.randomPassword')}</button>
-                          <div className="flex items-center gap-1 px-1">{['1111', '1234', '8888'].map(pwd => (<button key={pwd} type="button" onClick={() => setQuickPassword(pwd)} className="px-1.5 py-0.5 rounded-md text-[14px] font-black opacity-40 hover:opacity-100 hover:bg-white/5 transition-all">{pwd}</button>))}
+                          <button type="button" onClick={generateRandomPassword} className={cn('flex items-center gap-1 rounded-lg border px-2 py-1 text-[14px] font-black transition-all', isDark ? 'bg-white/5 border-white/5 text-white/60 hover:bg-white/10' : 'bg-white border-zinc-200 text-slate-600 shadow-sm hover:bg-zinc-50')}><Dices size={10} className="text-primary" /> {t('filemanager.shareModal.randomPassword')}</button>
+                          <div className="flex items-center gap-1 px-1">{['1111', '1234', '8888'].map(pwd => (<button key={pwd} type="button" onClick={() => setQuickPassword(pwd)} className={cn('rounded-md px-1.5 py-0.5 text-[14px] font-black transition-all hover:opacity-100', isDark ? 'opacity-40 hover:bg-white/5' : 'text-slate-600 opacity-70 hover:bg-zinc-100')}>{pwd}</button>))}
                           </div>
                         </div>
                       </div>
@@ -436,7 +455,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                           onClick={() => setForm(prev => ({ ...prev, canUpload: !prev.canUpload }))}
                           className={cn(
                             "min-h-10 rounded-xl border text-sm font-black transition-all flex items-center justify-center gap-2 px-3",
-                            form.canUpload ? "bg-primary/20 border-primary text-primary" : "bg-white/5 border-white/5 opacity-50 hover:opacity-100"
+                            form.canUpload ? "bg-primary/20 border-primary text-primary" : isDark ? "bg-white/5 border-white/5 opacity-50 hover:opacity-100" : "bg-white border-zinc-200 text-slate-700 shadow-sm opacity-80 hover:opacity-100"
                           )}
                         >
                           <Upload size={18} /> {t('filemanager.shareModal.permissionUpload')}
@@ -446,7 +465,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                           onClick={() => setForm(prev => ({ ...prev, canUpdateNoCreate: !prev.canUpdateNoCreate }))}
                           className={cn(
                             "min-h-10 rounded-xl border text-sm font-black transition-all flex items-center justify-center gap-2 px-3",
-                            form.canUpdateNoCreate ? "bg-primary/20 border-primary text-primary" : "bg-white/5 border-white/5 opacity-50 hover:opacity-100"
+                            form.canUpdateNoCreate ? "bg-primary/20 border-primary text-primary" : isDark ? "bg-white/5 border-white/5 opacity-50 hover:opacity-100" : "bg-white border-zinc-200 text-slate-700 shadow-sm opacity-80 hover:opacity-100"
                           )}
                         >
                           <FilePenLine size={18} /> {t('filemanager.shareModal.permissionUpdateNoCreate')}
@@ -456,7 +475,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                           onClick={() => setForm(prev => ({ ...prev, canDelete: !prev.canDelete }))}
                           className={cn(
                             "min-h-10 rounded-xl border text-sm font-black transition-all flex items-center justify-center gap-2 px-3",
-                            form.canDelete ? "bg-red-500/20 border-red-500 text-red-500" : "bg-white/5 border-white/5 opacity-50 hover:opacity-100"
+                            form.canDelete ? "bg-red-500/20 border-red-500 text-red-500" : isDark ? "bg-white/5 border-white/5 opacity-50 hover:opacity-100" : "bg-white border-zinc-200 text-slate-700 shadow-sm opacity-80 hover:opacity-100"
                           )}
                         >
                           <Trash2 size={18} /> {t('filemanager.shareModal.permissionDelete')}
@@ -472,10 +491,10 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                     <div className="text-[14px] font-black tracking-widest opacity-40 ml-1 flex items-center gap-2"><Download size={10} /> {t('filemanager.shareModal.maxDownloadsLabel')}</div>
                     <div className="flex items-center gap-2">
                       <Input type="number" min={0} value={form.maxDownloads} onChange={e => setForm({ ...form, maxDownloads: parseInt(e.target.value) || 0 })} className="h-9 text-sm font-bold w-20" />
-                      <button type="button" onClick={() => setForm({ ...form, maxDownloads: 0 })} className={cn("flex-1 h-9 rounded-xl border font-bold text-sm transition-all", form.maxDownloads === 0 ? "bg-primary border-primary text-white" : "bg-white/5 border-white/5 opacity-40")}>{t('filemanager.shareModal.unlimited')}</button>
+                      <button type="button" onClick={() => setForm({ ...form, maxDownloads: 0 })} className={cn('flex-1 h-9 rounded-xl border text-sm font-bold transition-all', form.maxDownloads === 0 ? 'bg-primary border-primary text-white' : isDark ? 'bg-white/5 border-white/5 opacity-40' : 'bg-white border-zinc-200 text-slate-700 shadow-sm opacity-80')}>{t('filemanager.shareModal.unlimited')}</button>
                     </div>
                   </div>
-                    <div className={cn("flex items-center justify-between p-2.5 rounded-xl border transition-all", form.enableDirect ? "bg-yellow-500/10 border-yellow-500/20" : "bg-white/5 border-white/5")} data-testid="share-direct-section">
+                    <div className={cn('flex items-center justify-between rounded-xl border p-2.5 transition-all', form.enableDirect ? 'bg-yellow-500/10 border-yellow-500/20' : isDark ? 'bg-white/5 border-white/5' : 'bg-white border-zinc-200 shadow-sm')} data-testid="share-direct-section">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <Zap size={18} className={form.enableDirect ? "text-yellow-500" : "opacity-40"} />
@@ -488,7 +507,7 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
                         </p>
                       )}
                     </div>
-                    <button type="button" data-testid="share-toggle-direct" onClick={toggleDirect} disabled={!directEligible} className={cn("w-9 h-4.5 rounded-full relative transition-all duration-300 shrink-0 disabled:opacity-30 disabled:cursor-not-allowed", form.enableDirect ? "bg-yellow-500 shadow-md shadow-yellow-500/20" : "bg-zinc-600")}>
+                    <button type="button" data-testid="share-toggle-direct" onClick={toggleDirect} disabled={!directEligible} className={cn("w-9 h-4.5 rounded-full relative transition-all duration-300 shrink-0 disabled:opacity-30 disabled:cursor-not-allowed", form.enableDirect ? "bg-yellow-500 shadow-md shadow-yellow-500/20" : isDark ? "bg-zinc-600" : "bg-zinc-300")}>
                       <div className={cn("absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full transition-all duration-300 shadow-sm", form.enableDirect ? "left-5" : "left-0.5")} />
                     </button>
                   </div>
@@ -496,12 +515,12 @@ export const ShareModal = ({ isOpen, onClose, file }: Props) => {
               )}
             </div>
 
-            <div className="p-4 pt-0 border-t border-white/5 bg-white/[0.01] shrink-0">
+            <div className={cn('shrink-0 border-t p-4 pt-0', isDark ? 'border-white/5 bg-white/[0.01]' : 'border-zinc-200 bg-zinc-50/80')}>
                 <Button className="w-full h-11 rounded-xl text-sm font-black tracking-widest shadow-lg shadow-primary/20" data-testid="share-submit" onClick={isEditing ? handleUpdateShare : handleCreateShare} disabled={loading}>
                   {loading ? <span className="loading-spinner animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" /> : isEditing ? t('filemanager.shareModal.updateBtn') : t('filemanager.shareModal.generateBtn')}
                 </Button>
               {isEditing && file?.id && (
-                <Button variant="outline" className="mt-3 w-full h-10 rounded-xl text-sm font-black tracking-widest border-red-500/30 text-red-500 hover:bg-red-500/10" onClick={handleDeleteShare} disabled={loading}>
+                <Button variant="outline" className="mt-3 h-10 w-full rounded-xl border-red-500/30 bg-white text-sm font-black tracking-widest text-red-500 hover:bg-red-500/10 dark:bg-white/[0.03]" onClick={handleDeleteShare} disabled={loading}>
                   {t('filemanager.shareModal.cancelShareBtn')}
                 </Button>
               )}

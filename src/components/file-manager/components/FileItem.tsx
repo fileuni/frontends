@@ -166,7 +166,7 @@ export const FileItem = ({ file, onContextMenu, onAction, dragDisabled = false }
     }
   };
 
-  const setRefs = (node: HTMLDivElement | null) => {
+  const setDropRefs = (node: HTMLDivElement | null) => {
     setDraggableRef(node);
     setDroppableRef(node);
     (itemRef as { current: HTMLDivElement | null }).current = node;
@@ -227,7 +227,7 @@ export const FileItem = ({ file, onContextMenu, onAction, dragDisabled = false }
   if (viewMode === 'grid') {
     return (
       <div
-        ref={setRefs} style={style} {...attributes} {...listeners}
+        ref={setDropRefs} style={style} {...attributes} {...listeners}
         onClick={handleClick} onDoubleClick={handleDoubleClick}
         onKeyDown={handleKeyDown}
         onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
@@ -284,7 +284,7 @@ export const FileItem = ({ file, onContextMenu, onAction, dragDisabled = false }
   // List View
   return (
     <div
-      ref={setRefs} style={style} {...attributes} {...listeners}
+      ref={setDropRefs} style={style}
       onClick={handleClick} onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
@@ -295,51 +295,58 @@ export const FileItem = ({ file, onContextMenu, onAction, dragDisabled = false }
       data-testid="file-item"
       data-file-name={displayName || file.name}
       data-file-path={file.path}
+      data-select-id={selectId}
       tabIndex={0}
       className={cn(
-        "flex items-center gap-3 md:gap-4 px-3 md:px-4 py-3 border-b border-white/5",
+        "border-b border-white/5",
         commonClasses,
         !selected && !isOver && "hover:bg-white/[0.02]"
       )}
     >
-      {/* Fixed width prefix area for alignment */}
-      <div className="shrink-0 flex items-center gap-3 min-w-[72px] justify-end">
-        <StatusIcons file={file} mode="list" onAction={onAction} shareLabel={t('filemanager.actions.share')} />
-        {file.is_dir ? (
-          <FileIcon name={displayName || file.name} isDir={file.is_dir} size={24} />
-        ) : (
-          <FileIcon name={displayName || file.name} isDir={false} size={24} />
-        )}
-      </div>
+      <div
+        {...attributes}
+        {...listeners}
+        data-file-content="true"
+        className="flex items-center gap-3 md:gap-4 px-3 md:px-4 py-3"
+      >
+        <div className="shrink-0 flex items-center gap-3 min-w-[72px] justify-end">
+          <StatusIcons file={file} mode="list" onAction={onAction} shareLabel={t('filemanager.actions.share')} />
+          {file.is_dir ? (
+            <FileIcon name={displayName || file.name} isDir={file.is_dir} size={24} />
+          ) : (
+            <FileIcon name={displayName || file.name} isDir={false} size={24} />
+          )}
+        </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
-            <div className={cn("text-sm font-bold truncate", selected ? "text-primary" : "")}>{displayName}</div>
-            {file.is_mount_root && (
-              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-black tracking-widest text-cyan-300">
-                {t('filemanager.mounts.rootBadge') || 'Mounted'}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <div className={cn("text-sm font-bold truncate", selected ? "text-primary" : "")}>{displayName}</div>
+              {file.is_mount_root && (
+                <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-black tracking-widest text-cyan-300">
+                  {t('filemanager.mounts.rootBadge') || 'Mounted'}
+                </span>
+              )}
+            </div>
+            {secondaryInfo && (
+              <span className="text-sm opacity-20 font-mono truncate max-w-[200px] md:max-w-md">
+                {secondaryInfo}
               </span>
             )}
           </div>
-          {secondaryInfo && (
-            <span className="text-sm opacity-20 font-mono truncate max-w-[200px] md:max-w-md">
-              {secondaryInfo}
-            </span>
-          )}
         </div>
-      </div>
 
-      <div className="w-20 md:w-24 flex flex-col items-end shrink-0">
-        <div className="text-sm font-mono opacity-60">
-          {file.is_dir ? '-' : (file.size / 1024 / 1024).toFixed(2) + ' MB'}
+        <div className="w-20 md:w-24 flex flex-col items-end shrink-0">
+          <div className="text-sm font-mono opacity-60">
+            {file.is_dir ? '-' : (file.size / 1024 / 1024).toFixed(2) + ' MB'}
+          </div>
         </div>
-      </div>
 
-      <div className="w-32 hidden sm:flex flex-col items-end shrink-0">
-        <span className="text-sm font-mono opacity-40">
-          {new Date(file.modified).toLocaleDateString()}
-        </span>
+        <div className="w-32 hidden sm:flex flex-col items-end shrink-0">
+          <span className="text-sm font-mono opacity-40">
+            {new Date(file.modified).toLocaleDateString()}
+          </span>
+        </div>
       </div>
     </div>
   );

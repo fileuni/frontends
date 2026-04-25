@@ -25,6 +25,7 @@ interface WaitForTaskOptions {
 interface BatchMoveOptions {
   optimistic?: boolean;
   successMessage?: string;
+  successMessageFactory?: (paths: string[], targetDir: string) => string;
 }
 
 export function useFileActions() {
@@ -45,7 +46,7 @@ export function useFileActions() {
   const removeFiles = store.removeFiles;
   const updateFile = store.updateFile;
   
-  const { deselectAll } = useSelectionStore();
+  const { deselectAll, setSelection } = useSelectionStore();
 
   const toggleFavorite = async (paths: string[], color: number) => {
     try {
@@ -243,8 +244,15 @@ export function useFileActions() {
       }
 
       const shouldOptimisticallyRemove = options?.optimistic === true;
+      const successMessage = options?.successMessageFactory
+        ? options.successMessageFactory(paths, targetDir)
+        : options?.successMessage;
       if (shouldOptimisticallyRemove) {
         removeFiles(paths);
+        const remainingSelection = Array.from(useSelectionStore.getState().selectedIds).filter((id) => !paths.includes(id));
+        setSelection(remainingSelection, remainingSelection[remainingSelection.length - 1] ?? null);
+      } else {
+        deselectAll();
       }
 
       const { data } = await client.POST("/api/v1/file/batch-move", {
@@ -263,17 +271,18 @@ export function useFileActions() {
           });
           waitForTask(taskId, {
             expectedPaths,
-            ...(options?.successMessage ? { successMessage: options.successMessage } : {}),
+            ...(successMessage ? { successMessage } : {}),
           });
         } else {
           if (!shouldOptimisticallyRemove) {
             removeFiles(paths);
+            deselectAll();
           }
           if (targetDir === currentPath) await loadFiles();
           const firstExpectedPath = expectedPaths[0];
           if (firstExpectedPath) store.setHighlightedPath(firstExpectedPath);
-          if (options?.successMessage) {
-            addToast(options.successMessage, 'success');
+          if (successMessage) {
+            addToast(successMessage, 'success');
           }
         }
       }

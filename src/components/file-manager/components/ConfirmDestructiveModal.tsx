@@ -68,12 +68,17 @@ export const ConfirmDestructiveModal = ({
       compact="all"
       maxWidthClassName="max-w-sm"
       closeButton={(
-        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
-          <X size={24} className="opacity-40" />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="rounded-2xl h-12 w-12 p-0 hover:bg-zinc-100/80 dark:hover:bg-white/10 text-foreground/50 dark:text-white/40 shrink-0"
+        >
+          <X size={24} />
         </Button>
       )}
     >
-      <div className="flex flex-col items-center text-center gap-4 py-2">
+      <div className="flex flex-col items-center gap-4 py-2 text-center">
         <div className="relative">
           <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-2">
             <AlertTriangle className="text-red-500" size={32} />
@@ -83,7 +88,7 @@ export const ConfirmDestructiveModal = ({
           </div>
         </div>
         
-        <p className="text-sm opacity-70">
+        <p className="text-sm font-medium leading-6 text-slate-600 dark:text-white/65">
           {message}
         </p>
 
@@ -101,7 +106,7 @@ export const ConfirmDestructiveModal = ({
             <Button 
               variant="outline" 
               onClick={() => handleAction('mode_remove')}
-              className="rounded-xl w-full border-primary/20 text-primary hover:bg-primary/5"
+              className="rounded-xl w-full border-primary/20 bg-white text-primary hover:bg-primary/5 dark:bg-white/[0.03]"
             >
               {t('filemanager.actions.removeFavorite')}
             </Button>
@@ -111,7 +116,7 @@ export const ConfirmDestructiveModal = ({
             <Button 
               variant="outline" 
               onClick={() => handleAction('mode_remove')}
-              className="rounded-xl w-full border-primary/20 text-primary hover:bg-primary/5"
+              className="rounded-xl w-full border-primary/20 bg-white text-primary hover:bg-primary/5 dark:bg-white/[0.03]"
             >
               {t('filemanager.actions.removeHistory')}
             </Button>
@@ -121,7 +126,7 @@ export const ConfirmDestructiveModal = ({
             <Button 
               variant="outline" 
               onClick={() => handleAction('mode_remove')}
-              className="rounded-xl w-full border-primary/20 text-primary hover:bg-primary/5"
+              className="rounded-xl w-full border-primary/20 bg-white text-primary hover:bg-primary/5 dark:bg-white/[0.03]"
             >
               {t('filemanager.actions.cancelShare')}
             </Button>

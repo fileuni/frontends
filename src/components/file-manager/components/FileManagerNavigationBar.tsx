@@ -66,6 +66,7 @@ const NavigationDropButton = ({
         }
       }}
       variant="ghost"
+      data-nav-drop-path={target.path}
       className={cn(className, isOver && 'border-primary bg-primary/10 text-primary')}
       onClick={onClick}
       {...(title ? { title } : {})}

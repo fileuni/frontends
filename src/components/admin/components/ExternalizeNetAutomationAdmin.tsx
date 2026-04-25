@@ -1717,7 +1717,7 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
 
       {/* DDNS Modal */}
       {ddnsModalOpen && (
-      <GlassModalShell onClose={() => setDdnsModalOpen(false)} title={ddnsDraft.id ? t('admin.domain.ddnsEditTitle') : t('admin.domain.create') + ' DDNS'} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-3xl" panelClassName="dark text-white">
+      <GlassModalShell onClose={() => setDdnsModalOpen(false)} title={ddnsDraft.id ? t('admin.domain.ddnsEditTitle') : t('admin.domain.create') + ' DDNS'} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-3xl">
         <div className="space-y-8 overflow-y-auto max-h-[80vh] p-1 scrollbar-hide">
           <div className={sectionCardBase}>
             <div className="space-y-8">
@@ -1998,7 +1998,7 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
 
       {/* SSL Modal */}
       {sslModalOpen && (
-      <GlassModalShell onClose={() => setSslModalOpen(false)} title={sslDraft.id ? t('admin.domain.certEditTitle') : t('admin.domain.create') + ' SSL/TLS'} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-4xl" panelClassName="dark text-white">
+      <GlassModalShell onClose={() => setSslModalOpen(false)} title={sslDraft.id ? t('admin.domain.certEditTitle') : t('admin.domain.create') + ' SSL/TLS'} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-4xl">
         <div className="overflow-y-auto max-h-[80vh] p-1 space-y-8 scrollbar-hide">
           <CertificateForm
             name={sslDraft.name}
@@ -2076,7 +2076,7 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
 
       {/* Provider Modal */}
       {providerModalOpen && (
-      <GlassModalShell onClose={() => { setProviderModalOpen(false); setShowProviderList(true); }} title={t('admin.domain.providerTitle')} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-2xl" panelClassName="dark text-white">
+      <GlassModalShell onClose={() => { setProviderModalOpen(false); setShowProviderList(true); }} title={t('admin.domain.providerTitle')} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-2xl" >
         <div className="space-y-8 overflow-y-auto max-h-[80vh] p-1 scrollbar-hide text-foreground">
           {showProviderList ? (
             <div className="space-y-6">
@@ -2366,7 +2366,7 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
 
       {/* ZeroSSL Modal */}
       {zerosslModalOpen && (
-      <GlassModalShell onClose={() => setZeroSslModalOpen(false)} title={t('admin.domain.zerosslAccountManagement')} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-xl" panelClassName="dark text-white">
+      <GlassModalShell onClose={() => setZeroSslModalOpen(false)} title={t('admin.domain.zerosslAccountManagement')} closeLabel={t('common.close') || 'Close'} maxWidthClassName="max-w-xl" >
         <div className="space-y-8 overflow-y-auto max-h-[80vh] p-1 scrollbar-hide text-foreground">
           <div className={sectionCardBase}>
             <div className="space-y-8">

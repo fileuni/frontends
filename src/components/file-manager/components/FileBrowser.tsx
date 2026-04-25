@@ -78,8 +78,9 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
 
   const handlePointerDown = React.useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
-    if (event.target instanceof HTMLElement && event.target.closest('[data-testid="file-item"]')) return;
-    if (event.target !== event.currentTarget) return;
+    if (!(event.target instanceof HTMLElement)) return;
+    if (event.target.closest('[data-file-content="true"]')) return;
+    if (event.target !== event.currentTarget && !event.target.closest('[data-marquee-surface="true"]')) return;
     marqueeOriginRef.current = {
       x: event.clientX,
       y: event.clientY,
@@ -145,7 +146,7 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
           />
         )}
         {viewMode === 'grid' ? (
-          <div className={cn(
+          <div data-marquee-surface="true" className={cn(
             "grid gap-3 md:gap-4 py-4 transition-all duration-500",
             "grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8"
           )}>
@@ -160,7 +161,7 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
             ))}
           </div>
         ) : (
-          <div className="flex flex-col py-2">
+          <div data-marquee-surface="true" className="flex flex-col py-2">
             {files.map((file) => (
               <FileItem
                 key={(fmMode === 'shares' && file.id) ? file.id : file.path}

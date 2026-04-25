@@ -65,13 +65,13 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
       maxWidthClassName="max-w-xl"
       bodyClassName="space-y-5"
       closeButton={(
-        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
-          <X size={24} className="opacity-40" />
+        <Button variant="ghost" size="sm" onClick={onClose} className="rounded-2xl h-12 w-12 p-0 hover:bg-zinc-100/80 dark:hover:bg-white/10 text-foreground/50 dark:text-white/40 shrink-0">
+          <X size={24} />
         </Button>
       )}
       footer={(
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-2 opacity-30 italic sm:max-w-[70%]">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-slate-600 dark:text-white/45 italic sm:max-w-[70%]">
             <Info size={18} className="shrink-0" />
             <span className="text-sm font-medium leading-tight">{t('filemanager.searchPlaceholder')}</span>
           </div>
@@ -82,10 +82,10 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
       )}
     >
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400" size={18} />
           <Input
             ref={inputRef}
-            className="pl-10 pr-10 h-14 rounded-3xl border-white/10 bg-white/[0.03] text-white placeholder:text-white/30"
+            className="h-14 rounded-3xl border-zinc-300 bg-white pl-10 pr-10 text-slate-950 placeholder:text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-white/30"
             placeholder={t('filemanager.searchPlaceholder')}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
@@ -95,18 +95,13 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
             <button
               type="button"
               onClick={() => setKeyword('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-200"
             >
               <X size={16} />
             </button>
           )}
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-4 text-sm text-white/70 leading-relaxed">
-          {isSearchMode
-            ? t('filemanager.searchActive')
-            : t('filemanager.searchPlaceholder')}
-        </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
@@ -121,7 +116,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
             variant="ghost"
             onClick={handleClear}
             disabled={!isSearchMode}
-            className="rounded-2xl h-12 px-6 font-black text-sm bg-white/[0.03] hover:bg-white/10"
+            className="h-12 rounded-2xl bg-white px-6 text-sm font-black text-slate-700 shadow-sm hover:bg-zinc-50 hover:text-slate-900 dark:bg-white/[0.03] dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
           >
             {t('filemanager.clear')}
           </Button>

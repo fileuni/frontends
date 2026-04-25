@@ -462,9 +462,6 @@ const ModalShell: React.FC<ModalShellProps> = ({
   children,
   footer,
 }) => {
-  const resolvedTheme = useResolvedTheme();
-  const isDark = resolvedTheme === "dark";
-
   if (!isOpen) return null;
 
   return (
@@ -473,29 +470,16 @@ const ModalShell: React.FC<ModalShellProps> = ({
       subtitle={subtitle}
       onClose={onClose}
       maxWidthClassName="max-w-4xl"
-      panelClassName={cn(
-        "rounded-2xl shadow-lg ring-1 overflow-hidden",
-        isDark
-          ? "bg-slate-950 border-white/10 text-slate-100 ring-white/5"
-          : "bg-white border-gray-200 text-slate-900"
-      )}
+      panelClassName="rounded-2xl shadow-lg ring-1 ring-black/5 dark:ring-white/5 overflow-hidden"
       bodyClassName="p-4 sm:p-6 space-y-6"
-      overlayClassName={cn(
-        "backdrop-blur-sm transition-colors",
-        isDark ? "bg-black/95" : "bg-slate-900/80"
-      )}
+      overlayClassName="backdrop-blur-sm transition-colors"
       zIndexClassName="z-[150]"
       containerClassName="p-2 sm:p-4"
       closeButton={(
         <button
           type="button"
           onClick={onClose}
-          className={cn(
-            "h-8 w-8 rounded-lg border inline-flex items-center justify-center transition-colors shrink-0",
-            isDark
-              ? "border-white/15 text-slate-300 hover:bg-white/10"
-              : "border-gray-200 text-slate-600 hover:bg-gray-100"
-          )}
+          className="h-8 w-8 rounded-lg border border-[hsl(var(--modal-glass-border))] text-[hsl(var(--modal-glass-close-foreground))] inline-flex items-center justify-center transition-colors shrink-0 hover:bg-[hsl(var(--modal-glass-close-hover-bg))]"
         >
           <X size={16} />
         </button>
@@ -579,12 +563,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
           <button
             type="button"
             onClick={onClose}
-            className={cn(
-              "h-10 px-4 rounded-xl border text-sm font-black transition-colors",
-              isDark
-                ? "border-white/15 text-slate-300 hover:bg-white/10"
-                : "border-slate-300 text-slate-700 hover:bg-slate-100",
-            )}
+            className="h-10 px-4 rounded-xl border border-zinc-300 bg-white text-sm font-black text-slate-700 transition-colors hover:bg-zinc-50 dark:border-white/15 dark:bg-white/[0.03] dark:text-slate-300 dark:hover:bg-white/10"
           >
             {t("common.cancel")}
           </button>
@@ -620,7 +599,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
             "rounded-2xl border p-4 space-y-4",
             isDark
               ? "border-white/10 bg-white/[0.03]"
-              : "border-slate-200 bg-slate-50",
+              : "border-zinc-200 bg-white shadow-sm",
           )}
         >
           <div>
@@ -734,7 +713,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                     "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
                     isDark
                       ? "border-white/10 bg-black/30 text-white"
-                      : "border-slate-300 bg-white text-slate-900",
+                      : "border-zinc-200 bg-white text-slate-900 shadow-sm",
                   )}
                   placeholder={field.placeholder}
                 />
@@ -773,7 +752,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
             "rounded-2xl border p-4 space-y-4",
             isDark
               ? "border-white/10 bg-white/[0.03]"
-              : "border-slate-200 bg-slate-50",
+              : "border-zinc-200 bg-white shadow-sm",
           )}
         >
           <div>
@@ -939,7 +918,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                     "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
                     isDark
                       ? "border-white/10 bg-black/30 text-white"
-                      : "border-slate-300 bg-white text-slate-900",
+                      : "border-zinc-200 bg-white text-slate-900 shadow-sm",
                   )}
                   placeholder="100"
                 />
@@ -967,7 +946,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                     "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
                     isDark
                       ? "border-white/10 bg-black/30 text-white"
-                      : "border-slate-300 bg-white text-slate-900",
+                      : "border-zinc-200 bg-white text-slate-900 shadow-sm",
                   )}
                   placeholder="100"
                 />
@@ -1017,7 +996,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                     "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
                     isDark
                       ? "border-white/10 bg-black/30 text-white"
-                      : "border-slate-300 bg-white text-slate-900",
+                      : "border-zinc-200 bg-white text-slate-900 shadow-sm",
                   )}
                   placeholder="4"
                 />
@@ -1047,7 +1026,7 @@ export const ThumbnailDependencyConfigModal: React.FC<
                     "mt-2 h-11 w-full rounded-xl border px-3 text-sm font-mono",
                     isDark
                       ? "border-white/10 bg-black/30 text-white"
-                      : "border-slate-300 bg-white text-slate-900",
+                      : "border-zinc-200 bg-white text-slate-900 shadow-sm",
                   )}
                   placeholder="100"
                 />
@@ -1135,12 +1114,7 @@ export const CompressionDependencyConfigModal: React.FC<
           <button
             type="button"
             onClick={onClose}
-            className={cn(
-              "h-10 px-4 rounded-xl border text-sm font-black transition-colors",
-              isDark
-                ? "border-white/15 text-slate-300 hover:bg-white/10"
-                : "border-slate-300 text-slate-700 hover:bg-slate-100",
-            )}
+            className="h-10 px-4 rounded-xl border border-zinc-300 bg-white text-sm font-black text-slate-700 transition-colors hover:bg-zinc-50 dark:border-white/15 dark:bg-white/[0.03] dark:text-slate-300 dark:hover:bg-white/10"
           >
             {t("common.cancel")}
           </button>
@@ -1176,7 +1150,7 @@ export const CompressionDependencyConfigModal: React.FC<
             "rounded-2xl border p-4 space-y-4",
             isDark
               ? "border-white/10 bg-white/[0.03]"
-              : "border-slate-200 bg-slate-50",
+              : "border-zinc-200 bg-white shadow-sm",
           )}
         >
           <div className="flex items-start gap-3">
@@ -1230,7 +1204,7 @@ export const CompressionDependencyConfigModal: React.FC<
             "rounded-2xl border p-4 space-y-4",
             isDark
               ? "border-white/10 bg-white/[0.03]"
-              : "border-slate-200 bg-slate-50",
+              : "border-zinc-200 bg-white shadow-sm",
           )}
         >
           <div

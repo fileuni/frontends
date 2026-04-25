@@ -457,7 +457,7 @@ export const LoginView = () => {
               onClose={() => setShowDeviceLimit(false)}
               closeLabel={t("common.close") || 'Close'}
               maxWidthClassName="max-w-lg"
-              panelClassName="dark text-white"
+              panelClassName=""
             >
                <div className="space-y-5 sm:space-y-6">
               <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-start gap-4">
