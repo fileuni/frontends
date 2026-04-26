@@ -269,26 +269,22 @@ export const ClipboardBar = () => {
 
           {/* Footer Actions */}
           <div className={cn(
-            "p-4 border-t flex flex-col items-stretch gap-3 bg-white/[0.01] sm:flex-row sm:items-center sm:justify-between",
+            "p-4 border-t bg-white/[0.01]",
             isDark ? "border-white/5" : "border-gray-100"
           )}>
-            <button
-              type="button"
-              onClick={clearClipboard}
-              data-testid="clipboard-clear"
-              className="self-start max-w-full whitespace-nowrap text-sm font-black text-red-400/60 hover:text-red-500 hover:underline tracking-tighter flex items-center gap-1.5 transition-all"
-            >
-              <Trash2 size={18} />
-              {t('filemanager.clipboard.clear')}
-            </button>
-
-            <div className="flex w-full flex-wrap items-stretch justify-end gap-2 sm:w-auto sm:flex-nowrap sm:items-center">
+            <div className="flex w-full items-center justify-between gap-3">
               <Button
                 variant="ghost"
-                onClick={() => setIsExpanded(false)}
-                className="h-8 min-w-0 flex-1 rounded-xl px-3 text-sm font-bold opacity-40 hover:opacity-100 sm:flex-none"
+                type="button"
+                onClick={clearClipboard}
+                data-testid="clipboard-clear"
+                title={t('filemanager.clipboard.clear')}
+                className={cn(
+                  "h-9 w-9 shrink-0 justify-center rounded-xl p-0 opacity-70 transition-all hover:opacity-100",
+                  isDark ? "bg-white/4 text-red-300/80 hover:bg-red-500/12 hover:text-red-200" : "bg-zinc-100 text-red-500/80 hover:bg-red-50 hover:text-red-600"
+                )}
               >
-                {t('common.close')}
+                <Trash2 size={16} />
               </Button>
               <Button
                 size="sm"
@@ -296,15 +292,14 @@ export const ClipboardBar = () => {
                 data-testid="clipboard-paste-all"
                 title="Ctrl+V"
                 className={cn(
-                  "h-9 min-w-0 w-full justify-center rounded-xl px-5 text-sm font-bold shadow-xl shadow-primary/20 transition-all sm:w-auto sm:flex-none",
-                  "bg-primary text-white hover:scale-105 active:scale-95",
-                  !canPaste && "opacity-20 cursor-not-allowed grayscale"
+                  "h-9 min-w-0 justify-center rounded-xl px-4 text-sm font-bold whitespace-nowrap transition-all",
+                  "bg-primary text-white shadow-lg shadow-primary/30 ring-1 ring-white/10 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/35 active:translate-y-0 active:scale-95",
+                  !canPaste && "opacity-20 cursor-not-allowed grayscale shadow-none ring-0 hover:translate-y-0 hover:shadow-none"
                 )}
                 onClick={() => { pasteItems(clipboard, currentPath); setIsExpanded(false); }}
               >
-                <Check size={18} />
-                <span className="whitespace-nowrap">{t('filemanager.actions.pasteHere')}</span>
-                {canPaste && <span className="ml-1 hidden whitespace-nowrap text-sm opacity-40 sm:inline">(Ctrl+V)</span>}
+                <Check size={16} />
+                <span>{t('filemanager.actions.pasteHere')}</span>
               </Button>
             </div>
           </div>
