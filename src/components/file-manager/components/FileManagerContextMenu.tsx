@@ -6,7 +6,7 @@ import { useProtectedStorageStore } from '@/stores/protectedStorage.ts';
 import { useThemeStore } from '@/stores/theme';
 import {
   FolderOpen, Eye, Download, Share2, Scissors, Copy, Pencil, Trash2,
-  RotateCw, PlusSquare, FolderPlus, Clipboard, Undo2, Zap, Archive, StarOff, Star,
+  PlusSquare, FolderPlus, FilePlus, Upload, Undo2, Zap, Archive, StarOff, Star,
   ChevronRight, X, FolderSearch, Lock, Unlock, Cloud, AlertTriangle, type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
@@ -127,7 +127,6 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
   const protectedStatus = useProtectedStorageStore((state) => state.status);
   const { fmMode, files } = store;
   const isSearchMode = store.getIsSearchMode();
-  const clipboard = store.getClipboard();
   const { selectedIds } = useSelectionStore();
   
   const menuRef = useRef<HTMLDivElement>(null);
@@ -275,6 +274,9 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                   {!isBatch && target.is_dir && <MenuButton icon={FolderOpen} label={t('filemanager.actions.open')} action="open" />}
                   {!target.is_dir && isPreviewSupported(target) && <MenuButton icon={Eye} label={t('filemanager.actions.preview')} action="preview" />}
                   <MenuButton icon={Download} label={t('filemanager.actions.download')} action="download" testId="file-action-download" />
+                  <MenuButton icon={Upload} label={t('filemanager.upload')} action="upload" testId="file-action-upload" />
+                  <MenuButton icon={FilePlus} label={t('filemanager.newFile')} action="new_file" testId="file-action-new-file" />
+                  <MenuButton icon={FolderPlus} label={t('filemanager.newFolder')} action="new_folder" testId="file-action-new-folder" />
 
                   <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
                   
@@ -366,18 +368,9 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
             </>
           ) : (
             <>
-               <MenuButton icon={RotateCw} label={t('filemanager.refresh')} action="refresh" testId="file-action-refresh" />
-               <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
-               <MenuButton icon={PlusSquare} label={t('filemanager.newFile')} action="new_file" testId="file-action-new-file" />
+               <MenuButton icon={Upload} label={t('filemanager.upload')} action="upload" testId="file-action-upload" />
+               <MenuButton icon={FilePlus} label={t('filemanager.newFile')} action="new_file" testId="file-action-new-file" />
                <MenuButton icon={FolderPlus} label={t('filemanager.newFolder')} action="new_folder" testId="file-action-new-folder" />
-               <div className={cn("h-px my-1 mx-2", isDark ? "bg-white/5" : "bg-gray-100")} />
-               <MenuButton
-                 icon={Clipboard}
-                 label={`${t('filemanager.actions.paste')} (${clipboard.length})`}
-                 action="paste"
-                 testId="file-action-paste"
-                 className={cn(clipboard.length === 0 && "opacity-30 pointer-events-none")}
-               />
             </>
           )}
         </div>

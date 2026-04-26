@@ -15,7 +15,6 @@ import {
 import { Button } from '@/components/ui/Button.tsx';
 import { RemoteMountManagerModal } from './RemoteMountManagerModal.tsx';
 import { SearchModal } from './SearchModal.tsx';
-import { UploadModal } from './UploadModal.tsx';
 import { ShortcutsHelpModal } from './ShortcutsHelpModal.tsx';
 import { ProtectedStorageModal } from './ProtectedStorageModal.tsx';
 import { FileManagerSettingsModal } from './FileManagerSettingsModal.tsx';
@@ -25,17 +24,24 @@ import { cn } from '@/lib/utils.ts';
 import { currentPathMountContextFromFiles } from '../utils/mounts.ts';
 import { pathMatchesProtectedRoot, shouldDisableThumbnailForPath } from '../utils/protectedStorage.ts';
 
-export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean }) => {
+interface FileManagerToolbarProps {
+  embedded?: boolean;
+  onUpload: () => void;
+  onNewFile: () => void;
+  onNewFolder: () => void;
+}
+
+export const FileManagerToolbar = ({ embedded = false, onUpload, onNewFile, onNewFolder }: FileManagerToolbarProps) => {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const store = useFileStore();
   const { capabilities } = useConfigStore();
   const { syncFromCapabilities, fetchStatus, status: protectedStatus } = useProtectedStorageStore();
   const { hasPermission } = useAuthzStore();
-  const { 
+  const {
     setViewMode, loading,
     showShareStatus, setShowShareStatus, fmMode,
-    setShareFilter, openActionModal
+    setShareFilter
   } = store;
   
   const viewMode = store.getViewMode();
@@ -50,7 +56,6 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
   
   const [showRefreshMenu, setShowRefreshMenu] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [showMountModal, setShowMountModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showNewMenu, setShowNewMenu] = useState(false);
@@ -169,8 +174,8 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
           
           {canModify && (
             <div className="flex min-w-0 flex-wrap items-center gap-1.5 md:gap-2">
-              <Button 
-                onClick={() => setShowUploadModal(true)}
+              <Button
+                onClick={onUpload}
                 aria-label="Open upload dialog"
                 data-testid="fm-open-upload"
                 className="bg-primary hover:bg-primary/90 text-white h-10 px-3 md:px-4 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
@@ -198,7 +203,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
                     <div className={cn(dropdownClasses, "left-0 top-12 w-44")}>
                       <button 
                         type="button"
-                        onClick={() => { openActionModal("create_file", t("filemanager.newFile"), "NewFile.md"); setShowNewMenu(false); }}
+                        onClick={() => { onNewFile(); setShowNewMenu(false); }}
                         data-testid="fm-create-file"
                         className={menuItemClasses}
                       >
@@ -207,7 +212,7 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
                       </button>
                       <button 
                         type="button"
-                        onClick={() => { openActionModal("create_dir", t("filemanager.newFolder"), "NewFolder"); setShowNewMenu(false); }}
+                        onClick={() => { onNewFolder(); setShowNewMenu(false); }}
                         data-testid="fm-create-folder"
                         className={menuItemClasses}
                       >
@@ -470,11 +475,6 @@ export const FileManagerToolbar = ({ embedded = false }: { embedded?: boolean })
       <SearchModal 
         isOpen={showSearchModal}
         onClose={() => setShowSearchModal(false)}
-      />
-
-      <UploadModal 
-        isOpen={showUploadModal}
-        onClose={() => setShowUploadModal(false)}
       />
 
       <RemoteMountManagerModal

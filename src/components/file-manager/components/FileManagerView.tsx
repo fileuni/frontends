@@ -5,6 +5,7 @@ import { FileBrowser } from "./FileBrowser.tsx";
 import { FileManagerContextMenu } from "./FileManagerContextMenu.tsx";
 import { ShareModal } from "./ShareModal.tsx";
 import { GlobalUploader } from "./GlobalUploader.tsx";
+import { UploadModal } from "./UploadModal.tsx";
 import { Pagination } from '@/components/ui/Pagination';
 
 import { useFileActions } from "../hooks/useFileActions.ts";
@@ -120,6 +121,7 @@ export const FileManagerView = () => {
   const [browsingArchivePath, setBrowsingArchivePath] = useState<string | null>(null);
   const [archivePassword, setArchivePassword] = useState<string | undefined>(undefined);
   const [isReady, setIsReady] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; target: FileInfo | null; } | null>(null);
   const [activeShareFile, setActiveShareFile] = useState<FileInfo | null>(null);
   const [pendingDeletePaths, setPendingDeletePaths] = useState<string[]>([]);
@@ -406,7 +408,7 @@ export const FileManagerView = () => {
     const mountedTarget = target && isMountedEntry(target);
     const mountRootTarget = target && isMountRootEntry(target);
 
-    if (paths.length === 0 && !["refresh", "empty_trash", "new_file", "new_folder", "paste", "clear_history"].includes(action)) return;
+    if (paths.length === 0 && !["refresh", "empty_trash", "new_file", "new_folder", "upload", "paste", "clear_history"].includes(action)) return;
 
     if (mountRootTarget && ['delete', 'rename', 'compress', 'extract', 'copy', 'cut'].includes(action)) {
       addToast(t('filemanager.messages.mountRootDeleteBlocked') || 'This mapped remote storage must be removed from Mounts.', 'error');
@@ -521,6 +523,7 @@ export const FileManagerView = () => {
       case "compress": openArchiveOperationModal('compress', paths); break;
       case "extract": openArchiveOperationModal('decompress', paths); break;
       case "refresh": loadFiles(); break;
+      case "upload": setShowUploadModal(true); break;
       case "rename": if (target) openActionModal("rename", t("filemanager.actions.rename"), target.name, target.path); break;
       case "new_file": openActionModal("create_file", t("filemanager.newFile"), "NewFile.md"); break;
       case "new_folder": openActionModal("create_dir", t("filemanager.newFolder"), "NewFolder"); break;
@@ -717,7 +720,12 @@ export const FileManagerView = () => {
               ? "border-white/5 bg-white/[0.015]"
               : "border-zinc-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]"
           )}>
-            <FileManagerToolbar embedded />
+            <FileManagerToolbar
+              embedded
+              onUpload={() => setShowUploadModal(true)}
+              onNewFile={() => openActionModal("create_file", t("filemanager.newFile"), "NewFile.md")}
+              onNewFolder={() => openActionModal("create_dir", t("filemanager.newFolder"), "NewFolder")}
+            />
             {fmMode === "files" && !isMinimal && <FileManagerNavigationBar />}
           </div>
           {fmMode === "recent" && <FileManagerRecentStats onClear={() => handleAction("clear_history", null)} />}
@@ -746,6 +754,7 @@ export const FileManagerView = () => {
             <FileBrowser
               onAction={handleAction}
               onContextMenu={(e, file) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, target: file }); }}
+              onBlankContextMenu={(e) => { setContextMenu({ x: e.clientX, y: e.clientY, target: null }); }}
             />
             {fmMode !== 'recent' && (
               <Pagination
@@ -803,6 +812,7 @@ export const FileManagerView = () => {
 
       <FilePropertiesModal file={propertiesFile} onClose={() => setPropertiesFile(null)} />
       <ShareModal isOpen={!!activeShareFile} onClose={() => setActiveShareFile(null)} file={activeShareFile} />
+      <UploadModal isOpen={showUploadModal} onClose={() => setShowUploadModal(false)} />
       <FileActionModal onSubmit={handleModalSubmit} />
       <ConfirmDestructiveModal 
         isOpen={actionModal.isOpen && (actionModal.type === 'delete_confirm' || actionModal.type === 'mode_delete_confirm')}

@@ -12,6 +12,7 @@ import type { FileInfo } from '../types/index.ts';
 
 interface Props {
   onContextMenu: (e: React.MouseEvent, file: FileInfo) => void;
+  onBlankContextMenu?: (e: React.MouseEvent<HTMLDivElement>) => void;
   onAction?: (action: string, target: FileInfo | null) => void;
   dragDisabled?: boolean;
 }
@@ -29,7 +30,7 @@ type MarqueeRect = {
 
 const MARQUEE_ACTIVATION_DISTANCE = 8;
 
-export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: Props) => {
+export const FileBrowser = ({ onContextMenu, onBlankContextMenu, onAction, dragDisabled = false }: Props) => {
   const { t } = useTranslation();
   const store = useFileStore();
   const { clearSearch, syncIndexAndRetrySearch } = useFileActions();
@@ -111,6 +112,14 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
     setTimeout(() => setMarqueeRect(null), 0);
   }, []);
 
+  const handleContextMenu = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (!(event.target instanceof HTMLElement)) return;
+    if (event.target.closest('[data-file-content="true"]')) return;
+    event.preventDefault();
+    deselectAll();
+    onBlankContextMenu?.(event);
+  }, [deselectAll, onBlankContextMenu]);
+
   if (!loading && files.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-12 opacity-20">
@@ -148,6 +157,7 @@ export const FileBrowser = ({ onContextMenu, onAction, dragDisabled = false }: P
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
+        onContextMenu={handleContextMenu}
       >
         {marqueeRect && (
           <div
