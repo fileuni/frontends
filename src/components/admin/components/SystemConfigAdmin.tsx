@@ -4,6 +4,12 @@ import "@/lib/i18n";
 import * as toml from "smol-toml";
 import { client, extractData, handleApiError } from "@/lib/api.ts";
 import type { components } from "@/lib/api.ts";
+import type {
+  ZeroTierExposurePlanItem,
+  ZeroTierGenerateKeypairResponse,
+  ZeroTierRuntimeSnapshot,
+  ZeroTierSupportMatrixItem,
+} from "@/components/setting/ZeroTierEmbeddedInlinePanel";
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
 import {
@@ -27,6 +33,9 @@ import { AdminPage } from "./admin-ui";
 type ConfigRawResponse = components["schemas"]["ConfigRawResponse"];
 type ConfigNotesResponse = components["schemas"]["ConfigNotesResponse"];
 type BackendCapabilitiesResponse = components["schemas"]["SystemCapabilities"];
+type ZeroTierStatusResponse = ZeroTierRuntimeSnapshot;
+type ZeroTierSupportMatrixResponse = ZeroTierSupportMatrixItem[];
+type ZeroTierPlanPreviewResponse = ZeroTierExposurePlanItem[];
 
 type LineDiffStats = {
   changed: number;
@@ -90,10 +99,25 @@ export const SystemConfigAdmin = () => {
   const [testing, setTesting] = useState(false);
   const [reloading, setReloading] = useState(false);
   const [pendingAdminPassword, setPendingAdminPassword] = useState("");
+  const [zerotierRuntimeSnapshot, setZeroTierRuntimeSnapshot] =
+    useState<ZeroTierStatusResponse | null>(null);
+  const [zerotierSupportMatrix, setZeroTierSupportMatrix] =
+    useState<ZeroTierSupportMatrixResponse>([]);
+  const [zerotierPlanPreview, setZeroTierPlanPreview] =
+    useState<ZeroTierPlanPreviewResponse>([]);
+  const [generatingZeroTierKeypair, setGeneratingZeroTierKeypair] = useState(false);
   const { currentUserData } = useAuthStore();
 
   const loadSystemConfigWorkbench = useCallback(async () => {
-    const [config, notePayload, capabilities, osInfo] = await Promise.all([
+    const [
+      config,
+      notePayload,
+      capabilities,
+      osInfo,
+      zerotierStatus,
+      zerotierSupport,
+      zerotierPlan,
+    ] = await Promise.all([
       extractData<ConfigRawResponse>(client.GET("/api/v1/admin/system/config/raw")),
       extractData<ConfigNotesResponse>(
         client.GET("/api/v1/admin/system/config/notes"),
@@ -107,7 +131,29 @@ export const SystemConfigAdmin = () => {
           return null;
         },
       ),
+      extractData<ZeroTierStatusResponse>(
+        client.GET("/api/v1/admin/zerotier-embedded/status", {}),
+      ).catch((error) => {
+        console.warn("Failed to fetch ZeroTier status", error);
+        return null;
+      }),
+      extractData<ZeroTierSupportMatrixResponse>(
+        client.GET("/api/v1/admin/zerotier-embedded/support-matrix", {}),
+      ).catch((error) => {
+        console.warn("Failed to fetch ZeroTier support matrix", error);
+        return [];
+      }),
+      extractData<ZeroTierPlanPreviewResponse>(
+        client.GET("/api/v1/admin/zerotier-embedded/plan-preview", {}),
+      ).catch((error) => {
+        console.warn("Failed to fetch ZeroTier plan preview", error);
+        return [];
+      }),
     ]);
+
+    setZeroTierRuntimeSnapshot(zerotierStatus);
+    setZeroTierSupportMatrix(zerotierSupport);
+    setZeroTierPlanPreview(zerotierPlan);
 
     return {
       configPath: config?.config_path ?? "",
@@ -268,6 +314,42 @@ export const SystemConfigAdmin = () => {
     return null;
   }, [pendingAdminPassword, t]);
 
+  const handleGenerateZeroTierKeypair = useCallback(async () => {
+    if (generatingZeroTierKeypair) {
+      return;
+    }
+    setGeneratingZeroTierKeypair(true);
+    try {
+      const generated = await extractData<ZeroTierGenerateKeypairResponse>(
+        client.POST("/api/v1/admin/zerotier-embedded/keypair/generate"),
+      );
+      const parsed = toml.parse(content);
+      const root =
+        typeof parsed === "object" && parsed !== null
+          ? (parsed as Record<string, unknown>)
+          : {};
+      const section =
+        typeof root["zerotier_embedded"] === "object" &&
+        root["zerotier_embedded"] !== null
+          ? (root["zerotier_embedded"] as Record<string, unknown>)
+          : {};
+      root["zerotier_embedded"] = section;
+      section["identity_public"] = generated.identity_public;
+      section["identity_secret"] = generated.identity_secret;
+      setContent(toml.stringify(root));
+      setZeroTierRuntimeSnapshot((prev) =>
+        prev
+          ? { ...prev, node_id: generated.node_id }
+          : prev,
+      );
+      addToast(t("admin.config.zerotierEmbedded.keypairGenerated"), "success");
+    } catch (error) {
+      addToast(handleApiError(error, t), "error");
+    } finally {
+      setGeneratingZeroTierKeypair(false);
+    }
+  }, [addToast, content, generatingZeroTierKeypair, setContent, t]);
+
   const handleSaveConfig = useCallback(async () => {
     if (reloading || testing) return;
     const passwordError = validatePendingAdminPassword();
@@ -407,6 +489,15 @@ export const SystemConfigAdmin = () => {
           },
           primaryActionLabel: t("admin.config.saveConfig"),
         },
+        zerotierEmbedded: {
+          runtimeSnapshot: zerotierRuntimeSnapshot,
+          supportMatrix: zerotierSupportMatrix,
+          planPreview: zerotierPlanPreview,
+          generatingKeypair: generatingZeroTierKeypair,
+          onGenerateKeypair: () => {
+            void handleGenerateZeroTierKeypair();
+          },
+        },
       }),
     [
       t,
@@ -419,6 +510,11 @@ export const SystemConfigAdmin = () => {
       sharedCapabilities,
       settingLicenseBinding,
       handleSaveConfig,
+      zerotierRuntimeSnapshot,
+      zerotierSupportMatrix,
+      zerotierPlanPreview,
+      generatingZeroTierKeypair,
+      handleGenerateZeroTierKeypair,
     ],
   );
 

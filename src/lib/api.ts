@@ -71,6 +71,40 @@ type PostPathItem<TData, TBody = never, TQuery = never, TPath = never> = {
 };
 
 type LocalPathOverrides = {
+  "/api/v1/admin/zerotier-embedded/status": {
+    parameters: EmptyParameters;
+    get: JsonOperation<BaseResponse<import("@/components/setting/ZeroTierEmbeddedInlinePanel").ZeroTierRuntimeSnapshot>>;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/zerotier-embedded/support-matrix": {
+    parameters: EmptyParameters;
+    get: JsonOperation<BaseResponse<import("@/components/setting/ZeroTierEmbeddedInlinePanel").ZeroTierSupportMatrixItem[]>>;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/zerotier-embedded/plan-preview": {
+    parameters: EmptyParameters;
+    get: JsonOperation<BaseResponse<import("@/components/setting/ZeroTierEmbeddedInlinePanel").ZeroTierExposurePlanItem[]>>;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/zerotier-embedded/keypair/generate": PostPathItem<BaseResponse<import("@/components/setting/ZeroTierEmbeddedInlinePanel").ZeroTierGenerateKeypairResponse>>;
   "/api/v1/admin/system/backup/export": PostPathItem<Record<string, unknown>>;
   "/api/v1/admin/system/backup/import": {
     parameters: EmptyParameters;

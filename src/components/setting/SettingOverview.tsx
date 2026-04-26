@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   Sparkles,
   Video,
+  Waypoints,
   Zap,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -516,4 +517,5 @@ export const settingCommonIcons = {
   database: Database,
   cache: Database,
   performance: Sparkles,
+  zerotierEmbedded: Waypoints,
 } as const;

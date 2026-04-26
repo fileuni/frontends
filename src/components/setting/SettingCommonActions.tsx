@@ -13,6 +13,12 @@ import {
   ThumbnailInlinePanel,
 } from "./SettingInlineExternalPanels";
 import { IdentityVerificationInlinePanel } from "./IdentityVerificationInlinePanel";
+import {
+  ZeroTierEmbeddedInlinePanel,
+  type ZeroTierExposurePlanItem,
+  type ZeroTierRuntimeSnapshot,
+  type ZeroTierSupportMatrixItem,
+} from "./ZeroTierEmbeddedInlinePanel";
 import { MediaTranscodingInlinePanel, type ProbeMediaBackend } from "./MediaTranscodingConfigPanel";
 import {
   CacheInlinePanel,
@@ -337,6 +343,13 @@ interface BuildSettingCommonActionsParams {
     onPrimaryAction: () => void;
     primaryActionLabel: string;
   };
+  zerotierEmbedded?: {
+    runtimeSnapshot: ZeroTierRuntimeSnapshot | null;
+    supportMatrix: ZeroTierSupportMatrixItem[];
+    planPreview: ZeroTierExposurePlanItem[];
+    generatingKeypair: boolean;
+    onGenerateKeypair: () => void;
+  };
 }
 
 export const buildSettingCommonActions = ({
@@ -351,6 +364,7 @@ export const buildSettingCommonActions = ({
   adminPassword,
   license,
   storage,
+  zerotierEmbedded,
 }: BuildSettingCommonActionsParams): SettingActionItem[] => {
   const {
     onTestDatabase,
@@ -489,6 +503,38 @@ export const buildSettingCommonActions = ({
           onContentChange={onContentChange}
         />
       ),
+    },
+    {
+      id: "zerotier-embedded",
+      routeKey: "zerotier_embedded",
+      routeAliases: ["zerotier_embedded", "zerotier-embedded", "zerotier"],
+      label: t("admin.config.zerotierEmbedded.title"),
+      description: "",
+      icon: settingCommonIcons.zerotierEmbedded,
+      renderPanel: () => (
+        <ZeroTierEmbeddedInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+          runtimeSnapshot={zerotierEmbedded?.runtimeSnapshot ?? null}
+          supportMatrix={zerotierEmbedded?.supportMatrix ?? []}
+          planPreview={zerotierEmbedded?.planPreview ?? []}
+          generatingKeypair={zerotierEmbedded?.generatingKeypair ?? false}
+          onGenerateKeypair={zerotierEmbedded?.onGenerateKeypair ?? (() => {})}
+        />
+      ),
+      stats: [
+        {
+          label: t("admin.config.zerotierEmbedded.stats.online"),
+          value: zerotierEmbedded?.runtimeSnapshot?.online
+            ? t("admin.config.zerotierEmbedded.status.online")
+            : t("admin.config.zerotierEmbedded.status.offline"),
+        },
+        {
+          label: t("admin.config.zerotierEmbedded.stats.assignedIp"),
+          value: zerotierEmbedded?.runtimeSnapshot?.assigned_ip?.trim() || "-",
+        },
+      ],
     },
     {
       id: "cache-acceleration",
