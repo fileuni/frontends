@@ -3,8 +3,10 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { FileInfo, ViewMode, FileManagerMode, ClipboardItem } from '../types/index.ts';
 import { useAuthStore } from '@/stores/auth.ts';
 import { storageHub } from '@/lib/storageHub';
-import { client, extractData, type components as ApiComponents } from '@/lib/api.ts';
+import { client, extractData, handleApiError, isApiError, type components as ApiComponents } from '@/lib/api.ts';
 import { parseFileListResult } from '../utils/fileListResponse.ts';
+import { useToastStore } from '@/stores/toast';
+import i18next from '@/lib/i18n.ts';
 
 export type { FileManagerMode };
 export type FMMode = FileManagerMode;
@@ -840,6 +842,17 @@ export const useFileStore = create<FileState>()(
           set({ files: filesArray });
         } catch (_error) {
           console.error('Failed to load files:', _error);
+          if (activeMode === 'files' && isSearchMode && searchKeyword.trim()) {
+            const { addToast } = useToastStore.getState();
+            const t = i18next.t.bind(i18next);
+            if (isApiError(_error) && _error.biz_code === 'TOO_MANY_ATTEMPTS') {
+              addToast(t('filemanager.searchTooFrequent'), 'error');
+            } else if (isApiError(_error) && _error.biz_code === 'INVALID_PARAMETER') {
+              addToast(t('filemanager.searchKeywordTooShort'), 'error');
+            } else {
+              addToast(handleApiError(_error, t), 'error');
+            }
+          }
         } finally {
           set({ loading: false });
         }

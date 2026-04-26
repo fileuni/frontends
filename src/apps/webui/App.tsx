@@ -51,7 +51,7 @@ export const App: React.FC = () => {
   const content = (
     <>
       {canInitFeatures && <Navbar />}
-      <main className={cn("flex-1 flex flex-col", canInitFeatures && "pt-16 [--public-header-offset:4rem]")}>
+      <main className={cn("flex-1 flex flex-col", canInitFeatures && "[--public-header-offset:4rem]")}>
         <AppRouter />
       </main>
       {canInitFeatures && <GlobalAudioPlayer />}

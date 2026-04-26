@@ -420,6 +420,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/externalize-net/reload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reload_runtime"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/externalize-net/sites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_sites"];
+        put?: never;
+        post: operations["create_site"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/externalize-net/sites/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["update_site"];
+        post?: never;
+        delete: operations["delete_site"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/externalize-net/test-upstream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["test_upstream"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/externalize-net/zerossl/accounts": {
         parameters: {
             query?: never;
@@ -447,54 +511,6 @@ export interface paths {
         put: operations["update_zerossl_account"];
         post?: never;
         delete: operations["delete_zerossl_account"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/extensions/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["get_status"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/extensions/test-post-startup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["test_post_startup"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/extensions/test-pre-startup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["test_pre_startup"];
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -534,14 +550,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/startup-commands/status": {
+    "/api/v1/admin/plugins/audit": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["get_startup_commands_status"];
+        get: operations["list_audit_logs"];
         put?: never;
         post?: never;
         delete?: never;
@@ -550,23 +566,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/startup-commands/test-post-startup": {
+    "/api/v1/admin/plugins/market/catalog": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["get_market_catalog"];
         put?: never;
-        post: operations["test_post_startup_v2"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/startup-commands/test-pre-startup": {
+    "/api/v1/admin/plugins/market/install": {
         parameters: {
             query?: never;
             header?: never;
@@ -575,7 +591,199 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["test_pre_startup_v2"];
+        post: operations["install_from_market_url"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/registry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_registry"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/registry/{plugin_id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/runtimes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_active_runtimes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/{plugin_id}/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_plugin_config"];
+        put?: never;
+        post: operations["update_plugin_config"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/{plugin_id}/nav-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_plugin_nav_items"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/{plugin_id}/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_permission_grants"];
+        put?: never;
+        post: operations["update_permission_grants"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/{plugin_id}/runtime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_plugin_runtime_handle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/{plugin_id}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["start_plugin_runtime"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/{plugin_id}/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["stop_plugin_runtime"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/{plugin_id}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_plugin_tasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plugins/{plugin_id}/uninstall": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["uninstall_plugin"];
         delete?: never;
         options?: never;
         head?: never;
@@ -841,70 +1049,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/externalize-net/reload": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["reload_runtime"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/externalize-net/sites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["list_sites"];
-        put?: never;
-        post: operations["create_site"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/externalize-net/sites/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["update_site"];
-        post?: never;
-        delete: operations["delete_site"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/externalize-net/test-upstream": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["test_upstream"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/cache": {
         parameters: {
             query?: never;
@@ -914,198 +1058,6 @@ export interface paths {
         };
         /** Cache status information */
         get: operations["cache_status"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/groups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List groups */
-        get: operations["list_groups"];
-        put?: never;
-        /** Create group */
-        post: operations["create_group"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/groups/{group_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Disband group */
-        delete: operations["disband_group"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/groups/{group_id}/members": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get group members */
-        get: operations["list_group_members"];
-        put?: never;
-        /** Add group members */
-        post: operations["add_group_members"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/groups/{group_id}/members/{member_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Remove member or leave group */
-        delete: operations["remove_group_member"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/guests/nickname": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Temporary user updates their own nickname */
-        put: operations["update_temp_user_nickname"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/invites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List chat invites */
-        get: operations["list_invites"];
-        put?: never;
-        /** Create chat invite */
-        post: operations["create_invite"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/invites/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update chat invite */
-        put: operations["update_invite"];
-        post?: never;
-        /** Delete chat invite (soft delete) */
-        delete: operations["delete_invite"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/public/capabilities": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get chat capabilities */
-        get: operations["get_chat_capabilities"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get chat settings */
-        get: operations["get_settings"];
-        /** Update chat settings */
-        put: operations["update_settings"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/users/online": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get online users */
-        get: operations["list_online_users"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chat/users/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Search users */
-        get: operations["search_users"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1124,281 +1076,6 @@ export interface paths {
         /** Get client ID information */
         get: operations["get_client_id"];
         put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/accounts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get email account list */
-        get: operations["list_accounts"];
-        put?: never;
-        /** Add email account */
-        post: operations["add_account"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/accounts/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Export email accounts configuration */
-        post: operations["export_accounts"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/accounts/import": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Import email accounts configuration */
-        post: operations["import_accounts"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/accounts/test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Test email connection */
-        post: operations["test_connection"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/accounts/{account_id}/folders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get folder list for account */
-        get: operations["list_folders"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/accounts/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update email account */
-        put: operations["update_account"];
-        post?: never;
-        /** Delete email account */
-        delete: operations["delete_email_account"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/accounts/{id}/sync": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Manually trigger sync */
-        post: operations["sync_account"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/accounts/{id}/sync-status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get sync status */
-        get: operations["get_sync_status"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/drafts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List drafts */
-        get: operations["list_drafts"];
-        put?: never;
-        /** Save or update draft */
-        post: operations["save_draft"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/drafts/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete draft */
-        delete: operations["delete_draft"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/folders/{folder_id}/messages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get email list */
-        get: operations["list_messages"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/messages/send": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Send email */
-        post: operations["send_email"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/messages/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get email detail */
-        get: operations["get_message"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/messages/{id}/attachments/{index}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Download email attachment */
-        get: operations["download_attachment"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/messages/{id}/attachments/{index}/save": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Save attachment to VFS */
-        post: operations["save_attachment_to_vfs"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/messages/{id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Mark message as read/unread */
-        put: operations["mark_read"];
         post?: never;
         delete?: never;
         options?: never;
@@ -3044,6 +2721,390 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plugin-host/auth/has-permission": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["check_permission"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/config/ensure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ensure_plugin_config_file"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_db_info"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/migrations/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["execute_migration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/migrations/get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_migration_state"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/migrations/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_migration_states"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/migrations/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["upsert_migration_state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/shared/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_shared_record"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/shared/get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_shared_record"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/shared/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_shared_records"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/shared/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["upsert_shared_record"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/db/sqlite/ensure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ensure_sqlite_database"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/identity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_identity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/kv/namespace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["build_kv_namespace"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/kv/set": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["set_kv"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/kv/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_kv"];
+        put?: never;
+        post?: never;
+        delete: operations["delete_kv"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/nav/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_nav_items"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/nav/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["upsert_nav_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/tasks/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_tasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/tasks/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["upsert_task"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/users/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_user_by_id"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/vfs/read-text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["read_vfs_text"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/vfs/write-bytes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["write_vfs_bytes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugin-host/vfs/write-text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["write_vfs_text"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/showip": {
         parameters: {
             query?: never;
@@ -3721,45 +3782,9 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description Email account response */
-        AccountResponse: {
-            created_at: string;
-            display_name?: string | null;
-            email_address: string;
-            id: string;
-            imap_host: string;
-            /** Format: int32 */
-            imap_port: number;
-            imap_security: components["schemas"]["ConnectionSecurity"];
-            is_active: boolean;
-            is_ssl: boolean;
-            last_sync_at?: string | null;
-            smtp_host: string;
-            /** Format: int32 */
-            smtp_port: number;
-            smtp_security: components["schemas"]["ConnectionSecurity"];
-            sync_enabled: boolean;
-            /** Format: int64 */
-            unread_count: number;
-        };
         AcmeRunResult: {
             id: string;
             status: string;
-        };
-        /** @description Add email account request */
-        AddAccountRequest: {
-            display_name?: string | null;
-            email_address: string;
-            imap_host: string;
-            /** Format: int32 */
-            imap_port: number;
-            imap_security: components["schemas"]["ConnectionSecurity"];
-            is_ssl: boolean;
-            password: string;
-            smtp_host: string;
-            /** Format: int32 */
-            smtp_port: number;
-            smtp_security: components["schemas"]["ConnectionSecurity"];
         };
         AddBlacklistRequest: {
             blacklist_type: string;
@@ -3767,9 +3792,6 @@ export interface components {
             guard_type?: string | null;
             reason?: string | null;
             value: string;
-        };
-        AddMembersRequest: {
-            member_ids: string[];
         };
         AdminCreateUserRequest: {
             bio?: string | null;
@@ -3865,14 +3887,6 @@ export interface components {
         ArchiveListQuery: {
             password?: string | null;
             path: string;
-        };
-        /** @description Attachment information */
-        AttachmentInfo: {
-            content_type: string;
-            filename: string;
-            id: number;
-            /** Format: int64 */
-            size: number;
         };
         /** @enum {string} */
         AuthRecommendation: "Allow" | "ChallengeCaptcha" | "DenyBruteForce" | "DenyIpBlocked";
@@ -4082,28 +4096,6 @@ export interface components {
             new_password: string;
             old_password: string;
         };
-        ChatCapabilities: {
-            chat_default_key?: string | null;
-            /** @example true */
-            enabled: boolean;
-            max_groups_joined_per_user: number;
-            max_groups_per_user: number;
-            max_members_per_group: number;
-            max_message_size_bytes: number;
-            rate_limit_messages_per_window: number;
-            /** Format: int64 */
-            rate_limit_window_secs: number;
-            /** @example ["stun:stun.nextcloud.com:443","stun:stun.threema.ch:3478","stun:stun.telnyx.com:3478"] */
-            stun_servers: string[];
-            turn_servers: components["schemas"]["TurnServerConfig"][];
-        };
-        ChatSettingsResponse: {
-            is_enabled: boolean;
-            settings_json?: string | null;
-            /** Format: date-time */
-            updated_at: string;
-            user_id: string;
-        };
         /** @description Client ID information response */
         ClientIdInfo: {
             /** @description Client ID */
@@ -4153,11 +4145,6 @@ export interface components {
             /** @description Result message */
             message: string;
         };
-        /**
-         * @description Connection security type
-         * @enum {string}
-         */
-        ConnectionSecurity: "None" | "SslTls" | "StartTls";
         CopyFileQuery: {
             dest_path: string;
             source_path: string;
@@ -4166,11 +4153,6 @@ export interface components {
             content?: string | null;
             is_base64?: boolean | null;
             path: string;
-        };
-        CreateGroupRequest: {
-            member_ids?: string[] | null;
-            /** @example My Awesome Group */
-            name: string;
         };
         CreateSessionRequest: {
             client_id: string;
@@ -4308,38 +4290,6 @@ export interface components {
             fqdn: string;
             status?: string | null;
         };
-        /** @description Export email accounts request */
-        ExportAccountsRequest: {
-            export_password: string;
-        };
-        /** @description Export email accounts response */
-        ExportAccountsResponse: {
-            encrypted_data: string;
-            export_filename: string;
-        };
-        /** @description Exported email account configuration */
-        ExportableAccount: {
-            display_name?: string | null;
-            email_address: string;
-            imap_host: string;
-            /** Format: int32 */
-            imap_port: number;
-            imap_security: components["schemas"]["ConnectionSecurity"];
-            is_ssl: boolean;
-            password: string;
-            smtp_host: string;
-            /** Format: int32 */
-            smtp_port: number;
-            smtp_security: components["schemas"]["ConnectionSecurity"];
-        };
-        ExtensionManagerStatus: {
-            data_dir: string;
-            enabled: boolean;
-            install_dir: string;
-            plus_enabled: boolean;
-            post_startup_count: number;
-            pre_startup_count: number;
-        };
         ExternalToolDiagnoseReq: {
             configured_values: {
                 [key: string]: string;
@@ -4410,6 +4360,7 @@ export interface components {
             name: string;
             original_path?: string | null;
             path: string;
+            preview_kind?: string;
             /** Format: int64 */
             size: number;
             trashed_at?: string | null;
@@ -4431,21 +4382,6 @@ export interface components {
             path?: string | null;
             sort_by?: string | null;
         };
-        /** @description Folder response */
-        FolderResponse: {
-            account_id: string;
-            display_name?: string | null;
-            id: string;
-            is_system: boolean;
-            /** Format: int64 */
-            message_count: number;
-            name: string;
-            parent_id?: string | null;
-            /** Format: int32 */
-            sort_order: number;
-            /** Format: int64 */
-            unread_count: number;
-        };
         ForgotPasswordOptionsResponse: {
             email?: string | null;
             has_security_question: boolean;
@@ -4465,28 +4401,207 @@ export interface components {
             token: string;
             turnstile_site_key?: string | null;
         };
-        GroupInfo: {
-            /** Format: date-time */
-            created_at: string;
-            /** @example group-123 */
-            group_id: string;
-            /** @example My Awesome Group */
-            name: string;
-            owner_uid: string;
-        };
         /** @enum {string} */
         GuardListType: "Blacklist" | "HighRisk";
-        /** @description Import email accounts request */
-        ImportAccountsRequest: {
-            encrypted_data: string;
-            import_password: string;
-            skip_duplicates?: boolean | null;
+        HostDbInfoResponse: {
+            access_mode: string;
+            connection_available: boolean;
+            recommended_table_prefix: string;
         };
-        /** @description Import result */
-        ImportResult: {
-            failed: number;
-            imported: number;
-            skipped: number;
+        HostIdentityResponse: {
+            /** Format: int32 */
+            role_id: number;
+            user_id: string;
+            username?: string | null;
+        };
+        HostKvDeleteResponse: {
+            deleted: boolean;
+            key: string;
+        };
+        HostKvGetResponse: {
+            key: string;
+            value?: string | null;
+        };
+        HostKvNamespaceRequest: {
+            key: string;
+            plugin_id: string;
+        };
+        HostKvNamespaceResponse: {
+            namespaced_key: string;
+        };
+        HostKvSetRequest: {
+            key: string;
+            /** Format: int64 */
+            ttl_secs?: number | null;
+            value: string;
+        };
+        HostMigrationExecuteRequest: {
+            description?: string | null;
+            migration_key: string;
+            plugin_id: string;
+            scope: string;
+        };
+        HostMigrationExecuteResponse: {
+            executed_statements: number;
+            migration_key: string;
+            plugin_id: string;
+            scope: string;
+            state_json: string;
+            status: string;
+        };
+        HostMigrationStateListQuery: {
+            plugin_id: string;
+            scope: string;
+        };
+        HostMigrationStateListResponse: {
+            states: components["schemas"]["HostMigrationStateResponse"][];
+        };
+        HostMigrationStateQuery: {
+            migration_key: string;
+            plugin_id: string;
+            scope: string;
+        };
+        HostMigrationStateResponse: {
+            migration_key: string;
+            plugin_id: string;
+            scope: string;
+            state_json: string;
+        };
+        HostMigrationStateUpsertRequest: {
+            migration_key: string;
+            plugin_id: string;
+            scope: string;
+            state_json: string;
+        };
+        HostNavItemListQuery: {
+            plugin_id?: string | null;
+        };
+        HostNavItemListResponse: {
+            items: components["schemas"]["HostNavItemResponse"][];
+        };
+        HostNavItemResponse: {
+            group_key?: string | null;
+            icon: string;
+            item_key: string;
+            label: string;
+            plugin_id: string;
+            position?: string | null;
+            required_permission?: string | null;
+            route: string;
+            /** Format: int32 */
+            sort_order: number;
+            visibility: string;
+        };
+        HostNavItemUpsertRequest: {
+            group_key?: string | null;
+            icon: string;
+            item_key: string;
+            label: string;
+            plugin_id: string;
+            position?: string | null;
+            required_permission?: string | null;
+            route: string;
+            /** Format: int32 */
+            sort_order: number;
+            visibility: string;
+        };
+        HostPermissionCheckRequest: {
+            permission_key: string;
+        };
+        HostPermissionCheckResponse: {
+            allowed: boolean;
+        };
+        HostPluginConfigEnsureRequest: {
+            file_name: string;
+            plugin_id: string;
+        };
+        HostPluginConfigEnsureResponse: {
+            config_dir: string;
+            config_file: string;
+            plugin_id: string;
+        };
+        HostSharedRecordDeleteResponse: {
+            deleted: boolean;
+        };
+        HostSharedRecordListQuery: {
+            collection: string;
+            plugin_id: string;
+        };
+        HostSharedRecordListResponse: {
+            records: components["schemas"]["HostSharedRecordResponse"][];
+        };
+        HostSharedRecordQuery: {
+            collection: string;
+            plugin_id: string;
+            record_key: string;
+        };
+        HostSharedRecordResponse: {
+            collection: string;
+            owner_user_id?: string | null;
+            payload_json: string;
+            plugin_id: string;
+            record_key: string;
+        };
+        HostSharedRecordUpsertRequest: {
+            collection: string;
+            payload_json: string;
+            plugin_id: string;
+            record_key: string;
+        };
+        HostSqliteEnsureRequest: {
+            database_name: string;
+            plugin_id: string;
+        };
+        HostSqliteEnsureResponse: {
+            database_name: string;
+            dsn: string;
+            logical_path: string;
+            physical_path: string;
+            plugin_id: string;
+        };
+        HostTaskListQuery: {
+            plugin_id: string;
+        };
+        HostTaskListResponse: {
+            tasks: components["schemas"]["HostTaskResponse"][];
+        };
+        HostTaskResponse: {
+            cron?: string | null;
+            last_error?: string | null;
+            mode: string;
+            plugin_id: string;
+            status: string;
+            task_key: string;
+        };
+        HostTaskUpsertRequest: {
+            cron?: string | null;
+            last_error?: string | null;
+            mode: string;
+            plugin_id: string;
+            status: string;
+            task_key: string;
+        };
+        HostUserLookupResponse: {
+            /** Format: int32 */
+            role_id: number;
+            status: string;
+            user_id: string;
+            username: string;
+        };
+        HostVfsReadTextQuery: {
+            logical_path: string;
+        };
+        HostVfsReadTextResponse: {
+            content: string;
+            logical_path: string;
+        };
+        HostVfsWriteBytesRequest: {
+            content_base64: string;
+            logical_path: string;
+        };
+        HostVfsWriteTextRequest: {
+            content: string;
+            logical_path: string;
         };
         IndexRebuildRequest: {
             /**
@@ -4508,41 +4623,6 @@ export interface components {
             confidence: string;
             evidence: string[];
             source: string;
-        };
-        /** @description Invite info (i.e., temp user info) */
-        InviteInfo: {
-            /**
-             * Format: date-time
-             * @description Creation time
-             */
-            created_at: string;
-            /** @description Creator UID */
-            creator_uid: string;
-            /**
-             * Format: date-time
-             * @description Expiration time
-             */
-            expires_at: string;
-            /**
-             * @description Temp user ID (format: creator_uid:uuid)
-             * @example user-uuid:temp-uuid
-             */
-            id: string;
-            /** @description Nickname */
-            nickname: string;
-        };
-        /** @description Invite request (i.e., create temp user request) */
-        InviteRequest: {
-            /**
-             * Format: date-time
-             * @description Expiration time
-             */
-            expires_at: string;
-            /**
-             * @description Nickname (optional, defaults to Guest+random)
-             * @example My Guest
-             */
-            nickname?: string | null;
         };
         /** @description IP address information response */
         IpInfo: {
@@ -4624,25 +4704,6 @@ export interface components {
             registration: components["schemas"]["LicenseItemStatus"];
             storage_encryption: components["schemas"]["LicenseItemStatus"];
         };
-        /** @description Email list query parameters */
-        ListMessagesQuery: {
-            /**
-             * Format: int64
-             * @description Page number (starts from 1)
-             */
-            page?: number | null;
-            /**
-             * Format: int64
-             * @description Items per page
-             */
-            per_page?: number | null;
-            /** @description Whether to perform remote IMAP search */
-            remote?: boolean | null;
-            /** @description Search keyword */
-            search?: string | null;
-            /** @description Show unread only */
-            unread_only?: boolean | null;
-        };
         ListParams: {
             only_unread?: boolean | null;
             /** Format: int64 */
@@ -4663,9 +4724,23 @@ export interface components {
         LogoutSessionRequest: {
             session_id: string;
         };
-        /** @description Mark message read request */
-        MarkReadRequest: {
-            is_read: boolean;
+        MarketCatalogResponse: {
+            generated_at: string;
+            plugin_count: number;
+            /** Format: int64 */
+            schema_version: number;
+            source: string;
+            stats: components["schemas"]["RegistryStats"];
+        };
+        MarketInstallFromUrlRequest: {
+            download_url: string;
+        };
+        MarketInstallFromUrlResponse: {
+            checksum_sha256: string;
+            package_dir: string;
+            plugin_id: string;
+            prepared_runtime_kind: string;
+            version: string;
         };
         MediaBackendProbeReq: {
             backend: string;
@@ -4682,50 +4757,23 @@ export interface components {
             message: string;
             warnings: string[];
         };
-        /** @description Message detail response */
-        MessageDetailResponse: components["schemas"]["MessageResponse"] & {
-            attachments: components["schemas"]["AttachmentInfo"][];
-            bcc_addr?: string | null;
-            body_html?: string | null;
-            body_text?: string | null;
-            cc_addr?: string | null;
-            to_addr: string;
-        };
-        /** @description Message response */
-        MessageResponse: {
-            account_id: string;
-            date: string;
-            folder_id: string;
-            from_addr: string;
-            from_name: string;
-            has_attachments: boolean;
-            id: string;
-            is_flagged: boolean;
-            is_read: boolean;
-            message_id: string;
-            preview_text?: string | null;
-            /** Format: int64 */
-            size: number;
-            subject: string;
-            /** Format: int64 */
-            uid: number;
-        };
         Model: {
-            account_id?: string | null;
-            attachments_json?: string | null;
-            bcc_addr?: string | null;
-            body_html?: string | null;
-            cc_addr?: string | null;
-            /** @description ID () */
-            context_ref_id?: string | null;
-            /** @description : new, reply, reply_all, forward */
-            context_type: string;
+            /** Format: date-time */
             created_at: string;
+            group_key?: string | null;
+            icon: string;
             id: string;
-            subject?: string | null;
-            to_addr?: string | null;
+            item_key: string;
+            label: string;
+            plugin_id: string;
+            position?: string | null;
+            required_permission?: string | null;
+            route: string;
+            /** Format: int32 */
+            sort_order: number;
+            /** Format: date-time */
             updated_at: string;
-            user_id: string;
+            visibility: string;
         };
         NotificationDto: {
             content: string;
@@ -4779,6 +4827,7 @@ export interface components {
                 name: string;
                 original_path?: string | null;
                 path: string;
+                preview_kind?: string;
                 /** Format: int64 */
                 size: number;
                 trashed_at?: string | null;
@@ -4867,6 +4916,46 @@ export interface components {
             desc_zh: string;
             module_key: string;
             perm_key: string;
+        };
+        PluginAdminStatus: {
+            runtime: components["schemas"]["PluginRuntimeStatusSnapshot"];
+            stats: components["schemas"]["RegistryStats"];
+        };
+        PluginConfigResponse: {
+            config_dir: string;
+            config_file: string;
+            content: string;
+            plugin_id: string;
+        };
+        PluginNavItemListResponse: {
+            items: components["schemas"]["Model"][];
+        };
+        PluginPermissionGrantItem: {
+            granted: boolean;
+            permission_key: string;
+        };
+        PluginRuntimeActionResponse: {
+            handle: components["schemas"]["RuntimeHandle"];
+        };
+        PluginRuntimeListResponse: {
+            runtimes: components["schemas"]["RuntimeHandle"][];
+        };
+        PluginRuntimeStatusSnapshot: {
+            allow_sideload: boolean;
+            docker_engine_command: string;
+            enable_docker_runtime: boolean;
+            enable_process_runtime: boolean;
+            enable_wasm_runtime: boolean;
+            enabled: boolean;
+            host_api_base_url: string;
+            initialized: boolean;
+            layout: components["schemas"]["RuntimeDirectoryLayout"];
+            /** Format: int64 */
+            market_request_timeout_sec: number;
+            temp_dir: string;
+        };
+        PluginTaskListResponse: {
+            tasks: components["schemas"]["Model"][];
         };
         PreviewSizeLimits: {
             /** Format: int64 */
@@ -4993,6 +5082,14 @@ export interface components {
             phone: boolean;
             phone_configured: boolean;
             username: boolean;
+        };
+        RegistryStats: {
+            /** Format: int64 */
+            audit_log_count: number;
+            /** Format: int64 */
+            plugin_count: number;
+            /** Format: int64 */
+            version_count: number;
         };
         ReleaseChannelInfo: {
             channel: string;
@@ -5127,26 +5224,30 @@ export interface components {
             role_id: number;
             role_key: string;
         };
+        RuntimeDirectoryLayout: {
+            cache_dir: string;
+            config_dir: string;
+            logs_dir: string;
+            packages_dir: string;
+            root_dir: string;
+            runtime_dir: string;
+            shared_dir: string;
+            state_dir: string;
+        };
+        RuntimeHandle: {
+            detail: string;
+            instance_ref?: string | null;
+            /** Format: int32 */
+            pid?: number | null;
+            plugin_id: string;
+            route_base_url?: string | null;
+            runtime_kind: string;
+            status: components["schemas"]["RuntimeStatus"];
+        };
+        /** @enum {string} */
+        RuntimeStatus: "Prepared" | "Running" | "Stopped" | "Failed";
         RuntimeVersionInfo: {
             version: string;
-        };
-        /** @description Save attachment to VFS request */
-        SaveAttachmentRequest: {
-            /** @description Target path in VFS */
-            target_path: string;
-        };
-        /** @description Save draft request */
-        SaveDraftRequest: {
-            account_id?: string | null;
-            attachments_json?: string | null;
-            bcc_addr?: string | null;
-            body_html?: string | null;
-            cc_addr?: string | null;
-            context_ref_id?: string | null;
-            context_type: string;
-            id?: string | null;
-            subject?: string | null;
-            to_addr?: string | null;
         };
         ScheduledJobStatus: {
             cron: string;
@@ -5167,18 +5268,6 @@ export interface components {
             target: string;
             target_type: components["schemas"]["TargetType"];
             token: string;
-        };
-        /** @description Send email request */
-        SendEmailRequest: {
-            /** @description List of attachment paths in VFS */
-            attachment_vfs_paths?: string[] | null;
-            bcc?: string[] | null;
-            body_html?: string | null;
-            body_text: string;
-            cc?: string[] | null;
-            from_account_id: string;
-            subject: string;
-            to: string[];
         };
         SendVerificationCodeRequest: {
             captcha_code?: string | null;
@@ -5329,28 +5418,6 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
-        StartupCommandResult: {
-            command: string;
-            error?: string | null;
-            /** Format: int32 */
-            exit_code?: number | null;
-            index: number;
-            status: components["schemas"]["StartupCommandStatus"];
-            stderr: string;
-            stderr_truncated: boolean;
-            stdout: string;
-            stdout_truncated: boolean;
-        };
-        /** @enum {string} */
-        StartupCommandStatus: "exited" | "running" | "spawn_failed";
-        StartupExecutionRequest: {
-            toml_content?: string | null;
-        };
-        StartupExecutionResult: {
-            commands: components["schemas"]["StartupCommandResult"][];
-            phase: string;
-            total_duration_ms: number;
-        };
         StorageStatsResponse: {
             /** Format: int64 */
             quota: number;
@@ -5373,12 +5440,6 @@ export interface components {
             branding?: null | components["schemas"]["BrandingConfig"];
             /** Format: int32 */
             captcha_max_attempts: number;
-            chat_max_groups_joined_per_user: number;
-            chat_max_groups_per_user: number;
-            chat_max_members_per_group: number;
-            chat_max_message_size_bytes: number;
-            chat_stun_servers: string[];
-            chat_turn_servers: components["schemas"]["TurnServerConfig"][];
             /** Format: int32 */
             compression_max_level?: number | null;
             config_set_reason?: string | null;
@@ -5388,19 +5449,9 @@ export interface components {
             enable_api: boolean;
             enable_archive_browser?: boolean | null;
             enable_captcha: boolean;
-            enable_chat: boolean;
             enable_codemirror: boolean;
             enable_email_auth: boolean;
-            enable_email_manager: boolean;
-            enable_embedded_websocket: boolean;
             enable_ftp: boolean;
-            ftp_passive_host?: string | null;
-            /** Format: int32 */
-            ftp_passive_ports_end?: number | null;
-            /** Format: int32 */
-            ftp_passive_ports_start?: number | null;
-            /** Format: int32 */
-            ftp_port?: number | null;
             enable_google_viewer: boolean;
             enable_latexjs: boolean;
             enable_latexmk: boolean;
@@ -5408,17 +5459,20 @@ export interface components {
             enable_media_transcoding: boolean;
             enable_microsoft_viewer: boolean;
             enable_mobile_auth: boolean;
-            enable_mqtt_proxy_broker: boolean;
             enable_quota: boolean;
             enable_registration: boolean;
             enable_s3: boolean;
             enable_sftp: boolean;
-            /** Format: int32 */
-            sftp_port?: number | null;
             enable_video_transcoding: boolean;
             enable_webdav: boolean;
-            webdav_path?: string | null;
             enable_wopi: boolean;
+            ftp_passive_host?: string | null;
+            /** Format: int32 */
+            ftp_passive_ports_end?: number | null;
+            /** Format: int32 */
+            ftp_passive_ports_start?: number | null;
+            /** Format: int32 */
+            ftp_port?: number | null;
             has_7z: boolean;
             is_config_set_mode: boolean;
             jsdelivr_mirror_base: string;
@@ -5434,7 +5488,10 @@ export interface components {
             /** Format: int32 */
             s3_port?: number | null;
             s3_use_https?: boolean | null;
+            /** Format: int32 */
+            sftp_port?: number | null;
             thumbnail: components["schemas"]["ThumbnailCapabilities"];
+            webdav_path?: string | null;
         };
         /** @enum {string} */
         TargetType: "Phone" | "Email" | "Graphic";
@@ -5448,27 +5505,6 @@ export interface components {
             task_type?: string | null;
             user_id?: string | null;
         };
-        /** @description Test connection request */
-        TestConnectionRequest: {
-            email_address: string;
-            imap_host: string;
-            /** Format: int32 */
-            imap_port: number;
-            imap_security: components["schemas"]["ConnectionSecurity"];
-            is_ssl: boolean;
-            password: string;
-            smtp_host: string;
-            /** Format: int32 */
-            smtp_port: number;
-            smtp_security: components["schemas"]["ConnectionSecurity"];
-        };
-        /** @description Test connection response */
-        TestConnectionResponse: {
-            imap_error?: string | null;
-            imap_ok: boolean;
-            smtp_error?: string | null;
-            smtp_ok: boolean;
-        };
         TestUpstreamPayload: {
             upstream: string;
         };
@@ -5477,7 +5513,12 @@ export interface components {
             success: boolean;
         };
         ThumbnailCapabilities: {
+            allow_user_directory_mode_override: boolean;
+            allow_user_show_hidden_thumbnail_dirs: boolean;
+            allowed_directory_modes: string[];
             cache_mode: string;
+            default_directory_mode: string;
+            default_show_thumbnail_directories: boolean;
             enabled: boolean;
             image: boolean;
             model3d: boolean;
@@ -5506,33 +5547,6 @@ export interface components {
         ThumbnailTokenQuery: {
             file_download_token: string;
         };
-        TurnServerConfig: {
-            credential: string;
-            url: string;
-            username: string;
-        };
-        /** @description Update email account request */
-        UpdateAccountRequest: {
-            display_name?: string | null;
-            email_address?: string | null;
-            imap_host?: string | null;
-            /** Format: int32 */
-            imap_port?: number | null;
-            imap_security?: null | components["schemas"]["ConnectionSecurity"];
-            is_active?: boolean | null;
-            password?: string | null;
-            smtp_host?: string | null;
-            /** Format: int32 */
-            smtp_port?: number | null;
-            smtp_security?: null | components["schemas"]["ConnectionSecurity"];
-            sync_enabled?: boolean | null;
-        };
-        UpdateChatSettingsRequest: {
-            /** @example true */
-            is_enabled: boolean;
-            /** @example {"theme":"dark"} */
-            settings_json?: string | null;
-        };
         UpdateConfigRawReq: {
             toml_content: string;
         };
@@ -5540,21 +5554,17 @@ export interface components {
             keys: string[];
             value: unknown;
         };
-        /** @description Invite update request */
-        UpdateInviteRequest: {
-            /**
-             * Format: date-time
-             * @description Expiration time
-             */
-            expires_at?: string | null;
-            /** @description Nickname */
-            nickname?: string | null;
-        };
         UpdateLicenseRequest: {
             branding?: null | components["schemas"]["BrandingConfig"];
             branding_license?: null | components["schemas"]["LicenseItem"];
             registration?: null | components["schemas"]["LicenseItem"];
             storage_encryption?: null | components["schemas"]["LicenseItem"];
+        };
+        UpdatePluginConfigRequest: {
+            content: string;
+        };
+        UpdatePluginPermissionGrantsRequest: {
+            grants: components["schemas"]["PluginPermissionGrantItem"][];
         };
         UpdateProfileRequest: {
             bio?: string | null;
@@ -5583,15 +5593,6 @@ export interface components {
             /** Format: int64 */
             max_downloads?: number | null;
             password?: string | null;
-        };
-        UpdateTempUserNicknameRequest: {
-            /** @description Temp user ID */
-            id: string;
-            /**
-             * @description New nickname
-             * @example New Nickname
-             */
-            nickname: string;
         };
         UpdateUserPermissionsRequest: {
             overrides: components["schemas"]["UserPermissionOverrideItem"][];
@@ -5644,11 +5645,15 @@ export interface components {
         UserFileSettingsUpdate: {
             /** @example default */
             pool_name?: string | null;
+            /** @example false */
+            show_thumbnail_directories?: boolean | null;
             /**
              * Format: int64
              * @example 0
              */
             storage_quota?: number | null;
+            /** @example user_root */
+            thumbnail_directory_mode?: string | null;
             /** @example false */
             thumbnail_disable_audio?: boolean | null;
             /** @example false */
@@ -5688,11 +5693,6 @@ export interface components {
             role_id: number;
             status: components["schemas"]["UserStatus"];
             updated_at: string;
-            username: string;
-        };
-        UserSearchInfo: {
-            nickname?: string | null;
-            user_id: string;
             username: string;
         };
         UserSession: {
@@ -6391,6 +6391,144 @@ export interface operations {
         requestBody?: never;
         responses: never;
     };
+    reload_runtime: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reload website runtime */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReloadResult"];
+                };
+            };
+        };
+    };
+    list_sites: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List web sites */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteView"][];
+                };
+            };
+        };
+    };
+    create_site: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SitePayload"];
+            };
+        };
+        responses: {
+            /** @description Create web site */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteView"];
+                };
+            };
+        };
+    };
+    update_site: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Site ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SitePayload"];
+            };
+        };
+        responses: {
+            /** @description Update web site */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteView"];
+                };
+            };
+        };
+    };
+    delete_site: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Site ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Delete web site */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": boolean;
+                };
+            };
+        };
+    };
+    test_upstream: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestUpstreamPayload"];
+            };
+        };
+        responses: {
+            /** @description Test proxy upstream connection */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestUpstreamResult"];
+                };
+            };
+        };
+    };
     list_zerossl_accounts: {
         parameters: {
             query?: never;
@@ -6442,74 +6580,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: never;
-    };
-    get_status: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get startup command manager status */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExtensionManagerStatus"];
-                };
-            };
-        };
-    };
-    test_post_startup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StartupExecutionRequest"];
-            };
-        };
-        responses: {
-            /** @description Test post-startup commands */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StartupExecutionResult"];
-                };
-            };
-        };
-    };
-    test_pre_startup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StartupExecutionRequest"];
-            };
-        };
-        responses: {
-            /** @description Test pre-startup commands */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StartupExecutionResult"];
-                };
-            };
-        };
     };
     admin_list_logs: {
         parameters: {
@@ -6585,7 +6655,7 @@ export interface operations {
             };
         };
     };
-    get_startup_commands_status: {
+    list_audit_logs: {
         parameters: {
             query?: never;
             header?: never;
@@ -6594,18 +6664,38 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Get startup command manager status */
+            /** @description List plugin audit logs */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ExtensionManagerStatus"];
+                    "application/json": components["schemas"]["Model"][];
                 };
             };
         };
     };
-    test_post_startup_v2: {
+    get_market_catalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Fetch public plugin market catalog */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    install_from_market_url: {
         parameters: {
             query?: never;
             header?: never;
@@ -6614,41 +6704,338 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["StartupExecutionRequest"];
+                "application/json": components["schemas"]["MarketInstallFromUrlRequest"];
             };
         };
         responses: {
-            /** @description Test post-startup commands */
+            /** @description Install plugin from market download URL */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StartupExecutionResult"];
+                    "application/json": unknown;
                 };
             };
         };
     };
-    test_pre_startup_v2: {
+    list_registry: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StartupExecutionRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Test pre-startup commands */
+            /** @description List installed plugin registry records */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StartupExecutionResult"];
+                    "application/json": components["schemas"]["Model"][];
+                };
+            };
+        };
+    };
+    list_versions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List plugin versions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Model"][];
+                };
+            };
+        };
+    };
+    list_active_runtimes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List active plugin runtimes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginRuntimeListResponse"];
+                };
+            };
+        };
+    };
+    get_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get plugin system v2 runtime status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginAdminStatus"];
+                };
+            };
+        };
+    };
+    get_plugin_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get plugin config file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginConfigResponse"];
+                };
+            };
+        };
+    };
+    update_plugin_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePluginConfigRequest"];
+            };
+        };
+        responses: {
+            /** @description Update plugin config file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginConfigResponse"];
+                };
+            };
+        };
+    };
+    list_plugin_nav_items: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List plugin navigation items */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginNavItemListResponse"];
+                };
+            };
+        };
+    };
+    list_permission_grants: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List plugin permission grants */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginPermissionGrantItem"][];
+                };
+            };
+        };
+    };
+    update_permission_grants: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePluginPermissionGrantsRequest"];
+            };
+        };
+        responses: {
+            /** @description Replace plugin permission grants */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginPermissionGrantItem"][];
+                };
+            };
+        };
+    };
+    get_plugin_runtime_handle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get active plugin runtime handle */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginRuntimeActionResponse"];
+                };
+            };
+        };
+    };
+    start_plugin_runtime: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Start plugin runtime */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginRuntimeActionResponse"];
+                };
+            };
+        };
+    };
+    stop_plugin_runtime: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Stop plugin runtime */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginRuntimeActionResponse"];
+                };
+            };
+        };
+    };
+    list_plugin_tasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List plugin task governance records */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginTaskListResponse"];
+                };
+            };
+        };
+    };
+    uninstall_plugin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plugin ID */
+                plugin_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Uninstall plugin */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginRuntimeActionResponse"];
                 };
             };
         };
@@ -7248,144 +7635,6 @@ export interface operations {
             };
         };
     };
-    reload_runtime: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Reload website runtime */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReloadResult"];
-                };
-            };
-        };
-    };
-    list_sites: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List web sites */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SiteView"][];
-                };
-            };
-        };
-    };
-    create_site: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SitePayload"];
-            };
-        };
-        responses: {
-            /** @description Create web site */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SiteView"];
-                };
-            };
-        };
-    };
-    update_site: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Site ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SitePayload"];
-            };
-        };
-        responses: {
-            /** @description Update web site */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SiteView"];
-                };
-            };
-        };
-    };
-    delete_site: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Site ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Delete web site */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": boolean;
-                };
-            };
-        };
-    };
-    test_upstream: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TestUpstreamPayload"];
-            };
-        };
-        responses: {
-            /** @description Test proxy upstream connection */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TestUpstreamResult"];
-                };
-            };
-        };
-    };
     cache_status: {
         parameters: {
             query?: never;
@@ -7396,385 +7645,6 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Cache system status */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    list_groups: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Group list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    create_group: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateGroupRequest"];
-            };
-        };
-        responses: {
-            /** @description Group created */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    disband_group: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Group ID */
-                group_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Group disbanded */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    list_group_members: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Group ID */
-                group_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Member list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    add_group_members: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Group ID */
-                group_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddMembersRequest"];
-            };
-        };
-        responses: {
-            /** @description Members added */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    remove_group_member: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Group ID */
-                group_id: string;
-                /** @description Member ID */
-                member_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Member removed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    update_temp_user_nickname: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateTempUserNicknameRequest"];
-            };
-        };
-        responses: {
-            /** @description Nickname updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    list_invites: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Chat invites list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    create_invite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InviteRequest"];
-            };
-        };
-        responses: {
-            /** @description Chat invite created */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    update_invite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Invite/Temp user ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateInviteRequest"];
-            };
-        };
-        responses: {
-            /** @description Chat invite updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    delete_invite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Invite/Temp user ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Chat invite deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    get_chat_capabilities: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Capabilities retrieved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChatCapabilities"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    get_settings: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Chat settings */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    update_settings: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateChatSettingsRequest"];
-            };
-        };
-        responses: {
-            /** @description Chat settings updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    list_online_users: {
-        parameters: {
-            query?: {
-                /** @description Invite/Temp user ID for guests */
-                invite_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Online user list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    search_users: {
-        parameters: {
-            query: {
-                /** @description Search keyword (ID, nickname, or username) */
-                keyword: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User list */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7802,618 +7672,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Resp"];
                 };
-            };
-        };
-    };
-    list_accounts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    add_account: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddAccountRequest"];
-            };
-        };
-        responses: {
-            /** @description Added successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Account limit exceeded */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    export_accounts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ExportAccountsRequest"];
-            };
-        };
-        responses: {
-            /** @description Export successful */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Password too short */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    import_accounts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ImportAccountsRequest"];
-            };
-        };
-        responses: {
-            /** @description Import successful */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Import disabled */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    test_connection: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TestConnectionRequest"];
-            };
-        };
-        responses: {
-            /** @description Test successful */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_folders: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Account ID */
-                account_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Account not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    update_account: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Account ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAccountRequest"];
-            };
-        };
-        responses: {
-            /** @description Updated successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Account not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    delete_email_account: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Account ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deleted successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Account not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    sync_account: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Account ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Sync task started */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Account not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_sync_status: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Account ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Success */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_drafts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Success */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    save_draft: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SaveDraftRequest"];
-            };
-        };
-        responses: {
-            /** @description Saved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    delete_draft: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Draft ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Resp"];
-                };
-            };
-        };
-    };
-    list_messages: {
-        parameters: {
-            query?: {
-                /** @description Page number */
-                page?: number;
-                /** @description Items per page */
-                per_page?: number;
-                /** @description Unread only */
-                unread_only?: boolean;
-                /** @description Search keyword */
-                search?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Folder ID */
-                folder_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    send_email: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SendEmailRequest"];
-            };
-        };
-        responses: {
-            /** @description Sent successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_message: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Message ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Message not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    download_attachment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Message ID */
-                id: string;
-                /** @description Attachment index */
-                index: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Download successful */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Message or attachment not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    save_attachment_to_vfs: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Message ID */
-                id: string;
-                /** @description Attachment index */
-                index: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SaveAttachmentRequest"];
-            };
-        };
-        responses: {
-            /** @description Saved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Message or attachment not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    mark_read: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Message ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MarkReadRequest"];
-            };
-        };
-        responses: {
-            /** @description Updated successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Message not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -11368,6 +10626,310 @@ export interface operations {
                 };
             };
         };
+    };
+    check_permission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostPermissionCheckRequest"];
+            };
+        };
+        responses: never;
+    };
+    ensure_plugin_config_file: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostPluginConfigEnsureRequest"];
+            };
+        };
+        responses: never;
+    };
+    get_db_info: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    execute_migration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostMigrationExecuteRequest"];
+            };
+        };
+        responses: never;
+    };
+    get_migration_state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    list_migration_states: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    upsert_migration_state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostMigrationStateUpsertRequest"];
+            };
+        };
+        responses: never;
+    };
+    delete_shared_record: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    get_shared_record: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    list_shared_records: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    upsert_shared_record: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostSharedRecordUpsertRequest"];
+            };
+        };
+        responses: never;
+    };
+    ensure_sqlite_database: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostSqliteEnsureRequest"];
+            };
+        };
+        responses: never;
+    };
+    get_identity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    build_kv_namespace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostKvNamespaceRequest"];
+            };
+        };
+        responses: never;
+    };
+    set_kv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostKvSetRequest"];
+            };
+        };
+        responses: never;
+    };
+    get_kv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    delete_kv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    list_nav_items: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    upsert_nav_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostNavItemUpsertRequest"];
+            };
+        };
+        responses: never;
+    };
+    list_tasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    upsert_task: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostTaskUpsertRequest"];
+            };
+        };
+        responses: never;
+    };
+    get_user_by_id: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    read_vfs_text: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: never;
+    };
+    write_vfs_bytes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostVfsWriteBytesRequest"];
+            };
+        };
+        responses: never;
+    };
+    write_vfs_text: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostVfsWriteTextRequest"];
+            };
+        };
+        responses: never;
     };
     showip: {
         parameters: {
