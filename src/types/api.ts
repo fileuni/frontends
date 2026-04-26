@@ -1049,6 +1049,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/zerotier-embedded/keypair/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["generate_keypair_handler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/zerotier-embedded/plan-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_plan_preview_handler"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/zerotier-embedded/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_status_handler"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/zerotier-embedded/support-matrix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_support_matrix_handler"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cache": {
         parameters: {
             query?: never;
@@ -5962,6 +6026,40 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
+        ZeroTierExposurePlanItem: {
+            enabled: boolean;
+            path_hint?: string | null;
+            protocol: components["schemas"]["ZeroTierProtocolKind"];
+            reason?: string | null;
+            supported: boolean;
+            target_host: string;
+            /** Format: int32 */
+            target_port: number;
+        };
+        ZeroTierGenerateKeypairResponse: {
+            identity_public: string;
+            identity_secret: string;
+            node_id: string;
+        };
+        /** @enum {string} */
+        ZeroTierProtocolKind: "web" | "api" | "web_dav" | "s3" | "sftp" | "ftp";
+        ZeroTierRuntimeSnapshot: {
+            assigned_ip?: string | null;
+            configured: boolean;
+            enabled: boolean;
+            joined: boolean;
+            last_error?: string | null;
+            network_id?: string | null;
+            node_id?: string | null;
+            online: boolean;
+            plan: components["schemas"]["ZeroTierExposurePlanItem"][];
+            started: boolean;
+        };
+        ZeroTierSupportMatrixItem: {
+            protocol: components["schemas"]["ZeroTierProtocolKind"];
+            reason?: string | null;
+            supported: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -7631,6 +7729,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    generate_keypair_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Generate ZeroTier keypair */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZeroTierGenerateKeypairResponse"];
+                };
+            };
+        };
+    };
+    get_plan_preview_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get ZeroTier exposure plan preview */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZeroTierExposurePlanItem"][];
+                };
+            };
+        };
+    };
+    get_status_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get ZeroTier runtime status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZeroTierRuntimeSnapshot"];
+                };
+            };
+        };
+    };
+    get_support_matrix_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get supported protocol matrix */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZeroTierSupportMatrixItem"][];
                 };
             };
         };
