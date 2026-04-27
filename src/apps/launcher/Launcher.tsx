@@ -918,7 +918,10 @@ export function Launcher() {
         {/* Main container */}
         <div className="w-full h-full bg-white/80 dark:bg-[#0f172a]/90 backdrop-blur-xl border-0 sm:border-0 shadow-none relative flex flex-col overflow-hidden">
           {/* Glassmorphism header */}
-          <div className="flex items-center justify-between px-6 pb-6 pt-[calc(1.5rem+var(--safe-area-top))] sm:px-8 sm:pb-8 sm:pt-[calc(2rem+var(--safe-area-top))] border-b border-slate-200/50 dark:border-slate-800/40 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
+          <div
+            className="flex items-center justify-between px-6 pb-6 pt-[calc(1.5rem+var(--safe-area-top))] sm:px-8 sm:pb-8 sm:pt-[calc(2rem+var(--safe-area-top))] border-b border-slate-200/50 dark:border-slate-800/40 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md"
+            data-toast-top-anchor="true"
+          >
             <div className="flex items-center gap-5">
               <div className="relative group">
                 <img

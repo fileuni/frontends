@@ -80,8 +80,6 @@ const commonEn = {
   editorEngine: {
     codemirror: 'CodeMirror',
     textarea: 'Text',
-    switchToCodeMirror: 'Switch to CodeMirror',
-    switchToTextarea: 'Switch to Textarea',
   },
   on: 'ON',
   off: 'OFF',
@@ -176,8 +174,6 @@ const commonBundle = defineLocaleBundle({
     editorEngine: {
       ...commonEn.editorEngine,
       textarea: '文本框',
-      switchToCodeMirror: '切换到 CodeMirror',
-      switchToTextarea: '切换到文本框',
     },
     on: '开',
     off: '关',
@@ -267,8 +263,6 @@ const commonBundle = defineLocaleBundle({
     editorEngine: {
       ...commonEn.editorEngine,
       textarea: 'Texto',
-      switchToCodeMirror: 'Cambiar a CodeMirror',
-      switchToTextarea: 'Cambiar a área de texto',
     },
     on: 'ACT',
     off: 'DES',
@@ -357,8 +351,6 @@ const commonBundle = defineLocaleBundle({
     editorEngine: {
       ...commonEn.editorEngine,
       textarea: 'Text',
-      switchToCodeMirror: 'Zu CodeMirror wechseln',
-      switchToTextarea: 'Zu Textarea wechseln',
     },
     on: 'AN',
     off: 'AUS',
@@ -447,8 +439,6 @@ const commonBundle = defineLocaleBundle({
     editorEngine: {
       ...commonEn.editorEngine,
       textarea: 'Texte',
-      switchToCodeMirror: 'Passer à CodeMirror',
-      switchToTextarea: 'Passer au champ texte',
     },
     on: 'ACT',
     off: 'DÉS',
@@ -537,8 +527,6 @@ const commonBundle = defineLocaleBundle({
     editorEngine: {
       ...commonEn.editorEngine,
       textarea: 'Текст',
-      switchToCodeMirror: 'Переключить на CodeMirror',
-      switchToTextarea: 'Переключить на поле текста',
     },
     on: 'ВКЛ',
     off: 'ВЫКЛ',
@@ -627,8 +615,6 @@ const commonBundle = defineLocaleBundle({
     editorEngine: {
       ...commonEn.editorEngine,
       textarea: 'テキスト',
-      switchToCodeMirror: 'CodeMirror に切替',
-      switchToTextarea: 'テキスト入力に切替',
     },
     on: 'オン',
     off: 'オフ',

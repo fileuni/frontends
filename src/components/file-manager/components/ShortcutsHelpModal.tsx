@@ -46,6 +46,13 @@ export const ShortcutsHelpModal = ({ isOpen, onClose }: Props) => {
       ]
     },
     {
+      title: t('filemanager.help.sections.editor.title'),
+      items: [
+        { keys: ["Ctrl", "S"], desc: t('filemanager.help.sections.editor.savePrimary') },
+        { keys: ["Alt", "S"], desc: t('filemanager.help.sections.editor.saveAlternative') },
+      ]
+    },
+    {
       title: t('filemanager.help.sections.mouse.title'),
       items: [
         { keys: ["Double Click"], desc: t('filemanager.help.sections.mouse.doubleClick') },

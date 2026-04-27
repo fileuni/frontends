@@ -351,7 +351,13 @@ const filemanagerBundle = defineLocaleBundle({
             "protocolDisabled": "This protocol is currently disabled.",
             "sshKeyAction": "SSH Key",
             "s3AccessAction": "Access Key/Access ID",
+            "resetCredentials": "Reset Credentials",
             "s3CredentialsAction": "View Credentials",
+            "s3ConnectionInfo": "Connection Info",
+            "s3AddressingStyle": "Addressing Style",
+            "s3Signing": "Signing",
+            "s3Tls": "Transport",
+            "s3ClientHint": "For standard S3-compatible clients, use the endpoint above, bucket user-data, region us-east-1, path-style addressing, and your access key ID plus secret key.",
             "sftpModalTitle": "SFTP SSH Keys",
             "sftpModalDesc": "Upload or paste an SSH public key so this account can sign in to SFTP with the matched private key.",
             "configuredKeys": "Configured Keys",
@@ -491,6 +497,11 @@ const filemanagerBundle = defineLocaleBundle({
                     "paste": "Execute paste here",
                     "rename": "Rename selected item",
                     "delete": "Move selected items to trash"
+                },
+                "editor": {
+                    "title": "Editor",
+                    "savePrimary": "Save current document",
+                    "saveAlternative": "Alternative save shortcut for current document"
                 },
                 "mouse": {
                     "title": "Mouse & Gestures",
@@ -1001,7 +1012,13 @@ const filemanagerBundle = defineLocaleBundle({
             "protocolDisabled": "当前未启用该协议。",
             "sshKeyAction": "SSH 密钥",
             "s3AccessAction": "访问密钥/Access ID",
+            "resetCredentials": "重置凭据",
             "s3CredentialsAction": "查看凭据",
+            "s3ConnectionInfo": "连接信息",
+            "s3AddressingStyle": "寻址方式",
+            "s3Signing": "签名方式",
+            "s3Tls": "传输协议",
+            "s3ClientHint": "对于标准兼容 S3 的客户端，请使用上面的访问地址、bucket user-data、region us-east-1、path-style 寻址方式，以及当前账号的 Access Key ID 和 Secret Key。",
             "sftpModalTitle": "SFTP SSH 密钥",
             "sftpModalDesc": "上传或粘贴 SSH 公钥后，这个账号就可以用匹配的私钥登录 SFTP。",
             "configuredKeys": "已配置密钥",
@@ -1140,6 +1157,11 @@ const filemanagerBundle = defineLocaleBundle({
                     "paste": "执行粘贴 (将剪贴板项目粘贴到此处)",
                     "rename": "重命名选中的项目",
                     "delete": "将选中的项目移至回收站"
+                },
+                "editor": {
+                    "title": "编辑器",
+                    "savePrimary": "保存当前文档",
+                    "saveAlternative": "保存当前文档（备用快捷键）"
                 },
                 "mouse": {
                     "title": "鼠标与手势",
@@ -1650,7 +1672,13 @@ const filemanagerBundle = defineLocaleBundle({
             "protocolDisabled": "Este protocolo está deshabilitado actualmente.",
             "sshKeyAction": "Clave SSH",
             "s3AccessAction": "Access Key/Access ID",
+            "resetCredentials": "Reset Credentials",
             "s3CredentialsAction": "View Credentials",
+            "s3ConnectionInfo": "Connection Info",
+            "s3AddressingStyle": "Addressing Style",
+            "s3Signing": "Signing",
+            "s3Tls": "Transport",
+            "s3ClientHint": "For standard S3-compatible clients, use the endpoint above, bucket user-data, region us-east-1, path-style addressing, and your access key ID plus secret key.",
             "sftpModalTitle": "Claves SSH de SFTP",
             "sftpModalDesc": "Suba o pegue una clave pública SSH para que esta cuenta pueda iniciar sesión en SFTP con la clave privada correspondiente.",
             "configuredKeys": "Claves configuradas",
@@ -1790,6 +1818,11 @@ const filemanagerBundle = defineLocaleBundle({
                     "paste": "Pegar aquí",
                     "rename": "Renombrar el elemento seleccionado",
                     "delete": "Mover los elementos seleccionados a la papelera"
+                },
+                "editor": {
+                    "title": "Editor",
+                    "savePrimary": "Guardar el documento actual",
+                    "saveAlternative": "Atajo alternativo para guardar el documento actual"
                 },
                 "mouse": {
                     "title": "Ratón y gestos",
@@ -2300,7 +2333,13 @@ const filemanagerBundle = defineLocaleBundle({
             "protocolDisabled": "Dieses Protokoll ist derzeit deaktiviert.",
             "sshKeyAction": "SSH-Schlüssel",
             "s3AccessAction": "Access Key/Access ID",
+            "resetCredentials": "Reset Credentials",
             "s3CredentialsAction": "View Credentials",
+            "s3ConnectionInfo": "Connection Info",
+            "s3AddressingStyle": "Addressing Style",
+            "s3Signing": "Signing",
+            "s3Tls": "Transport",
+            "s3ClientHint": "For standard S3-compatible clients, use the endpoint above, bucket user-data, region us-east-1, path-style addressing, and your access key ID plus secret key.",
             "sftpModalTitle": "SFTP-SSH-Schlüssel",
             "sftpModalDesc": "Laden Sie einen öffentlichen SSH-Schlüssel hoch oder fügen Sie ihn ein, damit sich dieses Konto per passendem privaten Schlüssel bei SFTP anmelden kann.",
             "configuredKeys": "Konfigurierte Schlüssel",
@@ -2440,6 +2479,11 @@ const filemanagerBundle = defineLocaleBundle({
                     "paste": "Einfügen hier ausführen",
                     "rename": "Ausgewähltes Element umbenennen",
                     "delete": "Ausgewählte Elemente in den Papierkorb verschieben"
+                },
+                "editor": {
+                    "title": "Editor",
+                    "savePrimary": "Aktuelles Dokument speichern",
+                    "saveAlternative": "Alternativer Shortcut zum Speichern des aktuellen Dokuments"
                 },
                 "mouse": {
                     "title": "Maus & Gesten",
@@ -2950,7 +2994,13 @@ const filemanagerBundle = defineLocaleBundle({
             "protocolDisabled": "Ce protocole est actuellement désactivé.",
             "sshKeyAction": "Clé SSH",
             "s3AccessAction": "Access Key/Access ID",
+            "resetCredentials": "Reset Credentials",
             "s3CredentialsAction": "View Credentials",
+            "s3ConnectionInfo": "Connection Info",
+            "s3AddressingStyle": "Addressing Style",
+            "s3Signing": "Signing",
+            "s3Tls": "Transport",
+            "s3ClientHint": "For standard S3-compatible clients, use the endpoint above, bucket user-data, region us-east-1, path-style addressing, and your access key ID plus secret key.",
             "sftpModalTitle": "Clés SSH SFTP",
             "sftpModalDesc": "Importez ou collez une clé publique SSH afin que ce compte puisse se connecter en SFTP avec la clé privée correspondante.",
             "configuredKeys": "Clés configurées",
@@ -3090,6 +3140,11 @@ const filemanagerBundle = defineLocaleBundle({
                     "paste": "Coller ici",
                     "rename": "Renommer l'élément sélectionné",
                     "delete": "Déplacer les éléments sélectionnés vers la corbeille"
+                },
+                "editor": {
+                    "title": "Éditeur",
+                    "savePrimary": "Enregistrer le document actuel",
+                    "saveAlternative": "Raccourci alternatif pour enregistrer le document actuel"
                 },
                 "mouse": {
                     "title": "Souris et gestes",
@@ -3600,7 +3655,13 @@ const filemanagerBundle = defineLocaleBundle({
             "protocolDisabled": "Этот протокол сейчас отключен.",
             "sshKeyAction": "SSH-ключ",
             "s3AccessAction": "Access Key/Access ID",
+            "resetCredentials": "Reset Credentials",
             "s3CredentialsAction": "View Credentials",
+            "s3ConnectionInfo": "Connection Info",
+            "s3AddressingStyle": "Addressing Style",
+            "s3Signing": "Signing",
+            "s3Tls": "Transport",
+            "s3ClientHint": "For standard S3-compatible clients, use the endpoint above, bucket user-data, region us-east-1, path-style addressing, and your access key ID plus secret key.",
             "sftpModalTitle": "SSH-ключи SFTP",
             "sftpModalDesc": "Загрузите или вставьте открытый SSH-ключ, чтобы эта учетная запись могла входить в SFTP с соответствующим закрытым ключом.",
             "configuredKeys": "Настроенные ключи",
@@ -3740,6 +3801,11 @@ const filemanagerBundle = defineLocaleBundle({
                     "paste": "Вставить здесь",
                     "rename": "Переименовать выбранное",
                     "delete": "Переместить выбранное в корзину"
+                },
+                "editor": {
+                    "title": "Редактор",
+                    "savePrimary": "Сохранить текущий документ",
+                    "saveAlternative": "Альтернативное сочетание для сохранения текущего документа"
                 },
                 "mouse": {
                     "title": "Мышь и жесты",
@@ -4250,7 +4316,13 @@ const filemanagerBundle = defineLocaleBundle({
             "protocolDisabled": "このプロトコルは現在無効です。",
             "sshKeyAction": "SSH キー",
             "s3AccessAction": "Access Key/Access ID",
+            "resetCredentials": "Reset Credentials",
             "s3CredentialsAction": "View Credentials",
+            "s3ConnectionInfo": "Connection Info",
+            "s3AddressingStyle": "Addressing Style",
+            "s3Signing": "Signing",
+            "s3Tls": "Transport",
+            "s3ClientHint": "For standard S3-compatible clients, use the endpoint above, bucket user-data, region us-east-1, path-style addressing, and your access key ID plus secret key.",
             "sftpModalTitle": "SFTP SSH キー",
             "sftpModalDesc": "SSH 公開鍵をアップロードまたは貼り付けると、このアカウントは対応する秘密鍵で SFTP にログインできます。",
             "configuredKeys": "設定済みキー",
@@ -4390,6 +4462,11 @@ const filemanagerBundle = defineLocaleBundle({
                     "paste": "ここに貼り付け",
                     "rename": "選択した項目を名前変更",
                     "delete": "選択した項目をゴミ箱へ移動"
+                },
+                "editor": {
+                    "title": "エディター",
+                    "savePrimary": "現在のドキュメントを保存",
+                    "saveAlternative": "現在のドキュメントを保存する代替ショートカット"
                 },
                 "mouse": {
                     "title": "マウスとジェスチャー",

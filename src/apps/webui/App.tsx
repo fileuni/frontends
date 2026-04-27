@@ -8,7 +8,6 @@ import { useAuthStore } from "@/stores/auth";
 import { useAuthzStore } from "@/stores/authz";
 import { useConfigStore } from "@/stores/config";
 import { MustChangePasswordModal } from "@/components/public/components/MustChangePasswordModal.tsx";
-import { cn } from "@/lib/utils.ts";
 
 const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -51,7 +50,7 @@ export const App: React.FC = () => {
   const content = (
     <>
       {canInitFeatures && <Navbar />}
-      <main className={cn("flex-1 flex flex-col", canInitFeatures && "[--public-header-offset:4rem]")}>
+      <main className="flex-1 flex flex-col">
         <AppRouter />
       </main>
       {canInitFeatures && <GlobalAudioPlayer />}
