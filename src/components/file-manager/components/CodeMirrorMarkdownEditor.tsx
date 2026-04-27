@@ -21,6 +21,7 @@ import {
   TEXT_EDITOR_AUTO_SAVE,
 } from './editorSaveShared';
 import { useAutoSave } from '../hooks/useAutoSave';
+import { useEditorSaveHotkey } from '../hooks/useEditorSaveHotkey.ts';
 
 interface SaveResult {
   path?: string;
@@ -114,7 +115,7 @@ const insertSnippet = (view: EditorView, snippet: string) => {
   view.focus();
 };
 
-export const SimpleMarkdownEditor: React.FC<Props> = ({
+export const CodeMirrorMarkdownEditor: React.FC<Props> = ({
   path,
   isDark = false,
   headerExtra,
@@ -273,6 +274,13 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
     },
   });
 
+  useEditorSaveHotkey({
+    enabled: isEditing,
+    onSave: async () => {
+      await saveContent('manual');
+    },
+  });
+
   const extensions = useMemo(() => {
     return [
       history(),
@@ -359,9 +367,7 @@ export const SimpleMarkdownEditor: React.FC<Props> = ({
         path={path}
         fileName={fileName}
         isDark={isDark}
-        subtitle={subtitle || (contentMode === 'markdown'
-          ? t('filemanager.editor.markdownEngine')
-          : (t('common.editorEngine.textarea') || 'Text'))}
+        subtitle={subtitle || (t('common.editorEngine.codemirror') || 'CodeMirror')}
         onClose={onClose}
         hideDownload={hideDownload}
         closeButtonClassName={closeButtonClassName}

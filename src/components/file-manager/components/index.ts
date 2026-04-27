@@ -4,7 +4,7 @@ export * from './FileBrowser.tsx';
 export * from './FileItem.tsx';
 export * from './FileManagerContextMenu.tsx';
 export * from './MarkdownEditorSwitcher.tsx';
-export * from './SimpleMarkdownEditor.tsx';
+export * from './CodeMirrorMarkdownEditor.tsx';
 export * from './MarkdownVditorEditor.tsx';
 export * from './VideoPlayer.tsx';
 export * from './AudioPreview.tsx';

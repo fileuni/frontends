@@ -14,6 +14,7 @@ import {
   TEXT_EDITOR_AUTO_SAVE,
 } from './editorSaveShared.ts';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
+import { useEditorSaveHotkey } from '../hooks/useEditorSaveHotkey.ts';
 import { PlainTextPreviewSurface } from './PlainTextPreviewSurface';
 
 const VDITOR_VERSION = '3.11.2';
@@ -293,6 +294,13 @@ export const MarkdownVditorEditor = ({
     },
   });
 
+  useEditorSaveHotkey({
+    enabled: isEditing,
+    onSave: async () => {
+      await saveContent('manual');
+    },
+  });
+
   return (
     <div className={cn("h-screen w-screen flex flex-col overflow-hidden", isDark ? "dark bg-[#09090b] text-white" : "bg-white text-zinc-900")}>
       <FilePreviewHeader 
@@ -318,25 +326,29 @@ export const MarkdownVditorEditor = ({
                   type="button"
                    onClick={() => setIsEditing(false)}
                   className={cn(
-                    "px-5 h-9 rounded-xl text-sm font-black transition-all flex items-center gap-2", 
+                    "h-9 rounded-xl text-sm font-black transition-all flex items-center gap-2",
+                    isCompactLayout ? "w-9 px-0 justify-center" : "px-5", 
                     !isEditing 
                       ? (isDark ? "bg-white/10 text-white shadow-lg" : "bg-white shadow-md text-zinc-900 border border-zinc-200") 
                       : "opacity-40 hover:opacity-100 text-foreground"
                   )}
+                  title={t('filemanager.actions.preview')}
                  >
-                   <Eye size={18} /> {t('filemanager.actions.preview')}
+                   <Eye size={18} /> {!isCompactLayout && t('filemanager.actions.preview')}
                  </button>
                   <button
                   type="button"
                    onClick={() => setIsEditing(true)}
                   className={cn(
-                    "px-5 h-9 rounded-xl text-sm font-black transition-all flex items-center gap-2", 
+                    "h-9 rounded-xl text-sm font-black transition-all flex items-center gap-2",
+                    isCompactLayout ? "w-9 px-0 justify-center" : "px-5", 
                     isEditing 
                       ? (isDark ? "bg-amber-500 text-zinc-950 shadow-lg shadow-amber-500/20" : "bg-amber-100 shadow-inner text-amber-700 border border-amber-200") 
                       : "opacity-40 hover:opacity-100 text-foreground"
                   )}
+                  title={t('filemanager.preview.edit')}
                  >
-                   <Edit3 size={18} /> {t('filemanager.preview.edit')}
+                   <Edit3 size={18} /> {!isCompactLayout && t('filemanager.preview.edit')}
                  </button>
               </div>
             )}
@@ -344,12 +356,16 @@ export const MarkdownVditorEditor = ({
             {isEditing && (
               <Button 
                 variant="primary" 
-                className="h-10 px-6 rounded-xl text-sm font-black bg-primary text-white hover:brightness-110 shadow-xl shadow-primary/20 transition-all border-none" 
+                className={cn(
+                  "h-10 rounded-xl text-sm font-black bg-primary text-white hover:brightness-110 shadow-xl shadow-primary/20 transition-all border-none",
+                  isCompactLayout ? "w-10 px-0 justify-center" : "px-6",
+                )}
                 onClick={() => { void saveContent('manual'); }} 
                 disabled={saving || loading}
+                title={t('common.save')}
               >
-                {saving ? <Loader2 size={18} className="animate-spin mr-2" /> : <Save size={18} className="mr-2" />}
-                {t('common.save')}
+                {saving ? <Loader2 size={18} className={cn("animate-spin", !isCompactLayout && "mr-2")} /> : <Save size={18} className={cn(!isCompactLayout && "mr-2")} />}
+                {!isCompactLayout && t('common.save')}
               </Button>
             )}
           </div>

@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { MarkdownVditorEditor } from './MarkdownVditorEditor';
-import { SimpleMarkdownEditor } from './SimpleMarkdownEditor';
+import { CodeMirrorMarkdownEditor } from './CodeMirrorMarkdownEditor';
 import { TextPreviewAndEditor } from './TextPreviewAndEditor';
 
-type MarkdownEngine = 'textarea' | 'simple' | 'vditor' | 'codemirror';
+type MarkdownEngine = 'textarea' | 'codemirror' | 'vditor';
 type ContentMode = 'markdown' | 'plain';
 
 interface SaveResult {
@@ -37,11 +37,11 @@ const ENGINE_STORAGE_KEY = 'fileuni:text-editor-engine';
 const LEGACY_MARKDOWN_ENGINE_STORAGE_KEY = 'fileuni:markdown-editor-engine';
 
 const getDefaultEngine = (): MarkdownEngine => {
-  return 'simple';
+  return 'codemirror';
 };
 
 const normalizeEngine = (value: string | null): MarkdownEngine | null => {
-  if (value !== 'textarea' && value !== 'simple' && value !== 'vditor' && value !== 'codemirror') {
+  if (value !== 'textarea' && value !== 'codemirror' && value !== 'vditor') {
     return null;
   }
   return value;
@@ -59,8 +59,10 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
     const update = () => setIsCompactLayout(media.matches);
     update();
     media.addEventListener('change', update);
-    const stored = normalizeEngine(window.localStorage.getItem(ENGINE_STORAGE_KEY))
-      ?? normalizeEngine(window.localStorage.getItem(LEGACY_MARKDOWN_ENGINE_STORAGE_KEY));
+    const stored = normalizeEngine(
+      window.localStorage.getItem(ENGINE_STORAGE_KEY)
+      ?? window.localStorage.getItem(LEGACY_MARKDOWN_ENGINE_STORAGE_KEY)
+    );
     if (stored) {
       setEngine(stored);
     } else {
@@ -94,7 +96,6 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
              aria-label={props.contentMode === 'plain' ? 'Text editor engine' : 'Markdown editor engine'}
             >
               <option value="textarea">Textarea</option>
-              <option value="simple">Simple</option>
               <option value="codemirror">CodeMirror</option>
               <option value="vditor">Vditor</option>
             </select>
@@ -111,14 +112,6 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
             onClick={() => handleEngineChange('textarea')}
           >
             Textarea
-          </Button>
-          <Button
-            variant={engine === 'simple' ? 'primary' : 'ghost'}
-            size="sm"
-            className="h-9 px-3 rounded-xl text-xs"
-            onClick={() => handleEngineChange('simple')}
-          >
-            Simple
           </Button>
           <Button
             variant={engine === 'codemirror' ? 'primary' : 'ghost'}
@@ -147,28 +140,13 @@ export const MarkdownEditorSwitcher: React.FC<Props> = (props) => {
           {...props}
           headerExtra={engineExtra}
           markdownPreview={props.contentMode !== 'plain'}
-          preferCodeEditor={false}
-          hideInternalEngineToggle={true}
           {...(props.contentMode === 'plain' ? {} : { languageOverride: 'markdown' })}
         />
     );
-  }
-
-  if (engine === 'simple') {
-     return <SimpleMarkdownEditor {...props} headerExtra={engineExtra} contentMode={props.contentMode || 'markdown'} />;
   }
 
   if (engine === 'codemirror') {
-      return (
-        <TextPreviewAndEditor
-          {...props}
-          headerExtra={engineExtra}
-          markdownPreview={props.contentMode !== 'plain'}
-          preferCodeEditor={true}
-          hideInternalEngineToggle={true}
-          {...(props.contentMode === 'plain' ? {} : { languageOverride: 'markdown' })}
-        />
-    );
+     return <CodeMirrorMarkdownEditor {...props} headerExtra={engineExtra} contentMode={props.contentMode || 'markdown'} />;
   }
 
    return <MarkdownVditorEditor {...props} headerExtra={engineExtra} contentMode={props.contentMode || 'markdown'} />;
