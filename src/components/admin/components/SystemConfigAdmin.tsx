@@ -105,8 +105,32 @@ export const SystemConfigAdmin = () => {
     useState<ZeroTierSupportMatrixResponse>([]);
   const [zerotierPlanPreview, setZeroTierPlanPreview] =
     useState<ZeroTierPlanPreviewResponse>([]);
+  const [zerotierAdminApiAvailable, setZeroTierAdminApiAvailable] = useState(true);
+  const [zerotierActionPending, setZeroTierActionPending] = useState(false);
+  const [zerotierFastPollUntil, setZeroTierFastPollUntil] = useState(0);
   const [generatingZeroTierKeypair, setGeneratingZeroTierKeypair] = useState(false);
   const { currentUserData } = useAuthStore();
+
+  const loadZeroTierSnapshot = useCallback(async (): Promise<ZeroTierStatusResponse | null> => {
+    try {
+      const status = await extractData<ZeroTierStatusResponse>(
+        client.GET("/api/v1/admin/zerotier-embedded/status", {
+          headers: { "X-No-Toast": "true" },
+        }),
+      );
+      setZeroTierAdminApiAvailable(true);
+      setZeroTierRuntimeSnapshot(status);
+      return status;
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("404")) {
+        setZeroTierAdminApiAvailable(false);
+        setZeroTierRuntimeSnapshot(null);
+        return null;
+      }
+      console.warn("Failed to fetch ZeroTier status", error);
+      return null;
+    }
+  }, []);
 
   const loadSystemConfigWorkbench = useCallback(async () => {
     const [
@@ -131,20 +155,19 @@ export const SystemConfigAdmin = () => {
           return null;
         },
       ),
-      extractData<ZeroTierStatusResponse>(
-        client.GET("/api/v1/admin/zerotier-embedded/status", {}),
-      ).catch((error) => {
-        console.warn("Failed to fetch ZeroTier status", error);
-        return null;
-      }),
+      loadZeroTierSnapshot(),
       extractData<ZeroTierSupportMatrixResponse>(
-        client.GET("/api/v1/admin/zerotier-embedded/support-matrix", {}),
+        client.GET("/api/v1/admin/zerotier-embedded/support-matrix", {
+          headers: { "X-No-Toast": "true" },
+        }),
       ).catch((error) => {
         console.warn("Failed to fetch ZeroTier support matrix", error);
         return [];
       }),
       extractData<ZeroTierPlanPreviewResponse>(
-        client.GET("/api/v1/admin/zerotier-embedded/plan-preview", {}),
+        client.GET("/api/v1/admin/zerotier-embedded/plan-preview", {
+          headers: { "X-No-Toast": "true" },
+        }),
       ).catch((error) => {
         console.warn("Failed to fetch ZeroTier plan preview", error);
         return [];
@@ -170,7 +193,7 @@ export const SystemConfigAdmin = () => {
           : "",
       systemHardware: osInfo ?? null,
     };
-  }, []);
+  }, [loadZeroTierSnapshot]);
 
   const loadAdminLicenseStatus = useCallback(async () => {
     try {
@@ -251,6 +274,17 @@ export const SystemConfigAdmin = () => {
     };
     void load();
   }, [addToast, hasPermission, loadWorkbench, t]);
+
+  useEffect(() => {
+    if (!hasPermission("admin.access")) {
+      return undefined;
+    }
+    const intervalMs = Date.now() < zerotierFastPollUntil ? 2500 : 8000;
+    const timer = setInterval(() => {
+      void loadZeroTierSnapshot();
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [hasPermission, loadZeroTierSnapshot, zerotierFastPollUntil]);
 
   useEffect(() => {
     if (!testing && !reloading) return undefined;
@@ -349,6 +383,31 @@ export const SystemConfigAdmin = () => {
       setGeneratingZeroTierKeypair(false);
     }
   }, [addToast, content, generatingZeroTierKeypair, setContent, t]);
+
+  const triggerZeroTierAction = useCallback(
+    async (path: "/api/v1/admin/zerotier-embedded/join" | "/api/v1/admin/zerotier-embedded/reconnect") => {
+      if (zerotierActionPending) {
+        return;
+      }
+      setZeroTierActionPending(true);
+      try {
+        const snapshot = await extractData<ZeroTierRuntimeSnapshot>(
+          client.POST(path, {
+            headers: { "X-No-Toast": "true" },
+          }),
+        );
+        setZeroTierAdminApiAvailable(true);
+        setZeroTierRuntimeSnapshot(snapshot);
+        setZeroTierFastPollUntil(Date.now() + 30_000);
+      } catch (error) {
+        addToast(handleApiError(error, t), "error");
+        await loadZeroTierSnapshot();
+      } finally {
+        setZeroTierActionPending(false);
+      }
+    },
+    [addToast, loadZeroTierSnapshot, t, zerotierActionPending],
+  );
 
   const handleSaveConfig = useCallback(async () => {
     if (reloading || testing) return;
@@ -493,7 +552,15 @@ export const SystemConfigAdmin = () => {
           runtimeSnapshot: zerotierRuntimeSnapshot,
           supportMatrix: zerotierSupportMatrix,
           planPreview: zerotierPlanPreview,
+          adminApiAvailable: zerotierAdminApiAvailable,
+          actionPending: zerotierActionPending,
           generatingKeypair: generatingZeroTierKeypair,
+          onJoinNow: () => {
+            void triggerZeroTierAction("/api/v1/admin/zerotier-embedded/join");
+          },
+          onReconnect: () => {
+            void triggerZeroTierAction("/api/v1/admin/zerotier-embedded/reconnect");
+          },
           onGenerateKeypair: () => {
             void handleGenerateZeroTierKeypair();
           },
@@ -513,7 +580,10 @@ export const SystemConfigAdmin = () => {
       zerotierRuntimeSnapshot,
       zerotierSupportMatrix,
       zerotierPlanPreview,
+      zerotierAdminApiAvailable,
+      zerotierActionPending,
       generatingZeroTierKeypair,
+      triggerZeroTierAction,
       handleGenerateZeroTierKeypair,
     ],
   );

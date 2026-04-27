@@ -34,12 +34,23 @@ export type ZeroTierSupportMatrixItem = {
   reason?: string | null;
 };
 
+export type ZeroTierRuntimeState =
+  | "disabled"
+  | "action_required"
+  | "waiting_config"
+  | "reconnect_pending"
+  | "joining"
+  | "waiting_assigned_ip"
+  | "ready"
+  | "error";
+
 export type ZeroTierRuntimeSnapshot = {
   enabled: boolean;
   configured: boolean;
   started: boolean;
   online: boolean;
   joined: boolean;
+  runtime_state: ZeroTierRuntimeState;
   node_id?: string | null;
   network_id?: string | null;
   assigned_ip?: string | null;
@@ -60,14 +71,7 @@ type Draft = {
   autoJoin: boolean;
   identityPublic: string;
   identitySecret: string;
-  exposeWeb: boolean;
-  exposeApi: boolean;
-  exposeWebdav: boolean;
-  exposeS3: boolean;
-  exposeSftp: boolean;
-  exposeFtp: boolean;
 };
-
 type Props = {
   tomlAdapter: TomlAdapter;
   content: string;
@@ -75,25 +79,22 @@ type Props = {
   runtimeSnapshot: ZeroTierRuntimeSnapshot | null;
   supportMatrix: ZeroTierSupportMatrixItem[];
   planPreview: ZeroTierExposurePlanItem[];
+  adminApiAvailable: boolean;
+  actionPending: boolean;
   generatingKeypair: boolean;
+  onJoinNow: () => void;
+  onReconnect: () => void;
   onGenerateKeypair: () => void;
 };
 
 const defaultDraft: Draft = {
   enabled: false,
   adminApiEnabled: true,
-  networkId: "",
+  networkId: "0cccb752f74b3637",
   autoJoin: false,
   identityPublic: "",
   identitySecret: "",
-  exposeWeb: true,
-  exposeApi: true,
-  exposeWebdav: false,
-  exposeS3: false,
-  exposeSftp: false,
-  exposeFtp: false,
 };
-
 const asRecord = (value: unknown): ConfigObject => {
   return isRecord(value) ? value : {};
 };
@@ -127,15 +128,6 @@ const parseDraft = (source: string, tomlAdapter: TomlAdapter): Draft => {
       zerotier["identity_secret"],
       defaultDraft.identitySecret,
     ),
-    exposeWeb: toBooleanValue(zerotier["expose_web"], defaultDraft.exposeWeb),
-    exposeApi: toBooleanValue(zerotier["expose_api"], defaultDraft.exposeApi),
-    exposeWebdav: toBooleanValue(
-      zerotier["expose_webdav"],
-      defaultDraft.exposeWebdav,
-    ),
-    exposeS3: toBooleanValue(zerotier["expose_s3"], defaultDraft.exposeS3),
-    exposeSftp: toBooleanValue(zerotier["expose_sftp"], defaultDraft.exposeSftp),
-    exposeFtp: toBooleanValue(zerotier["expose_ftp"], defaultDraft.exposeFtp),
   };
 };
 
@@ -154,12 +146,12 @@ const applyDraft = (
   zerotier["auto_join"] = draft.autoJoin;
   zerotier["identity_public"] = draft.identityPublic;
   zerotier["identity_secret"] = draft.identitySecret;
-  zerotier["expose_web"] = draft.exposeWeb;
-  zerotier["expose_api"] = draft.exposeApi;
-  zerotier["expose_webdav"] = draft.exposeWebdav;
-  zerotier["expose_s3"] = draft.exposeS3;
-  zerotier["expose_sftp"] = draft.exposeSftp;
-  zerotier["expose_ftp"] = draft.exposeFtp;
+  delete zerotier["expose_web"];
+  delete zerotier["expose_api"];
+  delete zerotier["expose_webdav"];
+  delete zerotier["expose_s3"];
+  delete zerotier["expose_sftp"];
+  delete zerotier["expose_ftp"];
 
   return tomlAdapter.stringify(root);
 };
@@ -223,6 +215,32 @@ const boolText = (
   return value ? enabledLabel : disabledLabel;
 };
 
+const getRuntimeStateText = (
+  state: ZeroTierRuntimeState | undefined,
+  t: (key: string) => string,
+): string => {
+  switch (state) {
+    case "disabled":
+      return t("admin.config.zerotierEmbedded.runtimeStates.disabled");
+    case "action_required":
+      return t("admin.config.zerotierEmbedded.runtimeStates.actionRequired");
+    case "waiting_config":
+      return t("admin.config.zerotierEmbedded.runtimeStates.waitingConfig");
+    case "reconnect_pending":
+      return t("admin.config.zerotierEmbedded.runtimeStates.reconnectPending");
+    case "joining":
+      return t("admin.config.zerotierEmbedded.runtimeStates.joining");
+    case "waiting_assigned_ip":
+      return t("admin.config.zerotierEmbedded.runtimeStates.waitingAssignedIp");
+    case "ready":
+      return t("admin.config.zerotierEmbedded.runtimeStates.ready");
+    case "error":
+      return t("admin.config.zerotierEmbedded.runtimeStates.error");
+    default:
+      return "-";
+  }
+};
+
 export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
   tomlAdapter,
   content,
@@ -230,7 +248,11 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
   runtimeSnapshot,
   supportMatrix,
   planPreview,
+  adminApiAvailable,
+  actionPending,
   generatingKeypair,
+  onJoinNow,
+  onReconnect,
   onGenerateKeypair,
 }) => {
   const { t } = useTranslation();
@@ -263,6 +285,26 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
     isDark ? "border-white/10" : "border-slate-300/70",
   );
 
+  const actionButtonClass = cn(
+    "inline-flex h-10 items-center justify-center rounded-2xl border px-4 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+    isDark
+      ? "border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10"
+      : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100",
+  );
+
+  const runtimeState = runtimeSnapshot?.runtime_state;
+  const canJoinNow =
+    adminApiAvailable &&
+    !actionPending &&
+    (runtimeState === "action_required" || runtimeState === "error");
+  const canReconnect =
+    adminApiAvailable &&
+    !actionPending &&
+    runtimeState !== undefined &&
+    runtimeState !== "disabled" &&
+    runtimeState !== "waiting_config" &&
+    runtimeState !== "joining";
+
   const summaryStats = [
     {
       label: t("admin.config.zerotierEmbedded.stats.enabled"),
@@ -273,12 +315,8 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
       ),
     },
     {
-      label: t("admin.config.zerotierEmbedded.stats.online"),
-      value: boolText(
-        runtimeSnapshot?.online ?? false,
-        t("admin.config.zerotierEmbedded.status.online"),
-        t("admin.config.zerotierEmbedded.status.offline"),
-      ),
+      label: t("admin.config.zerotierEmbedded.stats.runtimeState"),
+      value: getRuntimeStateText(runtimeSnapshot?.runtime_state, t),
     },
     {
       label: t("admin.config.zerotierEmbedded.stats.nodeId"),
@@ -385,43 +423,6 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
       </Section>
 
       <Section
-        title={t("admin.config.zerotierEmbedded.exposureTitle")}
-        hint={t("admin.config.zerotierEmbedded.exposureHint")}
-        isDark={isDark}
-      >
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {[
-            ["exposeWeb", t("admin.config.zerotierEmbedded.exposeWeb")],
-            ["exposeApi", t("admin.config.zerotierEmbedded.exposeApi")],
-            ["exposeWebdav", t("admin.config.zerotierEmbedded.exposeWebdav")],
-            ["exposeS3", t("admin.config.zerotierEmbedded.exposeS3")],
-            ["exposeSftp", t("admin.config.zerotierEmbedded.exposeSftp")],
-            ["exposeFtp", t("admin.config.zerotierEmbedded.exposeFtp")],
-          ].map(([key, label]) => {
-            const draftKey = key as keyof Draft;
-            return (
-              <label key={key} className={toggleClass}>
-                <input
-                  type="checkbox"
-                  checked={Boolean(draft[draftKey])}
-                  onChange={(event) =>
-                    setDraft((prev) => ({
-                      ...prev,
-                      [draftKey]: event.target.checked,
-                    }))
-                  }
-                  className="h-4 w-4 rounded border-slate-300"
-                />
-                <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>
-                  {label}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-      </Section>
-
-      <Section
         title={t("admin.config.zerotierEmbedded.runtimeTitle")}
         hint={t("admin.config.zerotierEmbedded.runtimeHint")}
         isDark={isDark}
@@ -444,6 +445,18 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
             </div>
           ))}
         </div>
+        {!adminApiAvailable ? (
+          <div
+            className={cn(
+              "rounded-xl border p-3 text-sm leading-6",
+              isDark
+                ? "border-slate-500/30 bg-slate-500/10 text-slate-200"
+                : "border-slate-200 bg-slate-50 text-slate-700",
+            )}
+          >
+            {t("admin.config.zerotierEmbedded.adminApiUnavailable")}
+          </div>
+        ) : null}
         {runtimeSnapshot?.last_error ? (
           <div
             className={cn(
@@ -456,6 +469,28 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
             {runtimeSnapshot.last_error}
           </div>
         ) : null}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={onJoinNow}
+            disabled={!canJoinNow}
+            className={actionButtonClass}
+          >
+            {actionPending
+              ? t("admin.config.zerotierEmbedded.connecting")
+              : t("admin.config.zerotierEmbedded.joinNow")}
+          </button>
+          <button
+            type="button"
+            onClick={onReconnect}
+            disabled={!canReconnect}
+            className={actionButtonClass}
+          >
+            {actionPending
+              ? t("admin.config.zerotierEmbedded.connecting")
+              : t("admin.config.zerotierEmbedded.reconnect")}
+          </button>
+        </div>
       </Section>
 
       <Section
@@ -523,8 +558,8 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
                 </span>
                 <span className={cn("rounded-full px-2 py-1 text-[11px] font-black tracking-[0.18em]", item.enabled ? (isDark ? "bg-sky-500/15 text-sky-200" : "bg-sky-100 text-sky-700") : (isDark ? "bg-slate-500/15 text-slate-300" : "bg-slate-200 text-slate-700"))}>
                   {item.enabled
-                    ? t("admin.config.zerotierEmbedded.status.selected")
-                    : t("admin.config.zerotierEmbedded.status.notSelected")}
+                    ? t("admin.config.zerotierEmbedded.status.enabled")
+                    : t("admin.config.zerotierEmbedded.status.disabled")}
                 </span>
                 <span className={cn("rounded-full px-2 py-1 text-[11px] font-black tracking-[0.18em]", item.supported ? (isDark ? "bg-emerald-500/15 text-emerald-200" : "bg-emerald-100 text-emerald-700") : (isDark ? "bg-amber-500/15 text-amber-200" : "bg-amber-100 text-amber-700"))}>
                   {item.supported
@@ -549,12 +584,7 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
             type="button"
             onClick={onGenerateKeypair}
             disabled={generatingKeypair}
-            className={cn(
-              "inline-flex h-10 items-center justify-center rounded-2xl border px-4 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-              isDark
-                ? "border-white/10 bg-white/[0.03] text-slate-100 hover:bg-white/10"
-                : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100",
-            )}
+            className={actionButtonClass}
           >
             {generatingKeypair
               ? t("admin.config.zerotierEmbedded.generatingKeypair")

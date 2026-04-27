@@ -1049,6 +1049,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/zerotier-embedded/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["join_handler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/zerotier-embedded/keypair/generate": {
         parameters: {
             query?: never;
@@ -1075,6 +1091,22 @@ export interface paths {
         get: operations["get_plan_preview_handler"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/zerotier-embedded/reconnect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reconnect_handler"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6053,8 +6085,11 @@ export interface components {
             node_id?: string | null;
             online: boolean;
             plan: components["schemas"]["ZeroTierExposurePlanItem"][];
+            runtime_state: components["schemas"]["ZeroTierRuntimeState"];
             started: boolean;
         };
+        /** @enum {string} */
+        ZeroTierRuntimeState: "disabled" | "action_required" | "waiting_config" | "reconnect_pending" | "joining" | "waiting_assigned_ip" | "ready" | "error";
         ZeroTierSupportMatrixItem: {
             protocol: components["schemas"]["ZeroTierProtocolKind"];
             reason?: string | null;
@@ -7733,6 +7768,35 @@ export interface operations {
             };
         };
     };
+    join_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Trigger a manual ZeroTier join attempt */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZeroTierRuntimeSnapshot"];
+                };
+            };
+            /** @description Join request failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
     generate_keypair_handler: {
         parameters: {
             query?: never;
@@ -7769,6 +7833,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ZeroTierExposurePlanItem"][];
+                };
+            };
+        };
+    };
+    reconnect_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Trigger a ZeroTier reconnect attempt */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZeroTierRuntimeSnapshot"];
+                };
+            };
+            /** @description Reconnect request failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
                 };
             };
         };

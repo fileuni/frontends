@@ -161,6 +161,11 @@ export const FileManagerSettingsModal = ({
     'filemanager.settings.s3AccessAction',
     'Access Key/Access ID',
   );
+  const s3CredentialsActionLabel = resolveText(
+    t,
+    'filemanager.settings.s3CredentialsAction',
+    'View Credentials',
+  );
   const sftpModalTitle = resolveText(t, 'filemanager.settings.sftpModalTitle', 'SFTP SSH Keys');
   const sftpModalDesc = resolveText(
     t,
@@ -524,10 +529,22 @@ export const FileManagerSettingsModal = ({
             'No access key generated yet.',
           ),
       action: (
-          <Button variant="outline" size="sm" onClick={() => setShowS3Modal(true)} className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white">
-            <KeyRound size={16} className="mr-2" />
-            {s3AccessActionLabel}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowS3Modal(true)} className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white">
+              <KeyRound size={16} className="mr-2" />
+              {s3CredentialsActionLabel}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void handleRegenerateS3()}
+              disabled={regeneratingS3}
+              className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white"
+            >
+              <RefreshCw size={16} className={cn('mr-2', regeneratingS3 && 'animate-spin')} />
+              {resolveText(t, 'security.rotateKeys', 'Regenerate Keys')}
+            </Button>
+          </div>
       ),
     },
   ];

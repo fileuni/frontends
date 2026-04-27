@@ -347,7 +347,11 @@ interface BuildSettingCommonActionsParams {
     runtimeSnapshot: ZeroTierRuntimeSnapshot | null;
     supportMatrix: ZeroTierSupportMatrixItem[];
     planPreview: ZeroTierExposurePlanItem[];
+    adminApiAvailable: boolean;
+    actionPending: boolean;
     generatingKeypair: boolean;
+    onJoinNow: () => void;
+    onReconnect: () => void;
     onGenerateKeypair: () => void;
   };
 }
@@ -519,16 +523,18 @@ export const buildSettingCommonActions = ({
           runtimeSnapshot={zerotierEmbedded?.runtimeSnapshot ?? null}
           supportMatrix={zerotierEmbedded?.supportMatrix ?? []}
           planPreview={zerotierEmbedded?.planPreview ?? []}
+          adminApiAvailable={zerotierEmbedded?.adminApiAvailable ?? false}
+          actionPending={zerotierEmbedded?.actionPending ?? false}
           generatingKeypair={zerotierEmbedded?.generatingKeypair ?? false}
+          onJoinNow={zerotierEmbedded?.onJoinNow ?? (() => {})}
+          onReconnect={zerotierEmbedded?.onReconnect ?? (() => {})}
           onGenerateKeypair={zerotierEmbedded?.onGenerateKeypair ?? (() => {})}
         />
       ),
       stats: [
         {
-          label: t("admin.config.zerotierEmbedded.stats.online"),
-          value: zerotierEmbedded?.runtimeSnapshot?.online
-            ? t("admin.config.zerotierEmbedded.status.online")
-            : t("admin.config.zerotierEmbedded.status.offline"),
+          label: t("admin.config.zerotierEmbedded.stats.runtimeState"),
+          value: zerotierEmbedded?.runtimeSnapshot?.runtime_state ?? "-",
         },
         {
           label: t("admin.config.zerotierEmbedded.stats.assignedIp"),
