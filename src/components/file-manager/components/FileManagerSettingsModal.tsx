@@ -145,19 +145,12 @@ export const FileManagerSettingsModal = ({
     'Changes to thumbnail switches take effect after you refresh the file list.',
   );
   const endpointLabel = resolveText(t, 'filemanager.settings.endpointLabel', 'Endpoint');
-  const accessLabel = resolveText(t, 'filemanager.settings.accessLabel', 'Access');
-  const detailsLabel = resolveText(t, 'filemanager.settings.detailsLabel', 'Details');
   const disabledProtocolText = resolveText(
     t,
     'filemanager.settings.protocolDisabled',
     'This protocol is currently disabled.',
   );
   const sshKeyActionLabel = resolveText(t, 'filemanager.settings.sshKeyAction', 'SSH Key');
-  const s3AccessActionLabel = resolveText(
-    t,
-    'filemanager.settings.s3AccessAction',
-    'Access Key/Access ID',
-  );
   const s3CredentialsActionLabel = resolveText(
     t,
     'filemanager.settings.s3CredentialsAction',
@@ -324,10 +317,6 @@ export const FileManagerSettingsModal = ({
   const s3Endpoint = capabilities?.s3_port
     ? `${capabilities.s3_use_https ? 'https' : 'http'}://${formatHostPort(browserHost, capabilities.s3_port)}`
     : null;
-  const ftpPassiveSummary =
-    protocolCaps?.ftp_passive_ports_start && protocolCaps?.ftp_passive_ports_end
-      ? `${protocolCaps.ftp_passive_host || browserHost}:${protocolCaps.ftp_passive_ports_start}-${protocolCaps.ftp_passive_ports_end}`
-      : null;
   const sftpPasswordEnabled = settings?.sftp_enable_password !== false;
   const hasSshKey = sshKeys.length > 0;
   const s3BucketName = 'user-data';
@@ -438,25 +427,11 @@ export const FileManagerSettingsModal = ({
       title: 'FTP',
       enabled: capabilities?.enable_ftp === true,
       endpoint: ftpEndpoint,
-      summary: ftpPassiveSummary
-        ? `${resolveText(
-            t,
-            'filemanager.settings.ftpAccess',
-            'Sign in with your account username and password.',
-          )} ${resolveText(
-            t,
-            'filemanager.settings.ftpPassiveWithRange',
-            'Active mode is available. Passive mode uses {{value}}.',
-          ).replace('{{value}}', ftpPassiveSummary)}`
-        : `${resolveText(
-            t,
-            'filemanager.settings.ftpAccess',
-            'Sign in with your account username and password.',
-          )} ${resolveText(
-            t,
-            'filemanager.settings.ftpPassiveDefault',
-            'Active and passive mode are available.',
-          )}`,
+      summary: resolveText(
+        t,
+        'filemanager.settings.ftpAccess',
+        'Sign in with your account username and password.',
+      ),
       action: null,
     },
     {
@@ -466,24 +441,16 @@ export const FileManagerSettingsModal = ({
       endpoint: sftpEndpoint,
       summary: hasSshKey
         ? sftpPasswordEnabled
-          ? `${resolveText(
+          ? resolveText(
               t,
               'filemanager.settings.sftpPasswordOrKey',
               'Use your password or a matched private key.',
-            )} ${resolveText(
-              t,
-              'filemanager.settings.sshKeyConfiguredCount',
-              '{{count}} public key configured.',
-            ).replace('{{count}}', String(sshKeys.length))}`
-          : `${resolveText(
+            )
+          : resolveText(
               t,
               'filemanager.settings.sftpKeyOnly',
               'Password login is disabled. Use a matched private key.',
-            )} ${resolveText(
-              t,
-              'filemanager.settings.sshKeyConfiguredCount',
-              '{{count}} public key configured.',
-            ).replace('{{count}}', String(sshKeys.length))}`
+            )
         : sftpPasswordEnabled
           ? resolveText(
               t,
@@ -514,21 +481,11 @@ export const FileManagerSettingsModal = ({
       title: 'S3',
       enabled: capabilities?.enable_s3 === true,
       endpoint: s3Endpoint,
-      summary: s3Keys.access_key
-        ? `${resolveText(
-            t,
-            'filemanager.settings.s3Access',
-            'Use your access key ID and secret key to sign in.',
-          )} ${s3AccessActionLabel}: ${s3Keys.access_key}`
-        : `${resolveText(
-            t,
-            'filemanager.settings.s3Access',
-            'Use your access key ID and secret key to sign in.',
-          )} ${resolveText(
-            t,
-            'filemanager.settings.noS3KeyYet',
-            'No access key generated yet.',
-          )}`,
+      summary: resolveText(
+        t,
+        'filemanager.settings.s3Access',
+        'Use your access key ID and secret key to sign in.',
+      ),
       action: (
         <div className="flex flex-wrap gap-2">
           <Button
@@ -813,13 +770,18 @@ export const FileManagerSettingsModal = ({
           bodyClassName="space-y-5"
           zIndexClassName="z-[330]"
           closeButton={(
-            <Button variant="ghost" size="sm" onClick={() => setShowS3RegenerateConfirm(false)} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowS3RegenerateConfirm(false)}
+              className="rounded-2xl h-12 w-12 p-0 text-foreground/50 hover:bg-zinc-100/80 hover:text-slate-900 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white shrink-0"
+            >
               <span className="text-2xl opacity-40 leading-none">×</span>
             </Button>
           )}
         >
         <div className="space-y-5">
-          <p className="text-sm leading-6 text-white/75">
+          <p className="text-sm leading-6 text-slate-700 dark:text-white/75">
             {resolveText(
               t,
               'security.rotateConfirm',
@@ -855,43 +817,48 @@ export const FileManagerSettingsModal = ({
           bodyClassName="space-y-5"
           zIndexClassName="z-[320]"
           closeButton={(
-            <Button variant="ghost" size="sm" onClick={() => setShowS3Modal(false)} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowS3Modal(false)}
+              className="rounded-2xl h-12 w-12 p-0 text-foreground/50 hover:bg-zinc-100/80 hover:text-slate-900 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white shrink-0"
+            >
               <span className="text-2xl opacity-40 leading-none">×</span>
             </Button>
           )}
         >
         <div className="space-y-5">
-          <div className="rounded-2xl border bg-muted/20 px-4 py-4 space-y-3">
-            <div className="text-sm font-bold uppercase tracking-[0.16em] opacity-60">
+          <div className="rounded-2xl border border-zinc-300 bg-white px-4 py-4 space-y-3 dark:border-white/10 dark:bg-white/[0.03]">
+            <div className="text-sm font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-white/60">
               {resolveText(t, 'filemanager.settings.s3ConnectionInfo', 'Connection Info')}
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
               <div>
-                <div className="opacity-50 mb-1">{endpointLabel}</div>
-                <div className="font-mono break-all">{s3Endpoint || '-'}</div>
+                <div className="mb-1 text-slate-500 dark:text-white/50">{endpointLabel}</div>
+                <div className="font-mono break-all text-slate-900 dark:text-white">{s3Endpoint || '-'}</div>
               </div>
               <div>
-                <div className="opacity-50 mb-1">{resolveText(t, 'filemanager.mounts.fields.bucket', 'Bucket')}</div>
-                <div className="font-mono break-all">{s3BucketName}</div>
+                <div className="mb-1 text-slate-500 dark:text-white/50">{resolveText(t, 'filemanager.mounts.fields.bucket', 'Bucket')}</div>
+                <div className="font-mono break-all text-slate-900 dark:text-white">{s3BucketName}</div>
               </div>
               <div>
-                <div className="opacity-50 mb-1">{resolveText(t, 'filemanager.mounts.fields.region', 'Region')}</div>
-                <div className="font-mono break-all">{s3Region}</div>
+                <div className="mb-1 text-slate-500 dark:text-white/50">{resolveText(t, 'filemanager.mounts.fields.region', 'Region')}</div>
+                <div className="font-mono break-all text-slate-900 dark:text-white">{s3Region}</div>
               </div>
               <div>
-                <div className="opacity-50 mb-1">{resolveText(t, 'filemanager.settings.s3AddressingStyle', 'Addressing Style')}</div>
-                <div className="font-mono break-all">{s3AddressingStyle}</div>
+                <div className="mb-1 text-slate-500 dark:text-white/50">{resolveText(t, 'filemanager.settings.s3AddressingStyle', 'Addressing Style')}</div>
+                <div className="font-mono break-all text-slate-900 dark:text-white">{s3AddressingStyle}</div>
               </div>
               <div>
-                <div className="opacity-50 mb-1">{resolveText(t, 'filemanager.settings.s3Signing', 'Signing')}</div>
-                <div className="font-mono break-all">{s3SignedPayload}</div>
+                <div className="mb-1 text-slate-500 dark:text-white/50">{resolveText(t, 'filemanager.settings.s3Signing', 'Signing')}</div>
+                <div className="font-mono break-all text-slate-900 dark:text-white">{s3SignedPayload}</div>
               </div>
               <div>
-                <div className="opacity-50 mb-1">{resolveText(t, 'filemanager.settings.s3Tls', 'Transport')}</div>
-                <div className="font-mono break-all">{capabilities?.s3_use_https ? 'HTTPS' : 'HTTP'}</div>
+                <div className="mb-1 text-slate-500 dark:text-white/50">{resolveText(t, 'filemanager.settings.s3Tls', 'Transport')}</div>
+                <div className="font-mono break-all text-slate-900 dark:text-white">{capabilities?.s3_use_https ? 'HTTPS' : 'HTTP'}</div>
               </div>
             </div>
-            <p className="text-xs leading-6 opacity-70">
+            <p className="text-xs leading-6 text-slate-600 dark:text-white/70">
               {resolveText(
                 t,
                 'filemanager.settings.s3ClientHint',
@@ -901,10 +868,10 @@ export const FileManagerSettingsModal = ({
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <div className="text-sm font-bold uppercase tracking-[0.16em] opacity-60">
+              <div className="text-sm font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-white/60">
                 {s3AccessKeyLabel}
               </div>
-              <div className="rounded-2xl border bg-muted/20 px-4 py-3 font-mono break-all">
+              <div className="rounded-2xl border border-zinc-300 bg-white px-4 py-3 font-mono break-all text-slate-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-white">
                 {s3Keys.access_key || resolveText(t, 'security.notGenerated', 'Not generated')}
               </div>
               <div className="flex gap-2">
@@ -927,11 +894,11 @@ export const FileManagerSettingsModal = ({
               </div>
             </div>
             <div className="space-y-2">
-              <div className="text-sm font-bold uppercase tracking-[0.16em] opacity-60">
+              <div className="text-sm font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-white/60">
                 {resolveText(t, 'security.secretKey', 'Secret Key')}
               </div>
               <div className="flex gap-2 items-stretch">
-                <div className="rounded-2xl border bg-muted/20 px-4 py-3 font-mono break-all flex-1">
+                <div className="rounded-2xl border border-zinc-300 bg-white px-4 py-3 font-mono break-all flex-1 text-slate-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-white">
                   {s3Keys.secret_key
                     ? showS3SecretKey
                       ? s3Keys.secret_key
@@ -992,7 +959,12 @@ export const FileManagerSettingsModal = ({
           maxWidthClassName="max-w-3xl"
           bodyClassName="space-y-5"
           closeButton={(
-            <Button variant="ghost" size="sm" onClick={() => setShowSftpModal(false)} className="rounded-2xl h-12 w-12 p-0 hover:bg-white/5 shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSftpModal(false)}
+              className="rounded-2xl h-12 w-12 p-0 text-foreground/50 hover:bg-zinc-100/80 hover:text-slate-900 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white shrink-0"
+            >
               <span className="text-2xl opacity-40 leading-none">×</span>
             </Button>
           )}
@@ -1000,7 +972,7 @@ export const FileManagerSettingsModal = ({
         <div className="space-y-5">
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <div className="text-sm font-bold uppercase tracking-[0.16em] opacity-60">
+              <div className="text-sm font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-white/60">
                 {configuredKeysLabel}
               </div>
               <Button
@@ -1021,20 +993,20 @@ export const FileManagerSettingsModal = ({
             </div>
             <div className="space-y-3">
               {loadingSshKeys ? (
-                <div className="rounded-2xl border px-4 py-3 text-sm opacity-70">
+                <div className="rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm text-slate-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/70">
                   {t('common.loading')}...
                 </div>
               ) : sshKeys.length === 0 ? (
-                <div className="rounded-2xl border px-4 py-3 text-sm opacity-70">
+                <div className="rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm text-slate-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/70">
                   {noSshKeyText}
                 </div>
               ) : (
                 sshKeys.map((item) => (
-                  <div key={item.id} className="rounded-2xl border px-4 py-3 space-y-2">
+                  <div key={item.id} className="rounded-2xl border border-zinc-300 bg-white px-4 py-3 space-y-2 dark:border-white/10 dark:bg-white/[0.03]">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="text-sm font-black">{item.key_name}</div>
-                        <div className="text-xs opacity-60">{item.key_type}</div>
+                        <div className="text-sm font-black text-slate-950 dark:text-white">{item.key_name}</div>
+                        <div className="text-xs text-slate-500 dark:text-white/60">{item.key_type}</div>
                       </div>
                       <Button
                         variant="ghost"
@@ -1047,8 +1019,8 @@ export const FileManagerSettingsModal = ({
                         {t('common.delete')}
                       </Button>
                     </div>
-                    <div className="text-xs font-mono opacity-70 break-all">{item.fingerprint}</div>
-                    <div className="text-xs opacity-60">
+                    <div className="text-xs font-mono break-all text-slate-600 dark:text-white/70">{item.fingerprint}</div>
+                    <div className="text-xs text-slate-500 dark:text-white/60">
                       {createdAtLabel}: {formatTimestamp(item.created_at)}
                       {item.last_used_at ? ` | ${lastUsedLabel}: ${formatTimestamp(item.last_used_at)}` : ''}
                     </div>
@@ -1058,14 +1030,14 @@ export const FileManagerSettingsModal = ({
             </div>
           </div>
             <div className="space-y-3">
-              <div className="text-sm font-bold uppercase tracking-[0.16em] opacity-60">
+              <div className="text-sm font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-white/60">
                 {pastePublicKeyLabel}
               </div>
             <textarea
               value={sshKeyDraft}
               onChange={(event) => setSshKeyDraft(event.target.value)}
               placeholder="ssh-ed25519 AAAA... your-device"
-              className="min-h-36 w-full rounded-2xl border bg-background px-4 py-3 text-sm font-mono outline-none focus:ring-2 focus:ring-primary/20"
+              className="min-h-36 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm font-mono text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowSftpModal(false)}>
@@ -1076,8 +1048,8 @@ export const FileManagerSettingsModal = ({
               </Button>
             </div>
           </div>
-          <div className="rounded-2xl border bg-muted/20 px-4 py-3 text-sm opacity-80">
-            <div className="font-bold">{currentAccessModeLabel}</div>
+          <div className="rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/80">
+            <div className="font-bold text-slate-950 dark:text-white">{currentAccessModeLabel}</div>
             <div className="mt-1">
               {hasSshKey
                 ? sftpPasswordEnabled
