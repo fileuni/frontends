@@ -34,12 +34,6 @@ export const ToastContainer: React.FC = () => {
     createdAt: toast.createdAt,
   }));
 
-  const rootStyles = getComputedStyle(document.documentElement);
-  const publicHeaderOffset = rootStyles.getPropertyValue('--public-header-offset').trim();
-  const topOffset = publicHeaderOffset
-    ? `calc(${publicHeaderOffset} + 0.75rem + env(safe-area-inset-top, 0px))`
-    : 'max(0.75rem, calc(env(safe-area-inset-top) + 0.75rem))';
-
   return (
     <SharedToastContainer
       toasts={mappedToasts}
@@ -52,7 +46,6 @@ export const ToastContainer: React.FC = () => {
       i18n={i18n}
       portalTarget={document.body}
       placement="top-right"
-      topOffset={topOffset}
       renderPortal={createPortal}
       onDismiss={removeToast}
       onToggleDetails={toggleDetails}

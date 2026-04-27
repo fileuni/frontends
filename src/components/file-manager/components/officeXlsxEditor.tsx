@@ -19,6 +19,7 @@ import {
   shouldSkipAutoSave,
 } from './editorSaveShared.ts';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
+import { useEditorSaveHotkey } from '../hooks/useEditorSaveHotkey.ts';
 
 interface Props {
   path: string;
@@ -207,6 +208,13 @@ export const XlsxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
       if (!isDirty) return;
       if (loadedPathRef.current !== path) return;
       await saveWorkbook('auto');
+    },
+  });
+
+  useEditorSaveHotkey({
+    enabled: true,
+    onSave: async () => {
+      await saveWorkbook('manual');
     },
   });
 

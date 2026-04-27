@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CodeMirrorEditor } from '@/components/editors/CodeMirrorEditor';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Button } from '@/components/ui/Button.tsx';
@@ -18,6 +17,7 @@ import {
 } from './editorSaveShared.ts';
 import { buildJsdelivrNpmUrl } from '../utils/officeLite.ts';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
+import { useEditorSaveHotkey } from '../hooks/useEditorSaveHotkey.ts';
 
 type LatexPreviewMode = 'latexmk' | 'latexjs' | 'codemirror';
 
@@ -36,6 +36,7 @@ type LatexJsGlobal = {
 };
 
 const LATEXJS_VERSION = '0.12.6';
+const MOBILE_BREAKPOINT = '(max-width: 960px)';
 
 const getLatexPreviewModeLabel = (t: TFunction, mode: LatexPreviewMode): string => {
   switch (mode) {
@@ -100,12 +101,13 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const { addToast } = useToastStore();
   const { capabilities } = useConfigStore();
 
-  const [forcePlainTextarea, setForcePlainTextarea] = useState(false);
-
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [rendering, setRendering] = useState(false);
+  const [isCompactLayout, setIsCompactLayout] = useState(
+    typeof window !== 'undefined' && window.matchMedia(MOBILE_BREAKPOINT).matches,
+  );
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [fallbackPreviewUrl, setFallbackPreviewUrl] = useState<string | null>(null);
@@ -135,8 +137,6 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
   const [modeOpen, setModeOpen] = useState(false);
   const canRender = previewMode === 'latexmk' || (previewMode === 'latexjs' && Boolean(capabilities?.jsdelivr_mirror_base));
 
-  const useCodeEditor = !forcePlainTextarea;
-
   const fileName = path.split('/').pop() || 'LaTeX';
   const jsdelivrBase = capabilities?.jsdelivr_mirror_base;
   const latexCdnBase = jsdelivrBase
@@ -144,6 +144,15 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
     : null;
   const latexScriptUrl = latexCdnBase ? `${latexCdnBase}/dist/latex.js` : null;
   const latexAssetsBase = latexCdnBase ? `${latexCdnBase}/dist/` : null;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const media = window.matchMedia(MOBILE_BREAKPOINT);
+    const update = () => setIsCompactLayout(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     let canceled = false;
@@ -263,6 +272,13 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
       if (loadedPathRef.current !== path) return;
       if (content === lastSavedContentRef.current) return;
       await saveContent('auto');
+    },
+  });
+
+  useEditorSaveHotkey({
+    enabled: true,
+    onSave: async () => {
+      await saveContent('manual');
     },
   });
 
@@ -410,21 +426,17 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
         onClose={onClose}
         extra={
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-               className="h-10 px-4 rounded-xl text-sm font-black"
-              onClick={() => setForcePlainTextarea((v) => !v)}
-              title={useCodeEditor ? (t('common.editorEngine.switchToTextarea') || 'Switch to Textarea') : (t('common.editorEngine.switchToCodeMirror') || 'Switch to CodeMirror')}
-            >
-              {useCodeEditor ? (t('common.editorEngine.textarea') || 'Textarea') : (t('common.editorEngine.codemirror') || 'CodeMirror')}
-            </Button>
             <div className="relative">
               <Button
                 variant="outline"
-                className="h-10 px-4 rounded-xl text-sm font-black flex items-center gap-2"
+                className={cn(
+                  "h-10 rounded-xl text-sm font-black flex items-center gap-2",
+                  isCompactLayout ? "w-10 px-0 justify-center" : "px-4",
+                )}
                 onClick={() => setModeOpen(!modeOpen)}
+                title={getLatexPreviewModeLabel(t, previewMode) || previewMode}
               >
-                {getLatexPreviewModeLabel(t, previewMode) || previewMode}
+                {!isCompactLayout && (getLatexPreviewModeLabel(t, previewMode) || previewMode)}
                 <ChevronDown size={18} />
               </Button>
               {modeOpen && (
@@ -453,22 +465,30 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
             {canRender && (
               <Button
                 variant="outline"
-                className="h-10 px-6 rounded-xl text-sm font-black"
+                className={cn(
+                  "h-10 rounded-xl text-sm font-black",
+                  isCompactLayout ? "w-10 px-0 justify-center" : "px-6",
+                )}
                 onClick={handleRender}
                 disabled={rendering || loading}
+                title={t('filemanager.texPreview.render') || 'Render'}
               >
-                {rendering ? <Loader2 size={18} className="animate-spin mr-2" /> : <Eye size={18} className="mr-2" />}
-                {t('filemanager.texPreview.render') || 'Render'}
+                {rendering ? <Loader2 size={18} className={cn("animate-spin", !isCompactLayout && "mr-2")} /> : <Eye size={18} className={cn(!isCompactLayout && "mr-2")} />}
+                {!isCompactLayout && (t('filemanager.texPreview.render') || 'Render')}
               </Button>
             )}
             <Button
               variant="primary"
-              className="h-10 px-6 rounded-xl text-sm font-black"
+              className={cn(
+                "h-10 rounded-xl text-sm font-black",
+                isCompactLayout ? "w-10 px-0 justify-center" : "px-6",
+              )}
               onClick={() => { void saveContent('manual'); }}
               disabled={saving || loading}
+              title={t('common.save')}
             >
-              {saving ? <Loader2 size={18} className="animate-spin mr-2" /> : <Save size={18} className="mr-2" />}
-              {t('common.save')}
+              {saving ? <Loader2 size={18} className={cn("animate-spin", !isCompactLayout && "mr-2")} /> : <Save size={18} className={cn(!isCompactLayout && "mr-2")} />}
+              {!isCompactLayout && t('common.save')}
             </Button>
           </div>
         }
@@ -482,40 +502,18 @@ export const TexPreviewAndEditor = ({ path, isDark, onClose }: Props) => {
               {t('filemanager.editor.opening') || 'Opening'}
             </div>
           ) : (
-            useCodeEditor ? (
-              <CodeMirrorEditor
-                height="100%"
-                language="latex"
-                value={content}
-                theme={isDark ? 'dark' : 'light'}
-                options={{
-                  readOnly: false,
-                  fontSize: 14,
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                  wordWrap: 'on',
-                  lineNumbers: 'on',
-                  renderLineHighlight: 'all',
-                  padding: { top: 16, bottom: 24 },
-                }}
-                onChange={(val) => {
-                  setContent(val || '');
-                  lastEditAtRef.current = Date.now();
-                }}
-              />
-            ) : (
-              <textarea
-                className={cn(
-                  'h-full w-full resize-none p-4 font-mono text-sm leading-6 outline-none custom-scrollbar',
-                  isDark ? 'bg-[#09090b] text-white' : 'bg-white text-zinc-900'
-                )}
-                value={content}
-                spellCheck={false}
-                onChange={(e) => {
-                  setContent(e.target.value);
-                  lastEditAtRef.current = Date.now();
-                }}
-              />
-            )
+            <textarea
+              className={cn(
+                'h-full w-full resize-none p-4 font-mono text-sm leading-6 outline-none custom-scrollbar',
+                isDark ? 'bg-[#09090b] text-white' : 'bg-white text-zinc-900'
+              )}
+              value={content}
+              spellCheck={false}
+              onChange={(e) => {
+                setContent(e.target.value);
+                lastEditAtRef.current = Date.now();
+              }}
+            />
           )}
         </section>
 

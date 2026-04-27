@@ -17,6 +17,7 @@ import {
   shouldSkipAutoSave,
 } from './editorSaveShared.ts';
 import { useAutoSave } from '../hooks/useAutoSave.ts';
+import { useEditorSaveHotkey } from '../hooks/useEditorSaveHotkey.ts';
 
 const WORD_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
 
@@ -313,6 +314,13 @@ export const DocxLiteEditor: React.FC<Props> = ({ path, onClose }) => {
       if (loadedPathRef.current !== path) return;
       if (editorText === lastSavedTextRef.current) return;
       await saveDocx('auto');
+    },
+  });
+
+  useEditorSaveHotkey({
+    enabled: true,
+    onSave: async () => {
+      await saveDocx('manual');
     },
   });
 

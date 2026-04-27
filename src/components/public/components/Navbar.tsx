@@ -168,7 +168,7 @@ export const Navbar = () => {
       <nav className={cn(
         "fixed top-0 left-0 right-0 h-16 border-b backdrop-blur-md z-[100] flex items-center justify-between px-4 md:px-8",
         isDark ? "border-white/5 bg-zinc-950/80" : "border-gray-200 bg-white/80"
-      )}>
+      )} data-toast-top-anchor="true">
         {/* Brand */}
         <a href={`${base}mod=public&page=index`} className="flex items-center gap-3 group shrink-0">
           <img
