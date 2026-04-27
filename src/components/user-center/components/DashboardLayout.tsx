@@ -308,7 +308,10 @@ export const DashboardLayout: React.FC<{
   return (
     <div className={cn("h-screen min-h-0 bg-background flex flex-col", isDark ? "" : "bg-gray-50")}>
       {/* Mobile Top Bar */}
-      <div className={cn("md:hidden fixed top-16 left-0 right-0 h-12 backdrop-blur-md border-b z-40 flex items-center px-4", isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-gray-200")}>
+      <div
+        className={cn("md:hidden fixed top-16 left-0 right-0 h-12 backdrop-blur-md border-b z-40 flex items-center px-4", isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-gray-200")}
+        data-toast-top-anchor="true"
+      >
         <button
           type="button"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

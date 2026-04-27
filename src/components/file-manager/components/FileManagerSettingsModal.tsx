@@ -305,6 +305,28 @@ export const FileManagerSettingsModal = ({
     return items.filter((item) => item.enabled).map(({ enabled: _enabled, ...rest }) => rest);
   }, [t, thumbCaps]);
 
+  const thumbnailDirectoryModeOptions = [
+    {
+      value: 'user_root',
+      title: resolveText(t, 'filemanager.thumbnail.modeUserRoot', 'Unified Directory'),
+      desc: resolveText(
+        t,
+        'filemanager.thumbnail.modeUserRootHint',
+        'Store thumbnails in /.fileuni-thumbnail under your root directory.',
+      ),
+    },
+    {
+      value: 'per_directory',
+      title: resolveText(t, 'filemanager.thumbnail.modePerDirectory', 'Multi Directory'),
+      desc: resolveText(
+        t,
+        'filemanager.thumbnail.modePerDirectoryHint',
+        'Create a .fileuni-thumbnail directory inside each folder that generates thumbnails.',
+      ),
+    },
+  ].filter((option) => allowedDirectoryModes.includes(option.value));
+  const currentThumbnailDirectoryMode =
+    thumbnailDirectoryModeOptions.find((option) => option.value === effectiveDirectoryMode) ?? thumbnailDirectoryModeOptions[0] ?? null;
   const ftpEndpoint = protocolCaps?.ftp_port
     ? formatHostPort(browserHost, protocolCaps.ftp_port)
     : null;
@@ -317,6 +339,21 @@ export const FileManagerSettingsModal = ({
   const s3Endpoint = capabilities?.s3_port
     ? `${capabilities.s3_use_https ? 'https' : 'http'}://${formatHostPort(browserHost, capabilities.s3_port)}`
     : null;
+  const ftpPassiveSummary =
+    protocolCaps?.ftp_passive_ports_start && protocolCaps?.ftp_passive_ports_end
+      ? `${protocolCaps.ftp_passive_host || browserHost}:${protocolCaps.ftp_passive_ports_start}-${protocolCaps.ftp_passive_ports_end}`
+      : null;
+  const ftpSummary = ftpPassiveSummary
+    ? resolveText(
+        t,
+        'filemanager.settings.ftpAccessPassiveRange',
+        'Use your account username and password. Active mode is available. Passive mode uses {{value}}.',
+      ).replace('{{value}}', ftpPassiveSummary)
+    : resolveText(
+        t,
+        'filemanager.settings.ftpAccessActiveOnly',
+        'Use your account username and password. Active mode is available. Passive mode is not configured.',
+      );
   const sftpPasswordEnabled = settings?.sftp_enable_password !== false;
   const hasSshKey = sshKeys.length > 0;
   const s3BucketName = 'user-data';
@@ -427,11 +464,7 @@ export const FileManagerSettingsModal = ({
       title: 'FTP',
       enabled: capabilities?.enable_ftp === true,
       endpoint: ftpEndpoint,
-      summary: resolveText(
-        t,
-        'filemanager.settings.ftpAccess',
-        'Sign in with your account username and password.',
-      ),
+      summary: ftpSummary,
       action: null,
     },
     {
@@ -564,54 +597,46 @@ export const FileManagerSettingsModal = ({
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-3xl border border-zinc-300 bg-white px-4 py-4 shadow-inner dark:border-white/10 dark:bg-white/[0.03] sm:col-span-2">
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <div className="text-sm font-black text-slate-950 dark:text-white tracking-wide">
                         {resolveText(t, 'filemanager.thumbnail.directoryMode', 'Thumbnail Directory Mode')}
                       </div>
-                      <div className="mt-1 text-xs text-slate-600 dark:text-white/50 leading-relaxed">
-                        {resolveText(t, 'filemanager.thumbnail.directoryModeHint', 'Choose one shared thumbnail directory in your root or one thumbnail directory inside each folder.')}
-                      </div>
                     </div>
-                    <div className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-white/35">
-                      {allowDirectoryModeOverride ? t('common.enabled') : t('common.disabled')}
+                    <div className="inline-flex w-full rounded-2xl border border-zinc-300 bg-zinc-100 p-1 dark:border-white/10 dark:bg-white/[0.04] sm:w-auto">
+                      {thumbnailDirectoryModeOptions.map((option) => {
+                        const active = currentThumbnailDirectoryMode?.value === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            disabled={settingsLoading || !allowDirectoryModeOverride || thumbCaps?.enabled !== true}
+                            onClick={() =>
+                              void updateSettings({
+                                thumbnail_directory_mode: option.value,
+                              } as UserFileSettingsUpdate)
+                            }
+                            className={cn(
+                              'min-w-0 flex-1 rounded-xl px-3 py-2 text-sm font-bold transition-colors sm:flex-none',
+                              active
+                                ? 'bg-white text-slate-950 shadow-sm dark:bg-white/12 dark:text-white'
+                                : 'text-slate-600 hover:text-slate-900 dark:text-white/60 dark:hover:text-white',
+                              (settingsLoading || !allowDirectoryModeOverride || thumbCaps?.enabled !== true) &&
+                                'cursor-not-allowed opacity-50',
+                            )}
+                          >
+                            {option.title}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                    {[
-                      {
-                        value: 'user_root',
-                        title: resolveText(t, 'filemanager.thumbnail.modeUserRoot', 'Unified Directory'),
-                        desc: resolveText(t, 'filemanager.thumbnail.modeUserRootHint', 'Store thumbnails in /.fileuni-thumbnail under your root directory.'),
-                      },
-                      {
-                        value: 'per_directory',
-                        title: resolveText(t, 'filemanager.thumbnail.modePerDirectory', 'Multi Directory'),
-                        desc: resolveText(t, 'filemanager.thumbnail.modePerDirectoryHint', 'Create a .fileuni-thumbnail directory inside each folder that generates thumbnails.'),
-                      },
-                    ]
-                      .filter((option) => allowedDirectoryModes.includes(option.value))
-                      .map((option) => {
-                      const active = effectiveDirectoryMode === option.value;
-                      return (
-                        <button
-                          key={option.value}
-                          type="button"
-                          disabled={settingsLoading || !allowDirectoryModeOverride || thumbCaps?.enabled !== true}
-                          onClick={() => void updateSettings({ thumbnail_directory_mode: option.value } as UserFileSettingsUpdate)}
-                          className={cn(
-                            'rounded-2xl border px-4 py-3 text-left transition-colors',
-                            active
-                              ? 'border-primary bg-primary/15 text-slate-950 dark:text-white'
-                              : 'border-zinc-300 bg-zinc-50 text-slate-800 dark:border-white/10 dark:bg-white/[0.02] dark:text-white/75',
-                            (settingsLoading || !allowDirectoryModeOverride || thumbCaps?.enabled !== true) && 'opacity-50 cursor-not-allowed',
-                          )}
-                        >
-                          <div className="text-sm font-black tracking-wide">{option.title}</div>
-                          <div className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-white/55">{option.desc}</div>
-                        </button>
-                      );
-                    })}
+                  <div className="mt-3 text-sm text-slate-700 dark:text-white/70 leading-relaxed">
+                    {currentThumbnailDirectoryMode?.desc ?? resolveText(
+                      t,
+                      'filemanager.thumbnail.directoryModeHint',
+                      'Choose one shared thumbnail directory in your root or one thumbnail directory inside each folder.',
+                    )}
                   </div>
                 </div>
 
@@ -736,12 +761,11 @@ export const FileManagerSettingsModal = ({
                             {enabled ? t('common.enabled') : t('common.disabled')}
                           </div>
                         </div>
-                        <div className="break-all text-sm leading-relaxed text-slate-700 dark:text-white/75">
-                          <span className="mr-2 text-slate-500 dark:text-white/45">{endpointLabel}</span>
-                          <span className="font-mono text-slate-900 dark:text-white/85">{endpoint || '-'}</span>
-                        </div>
                         <div className="text-sm leading-relaxed text-slate-700 dark:text-white/75">
-                          <span>{enabled ? summary : disabledProtocolText}</span>
+                          <span className="mr-2 text-slate-500 dark:text-white/45">{endpointLabel}</span>
+                          <span className="font-mono text-slate-900 dark:text-white/85 break-all">{endpoint || '-'}</span>
+                          <span className="mx-2 hidden sm:inline text-slate-400 dark:text-white/30">·</span>
+                          <span className="block sm:inline sm:break-normal">{enabled ? summary : disabledProtocolText}</span>
                         </div>
                       </div>
                       {enabled && action ? (
