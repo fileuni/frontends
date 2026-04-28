@@ -234,6 +234,28 @@ const filemanagerBundle = defineLocaleBundle({
             "browseTitle": "Browse Content",
             "requires7zWarning": "This format (e.g. 7z, rar) requires the server to have 7-Zip configured. Please contact the administrator."
         },
+        "videoCompress": {
+            "title": "Video Compression",
+            "subtitle": "Create a smaller video copy",
+            "singleHint": "Compress the selected video file into a smaller and more compatible format.",
+            "multiHint": "Compress {{count}} selected video files with the same preset.",
+            "directoryHint": "Search video files in the selected directories and compress them one by one.",
+            "codec": "Codec",
+            "container": "Container",
+            "profile": "Profile",
+            "resolution": "Resolution",
+            "maxFps": "Max FPS",
+            "crf": "Quality (CRF)",
+            "outputSuffix": "Output Suffix",
+            "outputSuffixHint": "The compressed file is created next to the original file.",
+            "includeSubdirectories": "Include Subdirectories",
+            "includeSubdirectoriesHint": "Search nested folders when the selection contains directories.",
+            "overwriteExisting": "Overwrite Existing Files",
+            "overwriteExistingHint": "When disabled, a new unique file name is created automatically.",
+            "deleteSource": "Delete Source After Success",
+            "deleteSourceHint": "Delete the original video after the compressed copy is created successfully.",
+            "submit": "Start Compression"
+        },
         "actions": {
             "open": "Open",
             "preview": "Preview",
@@ -258,6 +280,7 @@ const filemanagerBundle = defineLocaleBundle({
             "cancelAllShares": "Cancel All Shares",
             "clearAllFavorites": "Clear All Favorites",
             "compress": "Compress",
+            "videoCompress": "Video Compression",
             "extract": "Extract",
             "properties": "Properties",
             "removeFromHistory": "Remove from History",
@@ -392,7 +415,6 @@ const filemanagerBundle = defineLocaleBundle({
             "settingsTitle": "File Management Settings",
             "directoryMode": "Thumbnail Directory Mode",
             "directoryModeHint": "Choose one shared thumbnail directory in your root or one thumbnail directory inside each folder.",
-            "switchDirectoryMode": "Switch Directory Mode",
             "modeUserRoot": "Unified Directory",
             "modeUserRootHint": "Store thumbnails in /.fileuni-thumbnail under your root directory.",
             "modePerDirectory": "Multi Directory",
@@ -630,7 +652,8 @@ const filemanagerBundle = defineLocaleBundle({
                 "decompress": "Extract",
                 "batch_delete": "Batch delete",
                 "batch_move": "Batch move",
-                "batch_copy": "Batch copy"
+                "batch_copy": "Batch copy",
+                "video_compress": "Video Compression"
             }
         },
         "publicShare": {
@@ -896,6 +919,28 @@ const filemanagerBundle = defineLocaleBundle({
             "browseTitle": "浏览内容",
             "requires7zWarning": "当前格式（如 7z, rar 等）需要服务器配置 7zip 路径方可解压。请联系管理员。"
         },
+        "videoCompress": {
+            "title": "视频压制",
+            "subtitle": "生成更小、更通用的视频副本",
+            "singleHint": "将选中的视频压制成体积更小、兼容性更好的格式。",
+            "multiHint": "按同一套参数压制选中的 {{count}} 个视频文件。",
+            "directoryHint": "搜索所选目录中的视频文件，并逐个压制。",
+            "codec": "编码格式",
+            "container": "封装格式",
+            "profile": "Profile",
+            "resolution": "分辨率",
+            "maxFps": "最高帧率",
+            "crf": "画质（CRF）",
+            "outputSuffix": "输出后缀",
+            "outputSuffixHint": "压制后的视频会保存到原文件旁边。",
+            "includeSubdirectories": "包含子目录",
+            "includeSubdirectoriesHint": "当选择目录时，同时搜索其下级目录中的视频文件。",
+            "overwriteExisting": "覆盖同名目标文件",
+            "overwriteExistingHint": "关闭后会自动生成不冲突的新文件名。",
+            "deleteSource": "成功后删除原文件",
+            "deleteSourceHint": "压制成功后自动删除原始视频文件。",
+            "submit": "开始压制"
+        },
         "actions": {
             "open": "打开",
             "preview": "预览",
@@ -920,6 +965,7 @@ const filemanagerBundle = defineLocaleBundle({
             "cancelAllShares": "取消所有分享",
             "clearAllFavorites": "清空所有收藏",
             "compress": "压缩",
+            "videoCompress": "视频压制",
             "extract": "解压",
             "properties": "属性",
             "removeFromHistory": "从历史记录中移除",
@@ -1054,7 +1100,6 @@ const filemanagerBundle = defineLocaleBundle({
             "settingsTitle": "文件管理设置",
             "directoryMode": "缩略图目录模式",
             "directoryModeHint": "可在根目录共用一个缩略图目录，或在每个目录内分别创建缩略图目录。",
-            "switchDirectoryMode": "切换目录模式",
             "modeUserRoot": "统一目录模式",
             "modeUserRootHint": "将缩略图统一保存到根目录下的 /.fileuni-thumbnail 中。",
             "modePerDirectory": "分目录模式",
@@ -1292,7 +1337,8 @@ const filemanagerBundle = defineLocaleBundle({
                 "decompress": "文件解压",
                 "batch_delete": "批量删除",
                 "batch_move": "批量移动",
-                "batch_copy": "批量复制"
+                "batch_copy": "批量复制",
+                "video_compress": "视频压制"
             }
         },
         "publicShare": {
@@ -1558,6 +1604,28 @@ const filemanagerBundle = defineLocaleBundle({
             "browseTitle": "Explorar contenido",
             "requires7zWarning": "Este formato (p. ej. 7z, rar) requiere que el servidor tenga 7-Zip configurado. Contacte al administrador."
         },
+        "videoCompress": {
+            "title": "Video Compression",
+            "subtitle": "Create a smaller video copy",
+            "singleHint": "Compress the selected video file into a smaller and more compatible format.",
+            "multiHint": "Compress {{count}} selected video files with the same preset.",
+            "directoryHint": "Search video files in the selected directories and compress them one by one.",
+            "codec": "Codec",
+            "container": "Container",
+            "profile": "Profile",
+            "resolution": "Resolution",
+            "maxFps": "Max FPS",
+            "crf": "Quality (CRF)",
+            "outputSuffix": "Output Suffix",
+            "outputSuffixHint": "The compressed file is created next to the original file.",
+            "includeSubdirectories": "Include Subdirectories",
+            "includeSubdirectoriesHint": "Search nested folders when the selection contains directories.",
+            "overwriteExisting": "Overwrite Existing Files",
+            "overwriteExistingHint": "When disabled, a new unique file name is created automatically.",
+            "deleteSource": "Delete Source After Success",
+            "deleteSourceHint": "Delete the original video after the compressed copy is created successfully.",
+            "submit": "Start Compression"
+        },
         "actions": {
             "open": "Abrir",
             "preview": "Vista previa",
@@ -1582,6 +1650,7 @@ const filemanagerBundle = defineLocaleBundle({
             "cancelAllShares": "Cancelar todas las comparticiones",
             "clearAllFavorites": "Borrar todos los favoritos",
             "compress": "Comprimir",
+            "videoCompress": "Video Compression",
             "extract": "Extraer",
             "properties": "Propiedades",
             "removeFromHistory": "Quitar del historial",
@@ -1716,7 +1785,6 @@ const filemanagerBundle = defineLocaleBundle({
             "settingsTitle": "Configuración del gestor de archivos",
             "directoryMode": "Modo de directorio de miniaturas",
             "directoryModeHint": "Elija un directorio compartido de miniaturas en su raíz o un directorio de miniaturas dentro de cada carpeta.",
-            "switchDirectoryMode": "Cambiar modo de directorio",
             "modeUserRoot": "Directorio unificado",
             "modeUserRootHint": "Guarde las miniaturas en /.fileuni-thumbnail dentro de su directorio raíz.",
             "modePerDirectory": "Multi directorio",
@@ -1954,7 +2022,8 @@ const filemanagerBundle = defineLocaleBundle({
                 "decompress": "Extraer",
                 "batch_delete": "Eliminación por lotes",
                 "batch_move": "Mover por lotes",
-                "batch_copy": "Copiar por lotes"
+                "batch_copy": "Copiar por lotes",
+                "video_compress": "Video Compression"
             }
         },
         "publicShare": {
@@ -2220,6 +2289,28 @@ const filemanagerBundle = defineLocaleBundle({
             "browseTitle": "Inhalt durchsuchen",
             "requires7zWarning": "Dieses Format (z.B. 7z, rar) erfordert, dass der Server 7-Zip konfiguriert hat. Bitte kontaktieren Sie den Administrator."
         },
+        "videoCompress": {
+            "title": "Video Compression",
+            "subtitle": "Create a smaller video copy",
+            "singleHint": "Compress the selected video file into a smaller and more compatible format.",
+            "multiHint": "Compress {{count}} selected video files with the same preset.",
+            "directoryHint": "Search video files in the selected directories and compress them one by one.",
+            "codec": "Codec",
+            "container": "Container",
+            "profile": "Profile",
+            "resolution": "Resolution",
+            "maxFps": "Max FPS",
+            "crf": "Quality (CRF)",
+            "outputSuffix": "Output Suffix",
+            "outputSuffixHint": "The compressed file is created next to the original file.",
+            "includeSubdirectories": "Include Subdirectories",
+            "includeSubdirectoriesHint": "Search nested folders when the selection contains directories.",
+            "overwriteExisting": "Overwrite Existing Files",
+            "overwriteExistingHint": "When disabled, a new unique file name is created automatically.",
+            "deleteSource": "Delete Source After Success",
+            "deleteSourceHint": "Delete the original video after the compressed copy is created successfully.",
+            "submit": "Start Compression"
+        },
         "actions": {
             "open": "Öffnen",
             "preview": "Vorschau",
@@ -2244,6 +2335,7 @@ const filemanagerBundle = defineLocaleBundle({
             "cancelAllShares": "Cancel All Shares",
             "clearAllFavorites": "Clear All Favorites",
             "compress": "Komprimieren",
+            "videoCompress": "Video Compression",
             "extract": "Entpacken",
             "properties": "Eigenschaften",
             "removeFromHistory": "Aus Verlauf entfernen",
@@ -2378,7 +2470,6 @@ const filemanagerBundle = defineLocaleBundle({
             "settingsTitle": "Dateiverwaltungseinstellungen",
             "directoryMode": "Thumbnail-Verzeichnismodus",
             "directoryModeHint": "Wählen Sie ein gemeinsames Thumbnail-Verzeichnis in Ihrem Stammverzeichnis oder ein Thumbnail-Verzeichnis in jedem Ordner.",
-            "switchDirectoryMode": "Verzeichnismodus wechseln",
             "modeUserRoot": "Einheitliches Verzeichnis",
             "modeUserRootHint": "Speichern Sie Miniaturen in /.fileuni-thumbnail unter Ihrem Stammverzeichnis.",
             "modePerDirectory": "Mehrere Verzeichnisse",
@@ -2616,7 +2707,8 @@ const filemanagerBundle = defineLocaleBundle({
                 "decompress": "Entpacken",
                 "batch_delete": "Batch-Löschen",
                 "batch_move": "Batch-Verschieben",
-                "batch_copy": "Batch-Kopieren"
+                "batch_copy": "Batch-Kopieren",
+                "video_compress": "Video Compression"
             }
         },
         "publicShare": {
@@ -2882,6 +2974,28 @@ const filemanagerBundle = defineLocaleBundle({
             "browseTitle": "Parcourir le contenu",
             "requires7zWarning": "Ce format (ex. 7z, rar) nécessite que 7-Zip soit configuré sur le serveur. Veuillez contacter l'administrateur."
         },
+        "videoCompress": {
+            "title": "Video Compression",
+            "subtitle": "Create a smaller video copy",
+            "singleHint": "Compress the selected video file into a smaller and more compatible format.",
+            "multiHint": "Compress {{count}} selected video files with the same preset.",
+            "directoryHint": "Search video files in the selected directories and compress them one by one.",
+            "codec": "Codec",
+            "container": "Container",
+            "profile": "Profile",
+            "resolution": "Resolution",
+            "maxFps": "Max FPS",
+            "crf": "Quality (CRF)",
+            "outputSuffix": "Output Suffix",
+            "outputSuffixHint": "The compressed file is created next to the original file.",
+            "includeSubdirectories": "Include Subdirectories",
+            "includeSubdirectoriesHint": "Search nested folders when the selection contains directories.",
+            "overwriteExisting": "Overwrite Existing Files",
+            "overwriteExistingHint": "When disabled, a new unique file name is created automatically.",
+            "deleteSource": "Delete Source After Success",
+            "deleteSourceHint": "Delete the original video after the compressed copy is created successfully.",
+            "submit": "Start Compression"
+        },
         "actions": {
             "open": "Ouvrir",
             "preview": "Aperçu",
@@ -2906,6 +3020,7 @@ const filemanagerBundle = defineLocaleBundle({
             "cancelAllShares": "Annuler tous les partages",
             "clearAllFavorites": "Effacer tous les favoris",
             "compress": "Compresser",
+            "videoCompress": "Video Compression",
             "extract": "Extraire",
             "properties": "Propriétés",
             "removeFromHistory": "Retirer de l'historique",
@@ -3040,7 +3155,6 @@ const filemanagerBundle = defineLocaleBundle({
             "settingsTitle": "Paramètres du gestionnaire de fichiers",
             "directoryMode": "Mode de répertoire des miniatures",
             "directoryModeHint": "Choisissez un répertoire partagé de miniatures dans votre racine ou un répertoire de miniatures dans chaque dossier.",
-            "switchDirectoryMode": "Changer de mode de répertoire",
             "modeUserRoot": "Répertoire unifié",
             "modeUserRootHint": "Stockez les miniatures dans /.fileuni-thumbnail sous votre répertoire racine.",
             "modePerDirectory": "Multi-répertoire",
@@ -3278,7 +3392,8 @@ const filemanagerBundle = defineLocaleBundle({
                 "decompress": "Extraire",
                 "batch_delete": "Suppression par lot",
                 "batch_move": "Déplacement par lot",
-                "batch_copy": "Copie par lot"
+                "batch_copy": "Copie par lot",
+                "video_compress": "Video Compression"
             }
         },
         "publicShare": {
@@ -3544,6 +3659,28 @@ const filemanagerBundle = defineLocaleBundle({
             "browseTitle": "Просмотр содержимого",
             "requires7zWarning": "Этот формат (например 7z, rar) требует настроенного 7-Zip на сервере. Обратитесь к администратору."
         },
+        "videoCompress": {
+            "title": "Video Compression",
+            "subtitle": "Create a smaller video copy",
+            "singleHint": "Compress the selected video file into a smaller and more compatible format.",
+            "multiHint": "Compress {{count}} selected video files with the same preset.",
+            "directoryHint": "Search video files in the selected directories and compress them one by one.",
+            "codec": "Codec",
+            "container": "Container",
+            "profile": "Profile",
+            "resolution": "Resolution",
+            "maxFps": "Max FPS",
+            "crf": "Quality (CRF)",
+            "outputSuffix": "Output Suffix",
+            "outputSuffixHint": "The compressed file is created next to the original file.",
+            "includeSubdirectories": "Include Subdirectories",
+            "includeSubdirectoriesHint": "Search nested folders when the selection contains directories.",
+            "overwriteExisting": "Overwrite Existing Files",
+            "overwriteExistingHint": "When disabled, a new unique file name is created automatically.",
+            "deleteSource": "Delete Source After Success",
+            "deleteSourceHint": "Delete the original video after the compressed copy is created successfully.",
+            "submit": "Start Compression"
+        },
         "actions": {
             "open": "Открыть",
             "preview": "Предпросмотр",
@@ -3568,6 +3705,7 @@ const filemanagerBundle = defineLocaleBundle({
             "cancelAllShares": "Отменить все публикации",
             "clearAllFavorites": "Очистить избранное",
             "compress": "Сжать",
+            "videoCompress": "Video Compression",
             "extract": "Извлечь",
             "properties": "Свойства",
             "removeFromHistory": "Убрать из истории",
@@ -3702,7 +3840,6 @@ const filemanagerBundle = defineLocaleBundle({
             "settingsTitle": "Настройки файлового менеджера",
             "directoryMode": "Режим каталога миниатюр",
             "directoryModeHint": "Выберите общий каталог миниатюр в корне или отдельный каталог миниатюр внутри каждой папки.",
-            "switchDirectoryMode": "Переключить режим каталога",
             "modeUserRoot": "Единый каталог",
             "modeUserRootHint": "Хранить миниатюры в /.fileuni-thumbnail в корне вашего каталога.",
             "modePerDirectory": "Каталог в каждой папке",
@@ -3940,7 +4077,8 @@ const filemanagerBundle = defineLocaleBundle({
                 "decompress": "Извлечение",
                 "batch_delete": "Пакетное удаление",
                 "batch_move": "Пакетное перемещение",
-                "batch_copy": "Пакетное копирование"
+                "batch_copy": "Пакетное копирование",
+                "video_compress": "Video Compression"
             }
         },
         "publicShare": {
@@ -4206,6 +4344,28 @@ const filemanagerBundle = defineLocaleBundle({
             "browseTitle": "内容を閲覧",
             "requires7zWarning": "この形式 (例: 7z, rar) にはサーバー側で 7-Zip の設定が必要です。管理者に連絡してください。"
         },
+        "videoCompress": {
+            "title": "Video Compression",
+            "subtitle": "Create a smaller video copy",
+            "singleHint": "Compress the selected video file into a smaller and more compatible format.",
+            "multiHint": "Compress {{count}} selected video files with the same preset.",
+            "directoryHint": "Search video files in the selected directories and compress them one by one.",
+            "codec": "Codec",
+            "container": "Container",
+            "profile": "Profile",
+            "resolution": "Resolution",
+            "maxFps": "Max FPS",
+            "crf": "Quality (CRF)",
+            "outputSuffix": "Output Suffix",
+            "outputSuffixHint": "The compressed file is created next to the original file.",
+            "includeSubdirectories": "Include Subdirectories",
+            "includeSubdirectoriesHint": "Search nested folders when the selection contains directories.",
+            "overwriteExisting": "Overwrite Existing Files",
+            "overwriteExistingHint": "When disabled, a new unique file name is created automatically.",
+            "deleteSource": "Delete Source After Success",
+            "deleteSourceHint": "Delete the original video after the compressed copy is created successfully.",
+            "submit": "Start Compression"
+        },
         "actions": {
             "open": "開く",
             "preview": "プレビュー",
@@ -4230,6 +4390,7 @@ const filemanagerBundle = defineLocaleBundle({
             "cancelAllShares": "すべての共有を取消",
             "clearAllFavorites": "お気に入りを全削除",
             "compress": "圧縮",
+            "videoCompress": "Video Compression",
             "extract": "展開",
             "properties": "プロパティ",
             "removeFromHistory": "履歴から削除",
@@ -4364,7 +4525,6 @@ const filemanagerBundle = defineLocaleBundle({
             "settingsTitle": "ファイル管理設定",
             "directoryMode": "サムネイル保存先モード",
             "directoryModeHint": "ルート配下で共通のサムネイル保存先を使うか、各フォルダごとにサムネイル保存先を作成するかを選択します。",
-            "switchDirectoryMode": "保存先モードを切り替え",
             "modeUserRoot": "統一ディレクトリ",
             "modeUserRootHint": "サムネイルをルート配下の /.fileuni-thumbnail に保存します。",
             "modePerDirectory": "複数ディレクトリ",
@@ -4602,7 +4762,8 @@ const filemanagerBundle = defineLocaleBundle({
                 "decompress": "展開",
                 "batch_delete": "一括削除",
                 "batch_move": "一括移動",
-                "batch_copy": "一括コピー"
+                "batch_copy": "一括コピー",
+                "video_compress": "Video Compression"
             }
         },
         "publicShare": {

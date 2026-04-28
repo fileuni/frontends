@@ -1,5 +1,512 @@
 import { defineLocaleBundle, type LocaleShape } from '@/i18n/core';
 import type { FrontendResourceLocale } from '@/i18n/locale-adapter';
+
+const sharedAdminStorageCacheFieldsEn = {
+    "ttlSecs": "TTL (sec)",
+    "cacheThumbnailPaths": "Cache Thumbnail Paths",
+    "skipExtensions": "Skip Extensions",
+    "flushIntervalMs": "Flush Interval (ms)",
+    "flushDeadlineSecs": "Flush Deadline (sec)",
+    "abnormalSpillDir": "Abnormal Spill Directory"
+} as const;
+
+const sharedAdminStorageCacheFieldsZh = {
+    "ttlSecs": "TTL（秒）",
+    "cacheThumbnailPaths": "缓存缩略图路径",
+    "skipExtensions": "跳过扩展名",
+    "flushIntervalMs": "刷新间隔（毫秒）",
+    "flushDeadlineSecs": "最晚刷新时限（秒）",
+    "abnormalSpillDir": "异常落盘目录"
+} as const;
+
+const sharedAdminLoggingEn = {
+    "title": "System Logging",
+    "generalTitle": "General Behavior",
+    "fileOutputTitle": "File Output",
+    "logLevel": "Log Level",
+    "levels": {
+        "trace": "Trace",
+        "debug": "Debug",
+        "info": "Info",
+        "warn": "Warn",
+        "error": "Error"
+    },
+    "enableAsync": "Enable Async Logging",
+    "enableFileLog": "Write to Log File",
+    "logFile": "Log File Path",
+    "logMaxSize": "Max File Size (bytes)",
+    "logMaxFiles": "Max File Count",
+    "logCompress": "Compress Rotated Logs",
+    "logTemplate": "Log Template",
+    "logTemplateHint": "Use placeholders such as {level}, {time}, {module}, and {message}."
+} as const;
+
+const sharedAdminLoggingZh = {
+    "title": "系统日志",
+    "generalTitle": "基础行为",
+    "fileOutputTitle": "文件输出",
+    "logLevel": "日志级别",
+    "levels": {
+        "trace": "追踪",
+        "debug": "调试",
+        "info": "信息",
+        "warn": "警告",
+        "error": "错误"
+    },
+    "enableAsync": "启用异步日志",
+    "enableFileLog": "写入日志文件",
+    "logFile": "日志文件路径",
+    "logMaxSize": "单文件最大大小（字节）",
+    "logMaxFiles": "最多保留文件数",
+    "logCompress": "压缩轮转日志",
+    "logTemplate": "日志模板",
+    "logTemplateHint": "可使用 {level}、{time}、{module}、{message} 等占位符。"
+} as const;
+
+const sharedAdvancedPanelsEn = {
+    "captcha": {
+        "title": "Captcha Settings",
+        "provider": "Captcha Provider",
+        "providers": {
+            "builtin": "Built-In",
+            "turnstile": "Cloudflare Turnstile"
+        },
+        "codeLength": "Code Length",
+        "expiresIn": "Expires In (sec)",
+        "secretKey": "Captcha Token Secret",
+        "maxRequestsGlobalHour": "Global Hourly Limit",
+        "graphicCacheSize": "Graphic Cache Size",
+        "graphicGenConcurrency": "Graphic Generation Concurrency",
+        "maxGenConcurrency": "Max Generation Concurrency",
+        "poolCheckIntervalSecs": "Pool Check Interval (sec)",
+        "emergencyFillMultiplier": "Emergency Fill Multiplier",
+        "maxVerificationFailures": "Max Verification Failures",
+        "maxVerificationFailuresIp": "Max Verification Failures per IP",
+        "verificationFailureCooldown": "Failure Cooldown (sec)",
+        "capacityAndTurnstile": "Graphic Pool and Turnstile",
+        "turnstileSiteKey": "Turnstile Site Key",
+        "turnstileSecretKey": "Turnstile Secret Key",
+        "turnstileVerifyUrl": "Turnstile Verify URL"
+    },
+    "frontend": {
+        "title": "Frontend Entry",
+        "jsdelivrMirrorBase": "jsDelivr Mirror Base",
+        "defaultLoginRoute": "Default Login Route",
+        "defaultLoginRouteHint": "Supports hash parameters such as mod=file-manager&page=files, relative paths, or full http/https URLs."
+    },
+    "memoryAllocator": {
+        "title": "Memory Allocator",
+        "policy": "Allocator Policy",
+        "profile": "Hardware Profile",
+        "policies": {
+            "auto": "Auto",
+            "system": "System",
+            "mimalloc": "mimalloc",
+            "jemalloc": "jemalloc"
+        },
+        "profiles": {
+            "auto": "Auto",
+            "lowMemory": "Low Memory",
+            "balanced": "Balanced",
+            "throughput": "Throughput"
+        },
+        "jemallocAndMimalloc": "jemalloc and mimalloc Parameters",
+        "backgroundThread": "Background Thread",
+        "dirtyDecayMs": "Dirty Decay (ms)",
+        "muzzyDecayMs": "Muzzy Decay (ms)",
+        "arenaMax": "Arena Max",
+        "enableLargeOsPages": "Enable Large OS Pages",
+        "eagerCommit": "Eager Commit",
+        "purgeDelayMs": "Purge Delay (ms)"
+    },
+    "safeaccessGuard": {
+        "title": "Risk Control",
+        "enableRiskAssessment": "Enable Risk Assessment",
+        "recordAccessHistory": "Record Access History",
+        "autoBlockThreshold": "Auto Block Threshold",
+        "historyRetentionSecs": "History Retention (sec)",
+        "cleanupIntervalSecs": "Cleanup Interval (sec)",
+        "bloomFilterFpRate": "Bloom Filter False Positive Rate",
+        "bloomFilterCapacity": "Bloom Filter Capacity",
+        "ipBlockDurationSecs": "IP Block Duration (sec)",
+        "alertThreshold": "Alert Threshold",
+        "bruteforceAndCaptcha": "Brute Force and Captcha Thresholds",
+        "bruteForceThreshold": "Brute Force Threshold",
+        "bruteForceLockoutSecs": "Brute Force Lockout (sec)",
+        "captchaThreshold": "Captcha Threshold",
+        "failCounterTtlSecs": "Failure Counter TTL (sec)"
+    },
+    "systemBackup": {
+        "title": "System Backup",
+        "localBackupDir": "Local Backup Directory",
+        "maxBackupSizeMb": "Max Backup Size (MB)",
+        "tempDir": "Temporary Directory",
+        "selectionLists": "Included and Excluded Lists",
+        "includeTables": "Included Tables",
+        "configFiles": "Config Files",
+        "includeDirs": "Included Directories",
+        "excludePatterns": "Exclude Patterns"
+    },
+    "userCenter": {
+        "title": "User Center Policy",
+        "defaultRoleId": "Default Role ID",
+        "maxDevices": "Max Devices per User",
+        "blacklistCacheTtl": "Blacklist Cache TTL (sec)",
+        "jwtHeader": "JWT Header Name",
+        "tokenPrefix": "Token Prefix",
+        "accessTokenSecret": "Access Token Secret",
+        "refreshTokenSecret": "Refresh Token Secret",
+        "accessTokenExpiresIn": "Access Token Lifetime (sec)",
+        "refreshTokenExpiresIn": "Refresh Token Lifetime (sec)",
+        "registrationAndAuth": "Registration and Auth Methods",
+        "enableRegistration": "Enable Self Registration",
+        "enableUsernameRegistration": "Enable Username Registration",
+        "enableEmailRegistration": "Enable Email Registration",
+        "enablePhoneRegistration": "Enable Phone Registration",
+        "enableMobileAuth": "Enable Mobile Auth",
+        "enableEmailAuth": "Enable Email Auth",
+        "passwdType": "Default Password Hash",
+        "passwdTypes": {
+            "pbkdf2": "PBKDF2-SHA256",
+            "bcrypt": "Bcrypt",
+            "argon2id": "Argon2id"
+        },
+        "passwdAutoUpgrade": "Auto Upgrade Password Hash",
+        "passwordHashing": "Password Hash Parameters",
+        "passwdArgon2Mem": "Argon2 Memory (KiB)",
+        "passwdArgon2T": "Argon2 Time Cost",
+        "passwdArgon2P": "Argon2 Parallelism",
+        "passwdBcryptCost": "Bcrypt Cost",
+        "passwdSha256Iterations": "PBKDF2 Iterations"
+    },
+    "extensionManagerV2": {
+        "title": "Extension Manager v2",
+        "enabled": "Enable Extension Manager v2",
+        "allowSideload": "Allow Local Sideload",
+        "enableWasmRuntime": "Enable WASM Runtime",
+        "enableProcessRuntime": "Enable Process Runtime",
+        "enableDockerRuntime": "Enable Docker Runtime",
+        "pathsAndTimeouts": "Paths and Timeouts",
+        "rootDir": "Root Directory",
+        "tempDir": "Temporary Directory",
+        "marketRequestTimeoutSec": "Market Request Timeout (sec)",
+        "dockerEngineCommand": "Docker Engine Command"
+    },
+    "journalLog": {
+        "title": "Journal Log",
+        "logRetentionDays": "Retention Days",
+        "batchSize": "Batch Size",
+        "batchSizeLowMemory": "Low-Memory Batch Size",
+        "batchSizeThroughput": "Throughput Batch Size",
+        "flushIntervalMs": "Flush Interval (ms)",
+        "queueCapacityMultiplier": "Queue Capacity Multiplier"
+    },
+    "middleware": {
+        "title": "Middleware",
+        "contextAndCors": "Context and CORS",
+        "requestIdHeader": "Request ID Header",
+        "getipHeaders": "Client IP Headers",
+        "allowedOrigin": "Allowed Origin",
+        "allowedMethods": "Allowed Methods",
+        "allowedHeaders": "Allowed Headers",
+        "allowCredentials": "Allow Credentials",
+        "rateLimits": "Rate Limits",
+        "ipWindowSecs": "IP Window (sec)",
+        "ipMaxRequests": "IP Max Requests",
+        "clientWindowSecs": "Client Window (sec)",
+        "clientMaxRequests": "Client Max Requests",
+        "clientMaxCid": "Max Client IDs",
+        "clientIdHeader": "Client ID Header",
+        "clientIdCookie": "Client ID Cookie",
+        "clientIdBlacklistEnabled": "Enable Client ID Blacklist",
+        "userWindowSecs": "User Window (sec)",
+        "userMaxRequests": "User Max Requests",
+        "userMaxId": "Max User IDs",
+        "userIdBlacklistEnabled": "Enable User ID Blacklist",
+        "bruteForce": "Brute Force Protection",
+        "bruteForceEnabled": "Enable Brute Force Protection",
+        "bruteForceBackoffEnabled": "Enable Exponential Backoff",
+        "bruteForceMaxFailuresPerUserIp": "Max Failures per User+IP",
+        "bruteForceMaxFailuresPerIpGlobal": "Max Failures per IP",
+        "bruteForceLockoutSecs": "Lockout Duration (sec)",
+        "baseAuth": "OpenAPI Basic Auth",
+        "baseAuthUsername": "Username",
+        "baseAuthPassword": "Password",
+        "openapiJsonEnableBaseauth": "Protect OpenAPI JSON"
+    },
+    "taskRegistry": {
+        "title": "Task Registry",
+        "taskRetentionDays": "Task Retention Days",
+        "tuning": "Task Tuning",
+        "jobs": {
+            "cacheTtlCleanup": "Cache TTL Cleanup",
+            "tempCleanup": "Temp Cleanup",
+            "databaseHealthCheck": "Database Health Check",
+            "bloomFilterWarmup": "Bloom Filter Warmup",
+            "shareCleanup": "Share Cleanup",
+            "systemBackup": "System Backup"
+        },
+        "bloomReserveCapacity": "Bloom Reserve Capacity",
+        "bloomMaxUsersPerRun": "Bloom Max Users per Run",
+        "bloomYieldEveryUsers": "Bloom Yield Every Users",
+        "bloomSleepMsPerYield": "Bloom Sleep after Yield (ms)",
+        "quotaMaxUsersPerRun": "Quota Max Users per Run",
+        "quotaYieldEveryUsers": "Quota Yield Every Users",
+        "quotaSleepMsPerUser": "Quota Sleep per User (ms)",
+        "fileIndexMaxUsersPerRun": "File Index Max Users per Run",
+        "fileIndexYieldEveryUsers": "File Index Yield Every Users",
+        "fileIndexSleepMsPerUser": "File Index Sleep per User (ms)"
+    },
+    "externalizeNet": {
+        "title": "External Network",
+        "enabled": "Enable Module",
+        "hostingEnabled": "Enable Hosting",
+        "automationEnabled": "Enable Automation",
+        "adminApiEnabled": "Enable Admin API",
+        "allowInsecureTls": "Allow Insecure TLS",
+        "allowCommandMethod": "Allow Command Detect Method",
+        "timeoutsAndRenewal": "Timeouts and Renewal",
+        "refreshIntervalSec": "Refresh Interval (sec)",
+        "requestTimeoutSec": "Request Timeout (sec)",
+        "webhookTimeoutSec": "Webhook Timeout (sec)",
+        "dnsPropagationWaitSec": "DNS Propagation Wait (sec)",
+        "challengePollIntervalSec": "Challenge Poll Interval (sec)",
+        "challengeMaxPollCount": "Challenge Max Poll Count",
+        "acmeRunTimeoutSec": "ACME Run Timeout (sec)",
+        "acmeRenewBeforeDays": "Renew Before Days",
+        "renewJitterMaxSec": "Renew Jitter Max (sec)",
+        "renewDynamicRatioDivisor": "Dynamic Renewal Divisor",
+        "renewShortLifetimeDays": "Short Lifetime Threshold (days)",
+        "renewShortLifetimeDivisor": "Short Lifetime Divisor",
+        "encryptionKey": "Encryption Key",
+        "lists": "Command and DNS Lists",
+        "commandAllowPrefixes": "Allowed Command Prefixes",
+        "dnsServers": "DNS Servers"
+    },
+} as const;
+
+const sharedAdvancedPanelsZh = {
+    "captcha": {
+        "title": "验证码设置",
+        "provider": "验证码提供器",
+        "providers": {
+            "builtin": "内置",
+            "turnstile": "Cloudflare Turnstile"
+        },
+        "codeLength": "验证码长度",
+        "expiresIn": "有效期（秒）",
+        "secretKey": "验证码 Token 密钥",
+        "maxRequestsGlobalHour": "全局每小时上限",
+        "graphicCacheSize": "图形验证码缓存池",
+        "graphicGenConcurrency": "图形验证码生成并发",
+        "maxGenConcurrency": "最大生成并发",
+        "poolCheckIntervalSecs": "缓存池检查间隔（秒）",
+        "emergencyFillMultiplier": "紧急补充倍率",
+        "maxVerificationFailures": "单目标最大验证失败次数",
+        "maxVerificationFailuresIp": "单 IP 最大验证失败次数",
+        "verificationFailureCooldown": "失败冷却时间（秒）",
+        "capacityAndTurnstile": "缓存池与 Turnstile",
+        "turnstileSiteKey": "Turnstile Site Key",
+        "turnstileSecretKey": "Turnstile Secret Key",
+        "turnstileVerifyUrl": "Turnstile 验证地址"
+    },
+    "frontend": {
+        "title": "前端入口",
+        "jsdelivrMirrorBase": "jsDelivr 镜像基础地址",
+        "defaultLoginRoute": "默认登录跳转地址",
+        "defaultLoginRouteHint": "支持 `mod=file-manager&page=files` 这类 hash 参数、相对路径，或完整 http/https 地址。"
+    },
+    "memoryAllocator": {
+        "title": "内存分配器",
+        "policy": "分配器策略",
+        "profile": "硬件档位",
+        "policies": {
+            "auto": "自动",
+            "system": "系统默认",
+            "mimalloc": "mimalloc",
+            "jemalloc": "jemalloc"
+        },
+        "profiles": {
+            "auto": "自动",
+            "lowMemory": "低内存",
+            "balanced": "均衡",
+            "throughput": "高吞吐"
+        },
+        "jemallocAndMimalloc": "jemalloc 与 mimalloc 参数",
+        "backgroundThread": "后台清理线程",
+        "dirtyDecayMs": "Dirty 衰减（毫秒）",
+        "muzzyDecayMs": "Muzzy 衰减（毫秒）",
+        "arenaMax": "Arena 上限",
+        "enableLargeOsPages": "启用大页",
+        "eagerCommit": "激进提交",
+        "purgeDelayMs": "释放延迟（毫秒）"
+    },
+    "safeaccessGuard": {
+        "title": "风控配置",
+        "enableRiskAssessment": "启用风险评估",
+        "recordAccessHistory": "记录访问历史",
+        "autoBlockThreshold": "自动封禁阈值",
+        "historyRetentionSecs": "历史保留时长（秒）",
+        "cleanupIntervalSecs": "清理间隔（秒）",
+        "bloomFilterFpRate": "布隆过滤器误报率",
+        "bloomFilterCapacity": "布隆过滤器容量",
+        "ipBlockDurationSecs": "IP 封禁时长（秒）",
+        "alertThreshold": "报警阈值",
+        "bruteforceAndCaptcha": "暴力破解与验证码阈值",
+        "bruteForceThreshold": "暴力破解阈值",
+        "bruteForceLockoutSecs": "暴力破解锁定时长（秒）",
+        "captchaThreshold": "验证码触发阈值",
+        "failCounterTtlSecs": "失败计数存活时间（秒）"
+    },
+    "systemBackup": {
+        "title": "系统备份",
+        "localBackupDir": "本地备份目录",
+        "maxBackupSizeMb": "最大备份大小（MB）",
+        "tempDir": "临时目录",
+        "selectionLists": "包含与排除列表",
+        "includeTables": "包含数据表",
+        "configFiles": "配置文件",
+        "includeDirs": "包含目录",
+        "excludePatterns": "排除模式"
+    },
+    "userCenter": {
+        "title": "用户中心策略",
+        "defaultRoleId": "默认角色 ID",
+        "maxDevices": "每用户最大设备数",
+        "blacklistCacheTtl": "黑名单缓存 TTL（秒）",
+        "jwtHeader": "JWT 请求头名称",
+        "tokenPrefix": "Token 前缀",
+        "accessTokenSecret": "Access Token 密钥",
+        "refreshTokenSecret": "Refresh Token 密钥",
+        "accessTokenExpiresIn": "Access Token 有效期（秒）",
+        "refreshTokenExpiresIn": "Refresh Token 有效期（秒）",
+        "registrationAndAuth": "注册与登录方式",
+        "enableRegistration": "允许自助注册",
+        "enableUsernameRegistration": "启用用户名注册",
+        "enableEmailRegistration": "启用邮箱注册",
+        "enablePhoneRegistration": "启用手机号注册",
+        "enableMobileAuth": "启用手机号验证码登录",
+        "enableEmailAuth": "启用邮箱验证码登录",
+        "passwdType": "默认密码哈希算法",
+        "passwdTypes": {
+            "pbkdf2": "PBKDF2-SHA256",
+            "bcrypt": "Bcrypt",
+            "argon2id": "Argon2id"
+        },
+        "passwdAutoUpgrade": "自动升级密码哈希",
+        "passwordHashing": "密码哈希参数",
+        "passwdArgon2Mem": "Argon2 内存（KiB）",
+        "passwdArgon2T": "Argon2 时间成本",
+        "passwdArgon2P": "Argon2 并行度",
+        "passwdBcryptCost": "Bcrypt Cost",
+        "passwdSha256Iterations": "PBKDF2 迭代次数"
+    },
+    "extensionManagerV2": {
+        "title": "插件系统 v2",
+        "enabled": "启用插件系统 v2",
+        "allowSideload": "允许本地侧载",
+        "enableWasmRuntime": "启用 WASM 运行时",
+        "enableProcessRuntime": "启用 Process 运行时",
+        "enableDockerRuntime": "启用 Docker 运行时",
+        "pathsAndTimeouts": "路径与超时",
+        "rootDir": "根目录",
+        "tempDir": "临时目录",
+        "marketRequestTimeoutSec": "市场请求超时（秒）",
+        "dockerEngineCommand": "Docker 引擎命令"
+    },
+    "journalLog": {
+        "title": "审计日志",
+        "logRetentionDays": "保留天数",
+        "batchSize": "标准批量写入",
+        "batchSizeLowMemory": "低内存批量写入",
+        "batchSizeThroughput": "高吞吐批量写入",
+        "flushIntervalMs": "刷新间隔（毫秒）",
+        "queueCapacityMultiplier": "队列容量倍率"
+    },
+    "middleware": {
+        "title": "中间件",
+        "contextAndCors": "上下文与 CORS",
+        "requestIdHeader": "请求 ID Header",
+        "getipHeaders": "客户端 IP Headers",
+        "allowedOrigin": "允许来源",
+        "allowedMethods": "允许方法",
+        "allowedHeaders": "允许请求头",
+        "allowCredentials": "允许携带凭证",
+        "rateLimits": "限流配置",
+        "ipWindowSecs": "IP 窗口（秒）",
+        "ipMaxRequests": "IP 最大请求数",
+        "clientWindowSecs": "客户端窗口（秒）",
+        "clientMaxRequests": "客户端最大请求数",
+        "clientMaxCid": "最大客户端 ID 数",
+        "clientIdHeader": "客户端 ID Header",
+        "clientIdCookie": "客户端 ID Cookie",
+        "clientIdBlacklistEnabled": "启用客户端 ID 黑名单",
+        "userWindowSecs": "用户窗口（秒）",
+        "userMaxRequests": "用户最大请求数",
+        "userMaxId": "最大用户 ID 数",
+        "userIdBlacklistEnabled": "启用用户 ID 黑名单",
+        "bruteForce": "暴力破解防护",
+        "bruteForceEnabled": "启用暴力破解防护",
+        "bruteForceBackoffEnabled": "启用指数退避",
+        "bruteForceMaxFailuresPerUserIp": "每用户+IP 最大失败数",
+        "bruteForceMaxFailuresPerIpGlobal": "每 IP 最大失败数",
+        "bruteForceLockoutSecs": "锁定时长（秒）",
+        "baseAuth": "OpenAPI 基础认证",
+        "baseAuthUsername": "用户名",
+        "baseAuthPassword": "密码",
+        "openapiJsonEnableBaseauth": "保护 OpenAPI JSON"
+    },
+    "taskRegistry": {
+        "title": "定时任务",
+        "taskRetentionDays": "任务记录保留天数",
+        "tuning": "任务调优",
+        "jobs": {
+            "cacheTtlCleanup": "缓存 TTL 清理",
+            "tempCleanup": "临时文件清理",
+            "databaseHealthCheck": "数据库健康检查",
+            "bloomFilterWarmup": "布隆过滤器预热",
+            "shareCleanup": "分享清理",
+            "systemBackup": "系统备份"
+        },
+        "bloomReserveCapacity": "布隆预留容量",
+        "bloomMaxUsersPerRun": "布隆每轮最大用户数",
+        "bloomYieldEveryUsers": "布隆每多少用户让出一次",
+        "bloomSleepMsPerYield": "布隆让出后休眠（毫秒）",
+        "quotaMaxUsersPerRun": "配额校准每轮最大用户数",
+        "quotaYieldEveryUsers": "配额校准每多少用户让出一次",
+        "quotaSleepMsPerUser": "配额校准每用户休眠（毫秒）",
+        "fileIndexMaxUsersPerRun": "索引同步每轮最大用户数",
+        "fileIndexYieldEveryUsers": "索引同步每多少用户让出一次",
+        "fileIndexSleepMsPerUser": "索引同步每用户休眠（毫秒）"
+    },
+    "externalizeNet": {
+        "title": "外部网络",
+        "enabled": "启用模块",
+        "hostingEnabled": "启用托管",
+        "automationEnabled": "启用自动化",
+        "adminApiEnabled": "启用管理 API",
+        "allowInsecureTls": "允许不安全 TLS",
+        "allowCommandMethod": "允许命令探测方式",
+        "timeoutsAndRenewal": "超时与续签",
+        "refreshIntervalSec": "刷新间隔（秒）",
+        "requestTimeoutSec": "请求超时（秒）",
+        "webhookTimeoutSec": "Webhook 超时（秒）",
+        "dnsPropagationWaitSec": "DNS 传播等待（秒）",
+        "challengePollIntervalSec": "挑战轮询间隔（秒）",
+        "challengeMaxPollCount": "挑战最大轮询次数",
+        "acmeRunTimeoutSec": "ACME 执行超时（秒）",
+        "acmeRenewBeforeDays": "提前续签天数",
+        "renewJitterMaxSec": "续签抖动上限（秒）",
+        "renewDynamicRatioDivisor": "动态续签比例除数",
+        "renewShortLifetimeDays": "短有效期阈值（天）",
+        "renewShortLifetimeDivisor": "短有效期比例除数",
+        "encryptionKey": "加密密钥",
+        "lists": "命令与 DNS 列表",
+        "commandAllowPrefixes": "允许的命令前缀",
+        "dnsServers": "DNS 服务器"
+    },
+} as const;
+
 const adminSettingBundle = defineLocaleBundle({
     "en": {
         "setup": {
@@ -309,8 +816,6 @@ const adminSettingBundle = defineLocaleBundle({
                     "identitySecret": "Identity Secret",
                     "runtimeTitle": "Runtime Status",
                     "runtimeHint": "This area shows the latest backend snapshot. It updates after the backend restarts and joins the network.",
-                    "supportTitle": "Support Matrix",
-                    "supportHint": "Use this to confirm which protocols can be exposed in the current version.",
                     "planTitle": "Exposure Plan Preview",
                     "planHint": "The backend computes the final host, port, and path mapping so the frontend only renders the result.",
                     "joinNow": "Join Now",
@@ -481,6 +986,8 @@ const adminSettingBundle = defineLocaleBundle({
                     "helper": "Check 7-Zip first, then save your settings.",
                     "disabledHint": "Online compression is currently disabled in this draft. Users will not see archive actions until you enable it and save the config."
                 },
+                "logging": sharedAdminLoggingEn,
+                "advancedPanels": sharedAdvancedPanelsEn,
                 "protectedStorage": {
                     "title": "Protected Storage",
                     "globalMode": "Global Mode",
@@ -608,7 +1115,8 @@ const adminSettingBundle = defineLocaleBundle({
                         "localDir": "Local Directory",
                         "capacityBytes": "Capacity Bytes",
                         "maxFileSizeBytes": "Max File Size Bytes",
-                        "flushConcurrency": "Flush Concurrency"
+                        "flushConcurrency": "Flush Concurrency",
+                        ...sharedAdminStorageCacheFieldsEn
                     },
                     "archive": {},
                     "drivers": {
@@ -805,16 +1313,12 @@ const adminSettingBundle = defineLocaleBundle({
                         "featureWebdav": "WebDAV Service",
                         "featureS3": "S3 Service",
                         "featureBloomWarmup": "Bloom Warmup",
-                        "featureChat": "Chat Feature",
-                        "featureEmail": "Email Service",
                         "features": {
                             "compression": "Compression / Extraction",
                             "sftp": "SFTP Service",
                             "ftp": "FTP Service",
                             "s3": "S3 Service",
                             "webdav": "WebDAV Service",
-                            "chat": "Chat Feature",
-                            "email": "Email Service",
                             "bloomWarmup": "Bloom Warmup"
                         },
                         "preview": {
@@ -836,8 +1340,6 @@ const adminSettingBundle = defineLocaleBundle({
                                 "sftp": "SFTP Service",
                                 "ftp": "FTP Service",
                                 "s3": "S3 Service",
-                                "chat": "Chat Module",
-                                "email": "Email Module",
                                 "other": "Other"
                             },
                             "dbPool": "DB Pool (min-max)",
@@ -1319,8 +1821,6 @@ const adminSettingBundle = defineLocaleBundle({
                     "identitySecret": "身份私钥",
                     "runtimeTitle": "运行状态",
                     "runtimeHint": "这里显示后端最近一次状态快照。重启后端并成功加入网络后，状态会更新。",
-                    "supportTitle": "支持矩阵",
-                    "supportHint": "用来确认当前版本哪些协议支持暴露。",
                     "planTitle": "暴露计划预览",
                     "planHint": "最终的主机、端口和路径映射由后端统一计算，前端只负责展示结果。",
                     "joinNow": "立即加入",
@@ -1491,6 +1991,8 @@ const adminSettingBundle = defineLocaleBundle({
                     "helper": "建议先检查 7-Zip，再保存设置。",
                     "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
                 },
+                "logging": sharedAdminLoggingZh,
+                "advancedPanels": sharedAdvancedPanelsZh,
                 "protectedStorage": {
                     "title": "加密和混淆储存",
                     "globalMode": "全局模式",
@@ -1618,7 +2120,8 @@ const adminSettingBundle = defineLocaleBundle({
                         "localDir": "本地目录",
                         "capacityBytes": "容量上限 Bytes",
                         "maxFileSizeBytes": "单文件上限 Bytes",
-                        "flushConcurrency": "刷新并发"
+                        "flushConcurrency": "刷新并发",
+                        ...sharedAdminStorageCacheFieldsZh
                     },
                     "archive": {},
                     "drivers": {
@@ -1815,16 +2318,12 @@ const adminSettingBundle = defineLocaleBundle({
                         "featureWebdav": "WebDAV服务",
                         "featureS3": "S3服务",
                         "featureBloomWarmup": "布隆预热",
-                        "featureChat": "聊天功能",
-                        "featureEmail": "邮件代收",
                         "features": {
                             "compression": "压缩解压能力",
                             "sftp": "SFTP 服务",
                             "ftp": "FTP 服务",
                             "s3": "S3 服务",
                             "webdav": "WebDAV 服务",
-                            "chat": "聊天功能",
-                            "email": "邮件代收",
                             "bloomWarmup": "布隆预热"
                         },
                         "preview": {
@@ -1846,8 +2345,6 @@ const adminSettingBundle = defineLocaleBundle({
                                 "sftp": "SFTP 服务",
                                 "ftp": "FTP 服务",
                                 "s3": "S3 服务",
-                                "chat": "聊天模块",
-                                "email": "邮件模块",
                                 "other": "其他"
                             },
                             "dbPool": "数据库连接池（min-max）",
@@ -2329,8 +2826,6 @@ const adminSettingBundle = defineLocaleBundle({
                     "identitySecret": "Identity Secret",
                     "runtimeTitle": "Runtime Status",
                     "runtimeHint": "This area shows the latest backend snapshot. It updates after the backend restarts and joins the network.",
-                    "supportTitle": "Support Matrix",
-                    "supportHint": "Use this to confirm which protocols can be exposed in the current version.",
                     "planTitle": "Exposure Plan Preview",
                     "planHint": "The backend computes the final host, port, and path mapping so the frontend only renders the result.",
                     "joinNow": "Join Now",
@@ -2501,6 +2996,8 @@ const adminSettingBundle = defineLocaleBundle({
                     "helper": "建议先检查 7-Zip，再保存设置。",
                     "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
                 },
+                "logging": sharedAdminLoggingZh,
+                "advancedPanels": sharedAdvancedPanelsEn,
                 "protectedStorage": {
                     "title": "加密和混淆储存",
                     "globalMode": "全局模式",
@@ -2628,7 +3125,8 @@ const adminSettingBundle = defineLocaleBundle({
                         "localDir": "本地目录",
                         "capacityBytes": "容量上限 Bytes",
                         "maxFileSizeBytes": "单文件上限 Bytes",
-                        "flushConcurrency": "刷新并发"
+                        "flushConcurrency": "刷新并发",
+                        ...sharedAdminStorageCacheFieldsZh
                     },
                     "archive": {},
                     "drivers": {
@@ -2825,16 +3323,12 @@ const adminSettingBundle = defineLocaleBundle({
                         "featureWebdav": "Servicio WebDAV",
                         "featureS3": "Servicio S3",
                         "featureBloomWarmup": "Precarga Bloom",
-                        "featureChat": "Función de chat",
-                        "featureEmail": "Servicio de email",
                         "features": {
                             "compression": "压缩解压能力",
                             "sftp": "SFTP 服务",
                             "ftp": "FTP 服务",
                             "s3": "S3 服务",
                             "webdav": "WebDAV 服务",
-                            "chat": "聊天功能",
-                            "email": "邮件代收",
                             "bloomWarmup": "布隆预热"
                         },
                         "preview": {
@@ -2856,8 +3350,6 @@ const adminSettingBundle = defineLocaleBundle({
                                 "sftp": "Servicio SFTP",
                                 "ftp": "Servicio FTP",
                                 "s3": "Servicio S3",
-                                "chat": "Módulo de chat",
-                                "email": "Módulo de email",
                                 "other": "Otros"
                             },
                             "dbPool": "Pool de BD (min-max)",
@@ -3339,8 +3831,6 @@ const adminSettingBundle = defineLocaleBundle({
                     "identitySecret": "Identity Secret",
                     "runtimeTitle": "Runtime Status",
                     "runtimeHint": "This area shows the latest backend snapshot. It updates after the backend restarts and joins the network.",
-                    "supportTitle": "Support Matrix",
-                    "supportHint": "Use this to confirm which protocols can be exposed in the current version.",
                     "planTitle": "Exposure Plan Preview",
                     "planHint": "The backend computes the final host, port, and path mapping so the frontend only renders the result.",
                     "joinNow": "Join Now",
@@ -3511,6 +4001,8 @@ const adminSettingBundle = defineLocaleBundle({
                     "helper": "建议先检查 7-Zip，再保存设置。",
                     "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
                 },
+                "logging": sharedAdminLoggingZh,
+                "advancedPanels": sharedAdvancedPanelsEn,
                 "protectedStorage": {
                     "title": "加密和混淆储存",
                     "globalMode": "全局模式",
@@ -3638,7 +4130,8 @@ const adminSettingBundle = defineLocaleBundle({
                         "localDir": "本地目录",
                         "capacityBytes": "容量上限 Bytes",
                         "maxFileSizeBytes": "单文件上限 Bytes",
-                        "flushConcurrency": "刷新并发"
+                        "flushConcurrency": "刷新并发",
+                        ...sharedAdminStorageCacheFieldsZh
                     },
                     "archive": {},
                     "drivers": {
@@ -3835,16 +4328,12 @@ const adminSettingBundle = defineLocaleBundle({
                         "featureWebdav": "WebDAV服务",
                         "featureS3": "S3服务",
                         "featureBloomWarmup": "布隆预热",
-                        "featureChat": "聊天功能",
-                        "featureEmail": "邮件代收",
                         "features": {
                             "compression": "Komprimierung",
                             "sftp": "SFTP",
                             "ftp": "FTP",
                             "s3": "S3",
                             "webdav": "WebDAV",
-                            "chat": "Chat",
-                            "email": "Email",
                             "bloomWarmup": "Bloom-Warmup"
                         },
                         "preview": {
@@ -3866,8 +4355,6 @@ const adminSettingBundle = defineLocaleBundle({
                                 "sftp": "SFTP 服务",
                                 "ftp": "FTP 服务",
                                 "s3": "S3 服务",
-                                "chat": "聊天模块",
-                                "email": "邮件模块",
                                 "other": "其他"
                             },
                             "dbPool": "数据库连接池（min-max）",
@@ -4349,8 +4836,6 @@ const adminSettingBundle = defineLocaleBundle({
                     "identitySecret": "Identity Secret",
                     "runtimeTitle": "Runtime Status",
                     "runtimeHint": "This area shows the latest backend snapshot. It updates after the backend restarts and joins the network.",
-                    "supportTitle": "Support Matrix",
-                    "supportHint": "Use this to confirm which protocols can be exposed in the current version.",
                     "planTitle": "Exposure Plan Preview",
                     "planHint": "The backend computes the final host, port, and path mapping so the frontend only renders the result.",
                     "joinNow": "Join Now",
@@ -4521,6 +5006,8 @@ const adminSettingBundle = defineLocaleBundle({
                     "helper": "建议先检查 7-Zip，再保存设置。",
                     "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
                 },
+                "logging": sharedAdminLoggingZh,
+                "advancedPanels": sharedAdvancedPanelsEn,
                 "protectedStorage": {
                     "title": "加密和混淆储存",
                     "globalMode": "全局模式",
@@ -4648,7 +5135,8 @@ const adminSettingBundle = defineLocaleBundle({
                         "localDir": "本地目录",
                         "capacityBytes": "容量上限 Bytes",
                         "maxFileSizeBytes": "单文件上限 Bytes",
-                        "flushConcurrency": "刷新并发"
+                        "flushConcurrency": "刷新并发",
+                        ...sharedAdminStorageCacheFieldsZh
                     },
                     "archive": {},
                     "drivers": {
@@ -4845,16 +5333,12 @@ const adminSettingBundle = defineLocaleBundle({
                         "featureWebdav": "Service WebDAV",
                         "featureS3": "Service S3",
                         "featureBloomWarmup": "Pré-chauffage Bloom",
-                        "featureChat": "Fonction Chat",
-                        "featureEmail": "Service email",
                         "features": {
                             "compression": "压缩解压能力",
                             "sftp": "SFTP 服务",
                             "ftp": "FTP 服务",
                             "s3": "S3 服务",
                             "webdav": "WebDAV 服务",
-                            "chat": "聊天功能",
-                            "email": "邮件代收",
                             "bloomWarmup": "布隆预热"
                         },
                         "preview": {
@@ -4876,8 +5360,6 @@ const adminSettingBundle = defineLocaleBundle({
                                 "sftp": "Service SFTP",
                                 "ftp": "Service FTP",
                                 "s3": "Service S3",
-                                "chat": "Module Chat",
-                                "email": "Module Email",
                                 "other": "Autres"
                             },
                             "dbPool": "Pool BD (min-max)",
@@ -5359,8 +5841,6 @@ const adminSettingBundle = defineLocaleBundle({
                     "identitySecret": "Identity Secret",
                     "runtimeTitle": "Runtime Status",
                     "runtimeHint": "This area shows the latest backend snapshot. It updates after the backend restarts and joins the network.",
-                    "supportTitle": "Support Matrix",
-                    "supportHint": "Use this to confirm which protocols can be exposed in the current version.",
                     "planTitle": "Exposure Plan Preview",
                     "planHint": "The backend computes the final host, port, and path mapping so the frontend only renders the result.",
                     "joinNow": "Join Now",
@@ -5531,6 +6011,8 @@ const adminSettingBundle = defineLocaleBundle({
                     "helper": "建议先检查 7-Zip，再保存设置。",
                     "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
                 },
+                "logging": sharedAdminLoggingZh,
+                "advancedPanels": sharedAdvancedPanelsEn,
                 "protectedStorage": {
                     "title": "加密和混淆储存",
                     "globalMode": "全局模式",
@@ -5658,7 +6140,8 @@ const adminSettingBundle = defineLocaleBundle({
                         "localDir": "本地目录",
                         "capacityBytes": "容量上限 Bytes",
                         "maxFileSizeBytes": "单文件上限 Bytes",
-                        "flushConcurrency": "刷新并发"
+                        "flushConcurrency": "刷新并发",
+                        ...sharedAdminStorageCacheFieldsZh
                     },
                     "archive": {},
                     "drivers": {
@@ -5855,16 +6338,12 @@ const adminSettingBundle = defineLocaleBundle({
                         "featureWebdav": "Сервис WebDAV",
                         "featureS3": "Сервис S3",
                         "featureBloomWarmup": "Прогрев Bloom",
-                        "featureChat": "Функция чата",
-                        "featureEmail": "Email сервис",
                         "features": {
                             "compression": "压缩解压能力",
                             "sftp": "SFTP 服务",
                             "ftp": "FTP 服务",
                             "s3": "S3 服务",
                             "webdav": "WebDAV 服务",
-                            "chat": "聊天功能",
-                            "email": "邮件代收",
                             "bloomWarmup": "布隆预热"
                         },
                         "preview": {
@@ -5886,8 +6365,6 @@ const adminSettingBundle = defineLocaleBundle({
                                 "sftp": "Сервис SFTP",
                                 "ftp": "Сервис FTP",
                                 "s3": "Сервис S3",
-                                "chat": "Модуль чата",
-                                "email": "Модуль email",
                                 "other": "Другое"
                             },
                             "dbPool": "Пул БД (min-max)",
@@ -6369,8 +6846,6 @@ const adminSettingBundle = defineLocaleBundle({
                     "identitySecret": "Identity Secret",
                     "runtimeTitle": "Runtime Status",
                     "runtimeHint": "This area shows the latest backend snapshot. It updates after the backend restarts and joins the network.",
-                    "supportTitle": "Support Matrix",
-                    "supportHint": "Use this to confirm which protocols can be exposed in the current version.",
                     "planTitle": "Exposure Plan Preview",
                     "planHint": "The backend computes the final host, port, and path mapping so the frontend only renders the result.",
                     "joinNow": "Join Now",
@@ -6541,6 +7016,8 @@ const adminSettingBundle = defineLocaleBundle({
                     "helper": "建议先检查 7-Zip，再保存设置。",
                     "disabledHint": "当前草稿里在线压缩已禁用。保存配置前，用户侧不会看到相应归档操作。"
                 },
+                "logging": sharedAdminLoggingZh,
+                "advancedPanels": sharedAdvancedPanelsEn,
                 "protectedStorage": {
                     "title": "加密和混淆储存",
                     "globalMode": "全局模式",
@@ -6668,7 +7145,8 @@ const adminSettingBundle = defineLocaleBundle({
                         "localDir": "本地目录",
                         "capacityBytes": "容量上限 Bytes",
                         "maxFileSizeBytes": "单文件上限 Bytes",
-                        "flushConcurrency": "刷新并发"
+                        "flushConcurrency": "刷新并发",
+                        ...sharedAdminStorageCacheFieldsZh
                     },
                     "archive": {},
                     "drivers": {
@@ -6865,16 +7343,12 @@ const adminSettingBundle = defineLocaleBundle({
                         "featureWebdav": "WebDAV サービス",
                         "featureS3": "S3 サービス",
                         "featureBloomWarmup": "Bloom ウォームアップ",
-                        "featureChat": "チャット機能",
-                        "featureEmail": "Email サービス",
                         "features": {
                             "compression": "压缩解压能力",
                             "sftp": "SFTP 服务",
                             "ftp": "FTP 服务",
                             "s3": "S3 服务",
                             "webdav": "WebDAV 服务",
-                            "chat": "聊天功能",
-                            "email": "邮件代收",
                             "bloomWarmup": "布隆预热"
                         },
                         "preview": {
@@ -6896,8 +7370,6 @@ const adminSettingBundle = defineLocaleBundle({
                                 "sftp": "SFTP サービス",
                                 "ftp": "FTP サービス",
                                 "s3": "S3 サービス",
-                                "chat": "チャットモジュール",
-                                "email": "Email モジュール",
                                 "other": "その他"
                             },
                             "dbPool": "DB プール (min-max)",

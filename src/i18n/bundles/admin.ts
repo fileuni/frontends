@@ -899,16 +899,12 @@ const adminBundle = defineLocaleBundle({
                     "featureWebdav": "WebDAV Service",
                     "featureS3": "S3 Service",
                     "featureBloomWarmup": "Bloom Warmup",
-                    "featureChat": "Chat Feature",
-                    "featureEmail": "Email Service",
                     "features": {
                         "compression": "Compression / Extraction",
                         "sftp": "SFTP Service",
                         "ftp": "FTP Service",
                         "s3": "S3 Service",
                         "webdav": "WebDAV Service",
-                        "chat": "Chat Feature",
-                        "email": "Email Service",
                         "bloomWarmup": "Bloom Warmup"
                     },
                     "preview": {
@@ -931,8 +927,6 @@ const adminBundle = defineLocaleBundle({
                             "sftp": "SFTP Service",
                             "ftp": "FTP Service",
                             "s3": "S3 Service",
-                            "chat": "Chat Module",
-                            "email": "Email Module",
                             "other": "Other"
                         },
                         "dbPool": "DB Pool (min-max)",
@@ -1936,16 +1930,12 @@ const adminBundle = defineLocaleBundle({
                     "featureWebdav": "WebDAV服务",
                     "featureS3": "S3服务",
                     "featureBloomWarmup": "布隆预热",
-                    "featureChat": "聊天功能",
-                    "featureEmail": "邮件代收",
                     "features": {
                         "compression": "压缩解压能力",
                         "sftp": "SFTP 服务",
                         "ftp": "FTP 服务",
                         "s3": "S3 服务",
                         "webdav": "WebDAV 服务",
-                        "chat": "聊天功能",
-                        "email": "邮件代收",
                         "bloomWarmup": "布隆预热"
                     },
                     "preview": {
@@ -1968,8 +1958,6 @@ const adminBundle = defineLocaleBundle({
                             "sftp": "SFTP 服务",
                             "ftp": "FTP 服务",
                             "s3": "S3 服务",
-                            "chat": "聊天模块",
-                            "email": "邮件模块",
                             "other": "其他"
                         },
                         "dbPool": "数据库连接池（min-max）",
@@ -2973,16 +2961,12 @@ const adminBundle = defineLocaleBundle({
                     "featureWebdav": "WebDAV Service",
                     "featureS3": "S3 Service",
                     "featureBloomWarmup": "Bloom Warmup",
-                    "featureChat": "Chat Feature",
-                    "featureEmail": "Email Service",
                     "features": {
                         "compression": "Compression / Extraction",
                         "sftp": "SFTP Service",
                         "ftp": "FTP Service",
                         "s3": "S3 Service",
                         "webdav": "WebDAV Service",
-                        "chat": "Chat Feature",
-                        "email": "Email Service",
                         "bloomWarmup": "Bloom Warmup"
                     },
                     "preview": {
@@ -3005,8 +2989,6 @@ const adminBundle = defineLocaleBundle({
                             "sftp": "SFTP Service",
                             "ftp": "FTP Service",
                             "s3": "S3 Service",
-                            "chat": "Chat Module",
-                            "email": "Email Module",
                             "other": "Other"
                         },
                         "dbPool": "DB Pool (min-max)",
@@ -4010,16 +3992,12 @@ const adminBundle = defineLocaleBundle({
                     "featureWebdav": "WebDAV Service",
                     "featureS3": "S3 Service",
                     "featureBloomWarmup": "Bloom Warmup",
-                    "featureChat": "Chat Feature",
-                    "featureEmail": "Email Service",
                     "features": {
                         "compression": "Compression / Extraction",
                         "sftp": "SFTP Service",
                         "ftp": "FTP Service",
                         "s3": "S3 Service",
                         "webdav": "WebDAV Service",
-                        "chat": "Chat Feature",
-                        "email": "Email Service",
                         "bloomWarmup": "Bloom Warmup"
                     },
                     "preview": {
@@ -4042,8 +4020,6 @@ const adminBundle = defineLocaleBundle({
                             "sftp": "SFTP Service",
                             "ftp": "FTP Service",
                             "s3": "S3 Service",
-                            "chat": "Chat Module",
-                            "email": "Email Module",
                             "other": "Other"
                         },
                         "dbPool": "DB Pool (min-max)",
@@ -5047,16 +5023,12 @@ const adminBundle = defineLocaleBundle({
                     "featureWebdav": "WebDAV Service",
                     "featureS3": "S3 Service",
                     "featureBloomWarmup": "Bloom Warmup",
-                    "featureChat": "Chat Feature",
-                    "featureEmail": "Email Service",
                     "features": {
                         "compression": "Compression / Extraction",
                         "sftp": "SFTP Service",
                         "ftp": "FTP Service",
                         "s3": "S3 Service",
                         "webdav": "WebDAV Service",
-                        "chat": "Chat Feature",
-                        "email": "Email Service",
                         "bloomWarmup": "Bloom Warmup"
                     },
                     "preview": {
@@ -5079,8 +5051,6 @@ const adminBundle = defineLocaleBundle({
                             "sftp": "SFTP Service",
                             "ftp": "FTP Service",
                             "s3": "S3 Service",
-                            "chat": "Chat Module",
-                            "email": "Email Module",
                             "other": "Other"
                         },
                         "dbPool": "DB Pool (min-max)",
@@ -6084,16 +6054,12 @@ const adminBundle = defineLocaleBundle({
                     "featureWebdav": "WebDAV Service",
                     "featureS3": "S3 Service",
                     "featureBloomWarmup": "Bloom Warmup",
-                    "featureChat": "Chat Feature",
-                    "featureEmail": "Email Service",
                     "features": {
                         "compression": "Compression / Extraction",
                         "sftp": "SFTP Service",
                         "ftp": "FTP Service",
                         "s3": "S3 Service",
                         "webdav": "WebDAV Service",
-                        "chat": "Chat Feature",
-                        "email": "Email Service",
                         "bloomWarmup": "Bloom Warmup"
                     },
                     "preview": {
@@ -6116,8 +6082,6 @@ const adminBundle = defineLocaleBundle({
                             "sftp": "SFTP Service",
                             "ftp": "FTP Service",
                             "s3": "S3 Service",
-                            "chat": "Chat Module",
-                            "email": "Email Module",
                             "other": "Other"
                         },
                         "dbPool": "DB Pool (min-max)",
@@ -7121,16 +7085,12 @@ const adminBundle = defineLocaleBundle({
                     "featureWebdav": "WebDAV Service",
                     "featureS3": "S3 Service",
                     "featureBloomWarmup": "Bloom Warmup",
-                    "featureChat": "Chat Feature",
-                    "featureEmail": "Email Service",
                     "features": {
                         "compression": "Compression / Extraction",
                         "sftp": "SFTP Service",
                         "ftp": "FTP Service",
                         "s3": "S3 Service",
                         "webdav": "WebDAV Service",
-                        "chat": "Chat Feature",
-                        "email": "Email Service",
                         "bloomWarmup": "Bloom Warmup"
                     },
                     "preview": {
@@ -7153,8 +7113,6 @@ const adminBundle = defineLocaleBundle({
                             "sftp": "SFTP Service",
                             "ftp": "FTP Service",
                             "s3": "S3 Service",
-                            "chat": "Chat Module",
-                            "email": "Email Module",
                             "other": "Other"
                         },
                         "dbPool": "DB Pool (min-max)",
