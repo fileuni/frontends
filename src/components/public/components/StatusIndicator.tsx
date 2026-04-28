@@ -52,6 +52,8 @@ const getTaskTypeLabel = (
       return t('filemanager.task.type.batch_move');
     case 'batch_copy':
       return t('filemanager.task.type.batch_copy');
+    case 'video_compress':
+      return t('filemanager.task.type.video_compress');
     default:
       return taskType;
   }

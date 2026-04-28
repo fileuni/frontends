@@ -8,7 +8,6 @@ import type {
   ZeroTierExposurePlanItem,
   ZeroTierGenerateKeypairResponse,
   ZeroTierRuntimeSnapshot,
-  ZeroTierSupportMatrixItem,
 } from "@/components/setting/ZeroTierEmbeddedInlinePanel";
 import { SettingWorkbenchSurface } from "@/components/setting/SettingWorkbenchSurface";
 import { ConfigPathActionButton } from "@/components/setting/ConfigPathActionButton";
@@ -35,7 +34,6 @@ type ConfigRawResponse = components["schemas"]["ConfigRawResponse"];
 type ConfigNotesResponse = components["schemas"]["ConfigNotesResponse"];
 type BackendCapabilitiesResponse = components["schemas"]["SystemCapabilities"];
 type ZeroTierStatusResponse = ZeroTierRuntimeSnapshot;
-type ZeroTierSupportMatrixResponse = ZeroTierSupportMatrixItem[];
 type ZeroTierPlanPreviewResponse = ZeroTierExposurePlanItem[];
 
 type LineDiffStats = {
@@ -102,8 +100,6 @@ export const SystemConfigAdmin = () => {
   const [pendingAdminPassword, setPendingAdminPassword] = useState("");
   const [zerotierRuntimeSnapshot, setZeroTierRuntimeSnapshot] =
     useState<ZeroTierStatusResponse | null>(null);
-  const [zerotierSupportMatrix, setZeroTierSupportMatrix] =
-    useState<ZeroTierSupportMatrixResponse>([]);
   const [zerotierPlanPreview, setZeroTierPlanPreview] =
     useState<ZeroTierPlanPreviewResponse>([]);
   const [zerotierAdminApiAvailable, setZeroTierAdminApiAvailable] = useState(true);
@@ -140,7 +136,6 @@ export const SystemConfigAdmin = () => {
       capabilities,
       osInfo,
       zerotierStatus,
-      zerotierSupport,
       zerotierPlan,
     ] = await Promise.all([
       extractData<ConfigRawResponse>(client.GET("/api/v1/admin/system/config/raw")),
@@ -157,14 +152,6 @@ export const SystemConfigAdmin = () => {
         },
       ),
       loadZeroTierSnapshot(),
-      extractData<ZeroTierSupportMatrixResponse>(
-        client.GET("/api/v1/admin/zerotier-embedded/support-matrix", {
-          headers: { "X-No-Toast": "true" },
-        }),
-      ).catch((error) => {
-        console.warn("Failed to fetch ZeroTier support matrix", error);
-        return [];
-      }),
       extractData<ZeroTierPlanPreviewResponse>(
         client.GET("/api/v1/admin/zerotier-embedded/plan-preview", {
           headers: { "X-No-Toast": "true" },
@@ -176,7 +163,6 @@ export const SystemConfigAdmin = () => {
     ]);
 
     setZeroTierRuntimeSnapshot(zerotierStatus);
-    setZeroTierSupportMatrix(zerotierSupport);
     setZeroTierPlanPreview(zerotierPlan);
 
     return {
@@ -559,7 +545,6 @@ export const SystemConfigAdmin = () => {
         },
         zerotierEmbedded: {
           runtimeSnapshot: zerotierRuntimeSnapshot,
-          supportMatrix: zerotierSupportMatrix,
           planPreview: zerotierPlanPreview,
           adminApiAvailable: zerotierAdminApiAvailable,
           actionPending: zerotierActionPending,
@@ -587,7 +572,6 @@ export const SystemConfigAdmin = () => {
       settingLicenseBinding,
       handleSaveConfig,
       zerotierRuntimeSnapshot,
-      zerotierSupportMatrix,
       zerotierPlanPreview,
       zerotierAdminApiAvailable,
       zerotierActionPending,
