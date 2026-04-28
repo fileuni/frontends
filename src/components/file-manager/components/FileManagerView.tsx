@@ -18,11 +18,12 @@ import { ConfirmDestructiveModal } from "./ConfirmDestructiveModal.tsx";
 import { FilePropertiesModal } from "./FilePropertiesModal.tsx";
 import { ArchiveOperationModal, type ArchiveOperationSubmitPayload } from "./ArchiveOperationModal.tsx";
 import { ArchiveBrowser } from "./ArchiveBrowser.tsx";
+import { VideoCompressionModal, type VideoCompressionSubmitPayload } from "./VideoCompressionModal.tsx";
 
 import { ClipboardBar } from "./ClipboardBar.tsx";
 import { useTranslation } from "react-i18next";
 import { client } from "@/lib/api.ts";
-import type { components } from "@/types/api.ts";
+import type { components } from "@/lib/api.ts";
 import { isAnyEscLayerOpen } from "@/hooks/useEscapeToCloseTopLayer";
 import { useToastStore } from "@/stores/toast";
 import { useNavigationStore } from "@/stores/navigation.ts";
@@ -116,6 +117,15 @@ export const FileManagerView = () => {
     defaultTargetPath: string; defaultArchiveName: string;
   }>({
     isOpen: false, mode: 'decompress', paths: [], defaultTargetPath: '/', defaultArchiveName: 'archive',
+  });
+  const [videoCompressModal, setVideoCompressModal] = useState<{
+    isOpen: boolean;
+    paths: string[];
+    hasDirectories: boolean;
+  }>({
+    isOpen: false,
+    paths: [],
+    hasDirectories: false,
   });
 
   const [browsingArchivePath, setBrowsingArchivePath] = useState<string | null>(null);
@@ -410,7 +420,7 @@ export const FileManagerView = () => {
 
     if (paths.length === 0 && !["refresh", "empty_trash", "new_file", "new_folder", "upload", "paste", "clear_history"].includes(action)) return;
 
-    if (mountRootTarget && ['delete', 'rename', 'compress', 'extract', 'copy', 'cut'].includes(action)) {
+    if (mountRootTarget && ['delete', 'rename', 'compress', 'extract', 'copy', 'cut', 'video_compress'].includes(action)) {
       addToast(t('filemanager.messages.mountRootDeleteBlocked') || 'This mapped remote storage must be removed from Mounts.', 'error');
       return;
     }
@@ -522,6 +532,7 @@ export const FileManagerView = () => {
       case "empty_trash": clearRecycleBin(); break;
       case "compress": openArchiveOperationModal('compress', paths); break;
       case "extract": openArchiveOperationModal('decompress', paths); break;
+      case "video_compress": openVideoCompressModal(paths); break;
       case "refresh": loadFiles(); break;
       case "upload": setShowUploadModal(true); break;
       case "rename": if (target) openActionModal("rename", t("filemanager.actions.rename"), target.name, target.path); break;
@@ -567,6 +578,15 @@ export const FileManagerView = () => {
   const openArchiveOperationModal = (mode: 'compress' | 'decompress', paths: string[]) => {
     const firstPath = paths[0];
     setArchiveOpModal({ isOpen: true, mode, paths, defaultTargetPath: currentPath, defaultArchiveName: mode === 'compress' ? (paths.length === 1 && firstPath ? firstPath.split('/').pop()?.replace(/\.[^.]+$/, '') || 'archive' : 'archive') : 'archive' });
+  };
+
+  const openVideoCompressModal = (paths: string[]) => {
+    const selectedFiles = files.filter((file) => paths.includes(file.path));
+    setVideoCompressModal({
+      isOpen: true,
+      paths,
+      hasDirectories: selectedFiles.some((file) => file.is_dir),
+    });
   };
 
   const handleArchiveOperationSubmit = async (payload: ArchiveOperationSubmitPayload) => {
@@ -654,6 +674,57 @@ export const FileManagerView = () => {
     } catch (e: unknown) { 
       if (e instanceof Error) throw e;
       throw new Error(String(e));
+    }
+  };
+
+  const handleVideoCompressionSubmit = async (payload: VideoCompressionSubmitPayload) => {
+    try {
+      const response = await client.POST('/api/v1/file/video-compress', {
+        body: {
+          paths: payload.paths,
+          include_subdirectories: payload.includeSubdirectories,
+          output_container: payload.outputContainer,
+          video_codec: payload.videoCodec,
+          ...(payload.profile ? { profile: payload.profile } : {}),
+          crf: payload.crf,
+          max_width: payload.maxWidth,
+          max_height: payload.maxHeight,
+          max_fps: payload.maxFps,
+          output_suffix: payload.outputSuffix,
+          delete_source: payload.deleteSource,
+          overwrite_existing: payload.overwriteExisting,
+        },
+      });
+      const { data, error } = response;
+      if (error) {
+        const errObj = error as Record<string, unknown>;
+        throw new Error((errObj['msg'] as string) || 'Operation failed');
+      }
+      const resultData = data?.data;
+      const taskId =
+        typeof resultData === 'object' &&
+        resultData !== null &&
+        typeof (resultData as { task_id?: unknown }).task_id === 'string'
+          ? (resultData as { task_id: string }).task_id
+          : undefined;
+      if (!taskId) {
+        throw new Error(t('filemanager.archive.taskIdMissing'));
+      }
+      store.addTask({
+        id: taskId,
+        type: 'video_compress',
+        status: 'pending',
+        progress: 0,
+        createdAt: new Date().toISOString(),
+      });
+      waitForTask(taskId);
+      setVideoCompressModal({ isOpen: false, paths: [], hasDirectories: false });
+      addToast(t('filemanager.task.started'), 'success');
+    } catch (submitError: unknown) {
+      if (submitError instanceof Error) {
+        throw submitError;
+      }
+      throw new Error(String(submitError));
     }
   };
 
@@ -825,6 +896,13 @@ export const FileManagerView = () => {
         isModeSpecific={actionModal.type === 'mode_delete_confirm'}
       />
       <ArchiveOperationModal {...archiveOpModal} onClose={() => setArchiveOpModal(s => ({ ...s, isOpen: false }))} onSubmit={handleArchiveOperationSubmit} />
+      <VideoCompressionModal
+        isOpen={videoCompressModal.isOpen}
+        paths={videoCompressModal.paths}
+        hasDirectories={videoCompressModal.hasDirectories}
+        onClose={() => setVideoCompressModal({ isOpen: false, paths: [], hasDirectories: false })}
+        onSubmit={handleVideoCompressionSubmit}
+      />
       {browsingArchivePath && (
         <ArchiveBrowser 
           archivePath={browsingArchivePath} 

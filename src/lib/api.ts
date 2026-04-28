@@ -71,6 +71,23 @@ type PostPathItem<TData, TBody = never, TQuery = never, TPath = never> = {
 };
 
 type LocalPathOverrides = {
+  "/api/v1/file/video-compress": PostPathItem<
+    BaseResponse<{ task_id?: string }>,
+    {
+      paths: string[];
+      include_subdirectories: boolean;
+      output_container: string;
+      video_codec: string;
+      profile?: string;
+      crf: number;
+      max_width: number;
+      max_height: number;
+      max_fps: number;
+      output_suffix: string;
+      delete_source: boolean;
+      overwrite_existing: boolean;
+    }
+  >;
   "/api/v1/admin/zerotier-embedded/status": {
     parameters: EmptyParameters;
     get: JsonOperation<BaseResponse<import("@/components/setting/ZeroTierEmbeddedInlinePanel").ZeroTierRuntimeSnapshot>>;

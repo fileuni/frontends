@@ -7,14 +7,14 @@ import { useThemeStore } from '@/stores/theme';
 import {
   FolderOpen, Eye, Download, Share2, Scissors, Copy, Pencil, Trash2,
   PlusSquare, FolderPlus, FilePlus, Upload, Undo2, Zap, Archive, StarOff, Star,
-  ChevronRight, X, FolderSearch, Lock, Unlock, Cloud, AlertTriangle, type LucideIcon
+  ChevronRight, X, FolderSearch, Lock, Unlock, Cloud, AlertTriangle, Clapperboard, type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import type { FileInfo } from '../types/index.ts';
 import { useTranslation } from 'react-i18next';
 import { isMountRootEntry, isMountedEntry, isRemoteDirectDelete, summarizeMountedSelection } from '../utils/mounts.ts';
 import { shouldDisableThumbnailForPath, shouldUsePermanentDeleteForPath } from '../utils/protectedStorage.ts';
-import { isPreviewSupported } from '../utils/previewKind.ts';
+import { getPreviewKind, isPreviewSupported } from '../utils/previewKind.ts';
 
 const FAVORITE_COLORS = [
   { id: 1, name: 'Red', class: 'bg-red-500' },
@@ -159,7 +159,19 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
   const selectionPaths = target
     ? (selectedPaths.length > 1 ? selectedPaths : [target.path])
     : [];
+  const selectionItems = target
+    ? (selectedIds.size > 1
+      ? files.filter((file) => selectedIds.has(getSelectionId(file, fmMode)))
+      : [target])
+    : [];
   const isBatch = selectionPaths.length > 1;
+  const videoCompressionAvailable = capabilities?.enable_video_transcoding === true
+    && capabilities?.runtime_os !== 'android'
+    && capabilities?.runtime_os !== 'ios';
+  const canVideoCompress = videoCompressionAvailable
+    && fmMode === 'files'
+    && selectionItems.length > 0
+    && selectionItems.every((item) => item.is_dir || getPreviewKind(item) === 'video');
   const selectionSummary = summarizeMountedSelection(selectionPaths, files);
   const mountedTarget = target ? isMountedEntry(target) : false;
   const mountRootTarget = target ? isMountRootEntry(target) : false;
@@ -295,6 +307,9 @@ export const FileManagerContextMenu = ({ x, y, target, onClose, onAction }: Prop
                           <MenuButton icon={FolderSearch} label={t('filemanager.archive.browseTitle') || 'Browse Content'} action="browse_archive" className="text-primary" />
                           <MenuButton icon={Zap} label={t('filemanager.actions.extract')} action="extract" testId="file-action-extract" className="text-yellow-500" />
                         </>
+                      )}
+                      {canVideoCompress && (
+                        <MenuButton icon={Clapperboard} label={t('filemanager.actions.videoCompress') || 'Video Compression'} action="video_compress" />
                       )}
                       {target.is_dir && capabilities?.thumbnail?.enabled && fmMode === 'files' && !disableThumbnailOps && (
                         <>
