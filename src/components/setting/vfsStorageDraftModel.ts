@@ -93,6 +93,13 @@ export const defaultArchiveSection: ArchiveSectionDraft = {
   timeoutSecs: '300',
 };
 
+const stringArrayOrEmpty = (value: unknown): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.filter((item): item is string => typeof item === 'string');
+};
+
 const readCacheSection = (hub: Record<string, unknown>): CacheSectionDraft => {
   const readCache = isRecord(hub["read_cache"]) ? hub["read_cache"] : {};
   const writeCache = isRecord(hub["write_cache"]) ? hub["write_cache"] : {};
@@ -429,6 +436,11 @@ export const applyVfsDraftToContent = ({
     readCache["local_dir"] = cacheSection.readLocalDir;
     readCache["capacity_bytes"] = Number.parseInt(cacheSection.readCapacityBytes, 10) || 134217728;
     readCache["max_file_size_bytes"] = Number.parseInt(cacheSection.readMaxFileSizeBytes, 10) || 2097152;
+    readCache["cache_thumbnail_paths"] =
+      typeof readCache["cache_thumbnail_paths"] === 'boolean'
+        ? readCache["cache_thumbnail_paths"]
+        : false;
+    readCache["skip_extensions"] = stringArrayOrEmpty(readCache["skip_extensions"]);
     readCache["ttl_secs"] = Number.parseInt(cacheSection.readTtlSecs, 10) || 1800;
 
     const writeCache = ensureRecord(vfsHub, 'write_cache');
@@ -437,9 +449,18 @@ export const applyVfsDraftToContent = ({
     writeCache["local_dir"] = cacheSection.writeLocalDir;
     writeCache["capacity_bytes"] = Number.parseInt(cacheSection.writeCapacityBytes, 10) || 100663296;
     writeCache["max_file_size_bytes"] = Number.parseInt(cacheSection.writeMaxFileSizeBytes, 10) || 262144;
+    writeCache["cache_thumbnail_paths"] =
+      typeof writeCache["cache_thumbnail_paths"] === 'boolean'
+        ? writeCache["cache_thumbnail_paths"]
+        : false;
+    writeCache["skip_extensions"] = stringArrayOrEmpty(writeCache["skip_extensions"]);
     writeCache["flush_concurrency"] = Number.parseInt(cacheSection.writeFlushConcurrency, 10) || 2;
     writeCache["flush_interval_ms"] = Number.parseInt(cacheSection.writeFlushIntervalMs, 10) || 30;
     writeCache["flush_deadline_secs"] = Number.parseInt(cacheSection.writeFlushDeadlineSecs, 10) || 360;
+    writeCache["abnormal_spill_dir"] =
+      typeof writeCache["abnormal_spill_dir"] === 'string'
+        ? writeCache["abnormal_spill_dir"]
+        : '{RUNTIMEDIR}/cache/vfs-write-abnormal';
 
     const fileCompress = ensureRecord(vfsHub, 'file_compress');
     fileCompress["enable"] = archiveSection.enable;

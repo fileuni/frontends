@@ -31,6 +31,7 @@ import {
   type ConfigWorkbenchLicenseStatus,
   useConfigWorkbenchController,
 } from "@/components/setting/useConfigWorkbenchController";
+import { normalizeSystemConfigRequiredSections } from "@/components/setting/systemConfigNormalizer";
 import { LogViewer, type LogEntry } from "@/apps/launcher/components/LogViewer";
 import { QuickActionsPanel } from "@/apps/launcher/components/QuickActionsPanel";
 import {
@@ -478,9 +479,13 @@ export function Launcher() {
   const handleSaveConfig = async () => {
     setConfigBusy(true);
     try {
+      const normalized = normalizeSystemConfigRequiredSections(configContent, toml);
+      if (normalized.changed) {
+        setConfigContent(normalized.content);
+      }
       // Always validate with structured errors first so users can jump to the exact line.
       const errors = await safeInvoke<ConfigError[]>("test_config", {
-        content: configContent,
+        content: normalized.content,
       });
       if (errors.length > 0) {
         toast.error(t("launcher.messages.config_test_failed"));
@@ -493,9 +498,9 @@ export function Launcher() {
 
       // GUI config editing happens while the service is stopped.
       // Persist to disk; changes take effect on next start.
-      await safeInvoke<void>("save_config", { content: configContent });
+      await safeInvoke<void>("save_config", { content: normalized.content });
       toast.success(t("launcher.messages.config_saved"));
-      setSavedConfigContent(configContent);
+      setSavedConfigContent(normalized.content);
       setConfigSummary(t("launcher.messages.config_saved"), "success");
       clearConfigErrors();
     } catch (e: unknown) {

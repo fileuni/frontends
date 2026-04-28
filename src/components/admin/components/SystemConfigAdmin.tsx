@@ -24,6 +24,7 @@ import {
   type UseConfigWorkbenchControllerOptions,
   useConfigWorkbenchController,
 } from "@/components/setting/useConfigWorkbenchController";
+import { normalizeSystemConfigRequiredSections } from "@/components/setting/systemConfigNormalizer";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useToastStore } from "@/stores/toast";
 import { useAuthzStore } from "@/stores/authz.ts";
@@ -301,10 +302,14 @@ export const SystemConfigAdmin = () => {
     setTesting(true);
     setValidationErrors([]);
     try {
+      const normalized = normalizeSystemConfigRequiredSections(content, toml);
+      if (normalized.changed) {
+        setContent(normalized.content);
+      }
       await withTimeout(
         extractData<{ message?: string }>(
           client.POST("/api/v1/admin/system/config/test", {
-            body: { toml_content: content },
+            body: { toml_content: normalized.content },
             headers: { "X-No-Toast": "true" },
           }),
         ),
@@ -421,7 +426,11 @@ export const SystemConfigAdmin = () => {
     clearValidationErrors();
     clearSaveSummary();
     try {
-      const currentContent = content;
+      const normalized = normalizeSystemConfigRequiredSections(content, toml);
+      const currentContent = normalized.content;
+      if (normalized.changed) {
+        setContent(currentContent);
+      }
       await withTimeout(
         extractData<{ message?: string }>(
           client.POST("/api/v1/admin/system/config/save", {

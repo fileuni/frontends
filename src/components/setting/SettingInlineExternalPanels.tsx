@@ -1299,7 +1299,21 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
       const parsed = tomlAdapter.parse(source);
       const root: ConfigObject = isRecord(parsed) ? parsed : {};
       const hub = ensureRecord(root, "vfs_storage_hub");
+      const existingReadCache = asRecord(hub["read_cache"]);
+      const existingWriteCache = asRecord(hub["write_cache"]);
+      const readSkipExtensions = Array.isArray(existingReadCache["skip_extensions"])
+        ? existingReadCache["skip_extensions"].filter(
+          (value): value is string => typeof value === "string",
+        )
+        : [];
+      const writeSkipExtensions = Array.isArray(existingWriteCache["skip_extensions"])
+        ? existingWriteCache["skip_extensions"].filter(
+          (value): value is string => typeof value === "string",
+        )
+        : [];
+
       hub["read_cache"] = {
+        ...existingReadCache,
         enable: next.readEnable,
         backend: next.readBackend,
         local_dir: next.readLocalDir,
@@ -1307,9 +1321,15 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
           Number.parseInt(next.readCapacityBytes, 10) || 134217728,
         max_file_size_bytes:
           Number.parseInt(next.readMaxFileSizeBytes, 10) || 2097152,
+        cache_thumbnail_paths:
+          typeof existingReadCache["cache_thumbnail_paths"] === "boolean"
+            ? existingReadCache["cache_thumbnail_paths"]
+            : false,
+        skip_extensions: readSkipExtensions,
         ttl_secs: Number.parseInt(next.readTtlSecs, 10) || 1800,
       };
       hub["write_cache"] = {
+        ...existingWriteCache,
         enable: next.writeEnable,
         backend: next.writeBackend,
         local_dir: next.writeLocalDir,
@@ -1317,10 +1337,19 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
           Number.parseInt(next.writeCapacityBytes, 10) || 100663296,
         max_file_size_bytes:
           Number.parseInt(next.writeMaxFileSizeBytes, 10) || 262144,
+        cache_thumbnail_paths:
+          typeof existingWriteCache["cache_thumbnail_paths"] === "boolean"
+            ? existingWriteCache["cache_thumbnail_paths"]
+            : false,
+        skip_extensions: writeSkipExtensions,
         flush_concurrency: Number.parseInt(next.writeFlushConcurrency, 10) || 2,
         flush_interval_ms: Number.parseInt(next.writeFlushIntervalMs, 10) || 30,
         flush_deadline_secs:
           Number.parseInt(next.writeFlushDeadlineSecs, 10) || 360,
+        abnormal_spill_dir:
+          typeof existingWriteCache["abnormal_spill_dir"] === "string"
+            ? existingWriteCache["abnormal_spill_dir"]
+            : "{RUNTIMEDIR}/cache/vfs-write-abnormal",
       };
       return tomlAdapter.stringify(root);
     },
