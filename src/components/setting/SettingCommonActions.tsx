@@ -9,6 +9,7 @@ import {
   AdminPasswordInlinePanel,
   CacheAccelerationInlinePanel,
   CompressionInlinePanel,
+  LoggingInlinePanel,
   ProtectedStorageInlinePanel,
   ThumbnailInlinePanel,
 } from "./SettingInlineExternalPanels";
@@ -17,7 +18,6 @@ import {
   ZeroTierEmbeddedInlinePanel,
   type ZeroTierExposurePlanItem,
   type ZeroTierRuntimeSnapshot,
-  type ZeroTierSupportMatrixItem,
 } from "./ZeroTierEmbeddedInlinePanel";
 import { MediaTranscodingInlinePanel, type ProbeMediaBackend } from "./MediaTranscodingConfigPanel";
 import {
@@ -25,6 +25,23 @@ import {
   DatabaseInlinePanel,
   PerformanceInlinePanel,
 } from "./SettingInlineQuickPanels";
+import {
+  ExtensionManagerV2InlinePanel,
+  FrontendInlinePanel,
+  MemoryAllocatorInlinePanel,
+  SystemBackupInlinePanel,
+} from "./SettingInlinePlatformPanels";
+import {
+  CaptchaInlinePanel,
+  SafeAccessGuardInlinePanel,
+  UserCenterInlinePanel,
+} from "./SettingInlineSecurityPanels";
+import {
+  ExternalizeNetInlinePanel,
+  JournalLogInlinePanel,
+  MiddlewareInlinePanel,
+  TaskRegistryInlinePanel,
+} from "./SettingInlineOperationsPanels";
 import { StoragePoolInlinePanel } from "./StoragePoolInlinePanel";
 import type {
   ExternalToolDiagnosisResponse,
@@ -345,7 +362,6 @@ interface BuildSettingCommonActionsParams {
   };
   zerotierEmbedded?: {
     runtimeSnapshot: ZeroTierRuntimeSnapshot | null;
-    supportMatrix: ZeroTierSupportMatrixItem[];
     planPreview: ZeroTierExposurePlanItem[];
     adminApiAvailable: boolean;
     actionPending: boolean;
@@ -521,7 +537,6 @@ export const buildSettingCommonActions = ({
           content={content}
           onContentChange={onContentChange}
           runtimeSnapshot={zerotierEmbedded?.runtimeSnapshot ?? null}
-          supportMatrix={zerotierEmbedded?.supportMatrix ?? []}
           planPreview={zerotierEmbedded?.planPreview ?? []}
           adminApiAvailable={zerotierEmbedded?.adminApiAvailable ?? false}
           actionPending={zerotierEmbedded?.actionPending ?? false}
@@ -550,6 +565,186 @@ export const buildSettingCommonActions = ({
       icon: settingCommonIcons.cache,
       renderPanel: () => (
         <CacheAccelerationInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "logging",
+      routeKey: "logging",
+      routeAliases: ["logging", "logs", "system_logging", "日志配置"],
+      label: t("admin.config.logging.title"),
+      description: "",
+      icon: settingCommonIcons.logging,
+      renderPanel: () => (
+        <LoggingInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "captcha",
+      routeKey: "captcha",
+      routeAliases: ["captcha", "captcha_code", "验证码"],
+      label: t("admin.config.advancedPanels.captcha.title"),
+      description: "",
+      icon: settingCommonIcons.captcha,
+      renderPanel: () => (
+        <CaptchaInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "user-center",
+      routeKey: "user_center",
+      routeAliases: ["user_center", "user-center", "账户策略"],
+      label: t("admin.config.advancedPanels.userCenter.title"),
+      description: "",
+      icon: settingCommonIcons.userCenter,
+      renderPanel: () => (
+        <UserCenterInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "frontend",
+      routeKey: "frontend",
+      routeAliases: ["frontend", "login_route", "前端入口"],
+      label: t("admin.config.advancedPanels.frontend.title"),
+      description: "",
+      icon: settingCommonIcons.frontend,
+      renderPanel: () => (
+        <FrontendInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "memory-allocator",
+      routeKey: "memory_allocator",
+      routeAliases: ["memory_allocator", "memory-allocator", "内存分配器"],
+      label: t("admin.config.advancedPanels.memoryAllocator.title"),
+      description: "",
+      icon: settingCommonIcons.memoryAllocator,
+      renderPanel: () => (
+        <MemoryAllocatorInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "safeaccess-guard",
+      routeKey: "safeaccess_guard",
+      routeAliases: ["safeaccess_guard", "safeaccess-guard", "风控配置"],
+      label: t("admin.config.advancedPanels.safeaccessGuard.title"),
+      description: "",
+      icon: settingCommonIcons.safeaccessGuard,
+      renderPanel: () => (
+        <SafeAccessGuardInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "system-backup",
+      routeKey: "system_backup",
+      routeAliases: ["system_backup", "system-backup", "备份配置"],
+      label: t("admin.config.advancedPanels.systemBackup.title"),
+      description: "",
+      icon: settingCommonIcons.systemBackup,
+      renderPanel: () => (
+        <SystemBackupInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "extension-manager-v2",
+      routeKey: "extension_manager_v2",
+      routeAliases: ["extension_manager_v2", "extension-manager-v2", "插件系统v2"],
+      label: t("admin.config.advancedPanels.extensionManagerV2.title"),
+      description: "",
+      icon: settingCommonIcons.extensionManagerV2,
+      renderPanel: () => (
+        <ExtensionManagerV2InlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "journal-log",
+      routeKey: "journal_log",
+      routeAliases: ["journal_log", "journal-log", "审计日志配置"],
+      label: t("admin.config.advancedPanels.journalLog.title"),
+      description: "",
+      icon: settingCommonIcons.journalLog,
+      renderPanel: () => (
+        <JournalLogInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "middleware",
+      routeKey: "middleware",
+      routeAliases: ["middleware", "网关中间件"],
+      label: t("admin.config.advancedPanels.middleware.title"),
+      description: "",
+      icon: settingCommonIcons.middleware,
+      renderPanel: () => (
+        <MiddlewareInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "task-registry",
+      routeKey: "task_registry",
+      routeAliases: ["task_registry", "task-registry", "定时任务"],
+      label: t("admin.config.advancedPanels.taskRegistry.title"),
+      description: "",
+      icon: settingCommonIcons.taskRegistry,
+      renderPanel: () => (
+        <TaskRegistryInlinePanel
+          tomlAdapter={tomlAdapter}
+          content={content}
+          onContentChange={onContentChange}
+        />
+      ),
+    },
+    {
+      id: "externalize-net",
+      routeKey: "externalize_net",
+      routeAliases: ["externalize_net", "externalize-net", "外部网络"],
+      label: t("admin.config.advancedPanels.externalizeNet.title"),
+      description: "",
+      icon: settingCommonIcons.externalizeNet,
+      renderPanel: () => (
+        <ExternalizeNetInlinePanel
           tomlAdapter={tomlAdapter}
           content={content}
           onContentChange={onContentChange}

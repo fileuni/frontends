@@ -70,8 +70,6 @@ type FeatureToggleKey =
   | "sftp"
   | "ftp"
   | "s3"
-  | "chat"
-  | "email"
   | "webdav"
   | "bloomWarmup";
 
@@ -84,8 +82,6 @@ const featureToggleOrder: FeatureToggleKey[] = [
   "sftp",
   "ftp",
   "s3",
-  "chat",
-  "email",
   "webdav",
   "bloomWarmup",
 ];
@@ -152,10 +148,6 @@ const getFeatureToggleLabel = (
       return t("admin.config.quickSettings.performance.features.ftp");
     case "s3":
       return t("admin.config.quickSettings.performance.features.s3");
-    case "chat":
-      return t("admin.config.quickSettings.performance.features.chat");
-    case "email":
-      return t("admin.config.quickSettings.performance.features.email");
     case "webdav":
       return t("admin.config.quickSettings.performance.features.webdav");
     case "bloomWarmup":
@@ -269,8 +261,6 @@ const deriveFeatureToggleState = (draft: FriendlyDraft): FeatureToggleState => {
       sftp: false,
       ftp: false,
       s3: false,
-      chat: false,
-      email: false,
       webdav: true,
       bloomWarmup: false,
     };
@@ -287,8 +277,6 @@ const readFeatureToggleStateFromConfig = (
   const fileCompress = asRecord(vfs["file_compress"]);
   const taskRegistry = asRecord(source["task_registry"]);
   const bloomFilterWarmup = asRecord(taskRegistry["bloom_filter_warmup"]);
-  const chatManager = asRecord(source["chat_manager"]);
-  const emailManager = asRecord(source["email_manager"]);
   const webdavConfig = asRecord(source["file_manager_webdav"]);
   const sftpConfig = asRecord(source["file_manager_sftp"]);
   const ftpConfig = asRecord(source["file_manager_ftp"]);
@@ -311,14 +299,6 @@ const readFeatureToggleStateFromConfig = (
       typeof s3Config["enabled"] === "boolean"
         ? s3Config["enabled"]
         : fallback.s3,
-    chat:
-      typeof chatManager["enabled"] === "boolean"
-        ? chatManager["enabled"]
-        : fallback.chat,
-    email:
-      typeof emailManager["enabled"] === "boolean"
-        ? emailManager["enabled"]
-        : fallback.email,
     webdav:
       typeof webdavConfig["enabled"] === "boolean"
         ? webdavConfig["enabled"]
@@ -340,8 +320,6 @@ const applyFeatureToggleStateToConfig = (
   const fileCompress = ensureRecord(vfs, "file_compress");
   const taskRegistry = ensureRecord(next, "task_registry");
   const bloomFilterWarmup = ensureRecord(taskRegistry, "bloom_filter_warmup");
-  const chatManager = ensureRecord(next, "chat_manager");
-  const emailManager = ensureRecord(next, "email_manager");
   const webdavConfig = ensureRecord(next, "file_manager_webdav");
   const sftpConfig = ensureRecord(next, "file_manager_sftp");
   const ftpConfig = ensureRecord(next, "file_manager_ftp");
@@ -353,8 +331,6 @@ const applyFeatureToggleStateToConfig = (
   s3Config["enabled"] = toggles.s3;
   fileCompress["enable"] = toggles.compression;
   bloomFilterWarmup["enabled"] = toggles.bloomWarmup;
-  chatManager["enabled"] = toggles.chat;
-  emailManager["enabled"] = toggles.email;
 
   if (!toggles.sftp) {
     sftpConfig["max_connections"] = 1;
@@ -462,8 +438,6 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
         sftp: false,
         ftp: false,
         s3: false,
-        chat: false,
-        email: false,
         webdav: true,
         bloomWarmup: false,
       }),
@@ -938,12 +912,6 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
       file_manager_webdav: t(
         "admin.config.quickSettings.performance.features.webdav",
       ),
-      chat_manager: t(
-        "admin.config.quickSettings.performance.preview.groups.chat",
-      ),
-      email_manager: t(
-        "admin.config.quickSettings.performance.preview.groups.email",
-      ),
       extension_manager: t(
         "admin.config.quickSettings.performance.preview.groups.other",
       ),
@@ -1015,8 +983,6 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
     sftp: "file_manager_sftp.enabled",
     ftp: "file_manager_ftp.enabled",
     s3: "file_manager_s3.enabled",
-    chat: "chat_manager.enabled",
-    email: "email_manager.enabled",
     webdav: "file_manager_webdav.enabled",
     bloomWarmup: "task_registry.bloom_filter_warmup.enabled",
   };

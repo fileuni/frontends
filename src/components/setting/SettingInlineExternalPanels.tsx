@@ -672,15 +672,31 @@ type CacheAccelerationDraft = {
   readLocalDir: string;
   readCapacityBytes: string;
   readMaxFileSizeBytes: string;
+  readCacheThumbnailPaths: boolean;
+  readSkipExtensions: string;
   readTtlSecs: string;
   writeEnable: boolean;
   writeBackend: "memory" | "local_dir";
   writeLocalDir: string;
   writeCapacityBytes: string;
   writeMaxFileSizeBytes: string;
+  writeCacheThumbnailPaths: boolean;
+  writeSkipExtensions: string;
   writeFlushConcurrency: string;
   writeFlushIntervalMs: string;
   writeFlushDeadlineSecs: string;
+  writeAbnormalSpillDir: string;
+};
+
+type LoggingDraft = {
+  logLevel: "trace" | "debug" | "info" | "warn" | "error";
+  enableAsync: boolean;
+  enableFileLog: boolean;
+  logFile: string;
+  logMaxSize: string;
+  logMaxFiles: string;
+  logCompress: boolean;
+  logTemplate: string;
 };
 
 type ProtectedStorageDraft = {
@@ -784,7 +800,42 @@ const getProtectedStorageGlobalModeHintText = (
   }
 };
 
+const getLoggingLevelLabel = (
+  t: TranslationFn,
+  level: LoggingDraft["logLevel"],
+): string => {
+  switch (level) {
+    case "trace":
+      return t("admin.config.logging.levels.trace");
+    case "debug":
+      return t("admin.config.logging.levels.debug");
+    case "info":
+      return t("admin.config.logging.levels.info");
+    case "warn":
+      return t("admin.config.logging.levels.warn");
+    case "error":
+      return t("admin.config.logging.levels.error");
+  }
+};
+
 const sanitizeUnsignedIntegerInput = (value: string): string => value.replace(/[^0-9]/g, "");
+
+const parseCommaSeparatedList = (value: string): string[] =>
+  value
+    .split(",")
+    .map((item) => item.trim().replace(/^\./, ""))
+    .filter((item) => item.length > 0);
+
+const formatCommaSeparatedList = (value: unknown): string => {
+  if (!Array.isArray(value)) {
+    return "";
+  }
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim().replace(/^\./, ""))
+    .filter((item) => item.length > 0)
+    .join(", ");
+};
 
 const clampIntegerInput = (
   value: string,
@@ -915,14 +966,26 @@ export const ProtectedStorageInlinePanel: React.FC<BaseProps> = ({
         MIN_PROTECTED_WORKERS,
         MAX_PROTECTED_WORKERS,
       );
+      const protectedStorage = ensureRecord(hub, "protected_storage");
+      const obfuscation = ensureRecord(protectedStorage, "obfuscation");
+      const encrypt = ensureRecord(protectedStorage, "encrypt");
+      protectedStorage["global_mode"] = next.globalMode;
+      obfuscation["block_size_kib"] = nextBlockSize;
+      obfuscation["prng"] = next.prng;
+      obfuscation["workers"] = nextWorkers;
+      encrypt["cipher"] = "aes-256-ctr";
+      encrypt["wrap_key"] = next.wrapKey;
       hub["protected_storage"] = {
+        ...protectedStorage,
         global_mode: next.globalMode,
         obfuscation: {
+          ...obfuscation,
           block_size_kib: nextBlockSize,
           prng: next.prng,
           workers: nextWorkers,
         },
         encrypt: {
+          ...encrypt,
           cipher: "aes-256-ctr",
           wrap_key: next.wrapKey,
         },
@@ -1277,6 +1340,8 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
             : "{RUNTIMEDIR}/cache/vfs-read",
         readCapacityBytes: String(readCache["capacity_bytes"] ?? 134217728),
         readMaxFileSizeBytes: String(readCache["max_file_size_bytes"] ?? 2097152),
+        readCacheThumbnailPaths: Boolean(readCache["cache_thumbnail_paths"]),
+        readSkipExtensions: formatCommaSeparatedList(readCache["skip_extensions"]),
         readTtlSecs: String(readCache["ttl_secs"] ?? 1800),
         writeEnable: Boolean(writeCache["enable"]),
         writeBackend: writeCache["backend"] === "memory" ? "memory" : "local_dir",
@@ -1286,33 +1351,39 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
             : "{RUNTIMEDIR}/cache/vfs-write",
         writeCapacityBytes: String(writeCache["capacity_bytes"] ?? 100663296),
         writeMaxFileSizeBytes: String(writeCache["max_file_size_bytes"] ?? 262144),
+        writeCacheThumbnailPaths: Boolean(writeCache["cache_thumbnail_paths"]),
+        writeSkipExtensions: formatCommaSeparatedList(writeCache["skip_extensions"]),
         writeFlushConcurrency: String(writeCache["flush_concurrency"] ?? 2),
         writeFlushIntervalMs: String(writeCache["flush_interval_ms"] ?? 30),
         writeFlushDeadlineSecs: String(writeCache["flush_deadline_secs"] ?? 360),
+        writeAbnormalSpillDir:
+          typeof writeCache["abnormal_spill_dir"] === "string"
+            ? writeCache["abnormal_spill_dir"]
+            : "{RUNTIMEDIR}/cache/vfs-write-abnormal",
       };
     },
     [tomlAdapter],
   );
 
-  const buildContent = useCallback(
-    (source: string, next: CacheAccelerationDraft) => {
-      const parsed = tomlAdapter.parse(source);
-      const root: ConfigObject = isRecord(parsed) ? parsed : {};
-      const hub = ensureRecord(root, "vfs_storage_hub");
-      const existingReadCache = asRecord(hub["read_cache"]);
-      const existingWriteCache = asRecord(hub["write_cache"]);
-      const readSkipExtensions = Array.isArray(existingReadCache["skip_extensions"])
-        ? existingReadCache["skip_extensions"].filter(
-          (value): value is string => typeof value === "string",
-        )
-        : [];
-      const writeSkipExtensions = Array.isArray(existingWriteCache["skip_extensions"])
-        ? existingWriteCache["skip_extensions"].filter(
-          (value): value is string => typeof value === "string",
-        )
-        : [];
+	const buildContent = useCallback(
+		(source: string, next: CacheAccelerationDraft) => {
+			const parsed = tomlAdapter.parse(source);
+			const root: ConfigObject = isRecord(parsed) ? parsed : {};
+			const hub = ensureRecord(root, "vfs_storage_hub");
+			const existingReadCache = asRecord(hub["read_cache"]);
+			const existingWriteCache = asRecord(hub["write_cache"]);
+			const readSkipExtensions = Array.isArray(existingReadCache["skip_extensions"])
+				? existingReadCache["skip_extensions"].filter(
+						(value): value is string => typeof value === "string",
+					)
+				: [];
+			const writeSkipExtensions = Array.isArray(existingWriteCache["skip_extensions"])
+				? existingWriteCache["skip_extensions"].filter(
+						(value): value is string => typeof value === "string",
+					)
+				: [];
 
-      hub["read_cache"] = {
+			hub["read_cache"] = {
         ...existingReadCache,
         enable: next.readEnable,
         backend: next.readBackend,
@@ -1321,11 +1392,16 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
           Number.parseInt(next.readCapacityBytes, 10) || 134217728,
         max_file_size_bytes:
           Number.parseInt(next.readMaxFileSizeBytes, 10) || 2097152,
+<<<<<<< HEAD
         cache_thumbnail_paths:
           typeof existingReadCache["cache_thumbnail_paths"] === "boolean"
             ? existingReadCache["cache_thumbnail_paths"]
             : false,
         skip_extensions: readSkipExtensions,
+=======
+        cache_thumbnail_paths: next.readCacheThumbnailPaths,
+        skip_extensions: parseCommaSeparatedList(next.readSkipExtensions),
+>>>>>>> a05a2265 (feat: refactor settings components with quick panels and config normalizer)
         ttl_secs: Number.parseInt(next.readTtlSecs, 10) || 1800,
       };
       hub["write_cache"] = {
@@ -1337,19 +1413,31 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
           Number.parseInt(next.writeCapacityBytes, 10) || 100663296,
         max_file_size_bytes:
           Number.parseInt(next.writeMaxFileSizeBytes, 10) || 262144,
+<<<<<<< HEAD
         cache_thumbnail_paths:
           typeof existingWriteCache["cache_thumbnail_paths"] === "boolean"
             ? existingWriteCache["cache_thumbnail_paths"]
             : false,
         skip_extensions: writeSkipExtensions,
+=======
+        cache_thumbnail_paths: next.writeCacheThumbnailPaths,
+        skip_extensions: parseCommaSeparatedList(next.writeSkipExtensions),
+>>>>>>> a05a2265 (feat: refactor settings components with quick panels and config normalizer)
         flush_concurrency: Number.parseInt(next.writeFlushConcurrency, 10) || 2,
         flush_interval_ms: Number.parseInt(next.writeFlushIntervalMs, 10) || 30,
         flush_deadline_secs:
           Number.parseInt(next.writeFlushDeadlineSecs, 10) || 360,
         abnormal_spill_dir:
+<<<<<<< HEAD
           typeof existingWriteCache["abnormal_spill_dir"] === "string"
             ? existingWriteCache["abnormal_spill_dir"]
             : "{RUNTIMEDIR}/cache/vfs-write-abnormal",
+=======
+          next.writeAbnormalSpillDir.trim() ||
+          (typeof existingWriteCache["abnormal_spill_dir"] === "string"
+            ? existingWriteCache["abnormal_spill_dir"]
+            : "{RUNTIMEDIR}/cache/vfs-write-abnormal"),
+>>>>>>> a05a2265 (feat: refactor settings components with quick panels and config normalizer)
       };
       return tomlAdapter.stringify(root);
     },
@@ -1380,6 +1468,7 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
     { value: "enabled", label: t("common.enabled") },
     { value: "disabled", label: t("common.disabled") },
   ] as const;
+  const booleanOptions = enableOptions;
   const patch = (
     updater: (prev: CacheAccelerationDraft) => CacheAccelerationDraft,
   ) => {
@@ -1454,6 +1543,46 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
           }
           placeholder={t("admin.config.storage.cache.maxFileSizeBytes")}
         />
+        <input
+          className={inputClass}
+          value={draft.readTtlSecs}
+          onChange={(e) =>
+            patch((prev) => ({ ...prev, readTtlSecs: e.target.value }))
+          }
+          placeholder={t("admin.config.storage.cache.ttlSecs")}
+        />
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t("admin.config.storage.cache.cacheThumbnailPaths")}
+          subtitle={
+            draft.readCacheThumbnailPaths ? t("common.enabled") : t("common.disabled")
+          }
+          value={draft.readCacheThumbnailPaths ? "enabled" : "disabled"}
+          options={[...booleanOptions]}
+          onChange={(value) =>
+            patch((prev) => ({
+              ...prev,
+              readCacheThumbnailPaths: value === "enabled",
+            }))
+          }
+        />
+        <div>
+          <div
+            className={cn(
+              "text-xs font-black tracking-wide",
+              isDark ? "text-slate-400" : "text-slate-700",
+            )}
+          >
+            {t("admin.config.storage.cache.skipExtensions")}
+          </div>
+          <input
+            className={inputClass}
+            value={draft.readSkipExtensions}
+            onChange={(e) =>
+              patch((prev) => ({ ...prev, readSkipExtensions: e.target.value }))
+            }
+          />
+        </div>
       </div>
       <div
         className={cn(
@@ -1527,6 +1656,14 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
         />
         <input
           className={inputClass}
+          value={draft.writeMaxFileSizeBytes}
+          onChange={(e) =>
+            patch((prev) => ({ ...prev, writeMaxFileSizeBytes: e.target.value }))
+          }
+          placeholder={t("admin.config.storage.cache.maxFileSizeBytes")}
+        />
+        <input
+          className={inputClass}
           value={draft.writeFlushConcurrency}
           onChange={(e) =>
             patch((prev) => ({
@@ -1535,6 +1672,291 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
             }))
           }
           placeholder={t("admin.config.storage.cache.flushConcurrency")}
+        />
+        <input
+          className={inputClass}
+          value={draft.writeFlushIntervalMs}
+          onChange={(e) =>
+            patch((prev) => ({
+              ...prev,
+              writeFlushIntervalMs: e.target.value,
+            }))
+          }
+          placeholder={t("admin.config.storage.cache.flushIntervalMs")}
+        />
+        <input
+          className={inputClass}
+          value={draft.writeFlushDeadlineSecs}
+          onChange={(e) =>
+            patch((prev) => ({
+              ...prev,
+              writeFlushDeadlineSecs: e.target.value,
+            }))
+          }
+          placeholder={t("admin.config.storage.cache.flushDeadlineSecs")}
+        />
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t("admin.config.storage.cache.cacheThumbnailPaths")}
+          subtitle={
+            draft.writeCacheThumbnailPaths ? t("common.enabled") : t("common.disabled")
+          }
+          value={draft.writeCacheThumbnailPaths ? "enabled" : "disabled"}
+          options={[...booleanOptions]}
+          onChange={(value) =>
+            patch((prev) => ({
+              ...prev,
+              writeCacheThumbnailPaths: value === "enabled",
+            }))
+          }
+        />
+        <div>
+          <div
+            className={cn(
+              "text-xs font-black tracking-wide",
+              isDark ? "text-slate-400" : "text-slate-700",
+            )}
+          >
+            {t("admin.config.storage.cache.skipExtensions")}
+          </div>
+          <input
+            className={inputClass}
+            value={draft.writeSkipExtensions}
+            onChange={(e) =>
+              patch((prev) => ({ ...prev, writeSkipExtensions: e.target.value }))
+            }
+          />
+        </div>
+        {draft.writeBackend === "local_dir" && (
+          <input
+            className={inputClass}
+            value={draft.writeAbnormalSpillDir}
+            onChange={(e) =>
+              patch((prev) => ({ ...prev, writeAbnormalSpillDir: e.target.value }))
+            }
+            placeholder={t("admin.config.storage.cache.abnormalSpillDir")}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export const LoggingInlinePanel: React.FC<BaseProps> = ({
+  tomlAdapter,
+  content,
+  onContentChange,
+}) => {
+  const { t } = useTranslation();
+  const isDark = useResolvedTheme() === "dark";
+  const createDraft = useCallback(
+    (source: string): LoggingDraft => {
+      const parsed = tomlAdapter.parse(source);
+      const root = asRecord(parsed);
+      const log = asRecord(root["log"]);
+      const rawLevel = typeof log["log_level"] === "string"
+        ? log["log_level"].trim().toLowerCase()
+        : "info";
+      const logLevel: LoggingDraft["logLevel"] =
+        rawLevel === "trace" ||
+        rawLevel === "debug" ||
+        rawLevel === "warn" ||
+        rawLevel === "error"
+          ? rawLevel
+          : "info";
+      return {
+        logLevel,
+        enableAsync: Boolean(log["enable_async"]),
+        enableFileLog: typeof log["enable_file_log"] === "boolean"
+          ? log["enable_file_log"]
+          : false,
+        logFile:
+          typeof log["log_file"] === "string"
+            ? log["log_file"]
+            : "{RUNTIMEDIR}/logs/fileuni.log",
+        logMaxSize: String(log["log_max_size"] ?? 10485760),
+        logMaxFiles: String(log["log_max_files"] ?? 10),
+        logCompress: typeof log["log_compress"] === "boolean"
+          ? log["log_compress"]
+          : true,
+        logTemplate:
+          typeof log["log_template"] === "string"
+            ? log["log_template"]
+            : "{level} {time} {module} {message}\\n",
+      };
+    },
+    [tomlAdapter],
+  );
+  const buildContent = useCallback(
+    (source: string, next: LoggingDraft) => {
+      const parsed = tomlAdapter.parse(source);
+      const root: ConfigObject = isRecord(parsed) ? parsed : {};
+      const log = ensureRecord(root, "log");
+      log["log_level"] = next.logLevel;
+      log["enable_async"] = next.enableAsync;
+      log["enable_file_log"] = next.enableFileLog;
+      log["log_file"] = next.logFile.trim() || "{RUNTIMEDIR}/logs/fileuni.log";
+      log["log_max_size"] = Number.parseInt(next.logMaxSize, 10) || 10485760;
+      log["log_max_files"] = Number.parseInt(next.logMaxFiles, 10) || 10;
+      log["log_compress"] = next.logCompress;
+      log["log_template"] = next.logTemplate || "{level} {time} {module} {message}\\n";
+      return tomlAdapter.stringify(root);
+    },
+    [tomlAdapter],
+  );
+  const { draft, setDraft } = useConfigDraftBinding<LoggingDraft>({
+    content,
+    onContentChange,
+    createDraft,
+    buildContent,
+  });
+
+  const inputClass = cn(
+    "mt-1 h-11 w-full rounded-xl border px-3 text-sm font-mono",
+    isDark
+      ? "border-white/10 bg-black/30 text-white"
+      : "border-slate-300 bg-white text-slate-900",
+  );
+  const levelOptions = [
+    { value: "trace", label: t("admin.config.logging.levels.trace") },
+    { value: "debug", label: t("admin.config.logging.levels.debug") },
+    { value: "info", label: t("admin.config.logging.levels.info") },
+    { value: "warn", label: t("admin.config.logging.levels.warn") },
+    { value: "error", label: t("admin.config.logging.levels.error") },
+  ] as const;
+  const booleanOptions = [
+    { value: "enabled", label: t("common.enabled") },
+    { value: "disabled", label: t("common.disabled") },
+  ] as const;
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-2">
+      <div
+        className={cn(
+          "rounded-2xl border p-4 space-y-3",
+          isDark
+            ? "border-white/10 bg-white/[0.03]"
+            : "border-slate-200 bg-white",
+        )}
+      >
+        <div className="text-sm font-black">
+          {t("admin.config.logging.generalTitle")}
+        </div>
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t("admin.config.logging.logLevel")}
+          subtitle={getLoggingLevelLabel(t, draft.logLevel)}
+          value={draft.logLevel}
+          options={[...levelOptions]}
+          onChange={(value) =>
+            setDraft((prev) => ({
+              ...prev,
+              logLevel: value as LoggingDraft["logLevel"],
+            }))
+          }
+          equalWidth={false}
+        />
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t("admin.config.logging.enableAsync")}
+          subtitle={draft.enableAsync ? t("common.enabled") : t("common.disabled")}
+          value={draft.enableAsync ? "enabled" : "disabled"}
+          options={[...booleanOptions]}
+          onChange={(value) =>
+            setDraft((prev) => ({ ...prev, enableAsync: value === "enabled" }))
+          }
+        />
+        <div>
+          <div
+            className={cn(
+              "text-xs font-black tracking-wide",
+              isDark ? "text-slate-400" : "text-slate-700",
+            )}
+          >
+            {t("admin.config.logging.logTemplate")}
+          </div>
+          <textarea
+            className={cn(
+              "mt-1 min-h-28 w-full rounded-xl border px-3 py-3 text-sm font-mono",
+              isDark
+                ? "border-white/10 bg-black/30 text-white"
+                : "border-slate-300 bg-white text-slate-900",
+            )}
+            value={draft.logTemplate}
+            onChange={(event) =>
+              setDraft((prev) => ({ ...prev, logTemplate: event.target.value }))
+            }
+          />
+          <div
+            className={cn(
+              "mt-2 text-xs leading-5",
+              isDark ? "text-slate-400" : "text-slate-500",
+            )}
+          >
+            {t("admin.config.logging.logTemplateHint")}
+          </div>
+        </div>
+      </div>
+      <div
+        className={cn(
+          "rounded-2xl border p-4 space-y-3",
+          isDark
+            ? "border-white/10 bg-white/[0.03]"
+            : "border-slate-200 bg-white",
+        )}
+      >
+        <div className="text-sm font-black">
+          {t("admin.config.logging.fileOutputTitle")}
+        </div>
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t("admin.config.logging.enableFileLog")}
+          subtitle={draft.enableFileLog ? t("common.enabled") : t("common.disabled")}
+          value={draft.enableFileLog ? "enabled" : "disabled"}
+          options={[...booleanOptions]}
+          onChange={(value) =>
+            setDraft((prev) => ({ ...prev, enableFileLog: value === "enabled" }))
+          }
+        />
+        <InlineSegmentCard
+          isDark={isDark}
+          title={t("admin.config.logging.logCompress")}
+          subtitle={draft.logCompress ? t("common.enabled") : t("common.disabled")}
+          value={draft.logCompress ? "enabled" : "disabled"}
+          options={[...booleanOptions]}
+          onChange={(value) =>
+            setDraft((prev) => ({ ...prev, logCompress: value === "enabled" }))
+          }
+        />
+        <input
+          className={inputClass}
+          value={draft.logFile}
+          onChange={(event) =>
+            setDraft((prev) => ({ ...prev, logFile: event.target.value }))
+          }
+          placeholder={t("admin.config.logging.logFile")}
+        />
+        <input
+          className={inputClass}
+          value={draft.logMaxSize}
+          onChange={(event) =>
+            setDraft((prev) => ({
+              ...prev,
+              logMaxSize: sanitizeUnsignedIntegerInput(event.target.value),
+            }))
+          }
+          placeholder={t("admin.config.logging.logMaxSize")}
+        />
+        <input
+          className={inputClass}
+          value={draft.logMaxFiles}
+          onChange={(event) =>
+            setDraft((prev) => ({
+              ...prev,
+              logMaxFiles: sanitizeUnsignedIntegerInput(event.target.value),
+            }))
+          }
+          placeholder={t("admin.config.logging.logMaxFiles")}
         />
       </div>
     </div>

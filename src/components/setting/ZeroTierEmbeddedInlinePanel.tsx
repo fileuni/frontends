@@ -77,7 +77,6 @@ type Props = {
   content: string;
   onContentChange: (value: string) => void;
   runtimeSnapshot: ZeroTierRuntimeSnapshot | null;
-  supportMatrix: ZeroTierSupportMatrixItem[];
   planPreview: ZeroTierExposurePlanItem[];
   adminApiAvailable: boolean;
   actionPending: boolean;
@@ -246,7 +245,6 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
   content,
   onContentChange,
   runtimeSnapshot,
-  supportMatrix,
   planPreview,
   adminApiAvailable,
   actionPending,
@@ -490,51 +488,6 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
               ? t("admin.config.zerotierEmbedded.connecting")
               : t("admin.config.zerotierEmbedded.reconnect")}
           </button>
-        </div>
-      </Section>
-
-      <Section
-        title={t("admin.config.zerotierEmbedded.supportTitle")}
-        hint={t("admin.config.zerotierEmbedded.supportHint")}
-        isDark={isDark}
-      >
-        <div className="grid gap-3 xl:grid-cols-2">
-          {supportMatrix.map((item) => (
-            <div
-              key={`support-${item.protocol}`}
-              className={cn(
-                "rounded-2xl border p-3",
-                isDark ? "border-white/10 bg-black/20" : "border-slate-200 bg-slate-50",
-              )}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className={cn("text-sm font-black", isDark ? "text-slate-100" : "text-slate-900")}>
-                  {item.protocol}
-                </div>
-                <div
-                  className={cn(
-                    "rounded-full px-2 py-1 text-[11px] font-black tracking-[0.18em]",
-                    item.supported
-                      ? isDark
-                        ? "bg-emerald-500/15 text-emerald-200"
-                        : "bg-emerald-100 text-emerald-700"
-                      : isDark
-                        ? "bg-amber-500/15 text-amber-200"
-                        : "bg-amber-100 text-amber-700",
-                  )}
-                >
-                  {item.supported
-                    ? t("admin.config.zerotierEmbedded.status.supported")
-                    : t("admin.config.zerotierEmbedded.status.unsupported")}
-                </div>
-              </div>
-              {item.reason ? (
-                <div className={cn("mt-2 text-sm leading-6", isDark ? "text-slate-300" : "text-slate-700")}>
-                  {item.reason}
-                </div>
-              ) : null}
-            </div>
-          ))}
         </div>
       </Section>
 

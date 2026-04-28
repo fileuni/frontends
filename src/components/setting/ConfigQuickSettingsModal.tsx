@@ -130,8 +130,6 @@ interface PerformancePreset {
     webdav: boolean;
     s3: boolean;
     bloomWarmup: boolean;
-    chat: boolean;
-    email: boolean;
   };
 }
 
@@ -147,14 +145,6 @@ interface PerformanceTuningPlan {
   domainDnsPropagationWaitSec: number;
   domainChallengePollIntervalSec: number;
   domainChallengeMaxPollCount: number;
-  chatRateLimitWindowSecs: number;
-  chatRateLimitMessagesPerWindow: number;
-  chatWsSessionTimeoutSecs: number;
-  chatMaxMessageSizeBytes: number;
-  chatMaxGroupsPerUser: number;
-  chatMaxMembersPerGroup: number;
-  chatMaxGroupsJoinedPerUser: number;
-  chatMaxGuestInvitesPerUser: number;
   dbMaxConnections: number;
   dbMaxConnectionsLowMemory: number;
   dbMaxConnectionsThroughput: number;
@@ -291,8 +281,6 @@ const PERFORMANCE_PRESETS: PerformancePreset[] = [
       webdav: true,
       s3: false,
       bloomWarmup: false,
-      chat: false,
-      email: false,
     },
   },
   {
@@ -312,8 +300,6 @@ const PERFORMANCE_PRESETS: PerformancePreset[] = [
       webdav: true,
       s3: false,
       bloomWarmup: true,
-      chat: false,
-      email: false,
     },
   },
   {
@@ -333,8 +319,6 @@ const PERFORMANCE_PRESETS: PerformancePreset[] = [
       webdav: true,
       s3: true,
       bloomWarmup: true,
-      chat: true,
-      email: true,
     },
   },
 ];
@@ -350,8 +334,6 @@ const LOAD_PROFILE_PRESETS = {
         webdav: true,
         s3: true,
         bloomWarmup: true,
-        chat: true,
-        email: true,
       },
     },
     "high-concurrency": {
@@ -363,8 +345,6 @@ const LOAD_PROFILE_PRESETS = {
         webdav: true,
         s3: true,
         bloomWarmup: true,
-        chat: true,
-        email: true,
       },
     },
   },
@@ -515,10 +495,6 @@ const getPreviewGroupLabel = (
       return t("admin.config.quickSettings.performance.preview.groups.s3");
     case "file_manager_webdav":
       return t("admin.config.quickSettings.performance.features.webdav");
-    case "chat_manager":
-      return t("admin.config.quickSettings.performance.preview.groups.chat");
-    case "email_manager":
-      return t("admin.config.quickSettings.performance.preview.groups.email");
     default:
       return t("admin.config.quickSettings.performance.preview.groups.other");
   }
@@ -1156,65 +1132,12 @@ const buildPerformanceTuningPlan = (
       : tuningTier === "medium"
         ? 75
         : 60;
-  const chatRateLimitWindowSecs = tuningTier === "good" ? 10 : 15;
-  const chatRateLimitMessagesPerWindow =
-    tuningTier === "good"
-      ? isMultiUserProfile
-        ? 80
-        : 50
-      : tuningTier === "medium"
-        ? 40
-        : 20;
-  const chatWsSessionTimeoutSecs = tuningTier === "good" ? 86400 : 43200;
-  const chatMaxMessageSizeBytes =
-    tuningTier === "good"
-      ? isMultiUserProfile
-        ? 131072
-        : 65536
-      : tuningTier === "medium"
-        ? 32768
-        : 16384;
-  const chatMaxGroupsPerUser =
-    tuningTier === "good" ? 30 : tuningTier === "medium" ? 20 : 10;
-  const chatMaxMembersPerGroup =
-    tuningTier === "good"
-      ? isMultiUserProfile
-        ? 20000
-        : 10000
-      : tuningTier === "medium"
-        ? 5000
-        : 1000;
-  const chatMaxGroupsJoinedPerUser =
-    tuningTier === "good"
-      ? isMultiUserProfile
-        ? 400
-        : 200
-      : tuningTier === "medium"
-        ? 150
-        : 80;
-  const chatMaxGuestInvitesPerUser =
-    tuningTier === "good"
-      ? isMultiUserProfile
-        ? 100
-        : 50
-      : tuningTier === "medium"
-        ? 30
-        : 10;
-
   return {
     domainRequestTimeoutSec,
     domainWebhookTimeoutSec,
     domainDnsPropagationWaitSec,
     domainChallengePollIntervalSec,
     domainChallengeMaxPollCount,
-    chatRateLimitWindowSecs,
-    chatRateLimitMessagesPerWindow,
-    chatWsSessionTimeoutSecs,
-    chatMaxMessageSizeBytes,
-    chatMaxGroupsPerUser,
-    chatMaxMembersPerGroup,
-    chatMaxGroupsJoinedPerUser,
-    chatMaxGuestInvitesPerUser,
     dbMaxConnections: maxConnections,
     dbMaxConnectionsLowMemory,
     dbMaxConnectionsThroughput,
@@ -2021,20 +1944,6 @@ export const applyDraftToConfig = (
         : 20
       : 1;
 
-    const chatManager = ensureRecord(next, "chat_manager");
-    chatManager["enabled"] = effectiveFeatures.chat;
-    chatManager["rate_limit_window_secs"] = tuningPlan.chatRateLimitWindowSecs;
-    chatManager["rate_limit_messages_per_window"] =
-      tuningPlan.chatRateLimitMessagesPerWindow;
-    chatManager["ws_session_timeout_secs"] = tuningPlan.chatWsSessionTimeoutSecs;
-    chatManager["max_message_size_bytes"] = tuningPlan.chatMaxMessageSizeBytes;
-    chatManager["max_groups_per_user"] = tuningPlan.chatMaxGroupsPerUser;
-    chatManager["max_members_per_group"] = tuningPlan.chatMaxMembersPerGroup;
-    chatManager["max_groups_joined_per_user"] =
-      tuningPlan.chatMaxGroupsJoinedPerUser;
-    chatManager["max_guest_invites_per_user"] =
-      tuningPlan.chatMaxGuestInvitesPerUser;
-
     const externalizeNet = ensureRecord(next, "externalize_net");
     externalizeNet["request_timeout_sec"] = tuningPlan.domainRequestTimeoutSec;
     externalizeNet["webhook_timeout_sec"] = tuningPlan.domainWebhookTimeoutSec;
@@ -2045,9 +1954,6 @@ export const applyDraftToConfig = (
     externalizeNet["challenge_max_poll_count"] =
       tuningPlan.domainChallengeMaxPollCount;
     externalizeNet["refresh_interval_sec"] = tuningPlan.webRefreshIntervalSec;
-
-    const emailManager = ensureRecord(next, "email_manager");
-    emailManager["enabled"] = effectiveFeatures.email;
 
     const journalLog = ensureRecord(next, "journal_log");
     journalLog["log_retention_days"] = tuningPlan.journalLogRetentionDays;
@@ -2690,39 +2596,6 @@ export const ConfigQuickSettingsModal: React.FC<
           : 20
         : 1,
     );
-    pushItem("chat_manager.enabled", currentPreset.features.chat);
-    pushItem(
-      "chat_manager.rate_limit_window_secs",
-      previewTuningPlan.chatRateLimitWindowSecs,
-    );
-    pushItem(
-      "chat_manager.rate_limit_messages_per_window",
-      previewTuningPlan.chatRateLimitMessagesPerWindow,
-    );
-    pushItem(
-      "chat_manager.ws_session_timeout_secs",
-      previewTuningPlan.chatWsSessionTimeoutSecs,
-    );
-    pushItem(
-      "chat_manager.max_message_size_bytes",
-      previewTuningPlan.chatMaxMessageSizeBytes,
-    );
-    pushItem(
-      "chat_manager.max_groups_per_user",
-      previewTuningPlan.chatMaxGroupsPerUser,
-    );
-    pushItem(
-      "chat_manager.max_members_per_group",
-      previewTuningPlan.chatMaxMembersPerGroup,
-    );
-    pushItem(
-      "chat_manager.max_groups_joined_per_user",
-      previewTuningPlan.chatMaxGroupsJoinedPerUser,
-    );
-    pushItem(
-      "chat_manager.max_guest_invites_per_user",
-      previewTuningPlan.chatMaxGuestInvitesPerUser,
-    );
     pushItem(
       "externalize_net.request_timeout_sec",
       previewTuningPlan.domainRequestTimeoutSec,
@@ -2743,7 +2616,6 @@ export const ConfigQuickSettingsModal: React.FC<
       "externalize_net.challenge_max_poll_count",
       previewTuningPlan.domainChallengeMaxPollCount,
     );
-    pushItem("email_manager.enabled", currentPreset.features.email);
     pushItem(
       "journal_log.log_retention_days",
       previewTuningPlan.journalLogRetentionDays,
@@ -2833,20 +2705,6 @@ export const ConfigQuickSettingsModal: React.FC<
           ? t("admin.config.quickSettings.options.enabled")
           : t("admin.config.quickSettings.options.disabled"),
         enabled: currentPreset.features.webdav,
-      },
-      {
-        label: t("admin.config.quickSettings.performance.featureChat"),
-        value: currentPreset.features.chat
-          ? t("admin.config.quickSettings.options.enabled")
-          : t("admin.config.quickSettings.options.disabled"),
-        enabled: currentPreset.features.chat,
-      },
-      {
-        label: t("admin.config.quickSettings.performance.featureEmail"),
-        value: currentPreset.features.email
-          ? t("admin.config.quickSettings.options.enabled")
-          : t("admin.config.quickSettings.options.disabled"),
-        enabled: currentPreset.features.email,
       },
       {
         label: t("admin.config.quickSettings.performance.featureCompression"),

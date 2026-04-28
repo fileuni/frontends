@@ -397,18 +397,40 @@ export const applyVfsDraftToContent = ({
 
     const nextConfig = deepClone(parsed);
     const vfsHub = ensureRecord(nextConfig, 'vfs_storage_hub');
+    const originalVfsHub = isRecord(parsed["vfs_storage_hub"]) ? parsed["vfs_storage_hub"] : {};
+    const originalConnectors = Array.isArray(originalVfsHub["connectors"])
+      ? originalVfsHub["connectors"].filter(isRecord)
+      : [];
+    const originalPools = Array.isArray(originalVfsHub["pools"])
+      ? originalVfsHub["pools"].filter(isRecord)
+      : [];
+    const originalPolicies = Array.isArray(originalVfsHub["policies"])
+      ? originalVfsHub["policies"].filter(isRecord)
+      : [];
 
-    vfsHub["connectors"] = connectors.map((connector) => ({
-      name: connector.name.trim(),
-      driver: connector.driver,
-      root: connector.root.trim(),
-      enable: connector.enable,
-      options: kvToOptions(connector.options),
-    }));
+    vfsHub["connectors"] = connectors.map((connector) => {
+      const connectorName = connector.name.trim();
+      const originalConnector = originalConnectors.find(
+        (item) => typeof item["name"] === 'string' && item["name"] === connectorName,
+      );
+      return {
+        ...originalConnector,
+        name: connectorName,
+        driver: connector.driver,
+        root: connector.root.trim(),
+        enable: connector.enable,
+        options: kvToOptions(connector.options),
+      };
+    });
 
     vfsHub["pools"] = pools.map((pool) => {
+      const poolName = pool.name.trim();
+      const originalPool = originalPools.find(
+        (item) => typeof item["name"] === 'string' && item["name"] === poolName,
+      );
       const nextPool: ConfigObject = {
-        name: pool.name.trim(),
+        ...(originalPool ?? {}),
+        name: poolName,
         primary_connector: pool.primary_connector.trim(),
         enable_write_cache: pool.enable_write_cache,
         enable: pool.enable,
@@ -421,14 +443,26 @@ export const applyVfsDraftToContent = ({
     });
 
     vfsHub["default_pool"] = defaultPool.trim();
-    vfsHub["policies"] = policies.map((policy) => ({
-      role_id: policy.role_id.trim(),
-      pool_name: policy.pool_name.trim(),
-      default_quota: Number.parseInt(policy.default_quota.trim(), 10),
-      max_private_mounts: Number.parseInt(policy.max_private_mounts.trim(), 10),
-      min_mount_sync_interval_minutes: Number.parseInt(policy.min_mount_sync_interval_minutes.trim(), 10),
-      max_mount_sync_timeout_secs: Number.parseInt(policy.max_mount_sync_timeout_secs.trim(), 10),
-    }));
+    vfsHub["policies"] = policies.map((policy) => {
+      const roleId = policy.role_id.trim();
+      const poolName = policy.pool_name.trim();
+      const originalPolicy = originalPolicies.find(
+        (item) =>
+          typeof item["role_id"] === 'string' &&
+          item["role_id"] === roleId &&
+          typeof item["pool_name"] === 'string' &&
+          item["pool_name"] === poolName,
+      );
+      return {
+        ...(originalPolicy ?? {}),
+        role_id: roleId,
+        pool_name: poolName,
+        default_quota: Number.parseInt(policy.default_quota.trim(), 10),
+        max_private_mounts: Number.parseInt(policy.max_private_mounts.trim(), 10),
+        min_mount_sync_interval_minutes: Number.parseInt(policy.min_mount_sync_interval_minutes.trim(), 10),
+        max_mount_sync_timeout_secs: Number.parseInt(policy.max_mount_sync_timeout_secs.trim(), 10),
+      };
+    });
 
     const readCache = ensureRecord(vfsHub, 'read_cache');
     readCache["enable"] = cacheSection.readEnable;
