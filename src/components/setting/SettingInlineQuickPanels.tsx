@@ -173,6 +173,34 @@ const getQuickSettingsFieldLabel = (
   }
 };
 
+const getDatabaseTypeOptionLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  databaseType: DatabaseType,
+): string => {
+  return databaseType === "sqlite"
+    ? t("admin.config.quickSettings.options.sqlite")
+    : t("admin.config.quickSettings.options.postgres");
+};
+
+const getCacheTypeOptionLabel = (
+  t: ReturnType<typeof useTranslation>["t"],
+  cacheType: FriendlyDraft["cacheType"],
+): string => {
+  switch (cacheType) {
+    case "database":
+      return t("admin.config.quickSettings.options.cacheDatabase");
+    case "dashmap":
+      return t("admin.config.quickSettings.options.cacheDashmap");
+    case "redis":
+      return t("admin.config.quickSettings.options.cacheRedis");
+    case "keydb":
+      return t("admin.config.quickSettings.options.cacheKeydb");
+    case "valkey":
+    default:
+      return t("admin.config.quickSettings.options.cacheValkey");
+  }
+};
+
 const getCachePanelHint = (
   t: ReturnType<typeof useTranslation>["t"],
   hint: CachePanelHintKey,
@@ -625,6 +653,19 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
     fallbackPolicy,
     extractSummaryFromConfig,
   ]);
+
+  const storageRecommendationItems = useMemo(
+    () =>
+      tierOptions.map((tier) => {
+        const preset = getPresetByTier(tier);
+        return {
+          tier,
+          databaseType: preset.recommendations.databaseType,
+          cacheType: preset.recommendations.cacheType,
+        };
+      }),
+    [],
+  );
 
   const [editingParam, setEditingParam] = useState<{
     path: string;
@@ -1169,6 +1210,85 @@ export const PerformanceInlinePanel: React.FC<BaseProps> = ({
             </div>
             <div className="mt-1">
               {t("admin.config.quickSettings.performance.scenarioHint.line2")}
+            </div>
+          </div>
+
+          <div
+            className={cn(
+              "mt-3 rounded-xl border p-3",
+              isDark
+                ? "border-white/10 bg-white/[0.03]"
+                : "border-slate-200 bg-slate-50",
+            )}
+          >
+            <div
+              className={cn(
+                "text-[11px] font-black tracking-[0.18em]",
+                isDark ? "text-slate-400" : "text-slate-500",
+              )}
+            >
+              {t("admin.config.quickSettings.steps.database")} /{" "}
+              {t("admin.config.quickSettings.steps.cache")}
+            </div>
+            <div className="mt-3 grid gap-2">
+              {storageRecommendationItems.map((item) => (
+                <div
+                  key={`storage-${item.tier}`}
+                  className={cn(
+                    "rounded-xl border px-3 py-3",
+                    isDark
+                      ? "border-white/10 bg-black/20"
+                      : "border-slate-200 bg-white",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "text-sm font-black",
+                      isDark ? "text-slate-100" : "text-slate-900",
+                    )}
+                  >
+                    {getPerformanceTierLabel(t, item.tier)}
+                  </div>
+                  <div className="mt-2 grid gap-1 text-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <span
+                        className={cn(
+                          "text-xs font-black tracking-wide",
+                          isDark ? "text-slate-400" : "text-slate-500",
+                        )}
+                      >
+                        {t("admin.config.quickSettings.steps.database")}
+                      </span>
+                      <span
+                        className={cn(
+                          "text-right font-black",
+                          isDark ? "text-slate-200" : "text-slate-800",
+                        )}
+                      >
+                        {getDatabaseTypeOptionLabel(t, item.databaseType)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span
+                        className={cn(
+                          "text-xs font-black tracking-wide",
+                          isDark ? "text-slate-400" : "text-slate-500",
+                        )}
+                      >
+                        {t("admin.config.quickSettings.steps.cache")}
+                      </span>
+                      <span
+                        className={cn(
+                          "text-right font-black",
+                          isDark ? "text-slate-200" : "text-slate-800",
+                        )}
+                      >
+                        {getCacheTypeOptionLabel(t, item.cacheType)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

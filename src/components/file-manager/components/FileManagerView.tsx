@@ -900,6 +900,13 @@ export const FileManagerView = () => {
         isOpen={videoCompressModal.isOpen}
         paths={videoCompressModal.paths}
         hasDirectories={videoCompressModal.hasDirectories}
+        {...(!isSearchMode ? { currentDirectoryPath: currentPath } : {})}
+        currentDirectoryVideoCount={
+          !isSearchMode
+            ? files.filter((file) => !file.is_dir && getPreviewKind(file) === 'video').length
+            : 0
+        }
+        allowCurrentDirectoryScope={fmMode === 'files' && !isSearchMode}
         onClose={() => setVideoCompressModal({ isOpen: false, paths: [], hasDirectories: false })}
         onSubmit={handleVideoCompressionSubmit}
       />

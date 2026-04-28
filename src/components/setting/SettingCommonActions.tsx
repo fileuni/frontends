@@ -16,7 +16,6 @@ import {
 import { IdentityVerificationInlinePanel } from "./IdentityVerificationInlinePanel";
 import {
   ZeroTierEmbeddedInlinePanel,
-  type ZeroTierExposurePlanItem,
   type ZeroTierRuntimeSnapshot,
 } from "./ZeroTierEmbeddedInlinePanel";
 import { MediaTranscodingInlinePanel, type ProbeMediaBackend } from "./MediaTranscodingConfigPanel";
@@ -362,11 +361,11 @@ interface BuildSettingCommonActionsParams {
   };
   zerotierEmbedded?: {
     runtimeSnapshot: ZeroTierRuntimeSnapshot | null;
-    planPreview: ZeroTierExposurePlanItem[];
     adminApiAvailable: boolean;
     actionPending: boolean;
     generatingKeypair: boolean;
     onJoinNow: () => void;
+    onDisconnect: () => void;
     onReconnect: () => void;
     onGenerateKeypair: () => void;
   };
@@ -537,25 +536,15 @@ export const buildSettingCommonActions = ({
           content={content}
           onContentChange={onContentChange}
           runtimeSnapshot={zerotierEmbedded?.runtimeSnapshot ?? null}
-          planPreview={zerotierEmbedded?.planPreview ?? []}
           adminApiAvailable={zerotierEmbedded?.adminApiAvailable ?? false}
           actionPending={zerotierEmbedded?.actionPending ?? false}
           generatingKeypair={zerotierEmbedded?.generatingKeypair ?? false}
           onJoinNow={zerotierEmbedded?.onJoinNow ?? (() => {})}
+          onDisconnect={zerotierEmbedded?.onDisconnect ?? (() => {})}
           onReconnect={zerotierEmbedded?.onReconnect ?? (() => {})}
           onGenerateKeypair={zerotierEmbedded?.onGenerateKeypair ?? (() => {})}
         />
       ),
-      stats: [
-        {
-          label: t("admin.config.zerotierEmbedded.stats.runtimeState"),
-          value: zerotierEmbedded?.runtimeSnapshot?.runtime_state ?? "-",
-        },
-        {
-          label: t("admin.config.zerotierEmbedded.stats.assignedIp"),
-          value: zerotierEmbedded?.runtimeSnapshot?.assigned_ip?.trim() || "-",
-        },
-      ],
     },
     {
       id: "cache-acceleration",

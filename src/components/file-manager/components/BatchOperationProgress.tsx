@@ -10,7 +10,7 @@ import { Activity, FileJson, X } from 'lucide-react';
 
 // Batch task progress modal: poll task status by task_id.
 
-type TaskStatusValue = 'pending' | 'running' | 'success' | 'failed' | 'interrupted';
+type TaskStatusValue = 'queued' | 'pending' | 'running' | 'success' | 'failed' | 'interrupted';
 
 type TaskSseUpdateEvent = {
   id: string;
@@ -30,6 +30,8 @@ const getTaskStatusLabel = (
   status: TaskStatusValue,
 ): string => {
   switch (status) {
+    case 'queued':
+      return t('filemanager.batch.status_queued');
     case 'pending':
       return t('filemanager.batch.status_pending');
     case 'running':
@@ -49,6 +51,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 
 const isTaskStatusValue = (value: unknown): value is TaskStatusValue => {
   return (
+    value === 'queued' ||
     value === 'pending' ||
     value === 'running' ||
     value === 'success' ||
@@ -510,6 +513,8 @@ export function BatchOperationProgress({
 
   const getStatusColor = (status: TaskStatusValue) => {
     switch (status) {
+      case 'queued':
+        return 'bg-slate-500';
       case 'success':
         return 'bg-green-500';
       case 'failed':
@@ -520,6 +525,8 @@ export function BatchOperationProgress({
         return 'bg-gray-500';
       case 'interrupted':
         return 'bg-orange-500';
+      default:
+        return 'bg-slate-500';
     }
   };
 

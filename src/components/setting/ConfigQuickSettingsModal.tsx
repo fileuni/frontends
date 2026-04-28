@@ -537,8 +537,6 @@ export const applyPerformanceTemplateToDraft = (
     ...prev,
     performanceTier: selection.performanceTier,
     loadProfile: selection.loadProfile,
-    databaseType: preset.recommendations.databaseType,
-    cacheType: preset.recommendations.cacheType,
     captchaPreheatMode:
       selection.performanceTier === "constrained" ? "memory" : "balanced",
   };
@@ -3239,6 +3237,88 @@ export const ConfigQuickSettingsModal: React.FC<
           </div>
           <div className="mt-1">
             {t("admin.config.quickSettings.performance.scenarioHint.line2")}
+          </div>
+        </div>
+
+        <div className={cn("mt-4", setupSubPanelClassName)}>
+          <div
+            className={cn(
+              "text-xs font-black tracking-[0.18em]",
+              isDark ? "text-slate-400" : "text-slate-500",
+            )}
+          >
+            {t("admin.config.quickSettings.steps.database")} /{" "}
+            {t("admin.config.quickSettings.steps.cache")}
+          </div>
+          <div className="mt-3 grid gap-2 md:grid-cols-3">
+            {PERFORMANCE_PRESETS.map((preset) => (
+              <div
+                key={`storage-${preset.tier}`}
+                className={cn(
+                  "rounded-2xl border px-3 py-3",
+                  isDark
+                    ? "border-white/10 bg-white/[0.03]"
+                    : "border-slate-200 bg-white",
+                )}
+              >
+                <div
+                  className={cn(
+                    "text-sm font-black",
+                    isDark ? "text-slate-100" : "text-slate-900",
+                  )}
+                >
+                  {getPerformanceTierLabel(t, preset.tier)}
+                </div>
+                <div className="mt-3 space-y-2 text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <span
+                      className={cn(
+                        "text-xs font-black tracking-wide",
+                        isDark ? "text-slate-400" : "text-slate-500",
+                      )}
+                    >
+                      {t("admin.config.quickSettings.steps.database")}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-right font-black",
+                        isDark ? "text-slate-200" : "text-slate-800",
+                      )}
+                    >
+                      {preset.recommendations.databaseType === "sqlite"
+                        ? t("admin.config.quickSettings.options.sqlite")
+                        : t("admin.config.quickSettings.options.postgres")}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span
+                      className={cn(
+                        "text-xs font-black tracking-wide",
+                        isDark ? "text-slate-400" : "text-slate-500",
+                      )}
+                    >
+                      {t("admin.config.quickSettings.steps.cache")}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-right font-black",
+                        isDark ? "text-slate-200" : "text-slate-800",
+                      )}
+                    >
+                      {preset.recommendations.cacheType === "database"
+                        ? t("admin.config.quickSettings.options.cacheDatabase")
+                        : preset.recommendations.cacheType === "dashmap"
+                          ? t("admin.config.quickSettings.options.cacheDashmap")
+                          : preset.recommendations.cacheType === "redis"
+                            ? t("admin.config.quickSettings.options.cacheRedis")
+                            : preset.recommendations.cacheType === "keydb"
+                              ? t("admin.config.quickSettings.options.cacheKeydb")
+                              : t("admin.config.quickSettings.options.cacheValkey")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

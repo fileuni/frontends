@@ -25,7 +25,7 @@ export interface Tab {
 export interface TaskState {
   id: string;
   type: string;
-  status: 'pending' | 'running' | 'success' | 'failed' | 'interrupted';
+  status: 'queued' | 'pending' | 'running' | 'success' | 'failed' | 'interrupted';
   progress: number;
   message?: string;
   createdAt: string;

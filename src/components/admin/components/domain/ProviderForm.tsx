@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { ExternalLinkButton } from '@fileuni/ts-shared/external-link';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/common/PasswordInput.tsx';
 import { useTranslation } from 'react-i18next';
 import { KeyValueForm, parseJsonObjectToStringMap } from './KeyValueForm';
 import { isSensitiveKeyName } from '@/lib/secretKeys.ts';
+import { openExternalUrl } from '@/platform/external-link';
+import { getProviderOfficialSite } from './providerOfficialSites';
 
 interface ProviderFormProps {
   providerKey: string;
@@ -13,6 +16,7 @@ interface ProviderFormProps {
   onChangeConfig: (json: string) => void;
   isEdit?: boolean;
   providerProfile?: {
+    name?: string;
     credential_fields?: Array<{
       key: string;
       label: string;
@@ -76,7 +80,7 @@ const buildFieldDefsFromProfile = (
 };
 
 export const ProviderForm: React.FC<ProviderFormProps> = ({
-  providerKey: _providerKey,
+  providerKey,
   credentialJson,
   configJson,
   onChangeCredential,
@@ -168,12 +172,26 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
 
   const fallbackCred = useMemo(() => parseJsonObjectToStringMap(credentialJson), [credentialJson]);
   const fallbackConf = useMemo(() => parseJsonObjectToStringMap(configJson), [configJson]);
+  const providerOfficialSite = getProviderOfficialSite(providerKey);
+  const providerWebsiteLabel = providerProfile?.name || providerKey;
 
   if (!currentDefs) {
     return (
       <div className="space-y-6 text-foreground">
         <div className="space-y-2">
-          <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.credentialJson')}</div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.credentialJson')}</div>
+            {providerOfficialSite ? (
+              <ExternalLinkButton
+                href={providerOfficialSite}
+                onOpen={openExternalUrl}
+                className="w-full sm:w-auto"
+                title={`Open ${providerWebsiteLabel}`}
+              >
+                {providerWebsiteLabel}
+              </ExternalLinkButton>
+            ) : null}
+          </div>
           <KeyValueForm
             value={fallbackCred}
             onChange={(obj) => onChangeCredential(JSON.stringify(obj))}
@@ -211,8 +229,20 @@ export const ProviderForm: React.FC<ProviderFormProps> = ({
     <div className="space-y-6">
       {primaryCredentialDefs.length > 0 && (
         <div className="space-y-4">
-          <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">
-            {t('admin.domain.authConfig')}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">
+              {t('admin.domain.authConfig')}
+            </div>
+            {providerOfficialSite ? (
+              <ExternalLinkButton
+                href={providerOfficialSite}
+                onOpen={openExternalUrl}
+                className="w-full sm:w-auto"
+                title={`Open ${providerWebsiteLabel}`}
+              >
+                {providerWebsiteLabel}
+              </ExternalLinkButton>
+            ) : null}
           </div>
           <div className="grid grid-cols-1 gap-4">
             {primaryCredentialDefs.map(renderField)}

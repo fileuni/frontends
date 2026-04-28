@@ -5,7 +5,6 @@ import * as toml from "smol-toml";
 import { client, extractData, handleApiError } from "@/lib/api.ts";
 import type { components } from "@/lib/api.ts";
 import type {
-  ZeroTierExposurePlanItem,
   ZeroTierGenerateKeypairResponse,
   ZeroTierRuntimeSnapshot,
 } from "@/components/setting/ZeroTierEmbeddedInlinePanel";
@@ -34,7 +33,6 @@ type ConfigRawResponse = components["schemas"]["ConfigRawResponse"];
 type ConfigNotesResponse = components["schemas"]["ConfigNotesResponse"];
 type BackendCapabilitiesResponse = components["schemas"]["SystemCapabilities"];
 type ZeroTierStatusResponse = ZeroTierRuntimeSnapshot;
-type ZeroTierPlanPreviewResponse = ZeroTierExposurePlanItem[];
 
 type LineDiffStats = {
   changed: number;
@@ -100,8 +98,6 @@ export const SystemConfigAdmin = () => {
   const [pendingAdminPassword, setPendingAdminPassword] = useState("");
   const [zerotierRuntimeSnapshot, setZeroTierRuntimeSnapshot] =
     useState<ZeroTierStatusResponse | null>(null);
-  const [zerotierPlanPreview, setZeroTierPlanPreview] =
-    useState<ZeroTierPlanPreviewResponse>([]);
   const [zerotierAdminApiAvailable, setZeroTierAdminApiAvailable] = useState(true);
   const [zerotierActionPending, setZeroTierActionPending] = useState(false);
   const [zerotierFastPollUntil, setZeroTierFastPollUntil] = useState(0);
@@ -136,7 +132,6 @@ export const SystemConfigAdmin = () => {
       capabilities,
       osInfo,
       zerotierStatus,
-      zerotierPlan,
     ] = await Promise.all([
       extractData<ConfigRawResponse>(client.GET("/api/v1/admin/system/config/raw")),
       extractData<ConfigNotesResponse>(
@@ -152,18 +147,9 @@ export const SystemConfigAdmin = () => {
         },
       ),
       loadZeroTierSnapshot(),
-      extractData<ZeroTierPlanPreviewResponse>(
-        client.GET("/api/v1/admin/zerotier-embedded/plan-preview", {
-          headers: { "X-No-Toast": "true" },
-        }),
-      ).catch((error) => {
-        console.warn("Failed to fetch ZeroTier plan preview", error);
-        return [];
-      }),
     ]);
 
     setZeroTierRuntimeSnapshot(zerotierStatus);
-    setZeroTierPlanPreview(zerotierPlan);
 
     return {
       configPath: config?.config_path ?? "",
@@ -376,7 +362,7 @@ export const SystemConfigAdmin = () => {
   }, [addToast, content, generatingZeroTierKeypair, setContent, t]);
 
   const triggerZeroTierAction = useCallback(
-    async (path: "/api/v1/admin/zerotier-embedded/join" | "/api/v1/admin/zerotier-embedded/reconnect") => {
+    async (path: "/api/v1/admin/zerotier-embedded/join" | "/api/v1/admin/zerotier-embedded/disconnect" | "/api/v1/admin/zerotier-embedded/reconnect") => {
       if (zerotierActionPending) {
         return;
       }
@@ -417,6 +403,16 @@ export const SystemConfigAdmin = () => {
       if (normalized.changed) {
         setContent(currentContent);
       }
+      await withTimeout(
+        extractData<{ message?: string }>(
+          client.POST("/api/v1/admin/system/config/test", {
+            body: { toml_content: currentContent },
+            headers: { "X-No-Toast": "true" },
+          }),
+        ),
+        20_000,
+        "Config test request timeout",
+      );
       await withTimeout(
         extractData<{ message?: string }>(
           client.POST("/api/v1/admin/system/config/save", {
@@ -545,12 +541,14 @@ export const SystemConfigAdmin = () => {
         },
         zerotierEmbedded: {
           runtimeSnapshot: zerotierRuntimeSnapshot,
-          planPreview: zerotierPlanPreview,
           adminApiAvailable: zerotierAdminApiAvailable,
           actionPending: zerotierActionPending,
           generatingKeypair: generatingZeroTierKeypair,
           onJoinNow: () => {
             void triggerZeroTierAction("/api/v1/admin/zerotier-embedded/join");
+          },
+          onDisconnect: () => {
+            void triggerZeroTierAction("/api/v1/admin/zerotier-embedded/disconnect");
           },
           onReconnect: () => {
             void triggerZeroTierAction("/api/v1/admin/zerotier-embedded/reconnect");
@@ -572,7 +570,6 @@ export const SystemConfigAdmin = () => {
       settingLicenseBinding,
       handleSaveConfig,
       zerotierRuntimeSnapshot,
-      zerotierPlanPreview,
       zerotierAdminApiAvailable,
       zerotierActionPending,
       generatingZeroTierKeypair,

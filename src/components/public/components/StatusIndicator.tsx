@@ -62,7 +62,8 @@ const getTaskTypeLabel = (
 const isTaskStatusValue = (
   value: unknown,
 ): value is TaskState["status"] => {
-  return value === "pending"
+  return value === "queued"
+    || value === "pending"
     || value === "running"
     || value === "success"
     || value === "failed"
@@ -769,6 +770,17 @@ const BellPanelContent = ({
 const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
   const { t } = useTranslation();
   const { updateTask, removeTask } = useFileStore();
+  const taskStatusLabel = task.status === 'queued'
+    ? t('filemanager.batch.status_queued')
+    : task.status === 'pending'
+      ? t('filemanager.batch.status_pending')
+      : task.status === 'running'
+        ? t('filemanager.batch.status_running')
+        : task.status === 'success'
+          ? t('filemanager.batch.status_success')
+          : task.status === 'failed'
+            ? t('filemanager.batch.status_failed')
+            : t('filemanager.batch.status_interrupted');
 
   useEffect(() => {
     if (
@@ -816,7 +828,11 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
           </p>
           <p className="text-sm opacity-40 mt-0.5 truncate">
             {task.message ||
-              (task.status === "running" ? "Processing..." : "Pending...")}
+              (task.status === "running"
+                ? t('filemanager.batch.status_running')
+                : task.status === "queued"
+                  ? t('filemanager.batch.status_queued')
+                  : t('filemanager.batch.status_pending'))}
           </p>
         </div>
         {(task.status === "success" || task.status === "failed") && (
@@ -840,7 +856,7 @@ const TaskItem = ({ task, isDark }: { task: TaskState; isDark: boolean }) => {
                   : "opacity-40",
             )}
           >
-            {task.status}
+            {taskStatusLabel}
           </span>
           <span className="opacity-60">{task.progress}%</span>
         </div>

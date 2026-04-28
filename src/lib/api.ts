@@ -122,6 +122,7 @@ type LocalPathOverrides = {
     trace?: never;
   };
   "/api/v1/admin/zerotier-embedded/join": PostPathItem<BaseResponse<import("@/components/setting/ZeroTierEmbeddedInlinePanel").ZeroTierRuntimeSnapshot>>;
+  "/api/v1/admin/zerotier-embedded/disconnect": PostPathItem<BaseResponse<import("@/components/setting/ZeroTierEmbeddedInlinePanel").ZeroTierRuntimeSnapshot>>;
   "/api/v1/admin/zerotier-embedded/reconnect": PostPathItem<BaseResponse<import("@/components/setting/ZeroTierEmbeddedInlinePanel").ZeroTierRuntimeSnapshot>>;
   "/api/v1/admin/zerotier-embedded/keypair/generate": PostPathItem<BaseResponse<import("@/components/setting/ZeroTierEmbeddedInlinePanel").ZeroTierGenerateKeypairResponse>>;
   "/api/v1/admin/system/backup/export": PostPathItem<Record<string, unknown>>;

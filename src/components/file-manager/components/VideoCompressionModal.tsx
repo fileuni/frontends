@@ -8,7 +8,7 @@ import { Clapperboard, X } from 'lucide-react';
 
 type VideoCodec = 'h264' | 'hevc' | 'av1';
 type OutputContainer = 'mp4' | 'mkv';
-type ResolutionPreset = '1080p' | '720p' | '480p' | '360p';
+type ResolutionPreset = '2k' | '1080p' | '720p' | '480p' | '360p';
 type MaxFps = 60 | 30 | 24;
 type SubmitEvent = Parameters<NonNullable<ComponentPropsWithoutRef<'form'>['onSubmit']>>[0];
 
@@ -31,6 +31,9 @@ interface Props {
   isOpen: boolean;
   paths: string[];
   hasDirectories: boolean;
+  currentDirectoryPath?: string;
+  currentDirectoryVideoCount?: number;
+  allowCurrentDirectoryScope?: boolean;
   onClose: () => void;
   onSubmit: (payload: VideoCompressionSubmitPayload) => Promise<void>;
 }
@@ -53,6 +56,7 @@ const CODEC_PROFILE_OPTIONS: Record<VideoCodec, Array<{ value: string; label: st
 };
 
 const RESOLUTION_PRESETS: Record<ResolutionPreset, { width: number; height: number }> = {
+  '2k': { width: 2560, height: 1440 },
   '1080p': { width: 1920, height: 1080 },
   '720p': { width: 1280, height: 720 },
   '480p': { width: 854, height: 480 },
@@ -63,6 +67,9 @@ export function VideoCompressionModal({
   isOpen,
   paths,
   hasDirectories,
+  currentDirectoryPath,
+  currentDirectoryVideoCount = 0,
+  allowCurrentDirectoryScope = false,
   onClose,
   onSubmit,
 }: Props) {
@@ -77,9 +84,14 @@ export function VideoCompressionModal({
   const [includeSubdirectories, setIncludeSubdirectories] = useState(true);
   const [deleteSource, setDeleteSource] = useState(false);
   const [overwriteExisting, setOverwriteExisting] = useState(false);
+  const [compressCurrentDirectory, setCompressCurrentDirectory] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const suffixRef = useRef<HTMLInputElement>(null);
+  const showCurrentDirectoryScope =
+    allowCurrentDirectoryScope &&
+    Boolean(currentDirectoryPath) &&
+    currentDirectoryVideoCount > 0;
 
   const profileOptions = useMemo(() => CODEC_PROFILE_OPTIONS[videoCodec], [videoCodec]);
 
@@ -95,6 +107,7 @@ export function VideoCompressionModal({
     setIncludeSubdirectories(true);
     setDeleteSource(false);
     setOverwriteExisting(false);
+    setCompressCurrentDirectory(false);
     setError(null);
   }, [isOpen]);
 
@@ -124,9 +137,12 @@ export function VideoCompressionModal({
     try {
       const preset = RESOLUTION_PRESETS[resolutionPreset];
       const safeCrf = Number.isFinite(crf) ? Math.min(63, Math.max(0, crf)) : 28;
+      const effectivePaths = compressCurrentDirectory && currentDirectoryPath
+        ? [currentDirectoryPath]
+        : paths;
       await onSubmit({
-        paths,
-        includeSubdirectories,
+        paths: effectivePaths,
+        includeSubdirectories: compressCurrentDirectory ? false : includeSubdirectories,
         outputContainer,
         videoCodec,
         profile,
@@ -149,11 +165,15 @@ export function VideoCompressionModal({
     }
   };
 
-  const selectionHint = hasDirectories
-    ? (t('filemanager.videoCompress.directoryHint') || 'Search video files in the selected directories and compress them one by one.')
-    : paths.length > 1
-      ? (t('filemanager.videoCompress.multiHint', { count: paths.length }) || `Compress ${paths.length} selected video files with the same preset.`)
-      : (t('filemanager.videoCompress.singleHint') || 'Compress the selected video file into a smaller and more compatible format.');
+  const currentDirectoryHint = t('filemanager.videoCompress.currentDirectoryHint', { count: currentDirectoryVideoCount })
+    || `Compress ${currentDirectoryVideoCount} video files in the current directory.`;
+  const selectionHint = compressCurrentDirectory
+    ? currentDirectoryHint
+    : hasDirectories
+      ? (t('filemanager.videoCompress.directoryHint') || 'Search video files in the selected directories and compress them one by one.')
+      : paths.length > 1
+        ? (t('filemanager.videoCompress.multiHint', { count: paths.length }) || `Compress ${paths.length} selected video files with the same preset.`)
+        : (t('filemanager.videoCompress.singleHint') || 'Compress the selected video file into a smaller and more compatible format.');
 
   return (
     <GlassModalShell
@@ -236,6 +256,7 @@ export function VideoCompressionModal({
               value={resolutionPreset}
               onChange={(event) => setResolutionPreset(event.target.value as ResolutionPreset)}
             >
+              <option value="2k">2K</option>
               <option value="1080p">1080p</option>
               <option value="720p">720p</option>
               <option value="480p">480p</option>
@@ -291,7 +312,21 @@ export function VideoCompressionModal({
         </div>
 
         <div className="grid grid-cols-1 gap-3">
-          {hasDirectories && (
+          {showCurrentDirectoryScope && (
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-sm font-bold">
+                  {t('filemanager.videoCompress.currentDirectoryScope') || 'Compress All Videos in Current Directory'}
+                </div>
+                <div className="text-sm opacity-60">
+                  {currentDirectoryHint}
+                </div>
+              </div>
+              <Switch checked={compressCurrentDirectory} onChange={setCompressCurrentDirectory} />
+            </div>
+          )}
+
+          {hasDirectories && !compressCurrentDirectory && (
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-sm font-bold">

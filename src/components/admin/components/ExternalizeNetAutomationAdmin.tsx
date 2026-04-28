@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ExternalLinkButton } from '@fileuni/ts-shared/external-link';
 import { GlassModalShell } from '@fileuni/ts-shared/modal-shell';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -10,6 +11,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { client, extractData, handleApiError } from '@/lib/api';
 import { normalizeFrontendStoredLocale } from '@/i18n/locale-adapter';
 import { toTraditionalChineseString } from '@/i18n/core';
+import { openExternalUrl } from '@/platform/external-link';
 import { useToastStore } from '@/stores/toast';
 import { ProviderForm } from './domain/ProviderForm';
 import { DdnsSourceForm } from './domain/DdnsSourceForm';
@@ -2370,7 +2372,17 @@ export const ExternalizeNetAutomationAdmin: React.FC<ExternalizeNetAutomationAdm
         <div className="space-y-8 overflow-y-auto max-h-[80vh] p-1 scrollbar-hide text-foreground">
           <div className={sectionCardBase}>
             <div className="space-y-8">
-              <SectionHeader icon={LinkIcon} title={t('admin.acme.form.zerosslEab')} desc={t('admin.domain.zerosslEabDesc')} colorClass="bg-cyan-500/10 text-cyan-600 dark:text-cyan-500 border-cyan-500/20" />
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <SectionHeader icon={LinkIcon} title={t('admin.acme.form.zerosslEab')} desc={t('admin.domain.zerosslEabDesc')} colorClass="bg-cyan-500/10 text-cyan-600 dark:text-cyan-500 border-cyan-500/20" />
+                <ExternalLinkButton
+                  href="https://zerossl.com/"
+                  onOpen={openExternalUrl}
+                  className="w-full sm:w-auto"
+                  title="Open ZeroSSL"
+                >
+                  ZeroSSL
+                </ExternalLinkButton>
+              </div>
               <div className="space-y-6">
                 <div className="space-y-2">
                   <div className="text-[14px] font-black tracking-widest opacity-50 dark:opacity-40 ml-1">{t('admin.domain.remark')}</div>

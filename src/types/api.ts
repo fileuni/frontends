@@ -1049,6 +1049,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/zerotier-embedded/disconnect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["disconnect_handler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/zerotier-embedded/join": {
         parameters: {
             query?: never;
@@ -2693,6 +2709,22 @@ export interface paths {
         get: operations["get_user_file_settings"];
         put: operations["update_user_file_settings"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/file/video-compress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["video_compress"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5868,6 +5900,24 @@ export interface components {
             /** Format: int64 */
             write_cache_pending_reads: number;
         };
+        VideoCompressRequest: {
+            /** Format: int32 */
+            crf?: number | null;
+            delete_source?: boolean | null;
+            include_subdirectories?: boolean | null;
+            /** Format: int32 */
+            max_fps?: number | null;
+            /** Format: int32 */
+            max_height?: number | null;
+            /** Format: int32 */
+            max_width?: number | null;
+            output_container?: string | null;
+            output_suffix?: string | null;
+            overwrite_existing?: boolean | null;
+            paths: string[];
+            profile?: string | null;
+            video_codec?: string | null;
+        };
         WalIssueActionResponse: {
             failure_reason?: string | null;
             /** Format: int64 */
@@ -7759,6 +7809,35 @@ export interface operations {
         responses: {
             /** @description Scheduled jobs status */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    disconnect_handler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Disconnect current ZeroTier runtime */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZeroTierRuntimeSnapshot"];
+                };
+            };
+            /** @description Disconnect request failed */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -10693,6 +10772,30 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resp"];
+                };
+            };
+        };
+    };
+    video_compress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VideoCompressRequest"];
+            };
+        };
+        responses: {
+            /** @description Video compression task queued */
             200: {
                 headers: {
                     [name: string]: unknown;
