@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { ExternalLinkButton } from "@fileuni/ts-shared/external-link";
 import { cn } from "@/lib/utils";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import {
@@ -7,6 +8,7 @@ import {
   isRecord,
   type ConfigObject,
 } from "@/lib/configObject";
+import { openExternalUrl } from "@/platform/external-link";
 import type { TomlAdapter } from "./ExternalDependencyConfigModal";
 import { useConfigDraftBinding } from "./useConfigDraftBinding";
 
@@ -77,11 +79,11 @@ type Props = {
   content: string;
   onContentChange: (value: string) => void;
   runtimeSnapshot: ZeroTierRuntimeSnapshot | null;
-  planPreview: ZeroTierExposurePlanItem[];
   adminApiAvailable: boolean;
   actionPending: boolean;
   generatingKeypair: boolean;
   onJoinNow: () => void;
+  onDisconnect: () => void;
   onReconnect: () => void;
   onGenerateKeypair: () => void;
 };
@@ -90,7 +92,7 @@ const defaultDraft: Draft = {
   enabled: false,
   adminApiEnabled: true,
   networkId: "0cccb752f74b3637",
-  autoJoin: false,
+  autoJoin: true,
   identityPublic: "",
   identitySecret: "",
 };
@@ -142,7 +144,7 @@ const applyDraft = (
   zerotier["enabled"] = draft.enabled;
   zerotier["admin_api_enabled"] = draft.adminApiEnabled;
   zerotier["network_id"] = draft.networkId;
-  zerotier["auto_join"] = draft.autoJoin;
+  zerotier["auto_join"] = draft.enabled ? true : draft.autoJoin;
   zerotier["identity_public"] = draft.identityPublic;
   zerotier["identity_secret"] = draft.identitySecret;
   delete zerotier["expose_web"];
@@ -220,21 +222,17 @@ const getRuntimeStateText = (
 ): string => {
   switch (state) {
     case "disabled":
-      return t("admin.config.zerotierEmbedded.runtimeStates.disabled");
     case "action_required":
-      return t("admin.config.zerotierEmbedded.runtimeStates.actionRequired");
     case "waiting_config":
-      return t("admin.config.zerotierEmbedded.runtimeStates.waitingConfig");
+    case "error":
+      return t("admin.config.zerotierEmbedded.runtimeStates.disabled");
     case "reconnect_pending":
       return t("admin.config.zerotierEmbedded.runtimeStates.reconnectPending");
     case "joining":
-      return t("admin.config.zerotierEmbedded.runtimeStates.joining");
     case "waiting_assigned_ip":
-      return t("admin.config.zerotierEmbedded.runtimeStates.waitingAssignedIp");
+      return t("admin.config.zerotierEmbedded.runtimeStates.joining");
     case "ready":
       return t("admin.config.zerotierEmbedded.runtimeStates.ready");
-    case "error":
-      return t("admin.config.zerotierEmbedded.runtimeStates.error");
     default:
       return "-";
   }
@@ -245,11 +243,11 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
   content,
   onContentChange,
   runtimeSnapshot,
-  planPreview,
   adminApiAvailable,
   actionPending,
   generatingKeypair,
   onJoinNow,
+  onDisconnect,
   onReconnect,
   onGenerateKeypair,
 }) => {
@@ -291,17 +289,28 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
   );
 
   const runtimeState = runtimeSnapshot?.runtime_state;
+  const isDisconnectedState =
+    runtimeState === undefined ||
+    runtimeState === "disabled" ||
+    runtimeState === "action_required" ||
+    runtimeState === "waiting_config" ||
+    runtimeState === "error";
+  const isConnectingState =
+    runtimeState === "joining" || runtimeState === "waiting_assigned_ip";
+  const isRetryingState = runtimeState === "reconnect_pending";
+  const isConnectedState = runtimeState === "ready";
   const canJoinNow =
     adminApiAvailable &&
     !actionPending &&
-    (runtimeState === "action_required" || runtimeState === "error");
+    isDisconnectedState;
+  const canDisconnect =
+    adminApiAvailable &&
+    !actionPending &&
+    (isConnectingState || isRetryingState || isConnectedState);
   const canReconnect =
     adminApiAvailable &&
     !actionPending &&
-    runtimeState !== undefined &&
-    runtimeState !== "disabled" &&
-    runtimeState !== "waiting_config" &&
-    runtimeState !== "joining";
+    (runtimeSnapshot?.configured ?? false);
 
   const summaryStats = [
     {
@@ -367,10 +376,11 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
           <label className={toggleClass}>
             <input
               type="checkbox"
-              checked={draft.autoJoin}
+              checked={draft.enabled ? true : draft.autoJoin}
               onChange={(event) =>
                 setDraft((prev) => ({ ...prev, autoJoin: event.target.checked }))
               }
+              disabled={draft.enabled}
               className="h-4 w-4 rounded border-slate-300"
             />
             <span className={cn("text-sm font-bold", isDark ? "text-slate-200" : "text-slate-700")}>
@@ -379,43 +389,68 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
           </label>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-2">
-          <div className="xl:col-span-2">
-            <Label text={t("admin.config.zerotierEmbedded.networkId")} isDark={isDark} />
-            <input
-              value={draft.networkId}
-              onChange={(event) =>
-                setDraft((prev) => ({ ...prev, networkId: event.target.value }))
-              }
-              className={inputClass}
-              placeholder={t("admin.config.zerotierEmbedded.networkIdPlaceholder")}
-            />
+        <div className="space-y-4">
+          <div className="grid gap-4 xl:grid-cols-2">
+            <div className="xl:col-span-2">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <Label text={t("admin.config.zerotierEmbedded.networkId")} isDark={isDark} />
+                <ExternalLinkButton
+                  href="https://my.zerotier.com/"
+                  onOpen={openExternalUrl}
+                  className="w-full sm:w-auto"
+                  title="Open ZeroTier Central"
+                >
+                  ZeroTier Central
+                </ExternalLinkButton>
+              </div>
+              <input
+                value={draft.networkId}
+                onChange={(event) =>
+                  setDraft((prev) => ({ ...prev, networkId: event.target.value }))
+                }
+                className={inputClass}
+                placeholder={t("admin.config.zerotierEmbedded.networkIdPlaceholder")}
+              />
+            </div>
+            <div>
+              <Label text={t("admin.config.zerotierEmbedded.identityPublic")} isDark={isDark} />
+              <input
+                value={draft.identityPublic}
+                onChange={(event) =>
+                  setDraft((prev) => ({
+                    ...prev,
+                    identityPublic: event.target.value,
+                  }))
+                }
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <Label text={t("admin.config.zerotierEmbedded.identitySecret")} isDark={isDark} />
+              <input
+                value={draft.identitySecret}
+                onChange={(event) =>
+                  setDraft((prev) => ({
+                    ...prev,
+                    identitySecret: event.target.value,
+                  }))
+                }
+                className={inputClass}
+              />
+            </div>
           </div>
-          <div>
-            <Label text={t("admin.config.zerotierEmbedded.identityPublic")} isDark={isDark} />
-            <input
-              value={draft.identityPublic}
-              onChange={(event) =>
-                setDraft((prev) => ({
-                  ...prev,
-                  identityPublic: event.target.value,
-                }))
-              }
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <Label text={t("admin.config.zerotierEmbedded.identitySecret")} isDark={isDark} />
-            <input
-              value={draft.identitySecret}
-              onChange={(event) =>
-                setDraft((prev) => ({
-                  ...prev,
-                  identitySecret: event.target.value,
-                }))
-              }
-              className={inputClass}
-            />
+
+          <div className="flex justify-start sm:justify-end">
+            <button
+              type="button"
+              onClick={onGenerateKeypair}
+              disabled={generatingKeypair}
+              className={cn(actionButtonClass, "w-full sm:w-auto")}
+            >
+              {generatingKeypair
+                ? t("admin.config.zerotierEmbedded.generatingKeypair")
+                : t("admin.config.zerotierEmbedded.generateKeypair")}
+            </button>
           </div>
         </div>
       </Section>
@@ -474,9 +509,15 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
             disabled={!canJoinNow}
             className={actionButtonClass}
           >
-            {actionPending
-              ? t("admin.config.zerotierEmbedded.connecting")
-              : t("admin.config.zerotierEmbedded.joinNow")}
+            {t("admin.config.zerotierEmbedded.joinNow")}
+          </button>
+          <button
+            type="button"
+            onClick={onDisconnect}
+            disabled={!canDisconnect}
+            className={actionButtonClass}
+          >
+            {t("admin.config.zerotierEmbedded.disconnect")}
           </button>
           <button
             type="button"
@@ -484,65 +525,10 @@ export const ZeroTierEmbeddedInlinePanel: React.FC<Props> = ({
             disabled={!canReconnect}
             className={actionButtonClass}
           >
-            {actionPending
-              ? t("admin.config.zerotierEmbedded.connecting")
-              : t("admin.config.zerotierEmbedded.reconnect")}
+            {t("admin.config.zerotierEmbedded.reconnect")}
           </button>
-        </div>
-      </Section>
-
-      <Section
-        title={t("admin.config.zerotierEmbedded.planTitle")}
-        hint={t("admin.config.zerotierEmbedded.planHint")}
-        isDark={isDark}
-      >
-        <div className="space-y-3">
-          {planPreview.map((item) => (
-            <div
-              key={`plan-${item.protocol}`}
-              className={cn(
-                "rounded-2xl border p-3",
-                isDark ? "border-white/10 bg-black/20" : "border-slate-200 bg-slate-50",
-              )}
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={cn("text-sm font-black", isDark ? "text-slate-100" : "text-slate-900")}>
-                  {item.protocol}
-                </span>
-                <span className={cn("rounded-full px-2 py-1 text-[11px] font-black tracking-[0.18em]", item.enabled ? (isDark ? "bg-sky-500/15 text-sky-200" : "bg-sky-100 text-sky-700") : (isDark ? "bg-slate-500/15 text-slate-300" : "bg-slate-200 text-slate-700"))}>
-                  {item.enabled
-                    ? t("admin.config.zerotierEmbedded.status.enabled")
-                    : t("admin.config.zerotierEmbedded.status.disabled")}
-                </span>
-                <span className={cn("rounded-full px-2 py-1 text-[11px] font-black tracking-[0.18em]", item.supported ? (isDark ? "bg-emerald-500/15 text-emerald-200" : "bg-emerald-100 text-emerald-700") : (isDark ? "bg-amber-500/15 text-amber-200" : "bg-amber-100 text-amber-700"))}>
-                  {item.supported
-                    ? t("admin.config.zerotierEmbedded.status.supported")
-                    : t("admin.config.zerotierEmbedded.status.unsupported")}
-                </span>
-              </div>
-              <div className={cn("mt-2 text-sm leading-6 break-all", isDark ? "text-slate-200" : "text-slate-800")}>
-                {item.target_host}:{item.target_port}
-                {item.path_hint ? ` ${item.path_hint}` : ""}
-              </div>
-              {item.reason ? (
-                <div className={cn("mt-2 text-sm leading-6", isDark ? "text-slate-400" : "text-slate-600")}>
-                  {item.reason}
-                </div>
-              ) : null}
-            </div>
-          ))}
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={onGenerateKeypair}
-            disabled={generatingKeypair}
-            className={actionButtonClass}
-          >
-            {generatingKeypair
-              ? t("admin.config.zerotierEmbedded.generatingKeypair")
-              : t("admin.config.zerotierEmbedded.generateKeypair")}
-          </button>
           <div className={cn("text-sm leading-6", isDark ? "text-slate-400" : "text-slate-600")}>
             {t("admin.config.zerotierEmbedded.restartHint")}
           </div>
