@@ -1372,16 +1372,6 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
 			const hub = ensureRecord(root, "vfs_storage_hub");
 			const existingReadCache = asRecord(hub["read_cache"]);
 			const existingWriteCache = asRecord(hub["write_cache"]);
-			const readSkipExtensions = Array.isArray(existingReadCache["skip_extensions"])
-				? existingReadCache["skip_extensions"].filter(
-						(value): value is string => typeof value === "string",
-					)
-				: [];
-			const writeSkipExtensions = Array.isArray(existingWriteCache["skip_extensions"])
-				? existingWriteCache["skip_extensions"].filter(
-						(value): value is string => typeof value === "string",
-					)
-				: [];
 
 			hub["read_cache"] = {
         ...existingReadCache,
@@ -1392,16 +1382,8 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
           Number.parseInt(next.readCapacityBytes, 10) || 134217728,
         max_file_size_bytes:
           Number.parseInt(next.readMaxFileSizeBytes, 10) || 2097152,
-<<<<<<< HEAD
-        cache_thumbnail_paths:
-          typeof existingReadCache["cache_thumbnail_paths"] === "boolean"
-            ? existingReadCache["cache_thumbnail_paths"]
-            : false,
-        skip_extensions: readSkipExtensions,
-=======
         cache_thumbnail_paths: next.readCacheThumbnailPaths,
         skip_extensions: parseCommaSeparatedList(next.readSkipExtensions),
->>>>>>> a05a2265 (feat: refactor settings components with quick panels and config normalizer)
         ttl_secs: Number.parseInt(next.readTtlSecs, 10) || 1800,
       };
       hub["write_cache"] = {
@@ -1413,31 +1395,17 @@ export const CacheAccelerationInlinePanel: React.FC<BaseProps> = ({
           Number.parseInt(next.writeCapacityBytes, 10) || 100663296,
         max_file_size_bytes:
           Number.parseInt(next.writeMaxFileSizeBytes, 10) || 262144,
-<<<<<<< HEAD
-        cache_thumbnail_paths:
-          typeof existingWriteCache["cache_thumbnail_paths"] === "boolean"
-            ? existingWriteCache["cache_thumbnail_paths"]
-            : false,
-        skip_extensions: writeSkipExtensions,
-=======
         cache_thumbnail_paths: next.writeCacheThumbnailPaths,
         skip_extensions: parseCommaSeparatedList(next.writeSkipExtensions),
->>>>>>> a05a2265 (feat: refactor settings components with quick panels and config normalizer)
         flush_concurrency: Number.parseInt(next.writeFlushConcurrency, 10) || 2,
         flush_interval_ms: Number.parseInt(next.writeFlushIntervalMs, 10) || 30,
         flush_deadline_secs:
           Number.parseInt(next.writeFlushDeadlineSecs, 10) || 360,
         abnormal_spill_dir:
-<<<<<<< HEAD
-          typeof existingWriteCache["abnormal_spill_dir"] === "string"
-            ? existingWriteCache["abnormal_spill_dir"]
-            : "{RUNTIMEDIR}/cache/vfs-write-abnormal",
-=======
           next.writeAbnormalSpillDir.trim() ||
           (typeof existingWriteCache["abnormal_spill_dir"] === "string"
             ? existingWriteCache["abnormal_spill_dir"]
             : "{RUNTIMEDIR}/cache/vfs-write-abnormal"),
->>>>>>> a05a2265 (feat: refactor settings components with quick panels and config normalizer)
       };
       return tomlAdapter.stringify(root);
     },
