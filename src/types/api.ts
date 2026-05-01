@@ -3957,7 +3957,7 @@ export interface components {
             extra_data?: unknown;
             level: string;
             msg_type: string;
-            recipient_ids?: string[] | null;
+            recipient_ids?: number[] | null;
             role_ids?: number[] | null;
             title: string;
         };
@@ -4913,8 +4913,8 @@ export interface components {
             level: string;
             msg_type: string;
             read_at?: string | null;
-            /** Format: uuid */
-            sender_id?: string | null;
+            /** Format: int64 */
+            sender_id?: number | null;
             title: string;
         };
         NotificationSelectionRequest: {
