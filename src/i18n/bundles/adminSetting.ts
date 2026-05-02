@@ -1243,7 +1243,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "currentHardwareCode": "Current Hardware Code",
                         "hwFingerprint": "Hardware Fingerprint",
                         "expiresAt": "Expires At",
-                        "licenseHint": "Get your license key from the official website. The device code is used for hardware binding."
+                        "licenseHint": "Get your license key from the official website. This page only applies local offline licenses stored in config.toml and does not submit applications or verify online."
                     },
                     "hints": {
                         "sqliteSingleNode": "Recommended for first-time setup, personal use, and home devices.",
@@ -2240,7 +2240,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "currentHardwareCode": "当前硬件码",
                         "hwFingerprint": "硬件指纹",
                         "expiresAt": "到期时间",
-                        "licenseHint": "请从官网获取授权码。设备代码用于硬件绑定。"
+                        "licenseHint": "请从官网获取授权码。这里仅管理写入 config.toml 的本地离线授权，不提交申请，也不会联网验权。"
                     },
                     "hints": {
                         "sqliteSingleNode": "推荐给首次安装、个人使用和家庭设备。",
@@ -4234,7 +4234,7 @@ const adminSettingBundle = defineLocaleBundle({
                         "currentHardwareCode": "Current Hardware Code",
                         "hwFingerprint": "硬件指纹",
                         "expiresAt": "Läuft ab am",
-                        "licenseHint": "请从官网获取授权码。设备代码用于硬件绑定。"
+                        "licenseHint": "请从官网获取授权码。这里仅管理写入 config.toml 的本地离线授权，不提交申请，也不会联网验权。"
                     },
                     "hints": {
                         "sqliteSingleNode": "Geeignet fuer leichte Deployments zu Hause und fuer Einzelpersonen.",
